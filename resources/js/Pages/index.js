@@ -34,9 +34,6 @@ const Login = () => {
     }
     return (
         <>
-            <Helmet>
-                <title></title>
-            </Helmet>
             <Box
                 sx={{
                     backgroundColor: 'background.default',
