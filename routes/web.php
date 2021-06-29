@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
+use App\Http\Controllers\LogController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +19,13 @@ use inertia\inertia;
 Route::get('/', function () {
     return inertia::render('index');
 })->name('home');
+
+Route::get('/dashboard', function () {
+    return inertia::render('Dashboard/Dashboard');
+})->name('dashboard');
+
+Route::get('/get-ringba-data', function () {
+    return inertia::render('Ringba/GetRingbaData');
+})->name('getringbadata');
+
+Route::post('login')->name('login')->uses('Auth\LoginController@login');
