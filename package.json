@@ -10,9 +10,9 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "@babel/preset-react": "^7.13.13",
         "@emotion/react": "^11.1.5",
         "@emotion/styled": "^11.1.5",
+        "@babel/preset-react": "^7.14.5",
         "axios": "^0.21",
         "bootstrap": "^4.6.0",
         "chart.js": "^2.9.4",
@@ -39,10 +39,10 @@
         "react-router-dom": "^6.0.0-beta.0",
         "react-scripts": "^4.0.0",
         "resolve-url-loader": "^4.0.0",
-        "sass": "^1.32.11",
-        "sass-loader": "^11.0.1",
         "uuid": "^8.3.0",
-        "yup": "^0.29.3"
+        "yup": "^0.29.3",
+        "sass": "^1.35.1",
+        "sass-loader": "^12.1.0"
     },
     "dependencies": {
         "@inertiajs/inertia": "^0.9.2",
