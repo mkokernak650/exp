@@ -7,7 +7,7 @@ export default function Layout({ title, children }) {
         <div className='layout'>
             <NavBar />
             <div className="main">
-                <SideBar onMobileClose={() => setMobileNavOpen(false)} openMobile={isMobileNavOpen} main={children} title={title} />
+                <SideBar onMobileClose={() => setMobileNavOpen(false)} openMobile={isMobileNavOpen} main={children}/>
             </div>
         </div>
     )

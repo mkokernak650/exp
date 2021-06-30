@@ -1,26 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { CssBaseline, Drawer, Hidden, List, ListItem, ListItemIcon, ListItemText, Typography }
+import { CssBaseline, Drawer, Hidden, List, ListItem, ListItemIcon, ListItemText, Collapse }
     from '@material-ui/core';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import {
-    AlertCircle as AlertCircleIcon,
     BarChart as BarChartIcon,
-    Lock as LockIcon,
     Settings as SettingsIcon,
     ShoppingBag as ShoppingBagIcon,
     User as UserIcon,
-    UserPlus as UserPlusIcon,
     Users as UsersIcon
 } from 'react-feather';
-import Collapse from '@material-ui/core/Collapse';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
+import { ExpandLess, ExpandMore } from '@material-ui/icons';
 import { InertiaLink } from '@inertiajs/inertia-react';
+import { useState } from 'react';
 
-
-const drawerWidth = 240;
+const drawerWidth = 280;
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -48,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
             display: 'none',
         },
     },
-    // necessary for content to be below app bar
     toolbar: theme.mixins.toolbar,
     drawerPaper: {
         width: drawerWidth,
@@ -58,13 +51,29 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
         padding: theme.spacing(3),
     },
+    inActive: {
+        display: 'none',
+    },
+    menuIcon: {
+        minWidth: 30,
+    },
+    menuText: {
+        color: 'rgb(107, 119, 140)',
+        fontSize: '14px',
+    },
+    link: {
+        textDecoration: 'none'
+    },
+    nested: {
+        marginLeft: "25px"
+    }
 }));
 
 function ResponsiveDrawer(props) {
     const { window } = props;
     const classes = useStyles();
     const theme = useTheme();
-    const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -72,94 +81,164 @@ function ResponsiveDrawer(props) {
 
     const items = [
         {
-            href: '/app/dashboard',
-            Icon: BarChartIcon,
-            title: 'Dashboard'
+            id: 1,
+            href: 'dashboard',
+            Icon: <BarChartIcon size='20' />,
+            title: 'Dashboard',
+            active: false,
+            collapse: false,
         },
         {
-            href: '/app/customers',
-            Icon: UsersIcon,
-            title: 'Customers'
+            id: 2,
+            href: 'getringbadata',
+            Icon: <UsersIcon size='20' />,
+            title: 'Ringba',
+            active: true,
+            collapse: true,
+            submenu: [
+                {
+                    title: 'Get Ringba Data',
+                    href: 'getringbadata',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Call Logs Report',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Generate Report Affiliate',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Generate Report Target',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Archived Call Logs',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Pending Bill Call Logs',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Billed Call Logs',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+            ]
         },
         {
-            href: '/app/products',
-            Icon: ShoppingBagIcon,
-            title: 'Products'
-        },
-        {
-            href: '/app/account',
-            Icon: UserIcon,
-            title: 'Account'
-        },
-        {
-            href: '/app/settings',
-            Icon: SettingsIcon,
-            title: 'Settings'
-        },
-        {
-            href: '/login',
-            Icon: LockIcon,
-            title: 'Login'
-        },
-        {
-            href: '/register',
-            Icon: UserPlusIcon,
-            title: 'Register'
-        },
-        {
-            href: '/404',
-            Icon: AlertCircleIcon,
-            title: 'Error'
-        }
-    ];
-    const [open, setOpen] = React.useState(true);
+            id: 3,
+            href: 'getringbadata',
+            Icon: <SettingsIcon size='20' />,
+            title: 'Settings',
+            active: false,
+            collapse: true,
+            submenu: [
+                {
 
-    const handleClick = () => {
+                    title: 'Get Ringba Data',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Call Logs Report',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Generate Report Affiliate',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Generate Report Target',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Archived Call Logs',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Pending Bill Call Logs',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Billed Call Logs',
+                    href: '/app/dashboard',
+                    Icon: <UserIcon />,
+                },
+            ]
+        },
+
+    ];
+    const [open, setOpen] = useState(false)
+
+    const handleClick = (id) => {
+        // for (let i = 0; i < items.length; i++) {
+        //     if (id === items[i].id) {
+        //         items[i].active = !items[i].active;
+        //     }
+        // }
         setOpen(!open);
     };
+
+
+
     const drawer = (
         <div>
             <List
             >
-                <InertiaLink href=''>
-                    <ListItem button>
-                        <ListItemIcon>
-                            <BarChartIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Dashboard" />
-                    </ListItem>
-                </InertiaLink>
-                <ListItem button onClick={handleClick}>
-                    <ListItemIcon>
-                        <InboxIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Ringba" />
-                    {open ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                <Collapse in={open} timeout="auto" unmountOnExit style={{ marginLeft: "25px" }}>
-                    <List component="div" disablePadding>
-                        <InertiaLink href=''>
-                            <ListItem button className={classes.nested}>
-                                <ListItemIcon>
-                                    <ShoppingBagIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Get Ringba Data" />
-                            </ListItem>
-                        </InertiaLink>
-                        <ListItem button className={classes.nested}>
-                            <ListItemIcon>
-                                <ShoppingBagIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Call Logs Report" />
-                        </ListItem>
-                        <ListItem button className={classes.nested}>
-                            <ListItemIcon>
-                                <ShoppingBagIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Settings" />
-                        </ListItem>
-                    </List>
-                </Collapse>
+                {items.map(menu => (
+                    <>
+                        {menu.collapse ?
+                            <InertiaLink href={route(menu.href)} onClick={handleClick} style={{ textDecoration: 'none' }}>
+                                <ListItem button>
+                                    <ListItemIcon className={classes.menuIcon}>
+                                        {menu.Icon}
+                                    </ListItemIcon>
+                                    <ListItemText primary={menu.title} className={classes.menuText} />
+                                    {open ? <ExpandLess /> : <ExpandMore />}
+                                </ListItem>
+                            </InertiaLink> :
+                            <InertiaLink href={route(menu.href)} style={{ textDecoration: 'none' }}>
+                                <ListItem button>
+                                    <ListItemIcon className={classes.menuIcon}>
+                                        {menu.Icon}
+                                    </ListItemIcon>
+                                    <ListItemText primary={menu.title} className={classes.menuText} />
+
+
+                                </ListItem>
+                            </InertiaLink>
+                        }
+                        {menu.collapse ?
+                            <Collapse in={open} timeout="auto" unmountOnExit className={`${menu.active ? "active" : "inActive"}`}>
+                                <List component="div" disablePadding>
+                                    {menu.submenu.map(submenu => (
+                                        <InertiaLink href={route(menu.href)} key={submenu.title} style={{ textDecoration: 'none' }}>
+                                            <ListItem button className={classes.nested}>
+                                                <ListItemIcon className={classes.menuIcon}>
+                                                    <ShoppingBagIcon size="15" />
+                                                </ListItemIcon>
+                                                <ListItemText primary={submenu.title} className={classes.menuText} />
+                                            </ListItem>
+                                        </InertiaLink>
+                                    ))}
+                                </List>
+                            </Collapse>
+                            : ""}
+                    </>
+                ))}
 
             </List>
         </div>
