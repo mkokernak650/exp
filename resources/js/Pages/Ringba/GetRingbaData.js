@@ -1,18 +1,30 @@
 import React from 'react'
 import Layout from '../Layout/Layout'
 import { makeStyles } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 const useStyles = makeStyles((theme) => ({
     container: {
-      display: 'flex',
-      flexWrap: 'wrap',
+        display: 'flex',
+        flexWrap: 'wrap',
+        width: 600,
+        margin: 'auto',
+        flexDirection: 'column',
+        marginTop: 60
     },
     textField: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-      width: 200,
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        width: 300,
+        margin: '10px'
     },
-  }));
+    button: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        width: 300,
+        margin: '10px'
+    }
+}));
 
 const GetRingbaData = () => {
     const classes = useStyles();
@@ -39,6 +51,9 @@ const GetRingbaData = () => {
                         shrink: true,
                     }}
                 />
+                <Button variant="contained" color="primary" className={classes.button}>
+                    Get Ringba Data
+                </Button>
             </form>
         </div>
     )
