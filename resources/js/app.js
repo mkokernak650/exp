@@ -6,7 +6,7 @@ const app = document.getElementById('app')
 
 render(
   <InertiaApp initialPage={JSON.parse(app.dataset.page)}
-      resolveComponent={name => require(`./Pages/${name}`).default}
+    resolveComponent={name => require(`./Pages/${name}`).default}
   />,
   app
 )
