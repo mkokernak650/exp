@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\LogController;
-
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,16 +18,25 @@ use App\Http\Controllers\LogController;
 |
 */
 
-Route::get('/', function () {
-    return inertia::render('index');
-})->name('home');
+Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')->middleware('guest');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Route::post('login')->name('login.attempt')->uses('Auth\LoginController@login')->middleware('guest');
 
-Route::get('/dashboard', function () {
-    return inertia::render('Dashboard/Dashboard');
-})->name('dashboard');
+// Route::get('/', function () {
+//     return inertia::render('index');
+// })->name('home');
 
-Route::get('/get-ringba-data', function () {
-    return inertia::render('Ringba/GetRingbaData');
-})->name('getringbadata');
+// Route::get('/dashboard', function () {
+//     return inertia::render('Dashboard/Dashboard');
+// })->name('dashboard');
 
-Route::post('login')->name('login')->uses('Auth\LoginController@login');
+// Route::get('/get-ringba-data', function () {
+//     return inertia::render('Ringba/GetRingbaData');
+// })->name('getringbadata');
+
+// Route::post('login')->name('login')->uses('Auth\LoginController@login');
+
+// Auth::routes();
+
+Route::get('/home', [HomeController::class, 'index'])->name('home');
