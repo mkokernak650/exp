@@ -89,9 +89,9 @@ const Login = () => {
                 </Box>
 
                 <TextField
-                  error={Boolean(touched.email && errors.email)}
+                  error={Boolean(errors.email)}
                   fullWidth
-                  helperText={touched.email && errors.email}
+                  helperText={errors.email}
                   label="Email Address"
                   margin="normal"
                   name="email"
@@ -100,11 +100,12 @@ const Login = () => {
                   type="email"
                   value={values.email}
                   variant="outlined"
+                  
                 />
                 <TextField
-                  error={Boolean(touched.password && errors.password)}
+                  error={Boolean(errors.password)}
                   fullWidth
-                  helperText={touched.password && errors.password}
+                  helperText={errors.password}
                   label="Password"
                   margin="normal"
                   name="password"

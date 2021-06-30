@@ -12804,14 +12804,12 @@ function PrimarySearchAppBar(_ref) {
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
       onClick: handleMenuClose,
       children: "My account"
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
-      onClick: handleMenuClose,
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__.InertiaLink, {
-        as: "button",
-        type: "button",
-        method: "post",
-        href: route('logout'),
-        children: "Logout"
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__.InertiaLink, {
+      method: "post",
+      href: route('logout'),
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
+        onClick: handleMenuClose,
+        children: " Logout"
       })
     })]
   });

@@ -15172,9 +15172,9 @@ var Login = function Login() {
                   variant: "body2"
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_11__.default, {
-                error: Boolean(touched.email && errors.email),
+                error: Boolean(errors.email),
                 fullWidth: true,
-                helperText: touched.email && errors.email,
+                helperText: errors.email,
                 label: "Email Address",
                 margin: "normal",
                 name: "email",
@@ -15184,9 +15184,9 @@ var Login = function Login() {
                 value: values.email,
                 variant: "outlined"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_11__.default, {
-                error: Boolean(touched.password && errors.password),
+                error: Boolean(errors.password),
                 fullWidth: true,
-                helperText: touched.password && errors.password,
+                helperText: errors.password,
                 label: "Password",
                 margin: "normal",
                 name: "password",

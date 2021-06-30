@@ -80,9 +80,11 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-      <MenuItem onClick={handleMenuClose}>
-        <InertiaLink as="button" type="button" method="post" href={route('logout')}>Logout</InertiaLink>
-      </MenuItem>
+
+      <InertiaLink method="post" href={route('logout')}>
+        <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
+      </InertiaLink>
+
     </Menu>
   )
 
