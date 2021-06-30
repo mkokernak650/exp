@@ -1,20 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 import { CssBaseline, Drawer, Hidden, List, ListItem, ListItemIcon, ListItemText, Collapse }
-    from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+    from '@material-ui/core'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
 import {
     BarChart as BarChartIcon,
     Settings as SettingsIcon,
     ShoppingBag as ShoppingBagIcon,
     User as UserIcon,
     Users as UsersIcon
-} from 'react-feather';
-import { ExpandLess, ExpandMore } from '@material-ui/icons';
-import { InertiaLink } from '@inertiajs/inertia-react';
-import { useState } from 'react';
+} from 'react-feather'
+import { ExpandLess, ExpandMore } from '@material-ui/icons'
+import { InertiaLink } from '@inertiajs/inertia-react'
+import { useState } from 'react'
 
-const drawerWidth = 280;
+const drawerWidth = 280
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -67,22 +67,22 @@ const useStyles = makeStyles((theme) => ({
     nested: {
         marginLeft: "25px"
     }
-}));
+}))
 
 function ResponsiveDrawer(props) {
-    const { window } = props;
-    const classes = useStyles();
-    const theme = useTheme();
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const { window } = props
+    const classes = useStyles()
+    const theme = useTheme()
+    const [mobileOpen, setMobileOpen] = useState(false)
 
     const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
+        setMobileOpen(!mobileOpen)
+    }
 
     const items = [
         {
             id: 1,
-            href: 'dashboard',
+            href: 'home',
             Icon: <BarChartIcon size='20' />,
             title: 'Dashboard',
             active: false,
@@ -180,7 +180,7 @@ function ResponsiveDrawer(props) {
             ]
         },
 
-    ];
+    ]
     const [open, setOpen] = useState(false)
 
     const handleClick = (id) => {
@@ -189,8 +189,8 @@ function ResponsiveDrawer(props) {
         //         items[i].active = !items[i].active;
         //     }
         // }
-        setOpen(!open);
-    };
+        setOpen(!open)
+    }
 
 
 
@@ -242,9 +242,9 @@ function ResponsiveDrawer(props) {
 
             </List>
         </div>
-    );
+    )
 
-    const container = window !== undefined ? () => window().document.body : undefined;
+    const container = window !== undefined ? () => window().document.body : undefined
 
     return (
         <div className={classes.root}>
@@ -287,11 +287,11 @@ function ResponsiveDrawer(props) {
 
             </main>
         </div>
-    );
+    )
 }
 
 ResponsiveDrawer.propTypes = {
     window: PropTypes.func,
-};
+}
 
-export default ResponsiveDrawer;
+export default ResponsiveDrawer

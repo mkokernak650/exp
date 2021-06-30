@@ -28,12 +28,12 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // })->name('home');
 
 // Route::get('/dashboard', function () {
-//     return inertia::render('Dashboard/Dashboard');
+//     return inertia::render('Home/Dashboard');
 // })->name('dashboard');
 
-// Route::get('/get-ringba-data', function () {
-//     return inertia::render('Ringba/GetRingbaData');
-// })->name('getringbadata');
+Route::get('/get-ringba-data', function () {
+    return inertia::render('Ringba/GetRingbaData');
+})->name('getringbadata');
 
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');
 
