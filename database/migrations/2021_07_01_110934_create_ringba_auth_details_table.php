@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRingbaApiKeyTable extends Migration
+class CreateRingbaAuthDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateRingbaApiKeyTable extends Migration
      */
     public function up()
     {
-        Schema::create('ringba_api_key', function (Blueprint $table) {
+        Schema::create('ringba_auth_details', function (Blueprint $table) {
             $table->id();
-            $table->string('apiKey');
+            $table->text('user_info')->nullable();
+            $table->text('auth_details');
+            $table->text('account_details');
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
@@ -28,6 +30,6 @@ class CreateRingbaApiKeyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ringba_api_key');
+        Schema::dropIfExists('ringba_auth_details');
     }
 }
