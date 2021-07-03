@@ -11,6 +11,6 @@ class RingCallLogController extends Controller
     public function RingbaAuth()
     {
         $ringba = new RingbaApiHelpers();
-        dd( $ringba->getCollLogName());
+        dd( $ringba->getCampaings());
     }
 }
