@@ -5,7 +5,9 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\RingCallLogController;
 use Illuminate\Support\Facades\Auth;
+use Whoops\Run;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,8 @@ use Illuminate\Support\Facades\Auth;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/token-ringba', [RingCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')->middleware('guest');
