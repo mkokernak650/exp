@@ -112,11 +112,12 @@ class RingbaApiHelpers
 
     $result = json_decode($this->postRequest('calllogs/date', $params));
 
-    $ringbaData = new RingbaData();
+    
 
     $data = [];
 
     foreach($result->result->callLog->data as $data) {
+      $ringbaData = new RingbaData();
       $ringbaData->columns = json_encode($data->columns);
       $ringbaData->events = json_encode($data->events);
       $ringbaData->tags = json_encode($data->tags);
