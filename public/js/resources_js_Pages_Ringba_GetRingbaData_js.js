@@ -1,4 +1,4 @@
-(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_getRingbaData_js"],{
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_GetRingbaData_js"],{
 
 /***/ "./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js":
 /*!*********************************************************************!*\
@@ -18478,9 +18478,9 @@ ResponsiveDrawer.propTypes = {
 
 /***/ }),
 
-/***/ "./resources/js/Pages/Ringba/getRingbaData.js":
+/***/ "./resources/js/Pages/Ringba/GetRingbaData.js":
 /*!****************************************************!*\
-  !*** ./resources/js/Pages/Ringba/getRingbaData.js ***!
+  !*** ./resources/js/Pages/Ringba/GetRingbaData.js ***!
   \****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 

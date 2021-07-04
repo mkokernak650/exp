@@ -1,6 +1,6 @@
 import React from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import EnhancedTable from '@/components/EnhancedTable'
+import EnhancedTable from '../../components/EnhancedTable'
 import makeData from './makeData'
 import Layout from '../Layout/Layout'
 

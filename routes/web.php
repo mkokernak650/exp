@@ -34,7 +34,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 Route::get('/get-ringba-data', function () {
-    return inertia::render('Ringba/getRingbaData');
+    return inertia::render('Ringba/GetRingbaData');
 })->name('getringbadata');
 
 Route::get('/call-logs-report', function () {

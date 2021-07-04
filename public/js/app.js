@@ -2888,7 +2888,7 @@ __webpack_require__.r(__webpack_exports__);
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 ___CSS_LOADER_EXPORT___.push([module.id, "@import url(https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600;700&family=Roboto:wght@500&display=swap);"]);
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "body{\n    font-family:\"Roboto\",sans-serif;\n}\n.makeStyles-menuText-16 .MuiTypography-body1{\n    font-weight: bold!important;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "body{\r\n    font-family:\"Roboto\",sans-serif;\r\n}\r\n.makeStyles-menuText-16 .MuiTypography-body1{\r\n    font-weight: bold!important;\r\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -37766,6 +37766,16 @@ var map = {
 		9,
 		"resources_js_Pages_Layout_SideBar_jsx"
 	],
+	"./Ringba/GetRingbaData": [
+		"./resources/js/Pages/Ringba/GetRingbaData.js",
+		9,
+		"resources_js_Pages_Ringba_GetRingbaData_js"
+	],
+	"./Ringba/GetRingbaData.js": [
+		"./resources/js/Pages/Ringba/GetRingbaData.js",
+		9,
+		"resources_js_Pages_Ringba_GetRingbaData_js"
+	],
 	"./Ringba/callLogsReport": [
 		"./resources/js/Pages/Ringba/callLogsReport.js",
 		9,
@@ -37775,16 +37785,6 @@ var map = {
 		"./resources/js/Pages/Ringba/callLogsReport.js",
 		9,
 		"resources_js_Pages_Ringba_callLogsReport_js"
-	],
-	"./Ringba/getRingbaData": [
-		"./resources/js/Pages/Ringba/getRingbaData.js",
-		9,
-		"resources_js_Pages_Ringba_getRingbaData_js"
-	],
-	"./Ringba/getRingbaData.js": [
-		"./resources/js/Pages/Ringba/getRingbaData.js",
-		9,
-		"resources_js_Pages_Ringba_getRingbaData_js"
 	],
 	"./Ringba/makeData": [
 		"./resources/js/Pages/Ringba/makeData.js",
@@ -37983,7 +37983,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_callLogsReport_js":1,"resources_js_Pages_Ringba_getRingbaData_js":1,"resources_js_Pages_Ringba_makeData_js":1,"resources_js_Pages_Ringba_test_js":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_callLogsReport_js":1,"resources_js_Pages_Ringba_makeData_js":1,"resources_js_Pages_Ringba_test_js":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
