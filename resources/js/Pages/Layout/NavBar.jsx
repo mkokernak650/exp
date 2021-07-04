@@ -40,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
+  link:{
+    textDecoration: 'none',
+    color: 'black',
+  }
 }))
 
 export default function PrimarySearchAppBar({ onMobileNavOpen }) {
@@ -79,9 +83,7 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-
-      <InertiaLink method="post" href={route('logout')}>
+      <InertiaLink method="post" href={route('logout')}  className={classes.link}>
         <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
       </InertiaLink>
 

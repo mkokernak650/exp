@@ -10931,7 +10931,11 @@ var useStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_3__.default
       display: 'flex'
     }, theme.breakpoints.up('md'), {
       display: 'none'
-    })
+    }),
+    link: {
+      textDecoration: 'none',
+      color: 'black'
+    }
   };
 });
 function PrimarySearchAppBar(_ref) {
@@ -10987,12 +10991,10 @@ function PrimarySearchAppBar(_ref) {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
       onClick: handleMenuClose,
       children: "Profile"
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
-      onClick: handleMenuClose,
-      children: "My account"
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__.InertiaLink, {
       method: "post",
       href: route('logout'),
+      className: classes.link,
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
         onClick: handleMenuClose,
         children: " Logout"

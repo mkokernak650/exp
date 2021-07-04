@@ -1,15 +1,10 @@
 import { InertiaApp } from '@inertiajs/inertia-react';
-// import { InertiaProgress } from '@inertiajs/progress';
 import { render } from 'react-dom';
-
+import '../css/app.css'
 
 if (window?.Ziggy?.baseProtocol === 'http') {
   window.Ziggy.baseProtocol = 'https'
 }
-// InertiaProgress.init({
-//   color: '#ED8936',
-//   showSpinner: true,
-// });
 
 const app = document.getElementById('app');
 

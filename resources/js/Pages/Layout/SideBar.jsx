@@ -14,7 +14,7 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { InertiaLink } from '@inertiajs/inertia-react'
 import { useState } from 'react'
 
-const drawerWidth = 280
+const drawerWidth = 240
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -51,22 +51,29 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
         padding: theme.spacing(3),
     },
-    inActive: {
-        display: 'none',
-    },
     menuIcon: {
         minWidth: 30,
     },
     menuText: {
-        color: 'rgb(107, 119, 140)',
-        fontSize: '14px',
+        color: 'rgb(69 72 77)',
+        '& span, & svg': {
+            fontSize: '15px'
+        },
+        fontWeight: 'bold!important'
     },
     link: {
         textDecoration: 'none'
     },
     nested: {
         marginLeft: "25px"
-    }
+    },
+    item: {
+        color: 'rgb(107, 119, 140)',
+        '& span, & svg': {
+            fontSize: '13px'
+        }
+    },
+
 }))
 
 function ResponsiveDrawer(props) {
@@ -93,7 +100,7 @@ function ResponsiveDrawer(props) {
             href: 'getringbadata',
             Icon: <UsersIcon size='20' />,
             title: 'Ringba',
-            active: true,
+            active: false,
             collapse: true,
             submenu: [
                 {
@@ -103,32 +110,32 @@ function ResponsiveDrawer(props) {
                 },
                 {
                     title: 'Call Logs Report',
-                    href: '/app/dashboard',
+                    href: 'call-logs-report',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Generate Report Affiliate',
-                    href: '/app/dashboard',
+                    href: 'test',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Generate Report Target',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Archived Call Logs',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Pending Bill Call Logs',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Billed Call Logs',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
                     Icon: <UserIcon />,
                 },
             ]
@@ -144,52 +151,55 @@ function ResponsiveDrawer(props) {
                 {
 
                     title: 'Get Ringba Data',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Call Logs Report',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
+
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Generate Report Affiliate',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
+
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Generate Report Target',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
+
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Archived Call Logs',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
+
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Pending Bill Call Logs',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
+
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Billed Call Logs',
-                    href: '/app/dashboard',
+                    href: 'getringbadata',
                     Icon: <UserIcon />,
                 },
             ]
         },
 
     ]
-    const [open, setOpen] = useState(false)
-
+    let [active, inActive] = useState()
     const handleClick = (id) => {
-        // for (let i = 0; i < items.length; i++) {
-        //     if (id === items[i].id) {
-        //         items[i].active = !items[i].active;
-        //     }
-        // }
-        setOpen(!open)
+        for (let i = 0; i < items.length; i++) {
+            if (id === items[i].id) {
+                inActive(items[i].id)
+            }
+        }
     }
 
 
@@ -199,15 +209,15 @@ function ResponsiveDrawer(props) {
             <List
             >
                 {items.map(menu => (
-                    <>
+                    <div key={menu.id}>
                         {menu.collapse ?
-                            <InertiaLink href={route(menu.href)} onClick={handleClick} style={{ textDecoration: 'none' }}>
-                                <ListItem button>
+                            <InertiaLink href={route(menu.href)} onClick={() => handleClick(menu.id)} style={{ textDecoration: 'none' }} key={menu.id}>
+                                <ListItem button key={menu.id} >
                                     <ListItemIcon className={classes.menuIcon}>
                                         {menu.Icon}
                                     </ListItemIcon>
                                     <ListItemText primary={menu.title} className={classes.menuText} />
-                                    {open ? <ExpandLess /> : <ExpandMore />}
+                                    {active === menu.id ? <ExpandLess /> : <ExpandMore />}
                                 </ListItem>
                             </InertiaLink> :
                             <InertiaLink href={route(menu.href)} style={{ textDecoration: 'none' }}>
@@ -216,28 +226,26 @@ function ResponsiveDrawer(props) {
                                         {menu.Icon}
                                     </ListItemIcon>
                                     <ListItemText primary={menu.title} className={classes.menuText} />
-
-
                                 </ListItem>
                             </InertiaLink>
                         }
                         {menu.collapse ?
-                            <Collapse in={open} timeout="auto" unmountOnExit className={`${menu.active ? "active" : "inActive"}`}>
+                            <Collapse in={active === menu.id} timeout="auto" unmountOnExit className={`${menu.active ? "classes.active" : "classes.inActive"}`}>
                                 <List component="div" disablePadding>
                                     {menu.submenu.map(submenu => (
-                                        <InertiaLink href={route(menu.href)} key={submenu.title} style={{ textDecoration: 'none' }}>
-                                            <ListItem button className={classes.nested}>
+                                        <InertiaLink href={route(submenu.href)} style={{ textDecoration: 'none' }} key={submenu.title}>
+                                            <ListItem button className={classes.nested} key={submenu.id}>
                                                 <ListItemIcon className={classes.menuIcon}>
                                                     <ShoppingBagIcon size="15" />
                                                 </ListItemIcon>
-                                                <ListItemText primary={submenu.title} className={classes.menuText} />
+                                                <ListItemText primary={submenu.title} className={classes.item} />
                                             </ListItem>
                                         </InertiaLink>
                                     ))}
                                 </List>
                             </Collapse>
                             : ""}
-                    </>
+                    </div>
                 ))}
 
             </List>

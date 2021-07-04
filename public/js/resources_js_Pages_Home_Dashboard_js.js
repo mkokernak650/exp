@@ -12733,7 +12733,11 @@ var useStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_3__.default
       display: 'flex'
     }, theme.breakpoints.up('md'), {
       display: 'none'
-    })
+    }),
+    link: {
+      textDecoration: 'none',
+      color: 'black'
+    }
   };
 });
 function PrimarySearchAppBar(_ref) {
@@ -12789,12 +12793,10 @@ function PrimarySearchAppBar(_ref) {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
       onClick: handleMenuClose,
       children: "Profile"
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
-      onClick: handleMenuClose,
-      children: "My account"
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__.InertiaLink, {
       method: "post",
       href: route('logout'),
+      className: classes.link,
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_material_ui_core_MenuItem__WEBPACK_IMPORTED_MODULE_5__.default, {
         onClick: handleMenuClose,
         children: " Logout"
@@ -12937,8 +12939,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
-
-var drawerWidth = 280;
+var drawerWidth = 240;
 var useStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_4__.default)(function (theme) {
   return {
     paper: {
@@ -12969,21 +12970,27 @@ var useStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_4__.default
       flexGrow: 1,
       padding: theme.spacing(3)
     },
-    inActive: {
-      display: 'none'
-    },
     menuIcon: {
       minWidth: 30
     },
     menuText: {
-      color: 'rgb(107, 119, 140)',
-      fontSize: '14px'
+      color: 'rgb(69 72 77)',
+      '& span, & svg': {
+        fontSize: '15px'
+      },
+      fontWeight: 'bold!important'
     },
     link: {
       textDecoration: 'none'
     },
     nested: {
       marginLeft: "25px"
+    },
+    item: {
+      color: 'rgb(107, 119, 140)',
+      '& span, & svg': {
+        fontSize: '13px'
+      }
     }
   };
 });
@@ -13018,7 +13025,7 @@ function ResponsiveDrawer(props) {
       size: "20"
     }),
     title: 'Ringba',
-    active: true,
+    active: false,
     collapse: true,
     submenu: [{
       title: 'Get Ringba Data',
@@ -13026,27 +13033,27 @@ function ResponsiveDrawer(props) {
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Call Logs Report',
-      href: '/app/dashboard',
+      href: 'call-logs-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Generate Report Affiliate',
-      href: '/app/dashboard',
+      href: 'test',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Generate Report Target',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Archived Call Logs',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Pending Bill Call Logs',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Billed Call Logs',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }, {
@@ -13060,56 +13067,57 @@ function ResponsiveDrawer(props) {
     collapse: true,
     submenu: [{
       title: 'Get Ringba Data',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Call Logs Report',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Generate Report Affiliate',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Generate Report Target',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Archived Call Logs',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Pending Bill Call Logs',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Billed Call Logs',
-      href: '/app/dashboard',
+      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }];
 
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(),
       _useState4 = _slicedToArray(_useState3, 2),
-      open = _useState4[0],
-      setOpen = _useState4[1];
+      active = _useState4[0],
+      inActive = _useState4[1];
 
   var handleClick = function handleClick(id) {
-    // for (let i = 0; i < items.length; i++) {
-    //     if (id === items[i].id) {
-    //         items[i].active = !items[i].active;
-    //     }
-    // }
-    setOpen(!open);
+    for (var i = 0; i < items.length; i++) {
+      if (id === items[i].id) {
+        inActive(items[i].id);
+      }
+    }
   };
 
   var drawer = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_10__.default, {
       children: items.map(function (menu) {
-        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           children: [menu.collapse ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
             href: route(menu.href),
-            onClick: handleClick,
+            onClick: function onClick() {
+              return handleClick(menu.id);
+            },
             style: {
               textDecoration: 'none'
             },
@@ -13121,9 +13129,9 @@ function ResponsiveDrawer(props) {
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
                 primary: menu.title,
                 className: classes.menuText
-              }), open ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_icons__WEBPACK_IMPORTED_MODULE_14__.default, {}) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_icons__WEBPACK_IMPORTED_MODULE_15__.default, {})]
-            })
-          }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
+              }), active === menu.id ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_icons__WEBPACK_IMPORTED_MODULE_14__.default, {}) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_icons__WEBPACK_IMPORTED_MODULE_15__.default, {})]
+            }, menu.id)
+          }, menu.id) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
             href: route(menu.href),
             style: {
               textDecoration: 'none'
@@ -13139,16 +13147,16 @@ function ResponsiveDrawer(props) {
               })]
             })
           }), menu.collapse ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_16__.default, {
-            "in": open,
+            "in": active === menu.id,
             timeout: "auto",
             unmountOnExit: true,
-            className: "".concat(menu.active ? "active" : "inActive"),
+            className: "".concat(menu.active ? "classes.active" : "classes.inActive"),
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_10__.default, {
               component: "div",
               disablePadding: true,
               children: menu.submenu.map(function (submenu) {
                 return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
-                  href: route(menu.href),
+                  href: route(submenu.href),
                   style: {
                     textDecoration: 'none'
                   },
@@ -13162,14 +13170,14 @@ function ResponsiveDrawer(props) {
                       })
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
                       primary: submenu.title,
-                      className: classes.menuText
+                      className: classes.item
                     })]
-                  })
+                  }, submenu.id)
                 }, submenu.title);
               })
             })
           }) : ""]
-        });
+        }, menu.id);
       })
     })
   });

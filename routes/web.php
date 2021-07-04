@@ -27,13 +27,19 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 //     return inertia::render('index');
 // })->name('home');
 
-// Route::get('/dashboard', function () {
-//     return inertia::render('Home/Dashboard');
-// })->name('dashboard');
+
 
 Route::get('/get-ringba-data', function () {
-    return inertia::render('Ringba/GetRingbaData');
+    return inertia::render('Ringba/getRingbaData');
 })->name('getringbadata');
+
+Route::get('/call-logs-report', function () {
+    return inertia::render('Ringba/callLogsReport');
+})->name('call-logs-report');
+
+Route::get('/test', function () {
+    return inertia::render('Ringba/test');
+})->name('test');
 
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');
 

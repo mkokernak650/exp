@@ -14,7 +14,7 @@
         "@emotion/react": "^11.1.5",
         "@emotion/styled": "^11.1.5",
         "axios": "^0.21",
-        "chart.js": "^2.9.4",
+        "chart.js": "^3.4.0",
         "clsx": "^1.1.1",
         "formik": "^2.1.5",
         "history": "^5.0.0",
@@ -22,23 +22,23 @@
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "moment": "^2.27.0",
-        "npm": "^7.7.4",
+        "npm": "^7.19.1",
         "nprogress": "^0.2.0",
         "prop-types": "^15.7.2",
         "react": "^17.0.2",
-        "react-chartjs-2": "^2.10.0",
+        "react-chartjs-2": "^3.0.3",
         "react-dom": "^17.0.2",
         "react-feather": "^2.0.8",
         "react-helmet": "^6.1.0",
         "react-perfect-scrollbar": "^1.5.8",
-        "react-router": "^6.0.0-beta.0",
-        "react-router-dom": "^6.0.0-beta.0",
+        "react-router": "^5.2.0",
+        "react-router-dom": "^5.2.0",
         "react-scripts": "^4.0.0",
         "resolve-url-loader": "^4.0.0",
         "sass": "^1.32.11",
-        "sass-loader": "^11.0.1",
+        "sass-loader": "^12.1.0",
         "uuid": "^8.3.0",
-        "yup": "^0.29.3"
+        "yup": "^0.32.9"
     },
     "dependencies": {
         "@inertiajs/inertia": "^0.9.2",
@@ -48,6 +48,15 @@
         "@material-ui/icons": "^4.11.2",
         "@material-ui/pickers": "^3.3.10",
         "@types/date-fns": "^2.6.0",
-        "date-fns": "^2.22.1"
+        "crypto-js": "^4.0.0",
+        "date-fns": "^2.22.1",
+        "namor": "^2.0.3",
+        "node-polyfill-webpack-plugin": "^1.1.4",
+        "path-browserify": "^1.0.1",
+        "react-table": "^7.7.0"
+    },
+    "browser": {
+        "crypto": false,
+        "stream": false
     }
 }
