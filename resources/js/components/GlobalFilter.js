@@ -1,9 +1,7 @@
 import React from 'react'
-
-import InputBase from '@material-ui/core/InputBase'
 import { fade, makeStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types'
-import SearchIcon from '@material-ui/icons/Search'
+import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles(theme => ({
   search: {
@@ -57,21 +55,9 @@ const GlobalFilter = ({
 
   return (
     <div className={classes.search}>
-      <div className={classes.searchIcon}>
-        <SearchIcon />
-      </div>
-      <InputBase
-        value={globalFilter || ''}
-        onChange={e => {
-          setGlobalFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
-        }}
-        placeholder={`${count} records...`}
-        classes={{
-          root: classes.inputRoot,
-          input: classes.inputInput,
-        }}
-        inputProps={{ 'aria-label': 'search' }}
-      />
+      <TextField id="standard-search" label="Search field" type="search" name="search" onChange={e => {
+        setGlobalFilter(e.target.value || undefined)
+      }} />
     </div>
   )
 }

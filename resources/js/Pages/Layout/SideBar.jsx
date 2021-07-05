@@ -109,13 +109,18 @@ function ResponsiveDrawer(props) {
                     Icon: <UserIcon />,
                 },
                 {
+                    title: 'Temp Ringba Data',
+                    href: 'tempringbadata',
+                    Icon: <UserIcon />,
+                },
+                {
                     title: 'Call Logs Report',
                     href: 'call-logs-report',
                     Icon: <UserIcon />,
                 },
                 {
                     title: 'Generate Report Affiliate',
-                    href: 'test',
+                    href: 'tempringbadata',
                     Icon: <UserIcon />,
                 },
                 {

@@ -6,3 +6,6 @@ body{
 .makeStyles-menuText-16 .MuiTypography-body1{
     font-weight: bold!important;
 }
+.MuiTableCell-root{
+    padding: 5px !important;
+}

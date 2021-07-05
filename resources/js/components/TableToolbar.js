@@ -1,5 +1,4 @@
 import React from 'react'
-
 import AddUserDialog from './AddUserDialog'
 import clsx from 'clsx'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -15,17 +14,19 @@ const useToolbarStyles = makeStyles(theme => ({
   root: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
+    display: 'flex',
+    justifyContent: "flex-end"
   },
   highlight:
     theme.palette.type === 'light'
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark,
+      },
   title: {
     flex: '1 1 100%',
   },
@@ -47,7 +48,7 @@ const TableToolbar = props => {
         [classes.highlight]: numSelected > 0,
       })}
     >
-      <AddUserDialog addUserHandler={addUserHandler} />
+      {/* <AddUserDialog addUserHandler={addUserHandler} /> */}
       {numSelected > 0 ? (
         <Typography
           className={classes.title}
@@ -57,9 +58,10 @@ const TableToolbar = props => {
           {numSelected} selected
         </Typography>
       ) : (
-        <Typography className={classes.title} variant="h6" id="tableTitle">
-          Users
-        </Typography>
+        // <Typography className={classes.title} variant="h6" id="tableTitle">
+        //   Users
+        // </Typography>
+        ""
       )}
 
       {numSelected > 0 ? (

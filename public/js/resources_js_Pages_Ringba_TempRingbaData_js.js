@@ -1,4 +1,4 @@
-(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_CallLogsReport_js"],{
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_TempRingbaData_js"],{
 
 /***/ "./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js":
 /*!*********************************************************************!*\
@@ -22939,9 +22939,9 @@ ResponsiveDrawer.propTypes = {
 
 /***/ }),
 
-/***/ "./resources/js/Pages/Ringba/CallLogsReport.js":
+/***/ "./resources/js/Pages/Ringba/TempRingbaData.js":
 /*!*****************************************************!*\
-  !*** ./resources/js/Pages/Ringba/CallLogsReport.js ***!
+  !*** ./resources/js/Pages/Ringba/TempRingbaData.js ***!
   \*****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -23019,7 +23019,7 @@ function makeData() {
   return makeDataLevel();
 }
 
-var CallLogsReport = function CallLogsReport() {
+var TempRingbaData = function TempRingbaData() {
   var columns = [{
     Header: 'First Name',
     accessor: 'firstName'
@@ -23077,14 +23077,14 @@ var CallLogsReport = function CallLogsReport() {
   });
 };
 
-CallLogsReport.layout = function (page) {
+TempRingbaData.layout = function (page) {
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
-    title: "CallLogsReport",
+    title: "TempRingbaData",
     children: page
   });
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CallLogsReport);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TempRingbaData);
 
 /***/ }),
 

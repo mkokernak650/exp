@@ -38,12 +38,13 @@ Route::get('/get-ringba-data', function () {
 })->name('getringbadata');
 
 Route::get('/call-logs-report', function () {
-    return inertia::render('Ringba/callLogsReport');
+    return inertia::render('Ringba/CallLogsReport');
 })->name('call-logs-report');
 
-Route::get('/test', function () {
-    return inertia::render('Ringba/test');
-})->name('test');
+Route::get('/temp-ringba-data', function () {
+    return inertia::render('Ringba/TempRingbaData');
+})->name('tempringbadata');
+
 
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');
 

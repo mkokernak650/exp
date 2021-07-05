@@ -12,6 +12,11 @@ import TablePaginationActions from './TablePaginationActions'
 import TableRow from '@material-ui/core/TableRow'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import TableToolbar from './TableToolbar'
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+
+
 import {
   useGlobalFilter,
   usePagination,
@@ -36,6 +41,12 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
 )
+
+const tableStyles = makeStyles((theme) => ({
+  TableFooterRow: {
+
+  }
+}));
 
 const inputStyle = {
   padding: 0,
@@ -177,88 +188,101 @@ const EnhancedTable = ({
     )
     setData(newData)
   }
+  const tableTitle = () => {
+    return (
+      <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
+        Call Logs Report
+      </Typography>
+    )
+  }
 
   const addUserHandler = user => {
     const newData = data.concat([user])
     setData(newData)
   }
+  const classes = tableStyles()
 
-  // Render the UI for your table
   return (
-    <TableContainer>
-      <TableToolbar
-        numSelected={Object.keys(selectedRowIds).length}
-        deleteUserHandler={deleteUserHandler}
-        addUserHandler={addUserHandler}
-        preGlobalFilteredRows={preGlobalFilteredRows}
-        setGlobalFilter={setGlobalFilter}
-        globalFilter={globalFilter}
-      />
-      <MaUTable {...getTableProps()}>
-        <TableHead>
-          {headerGroups.map(headerGroup => (
-            <TableRow {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <TableCell
-                  {...(column.id === 'selection'
-                    ? column.getHeaderProps()
-                    : column.getHeaderProps(column.getSortByToggleProps()))}
-                >
-                  {column.render('Header')}
-                  {column.id !== 'selection' ? (
-                    <TableSortLabel
-                      active={column.isSorted}
-                      // react-table has a unsorted state which is not treated here
-                      direction={column.isSortedDesc ? 'desc' : 'asc'}
-                    />
-                  ) : null}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody>
-          {page.map((row, i) => {
-            prepareRow(row)
-            return (
-              <TableRow {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  return (
-                    <TableCell {...cell.getCellProps()}>
-                      {cell.render('Cell')}
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            )
-          })}
-        </TableBody>
+    <Paper>
+      <TableContainer>
 
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              rowsPerPageOptions={[
-                5,
-                10,
-                25,
-                { label: 'All', value: data.length },
-              ]}
-              colSpan={3}
-              count={data.length}
-              rowsPerPage={pageSize}
-              page={pageIndex}
-              SelectProps={{
-                inputProps: { 'aria-label': 'rows per page' },
-                native: true,
-              }}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
-            />
-          </TableRow>
-        </TableFooter>
-      </MaUTable>
-    </TableContainer>
+
+        <TableToolbar
+          numSelected={Object.keys(selectedRowIds).length}
+          deleteUserHandler={deleteUserHandler}
+          addUserHandler={addUserHandler}
+          preGlobalFilteredRows={preGlobalFilteredRows}
+          setGlobalFilter={setGlobalFilter}
+          globalFilter={globalFilter}
+          tableTitle={tableTitle}
+        />
+        <MaUTable {...getTableProps()}>
+          <TableHead>
+
+            {headerGroups.map(headerGroup => (
+              <TableRow {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <TableCell
+                    {...(column.id === 'selection'
+                      ? column.getHeaderProps()
+                      : column.getHeaderProps(column.getSortByToggleProps()))}
+                  >
+                    {column.render('Header')}
+                    {column.id !== 'selection' ? (
+                      <TableSortLabel
+                        active={column.isSorted}
+                        // react-table has a unsorted state which is not treated here
+                        direction={column.isSortedDesc ? 'desc' : 'asc'}
+                      />
+                    ) : null}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {page.map((row, i) => {
+              prepareRow(row)
+              return (
+                <TableRow {...row.getRowProps()}>
+                  {row.cells.map(cell => {
+                    return (
+                      <TableCell {...cell.getCellProps()}>
+                        {cell.render('Cell')}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
+          </TableBody>
+
+          <TableFooter>
+            <TableRow className={classes.TableFooterRow}>
+              <TablePagination
+                rowsPerPageOptions={[
+                  5,
+                  10,
+                  25,
+                  { label: 'All', value: data.length },
+                ]}
+                colSpan={3}
+                count={data.length}
+                rowsPerPage={pageSize}
+                page={pageIndex}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true,
+                }}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+              />
+            </TableRow>
+          </TableFooter>
+        </MaUTable>
+      </TableContainer>
+    </Paper>
   )
 }
 
