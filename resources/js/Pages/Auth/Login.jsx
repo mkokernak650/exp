@@ -33,7 +33,6 @@ const Login = () => {
       ...oldValues,
       [key]: value,
     }))
-    console.log(values)
   }
   const handleSubmit = (e) => {
     e.preventDefault();

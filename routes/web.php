@@ -21,10 +21,13 @@ use Whoops\Run;
 */
 
 Route::get('/token-ringba', [RingCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
+Route::post('/temp-ringba-data', [RingCallLogController::class, 'dateWiseData'])->name('temp-ringba-data');
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')->middleware('guest');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/get-ringba-data', function ($id) {
+});
 // Route::post('login')->name('login.attempt')->uses('Auth\LoginController@login')->middleware('guest');
 
 // Route::get('/', function () {
@@ -41,9 +44,11 @@ Route::get('/call-logs-report', function () {
     return inertia::render('Ringba/CallLogsReport');
 })->name('call-logs-report');
 
-Route::get('/temp-ringba-data', function () {
-    return inertia::render('Ringba/TempRingbaData');
-})->name('tempringbadata');
+// Route::get('/temp-ringba-data', function () {
+//     return inertia::render('Ringba/TempRingbaData');
+// })->name('tempringbadata');
+Route::get('/temp-ringba-data', [RingCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
+
 
 
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');

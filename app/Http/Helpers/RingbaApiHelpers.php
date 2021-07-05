@@ -66,8 +66,6 @@ class RingbaApiHelpers
   public function getRequest($method)
   {
     $apiEndpoint = $this->_apiEndpoint . "{$this->_account_details->accountId}/{$method}";
-    // dd($apiEndpoint);
-    // dd($this->_auth_details->access_token);
 
     $client = new Client(['headers' => ['Authorization' => "Token {$this->_apiToken->api_token}"]]);
     try {
@@ -111,21 +109,23 @@ class RingbaApiHelpers
     ];
 
     $result = json_decode($this->postRequest('calllogs/date', $params));
-
-    
-
     $data = [];
-
-    foreach($result->result->callLog->data as $data) {
+    $ringbaData = new RingbaData();
+    $ringbaData->truncate();
+    foreach ($result->result->callLog->data as $data) {
       $ringbaData = new RingbaData();
       $ringbaData->columns = json_encode($data->columns);
       $ringbaData->events = json_encode($data->events);
       $ringbaData->tags = json_encode($data->tags);
       $ringbaData->save();
-      // dd(json_encode($data->columns));
     }
-    // dd($ringbaData);
     return ['success'];
+  }
+
+  public function dateWiseData($date)
+  {
+    $result = $this->postRequest('calllogs/date', $date);
+    dd($result);
   }
 
   // get user account infor
@@ -169,5 +169,4 @@ class RingbaApiHelpers
     $result = json_decode($this->getRequest('stats'));
     return $result->campaigns;
   }
-
 }
