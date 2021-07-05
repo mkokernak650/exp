@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRingbaAuthDetailsTable extends Migration
+class CreateRingbaDataTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateRingbaAuthDetailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('ringba_auth_details', function (Blueprint $table) {
+        Schema::create('ringba_data', function (Blueprint $table) {
             $table->id();
-            $table->text('user_info')->nullable();
-            $table->text('auth_details');
-            $table->text('account_details');
-            $table->text('api_token');
-            $table->tinyInteger('status')->default(1);
+            $table->text('columns');
+            $table->text('events');
+            $table->text('tags');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreateRingbaAuthDetailsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ringba_auth_details');
+        Schema::dropIfExists('ringba_data');
     }
 }

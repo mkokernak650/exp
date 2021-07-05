@@ -3,8 +3,10 @@
 namespace App\Http\Helpers;
 
 use App\Models\RingbaAuthDetails;
+use App\Models\RingbaData;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+
 
 class RingbaApiHelpers
 {
@@ -87,6 +89,43 @@ class RingbaApiHelpers
       return (string) $e->getResponse()->getBody();
     }
     return $apiResponse->getBody()->getContents();
+  }
+
+  public function getRingbaData()
+  {
+    $params = [
+      'dateRange' => [
+        'past' => 2,
+        'days' => 2
+      ],
+      'timeSeries' => [
+        'timeGroup' => 'hour'
+      ],
+      'callLog' => [
+        'page' => 0,
+        'pageSize' => 10000,
+        'sort' => 'dtStamp',
+        'sortDirection' => 'desc'
+      ],
+      'timezoneId' => 'Eastern Standard Time'
+    ];
+
+    $result = json_decode($this->postRequest('calllogs/date', $params));
+
+    
+
+    $data = [];
+
+    foreach($result->result->callLog->data as $data) {
+      $ringbaData = new RingbaData();
+      $ringbaData->columns = json_encode($data->columns);
+      $ringbaData->events = json_encode($data->events);
+      $ringbaData->tags = json_encode($data->tags);
+      $ringbaData->save();
+      // dd(json_encode($data->columns));
+    }
+    // dd($ringbaData);
+    return ['success'];
   }
 
   // get user account infor
