@@ -1,4 +1,4 @@
-(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_CallLogsReport_js"],{
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_callLogsReport_js"],{
 
 /***/ "./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js":
 /*!*********************************************************************!*\
@@ -22939,9 +22939,9 @@ ResponsiveDrawer.propTypes = {
 
 /***/ }),
 
-/***/ "./resources/js/Pages/Ringba/CallLogsReport.js":
+/***/ "./resources/js/Pages/Ringba/callLogsReport.js":
 /*!*****************************************************!*\
-  !*** ./resources/js/Pages/Ringba/CallLogsReport.js ***!
+  !*** ./resources/js/Pages/Ringba/callLogsReport.js ***!
   \*****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 

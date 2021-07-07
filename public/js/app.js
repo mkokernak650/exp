@@ -37766,16 +37766,6 @@ var map = {
 		9,
 		"resources_js_Pages_Layout_SideBar_jsx"
 	],
-	"./Ringba/CallLogsReport": [
-		"./resources/js/Pages/Ringba/CallLogsReport.js",
-		9,
-		"resources_js_Pages_Ringba_CallLogsReport_js"
-	],
-	"./Ringba/CallLogsReport.js": [
-		"./resources/js/Pages/Ringba/CallLogsReport.js",
-		9,
-		"resources_js_Pages_Ringba_CallLogsReport_js"
-	],
 	"./Ringba/GetRingbaData": [
 		"./resources/js/Pages/Ringba/GetRingbaData.js",
 		9,
@@ -37795,6 +37785,16 @@ var map = {
 		"./resources/js/Pages/Ringba/TempRingbaData.js",
 		9,
 		"resources_js_Pages_Ringba_TempRingbaData_js"
+	],
+	"./Ringba/callLogsReport": [
+		"./resources/js/Pages/Ringba/callLogsReport.js",
+		9,
+		"resources_js_Pages_Ringba_callLogsReport_js"
+	],
+	"./Ringba/callLogsReport.js": [
+		"./resources/js/Pages/Ringba/callLogsReport.js",
+		9,
+		"resources_js_Pages_Ringba_callLogsReport_js"
 	],
 	"./Ringba/makeData": [
 		"./resources/js/Pages/Ringba/makeData.js",
@@ -37983,7 +37983,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_CallLogsReport_js":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_makeData_js":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_callLogsReport_js":1,"resources_js_Pages_Ringba_makeData_js":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
