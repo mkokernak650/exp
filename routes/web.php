@@ -44,10 +44,11 @@ Route::get('/call-logs-report', function () {
     return inertia::render('Ringba/CallLogsReport');
 })->name('call-logs-report');
 
-// Route::get('/temp-ringba-data', function () {
-//     return inertia::render('Ringba/TempRingbaData');
-// })->name('tempringbadata');
+Route::get('/market-exception',function () {
+    return inertia::render('Settings/MarketException');
+})->name('market-exception');
 Route::get('/temp-ringba-data', [RingCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
+
 
 
 

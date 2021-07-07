@@ -147,7 +147,7 @@ function ResponsiveDrawer(props) {
         },
         {
             id: 3,
-            href: 'getringbadata',
+            href: 'market-exception',
             Icon: <SettingsIcon size='20' />,
             title: 'Settings',
             active: false,
@@ -155,8 +155,8 @@ function ResponsiveDrawer(props) {
             submenu: [
                 {
 
-                    title: 'Get Ringba Data',
-                    href: 'getringbadata',
+                    title: 'Market Exceptions',
+                    href: 'market-exception',
                     Icon: <UserIcon />,
                 },
                 {

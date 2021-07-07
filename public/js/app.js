@@ -37806,6 +37806,16 @@ var map = {
 		7,
 		"resources_js_Pages_Ringba_makeData_js"
 	],
+	"./Settings/MarketException": [
+		"./resources/js/Pages/Settings/MarketException.js",
+		9,
+		"resources_js_Pages_Settings_MarketException_js"
+	],
+	"./Settings/MarketException.js": [
+		"./resources/js/Pages/Settings/MarketException.js",
+		9,
+		"resources_js_Pages_Settings_MarketException_js"
+	],
 	"./index": [
 		"./resources/js/Pages/index.js",
 		9,
@@ -37983,7 +37993,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_CallLogsReport_js":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_makeData_js":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_CallLogsReport_js":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_makeData_js":1,"resources_js_Pages_Settings_MarketException_js":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};

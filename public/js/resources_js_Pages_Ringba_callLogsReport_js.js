@@ -22761,7 +22761,7 @@ function ResponsiveDrawer(props) {
     }]
   }, {
     id: 3,
-    href: 'getringbadata',
+    href: 'market-exception',
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_9__.default, {
       size: "20"
     }),
@@ -22769,8 +22769,8 @@ function ResponsiveDrawer(props) {
     active: false,
     collapse: true,
     submenu: [{
-      title: 'Get Ringba Data',
-      href: 'getringbadata',
+      title: 'Market Exceptions',
+      href: 'market-exception',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Call Logs Report',

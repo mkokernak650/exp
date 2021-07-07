@@ -1,0 +1,152 @@
+[
+    { "tagType": "Time", "tagValue": "20", "tagName": "UTCHour" },
+    { "tagType": "Time", "tagValue": "14", "tagName": "UTCMinute" },
+    { "tagType": "Time", "tagValue": "51", "tagName": "UTCSecond" },
+    { "tagType": "Time", "tagValue": "-4", "tagName": "UTCOffset" },
+    { "tagType": "Time", "tagValue": "16", "tagName": "Hour" },
+    { "tagType": "Time", "tagValue": "14", "tagName": "Minute" },
+    { "tagType": "Time", "tagValue": "51", "tagName": "Second" },
+    { "tagType": "Date", "tagValue": "Monday", "tagName": "UTCWeekDay" },
+    { "tagType": "Date", "tagValue": "5", "tagName": "UTCDay" },
+    { "tagType": "Date", "tagValue": "7", "tagName": "UTCMonth" },
+    { "tagType": "Date", "tagValue": "2021", "tagName": "UTCYear" },
+    { "tagType": "Date", "tagValue": "Monday", "tagName": "WeekDay" },
+    { "tagType": "Date", "tagValue": "5", "tagName": "Day" },
+    { "tagType": "Date", "tagValue": "7", "tagName": "Month" },
+    { "tagType": "Date", "tagValue": "2021", "tagName": "Year" },
+    {
+        "tagType": "Date",
+        "tagValue": "Eastern Standard Time",
+        "tagName": "TimeZone"
+    },
+    { "tagType": "Campaign", "tagValue": "Verify Benefits", "tagName": "Name" },
+    {
+        "tagType": "Campaign",
+        "tagValue": "CA24a3d56ff56c49f29f5dbfa4ec80df93",
+        "tagName": "Id"
+    },
+    { "tagType": "Campaign", "tagValue": "", "tagName": "TrackingId" },
+    { "tagType": "Publisher", "tagValue": "Revshare", "tagName": "Company" },
+    { "tagType": "Publisher", "tagValue": "Revshare", "tagName": "Name" },
+    {
+        "tagType": "Publisher",
+        "tagValue": "AFc81be192795f40fe9aeb772bb37db5b4",
+        "tagName": "Id"
+    },
+    { "tagType": "Publisher", "tagValue": "", "tagName": "SubId" },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "+12282391927",
+        "tagName": "Number"
+    },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "12282391927",
+        "tagName": "Number-NoPlus"
+    },
+    { "tagType": "InboundNumber", "tagValue": "US", "tagName": "CountryCode" },
+    { "tagType": "InboundNumber", "tagValue": "1", "tagName": "CountryDigits" },
+    { "tagType": "InboundNumber", "tagValue": "228", "tagName": "AreaCode" },
+    { "tagType": "InboundNumber", "tagValue": "239", "tagName": "Prefix" },
+    { "tagType": "InboundNumber", "tagValue": "1927", "tagName": "Suffix" },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "Mississippi",
+        "tagName": "Region"
+    },
+    { "tagType": "InboundNumber", "tagValue": "MS", "tagName": "State" },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "yes",
+        "tagName": "IsPhoneNumberValid"
+    },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "+12282391927",
+        "tagName": "NumberE164"
+    },
+    { "tagType": "InboundNumber", "tagValue": "W", "tagName": "Number Type" },
+    { "tagType": "InboundNumber", "tagValue": "B", "tagName": "Location Type" },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "2021/07/05",
+        "tagName": "Record Found"
+    },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "2021/07/05",
+        "tagName": "Record Updated"
+    },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "CELLCO PARTNERSHIP DBA VERIZON WIRELESS - MS",
+        "tagName": "Telco"
+    },
+    { "tagType": "InboundNumber", "tagValue": "2", "tagName": "Confidence" },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "X",
+        "tagName": "Phone Match Category"
+    },
+    { "tagType": "InboundNumber", "tagValue": "N", "tagName": "Is Prepaid" },
+    {
+        "tagType": "InboundNumber",
+        "tagValue": "B",
+        "tagName": "Phone Match Record Type"
+    },
+    {
+        "tagType": "DialedNumber",
+        "tagValue": "+18669850560",
+        "tagName": "Number"
+    },
+    { "tagType": "Caller Profile", "tagValue": "yes", "tagName": "Added" },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "100",
+        "tagName": "Phone"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "100",
+        "tagName": "Phone Confidence"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "1",
+        "tagName": "Valid Identifiers"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "0",
+        "tagName": "Valid Data Links"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "0",
+        "tagName": "Fraud Risk"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "FAIL",
+        "tagName": "Overall Validation"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "FAIL",
+        "tagName": "Overall Linkage"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "PASS",
+        "tagName": "Overall Risk"
+    },
+    {
+        "tagType": "Verification & Scoring",
+        "tagValue": "70",
+        "tagName": "Overall Identity Verification"
+    },
+    { "tagType": "CallLength", "tagValue": "75", "tagName": "Total" },
+    { "tagType": "CallLength", "tagValue": "69", "tagName": "FromConnect" },
+    { "tagType": "CallLength", "tagValue": "73", "tagName": "FromDial" },
+    { "tagType": "EndCall", "tagValue": "Caller", "tagName": "EndCallSource" }
+]

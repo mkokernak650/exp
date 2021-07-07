@@ -1,8 +1,8 @@
 [
     {
         "name": "dtStamp",
-        "original": "2021-06-01T18:58:37.034073Z",
-        "formattedValue": 1622573917034,
+        "original": "2021-07-05T20:14:51.8243954Z",
+        "formattedValue": 1625516091824,
         "type": "date",
         "sum": false
     },
@@ -64,50 +64,50 @@
     },
     {
         "name": "inboundCallId",
-        "original": "v2VWtLZ6vY7JJsIlbTqD8YcRHGnZLPtpkpJhGpOPnO2J83-A-Kqi204w",
-        "formattedValue": "v2VWtLZ6vY7JJsIlbTqD8YcRHGnZLPtpkpJhGpOPnO2J83-A-Kqi204w",
+        "original": "v2SxLLDKH2Z4PW8T-O0gQWOfT2g5LtTYn6mQjOM3OY7MRkGAaFNor0Ig",
+        "formattedValue": "v2SxLLDKH2Z4PW8T-O0gQWOfT2g5LtTYn6mQjOM3OY7MRkGAaFNor0Ig",
         "type": "text",
         "sum": false
     },
     {
         "name": "inboundPhoneNumber",
-        "original": "+16142525733",
-        "formattedValue": "+16142525733",
+        "original": "+12282391927",
+        "formattedValue": "+12 282391 927",
         "type": "phone",
         "sum": false
     },
     {
         "name": "previouseCallTargetName",
-        "original": "Legacy Healing Centers",
-        "formattedValue": "Legacy Healing Centers",
+        "original": "",
+        "formattedValue": "",
         "type": "text",
         "sum": false
     },
     {
         "name": "previouseCallCallId",
-        "original": "v2-336UHpI_H05-94nJEA9tuMBu6rwqcYufvAd2GNbwGvtutD1HkmcnA",
-        "formattedValue": 1,
+        "original": "",
+        "formattedValue": 0,
         "type": "bool",
         "sum": false
     },
     {
         "name": "previouseCallDateTime",
-        "original": 1622573543470,
-        "formattedValue": 1622573543470,
+        "original": 1625516091824,
+        "formattedValue": 1625516091824,
         "type": "date",
         "sum": false
     },
     {
         "name": "totalAmount",
-        "original": 0.175,
-        "formattedValue": 0.175,
+        "original": 0.23,
+        "formattedValue": 0.23,
         "type": "currency",
         "sum": false
     },
     {
         "name": "targetName",
-        "original": "Legacy Healing Centers",
-        "formattedValue": "Legacy Healing Centers",
+        "original": "Legacy Healing -Revshare",
+        "formattedValue": "Legacy Healing -Revshare",
         "type": "text",
         "sum": false
     },
@@ -141,64 +141,71 @@
     },
     {
         "name": "timeToConnect",
-        "original": 6.0,
-        "formattedValue": 6.0,
+        "original": 5,
+        "formattedValue": 5,
         "type": "seconds",
         "sum": false
     },
     {
         "name": "callConnectionDt",
-        "original": 1622573923793.0,
-        "formattedValue": 1622573923793.0,
+        "original": 1625516097267,
+        "formattedValue": 1625516097267,
         "type": "date",
         "sum": false
     },
     {
-        "name": "failReason",
-        "original": "Duplicate Call",
-        "formattedValue": "Duplicate Call",
-        "type": "text",
+        "name": "conversionAmount",
+        "original": 61,
+        "formattedValue": 61,
+        "type": "currency",
         "sum": false
     },
     {
         "name": "callLengthInSeconds",
-        "original": 37.0,
-        "formattedValue": 37.0,
+        "original": 75,
+        "formattedValue": 75,
         "type": "seconds",
         "sum": false
     },
     {
         "name": "callCompletedDt",
-        "original": 1622573954870.0,
-        "formattedValue": 1622573954870.0,
+        "original": 1625516167060,
+        "formattedValue": 1625516167060,
         "type": "date",
         "sum": false
     },
     {
+        "name": "payoutAmount",
+        "original": 57.2,
+        "formattedValue": 57.2,
+        "type": "currency",
+        "sum": false
+    },
+    {
         "name": "source",
-        "original": "Target",
-        "formattedValue": "Target",
+        "original": "Caller",
+        "formattedValue": "Caller",
         "type": "text",
         "sum": false
     },
     {
         "name": "recordingUrl",
-        "original": "https://media.ringba.com/recording-public?v=v1&k=VhXRbMC%2bKvN%2bCAg%2fFAs%2bsOpnN2orJYeAXr1slfoamEabeDMgWxTTcvkonPrdkWFUCPYA3kJnl%2b8hVptGXGMckbfGGJAhGDgUT3f%2bWJxlqlaxO0B9OUTZWUbxc57rXgfEphMrbfLd3ZapH0i9DZcyC1A9%2f%2feoCdcszU7YeRyAdttaIvaO%2fO8%2blUB5TVlxJDUX6VXYeIUZNvjtekSZQ6gTa2klzB9nT5KK%2bj49Ikm0%2fCsjcJrnJKymcFeMCk2U%2b%2fOVHVsywPw5a5xkQ7CxKOFQ62QPyUo%3d",
-        "formattedValue": "https://media.ringba.com/recording-public?v=v1&k=VhXRbMC%2bKvN%2bCAg%2fFAs%2bsOpnN2orJYeAXr1slfoamEabeDMgWxTTcvkonPrdkWFUCPYA3kJnl%2b8hVptGXGMckbfGGJAhGDgUT3f%2bWJxlqlaxO0B9OUTZWUbxc57rXgfEphMrbfLd3ZapH0i9DZcyC1A9%2f%2feoCdcszU7YeRyAdttaIvaO%2fO8%2blUB5TVlxJDUX6VXYeIUZNvjtekSZQ6gTa2klzB9nT5KK%2bj49Ikm0%2fCsjcJrnJKymcFeMCk2U%2b%2fOVHVsywPw5a5xkQ7CxKOFQ62QPyUo%3d",
+        "original": "https://media.ringba.com/recording-public?v=v1&k=n8VpHOQnS69Yvs%2bmpKH4yf32FQF%2bJbPa%2bPtAUK2DQdkoNVhgqRQhDjjlAjFm4YiuOpT7k2UGXJlyOuhQ%2bL%2f4zJdGt%2btz58kfkUYTJke%2burh7WbS9c6zMhEq9fN7zasp96JIWxzjwfd00j4XnZgO%2fpZQ%2fzjZ02WmLX4n2S2iHhwHY7PGHFOXwXCKKVUz6HrGcLFyhttxq1qNtoOWEwB7Ufn%2f%2bzcvMv6s49rdU0bQOMVCteybACQszLMIG3unnKtbLgJJeOH1G%2bAVMEZG0UiSqs5Y3cek%3d",
+        "formattedValue": "https://media.ringba.com/recording-public?v=v1&k=n8VpHOQnS69Yvs%2bmpKH4yf32FQF%2bJbPa%2bPtAUK2DQdkoNVhgqRQhDjjlAjFm4YiuOpT7k2UGXJlyOuhQ%2bL%2f4zJdGt%2btz58kfkUYTJke%2burh7WbS9c6zMhEq9fN7zasp96JIWxzjwfd00j4XnZgO%2fpZQ%2fzjZ02WmLX4n2S2iHhwHY7PGHFOXwXCKKVUz6HrGcLFyhttxq1qNtoOWEwB7Ufn%2f%2bzcvMv6s49rdU0bQOMVCteybACQszLMIG3unnKtbLgJJeOH1G%2bAVMEZG0UiSqs5Y3cek%3d",
         "type": "text",
         "sum": false
     },
     {
         "name": "callConnectionLength",
-        "original": 31.0,
-        "formattedValue": 31.0,
+        "original": 70,
+        "formattedValue": 70,
         "type": "seconds",
         "sum": false
     },
     {
         "name": "profit",
-        "original": 0.0,
-        "formattedValue": 0.0,
+        "original": 3.8,
+        "formattedValue": 3.8,
         "type": "currency",
         "sum": false
     }
