@@ -15092,7 +15092,6 @@ var Login = function Login() {
     setValues(function (oldValues) {
       return _objectSpread(_objectSpread({}, oldValues), {}, _defineProperty({}, key, value));
     });
-    console.log(values);
   }
 
   var handleSubmit = function handleSubmit(e) {

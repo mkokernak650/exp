@@ -22951,10 +22951,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @material-ui/core/CssBaseline */ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js");
+/* harmony import */ var _material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @material-ui/core/CssBaseline */ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js");
 /* harmony import */ var _components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../components/EnhancedTable */ "./resources/js/components/EnhancedTable.js");
 /* harmony import */ var _Layout_Layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Layout/Layout */ "./resources/js/Pages/Layout/Layout.jsx");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @inertiajs/inertia-react */ "./node_modules/@inertiajs/inertia-react/dist/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -22980,6 +22981,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
+
 var range = function range(len) {
   var arr = [];
 
@@ -22992,12 +22994,10 @@ var range = function range(len) {
 
 var newPerson = function newPerson() {
   return {
-    firstName: "test1",
-    lastName: "test2",
-    age: "test1",
-    visits: "test1",
-    progress: "test1",
-    status: "test"
+    Id: 1,
+    CallLog_columns: "test1",
+    CallLog_events: "test2",
+    CallLog_Tags: "test1"
   };
 };
 
@@ -23010,6 +23010,7 @@ function makeData() {
     var depth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
     var len = lens[depth];
     return range(len).map(function (d) {
+      console.log(d);
       return _objectSpread(_objectSpread({}, newPerson()), {}, {
         subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined
       });
@@ -23020,24 +23021,33 @@ function makeData() {
 }
 
 var TempRingbaData = function TempRingbaData() {
+  var ringbaData = (0,_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__.usePage)().props.ringbaData;
+  var newRingbadata = ringbaData.map(function (item, indx) {
+    return {
+      Id: indx,
+      CallLog_columns: JSON.stringify(item.columns),
+      CallLog_events: JSON.stringify(item.events),
+      CallLog_Tags: JSON.stringify(item.tags)
+    };
+  });
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(newRingbadata),
+      _useState2 = _slicedToArray(_useState, 2),
+      mainData = _useState2[0],
+      setRingbadata = _useState2[1];
+
   var columns = [{
-    Header: 'First Name',
-    accessor: 'firstName'
+    Header: 'Id',
+    accessor: 'Id'
   }, {
-    Header: 'Last Name',
-    accessor: 'lastName'
+    Header: 'CallLog_columns',
+    accessor: 'CallLog_columns'
   }, {
-    Header: 'Age',
-    accessor: 'age'
+    Header: 'CallLog_events',
+    accessor: 'CallLog_events'
   }, {
-    Header: 'Visits',
-    accessor: 'visits'
-  }, {
-    Header: 'Status',
-    accessor: 'status'
-  }, {
-    Header: 'Profile Progress',
-    accessor: 'progress'
+    Header: 'CallLog_Tags',
+    accessor: 'CallLog_Tags'
   }];
 
   var _React$useState = react__WEBPACK_IMPORTED_MODULE_0__.useState(react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () {
@@ -23053,7 +23063,6 @@ var TempRingbaData = function TempRingbaData() {
       setSkipPageReset = _React$useState4[1];
 
   var updateMyData = function updateMyData(rowIndex, columnId, value) {
-    // We also turn on the flag to not reset the page
     setSkipPageReset(true);
     setData(function (old) {
       return old.map(function (row, index) {
@@ -23066,11 +23075,11 @@ var TempRingbaData = function TempRingbaData() {
     });
   };
 
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_4__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__.default, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_5__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__.default, {
       columns: columns,
-      data: data,
-      setData: setData,
+      data: mainData,
+      setData: setRingbadata,
       updateMyData: updateMyData,
       skipPageReset: skipPageReset
     })]
@@ -23078,7 +23087,7 @@ var TempRingbaData = function TempRingbaData() {
 };
 
 TempRingbaData.layout = function (page) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
     title: "TempRingbaData",
     children: page
   });
