@@ -43,7 +43,7 @@ class CreateRingbaCallLogsTable extends Migration
             $table->string('Market')->nullable();
             $table->string('Type')->nullable();
             $table->string('Call_Qualification')->nullable();
-            $table->string('Recording_Url')->nullable();
+            $table->text('Recording_Url')->nullable();
             $table->string('Customer')->nullable();
             $table->string('Has_Annotation')->nullable();
             $table->string('Annotation_Tag')->nullable();
