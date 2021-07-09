@@ -67,7 +67,7 @@ class RingbaCallLogController extends Controller
         $ringbaMain = RingbaData::all();
 
         foreach ($ringbaMain as $row) {
-            
+
             if ($row->columns) $this->column($row->columns);
             if ($row->events) $this->events($row->events);
             if ($row->tags) $this->tags($row->tags);
@@ -145,9 +145,9 @@ class RingbaCallLogController extends Controller
                 if (!empty($this->get_targetName)) {
                     $targetsTable = new Target();
                     $result = $targetsTable->where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
-                    if($result) {
+                    if ($result) {
                         $this->get_Target_Description = $result->Description;
-                    $this->get_customer_name_id = $result->Customer;
+                        $this->get_customer_name_id = $result->Customer;
                     }
                 }
             } else if ($item->name === 'targetId') {
@@ -254,15 +254,15 @@ class RingbaCallLogController extends Controller
             $ringbaData->tags = json_encode($data->tags);
             $ringbaData->save();
         }
-        // return Inertia::render(
-        //     'Ringba/TempRingbaData',
-        //     [
-        //         'ringbaData' => $results->result->callLog->data,
-        //         'flash' => [
-        //             'message' => fn () => $request->session()->get('Data Fetched Successfully')
-        //         ],
-        //     ]
-        // );
+        return Inertia::render(
+            'Ringba/TempRingbaData',
+            [
+                'ringbaData' => $results->result->callLog->data,
+                'flash' => [
+                    'message' => fn () => $request->session()->get('Data Fetched Successfully')
+                ],
+            ]
+        );
     }
 
     public function tempRingbaData()

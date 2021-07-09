@@ -18886,11 +18886,6 @@ var GetRingbaData = function GetRingbaData() {
       loading = _useState4[0],
       setLoading = _useState4[1];
 
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(""),
-      _useState6 = _slicedToArray(_useState5, 2),
-      successMessage = _useState6[0],
-      setSuccessMessage = _useState6[1];
-
   var handleChange = function handleChange(e) {
     var _e$target = e.target,
         name = _e$target.name,
@@ -18905,7 +18900,7 @@ var GetRingbaData = function GetRingbaData() {
     setLoading(true);
     _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_2__.Inertia.post('temp-ringba-data', values, {
       onFinish: function onFinish() {
-        setLoading(false), setSuccessMessage("Data Fetched Successfully");
+        setLoading(false);
       }
     });
   };
@@ -18952,14 +18947,7 @@ var GetRingbaData = function GetRingbaData() {
           children: loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_9__.default, {
             color: "secondary"
           }) : "Get Ringba Data"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h1", {
-          children: successMessage
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_6__.default, {
-        variant: "h6",
-        id: "tableTitle",
-        component: "div",
-        children: successMessage
       })]
     })
   });
