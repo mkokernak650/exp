@@ -1,20 +1,13 @@
 import React from 'react'
-import Checkbox from '@material-ui/core/Checkbox'
+import {
+  Checkbox, TableBody, TableCell, TableContainer, TableFooter,
+  TableHead, TablePagination, TableRow, TableSortLabel, Paper, Typography
+} from '@material-ui/core'
 import MaUTable from '@material-ui/core/Table'
-import PropTypes from 'prop-types'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableFooter from '@material-ui/core/TableFooter'
-import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TablePaginationActions from './TablePaginationActions'
-import TableRow from '@material-ui/core/TableRow'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import TableToolbar from './TableToolbar'
 import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import TablePaginationActions from './TablePaginationActions'
+import TableToolbar from './TableToolbar'
+import PropTypes from 'prop-types'
 
 
 import {

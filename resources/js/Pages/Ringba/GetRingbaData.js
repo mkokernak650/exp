@@ -1,11 +1,8 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
 import { Inertia } from '@inertiajs/inertia'
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Typography from '@material-ui/core/Typography';
+import { CircularProgress, Typography, TextField, Button, makeStyles, Paper } from '@material-ui/core';
+
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -14,7 +11,9 @@ const useStyles = makeStyles((theme) => ({
         width: 600,
         margin: 'auto',
         flexDirection: 'column',
-        marginTop: 60
+        marginTop: 60,
+        textAlign: 'center',
+        padding: '20px'
     },
     textField: {
         marginLeft: theme.spacing(1),
@@ -28,6 +27,12 @@ const useStyles = makeStyles((theme) => ({
         width: 300,
         margin: '10px'
     },
+
+    title: {
+        textAlign: 'center',
+        marginBottom: '35px',
+
+    }
 
 }));
 
@@ -61,46 +66,51 @@ const GetRingbaData = () => {
 
     return (
         <div>
-            <form className={classes.container} noValidate onSubmit={handleSubmit}>
-                <TextField
-                    id="date"
-                    label="Start Date"
-                    type="date"
-                    name='startDate'
-                    onChange={handleChange}
-                    defaultValue="2021-01-06"
-                    className={classes.textField}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                    required
-                />
-                <TextField
-                    id="date"
-                    label="End Date"
-                    type="date"
-                    name='endDate'
-                    defaultValue="2021-01-07"
-                    className={classes.textField}
-                    onChange={handleChange}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                    required
-                />
-                <Button variant="contained" type="submit" color="primary" className={classes.button}>
-                    {loading ?
-                        <CircularProgress
-                            color="secondary"
-                        />
-                        : "Get Ringba Data"}
-                </Button>
-                <h1>{successMessage}</h1>
-            </form>
-            <Typography
-                variant="h6" id="tableTitle" component="div">
+            <Paper className={classes.container}>
+                <Typography variant='h5' className={classes.title}>
+                    Fetch Ringba Data
+                </Typography>
+                <form validate onSubmit={handleSubmit}>
+                    <TextField
+                        id="date"
+                        label="Start Date"
+                        type="date"
+                        name='startDate'
+                        onChange={handleChange}
+                        defaultValue="2021-06-01"
+                        className={classes.textField}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        required
+                    />
+                    <TextField
+                        id="date"
+                        label="End Date"
+                        type="date"
+                        name='endDate'
+                        defaultValue="2021-07-01"
+                        className={classes.textField}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        required
+                    />
+                    <Button variant="contained" type="submit" color="primary" className={classes.button}>
+                        {loading ?
+                            <CircularProgress
+                                color="secondary"
+                            />
+                            : "Get Ringba Data"}
+                    </Button>
+                    <h1>{successMessage}</h1>
+                </form>
+                <Typography
+                    variant="h6" id="tableTitle" component="div">
                     {successMessage}
-            </Typography>
+                </Typography>
+            </Paper>
         </div>
     )
 }

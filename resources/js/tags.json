@@ -1,17 +1,17 @@
 [
-    { "tagType": "Time", "tagValue": "20", "tagName": "UTCHour" },
-    { "tagType": "Time", "tagValue": "14", "tagName": "UTCMinute" },
-    { "tagType": "Time", "tagValue": "51", "tagName": "UTCSecond" },
+    { "tagType": "Time", "tagValue": "15", "tagName": "UTCHour" },
+    { "tagType": "Time", "tagValue": "46", "tagName": "UTCMinute" },
+    { "tagType": "Time", "tagValue": "3", "tagName": "UTCSecond" },
     { "tagType": "Time", "tagValue": "-4", "tagName": "UTCOffset" },
-    { "tagType": "Time", "tagValue": "16", "tagName": "Hour" },
-    { "tagType": "Time", "tagValue": "14", "tagName": "Minute" },
-    { "tagType": "Time", "tagValue": "51", "tagName": "Second" },
-    { "tagType": "Date", "tagValue": "Monday", "tagName": "UTCWeekDay" },
-    { "tagType": "Date", "tagValue": "5", "tagName": "UTCDay" },
+    { "tagType": "Time", "tagValue": "11", "tagName": "Hour" },
+    { "tagType": "Time", "tagValue": "46", "tagName": "Minute" },
+    { "tagType": "Time", "tagValue": "3", "tagName": "Second" },
+    { "tagType": "Date", "tagValue": "Wednesday", "tagName": "UTCWeekDay" },
+    { "tagType": "Date", "tagValue": "7", "tagName": "UTCDay" },
     { "tagType": "Date", "tagValue": "7", "tagName": "UTCMonth" },
     { "tagType": "Date", "tagValue": "2021", "tagName": "UTCYear" },
-    { "tagType": "Date", "tagValue": "Monday", "tagName": "WeekDay" },
-    { "tagType": "Date", "tagValue": "5", "tagName": "Day" },
+    { "tagType": "Date", "tagValue": "Wednesday", "tagName": "WeekDay" },
+    { "tagType": "Date", "tagValue": "7", "tagName": "Day" },
     { "tagType": "Date", "tagValue": "7", "tagName": "Month" },
     { "tagType": "Date", "tagValue": "2021", "tagName": "Year" },
     {
@@ -26,35 +26,40 @@
         "tagName": "Id"
     },
     { "tagType": "Campaign", "tagValue": "", "tagName": "TrackingId" },
-    { "tagType": "Publisher", "tagValue": "Revshare", "tagName": "Company" },
-    { "tagType": "Publisher", "tagValue": "Revshare", "tagName": "Name" },
     {
         "tagType": "Publisher",
-        "tagValue": "AFc81be192795f40fe9aeb772bb37db5b4",
+        "tagValue": "Spectrum Reach-",
+        "tagName": "Company"
+    },
+    {
+        "tagType": "Publisher",
+        "tagValue": "Spectrum Reach-",
+        "tagName": "Name"
+    },
+    {
+        "tagType": "Publisher",
+        "tagValue": "AFd3d075c572a14ed19698e10c07dc00dd",
         "tagName": "Id"
     },
     { "tagType": "Publisher", "tagValue": "", "tagName": "SubId" },
     {
         "tagType": "InboundNumber",
-        "tagValue": "+12282391927",
+        "tagValue": "+12162917654",
         "tagName": "Number"
     },
     {
         "tagType": "InboundNumber",
-        "tagValue": "12282391927",
+        "tagValue": "12162917654",
         "tagName": "Number-NoPlus"
     },
     { "tagType": "InboundNumber", "tagValue": "US", "tagName": "CountryCode" },
     { "tagType": "InboundNumber", "tagValue": "1", "tagName": "CountryDigits" },
-    { "tagType": "InboundNumber", "tagValue": "228", "tagName": "AreaCode" },
-    { "tagType": "InboundNumber", "tagValue": "239", "tagName": "Prefix" },
-    { "tagType": "InboundNumber", "tagValue": "1927", "tagName": "Suffix" },
-    {
-        "tagType": "InboundNumber",
-        "tagValue": "Mississippi",
-        "tagName": "Region"
-    },
-    { "tagType": "InboundNumber", "tagValue": "MS", "tagName": "State" },
+    { "tagType": "InboundNumber", "tagValue": "216", "tagName": "AreaCode" },
+    { "tagType": "InboundNumber", "tagValue": "291", "tagName": "Prefix" },
+    { "tagType": "InboundNumber", "tagValue": "7654", "tagName": "Suffix" },
+    { "tagType": "InboundNumber", "tagValue": "Ohio", "tagName": "Region" },
+    { "tagType": "InboundNumber", "tagValue": "OH", "tagName": "State" },
+    { "tagType": "InboundNumber", "tagValue": "Cleveland", "tagName": "City" },
     {
         "tagType": "InboundNumber",
         "tagValue": "yes",
@@ -62,44 +67,251 @@
     },
     {
         "tagType": "InboundNumber",
-        "tagValue": "+12282391927",
+        "tagValue": "+12162917654",
         "tagName": "NumberE164"
     },
-    { "tagType": "InboundNumber", "tagValue": "W", "tagName": "Number Type" },
-    { "tagType": "InboundNumber", "tagValue": "B", "tagName": "Location Type" },
+    { "tagType": "InboundNumber", "tagValue": "V", "tagName": "Number Type" },
+    { "tagType": "InboundNumber", "tagValue": "R", "tagName": "Location Type" },
     {
         "tagType": "InboundNumber",
-        "tagValue": "2021/07/05",
+        "tagValue": "2018/06/12",
         "tagName": "Record Found"
     },
     {
         "tagType": "InboundNumber",
-        "tagValue": "2021/07/05",
+        "tagValue": "2021/05/15",
         "tagName": "Record Updated"
     },
     {
         "tagType": "InboundNumber",
-        "tagValue": "CELLCO PARTNERSHIP DBA VERIZON WIRELESS - MS",
+        "tagValue": "TIME WARNER CABLE INFORMATION SVCS (NEW HAMPSHIRE)",
         "tagName": "Telco"
     },
     { "tagType": "InboundNumber", "tagValue": "2", "tagName": "Confidence" },
     {
         "tagType": "InboundNumber",
-        "tagValue": "X",
+        "tagValue": "P",
         "tagName": "Phone Match Category"
     },
     { "tagType": "InboundNumber", "tagValue": "N", "tagName": "Is Prepaid" },
     {
         "tagType": "InboundNumber",
-        "tagValue": "B",
+        "tagValue": "R",
         "tagName": "Phone Match Record Type"
     },
     {
         "tagType": "DialedNumber",
-        "tagValue": "+18669850560",
+        "tagValue": "+18002032125",
         "tagName": "Number"
     },
     { "tagType": "Caller Profile", "tagValue": "yes", "tagName": "Added" },
+    { "tagType": "Identity", "tagValue": "ROSCELLE", "tagName": "First Name" },
+    { "tagType": "Identity", "tagValue": "MARTIN", "tagName": "Last Name" },
+    { "tagType": "Address", "tagValue": "16000", "tagName": "Street Number" },
+    { "tagType": "Address", "tagValue": "TERRACE", "tagName": "Street Name" },
+    { "tagType": "Address", "tagValue": "RD", "tagName": "Street Type" },
+    { "tagType": "Address", "tagValue": "CLEVELAND", "tagName": "City" },
+    { "tagType": "Address", "tagValue": "OH", "tagName": "State" },
+    { "tagType": "Address", "tagValue": "44112", "tagName": "Zip 5" },
+    { "tagType": "Address", "tagValue": "2066", "tagName": "Zip 4" },
+    {
+        "tagType": "Address",
+        "tagValue": "996",
+        "tagName": "Delivery Point Code"
+    },
+    { "tagType": "Address", "tagValue": "C004", "tagName": "Carrier Route" },
+    { "tagType": "Address", "tagValue": "035", "tagName": "County FIPS" },
+    { "tagType": "Address", "tagValue": "H", "tagName": "USPS Address Type" },
+    { "tagType": "Address", "tagValue": "D", "tagName": "Delivery Validation" },
+    { "tagType": "Address", "tagValue": "Y", "tagName": "Deliverable" },
+    {
+        "tagType": "Address",
+        "tagValue": "20210515",
+        "tagName": "Last Validation Date"
+    },
+    { "tagType": "Address", "tagValue": "H", "tagName": "Zip4 Type Code" },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2163130237",
+        "tagName": "Alternate 1 Number"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "W",
+        "tagName": "Alternate 1 Type"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "R",
+        "tagName": "Alternate 1 Location Type"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2007/07/10",
+        "tagName": "Alternate 1 Record Found"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2008/11/17",
+        "tagName": "Alternate 1 Record Updated"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "VERIZON WIRELESS-OH",
+        "tagName": "Alternate 1 Telco"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "5",
+        "tagName": "Alternate 1 Confidence"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "D",
+        "tagName": "Alternate 1 Directory Assistance"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2163314216",
+        "tagName": "Alternate 2 Number"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "V",
+        "tagName": "Alternate 2 Type"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "R",
+        "tagName": "Alternate 2 Location Type"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2018/11/01",
+        "tagName": "Alternate 2 Record Found"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2021/06/15",
+        "tagName": "Alternate 2 Record Updated"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "TIME WARNER CABLE OH",
+        "tagName": "Alternate 2 Telco"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "1",
+        "tagName": "Alternate 2 Confidence"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "Y",
+        "tagName": "Alternate 2 Directory Assistance"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2164178546",
+        "tagName": "Alternate 3 Number"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "V",
+        "tagName": "Alternate 3 Type"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "R",
+        "tagName": "Alternate 3 Location Type"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2016/10/15",
+        "tagName": "Alternate 3 Record Found"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "2017/07/15",
+        "tagName": "Alternate 3 Record Updated"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "TIME WARNER CABLE OH",
+        "tagName": "Alternate 3 Telco"
+    },
+    {
+        "tagType": "Alternate Phone Numbers",
+        "tagValue": "4",
+        "tagName": "Alternate 3 Confidence"
+    },
+    { "tagType": "Demographics", "tagValue": "M", "tagName": "Gender" },
+    {
+        "tagType": "Demographics",
+        "tagValue": "B",
+        "tagName": "Percentage Black"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "T",
+        "tagName": "Percentage White"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "T",
+        "tagName": "Percentage Hispanic"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "T",
+        "tagName": "Percentage Asian"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "C",
+        "tagName": "Percentage English Speaking"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "R",
+        "tagName": "Percentage Spanish Speaking"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "117",
+        "tagName": "Median Years of School"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "O",
+        "tagName": "Percentage White Collar"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "P",
+        "tagName": "Percentage Blue Collar"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "K",
+        "tagName": "Percentage Other Occupation"
+    },
+    {
+        "tagType": "Demographics",
+        "tagValue": "9",
+        "tagName": "Length of Residence"
+    },
+    { "tagType": "Demographics", "tagValue": "M", "tagName": "Dwelling Type" },
+    {
+        "tagType": "Demographics",
+        "tagValue": "K",
+        "tagName": "Home Market Value"
+    },
+    {
+        "tagType": "Financial",
+        "tagValue": "A",
+        "tagName": "Estimated Household Income"
+    },
     {
         "tagType": "Verification & Scoring",
         "tagValue": "100",
@@ -107,7 +319,7 @@
     },
     {
         "tagType": "Verification & Scoring",
-        "tagValue": "100",
+        "tagValue": "96",
         "tagName": "Phone Confidence"
     },
     {
@@ -145,8 +357,365 @@
         "tagValue": "70",
         "tagName": "Overall Identity Verification"
     },
-    { "tagType": "CallLength", "tagValue": "75", "tagName": "Total" },
-    { "tagType": "CallLength", "tagValue": "69", "tagName": "FromConnect" },
-    { "tagType": "CallLength", "tagValue": "73", "tagName": "FromDial" },
+    { "tagType": "Mortgage", "tagValue": "LP", "tagName": "Owner Type" },
+    {
+        "tagType": "Mortgage",
+        "tagValue": "1ST NATIONWIDE TITLE AGCY LTD",
+        "tagName": "Mortgage Title Company"
+    },
+    {
+        "tagType": "Mortgage",
+        "tagValue": "5820000",
+        "tagName": "Mortgage Amount"
+    },
+    {
+        "tagType": "Mortgage",
+        "tagValue": "FIRSTRUST BK",
+        "tagName": "Mortgage Lender Name"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "39035",
+        "tagName": "County FIPS Code"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "1512001010",
+        "tagName": "Census Tract"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "EAST CLEVELAND",
+        "tagName": "Municipality"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "INGERSOLL & ADAMS ALLOTMENT 8",
+        "tagName": "Subdivision"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "41.540463",
+        "tagName": "Latitude"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "-81.56590",
+        "tagName": "Longitude"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "106",
+        "tagName": "Land Use Code"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "673-18-045",
+        "tagName": "Assessor's Parcel Number"
+    },
+    {
+        "tagType": "Property Location",
+        "tagValue": "001",
+        "tagName": "Assessor's Sequence Number"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "A",
+        "tagName": "Owner Occupancy"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "S",
+        "tagName": "Property Data Source"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "Y",
+        "tagName": "Property Owner Entity"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "N",
+        "tagName": "Residential Based Zip Code"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "22",
+        "tagName": "Property Type"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "1",
+        "tagName": "Number of Buildings"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "240",
+        "tagName": "Number of Stories Code"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "2400",
+        "tagName": "Number of Stories"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "270",
+        "tagName": "Unit Number"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "6635000",
+        "tagName": "Total Land & Improvement Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "366400",
+        "tagName": "Land Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "M",
+        "tagName": "Land Value Indicator"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "6268600",
+        "tagName": "Improvement Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "M",
+        "tagName": "Improvement Value Indicator"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "2322250",
+        "tagName": "Total Assessed Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "128240",
+        "tagName": "Assessed Land Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "2194010",
+        "tagName": "Assessed Improvement Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "6635000",
+        "tagName": "Total Market Value"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "366400",
+        "tagName": "Market Land Values"
+    },
+    {
+        "tagType": "Property Information",
+        "tagValue": "6268600",
+        "tagName": "Market Improvement Values"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "5440",
+        "tagName": "Front Linear Feet"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "42060",
+        "tagName": "Total Acreage"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "183213",
+        "tagName": "Total Square Feet"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "1964",
+        "tagName": "Year Built"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "1977",
+        "tagName": "Effective Year Built"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "260250",
+        "tagName": "Building Square Footage"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "G",
+        "tagName": "Square Footage Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "260250",
+        "tagName": "Building Square Feet"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "5062",
+        "tagName": "Square Footage Front"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "260250",
+        "tagName": "Building Square Footage Front"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "333136",
+        "tagName": "Square Footage for Improvements"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "69512",
+        "tagName": "Parking Square Footage"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "8000",
+        "tagName": "Number of Bathrooms"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "8000",
+        "tagName": "Total Bathrooms"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "CRE",
+        "tagName": "Foundation Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "A",
+        "tagName": "Floor Construction Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "S",
+        "tagName": "Roof Framing Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "1",
+        "tagName": "Garage Type"
+    },
+    { "tagType": "Property Construction", "tagValue": "Y", "tagName": "Pool" },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "13",
+        "tagName": "Roof Covering"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "F",
+        "tagName": "Roof Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "FGA",
+        "tagName": "Heating Fuel Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "SPU",
+        "tagName": "Sewer Type"
+    },
+    {
+        "tagType": "Property Construction",
+        "tagValue": "WPU",
+        "tagName": "Water Supply Type"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "27084593",
+        "tagName": "Tax Amount"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "2020",
+        "tagName": "Tax Year"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "2018",
+        "tagName": "Sale Year"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "G",
+        "tagName": "Deed Type"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "2018/09/06",
+        "tagName": "Recording Date"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "CRYSTAL SPIRES LTD",
+        "tagName": "Seller's Name"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "2018/08/20",
+        "tagName": "Sale Date"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "6635000",
+        "tagName": "Sale Amount"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "2020",
+        "tagName": "Last Assessment Year"
+    },
+    {
+        "tagType": "Property Deed Assessment",
+        "tagValue": "1",
+        "tagName": "Sale Type"
+    },
+    {
+        "tagType": "Property Prior Sale",
+        "tagValue": "1982/11/15",
+        "tagName": "Prior Recorded Sale Date"
+    },
+    {
+        "tagType": "Property Prior Sale",
+        "tagValue": "1982/11/15",
+        "tagName": "Prior Completed Sale Date"
+    },
+    {
+        "tagType": "Property Prior Sale",
+        "tagValue": "2704500",
+        "tagName": "Price of Sale"
+    },
+    {
+        "tagType": "Property Prior Sale",
+        "tagValue": "F",
+        "tagName": "Prior Sale Type"
+    },
+    {
+        "tagType": "Property Prior Sale",
+        "tagValue": "MG",
+        "tagName": "Prior Deed Code"
+    },
+    {
+        "tagType": "Property Prior Sale",
+        "tagValue": "1",
+        "tagName": "Prior Sale Transaction Code"
+    },
+    { "tagType": "CallLength", "tagValue": "76", "tagName": "Total" },
+    { "tagType": "CallLength", "tagValue": "70", "tagName": "FromConnect" },
+    { "tagType": "CallLength", "tagValue": "74", "tagName": "FromDial" },
     { "tagType": "EndCall", "tagValue": "Caller", "tagName": "EndCallSource" }
 ]

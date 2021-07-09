@@ -1,5 +1,4 @@
 import React from 'react'
-import AddUserDialog from './AddUserDialog'
 import clsx from 'clsx'
 import DeleteIcon from '@material-ui/icons/Delete'
 import GlobalFilter from './GlobalFilter'

@@ -1,8 +1,8 @@
 [
     {
         "name": "dtStamp",
-        "original": "2021-07-05T20:14:51.8243954Z",
-        "formattedValue": 1625516091824,
+        "original": "2021-06-01T04:10:50.3929868Z",
+        "formattedValue": 1622520650392,
         "type": "date",
         "sum": false
     },
@@ -29,22 +29,22 @@
     },
     {
         "name": "affiliateId",
-        "original": "AFc81be192795f40fe9aeb772bb37db5b4",
-        "formattedValue": "AFc81be192795f40fe9aeb772bb37db5b4",
+        "original": "AFd3d075c572a14ed19698e10c07dc00dd",
+        "formattedValue": "AFd3d075c572a14ed19698e10c07dc00dd",
         "type": "text",
         "sum": false
     },
     {
         "name": "affiliateName",
-        "original": "Revshare",
-        "formattedValue": "Revshare",
+        "original": "Spectrum Reach-",
+        "formattedValue": "Spectrum Reach-",
         "type": "text",
         "sum": false
     },
     {
         "name": "number",
-        "original": "+18669850560",
-        "formattedValue": "+18669850560",
+        "original": "+18002032125",
+        "formattedValue": "+18002032125",
         "type": "phone",
         "sum": false
     },
@@ -64,15 +64,15 @@
     },
     {
         "name": "inboundCallId",
-        "original": "v2SxLLDKH2Z4PW8T-O0gQWOfT2g5LtTYn6mQjOM3OY7MRkGAaFNor0Ig",
-        "formattedValue": "v2SxLLDKH2Z4PW8T-O0gQWOfT2g5LtTYn6mQjOM3OY7MRkGAaFNor0Ig",
+        "original": "v2-FeIqBjciUBi631IV0BTufMAhn85Hvwt5VJ8DUCFSnqJlk-VB7he4Q",
+        "formattedValue": "v2-FeIqBjciUBi631IV0BTufMAhn85Hvwt5VJ8DUCFSnqJlk-VB7he4Q",
         "type": "text",
         "sum": false
     },
     {
         "name": "inboundPhoneNumber",
-        "original": "+12282391927",
-        "formattedValue": "+12 282391 927",
+        "original": "+12705775785",
+        "formattedValue": "+12705775785",
         "type": "phone",
         "sum": false
     },
@@ -92,36 +92,36 @@
     },
     {
         "name": "previouseCallDateTime",
-        "original": 1625516091824,
-        "formattedValue": 1625516091824,
+        "original": 1622520650392,
+        "formattedValue": 1622520650392,
         "type": "date",
         "sum": false
     },
     {
         "name": "totalAmount",
-        "original": 0.23,
-        "formattedValue": 0.23,
+        "original": 0.175,
+        "formattedValue": 0.175,
         "type": "currency",
         "sum": false
     },
     {
         "name": "targetName",
-        "original": "Legacy Healing -Revshare",
-        "formattedValue": "Legacy Healing -Revshare",
+        "original": "Legacy Health-Charter",
+        "formattedValue": "Legacy Health-Charter",
         "type": "text",
         "sum": false
     },
     {
         "name": "targetId",
-        "original": "TAc35562c1b5344d619e413923d29aaa2c",
-        "formattedValue": "TAc35562c1b5344d619e413923d29aaa2c",
+        "original": "TAf40fb91e3f1e421ca55b3a0f83bcea38",
+        "formattedValue": "TAf40fb91e3f1e421ca55b3a0f83bcea38",
         "type": "text",
         "sum": false
     },
     {
         "name": "targetNumber",
-        "original": "+18508055432",
-        "formattedValue": "+18508055432",
+        "original": "+12394207366",
+        "formattedValue": "+12394207366",
         "type": "text",
         "sum": false
     },
@@ -141,44 +141,30 @@
     },
     {
         "name": "timeToConnect",
-        "original": 5,
-        "formattedValue": 5,
+        "original": 5.0,
+        "formattedValue": 5.0,
         "type": "seconds",
         "sum": false
     },
     {
         "name": "callConnectionDt",
-        "original": 1625516097267,
-        "formattedValue": 1625516097267,
+        "original": 1622520655550.0,
+        "formattedValue": 1622520655550.0,
         "type": "date",
         "sum": false
     },
     {
-        "name": "conversionAmount",
-        "original": 61,
-        "formattedValue": 61,
-        "type": "currency",
-        "sum": false
-    },
-    {
         "name": "callLengthInSeconds",
-        "original": 75,
-        "formattedValue": 75,
+        "original": 60.0,
+        "formattedValue": 60.0,
         "type": "seconds",
         "sum": false
     },
     {
         "name": "callCompletedDt",
-        "original": 1625516167060,
-        "formattedValue": 1625516167060,
+        "original": 1622520710457.0,
+        "formattedValue": 1622520710457.0,
         "type": "date",
-        "sum": false
-    },
-    {
-        "name": "payoutAmount",
-        "original": 57.2,
-        "formattedValue": 57.2,
-        "type": "currency",
         "sum": false
     },
     {
@@ -190,22 +176,22 @@
     },
     {
         "name": "recordingUrl",
-        "original": "https://media.ringba.com/recording-public?v=v1&k=n8VpHOQnS69Yvs%2bmpKH4yf32FQF%2bJbPa%2bPtAUK2DQdkoNVhgqRQhDjjlAjFm4YiuOpT7k2UGXJlyOuhQ%2bL%2f4zJdGt%2btz58kfkUYTJke%2burh7WbS9c6zMhEq9fN7zasp96JIWxzjwfd00j4XnZgO%2fpZQ%2fzjZ02WmLX4n2S2iHhwHY7PGHFOXwXCKKVUz6HrGcLFyhttxq1qNtoOWEwB7Ufn%2f%2bzcvMv6s49rdU0bQOMVCteybACQszLMIG3unnKtbLgJJeOH1G%2bAVMEZG0UiSqs5Y3cek%3d",
-        "formattedValue": "https://media.ringba.com/recording-public?v=v1&k=n8VpHOQnS69Yvs%2bmpKH4yf32FQF%2bJbPa%2bPtAUK2DQdkoNVhgqRQhDjjlAjFm4YiuOpT7k2UGXJlyOuhQ%2bL%2f4zJdGt%2btz58kfkUYTJke%2burh7WbS9c6zMhEq9fN7zasp96JIWxzjwfd00j4XnZgO%2fpZQ%2fzjZ02WmLX4n2S2iHhwHY7PGHFOXwXCKKVUz6HrGcLFyhttxq1qNtoOWEwB7Ufn%2f%2bzcvMv6s49rdU0bQOMVCteybACQszLMIG3unnKtbLgJJeOH1G%2bAVMEZG0UiSqs5Y3cek%3d",
+        "original": "https://media.ringba.com/recording-public?v=v1&k=67BHUY%2fMRZvs17HiKyELm7lfIBghFY9ulyxt6jrdDjeFhz0XXnviFkLipQFPLDjY2Tz1yOKLNRb6V69bkzhXCeAu2MIMKyJaf4FQm0PuTYK%2fwk4Bwn0HqI2%2f83pua5pf2wCgMCOxHexJhM2YUV96fNf5hUzl8tfd7yB1WW7sieMIkYiTn%2bA%2bkw6KbQur6Kvf9m6n3vYNP%2bdslCVwnaVjXJ%2fXDuPJKt10zYQ6k6gA2hJHp8kznJVNUhVmo%2bR0pxFkkZpCNLrTJXWoix5uLWluPXEWPDA%3d",
+        "formattedValue": "https://media.ringba.com/recording-public?v=v1&k=67BHUY%2fMRZvs17HiKyELm7lfIBghFY9ulyxt6jrdDjeFhz0XXnviFkLipQFPLDjY2Tz1yOKLNRb6V69bkzhXCeAu2MIMKyJaf4FQm0PuTYK%2fwk4Bwn0HqI2%2f83pua5pf2wCgMCOxHexJhM2YUV96fNf5hUzl8tfd7yB1WW7sieMIkYiTn%2bA%2bkw6KbQur6Kvf9m6n3vYNP%2bdslCVwnaVjXJ%2fXDuPJKt10zYQ6k6gA2hJHp8kznJVNUhVmo%2bR0pxFkkZpCNLrTJXWoix5uLWluPXEWPDA%3d",
         "type": "text",
         "sum": false
     },
     {
         "name": "callConnectionLength",
-        "original": 70,
-        "formattedValue": 70,
+        "original": 55.0,
+        "formattedValue": 55.0,
         "type": "seconds",
         "sum": false
     },
     {
         "name": "profit",
-        "original": 3.8,
-        "formattedValue": 3.8,
+        "original": 0.0,
+        "formattedValue": 0.0,
         "type": "currency",
         "sum": false
     }

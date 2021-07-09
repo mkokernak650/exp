@@ -37691,11 +37691,6 @@ module.exports = function (list, options) {
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 var map = {
-	"./": [
-		"./resources/js/Pages/index.js",
-		9,
-		"resources_js_Pages_index_js"
-	],
 	"./Auth/Login": [
 		"./resources/js/Pages/Auth/Login.jsx",
 		9,
@@ -37736,16 +37731,6 @@ var map = {
 		9,
 		"resources_js_Pages_Layout_Layout_jsx"
 	],
-	"./Layout/Main": [
-		"./resources/js/Pages/Layout/Main.jsx",
-		7,
-		"resources_js_Pages_Layout_Main_jsx"
-	],
-	"./Layout/Main.jsx": [
-		"./resources/js/Pages/Layout/Main.jsx",
-		7,
-		"resources_js_Pages_Layout_Main_jsx"
-	],
 	"./Layout/NavBar": [
 		"./resources/js/Pages/Layout/NavBar.jsx",
 		9,
@@ -37765,16 +37750,6 @@ var map = {
 		"./resources/js/Pages/Layout/SideBar.jsx",
 		9,
 		"resources_js_Pages_Layout_SideBar_jsx"
-	],
-	"./Ringba/CallLogsReport": [
-		"./resources/js/Pages/Ringba/CallLogsReport.js",
-		9,
-		"resources_js_Pages_Ringba_CallLogsReport_js"
-	],
-	"./Ringba/CallLogsReport.js": [
-		"./resources/js/Pages/Ringba/CallLogsReport.js",
-		9,
-		"resources_js_Pages_Ringba_CallLogsReport_js"
 	],
 	"./Ringba/GetRingbaData": [
 		"./resources/js/Pages/Ringba/GetRingbaData.js",
@@ -37796,35 +37771,65 @@ var map = {
 		9,
 		"resources_js_Pages_Ringba_TempRingbaData_js"
 	],
-	"./Ringba/makeData": [
-		"./resources/js/Pages/Ringba/makeData.js",
-		7,
-		"resources_js_Pages_Ringba_makeData_js"
-	],
-	"./Ringba/makeData.js": [
-		"./resources/js/Pages/Ringba/makeData.js",
-		7,
-		"resources_js_Pages_Ringba_makeData_js"
-	],
-	"./Settings/MarketException": [
-		"./resources/js/Pages/Settings/MarketException.js",
+	"./Ringba/callLogsReport": [
+		"./resources/js/Pages/Ringba/callLogsReport.js",
 		9,
-		"resources_js_Pages_Settings_MarketException_js"
+		"resources_js_Pages_Ringba_callLogsReport_js"
 	],
-	"./Settings/MarketException.js": [
-		"./resources/js/Pages/Settings/MarketException.js",
+	"./Ringba/callLogsReport.js": [
+		"./resources/js/Pages/Ringba/callLogsReport.js",
 		9,
-		"resources_js_Pages_Settings_MarketException_js"
+		"resources_js_Pages_Ringba_callLogsReport_js"
 	],
-	"./index": [
-		"./resources/js/Pages/index.js",
+	"./Settings/AddMarket": [
+		"./resources/js/Pages/Settings/AddMarket.js",
 		9,
-		"resources_js_Pages_index_js"
+		"resources_js_Pages_Settings_AddMarket_js"
 	],
-	"./index.js": [
-		"./resources/js/Pages/index.js",
+	"./Settings/AddMarket.js": [
+		"./resources/js/Pages/Settings/AddMarket.js",
 		9,
-		"resources_js_Pages_index_js"
+		"resources_js_Pages_Settings_AddMarket_js"
+	],
+	"./Settings/CustomerReport": [
+		"./resources/js/Pages/Settings/CustomerReport.js",
+		9,
+		"resources_js_Pages_Settings_CustomerReport_js"
+	],
+	"./Settings/CustomerReport.js": [
+		"./resources/js/Pages/Settings/CustomerReport.js",
+		9,
+		"resources_js_Pages_Settings_CustomerReport_js"
+	],
+	"./Settings/MarketExceptionForm": [
+		"./resources/js/Pages/Settings/MarketExceptionForm.js",
+		9,
+		"resources_js_Pages_Settings_MarketExceptionForm_js"
+	],
+	"./Settings/MarketExceptionForm.js": [
+		"./resources/js/Pages/Settings/MarketExceptionForm.js",
+		9,
+		"resources_js_Pages_Settings_MarketExceptionForm_js"
+	],
+	"./Settings/MarketExceptionReport": [
+		"./resources/js/Pages/Settings/MarketExceptionReport.js",
+		9,
+		"resources_js_Pages_Settings_MarketExceptionReport_js"
+	],
+	"./Settings/MarketExceptionReport.js": [
+		"./resources/js/Pages/Settings/MarketExceptionReport.js",
+		9,
+		"resources_js_Pages_Settings_MarketExceptionReport_js"
+	],
+	"./Settings/MarketReport": [
+		"./resources/js/Pages/Settings/MarketReport.js",
+		9,
+		"resources_js_Pages_Settings_MarketReport_js"
+	],
+	"./Settings/MarketReport.js": [
+		"./resources/js/Pages/Settings/MarketReport.js",
+		9,
+		"resources_js_Pages_Settings_MarketReport_js"
 	]
 };
 function webpackAsyncContext(req) {
@@ -37993,7 +37998,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_index_js":1,"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_Main_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_CallLogsReport_js":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_makeData_js":1,"resources_js_Pages_Settings_MarketException_js":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_callLogsReport_js":1,"resources_js_Pages_Settings_AddMarket_js":1,"resources_js_Pages_Settings_CustomerReport_js":1,"resources_js_Pages_Settings_MarketExceptionForm_js":1,"resources_js_Pages_Settings_MarketExceptionReport_js":1,"resources_js_Pages_Settings_MarketReport_js":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};

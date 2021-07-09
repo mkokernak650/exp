@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import EnhancedTable from '../../components/EnhancedTable'
 import Layout from '../Layout/Layout'
+import { usePage } from '@inertiajs/inertia-react';
 
 
 
@@ -14,6 +15,7 @@ const range = len => {
 }
 
 
+
 function makeData(...lens) {
     const makeDataLevel = (depth = 0) => {
         const len = lens[depth]
@@ -23,40 +25,38 @@ function makeData(...lens) {
             }
         })
     }
-
     return makeDataLevel()
 }
 
 
-const CallLogsReport = () => {
+const CustomerReport = () => {
+    const { allCustomers } = usePage().props
+
+    const newCustomer = allCustomers.map((item, indx) => {
+        return {
+            SL: indx + 1,
+            Customer: item.customer_name,
+            'Customer Id': item.customer_ID
+        }
+    })
+    const [mainData, setMainData] = useState(newCustomer)
     const columns = [
         {
-            Header: 'First Name',
-            accessor: 'firstName',
+            Header: 'SL',
+            accessor: 'SL',
         },
         {
-            Header: 'Last Name',
-            accessor: 'lastName',
+            Header: 'Customer',
+            accessor: 'Customer',
         },
         {
-            Header: 'Age',
-            accessor: 'age',
-        },
-        {
-            Header: 'Visits',
-            accessor: 'visits',
-        },
-        {
-            Header: 'Status',
-            accessor: 'status',
-        },
-        {
-            Header: 'Profile Progress',
-            accessor: 'progress',
-        },
+            Header: 'Customer Id',
+            accessor: 'Customer Id',
+        }
     ]
 
     const [data, setData] = React.useState(React.useMemo(() => makeData(20), []))
+
     const [skipPageReset, setSkipPageReset] = React.useState(false)
 
     const updateMyData = (rowIndex, columnId, value) => {
@@ -79,8 +79,8 @@ const CallLogsReport = () => {
             <CssBaseline />
             <EnhancedTable
                 columns={columns}
-                data={data}
-                setData={setData}
+                data={mainData}
+                setData={setMainData}
                 updateMyData={updateMyData}
                 skipPageReset={skipPageReset}
             />
@@ -89,5 +89,5 @@ const CallLogsReport = () => {
     )
 }
 
-CallLogsReport.layout = page => <Layout title="CallLogsReport">{page}</Layout>
-export default CallLogsReport
+CustomerReport.layout = page => <Layout title="Customer Report">{page}</Layout>
+export default CustomerReport

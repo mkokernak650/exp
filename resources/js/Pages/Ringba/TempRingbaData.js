@@ -14,14 +14,7 @@ const range = len => {
   return arr
 }
 
-const newPerson = () => {
-  return {
-    Id: 1,
-    CallLog_columns: "test1",
-    CallLog_events: "test2",
-    CallLog_Tags: "test1",
-  }
-}
+
 
 function makeData(...lens) {
   const makeDataLevel = (depth = 0) => {
@@ -30,7 +23,6 @@ function makeData(...lens) {
       console.log(d)
 
       return {
-        ...newPerson(),
         subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
       }
     })
@@ -44,7 +36,7 @@ const TempRingbaData = () => {
 
   const newRingbadata = ringbaData.map((item, indx) => {
     return {
-      Id: indx,
+      SL: indx,
       CallLog_columns: JSON.stringify(item.columns),
       CallLog_events: JSON.stringify(item.events),
       CallLog_Tags: JSON.stringify(item.tags)
@@ -53,8 +45,8 @@ const TempRingbaData = () => {
   const [mainData, setRingbadata] = useState(newRingbadata)
   const columns = [
     {
-      Header: 'Id',
-      accessor: 'Id',
+      Header: 'SL',
+      accessor: 'SL',
     },
     {
       Header: 'CallLog_columns',

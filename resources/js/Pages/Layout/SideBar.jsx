@@ -147,7 +147,7 @@ function ResponsiveDrawer(props) {
         },
         {
             id: 3,
-            href: 'market-exception',
+            href: 'market-exception-form',
             Icon: <SettingsIcon size='20' />,
             title: 'Settings',
             active: false,
@@ -155,32 +155,29 @@ function ResponsiveDrawer(props) {
             submenu: [
                 {
 
-                    title: 'Market Exceptions',
-                    href: 'market-exception',
+                    title: 'Add Market Exception',
+                    href: 'market-exception-form',
                     Icon: <UserIcon />,
                 },
                 {
-                    title: 'Call Logs Report',
-                    href: 'getringbadata',
+                    title: 'Market Exception Report',
+                    href: 'market-exception-report',
 
                     Icon: <UserIcon />,
                 },
                 {
-                    title: 'Generate Report Affiliate',
-                    href: 'getringbadata',
-
+                    title: 'Add Market',
+                    href: 'add-market',
                     Icon: <UserIcon />,
                 },
                 {
-                    title: 'Generate Report Target',
-                    href: 'getringbadata',
-
+                    title: 'Market Report',
+                    href: 'market-report',
                     Icon: <UserIcon />,
                 },
                 {
-                    title: 'Archived Call Logs',
-                    href: 'getringbadata',
-
+                    title: 'Customer Report',
+                    href: 'customer-report',
                     Icon: <UserIcon />,
                 },
                 {
