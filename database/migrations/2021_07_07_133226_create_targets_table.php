@@ -15,9 +15,9 @@ class CreateTargetsTable extends Migration
     {
         Schema::create('targets', function (Blueprint $table) {
             $table->id();
-            $table->text('Customer');
-            $table->text('Ringba_Targets_Name');
-            $table->text('Description');
+            $table->text('Customer')->nullable();
+            $table->text('Ringba_Targets_Name')->nullable();
+            $table->text('Description')->nullable();
             $table->timestamps();
         });
     }

@@ -4,8 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
-use App\Http\Controllers\LogController;
-use App\Http\Controllers\RingCallLogController;
+use App\Http\Controllers\RingbaCallLogController;
 use Illuminate\Support\Facades\Auth;
 use Whoops\Run;
 
@@ -20,8 +19,8 @@ use Whoops\Run;
 |
 */
 
-Route::get('/token-ringba', [RingCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
-Route::post('/temp-ringba-data', [RingCallLogController::class, 'dateWiseData'])->name('temp-ringba-data');
+Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
+Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])->name('temp-ringba-data');
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')->middleware('guest');
@@ -46,21 +45,26 @@ Route::get('/call-logs-report', function () {
 
 
 
-Route::get('/market-exception-report', [RingCallLogController::class, 'marketExceptionReport'])->name('market-exception-report');
-Route::get('/market-exception-form', [RingCallLogController::class, 'marketExceptionForm'])->name('market-exception-form');
-Route::post('/add-market-exception', [RingCallLogController::class, 'addMarketException'])->name('add-market-exception');
+Route::get('/market-exception-report', [RingbaCallLogController::class, 'marketExceptionReport'])->name('market-exception-report');
+Route::get('/market-exception-form', [RingbaCallLogController::class, 'marketExceptionForm'])->name('market-exception-form');
+Route::post('/add-market-exception', [RingbaCallLogController::class, 'addMarketException'])->name('add-market-exception');
 
 
 Route::get('/add-market', function () {
     return inertia::render('Settings/AddMarket');
 })->name('add-market');
 
-Route::post('/store-market', [RingCallLogController::class, 'addMarket'])->name('store-market');
-Route::get('/market-report', [RingCallLogController::class, 'marketReport'])->name('market-report');
+Route::post('/store-market', [RingbaCallLogController::class, 'addMarket'])->name('store-market');
+Route::get('/market-report', [RingbaCallLogController::class, 'marketReport'])->name('market-report');
 
-Route::get('/customer-report', [RingCallLogController::class, 'customerReport'])->name('customer-report');
+Route::get('/customer-report', [RingbaCallLogController::class, 'customerReport'])->name('customer-report');
 
-Route::get('/temp-ringba-data', [RingCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
+Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
+Route::get('/market-exception',function () {
+    return inertia::render('Settings/MarketException');
+})->name('market-exception');
+Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
+Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCallLogs'])->name('ringbaCallLogs');
 
 
 

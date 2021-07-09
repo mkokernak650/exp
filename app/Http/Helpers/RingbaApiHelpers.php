@@ -122,10 +122,9 @@ class RingbaApiHelpers
     return ['success'];
   }
 
-  public function dateWiseData($date)
+  public function getDataDateWise($params)
   {
-    $result = $this->postRequest('calllogs/date', $date);
-    dd($result);
+    return json_decode($this->postRequest('calllogs/date', $params));
   }
 
   // get user account infor

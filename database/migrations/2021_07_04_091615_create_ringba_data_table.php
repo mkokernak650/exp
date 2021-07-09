@@ -15,9 +15,9 @@ class CreateRingbaDataTable extends Migration
     {
         Schema::create('ringba_data', function (Blueprint $table) {
             $table->id();
-            $table->text('columns');
-            $table->text('events');
-            $table->text('tags');
+            $table->text('columns')->nullable();
+            $table->text('events')->nullable();
+            $table->text('tags')->nullable();
             $table->timestamps();
         });
     }

@@ -16,9 +16,9 @@ class CreateRingbaAuthDetailsTable extends Migration
         Schema::create('ringba_auth_details', function (Blueprint $table) {
             $table->id();
             $table->text('user_info')->nullable();
-            $table->text('auth_details');
-            $table->text('account_details');
-            $table->text('api_token');
+            $table->text('auth_details')->nullable();
+            $table->text('account_details')->nullable();
+            $table->text('api_token')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
