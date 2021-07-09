@@ -18,15 +18,15 @@ use Whoops\Run;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+//TODO Ringba call log contoroller
 Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])->name('temp-ringba-data');
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')->middleware('guest');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::post('/get-ringba-data', function ($id) {
-});
+// Route::post('/get-ringba-data', function ($id) {
+// });
 // Route::post('login')->name('login.attempt')->uses('Auth\LoginController@login')->middleware('guest');
 
 // Route::get('/', function () {
@@ -54,12 +54,11 @@ Route::get('/add-market', function () {
     return inertia::render('Settings/AddMarket');
 })->name('add-market');
 
+//TODO marker
 Route::post('/store-market', [RingbaCallLogController::class, 'addMarket'])->name('store-market');
 Route::get('/market-report', [RingbaCallLogController::class, 'marketReport'])->name('market-report');
 
 Route::get('/customer-report', [RingbaCallLogController::class, 'customerReport'])->name('customer-report');
-
-Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
 Route::get('/market-exception',function () {
     return inertia::render('Settings/MarketException');
 })->name('market-exception');

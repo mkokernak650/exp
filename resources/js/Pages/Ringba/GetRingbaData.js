@@ -58,7 +58,7 @@ const GetRingbaData = () => {
         Inertia.post('temp-ringba-data', values, {
             onFinish: () => {
                 setLoading(false),
-                    setSuccessMessage("Data Fetched Successfully")
+                setSuccessMessage("Data Fetched Successfully")
             }
         })
     }

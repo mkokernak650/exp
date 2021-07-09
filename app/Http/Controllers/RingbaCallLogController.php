@@ -241,7 +241,6 @@ class RingbaCallLogController extends Controller
             'timezoneId' => 'Eastern Standard Time'
         ];
 
-        // $results = json_decode($this->_ringba->postRequest('calllogs/date', $params));
         $results = $this->_ringba->getDataDateWise($params);
         $ringbaData = new RingbaData();
         $ringbaData->truncate();
@@ -254,6 +253,10 @@ class RingbaCallLogController extends Controller
             $ringbaData->tags = json_encode($data->tags);
             $ringbaData->save();
         }
+        
+        // for transfer all data in Ring call log report table;
+        $this->ringbaCallLogs();
+
         // return Inertia::render(
         //     'Ringba/TempRingbaData',
         //     [
