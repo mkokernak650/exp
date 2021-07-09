@@ -44,9 +44,22 @@ Route::get('/call-logs-report', function () {
     return inertia::render('Ringba/CallLogsReport');
 })->name('call-logs-report');
 
-Route::get('/market-exception',function () {
-    return inertia::render('Settings/MarketException');
-})->name('market-exception');
+
+
+Route::get('/market-exception-report', [RingCallLogController::class, 'marketExceptionReport'])->name('market-exception-report');
+Route::get('/market-exception-form', [RingCallLogController::class, 'marketExceptionForm'])->name('market-exception-form');
+Route::post('/add-market-exception', [RingCallLogController::class, 'addMarketException'])->name('add-market-exception');
+
+
+Route::get('/add-market', function () {
+    return inertia::render('Settings/AddMarket');
+})->name('add-market');
+
+Route::post('/store-market', [RingCallLogController::class, 'addMarket'])->name('store-market');
+Route::get('/market-report', [RingCallLogController::class, 'marketReport'])->name('market-report');
+
+Route::get('/customer-report', [RingCallLogController::class, 'customerReport'])->name('customer-report');
+
 Route::get('/temp-ringba-data', [RingCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
 
 

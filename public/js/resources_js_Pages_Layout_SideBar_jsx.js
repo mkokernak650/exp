@@ -10130,7 +10130,7 @@ function ResponsiveDrawer(props) {
     }]
   }, {
     id: 3,
-    href: 'market-exception',
+    href: 'market-exception-form',
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_9__.default, {
       size: "20"
     }),
@@ -10138,24 +10138,24 @@ function ResponsiveDrawer(props) {
     active: false,
     collapse: true,
     submenu: [{
-      title: 'Market Exceptions',
-      href: 'market-exception',
+      title: 'Add Market Exception',
+      href: 'market-exception-form',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Call Logs Report',
-      href: 'getringbadata',
+      title: 'Market Exception Report',
+      href: 'market-exception-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Generate Report Affiliate',
-      href: 'getringbadata',
+      title: 'Add Market',
+      href: 'add-market',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Generate Report Target',
-      href: 'getringbadata',
+      title: 'Market Report',
+      href: 'market-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Archived Call Logs',
-      href: 'getringbadata',
+      title: 'Customer Report',
+      href: 'customer-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: 'Pending Bill Call Logs',
