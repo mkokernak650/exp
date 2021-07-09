@@ -241,7 +241,6 @@ class RingbaCallLogController extends Controller
             'timezoneId' => 'Eastern Standard Time'
         ];
 
-        // $results = json_decode($this->_ringba->postRequest('calllogs/date', $params));
         $results = $this->_ringba->getDataDateWise($params);
         $ringbaData = new RingbaData();
         $ringbaData->truncate();
