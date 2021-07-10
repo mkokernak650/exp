@@ -288,6 +288,15 @@ class RingbaCallLogController extends Controller
         //         ],
         //     ]
         // );
+        return Inertia::render(
+            'Ringba/TempRingbaData',
+            [
+                'ringbaData' => $results->result->callLog->data,
+                'flash' => [
+                    'message' => fn () => $request->session()->get('Data Fetched Successfully')
+                ],
+            ]
+        );
     }
 
     public function tempRingbaData()

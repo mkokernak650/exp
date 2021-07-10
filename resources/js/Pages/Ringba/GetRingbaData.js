@@ -43,7 +43,6 @@ const GetRingbaData = () => {
     const classes = useStyles();
     const [values, setValues] = useState()
     const [loading, setLoading] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("")
     const handleChange = (e) => {
         const { name, value } = e.target
         setValues(oldValues => ({
@@ -57,8 +56,7 @@ const GetRingbaData = () => {
         setLoading(true)
         Inertia.post('temp-ringba-data', values, {
             onFinish: () => {
-                setLoading(false),
-                setSuccessMessage("Data Fetched Successfully")
+                setLoading(false)
             }
         })
     }
@@ -104,12 +102,7 @@ const GetRingbaData = () => {
                             />
                             : "Get Ringba Data"}
                     </Button>
-                    <h1>{successMessage}</h1>
                 </form>
-                <Typography
-                    variant="h6" id="tableTitle" component="div">
-                    {successMessage}
-                </Typography>
             </Paper>
         </div>
     )
