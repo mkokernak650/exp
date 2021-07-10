@@ -10,6 +10,7 @@ use App\Models\Target;
 use App\Models\MarketExcptions;
 use App\Models\Market;
 use App\Models\Customer;
+use App\Models\ZipCodeData;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,11 @@ class RingbaCallLogController extends Controller
     protected $has_annotations = 'NO';
     protected $get_call_log_status = 'Active';
     protected $get_call_qualification = 'Not Qualified';
+    protected $get_city = "";
+    protected $get_state = "";
+    protected $get_zipcode = "";
+    protected $get_market = "";
+    protected $get_type = "";
 
     public function __construct()
     {
@@ -68,7 +74,7 @@ class RingbaCallLogController extends Controller
 
         foreach ($ringbaMain as $row) {
 
-            if ($row->columns) $this->column($row->columns);
+            if ($row->columns) $this->columns($row->columns);
             if ($row->events) $this->events($row->events);
             if ($row->tags) $this->tags($row->tags);
 
@@ -95,11 +101,11 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
             $ringbaCallLogs->Duplicate_Call         = $this->get_duplicated_status;
             $ringbaCallLogs->Source_Hangup          = $this->get_source_hangup;
-            // $ringbaCallLogs->City                   = $this->get_
-            // $ringbaCallLogs->State                  = $this->get_
-            // $ringbaCallLogs->Zipcode                = $this->get_
-            // $ringbaCallLogs->Market                 = $this->get_
-            // $ringbaCallLogs->Type                   = $this->get_
+            $ringbaCallLogs->City                   = $this->get_city;
+            $ringbaCallLogs->State                  = $this->get_state;
+            $ringbaCallLogs->Zipcode                = $this->get_zipcode;
+            // $ringbaCallLogs->Market                 = $this->get_market;
+            // $ringbaCallLogs->Type                   = $this->get_type;
             $ringbaCallLogs->Call_Qualification     = $this->get_call_qualification;
             $ringbaCallLogs->Recording_Url          = $this->get_recordingUrl;
             $ringbaCallLogs->Customer               = $this->get_customer_name_id;
@@ -109,7 +115,7 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    private function column($row)
+    private function columns($row)
     {
         $results = json_decode($row);
         foreach ($results as $item) {
@@ -131,6 +137,7 @@ class RingbaCallLogController extends Controller
                 $this->get_inboundCallId = $item->formattedValue;
             } else if ($item->name === 'inboundPhoneNumber') {
                 $this->get_inboundPhoneNumber = $item->formattedValue;
+                $this->zipCodeInfo($this->get_inboundPhoneNumber);
             } else if ($item->name === 'totalAmount') {
                 $this->get_totalAmount = $item->formattedValue;
             } else if ($item->name === 'callCompletedDt') {
@@ -197,6 +204,21 @@ class RingbaCallLogController extends Controller
         }
     }
 
+    // get Zip Code info via NPANXX number
+    private function zipCodeInfo($inboundPhoneNumber)
+    {
+        $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
+        $zipCodeDb      = new ZipCodeData();
+        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City'])
+                                    ->where('NPANXX', '=', $npanxx_number)
+                                    ->first();
+        if ($result) {
+            $this->get_zipcode = $result->ZipCode;
+            $this->get_state = $result->State;
+            $this->get_city = $result->City;
+        }
+    }
+
     public function dateWiseData(Request $request)
     {
         $get_past_days_range = null;
@@ -253,7 +275,19 @@ class RingbaCallLogController extends Controller
             $ringbaData->tags = json_encode($data->tags);
             $ringbaData->save();
         }
+
+        // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
+
+        // return Inertia::render(
+        //     'Ringba/TempRingbaData',
+        //     [
+        //         'ringbaData' => $results->result->callLog->data,
+        //         'flash' => [
+        //             'message' => fn () => $request->session()->get('Data Fetched Successfully')
+        //         ],
+        //     ]
+        // );
         return Inertia::render(
             'Ringba/TempRingbaData',
             [
