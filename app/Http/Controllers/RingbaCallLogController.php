@@ -253,6 +253,7 @@ class RingbaCallLogController extends Controller
             $ringbaData->tags = json_encode($data->tags);
             $ringbaData->save();
         }
+        $this->ringbaCallLogs();
         return Inertia::render(
             'Ringba/TempRingbaData',
             [
@@ -326,6 +327,15 @@ class RingbaCallLogController extends Controller
         $allCustomers = Customer::all();
         return Inertia::render('Settings/CustomerReport', [
             'allCustomers' => $allCustomers,
+        ]);
+    }
+
+
+    public function callLogsReport()
+    {
+        $allCallLogs = RingbaCallLog::all();
+        return Inertia::render('Ringba/CallLogsReport', [
+            'allCallLogs' => $allCallLogs,
         ]);
     }
 }

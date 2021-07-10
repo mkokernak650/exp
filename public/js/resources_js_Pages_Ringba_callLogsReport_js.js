@@ -1,4 +1,4 @@
-(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_callLogsReport_js"],{
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_CallLogsReport_js"],{
 
 /***/ "./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js":
 /*!*********************************************************************!*\
@@ -20790,6 +20790,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @inertiajs/inertia-react */ "./node_modules/@inertiajs/inertia-react/dist/index.js");
 /* harmony import */ var _Shared_NormalModal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../Shared/NormalModal */ "./resources/js/Shared/NormalModal.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -20803,6 +20807,7 @@ function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Sy
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -20863,6 +20868,12 @@ function PrimarySearchAppBar(_ref) {
       mobileMoreAnchorEl = _React$useState6[0],
       setMobileMoreAnchorEl = _React$useState6[1];
 
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_0__.useState(),
+      _React$useState8 = _slicedToArray(_React$useState7, 2),
+      values = _React$useState8[0],
+      setValues = _React$useState8[1];
+
+  var auth = (0,_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__.usePage)().props.auth;
   var isMenuOpen = Boolean(anchorEl);
   var isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
@@ -20887,6 +20898,21 @@ function PrimarySearchAppBar(_ref) {
     setShowModal({
       open: true
     });
+  };
+
+  var handleChange = function handleChange(e) {
+    var _e$target = e.target,
+        name = _e$target.name,
+        value = _e$target.value;
+    setValues(function (oldValues) {
+      return _objectSpread(_objectSpread({}, oldValues), {}, _defineProperty({}, name, value));
+    });
+    console.log(auth);
+  };
+
+  var handleSubmit = function handleSubmit(e) {
+    e.preventDefault();
+    cosnole.log(values);
   };
 
   var menuId = "primary-search-account-menu";
@@ -21010,25 +21036,27 @@ function PrimarySearchAppBar(_ref) {
             type: "text",
             variant: "outlined",
             required: "true",
-            value: "dsfsdf"
+            onChange: handleChange
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-            children: "First Name:"
+            children: "Last Name:"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_15__.default, {
             fullWidth: true,
             margin: "normal",
             name: "lastname",
             type: "text",
             variant: "outlined",
-            required: "true"
+            required: "true",
+            onChange: handleChange
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-            children: "First Name:"
+            children: "Email:"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_15__.default, {
             fullWidth: true,
             margin: "normal",
             name: "email",
             type: "email",
             variant: "outlined",
-            required: "true"
+            required: "true",
+            onChange: handleChange
           })]
         })
       })
@@ -21245,14 +21273,6 @@ function ResponsiveDrawer(props) {
       title: 'Customer Report',
       href: 'customer-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Pending Bill Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Billed Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }];
 
@@ -21396,9 +21416,9 @@ ResponsiveDrawer.propTypes = {
 
 /***/ }),
 
-/***/ "./resources/js/Pages/Ringba/callLogsReport.js":
+/***/ "./resources/js/Pages/Ringba/CallLogsReport.js":
 /*!*****************************************************!*\
-  !*** ./resources/js/Pages/Ringba/callLogsReport.js ***!
+  !*** ./resources/js/Pages/Ringba/CallLogsReport.js ***!
   \*****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -21408,10 +21428,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @material-ui/core/CssBaseline */ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js");
+/* harmony import */ var _material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @material-ui/core/CssBaseline */ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js");
 /* harmony import */ var _components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../components/EnhancedTable */ "./resources/js/components/EnhancedTable.js");
 /* harmony import */ var _Layout_Layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Layout/Layout */ "./resources/js/Pages/Layout/Layout.jsx");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @inertiajs/inertia-react */ "./node_modules/@inertiajs/inertia-react/dist/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -21429,6 +21450,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 
 
@@ -21466,24 +21488,129 @@ function makeData() {
 }
 
 var CallLogsReport = function CallLogsReport() {
+  var allCallLogs = (0,_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__.usePage)().props.allCallLogs;
+  var newCallCallLogs = allCallLogs.map(function (item, indx) {
+    return {
+      'SL': indx + 1,
+      'Call Date': item.Call_Date_Time,
+      'Has Annotation': item.Has_Annotation,
+      'Annotation': item.Annotation_Tag,
+      'Call Status': item.call_Logs_status,
+      'Recording Url': item.Recording_Url,
+      'Time': item.Call_Date_Time,
+      'Inbound Id': item.Inbound_Id,
+      'Affiliate': item.Affiliate,
+      'Market': item.Market,
+      'Campaign': item.Campaign,
+      'Inbound': item.Inbound,
+      'Dialed': item.Dialed,
+      'Type': item.Type,
+      'Customer': item.Customer,
+      'Target': item.Target,
+      'Target Description': item.Target_Description,
+      'Source/Hangup': item.Source_Hangup,
+      'Conn. Duration': item.Conn_Duration,
+      'Time To Call': item.Time_To_Call,
+      'Call Length In Seconds': item.call_Length_In_Seconds,
+      'Revenue': item.Revenue,
+      'Payout': item.payoutAmount,
+      'Total Cost': item.Total_Cost,
+      'Profit': item.Profit,
+      'City': item.City,
+      'State': item.State,
+      'Zipcode': item.Zipcode
+    };
+  });
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(newCallCallLogs),
+      _useState2 = _slicedToArray(_useState, 2),
+      mainData = _useState2[0],
+      setMainData = _useState2[1];
+
   var columns = [{
-    Header: 'First Name',
-    accessor: 'firstName'
+    Header: 'SL',
+    accessor: 'SL'
   }, {
-    Header: 'Last Name',
-    accessor: 'lastName'
+    Header: 'Call Date',
+    accessor: 'Call Date'
   }, {
-    Header: 'Age',
-    accessor: 'age'
+    Header: 'Has Annotation',
+    accessor: 'Has Annotation'
   }, {
-    Header: 'Visits',
-    accessor: 'visits'
+    Header: 'Annotation Tag',
+    accessor: 'Annotation Tag'
   }, {
-    Header: 'Status',
-    accessor: 'status'
+    Header: 'Call Status',
+    accessor: 'Call Status'
   }, {
-    Header: 'Profile Progress',
-    accessor: 'progress'
+    Header: 'Recording Url',
+    accessor: 'Recording Url'
+  }, {
+    Header: 'Time',
+    accessor: 'Time'
+  }, {
+    Header: 'Inbound Id',
+    accessor: 'Inbound Id'
+  }, {
+    Header: 'Affiliate',
+    accessor: 'Affiliate'
+  }, {
+    Header: 'Market',
+    accessor: 'Market'
+  }, {
+    Header: 'Campaign',
+    accessor: 'Campaign'
+  }, {
+    Header: 'Inbound',
+    accessor: 'Inbound'
+  }, {
+    Header: 'Dialed',
+    accessor: 'Dialed'
+  }, {
+    Header: 'Type',
+    accessor: 'Type'
+  }, {
+    Header: 'Customer',
+    accessor: 'Customer'
+  }, {
+    Header: 'Target',
+    accessor: 'Target'
+  }, {
+    Header: 'Target Description',
+    accessor: 'Target Description'
+  }, {
+    Header: 'Source/Hangup',
+    accessor: 'Source/Hangup'
+  }, {
+    Header: 'Conn. Duration',
+    accessor: 'Conn. Duration'
+  }, {
+    Header: 'Time To Call',
+    accessor: 'Time To Call'
+  }, {
+    Header: 'Call Length In Seconds',
+    accessor: 'Call Length In Seconds'
+  }, {
+    Header: 'Revenue',
+    accessor: 'Revenue'
+  }, {
+    Header: 'Payout',
+    accessor: 'Payout'
+  }, {
+    Header: 'Total Cost',
+    accessor: 'Total Cost'
+  }, {
+    Header: 'Profit',
+    accessor: 'Profit'
+  }, {
+    Header: 'City',
+    accessor: 'City'
+  }, {
+    Header: 'State',
+    accessor: 'State'
+  }, {
+    Header: 'Zipcode',
+    accessor: 'Zipcode'
   }];
 
   var _React$useState = react__WEBPACK_IMPORTED_MODULE_0__.useState(react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () {
@@ -21511,11 +21638,11 @@ var CallLogsReport = function CallLogsReport() {
     });
   };
 
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_4__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__.default, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core_CssBaseline__WEBPACK_IMPORTED_MODULE_5__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__.default, {
       columns: columns,
-      data: data,
-      setData: setData,
+      data: mainData,
+      setData: setMainData,
       updateMyData: updateMyData,
       skipPageReset: skipPageReset
     })]
@@ -21523,8 +21650,8 @@ var CallLogsReport = function CallLogsReport() {
 };
 
 CallLogsReport.layout = function (page) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
-    title: "CallLogsReport",
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
+    title: "Call Logs Report",
     children: page
   });
 };
@@ -21792,7 +21919,7 @@ var EnhancedTable = function EnhancedTable(_ref3) {
     // That way we can call this function from our
     // cell renderer!
     updateMyData: updateMyData
-  }, react_table__WEBPACK_IMPORTED_MODULE_4__.useGlobalFilter, react_table__WEBPACK_IMPORTED_MODULE_4__.useSortBy, react_table__WEBPACK_IMPORTED_MODULE_4__.usePagination, react_table__WEBPACK_IMPORTED_MODULE_4__.useRowSelect, function (hooks) {
+  }, react_table__WEBPACK_IMPORTED_MODULE_4__.useGlobalFilter, react_table__WEBPACK_IMPORTED_MODULE_4__.useSortBy, react_table__WEBPACK_IMPORTED_MODULE_4__.usePagination, react_table__WEBPACK_IMPORTED_MODULE_4__.useRowSelect, react_table__WEBPACK_IMPORTED_MODULE_4__.useResizeColumns, function (hooks) {
     hooks.allColumns.push(function (columns) {
       return [// Let's make a column for selection
       {
@@ -22156,16 +22283,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.m.js");
-/* harmony import */ var _material_ui_icons_Delete__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @material-ui/icons/Delete */ "./node_modules/@material-ui/icons/Delete.js");
+/* harmony import */ var _material_ui_icons_Delete__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @material-ui/icons/Delete */ "./node_modules/@material-ui/icons/Delete.js");
 /* harmony import */ var _GlobalFilter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GlobalFilter */ "./resources/js/components/GlobalFilter.js");
-/* harmony import */ var _material_ui_core_IconButton__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @material-ui/core/IconButton */ "./node_modules/@material-ui/core/esm/IconButton/IconButton.js");
+/* harmony import */ var _material_ui_core_IconButton__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @material-ui/core/IconButton */ "./node_modules/@material-ui/core/esm/IconButton/IconButton.js");
 /* harmony import */ var _material_ui_core_styles__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @material-ui/core/styles */ "./node_modules/@material-ui/core/esm/styles/makeStyles.js");
-/* harmony import */ var _material_ui_core_styles__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @material-ui/core/styles */ "./node_modules/@material-ui/core/esm/styles/colorManipulator.js");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _material_ui_core_Toolbar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @material-ui/core/Toolbar */ "./node_modules/@material-ui/core/esm/Toolbar/Toolbar.js");
-/* harmony import */ var _material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @material-ui/core/Typography */ "./node_modules/@material-ui/core/esm/Typography/Typography.js");
-/* harmony import */ var _material_ui_core_Tooltip__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @material-ui/core/Tooltip */ "./node_modules/@material-ui/core/esm/Tooltip/Tooltip.js");
+/* harmony import */ var _material_ui_core_Toolbar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @material-ui/core/Toolbar */ "./node_modules/@material-ui/core/esm/Toolbar/Toolbar.js");
+/* harmony import */ var _material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @material-ui/core/Typography */ "./node_modules/@material-ui/core/esm/Typography/Typography.js");
+/* harmony import */ var _material_ui_core_Tooltip__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @material-ui/core/Tooltip */ "./node_modules/@material-ui/core/esm/Tooltip/Tooltip.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -22191,13 +22317,14 @@ var useToolbarStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_5__.
     },
     highlight: theme.palette.type === 'light' ? {
       color: theme.palette.secondary.main,
-      backgroundColor: (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_6__.lighten)(theme.palette.secondary.light, 0.85)
+      backgroundColor: '#f50057'
     } : {
       color: theme.palette.text.primary,
       backgroundColor: theme.palette.secondary.dark
     },
     title: {
-      flex: '1 1 100%'
+      flex: '1 1 100%',
+      color: '#fff'
     }
   };
 });
@@ -22210,22 +22337,25 @@ var TableToolbar = function TableToolbar(props) {
       preGlobalFilteredRows = props.preGlobalFilteredRows,
       setGlobalFilter = props.setGlobalFilter,
       globalFilter = props.globalFilter;
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Toolbar__WEBPACK_IMPORTED_MODULE_7__.default, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Toolbar__WEBPACK_IMPORTED_MODULE_6__.default, {
     className: (0,clsx__WEBPACK_IMPORTED_MODULE_1__.default)(classes.root, _defineProperty({}, classes.highlight, numSelected > 0)),
-    children: [numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_8__.default, {
+    children: [numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_7__.default, {
       className: classes.title,
-      color: "inherit",
       variant: "subtitle1",
       children: [numSelected, " selected"]
     }) : // <Typography className={classes.title} variant="h6" id="tableTitle">
     //   Users
     // </Typography>
-    "", numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core_Tooltip__WEBPACK_IMPORTED_MODULE_9__.default, {
+    "", numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core_Tooltip__WEBPACK_IMPORTED_MODULE_8__.default, {
       title: "Delete",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core_IconButton__WEBPACK_IMPORTED_MODULE_10__.default, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core_IconButton__WEBPACK_IMPORTED_MODULE_9__.default, {
         "aria-label": "delete",
         onClick: deleteUserHandler,
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_icons_Delete__WEBPACK_IMPORTED_MODULE_11__.default, {})
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_icons_Delete__WEBPACK_IMPORTED_MODULE_10__.default, {
+          style: {
+            color: '#fff'
+          }
+        })
       })
     }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_GlobalFilter__WEBPACK_IMPORTED_MODULE_2__.default, {
       preGlobalFilteredRows: preGlobalFilteredRows,
