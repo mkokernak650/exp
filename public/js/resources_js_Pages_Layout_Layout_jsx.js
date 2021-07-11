@@ -17463,6 +17463,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @inertiajs/inertia-react */ "./node_modules/@inertiajs/inertia-react/dist/index.js");
 /* harmony import */ var _Shared_NormalModal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../Shared/NormalModal */ "./resources/js/Shared/NormalModal.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -17476,6 +17480,7 @@ function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Sy
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -17536,6 +17541,12 @@ function PrimarySearchAppBar(_ref) {
       mobileMoreAnchorEl = _React$useState6[0],
       setMobileMoreAnchorEl = _React$useState6[1];
 
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_0__.useState(),
+      _React$useState8 = _slicedToArray(_React$useState7, 2),
+      values = _React$useState8[0],
+      setValues = _React$useState8[1];
+
+  var auth = (0,_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_1__.usePage)().props.auth;
   var isMenuOpen = Boolean(anchorEl);
   var isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
@@ -17560,6 +17571,21 @@ function PrimarySearchAppBar(_ref) {
     setShowModal({
       open: true
     });
+  };
+
+  var handleChange = function handleChange(e) {
+    var _e$target = e.target,
+        name = _e$target.name,
+        value = _e$target.value;
+    setValues(function (oldValues) {
+      return _objectSpread(_objectSpread({}, oldValues), {}, _defineProperty({}, name, value));
+    });
+    console.log(auth);
+  };
+
+  var handleSubmit = function handleSubmit(e) {
+    e.preventDefault();
+    cosnole.log(values);
   };
 
   var menuId = "primary-search-account-menu";
@@ -17683,25 +17709,27 @@ function PrimarySearchAppBar(_ref) {
             type: "text",
             variant: "outlined",
             required: "true",
-            value: "dsfsdf"
+            onChange: handleChange
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-            children: "First Name:"
+            children: "Last Name:"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_15__.default, {
             fullWidth: true,
             margin: "normal",
             name: "lastname",
             type: "text",
             variant: "outlined",
-            required: "true"
+            required: "true",
+            onChange: handleChange
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-            children: "First Name:"
+            children: "Email:"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_15__.default, {
             fullWidth: true,
             margin: "normal",
             name: "email",
             type: "email",
             variant: "outlined",
-            required: "true"
+            required: "true",
+            onChange: handleChange
           })]
         })
       })
@@ -17917,14 +17945,6 @@ function ResponsiveDrawer(props) {
     }, {
       title: 'Customer Report',
       href: 'customer-report',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Pending Bill Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Billed Call Logs',
-      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }];

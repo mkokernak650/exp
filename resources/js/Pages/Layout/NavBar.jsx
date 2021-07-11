@@ -15,6 +15,7 @@ import {
 import MoreIcon from "@material-ui/icons/MoreVert";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import NormalModal from "../../Shared/NormalModal";
+import { usePage } from "@inertiajs/inertia-react";
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -52,10 +53,10 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ open: false });
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+    const [values, setValues] = React.useState();
+    const { auth } = usePage().props;
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -75,6 +76,21 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
 
     const openModal = () => {
         setShowModal({ open: true });
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setValues((oldValues) => ({
+            ...oldValues,
+            [name]: value,
+        }));
+    console.log(auth);
+
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        cosnole.log(values);
     };
 
     const menuId = "primary-search-account-menu";
@@ -183,9 +199,9 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
                             type="text"
                             variant="outlined"
                             required="true"
-                            value="dsfsdf"
+                            onChange={handleChange}
                         />
-                        <span>First Name:</span>
+                        <span>Last Name:</span>
                         <TextField
                             fullWidth
                             margin="normal"
@@ -193,8 +209,9 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
                             type="text"
                             variant="outlined"
                             required="true"
+                            onChange={handleChange}
                         />
-                        <span>First Name:</span>
+                        <span>Email:</span>
                         <TextField
                             fullWidth
                             margin="normal"
@@ -202,6 +219,7 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
                             type="email"
                             variant="outlined"
                             required="true"
+                            onChange={handleChange}
                         />
                     </form>
                 </div>

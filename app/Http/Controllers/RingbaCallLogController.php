@@ -368,4 +368,13 @@ class RingbaCallLogController extends Controller
             'allCustomers' => $allCustomers,
         ]);
     }
+
+
+    public function callLogsReport()
+    {
+        $allCallLogs = RingbaCallLog::all();
+        return Inertia::render('Ringba/CallLogsReport', [
+            'allCallLogs' => $allCallLogs,
+        ]);
+    }
 }

@@ -16,6 +16,7 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
+  useResizeColumns
 } from 'react-table'
 
 const IndeterminateCheckbox = React.forwardRef(
@@ -134,6 +135,7 @@ const EnhancedTable = ({
     useSortBy,
     usePagination,
     useRowSelect,
+    useResizeColumns,
     hooks => {
       hooks.allColumns.push(columns => [
         // Let's make a column for selection

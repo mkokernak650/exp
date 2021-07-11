@@ -39,9 +39,7 @@ Route::get('/get-ringba-data', function () {
     return inertia::render('Ringba/GetRingbaData');
 })->name('getringbadata');
 
-Route::get('/call-logs-report', function () {
-    return inertia::render('Ringba/CallLogsReport');
-})->name('call-logs-report');
+
 
 
 
@@ -59,13 +57,13 @@ Route::post('/store-market', [RingbaCallLogController::class, 'addMarket'])->nam
 Route::get('/market-report', [RingbaCallLogController::class, 'marketReport'])->name('market-report');
 
 Route::get('/customer-report', [RingbaCallLogController::class, 'customerReport'])->name('customer-report');
-Route::get('/market-exception',function () {
+Route::get('/market-exception', function () {
     return inertia::render('Settings/MarketException');
 })->name('market-exception');
+
 Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
 Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCallLogs'])->name('ringbaCallLogs');
-
-
+Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])->name('call-logs-report');
 
 
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');

@@ -20,7 +20,7 @@ const useToolbarStyles = makeStyles(theme => ({
     theme.palette.type === 'light'
       ? {
         color: theme.palette.secondary.main,
-        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+        backgroundColor: '#f50057',
       }
       : {
         color: theme.palette.text.primary,
@@ -28,6 +28,7 @@ const useToolbarStyles = makeStyles(theme => ({
       },
   title: {
     flex: '1 1 100%',
+    color:'#fff'
   },
 }))
 
@@ -51,7 +52,6 @@ const TableToolbar = props => {
       {numSelected > 0 ? (
         <Typography
           className={classes.title}
-          color="inherit"
           variant="subtitle1"
         >
           {numSelected} selected
@@ -66,7 +66,7 @@ const TableToolbar = props => {
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={deleteUserHandler}>
-            <DeleteIcon />
+            <DeleteIcon style={{ color: '#fff' }}/>
           </IconButton>
         </Tooltip>
       ) : (

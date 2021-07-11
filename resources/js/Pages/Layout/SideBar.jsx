@@ -179,18 +179,7 @@ function ResponsiveDrawer(props) {
                     title: 'Customer Report',
                     href: 'customer-report',
                     Icon: <UserIcon />,
-                },
-                {
-                    title: 'Pending Bill Call Logs',
-                    href: 'getringbadata',
-
-                    Icon: <UserIcon />,
-                },
-                {
-                    title: 'Billed Call Logs',
-                    href: 'getringbadata',
-                    Icon: <UserIcon />,
-                },
+                }
             ]
         },
 
