@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
+use App\Models\CountryByMarketReport;
 use App\Models\RingbaCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaData;
@@ -209,10 +210,14 @@ class RingbaCallLogController extends Controller
     {
         $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
         $zipCodeDb      = new ZipCodeData();
-        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City'])
+        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
                                     ->where('NPANXX', '=', $npanxx_number)
                                     ->first();
         if ($result) {
+            $country_by_market_reports = new CountryByMarketReport();
+            $res = $country_by_market_reports->select('Market')
+                                            ->where('Fips', '=', $result->FIRP)
+                                            ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
