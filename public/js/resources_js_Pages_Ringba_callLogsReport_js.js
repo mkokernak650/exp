@@ -1,4 +1,4 @@
-(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_CallLogsReport_js"],{
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["resources_js_Pages_Ringba_callLogsReport_js"],{
 
 /***/ "./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js":
 /*!*********************************************************************!*\
@@ -21223,26 +21223,6 @@ function ResponsiveDrawer(props) {
       title: 'Call Logs Report',
       href: 'call-logs-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Generate Report Affiliate',
-      href: 'tempringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Generate Report Target',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Archived Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Pending Bill Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Billed Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }, {
     id: 3,
@@ -21416,9 +21396,9 @@ ResponsiveDrawer.propTypes = {
 
 /***/ }),
 
-/***/ "./resources/js/Pages/Ringba/CallLogsReport.js":
+/***/ "./resources/js/Pages/Ringba/callLogsReport.js":
 /*!*****************************************************!*\
-  !*** ./resources/js/Pages/Ringba/CallLogsReport.js ***!
+  !*** ./resources/js/Pages/Ringba/callLogsReport.js ***!
   \*****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 

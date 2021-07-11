@@ -13,13 +13,13 @@ import TotalCustomers from '../../components/dashboard//TotalCustomers';
 import TotalProfit from '../../components/dashboard//TotalProfit';
 import TrafficByDevice from '../../components/dashboard//TrafficByDevice';
 import Layout from '../Layout/Layout'
-
+import { Typography } from '@material-ui/core';
 const Dashboard = () => (
   <>
     <Helmet>
       <title>Consumer EXP</title>
     </Helmet>
-    <Box
+    {/* <Box
       sx={{
         backgroundColor: 'background.default',
         minHeight: '100%',
@@ -105,7 +105,10 @@ const Dashboard = () => (
           </Grid>
         </Grid>
       </Container>
-    </Box>
+    </Box> */}
+    <Typography variant='h5'>
+      Dashboard
+    </Typography>
   </>
 );
 

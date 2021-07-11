@@ -117,36 +117,11 @@ function ResponsiveDrawer(props) {
                     title: 'Call Logs Report',
                     href: 'call-logs-report',
                     Icon: <UserIcon />,
-                },
-                {
-                    title: 'Generate Report Affiliate',
-                    href: 'tempringbadata',
-                    Icon: <UserIcon />,
-                },
-                {
-                    title: 'Generate Report Target',
-                    href: 'getringbadata',
-                    Icon: <UserIcon />,
-                },
-                {
-                    title: 'Archived Call Logs',
-                    href: 'getringbadata',
-                    Icon: <UserIcon />,
-                },
-                {
-                    title: 'Pending Bill Call Logs',
-                    href: 'getringbadata',
-                    Icon: <UserIcon />,
-                },
-                {
-                    title: 'Billed Call Logs',
-                    href: 'getringbadata',
-                    Icon: <UserIcon />,
-                },
+                }
             ]
         },
         {
-            id: 3,
+            id: 3,  
             href: 'market-exception-form',
             Icon: <SettingsIcon size='20' />,
             title: 'Settings',

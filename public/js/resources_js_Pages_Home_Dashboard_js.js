@@ -3845,168 +3845,6 @@ Collapse.muiSupportAuto = true;
 
 /***/ }),
 
-/***/ "./node_modules/@material-ui/core/esm/Container/Container.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/@material-ui/core/esm/Container/Container.js ***!
-  \*******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "styles": () => (/* binding */ styles),
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
-/* harmony import */ var _babel_runtime_helpers_esm_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/objectWithoutProperties */ "./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js");
-/* harmony import */ var _babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/esm/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.m.js");
-/* harmony import */ var _styles_withStyles__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../styles/withStyles */ "./node_modules/@material-ui/core/esm/styles/withStyles.js");
-/* harmony import */ var _utils_capitalize__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/capitalize */ "./node_modules/@material-ui/core/esm/utils/capitalize.js");
-
-
-
-
-
-
-
-
-var styles = function styles(theme) {
-  return {
-    /* Styles applied to the root element. */
-    root: (0,_babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__.default)({
-      width: '100%',
-      marginLeft: 'auto',
-      boxSizing: 'border-box',
-      marginRight: 'auto',
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
-      display: 'block'
-    }, theme.breakpoints.up('sm'), {
-      paddingLeft: theme.spacing(3),
-      paddingRight: theme.spacing(3)
-    }),
-
-    /* Styles applied to the root element if `disableGutters={true}`. */
-    disableGutters: {
-      paddingLeft: 0,
-      paddingRight: 0
-    },
-
-    /* Styles applied to the root element if `fixed={true}`. */
-    fixed: Object.keys(theme.breakpoints.values).reduce(function (acc, breakpoint) {
-      var value = theme.breakpoints.values[breakpoint];
-
-      if (value !== 0) {
-        acc[theme.breakpoints.up(breakpoint)] = {
-          maxWidth: value
-        };
-      }
-
-      return acc;
-    }, {}),
-
-    /* Styles applied to the root element if `maxWidth="xs"`. */
-    maxWidthXs: (0,_babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__.default)({}, theme.breakpoints.up('xs'), {
-      maxWidth: Math.max(theme.breakpoints.values.xs, 444)
-    }),
-
-    /* Styles applied to the root element if `maxWidth="sm"`. */
-    maxWidthSm: (0,_babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__.default)({}, theme.breakpoints.up('sm'), {
-      maxWidth: theme.breakpoints.values.sm
-    }),
-
-    /* Styles applied to the root element if `maxWidth="md"`. */
-    maxWidthMd: (0,_babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__.default)({}, theme.breakpoints.up('md'), {
-      maxWidth: theme.breakpoints.values.md
-    }),
-
-    /* Styles applied to the root element if `maxWidth="lg"`. */
-    maxWidthLg: (0,_babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__.default)({}, theme.breakpoints.up('lg'), {
-      maxWidth: theme.breakpoints.values.lg
-    }),
-
-    /* Styles applied to the root element if `maxWidth="xl"`. */
-    maxWidthXl: (0,_babel_runtime_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_2__.default)({}, theme.breakpoints.up('xl'), {
-      maxWidth: theme.breakpoints.values.xl
-    })
-  };
-};
-var Container = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.forwardRef(function Container(props, ref) {
-  var classes = props.classes,
-      className = props.className,
-      _props$component = props.component,
-      Component = _props$component === void 0 ? 'div' : _props$component,
-      _props$disableGutters = props.disableGutters,
-      disableGutters = _props$disableGutters === void 0 ? false : _props$disableGutters,
-      _props$fixed = props.fixed,
-      fixed = _props$fixed === void 0 ? false : _props$fixed,
-      _props$maxWidth = props.maxWidth,
-      maxWidth = _props$maxWidth === void 0 ? 'lg' : _props$maxWidth,
-      other = (0,_babel_runtime_helpers_esm_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_1__.default)(props, ["classes", "className", "component", "disableGutters", "fixed", "maxWidth"]);
-
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.createElement(Component, (0,_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__.default)({
-    className: (0,clsx__WEBPACK_IMPORTED_MODULE_5__.default)(classes.root, className, fixed && classes.fixed, disableGutters && classes.disableGutters, maxWidth !== false && classes["maxWidth".concat((0,_utils_capitalize__WEBPACK_IMPORTED_MODULE_6__.default)(String(maxWidth)))]),
-    ref: ref
-  }, other));
-});
- true ? Container.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // |     To update them edit the d.ts file and run "yarn proptypes"     |
-  // ----------------------------------------------------------------------
-
-  /**
-   * @ignore
-   */
-  children: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().node.isRequired),
-
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css) below for more details.
-   */
-  classes: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().object),
-
-  /**
-   * @ignore
-   */
-  className: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().string),
-
-  /**
-   * The component used for the root node.
-   * Either a string to use a HTML element or a component.
-   */
-  component: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().elementType),
-
-  /**
-   * If `true`, the left and right padding is removed.
-   */
-  disableGutters: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().bool),
-
-  /**
-   * Set the max-width to match the min-width of the current breakpoint.
-   * This is useful if you'd prefer to design for a fixed set of sizes
-   * instead of trying to accommodate a fully fluid viewport.
-   * It's fluid by default.
-   */
-  fixed: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().bool),
-
-  /**
-   * Determine the max-width of the container.
-   * The container width grows with the size of the screen.
-   * Set to `false` to disable `maxWidth`.
-   */
-  maxWidth: prop_types__WEBPACK_IMPORTED_MODULE_4___default().oneOf(['lg', 'md', 'sm', 'xl', 'xs', false])
-} : 0;
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,_styles_withStyles__WEBPACK_IMPORTED_MODULE_7__.default)(styles, {
-  name: 'MuiContainer'
-})(Container));
-
-/***/ }),
-
 /***/ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js":
 /*!***********************************************************************!*\
   !*** ./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js ***!
@@ -23342,9 +23180,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var react_helmet__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-helmet */ "./node_modules/react-helmet/es/Helmet.js");
-/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/Box/Box.js");
-/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/Container/Container.js");
-/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/Grid/Grid.js");
 /* harmony import */ var _components_dashboard_Budget__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../components/dashboard//Budget */ "./resources/js/components/dashboard/Budget.js");
 /* harmony import */ var _components_dashboard_LatestOrders__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../components/dashboard//LatestOrders */ "./resources/js/components/dashboard/LatestOrders.js");
 /* harmony import */ var _components_dashboard_LatestProducts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../components/dashboard//LatestProducts */ "./resources/js/components/dashboard/LatestProducts.js");
@@ -23354,7 +23189,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_dashboard_TotalProfit__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../components/dashboard//TotalProfit */ "./resources/js/components/dashboard/TotalProfit.js");
 /* harmony import */ var _components_dashboard_TrafficByDevice__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../components/dashboard//TrafficByDevice */ "./resources/js/components/dashboard/TrafficByDevice.js");
 /* harmony import */ var _Layout_Layout__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Layout/Layout */ "./resources/js/Pages/Layout/Layout.jsx");
+/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/Typography/Typography.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
 
 
 
@@ -23377,87 +23214,8 @@ var Dashboard = function Dashboard() {
         children: "Consumer EXP"
       })
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_11__.default, {
-      sx: {
-        backgroundColor: 'background.default',
-        minHeight: '100%',
-        py: 3
-      },
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_12__.default, {
-        maxWidth: false,
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-          container: true,
-          spacing: 3,
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 3,
-            sm: 6,
-            xl: 3,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_Budget__WEBPACK_IMPORTED_MODULE_1__.default, {})
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 3,
-            sm: 6,
-            xl: 3,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_TotalCustomers__WEBPACK_IMPORTED_MODULE_6__.default, {})
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 3,
-            sm: 6,
-            xl: 3,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_TasksProgress__WEBPACK_IMPORTED_MODULE_5__.default, {})
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 3,
-            sm: 6,
-            xl: 3,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_TotalProfit__WEBPACK_IMPORTED_MODULE_7__.default, {
-              sx: {
-                height: '100%'
-              }
-            })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 8,
-            md: 12,
-            xl: 9,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_Sales__WEBPACK_IMPORTED_MODULE_4__.default, {})
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 4,
-            md: 6,
-            xl: 3,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_TrafficByDevice__WEBPACK_IMPORTED_MODULE_8__.default, {
-              sx: {
-                height: '100%'
-              }
-            })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 4,
-            md: 6,
-            xl: 3,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_LatestProducts__WEBPACK_IMPORTED_MODULE_3__.default, {
-              sx: {
-                height: '100%'
-              }
-            })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, {
-            item: true,
-            lg: 8,
-            md: 12,
-            xl: 9,
-            xs: 12,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_dashboard_LatestOrders__WEBPACK_IMPORTED_MODULE_2__.default, {})
-          })]
-        })
-      })
+      variant: "h5",
+      children: "Dashboard"
     })]
   });
 };
@@ -23990,26 +23748,6 @@ function ResponsiveDrawer(props) {
     }, {
       title: 'Call Logs Report',
       href: 'call-logs-report',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Generate Report Affiliate',
-      href: 'tempringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Generate Report Target',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Archived Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Pending Bill Call Logs',
-      href: 'getringbadata',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Billed Call Logs',
-      href: 'getringbadata',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }, {
