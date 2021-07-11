@@ -175,7 +175,7 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
 
                     <Hidden smUp>
                         <IconButton color="inherit" onClick={onMobileNavOpen}>
-                            <MenuIcon />
+                            <MenuIcon  />
                         </IconButton>
                     </Hidden>
                 </Toolbar>

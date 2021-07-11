@@ -332,7 +332,7 @@ class RingbaCallLogController extends Controller
     {
         $marketExceptions = DB::table('market_excptions')
             ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market',])
-            ->join('customers', 'customers.customer_ID', '=', 'market_excptions.customer_id')->join('Markets', 'markets.id', '=', 'market_excptions.market_id')
+            ->join('customers', 'customers.customer_ID', '=', 'market_excptions.customer_id')->join('markets', 'markets.id', '=', 'market_excptions.market_id')
             ->get();
 
         return Inertia::render('Settings/MarketExceptionReport', [
@@ -368,7 +368,7 @@ class RingbaCallLogController extends Controller
     public function callLogsReport()
     {
         $allCallLogs = RingbaCallLog::all();
-        return Inertia::render('Ringba/CallLogsReport', [
+        return Inertia::render('Ringba/callLogsReport', [
             'allCallLogs' => $allCallLogs,
         ]);
     }
