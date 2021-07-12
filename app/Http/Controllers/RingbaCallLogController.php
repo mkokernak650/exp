@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
+use App\Models\ArchivedCallLog;
 use App\Models\CountryByMarketReport;
 use App\Models\RingbaCallLog;
 use Illuminate\Http\Request;
@@ -80,15 +81,19 @@ class RingbaCallLogController extends Controller
             if ($row->tags) $this->tags($row->tags);
 
             $ringbaCallLogs = new RingbaCallLog();
+            $archiveCallLogs = new ArchivedCallLog();
+            
+            $checkRingbaCallLogs = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
+            $checkArchiveCallLogs = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
 
-            if ($this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId)) {
+            if ($checkRingbaCallLogs || $checkArchiveCallLogs) {
                 continue;
             }
             $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
 
             $ringbaCallLogs->SN                     = "Exp-{$sn}";
-            $ringbaCallLogs->Call_Date_Time         = $this->get_dtStamp;
-            $ringbaCallLogs->Call_Date              = date('d-M-Y', strtotime($this->get_dtStamp));
+            $ringbaCallLogs->Call_Date_Time         = date("h:i:s", $this->get_dtStamp);
+            $ringbaCallLogs->Call_Date              = date('d-M-y', $this->get_dtStamp);
             $ringbaCallLogs->Campaign               = $this->get_campaignName;
             $ringbaCallLogs->Campaign_Id            = $this->get_campaignId;
             $ringbaCallLogs->Affiliate              = $this->get_affiliateName;
