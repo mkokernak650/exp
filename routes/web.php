@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchivedCallLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -39,10 +40,6 @@ Route::get('/get-ringba-data', function () {
     return inertia::render('Ringba/GetRingbaData');
 })->name('getringbadata');
 
-
-
-
-
 Route::get('/market-exception-report', [RingbaCallLogController::class, 'marketExceptionReport'])->name('market-exception-report');
 Route::get('/market-exception-form', [RingbaCallLogController::class, 'marketExceptionForm'])->name('market-exception-form');
 Route::post('/add-market-exception', [RingbaCallLogController::class, 'addMarketException'])->name('add-market-exception');
@@ -71,3 +68,12 @@ Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport
 // Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+// TODO Archived Call log Controller for store test
+/**
+ * This is Route created temporary
+ */
+Route::get('/archived', [ArchivedCallLogController::class, 'store']);
+Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
+        ->name('archived-call-log-report')
+        ->middleware('auth');

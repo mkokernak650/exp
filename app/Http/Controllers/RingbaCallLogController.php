@@ -80,6 +80,13 @@ class RingbaCallLogController extends Controller
             if ($row->tags) $this->tags($row->tags);
 
             $ringbaCallLogs = new RingbaCallLog();
+
+            if ($this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId)) {
+                continue;
+            }
+            $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
+
+            $ringbaCallLogs->SN                     = "Exp-{$sn}";
             $ringbaCallLogs->Call_Date_Time         = $this->get_dtStamp;
             $ringbaCallLogs->Call_Date              = date('d-M-Y', strtotime($this->get_dtStamp));
             $ringbaCallLogs->Campaign               = $this->get_campaignName;
@@ -149,7 +156,7 @@ class RingbaCallLogController extends Controller
                 $this->get_profit = $item->formattedValue;
             } else if ($item->name === 'targetName') {
                 $this->get_targetName = $item->formattedValue;
-                // echo "uservdkljdofln = $this->get_targetName";
+
                 if (!empty($this->get_targetName)) {
                     $targetsTable = new Target();
                     $result = $targetsTable->where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
@@ -211,17 +218,24 @@ class RingbaCallLogController extends Controller
         $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
         $zipCodeDb      = new ZipCodeData();
         $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
-                                    ->where('NPANXX', '=', $npanxx_number)
-                                    ->first();
+            ->where('NPANXX', '=', $npanxx_number)
+            ->first();
         if ($result) {
             $country_by_market_reports = new CountryByMarketReport();
             $res = $country_by_market_reports->select('Market')
-                                            ->where('Fips', '=', $result->FIRP)
-                                            ->first();
+                ->where('Fips', '=', $result->FIRP)
+                ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
         }
+    }
+
+    // checke Ringba Call Log existing data
+    private function checkExistingData($instance, $inboundId)
+    {
+        $result = $instance->where('Inbound_Id', '=', $inboundId)->first();
+        return $result ? true : false;
     }
 
     public function dateWiseData(Request $request)
@@ -293,15 +307,6 @@ class RingbaCallLogController extends Controller
         //         ],
         //     ]
         // );
-        return Inertia::render(
-            'Ringba/TempRingbaData',
-            [
-                'ringbaData' => $results->result->callLog->data,
-                'flash' => [
-                    'message' => fn () => $request->session()->get('Data Fetched Successfully')
-                ],
-            ]
-        );
     }
 
     public function tempRingbaData()
