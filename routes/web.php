@@ -69,7 +69,7 @@ Route::get('/customer-report', [RingbaCallLogController::class, 'customerReport'
 
 Route::get('/market-exception', function () {
     return inertia::render('Settings/MarketException');
-})->name('market-exception');
+})->name('market-exception')->middleware('auth');
 
 Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])
         ->name('tempringbadata')
