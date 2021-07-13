@@ -82,7 +82,7 @@ class RingbaCallLogController extends Controller
 
             $ringbaCallLogs = new RingbaCallLog();
             $archiveCallLogs = new ArchivedCallLog();
-            
+
             $checkRingbaCallLogs = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
             $checkArchiveCallLogs = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
 
