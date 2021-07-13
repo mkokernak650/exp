@@ -84,7 +84,6 @@ Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport
         ->middleware('auth');
 
 
-
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // TODO Archived Call log Controller for store test
