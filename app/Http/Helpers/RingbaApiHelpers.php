@@ -89,12 +89,12 @@ class RingbaApiHelpers
     return $apiResponse->getBody()->getContents();
   }
 
-  public function getRingbaData()
+  public function getRingbaData($past = 2, $days = 2)
   {
     $params = [
       'dateRange' => [
-        'past' => 2,
-        'days' => 2
+        'past' => $past,
+        'days' => $days
       ],
       'timeSeries' => [
         'timeGroup' => 'hour'

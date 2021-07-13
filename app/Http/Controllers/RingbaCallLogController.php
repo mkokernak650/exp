@@ -281,35 +281,7 @@ class RingbaCallLogController extends Controller
             $get_days_range = 1;
         }
 
-        $params = [
-            'dateRange' => [
-                'past' => $get_past_days_range,
-                'days' =>  $get_days_range,
-            ],
-            'timeSeries' => [
-                'timeGroup' => 'hour'
-            ],
-            'callLog' => [
-                'page' => 0,
-                'pageSize' => 10000,
-                'sort' => 'dtStamp',
-                'sortDirection' => 'desc'
-            ],
-            'timezoneId' => 'Eastern Standard Time'
-        ];
-
-        $results = $this->_ringba->getDataDateWise($params);
-        $ringbaData = new RingbaData();
-        $ringbaData->truncate();
-        $data = [];
-        $this->_ringbaData = $results->result->callLog->data;
-        foreach ($this->_ringbaData as $data) {
-            $ringbaData = new RingbaData();
-            $ringbaData->columns = json_encode($data->columns);
-            $ringbaData->events = json_encode($data->events);
-            $ringbaData->tags = json_encode($data->tags);
-            $ringbaData->save();
-        }
+        $this->_ringba->getRingbaData($get_past_days_range, $get_days_range);
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
@@ -358,7 +330,8 @@ class RingbaCallLogController extends Controller
     {
         $marketExceptions = DB::table('market_excptions')
             ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market',])
-            ->join('customers', 'customers.customer_ID', '=', 'market_excptions.customer_id')->join('markets', 'markets.id', '=', 'market_excptions.market_id')
+            ->join('customers', 'customers.customer_ID', '=', 'market_excptions.customer_id')
+            ->join('markets', 'markets.id', '=', 'market_excptions.market_id')
             ->get();
 
         return Inertia::render('Settings/MarketExceptionReport', [

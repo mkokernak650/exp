@@ -32,6 +32,11 @@ class Kernel extends ConsoleKernel
             $ringba = new RingbaCallLogController();
             $ringba->getRingbaDataByScheduler();
         })->daily();
+        
+        // $schedule->call( function (){
+        //     $ringba = new RingbaCallLogController();
+        //     $ringba->getRingbaDataByScheduler();
+        // })->everyMinute();
     }
 
     /**
