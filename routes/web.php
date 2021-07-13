@@ -24,8 +24,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
 
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
-        ->name('temp-ringba-data')
-        ->middleware('auth');
+        ->name('temp-ringba-data');
+        
 // Route::post('/get-ringba-data', function ($id) {
 // });
 // Route::post('login')->name('login.attempt')->uses('Auth\LoginController@login')->middleware('guest');
@@ -37,54 +37,44 @@ Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'
 
 Route::get('/get-ringba-data', function () {
     return inertia::render('Ringba/GetRingbaData');
-})->name('getringbadata')->middleware('auth');
+})->name('getringbadata');
 
 Route::get('/market-exception-report', [RingbaCallLogController::class, 'marketExceptionReport'])
-        ->name('market-exception-report')
-        ->middleware('auth');
-
+        ->name('market-exception-report');
+        
 Route::get('/market-exception-form', [RingbaCallLogController::class, 'marketExceptionForm'])
-        ->name('market-exception-form')
-        ->middleware('auth');
-
+        ->name('market-exception-form');
+        
 Route::post('/add-market-exception', [RingbaCallLogController::class, 'addMarketException'])
-        ->name('add-market-exception')
-        ->middleware('auth');
-
+        ->name('add-market-exception');
+        
 Route::get('/add-market', function () {
     return inertia::render('Settings/AddMarket');
-})->name('add-market')->middleware('auth');
+})->name('add-market');
 
 //TODO marker
 Route::post('/store-market', [RingbaCallLogController::class, 'addMarket'])
-        ->name('store-market')
-        ->middleware('auth');
-
+        ->name('store-market');
+        
 Route::get('/market-report', [RingbaCallLogController::class, 'marketReport'])
-        ->name('market-report')
-        ->middleware('auth');
-
+        ->name('market-report');
+        
 Route::get('/customer-report', [RingbaCallLogController::class, 'customerReport'])
-        ->name('customer-report')
-        ->middleware('auth');
-
+        ->name('customer-report');
+        
 Route::get('/market-exception', function () {
     return inertia::render('Settings/MarketException');
-})->name('market-exception')->middleware('auth');
+})->name('market-exception');
 
 Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])
-        ->name('tempringbadata')
-        ->middleware('auth');
-
+        ->name('tempringbadata');
+        
 Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCallLogs'])
-        ->name('ringbaCallLogs')
-        ->middleware('auth');
-
+        ->name('ringbaCallLogs');
+        
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])
-        ->name('call-logs-report')
-        ->middleware('auth');
-
-
+        ->name('call-logs-report');
+        
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // TODO Archived Call log Controller for store test
@@ -94,9 +84,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/archived', [ArchivedCallLogController::class, 'store']);
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
-        ->name('archived-call-log-report')
-        ->middleware('auth');
-
-
+        ->name('archived-call-log-report');
+        
 /*====== temp route for check get data ===== */
 Route::get('/getData', [PendingBillCallLogController::class, 'store']);

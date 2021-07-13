@@ -9,6 +9,10 @@ use Inertia\Inertia;
 
 class ArchivedCallLogController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      *  @param instance
      *  @param Inbound_id

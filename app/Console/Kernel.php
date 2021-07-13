@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
-        //
+        // get Rinba data 
         $schedule->call( function (){
             $ringba = new RingbaCallLogController();
             $ringba->getRingbaDataByScheduler();

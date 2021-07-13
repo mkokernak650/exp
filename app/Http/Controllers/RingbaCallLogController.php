@@ -63,6 +63,7 @@ class RingbaCallLogController extends Controller
 
     public function __construct()
     {
+        $this->middleware('auth');
         $this->_ringba = new RingbaApiHelpers();
     }
 
@@ -233,13 +234,13 @@ class RingbaCallLogController extends Controller
         $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
         $zipCodeDb      = new ZipCodeData();
         $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
-                                    ->where('NPANXX', '=', $npanxx_number)
-                                    ->first();
+            ->where('NPANXX', '=', $npanxx_number)
+            ->first();
         if ($result) {
             $country_by_market_reports = new CountryByMarketReport();
             $res = $country_by_market_reports->select('Market')
-                                            ->where('Fips', '=', $result->FIRP)
-                                            ->first();
+                ->where('Fips', '=', $result->FIRP)
+                ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
