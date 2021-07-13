@@ -103,8 +103,8 @@ class RingbaCallLogController extends Controller
             $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
 
             $ringbaCallLogs->SN                     = "Exp-{$sn}";
-            $ringbaCallLogs->Call_Date_Time         = date("h:i:s", $this->get_dtStamp);
-            $ringbaCallLogs->Call_Date              = date('d-M-y', $this->get_dtStamp);
+            $ringbaCallLogs->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
+            $ringbaCallLogs->Call_Date              = date('d-M-y', $this->get_dtStamp / 1000);
             $ringbaCallLogs->Campaign               = $this->get_campaignName;
             $ringbaCallLogs->Campaign_Id            = $this->get_campaignId;
             $ringbaCallLogs->Affiliate              = $this->get_affiliateName;
