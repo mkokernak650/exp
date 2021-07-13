@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArchivedCallLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PendingBillCallLogController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\RingbaCallLogController;
@@ -95,3 +96,7 @@ Route::get('/archived', [ArchivedCallLogController::class, 'store']);
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report')
         ->middleware('auth');
+
+
+/*====== temp route for check get data ===== */
+Route::get('/getData', [PendingBillCallLogController::class, 'store']);

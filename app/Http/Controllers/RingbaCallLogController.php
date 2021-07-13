@@ -6,6 +6,7 @@ use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\ArchivedCallLog;
 use App\Models\CountryByMarketReport;
 use App\Models\RingbaCallLog;
+use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaData;
 use App\Models\Target;
@@ -80,13 +81,15 @@ class RingbaCallLogController extends Controller
             if ($row->events) $this->events($row->events);
             if ($row->tags) $this->tags($row->tags);
 
-            $ringbaCallLogs = new RingbaCallLog();
-            $archiveCallLogs = new ArchivedCallLog();
+            $ringbaCallLogs         = new RingbaCallLog();
+            $archiveCallLogs        = new ArchivedCallLog();
+            $pendingBillCallLog     = new PendingBillCallLog();
 
-            $checkRingbaCallLogs = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
-            $checkArchiveCallLogs = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
+            $checkRingbaCallLogs        = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
+            $checkArchiveCallLogs       = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
+            $checkPendingBillCallLog    = $this->checkExistingData($pendingBillCallLog, $this->get_inboundCallId);
 
-            if ($checkRingbaCallLogs || $checkArchiveCallLogs) {
+            if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog) {
                 continue;
             }
             $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
