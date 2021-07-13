@@ -54,11 +54,14 @@ class ArchivedCallLogController extends Controller
         {
             $archivedCallLog = new ArchivedCallLog();
 
+            // find existing record
             $existData = $this->getDataByID($archivedCallLog, $Inbound_Id);
             if ($existData) {
                 continue;
             }
             $ringbaCallLog = new RingbaCallLog();
+
+            // get for store data
             $data = $this->getDataByID($ringbaCallLog, $Inbound_Id);
 
             $archivedCallLog->SN                        = $data->SN;
@@ -84,6 +87,9 @@ class ArchivedCallLogController extends Controller
             $archivedCallLog->State                     = $data->State;
             $archivedCallLog->Zipcode                   = $data->Zipcode;
             $result = $archivedCallLog->save();
+
+            // delete Record from Ringa Call log after transfer archived call log table;
+            $data->delete();
 
         }
 
