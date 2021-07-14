@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
+use App\Models\ArchivedCallLog;
+use App\Models\CountryByMarketReport;
 use App\Models\RingbaCallLog;
+use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaData;
 use App\Models\Target;
-use App\Models\MarketExcptions;
 use App\Models\Market;
 use App\Models\Customer;
 use App\Models\ZipCodeData;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\DB;
 
 class RingbaCallLogController extends Controller
 {
@@ -60,12 +61,20 @@ class RingbaCallLogController extends Controller
 
     public function __construct()
     {
+        $this->middleware('auth');
         $this->_ringba = new RingbaApiHelpers();
     }
 
     public function RingbaAuth()
     {
         dd($this->_ringba->getRingbaData());
+    }
+
+    // get data BY scheduler
+    public function getRingbaDataByScheduler()
+    {
+        $this->_ringba->getRingbaData();
+        $this->ringbaCallLogs();
     }
 
     public function ringbaCallLogs()
@@ -78,9 +87,22 @@ class RingbaCallLogController extends Controller
             if ($row->events) $this->events($row->events);
             if ($row->tags) $this->tags($row->tags);
 
-            $ringbaCallLogs = new RingbaCallLog();
-            $ringbaCallLogs->Call_Date_Time         = $this->get_dtStamp;
-            $ringbaCallLogs->Call_Date              = date('d-M-Y', strtotime($this->get_dtStamp));
+            $ringbaCallLogs         = new RingbaCallLog();
+            $archiveCallLogs        = new ArchivedCallLog();
+            $pendingBillCallLog     = new PendingBillCallLog();
+
+            $checkRingbaCallLogs        = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
+            $checkArchiveCallLogs       = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
+            $checkPendingBillCallLog    = $this->checkExistingData($pendingBillCallLog, $this->get_inboundCallId);
+
+            if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog) {
+                continue;
+            }
+            $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
+
+            $ringbaCallLogs->SN                     = "Exp-{$sn}";
+            $ringbaCallLogs->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
+            $ringbaCallLogs->Call_Date              = date('d-M-y', $this->get_dtStamp / 1000);
             $ringbaCallLogs->Campaign               = $this->get_campaignName;
             $ringbaCallLogs->Campaign_Id            = $this->get_campaignId;
             $ringbaCallLogs->Affiliate              = $this->get_affiliateName;
@@ -148,7 +170,7 @@ class RingbaCallLogController extends Controller
                 $this->get_profit = $item->formattedValue;
             } else if ($item->name === 'targetName') {
                 $this->get_targetName = $item->formattedValue;
-                // echo "uservdkljdofln = $this->get_targetName";
+
                 if (!empty($this->get_targetName)) {
                     $targetsTable = new Target();
                     $result = $targetsTable->where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
@@ -209,14 +231,25 @@ class RingbaCallLogController extends Controller
     {
         $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
         $zipCodeDb      = new ZipCodeData();
-        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City'])
-                                    ->where('NPANXX', '=', $npanxx_number)
-                                    ->first();
+        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
+            ->where('NPANXX', '=', $npanxx_number)
+            ->first();
         if ($result) {
+            $country_by_market_reports = new CountryByMarketReport();
+            $res = $country_by_market_reports->select('Market')
+                ->where('Fips', '=', $result->FIRP)
+                ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
         }
+    }
+
+    // checke Ringba Call Log existing data
+    private function checkExistingData($instance, $inboundId)
+    {
+        $result = $instance->where('Inbound_Id', '=', $inboundId)->first();
+        return $result ? true : false;
     }
 
     public function dateWiseData(Request $request)
@@ -246,35 +279,7 @@ class RingbaCallLogController extends Controller
             $get_days_range = 1;
         }
 
-        $params = [
-            'dateRange' => [
-                'past' => $get_past_days_range,
-                'days' =>  $get_days_range,
-            ],
-            'timeSeries' => [
-                'timeGroup' => 'hour'
-            ],
-            'callLog' => [
-                'page' => 0,
-                'pageSize' => 10000,
-                'sort' => 'dtStamp',
-                'sortDirection' => 'desc'
-            ],
-            'timezoneId' => 'Eastern Standard Time'
-        ];
-
-        $results = $this->_ringba->getDataDateWise($params);
-        $ringbaData = new RingbaData();
-        $ringbaData->truncate();
-        $data = [];
-        $this->_ringbaData = $results->result->callLog->data;
-        foreach ($this->_ringbaData as $data) {
-            $ringbaData = new RingbaData();
-            $ringbaData->columns = json_encode($data->columns);
-            $ringbaData->events = json_encode($data->events);
-            $ringbaData->tags = json_encode($data->tags);
-            $ringbaData->save();
-        }
+        $this->_ringba->getRingbaData($get_past_days_range, $get_days_range);
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
@@ -288,15 +293,6 @@ class RingbaCallLogController extends Controller
         //         ],
         //     ]
         // );
-        return Inertia::render(
-            'Ringba/TempRingbaData',
-            [
-                'ringbaData' => $results->result->callLog->data,
-                'flash' => [
-                    'message' => fn () => $request->session()->get('Data Fetched Successfully')
-                ],
-            ]
-        );
     }
 
     public function tempRingbaData()
@@ -306,64 +302,6 @@ class RingbaCallLogController extends Controller
             'ringbaData' =>  $ringbaData
         ]);
     }
-
-    public function addMarketException(Request $request)
-    {
-        MarketExcptions::create([
-            'customer_id' => $request->customer,
-            'market_id' => $request->market,
-            'start_date' => $request->start_date,
-        ]);
-        return redirect::back()->with("success", "Successfully Submitted");
-    }
-
-    public function marketExceptionForm()
-    {
-        $allMarkets = Market::all();
-        $allCustomers = Customer::all();
-        return Inertia::render('Settings/MarketExceptionForm', [
-            'allCustomers' => $allCustomers,
-            'allMarkets' => $allMarkets
-        ]);
-    }
-
-
-    public function marketExceptionReport()
-    {
-        $marketExceptions = DB::table('market_excptions')
-            ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market',])
-            ->join('customers', 'customers.customer_ID', '=', 'market_excptions.customer_id')->join('markets', 'markets.id', '=', 'market_excptions.market_id')
-            ->get();
-
-        return Inertia::render('Settings/MarketExceptionReport', [
-            'marketExceptions' => $marketExceptions,
-        ]);
-    }
-
-    public function addMarket(Request $request)
-    {
-        Market::create([
-            'market_name' => $request->market,
-        ]);
-        return redirect::back()->with("success", "Successfully Submitted");
-    }
-
-    public function marketReport()
-    {
-        $allMarkets = Market::all();
-        return Inertia::render('Settings/MarketReport', [
-            'allMarkets' => $allMarkets,
-        ]);
-    }
-
-    public function customerReport()
-    {
-        $allCustomers = Customer::all();
-        return Inertia::render('Settings/CustomerReport', [
-            'allCustomers' => $allCustomers,
-        ]);
-    }
-
 
     public function callLogsReport()
     {

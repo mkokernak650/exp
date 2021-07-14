@@ -1,0 +1,109 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ArchivedCallLog;
+use App\Models\RingbaCallLog;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class ArchivedCallLogController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
+     *  @param instance
+     *  @param Inbound_id
+     *  @return success true of false
+     */
+    private function getDataByID($instance, $id)
+    {
+        return $instance->where('Inbound_Id', $id)->first();
+    }
+
+    /**
+     * @param null
+     * @method GET
+     * @return Object data
+     */
+    public function index()
+    {
+        $results = ArchivedCallLog::orderBy('id','DESC')->get();
+        // return Inertia::render('Ringba/ArchivedCallLogReports', [
+        //     'archivedCallLogs' => $results
+        // ]);
+        dd($results);
+    }
+
+    /**
+     * @param Array of inbound Id
+     * @method POST
+     * @return true or false 
+     */
+    public function store(Request $request)
+    {
+        // static data
+        $Inbound_Ids = [
+            'v2sThRjxXcoFmiS62BwOnb9Mn6hBz3n0gN8ZmQYItYA6INj6VKJJ8aDg',
+            'v2Hy_3I80ZFU5GrbENdDNQ3qRh8hcrxU3LIHKFZwWo86R5j7mJ7E65mQ',
+            'v2uqQu1K4lUgYWs4FLWVIoWkunTcSn5RV7vQdaPR7vnGj0jxhxp_MZNw',
+            'v2sgWl1a2X7sfAI_pOim1VXs-4eeYmN9F79jBz18vJAYA-hiIfjnIexw'
+        ];
+
+        $result = false;
+
+        foreach ($Inbound_Ids as $Inbound_Id) 
+        {
+            $archivedCallLog = new ArchivedCallLog();
+
+            // find existing record
+            $existData = $this->getDataByID($archivedCallLog, $Inbound_Id);
+            if ($existData) {
+                continue;
+            }
+            $ringbaCallLog = new RingbaCallLog();
+
+            // get for store data
+            $data = $this->getDataByID($ringbaCallLog, $Inbound_Id);
+
+            $archivedCallLog->SN                        = $data->SN;
+            $archivedCallLog->Campaign                  = $data->Campaign;
+            $archivedCallLog->Call_Date                 = $data->Call_Date;
+            $archivedCallLog->Call_Date_Time            = $data->Call_Date_Time;
+            $archivedCallLog->Conn_Duration             = $data->Conn_Duration;
+            $archivedCallLog->call_Length_In_Seconds    = $data->call_Length_In_Seconds;
+            $archivedCallLog->Customer                  = $data->Customer;
+            $archivedCallLog->Target                    = $data->Target;
+            $archivedCallLog->Target_Description        = $data->Target_Description;
+            $archivedCallLog->Affiliate                 = $data->Affiliate;
+            $archivedCallLog->Market                    = $data->Market;
+            $archivedCallLog->Revenue                   = $data->Revenue;
+            $archivedCallLog->payout                    = $data->payoutAmount;
+            $archivedCallLog->Total_Cost                = $data->Total_Cost;
+            $archivedCallLog->Profit                    = $data->Profit;
+            $archivedCallLog->Inbound_Id                = $data->Inbound_Id;
+            $archivedCallLog->Inbound                   = $data->Inbound;
+            $archivedCallLog->Dialed                    = $data->Dialed;
+            $archivedCallLog->Type                      = $data->Type;
+            $archivedCallLog->City                      = $data->City;
+            $archivedCallLog->State                     = $data->State;
+            $archivedCallLog->Zipcode                   = $data->Zipcode;
+            $result = $archivedCallLog->save();
+
+            // delete Record from Ringa Call log after transfer archived call log table;
+            $data->delete();
+
+        }
+
+        if($result) {
+            echo 'Insert successfully';
+        }else {
+            echo 'Somthing Wrong';
+        }
+    }
+
+
+   
+}

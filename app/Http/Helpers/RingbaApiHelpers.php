@@ -89,12 +89,12 @@ class RingbaApiHelpers
     return $apiResponse->getBody()->getContents();
   }
 
-  public function getRingbaData()
+  public function getRingbaData($past = 2, $days = 2)
   {
     $params = [
       'dateRange' => [
-        'past' => 2,
-        'days' => 2
+        'past' => $past,
+        'days' => $days
       ],
       'timeSeries' => [
         'timeGroup' => 'hour'
@@ -119,7 +119,7 @@ class RingbaApiHelpers
       $ringbaData->tags = json_encode($data->tags);
       $ringbaData->save();
     }
-    return ['success'];
+    // return ['success'];
   }
 
   public function getDataDateWise($params)

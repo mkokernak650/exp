@@ -18623,6 +18623,10 @@ function ResponsiveDrawer(props) {
       title: 'Call Logs Report',
       href: 'call-logs-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: 'Archived Call Logs Report',
+      href: 'archived-call-log-report',
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }, {
     id: 3,

@@ -15,6 +15,7 @@ class CreateRingbaCallLogsTable extends Migration
     {
         Schema::create('ringba_call_logs', function (Blueprint $table) {
             $table->id();
+            $table->string('SN')->nullable();
             $table->string('Call_Date_Time')->nullable();
             $table->string('Call_Date')->nullable();
             $table->string('Campaign')->nullable();
