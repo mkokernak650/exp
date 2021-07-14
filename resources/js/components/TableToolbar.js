@@ -28,7 +28,7 @@ const useToolbarStyles = makeStyles(theme => ({
       },
   title: {
     flex: '1 1 100%',
-    color:'#fff'
+    color: '#fff'
   },
 }))
 
@@ -50,12 +50,15 @@ const TableToolbar = props => {
     >
       {/* <AddUserDialog addUserHandler={addUserHandler} /> */}
       {numSelected > 0 ? (
-        <Typography
-          className={classes.title}
-          variant="subtitle1"
-        >
-          {numSelected} selected
-        </Typography>
+        <div>
+          <Typography
+            className={classes.title}
+            variant="subtitle1"
+          >
+            {numSelected} selected
+          </Typography>
+          
+        </div>
       ) : (
         // <Typography className={classes.title} variant="h6" id="tableTitle">
         //   Users
@@ -66,7 +69,7 @@ const TableToolbar = props => {
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={deleteUserHandler}>
-            <DeleteIcon style={{ color: '#fff' }}/>
+            <DeleteIcon style={{ color: '#fff' }} />
           </IconButton>
         </Tooltip>
       ) : (

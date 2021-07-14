@@ -200,8 +200,6 @@ const EnhancedTable = ({
   return (
     <Paper>
       <TableContainer>
-
-
         <TableToolbar
           numSelected={Object.keys(selectedRowIds).length}
           deleteUserHandler={deleteUserHandler}
@@ -213,7 +211,6 @@ const EnhancedTable = ({
         />
         <MaUTable {...getTableProps()}>
           <TableHead>
-
             {headerGroups.map(headerGroup => (
               <TableRow {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (

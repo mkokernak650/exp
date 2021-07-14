@@ -15815,7 +15815,6 @@ function PrimarySearchAppBar(_ref) {
     setValues(function (oldValues) {
       return _objectSpread(_objectSpread({}, oldValues), {}, _defineProperty({}, name, value));
     });
-    console.log(auth);
   };
 
   var handleSubmit = function handleSubmit(e) {
