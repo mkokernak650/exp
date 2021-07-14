@@ -84,7 +84,6 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
             ...oldValues,
             [name]: value,
         }));
-    console.log(auth);
 
     };
 

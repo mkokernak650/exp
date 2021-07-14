@@ -20907,7 +20907,6 @@ function PrimarySearchAppBar(_ref) {
     setValues(function (oldValues) {
       return _objectSpread(_objectSpread({}, oldValues), {}, _defineProperty({}, name, value));
     });
-    console.log(auth);
   };
 
   var handleSubmit = function handleSubmit(e) {
@@ -22224,10 +22223,12 @@ var TableToolbar = function TableToolbar(props) {
       globalFilter = props.globalFilter;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Toolbar__WEBPACK_IMPORTED_MODULE_6__.default, {
     className: (0,clsx__WEBPACK_IMPORTED_MODULE_1__.default)(classes.root, _defineProperty({}, classes.highlight, numSelected > 0)),
-    children: [numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_7__.default, {
-      className: classes.title,
-      variant: "subtitle1",
-      children: [numSelected, " selected"]
+    children: [numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_7__.default, {
+        className: classes.title,
+        variant: "subtitle1",
+        children: [numSelected, " selected"]
+      })
     }) : // <Typography className={classes.title} variant="h6" id="tableTitle">
     //   Users
     // </Typography>
