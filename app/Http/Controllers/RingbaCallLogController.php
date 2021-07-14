@@ -241,7 +241,7 @@ class RingbaCallLogController extends Controller
         if ($result) {
             $country_by_market_reports = new CountryByMarketReport();
             $res = $country_by_market_reports->select('Market')
-                ->where('Fips', '=', $result->FIRP)
+                ->where('Fips', '=', $result->FIPS)
                 ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;

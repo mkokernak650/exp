@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArchivedCallLogController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BilledCallLogController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MarketController;
@@ -97,3 +98,4 @@ Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'inde
 /*====== temp route for check get data ===== */
 Route::post('/getData', [PendingBillCallLogController::class, 'store'])
         ->name('add.pending.bill.call');
+Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
