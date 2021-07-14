@@ -14,16 +14,6 @@ class BilledCallLogController extends Controller
     }
 
     /**
-     *  @param instance
-     *  @param Inbound_id
-     *  @return success true of false
-     */
-    private function getDataByID($instance, $id)
-    {
-        return $instance->where('Inbound_Id', $id)->first();
-    }
-
-    /**
      * @param null
      * @method GET
      * @return Object data
@@ -31,7 +21,7 @@ class BilledCallLogController extends Controller
     public function index()
     {
         $results = BilledCallLog::orderBy('id', 'DESC')->get();
-        DD($results);
+        dd($results);
     }
 
     /**
@@ -43,7 +33,8 @@ class BilledCallLogController extends Controller
     {
         $Inbound_Ids = [
             'v2S1VpImE32RX04SZwExEpJsc_jxcVjY50CP4n24h752fXai9b-38V2w',
-            'v2ELXNxHOaRPDzZWjLsu6VkpVWLhVhoGEWFkIgElVaxQTZwb6hrsgj9g'
+            'v2ELXNxHOaRPDzZWjLsu6VkpVWLhVhoGEWFkIgElVaxQTZwb6hrsgj9g',
+            'v2Z8sU4f19s805f5xM2AmLZxh5UUtep9LNSxK8HV6jfFJZ9PQ7WeqGxQ'
         ];
 
         $result = false;
@@ -52,14 +43,14 @@ class BilledCallLogController extends Controller
             $billedCallLog = new BilledCallLog();
 
             // find existing record
-            $existData = $this->getDataByID($billedCallLog, $Inbound_Id);
+            $existData = findDataByInboundId($billedCallLog, $Inbound_Id);
             if ($existData) {
                 continue;
             }
             $ringbaCallLog = new RingbaCallLog();
 
             // get for store data
-            $data = $this->getDataByID($ringbaCallLog, $Inbound_Id);
+            $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 
             $billedCallLog->SN                  = $data->SN;
             $billedCallLog->Recording_Url       = $data->Recording_Url;

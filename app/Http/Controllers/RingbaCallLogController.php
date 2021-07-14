@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\ArchivedCallLog;
+use App\Models\BilledCallLog;
 use App\Models\CountryByMarketReport;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
@@ -90,12 +91,14 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs         = new RingbaCallLog();
             $archiveCallLogs        = new ArchivedCallLog();
             $pendingBillCallLog     = new PendingBillCallLog();
+            $billedCallLog          = new BilledCallLog();
 
-            $checkRingbaCallLogs        = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
-            $checkArchiveCallLogs       = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
-            $checkPendingBillCallLog    = $this->checkExistingData($pendingBillCallLog, $this->get_inboundCallId);
+            $checkRingbaCallLogs        = findDataByInboundId($ringbaCallLogs, $this->get_inboundCallId);
+            $checkArchiveCallLogs       = findDataByInboundId($archiveCallLogs, $this->get_inboundCallId);
+            $checkPendingBillCallLog    = findDataByInboundId($pendingBillCallLog, $this->get_inboundCallId);
+            $checkBilledCallLag         = findDataByInboundId($billedCallLog, $this->get_inboundCallId);
 
-            if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog) {
+            if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
                 continue;
             }
 
