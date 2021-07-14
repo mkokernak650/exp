@@ -40,7 +40,7 @@ class RingbaCallLogController extends Controller
     protected $get_callConnectionLength = null;
     protected $get_targetNumber = '';
     protected $get_recordingUrl = '';
-    protected $get_conversionAmount = null;
+    // protected $get_conversionAmount = null;
     protected $get_callLengthInSeconds = null;
     protected $get_callCompletedDt = '';
     protected $get_payoutAmount = null;
@@ -48,7 +48,7 @@ class RingbaCallLogController extends Controller
     protected $get_duplicated_status = 'No';
     protected $get_source_hangup = '';
     protected $get_customer_name_id = null;
-    protected $get_revenue = '';
+    protected $get_revenue = null;
     protected $get_annotations_tag = '';
     protected $has_annotations = 'NO';
     protected $get_call_log_status = 'Active';
@@ -98,7 +98,9 @@ class RingbaCallLogController extends Controller
             if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog) {
                 continue;
             }
-            $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
+
+            $sn_id = empty($ringbaCallLogs->latest()->first()->id) ? 0 : $ringbaCallLogs->latest()->first()->id;
+            $sn = $sn_id + 1; // db last insert id + 1
 
             $ringbaCallLogs->SN                     = "Exp-{$sn}";
             $ringbaCallLogs->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
@@ -194,14 +196,16 @@ class RingbaCallLogController extends Controller
             } else if ($item->name === 'recordingUrl') {
                 $this->get_recordingUrl = '<a href="' . $item->formattedValue . '" target="_blank"> Recording URL</a>';
             } else if ($item->name === 'conversionAmount') {
-                $this->get_conversionAmount = $item->formattedValue;
+                // $this->get_conversionAmount = $item->formattedValue;
+                $this->get_revenue = $item->formattedValue;
             } else if ($item->name === 'callLengthInSeconds') {
                 $this->get_callLengthInSeconds = $item->formattedValue;
             } else if ($item->name === 'payoutAmount') {
                 $this->get_payoutAmount = $item->formattedValue;
-            } else if ($item->name === 'revenue') {
-                $this->get_revenue = $item->formattedValue;
-            }
+            } 
+            // else if ($item->name === 'revenue') {
+            //     $this->get_revenue = $item->formattedValue;
+            // }
         }
     }
     private function events($row)
