@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\RingbaData;
 use App\Models\Target;
 use App\Models\ZipCodeData;
+use App\Models\Exception;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
@@ -143,15 +144,15 @@ class RingbaCallLogController extends Controller
 
             // $row->delete();
 
-            // $market_exception = MarketExcptions::where([
-            //     'customer_id', '=', $this->get_customer_name_id,
-            //     'market_id', '=', $this->get_market,
-            //     'start_date', '<=', $this->get_dtStamp
-            // ])->get();
+            $market_exception = MarketExcptions::where([
+                'customer_id', '=', $this->get_customer_name_id,
+                'market_id', '=', $this->get_market,
+                'start_date', '<=', $this->get_dtStamp
+            ])->get();
 
-            // if ($market_exception > 0) {
-            //     $this->get_callConnectionLength = 'Exceptions';
-            // }
+            if ($market_exception > 0) {
+                $this->insertExceptions($ringbaCallLogs->id);
+            }
 
 
         }
@@ -270,9 +271,43 @@ class RingbaCallLogController extends Controller
     }
 
     // 
-    private function insertExceptions($instance)
+    private function insertExceptions($insertId)
     {
+        $insertedData = RingbaCallLog::find($insertId);
+        $$instance = new Exception();
+        $instance->SN                   = $insertedData->SN;
+        $instance->Call_Date_Time       = $insertedData->Call_Date_Time;
+        $instance->Has_Annotation       = $insertedData->Has_Annotation;
+        $instance->Annotation_Tag       = $insertedData->Annotation_Tag;
+        $instance->Recording_Url        = $insertedData->Recording_Url;
+        $instance->call_Logs_status     = 'Exception';
+        $instance->call_time            = $insertedData->Call_Date;
+        $instance->Duplicate_Call       = $insertedData->Duplicate_Call;
+        $instance->Affiliate            = $insertedData->Affiliate;
+        $instance->Affiliate_Id         = $insertedData->Affiliate_Id;
+        $instance->Market               = $insertedData->Market;
+        $instance->Campaign             = $insertedData->Campaign;
+        $instance->Campaign_Id          = $insertedData->Campaign_Id;
+        $instance->Inbound              = $insertedData->Inbound;
+        $instance->Inbound_Id           = $insertedData->Inbound_Id;
+        $instance->Dialed               = $insertedData->Dialed;
+        $instance->Type                 = $insertedData->Type;
+        $instance->Customer             = $insertedData->Customer;
+        $instance->Target               = $insertedData->Target;
+        $instance->Target_Description   = $insertedData->Target_Description;
+        $instance->Source_Hangup        = $insertedData->Source_Hangup;
+        $instance->Conn_Duration        = $insertedData->Conn_Duration;
+        $instance->Time_To_Call         = $insertedData->Time_To_Call;
+        $instance->call_Length_In_Seconds = $insertedData->call_Length_In_Seconds;
+        $instance->Revenue              = $insertedData->Revenue;
+        $instance->payoutAmount         = $insertedData->payoutAmount;
+        $instance->Total_Cost           = $insertedData->Total_Cost;
+        $instance->Profit               = $insertedData->Profit;
+        $instance->City                 = $insertedData->City;
+        $instance->State                = $insertedData->State;
+        $instance->Zipcode              = $insertedData->Zipcode;
         $instance->save();
+        $insertedData->delete();
     }
 
     public function dateWiseData(Request $request)
