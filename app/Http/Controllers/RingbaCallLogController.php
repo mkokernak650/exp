@@ -6,6 +6,7 @@ use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
 use App\Models\CountryByMarketReport;
+use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
@@ -97,9 +98,9 @@ class RingbaCallLogController extends Controller
             $checkBilledCallLag         = findDataByInboundId($billedCallLog, $this->get_inboundCallId);
 
             if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
+                // $row->delete();
                 continue;
             }
-
             $sn_id = empty($ringbaCallLogs->latest()->first()->id) ? 0 : $ringbaCallLogs->latest()->first()->id;
             $sn = $sn_id + 1; // db last insert id + 1
 
@@ -136,7 +137,23 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->Customer               = $this->get_customer_name_id;
             $ringbaCallLogs->Has_Annotation         = $this->has_annotations;
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
-            $saveData = $ringbaCallLogs->save();
+            $ringbaCallLogs->save();
+
+            dd($ringbaCallLogs->id, true);
+
+            // $row->delete();
+
+            // $market_exception = MarketExcptions::where([
+            //     'customer_id', '=', $this->get_customer_name_id,
+            //     'market_id', '=', $this->get_market,
+            //     'start_date', '<=', $this->get_dtStamp
+            // ])->get();
+
+            // if ($market_exception > 0) {
+            //     $this->get_callConnectionLength = 'Exceptions';
+            // }
+
+
         }
     }
 
@@ -250,6 +267,12 @@ class RingbaCallLogController extends Controller
             $this->get_city = $result->City;
             $this->get_market = $res->Market;
         }
+    }
+
+    // 
+    private function insertExceptions($instance)
+    {
+        $instance->save();
     }
 
     public function dateWiseData(Request $request)
