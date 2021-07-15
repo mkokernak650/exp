@@ -252,13 +252,6 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    // checke Ringba Call Log existing data
-    private function checkExistingData($instance, $inboundId)
-    {
-        $result = $instance->where('Inbound_Id', '=', $inboundId)->first();
-        return $result ? true : false;
-    }
-
     public function dateWiseData(Request $request)
     {
         $get_past_days_range = null;
