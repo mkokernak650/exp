@@ -140,8 +140,6 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
             $ringbaCallLogs->save();
 
-            dd($ringbaCallLogs->id, true);
-
             // $row->delete();
 
             $market_exception = MarketExcptions::where([
@@ -274,7 +272,7 @@ class RingbaCallLogController extends Controller
     private function insertExceptions($insertId)
     {
         $insertedData = RingbaCallLog::find($insertId);
-        $$instance = new Exception();
+        $instance = new Exception();
         $instance->SN                   = $insertedData->SN;
         $instance->Call_Date_Time       = $insertedData->Call_Date_Time;
         $instance->Has_Annotation       = $insertedData->Has_Annotation;
