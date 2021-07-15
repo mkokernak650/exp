@@ -11,8 +11,6 @@ use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaData;
 use App\Models\Target;
-use App\Models\Market;
-use App\Models\Customer;
 use App\Models\ZipCodeData;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
@@ -138,7 +136,7 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->Customer               = $this->get_customer_name_id;
             $ringbaCallLogs->Has_Annotation         = $this->has_annotations;
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
-            $ringbaCallLogs->save();
+            $saveData = $ringbaCallLogs->save();
         }
     }
 
@@ -205,7 +203,7 @@ class RingbaCallLogController extends Controller
                 $this->get_callLengthInSeconds = $item->formattedValue;
             } else if ($item->name === 'payoutAmount') {
                 $this->get_payoutAmount = $item->formattedValue;
-            } 
+            }
             // else if ($item->name === 'revenue') {
             //     $this->get_revenue = $item->formattedValue;
             // }
@@ -236,19 +234,21 @@ class RingbaCallLogController extends Controller
     // get Zip Code info via NPANXX number
     private function zipCodeInfo($inboundPhoneNumber)
     {
-        $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
+        $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
         $zipCodeDb      = new ZipCodeData();
         $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
-            ->where('NPANXX', '=', $npanxx_number)
+            ->where('NPANXX', $npanxx_number)
             ->first();
+
         if ($result) {
             $country_by_market_reports = new CountryByMarketReport();
             $res = $country_by_market_reports->select('Market')
-                ->where('Fips', '=', $result->FIPS)
+                ->where('Fips', $result->FIPS)
                 ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
+            $this->get_market = $res->Market;
         }
     }
 

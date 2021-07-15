@@ -12,7 +12,6 @@ class CustomerController extends Controller
     {
         $this->middleware('auth');
     }
-
     
     public function customerReport()
     {
