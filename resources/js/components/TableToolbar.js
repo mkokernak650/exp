@@ -14,7 +14,7 @@ const useToolbarStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
     display: 'flex',
-    justifyContent: "flex-end"
+    justifyContent: "space-between"
   },
   highlight:
     theme.palette.type === 'light'
@@ -30,6 +30,11 @@ const useToolbarStyles = makeStyles(theme => ({
     flex: '1 1 100%',
     color: '#fff'
   },
+  topBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 }))
 
 const TableToolbar = props => {
@@ -49,15 +54,18 @@ const TableToolbar = props => {
       })}
     >
       {/* <AddUserDialog addUserHandler={addUserHandler} /> */}
+
       {numSelected > 0 ? (
-        <div>
+
+        <div className={classes.topBar}>
           <Typography
             className={classes.title}
             variant="subtitle1"
           >
             {numSelected} selected
           </Typography>
-          
+
+          {props.children}
         </div>
       ) : (
         // <Typography className={classes.title} variant="h6" id="tableTitle">

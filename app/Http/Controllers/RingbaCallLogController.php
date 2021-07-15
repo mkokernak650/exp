@@ -10,8 +10,6 @@ use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaData;
 use App\Models\Target;
-use App\Models\Market;
-use App\Models\Customer;
 use App\Models\ZipCodeData;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
@@ -98,7 +96,9 @@ class RingbaCallLogController extends Controller
             if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog) {
                 continue;
             }
-            $sn = $ringbaCallLogs->latest()->first()->id + 1; // db last insert id + 1
+            $sn_id = empty($ringbaCallLogs->latest()->first()->id) ? 0 : $ringbaCallLogs->latest()->first()->id;
+            $sn = $sn_id + 1; // db last insert id + 1
+           
 
             $ringbaCallLogs->SN                     = "Exp-{$sn}";
             $ringbaCallLogs->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
@@ -237,7 +237,7 @@ class RingbaCallLogController extends Controller
         if ($result) {
             $country_by_market_reports = new CountryByMarketReport();
             $res = $country_by_market_reports->select('Market')
-                ->where('Fips', '=', $result->FIRP)
+                ->where('Fips', '=', $result->FIPS)
                 ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
@@ -281,18 +281,15 @@ class RingbaCallLogController extends Controller
 
         $this->_ringba->getRingbaData($get_past_days_range, $get_days_range);
 
+
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
-
-        // return Inertia::render(
-        //     'Ringba/TempRingbaData',
-        //     [
-        //         'ringbaData' => $results->result->callLog->data,
-        //         'flash' => [
-        //             'message' => fn () => $request->session()->get('Data Fetched Successfully')
-        //         ],
-        //     ]
-        // );
+        return Inertia::render(
+            'Ringba/TempRingbaData',
+            [
+                'ringbaData' => RingbaData::all(),
+            ]
+        );
     }
 
     public function tempRingbaData()

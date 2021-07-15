@@ -21794,7 +21794,8 @@ var EnhancedTable = function EnhancedTable(_ref3) {
       data = _ref3.data,
       setData = _ref3.setData,
       updateMyData = _ref3.updateMyData,
-      skipPageReset = _ref3.skipPageReset;
+      skipPageReset = _ref3.skipPageReset,
+      children = _ref3.children;
 
   var _useTable = (0,react_table__WEBPACK_IMPORTED_MODULE_4__.useTable)({
     columns: columns,
@@ -21895,7 +21896,8 @@ var EnhancedTable = function EnhancedTable(_ref3) {
         preGlobalFilteredRows: preGlobalFilteredRows,
         setGlobalFilter: setGlobalFilter,
         globalFilter: globalFilter,
-        tableTitle: tableTitle
+        tableTitle: tableTitle,
+        children: children
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(_material_ui_core_Table__WEBPACK_IMPORTED_MODULE_11__.default, _objectSpread(_objectSpread({}, getTableProps()), {}, {
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_12__.default, {
           children: headerGroups.map(function (headerGroup) {
@@ -22201,7 +22203,7 @@ var useToolbarStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_5__.
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(1),
       display: 'flex',
-      justifyContent: "flex-end"
+      justifyContent: "space-between"
     },
     highlight: theme.palette.type === 'light' ? {
       color: theme.palette.secondary.main,
@@ -22213,6 +22215,11 @@ var useToolbarStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_5__.
     title: {
       flex: '1 1 100%',
       color: '#fff'
+    },
+    topBar: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     }
   };
 });
@@ -22227,12 +22234,13 @@ var TableToolbar = function TableToolbar(props) {
       globalFilter = props.globalFilter;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Toolbar__WEBPACK_IMPORTED_MODULE_6__.default, {
     className: (0,clsx__WEBPACK_IMPORTED_MODULE_1__.default)(classes.root, _defineProperty({}, classes.highlight, numSelected > 0)),
-    children: [numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_7__.default, {
+    children: [numSelected > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      className: classes.topBar,
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_material_ui_core_Typography__WEBPACK_IMPORTED_MODULE_7__.default, {
         className: classes.title,
         variant: "subtitle1",
         children: [numSelected, " selected"]
-      })
+      }), props.children]
     }) : // <Typography className={classes.title} variant="h6" id="tableTitle">
     //   Users
     // </Typography>

@@ -1,10 +1,20 @@
 import React, { useState } from 'react'
-import CssBaseline from '@material-ui/core/CssBaseline'
+import { CssBaseline, Button, makeStyles } from '@material-ui/core'
 import EnhancedTable from '../../components/EnhancedTable'
 import Layout from '../Layout/Layout'
 import { usePage } from '@inertiajs/inertia-react';
 
+const useStyles = makeStyles((theme) => ({
+    topBtn: {
+        display: 'flex',
+        gap: '10px',
+        marginLeft: '10px'
+    },
+    button: {
+        width: 130,
+    }
 
+}));
 
 const range = len => {
     const arr = []
@@ -28,11 +38,11 @@ function makeData(...lens) {
 
 
 const CallLogsReport = () => {
+    const classes = useStyles();
     const { allCallLogs } = usePage().props
 
     const newCallCallLogs = allCallLogs.map((item, indx) => {
         return {
-
             'SL': indx + 1,
             'Call Date': item.Call_Date_Time,
             'Has Annotation': item.Has_Annotation,
@@ -201,6 +211,16 @@ const CallLogsReport = () => {
         )
     }
 
+    const handleUpdate = () => {
+
+    }
+    const handlePending = () => {
+
+    }
+    const handleArchived = () => {
+
+    }
+
     return (
         <div>
             <CssBaseline />
@@ -210,7 +230,20 @@ const CallLogsReport = () => {
                 setData={setMainData}
                 updateMyData={updateMyData}
                 skipPageReset={skipPageReset}
-            />
+            >
+                <div className={classes.topBtn}>
+                    <Button variant="contained" type="submit" color="primary" className={classes.button} onClick={handleUpdate}>
+                        Update
+                    </Button>
+                    <Button variant="contained" type="submit" color="primary" className={classes.button} onClick={handlePending}>
+                        Pending
+                    </Button>
+                    <Button variant="contained" type="submit" color="primary" className={classes.button} onClick={handleArchived}>
+                        Archived
+                    </Button>
+
+                </div>
+            </EnhancedTable>
         </div>
     )
 }

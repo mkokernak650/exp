@@ -107,6 +107,7 @@ const EnhancedTable = ({
   setData,
   updateMyData,
   skipPageReset,
+  children
 }) => {
   const {
     getTableProps,
@@ -200,6 +201,7 @@ const EnhancedTable = ({
   return (
     <Paper>
       <TableContainer>
+
         <TableToolbar
           numSelected={Object.keys(selectedRowIds).length}
           deleteUserHandler={deleteUserHandler}
@@ -208,7 +210,7 @@ const EnhancedTable = ({
           setGlobalFilter={setGlobalFilter}
           globalFilter={globalFilter}
           tableTitle={tableTitle}
-        />
+        >{children}</TableToolbar>
         <MaUTable {...getTableProps()}>
           <TableHead>
             {headerGroups.map(headerGroup => (

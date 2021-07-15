@@ -83,7 +83,7 @@ class PendingBillCallLogController extends Controller
             $pendingBillCallLog->payout                    = $data->payoutAmount;
             $pendingBillCallLog->Profit                    = $data->Profit;
             $pendingBillCallLog->Total_Cost                = $data->Total_Cost;
-            $pendingBillCallLog->call_Logs_status          = 'Pedding';
+            $pendingBillCallLog->call_Logs_status          = 'Pending';
             $result = $pendingBillCallLog->save();
 
             // delete Record from Ringa Call log after transfer archived call log table;
