@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\ArchivedCallLog;
+use App\Models\BilledCallLog;
 use App\Models\CountryByMarketReport;
+use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
@@ -38,7 +40,7 @@ class RingbaCallLogController extends Controller
     protected $get_callConnectionLength = null;
     protected $get_targetNumber = '';
     protected $get_recordingUrl = '';
-    protected $get_conversionAmount = null;
+    // protected $get_conversionAmount = null;
     protected $get_callLengthInSeconds = null;
     protected $get_callCompletedDt = '';
     protected $get_payoutAmount = null;
@@ -46,7 +48,7 @@ class RingbaCallLogController extends Controller
     protected $get_duplicated_status = 'No';
     protected $get_source_hangup = '';
     protected $get_customer_name_id = null;
-    protected $get_revenue = '';
+    protected $get_revenue = null;
     protected $get_annotations_tag = '';
     protected $has_annotations = 'NO';
     protected $get_call_log_status = 'Active';
@@ -88,17 +90,19 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs         = new RingbaCallLog();
             $archiveCallLogs        = new ArchivedCallLog();
             $pendingBillCallLog     = new PendingBillCallLog();
+            $billedCallLog          = new BilledCallLog();
 
-            $checkRingbaCallLogs        = $this->checkExistingData($ringbaCallLogs, $this->get_inboundCallId);
-            $checkArchiveCallLogs       = $this->checkExistingData($archiveCallLogs, $this->get_inboundCallId);
-            $checkPendingBillCallLog    = $this->checkExistingData($pendingBillCallLog, $this->get_inboundCallId);
+            $checkRingbaCallLogs        = findDataByInboundId($ringbaCallLogs, $this->get_inboundCallId);
+            $checkArchiveCallLogs       = findDataByInboundId($archiveCallLogs, $this->get_inboundCallId);
+            $checkPendingBillCallLog    = findDataByInboundId($pendingBillCallLog, $this->get_inboundCallId);
+            $checkBilledCallLag         = findDataByInboundId($billedCallLog, $this->get_inboundCallId);
 
-            if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog) {
+            if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
+                // $row->delete();
                 continue;
             }
             $sn_id = empty($ringbaCallLogs->latest()->first()->id) ? 0 : $ringbaCallLogs->latest()->first()->id;
             $sn = $sn_id + 1; // db last insert id + 1
-           
 
             $ringbaCallLogs->SN                     = "Exp-{$sn}";
             $ringbaCallLogs->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
@@ -134,6 +138,22 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->Has_Annotation         = $this->has_annotations;
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
             $ringbaCallLogs->save();
+
+            dd($ringbaCallLogs->id, true);
+
+            // $row->delete();
+
+            // $market_exception = MarketExcptions::where([
+            //     'customer_id', '=', $this->get_customer_name_id,
+            //     'market_id', '=', $this->get_market,
+            //     'start_date', '<=', $this->get_dtStamp
+            // ])->get();
+
+            // if ($market_exception > 0) {
+            //     $this->get_callConnectionLength = 'Exceptions';
+            // }
+
+
         }
     }
 
@@ -194,14 +214,16 @@ class RingbaCallLogController extends Controller
             } else if ($item->name === 'recordingUrl') {
                 $this->get_recordingUrl = '<a href="' . $item->formattedValue . '" target="_blank"> Recording URL</a>';
             } else if ($item->name === 'conversionAmount') {
-                $this->get_conversionAmount = $item->formattedValue;
+                // $this->get_conversionAmount = $item->formattedValue;
+                $this->get_revenue = $item->formattedValue;
             } else if ($item->name === 'callLengthInSeconds') {
                 $this->get_callLengthInSeconds = $item->formattedValue;
             } else if ($item->name === 'payoutAmount') {
                 $this->get_payoutAmount = $item->formattedValue;
-            } else if ($item->name === 'revenue') {
-                $this->get_revenue = $item->formattedValue;
             }
+            // else if ($item->name === 'revenue') {
+            //     $this->get_revenue = $item->formattedValue;
+            // }
         }
     }
     private function events($row)
@@ -229,27 +251,28 @@ class RingbaCallLogController extends Controller
     // get Zip Code info via NPANXX number
     private function zipCodeInfo($inboundPhoneNumber)
     {
-        $npanxx_number  = substr($inboundPhoneNumber, 1, 6);
+        $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
         $zipCodeDb      = new ZipCodeData();
         $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
-            ->where('NPANXX', '=', $npanxx_number)
+            ->where('NPANXX', $npanxx_number)
             ->first();
+
         if ($result) {
             $country_by_market_reports = new CountryByMarketReport();
             $res = $country_by_market_reports->select('Market')
-                ->where('Fips', '=', $result->FIPS)
+                ->where('Fips', $result->FIPS)
                 ->first();
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
+            $this->get_market = $res->Market;
         }
     }
 
-    // checke Ringba Call Log existing data
-    private function checkExistingData($instance, $inboundId)
+    // 
+    private function insertExceptions($instance)
     {
-        $result = $instance->where('Inbound_Id', '=', $inboundId)->first();
-        return $result ? true : false;
+        $instance->save();
     }
 
     public function dateWiseData(Request $request)

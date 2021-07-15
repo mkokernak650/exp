@@ -13,16 +13,6 @@ class PendingBillCallLogController extends Controller
         $this->middleware('auth');
     }
 
-     /**
-     *  @param instance
-     *  @param Inbound_id
-     *  @return success true of false
-     */
-    private function getDataByID($instance, $id)
-    {
-        return $instance->where('Inbound_Id', $id)->first();
-    }
-
     /**
      * for display all data 
      * @param null
@@ -55,14 +45,14 @@ class PendingBillCallLogController extends Controller
             $pendingBillCallLog = new PendingBillCallLog();
 
             // find existing record
-            $existData = $this->getDataByID($pendingBillCallLog, $Inbound_Id);
+            $existData = findDataByInboundId($pendingBillCallLog, $Inbound_Id);
             if ($existData) {
                 continue;
             }
             $ringbaCallLog = new RingbaCallLog();
 
             // get data for store db
-            $data = $this->getDataByID($ringbaCallLog, $Inbound_Id);
+            $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 
             $pendingBillCallLog->SN                        = $data->SN;
             $pendingBillCallLog->Call_Date                 = $data->Call_Date;

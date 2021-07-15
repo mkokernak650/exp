@@ -13,15 +13,6 @@ class ArchivedCallLogController extends Controller
     {
         $this->middleware('auth');
     }
-    /**
-     *  @param instance
-     *  @param Inbound_id
-     *  @return success true of false
-     */
-    private function getDataByID($instance, $id)
-    {
-        return $instance->where('Inbound_Id', $id)->first();
-    }
 
     /**
      * @param null
@@ -59,14 +50,14 @@ class ArchivedCallLogController extends Controller
             $archivedCallLog = new ArchivedCallLog();
 
             // find existing record
-            $existData = $this->getDataByID($archivedCallLog, $Inbound_Id);
+            $existData = findDataByInboundId($archivedCallLog, $Inbound_Id);
             if ($existData) {
                 continue;
             }
             $ringbaCallLog = new RingbaCallLog();
 
             // get for store data
-            $data = $this->getDataByID($ringbaCallLog, $Inbound_Id);
+            $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 
             $archivedCallLog->SN                        = $data->SN;
             $archivedCallLog->Campaign                  = $data->Campaign;
