@@ -145,13 +145,12 @@ class RingbaCallLogController extends Controller
             $market_exception = MarketExcptions::where([
                 'customer_id', '=', $this->get_customer_name_id,
                 'market_id', '=', $this->get_market,
-                'start_date', '<=', $this->get_dtStamp
+                'start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000)
             ])->get();
 
             if ($market_exception > 0) {
                 $this->insertExceptions($ringbaCallLogs->id);
             }
-
 
         }
     }

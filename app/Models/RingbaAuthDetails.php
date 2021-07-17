@@ -9,5 +9,6 @@ class RingbaAuthDetails extends Model
 {
     use HasFactory;
     protected $fillable = ['user_info','auth_details'];
+    
 
 }

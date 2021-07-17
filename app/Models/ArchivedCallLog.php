@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class ArchivedCallLog extends Model
 {
     use HasFactory;
+    protected $guarded = array();
 }

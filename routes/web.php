@@ -71,15 +71,17 @@ Route::get('/market-exception', function () {
 
 
 //TODO Market Controllet
-Route::post('/store-market', [MarketController::class, 'addMarket'])
-        ->name('store-market');
+Route::post('/store-market', [MarketController::class, 'addMarket'])->name('store-market');
 
-Route::get('/market-report', [MarketController::class, 'marketReport'])
-        ->name('market-report');
+Route::get('/market-report', [MarketController::class, 'marketReport'])->name('market-report');
 
 Route::get('/add-market', function () {
         return inertia::render('Settings/AddMarket');
 })->name('add-market');
+
+Route::get('market-export/{type}', [MarketController::class, 'export'])->name('market.export');
+
+Route::post('market-import', [MarketController::class, 'import'])->name('market.import');
 
 
 // TODO Customet Controller
