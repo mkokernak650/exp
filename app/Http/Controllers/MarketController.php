@@ -14,7 +14,7 @@ class MarketController extends Controller
 {
     function __construct()
     {
-        // $this->middleware('auth');
+        $this->middleware('auth');
     }
 
     public function addMarket(Request $request)
@@ -43,5 +43,11 @@ class MarketController extends Controller
     public function export($type)
     {
         return Excel::download(new MarketExport,  'markets.' . $type);
+    }
+
+    public function getColumn()
+    {
+        $market = new Market();
+        dd($market->getTableColumn());
     }
 }

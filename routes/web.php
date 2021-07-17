@@ -92,6 +92,7 @@ Route::get('/customer-report', [CustomerController::class, 'customerReport'])
 /**
  * This is Route created temporary
  */
+
 Route::get('/archived', [ArchivedCallLogController::class, 'store']);
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])

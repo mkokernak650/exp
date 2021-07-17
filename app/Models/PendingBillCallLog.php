@@ -9,4 +9,9 @@ class PendingBillCallLog extends Model
 {
     use HasFactory;
     protected $guarded = array();
+
+    public function getTableColumn()
+    {
+       return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
 }

@@ -9,6 +9,12 @@ class RingbaAuthDetails extends Model
 {
     use HasFactory;
     protected $fillable = ['user_info','auth_details'];
+
+
+    public function getTableColumn()
+    {
+       return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
     
 
 }
