@@ -6,9 +6,12 @@ use App\Models\MarketExcptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Market;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Customer;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use App\Exports\MarketExceptionExport;
+use App\Imports\MarketExceptionImport;
 
 class MarketExceptionController extends Controller
 {
@@ -48,6 +51,21 @@ class MarketExceptionController extends Controller
         return Inertia::render('Settings/MarketExceptionReport', [
             'marketExceptions' => $marketExceptions,
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        // post request
+        Excel::import(new MarketExceptionImport, $request->file);
+        return back()->with('Successfully import!');
+
+    }
+
+    public function export($type)
+    {
+        // get request
+        Excel::download(new MarketExceptionExport,  'MarketExceptionExport.' . $type);
+        return back()->with('Export successfully');
     }
 
 }

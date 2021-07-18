@@ -69,6 +69,12 @@ Route::get('/market-exception', function () {
         return inertia::render('Settings/MarketException');
 })->name('market-exception');
 
+Route::get('/market-exception-export/{type}', [MarketExceptionController::class, 'export'])
+        ->name('market.exception.export');
+
+Route::post('/market-exception-import', [MarketExceptionController::class, 'import'])
+        ->name('market.exception.import');
+
 
 //TODO Market Controllet
 Route::post('/store-market', [MarketController::class, 'addMarket'])->name('store-market');
