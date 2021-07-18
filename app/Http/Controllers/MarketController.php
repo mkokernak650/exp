@@ -35,19 +35,16 @@ class MarketController extends Controller
 
     public function import(Request $request)
     {
+        // post request
         Excel::import(new MarketImport, $request->file);
-        return back();
+        return back()->with('Successfully import!');
 
     }
 
     public function export($type)
     {
-        return Excel::download(new MarketExport,  'markets.' . $type);
-    }
-
-    public function getColumn()
-    {
-        $market = new Market();
-        dd($market->getTableColumn());
+        // get request
+        Excel::download(new MarketExport,  'markets.' . $type);
+        return back()->with('Export successfully');
     }
 }

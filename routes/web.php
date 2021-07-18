@@ -93,7 +93,7 @@ Route::get('/customer-report', [CustomerController::class, 'customerReport'])
  * This is Route created temporary
  */
 
-Route::get('/archived', [ArchivedCallLogController::class, 'store']);
+Route::post('/archived', [ArchivedCallLogController::class, 'store']);
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report');
@@ -102,3 +102,7 @@ Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'inde
 Route::post('/getData', [PendingBillCallLogController::class, 'store'])
         ->name('add.pending.bill.call');
 Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
+
+
+//TODO Route for import and export report
+
