@@ -198,10 +198,14 @@ const EnhancedTable = ({
   }
   const classes = tableStyles()
 
+  const test = (e,row) => {
+    console.log(e)
+    console.log(row)
+  }
+
   return (
     <Paper>
       <TableContainer>
-
         <TableToolbar
           numSelected={Object.keys(selectedRowIds).length}
           deleteUserHandler={deleteUserHandler}
@@ -241,7 +245,7 @@ const EnhancedTable = ({
                 <TableRow {...row.getRowProps()}>
                   {row.cells.map(cell => {
                     return (
-                      <TableCell {...cell.getCellProps()}>
+                      <TableCell {...cell.getCellProps({onClick: (e)=>test(e,row)})}>
                         {cell.render('Cell')}
                       </TableCell>
                     )
