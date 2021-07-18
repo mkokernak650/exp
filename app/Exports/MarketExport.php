@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Market;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\FromCollection;
+
+class MarketExport implements FromCollection
+{
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function collection()
+    {
+        return Market::all();
+    }
+
+    public function headings() : array
+    {
+        return [
+            'ID',
+            'Market name'
+        ];
+    }
+
+    public function map($market) : array
+    {
+        return [
+            $market->id,
+            $market->market_name
+        ];
+    }
+}
