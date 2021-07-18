@@ -21229,26 +21229,28 @@ function ResponsiveDrawer(props) {
     }]
   }, {
     id: 3,
-    href: 'market-exception-form',
+    href: 'market-exception-report',
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_9__.default, {
       size: "20"
     }),
     title: 'Settings',
     active: false,
     collapse: true,
-    submenu: [{
-      title: 'Add Market Exception',
-      href: 'market-exception-form',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
+    submenu: [// {
+    //     title: 'Add Market Exception',
+    //     href: 'market-exception-form',
+    //     Icon: <UserIcon />,
+    // },
+    {
       title: 'Market Exception Report',
       href: 'market-exception-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Add Market',
-      href: 'add-market',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
+    }, // {
+    //     title: 'Add Market',
+    //     href: 'add-market',
+    //     Icon: <UserIcon />,
+    // },
+    {
       title: 'Market Report',
       href: 'market-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
@@ -21887,6 +21889,12 @@ var EnhancedTable = function EnhancedTable(_ref3) {
   };
 
   var classes = tableStyles();
+
+  var test = function test(e, row) {
+    console.log(e);
+    console.log(row);
+  };
+
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_9__.default, {
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(_material_ui_core__WEBPACK_IMPORTED_MODULE_10__.default, {
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_TableToolbar__WEBPACK_IMPORTED_MODULE_2__.default, {
@@ -21918,7 +21926,11 @@ var EnhancedTable = function EnhancedTable(_ref3) {
             prepareRow(row);
             return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, _objectSpread(_objectSpread({}, row.getRowProps()), {}, {
               children: row.cells.map(function (cell) {
-                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_14__.default, _objectSpread(_objectSpread({}, cell.getCellProps()), {}, {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_14__.default, _objectSpread(_objectSpread({}, cell.getCellProps({
+                  onClick: function onClick(e) {
+                    return test(e, row);
+                  }
+                })), {}, {
                   children: cell.render('Cell')
                 }));
               })

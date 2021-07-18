@@ -127,29 +127,29 @@ function ResponsiveDrawer(props) {
         },
         {
             id: 3,  
-            href: 'market-exception-form',
+            href: 'market-exception-report',
             Icon: <SettingsIcon size='20' />,
             title: 'Settings',
             active: false,
             collapse: true,
             submenu: [
-                {
+                // {
 
-                    title: 'Add Market Exception',
-                    href: 'market-exception-form',
-                    Icon: <UserIcon />,
-                },
+                //     title: 'Add Market Exception',
+                //     href: 'market-exception-form',
+                //     Icon: <UserIcon />,
+                // },
                 {
                     title: 'Market Exception Report',
                     href: 'market-exception-report',
 
                     Icon: <UserIcon />,
                 },
-                {
-                    title: 'Add Market',
-                    href: 'add-market',
-                    Icon: <UserIcon />,
-                },
+                // {
+                //     title: 'Add Market',
+                //     href: 'add-market',
+                //     Icon: <UserIcon />,
+                // },
                 {
                     title: 'Market Report',
                     href: 'market-report',

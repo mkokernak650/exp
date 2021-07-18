@@ -192,7 +192,7 @@ const CallLogsReport = () => {
         }
     ]
 
-    const [data, setData] = React.useState(React.useMemo(() => makeData(20), []))
+    // const [data, setData] = React.useState(React.useMemo(() => makeData(20), []))
 
     const [skipPageReset, setSkipPageReset] = React.useState(false)
 

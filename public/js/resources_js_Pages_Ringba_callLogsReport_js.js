@@ -21689,26 +21689,28 @@ function ResponsiveDrawer(props) {
     }]
   }, {
     id: 3,
-    href: 'market-exception-form',
+    href: 'market-exception-report',
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_9__.default, {
       size: "20"
     }),
     title: 'Settings',
     active: false,
     collapse: true,
-    submenu: [{
-      title: 'Add Market Exception',
-      href: 'market-exception-form',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
+    submenu: [// {
+    //     title: 'Add Market Exception',
+    //     href: 'market-exception-form',
+    //     Icon: <UserIcon />,
+    // },
+    {
       title: 'Market Exception Report',
       href: 'market-exception-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Add Market',
-      href: 'add-market',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
+    }, // {
+    //     title: 'Add Market',
+    //     href: 'add-market',
+    //     Icon: <UserIcon />,
+    // },
+    {
       title: 'Market Report',
       href: 'market-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
@@ -22069,19 +22071,12 @@ var CallLogsReport = function CallLogsReport() {
   }, {
     Header: 'Zipcode',
     accessor: 'Zipcode'
-  }];
+  }]; // const [data, setData] = React.useState(React.useMemo(() => makeData(20), []))
 
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0__.useState(react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () {
-    return makeData(20);
-  }, [])),
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0__.useState(false),
       _React$useState2 = _slicedToArray(_React$useState, 2),
-      data = _React$useState2[0],
-      setData = _React$useState2[1];
-
-  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_0__.useState(false),
-      _React$useState4 = _slicedToArray(_React$useState3, 2),
-      skipPageReset = _React$useState4[0],
-      setSkipPageReset = _React$useState4[1];
+      skipPageReset = _React$useState2[0],
+      setSkipPageReset = _React$useState2[1];
 
   var updateMyData = function updateMyData(rowIndex, columnId, value) {
     setSkipPageReset(true);
@@ -22488,6 +22483,12 @@ var EnhancedTable = function EnhancedTable(_ref3) {
   };
 
   var classes = tableStyles();
+
+  var test = function test(e, row) {
+    console.log(e);
+    console.log(row);
+  };
+
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_9__.default, {
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(_material_ui_core__WEBPACK_IMPORTED_MODULE_10__.default, {
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_TableToolbar__WEBPACK_IMPORTED_MODULE_2__.default, {
@@ -22519,7 +22520,11 @@ var EnhancedTable = function EnhancedTable(_ref3) {
             prepareRow(row);
             return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_13__.default, _objectSpread(_objectSpread({}, row.getRowProps()), {}, {
               children: row.cells.map(function (cell) {
-                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_14__.default, _objectSpread(_objectSpread({}, cell.getCellProps()), {}, {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_14__.default, _objectSpread(_objectSpread({}, cell.getCellProps({
+                  onClick: function onClick(e) {
+                    return test(e, row);
+                  }
+                })), {}, {
                   children: cell.render('Cell')
                 }));
               })
