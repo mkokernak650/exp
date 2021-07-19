@@ -37840,6 +37840,16 @@ var map = {
 		"./resources/js/Pages/Settings/MarketReport.js",
 		9,
 		"resources_js_Pages_Settings_MarketReport_js"
+	],
+	"./Settings/ZipcodeByTelevisionMarket": [
+		"./resources/js/Pages/Settings/ZipcodeByTelevisionMarket.js",
+		9,
+		"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_js"
+	],
+	"./Settings/ZipcodeByTelevisionMarket.js": [
+		"./resources/js/Pages/Settings/ZipcodeByTelevisionMarket.js",
+		9,
+		"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_js"
 	]
 };
 function webpackAsyncContext(req) {
@@ -38008,7 +38018,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_ArchivedCallLogReports_js":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_callLogsReport_js":1,"resources_js_Pages_Settings_AddMarket_js":1,"resources_js_Pages_Settings_CustomerReport_js":1,"resources_js_Pages_Settings_MarketExceptionForm_js":1,"resources_js_Pages_Settings_MarketExceptionReport_js":1,"resources_js_Pages_Settings_MarketReport_js":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_js":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_ArchivedCallLogReports_js":1,"resources_js_Pages_Ringba_GetRingbaData_js":1,"resources_js_Pages_Ringba_TempRingbaData_js":1,"resources_js_Pages_Ringba_callLogsReport_js":1,"resources_js_Pages_Settings_AddMarket_js":1,"resources_js_Pages_Settings_CustomerReport_js":1,"resources_js_Pages_Settings_MarketExceptionForm_js":1,"resources_js_Pages_Settings_MarketExceptionReport_js":1,"resources_js_Pages_Settings_MarketReport_js":1,"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_js":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
