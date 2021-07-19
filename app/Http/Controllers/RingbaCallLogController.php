@@ -210,7 +210,7 @@ class RingbaCallLogController extends Controller
             } else if ($item->name === 'targetNumber') {
                 $this->get_targetNumber = $item->formattedValue;
             } else if ($item->name === 'recordingUrl') {
-                $this->get_recordingUrl = '<a href="' . $item->formattedValue . '" target="_blank"> Recording URL</a>';
+                $this->get_recordingUrl = $item->formattedValue;
             } else if ($item->name === 'conversionAmount') {
                 // $this->get_conversionAmount = $item->formattedValue;
                 $this->get_revenue = $item->formattedValue;
@@ -277,7 +277,7 @@ class RingbaCallLogController extends Controller
         $instance->Has_Annotation       = $insertedData->Has_Annotation;
         $instance->Annotation_Tag       = $insertedData->Annotation_Tag;
         $instance->Recording_Url        = $insertedData->Recording_Url;
-        $instance->call_Logs_status     = 'Exception';
+        $instance->call_Logs_status     = 'Exceptions';
         $instance->call_time            = $insertedData->Call_Date;
         $instance->Duplicate_Call       = $insertedData->Duplicate_Call;
         $instance->Affiliate            = $insertedData->Affiliate;
