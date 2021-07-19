@@ -11,6 +11,7 @@ use App\Http\Controllers\PendingBillCallLogController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\RingbaCallLogController;
+use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use Illuminate\Support\Facades\Auth;
 use Whoops\Run;
 
@@ -110,5 +111,9 @@ Route::post('/pending', [PendingBillCallLogController::class, 'store'])
 Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
 
 
-//TODO Route for import and export report
+//TODO ZipcodebyTelevisionMarketController
+Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])
+        ->name('zipcode.television.market');
 
+Route::post('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'import'])
+        ->name('zipcode.television.market');
