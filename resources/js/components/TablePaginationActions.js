@@ -67,6 +67,7 @@ const TablePaginationActions = props => {
           <KeyboardArrowRight />
         )}
       </IconButton>
+
       <IconButton
         onClick={handleLastPageButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}

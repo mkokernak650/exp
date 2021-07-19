@@ -107,6 +107,7 @@ const EnhancedTable = ({
   setData,
   updateMyData,
   skipPageReset,
+  inboundIds,
   children
 }) => {
   const {
@@ -196,12 +197,19 @@ const EnhancedTable = ({
     const newData = data.concat([user])
     setData(newData)
   }
-  const classes = tableStyles()
 
-  const test = (e,row) => {
-    console.log(e)
-    console.log(row)
+
+  const classes = tableStyles()
+  const storeSelectedData = (e, row) => {
+    const data = row.values.Inbound_Id
+    if (!inboundIds.includes(data)) {
+      inboundIds.push(data)
+    } else {
+      let itemIndx = inboundIds.indexOf(data)
+      inboundIds.splice(itemIndx, 1)
+    }
   }
+
 
   return (
     <Paper>
@@ -245,7 +253,7 @@ const EnhancedTable = ({
                 <TableRow {...row.getRowProps()}>
                   {row.cells.map(cell => {
                     return (
-                      <TableCell {...cell.getCellProps({onClick: (e)=>test(e,row)})}>
+                      <TableCell {...cell.getCellProps({ onClick: (e) => storeSelectedData(e, row) })}>
                         {cell.render('Cell')}
                       </TableCell>
                     )

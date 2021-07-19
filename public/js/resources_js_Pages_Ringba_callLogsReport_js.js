@@ -21873,13 +21873,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/styles/makeStyles.js");
-/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js");
-/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/Button/Button.js");
+/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/styles/makeStyles.js");
+/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/CssBaseline/CssBaseline.js");
+/* harmony import */ var _material_ui_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/Button/Button.js");
 /* harmony import */ var _components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../components/EnhancedTable */ "./resources/js/components/EnhancedTable.js");
 /* harmony import */ var _Layout_Layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Layout/Layout */ "./resources/js/Pages/Layout/Layout.jsx");
 /* harmony import */ var _inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @inertiajs/inertia-react */ "./node_modules/@inertiajs/inertia-react/dist/index.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @inertiajs/inertia */ "./node_modules/@inertiajs/inertia/dist/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -21905,7 +21906,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-var useStyles = (0,_material_ui_core__WEBPACK_IMPORTED_MODULE_5__.default)(function (theme) {
+
+var useStyles = (0,_material_ui_core__WEBPACK_IMPORTED_MODULE_6__.default)(function (theme) {
   return {
     topBtn: {
       display: 'flex',
@@ -21916,49 +21918,49 @@ var useStyles = (0,_material_ui_core__WEBPACK_IMPORTED_MODULE_5__.default)(funct
       width: 130
     }
   };
-});
-
-var range = function range(len) {
-  var arr = [];
-
-  for (var i = 0; i < len; i++) {
-    arr.push(i);
-  }
-
-  return arr;
-};
-
-function makeData() {
-  for (var _len = arguments.length, lens = new Array(_len), _key = 0; _key < _len; _key++) {
-    lens[_key] = arguments[_key];
-  }
-
-  var makeDataLevel = function makeDataLevel() {
-    var depth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    var len = lens[depth];
-    return range(len).map(function (d) {
-      return {
-        subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined
-      };
-    });
-  };
-
-  return makeDataLevel();
-}
+}); // const range = len => {
+//     const arr = []
+//     for (let i = 0; i < len; i++) {
+//         arr.push(i)
+//     }
+//     return arr
+// }
+// function makeData(...lens) {
+//     const makeDataLevel = (depth = 0) => {
+//         const len = lens[depth]
+//         return range(len).map(d => {
+//             return {
+//                 subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
+//             }
+//         })
+//     }
+//     return makeDataLevel()
+// }
 
 var CallLogsReport = function CallLogsReport() {
   var classes = useStyles();
   var allCallLogs = (0,_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__.usePage)().props.allCallLogs;
+  var success = (0,_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_3__.usePage)().props.success;
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+      _useState2 = _slicedToArray(_useState, 1),
+      inboundIds = _useState2[0];
+
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+      _useState4 = _slicedToArray(_useState3, 2),
+      loading = _useState4[0],
+      setLoading = _useState4[1];
+
   var newCallCallLogs = allCallLogs.map(function (item, indx) {
     return {
       'SL': indx + 1,
-      'Call Date': item.Call_Date_Time,
-      'Has Annotation': item.Has_Annotation,
+      'Call_Date': item.Call_Date_Time,
+      'Has_Annotation': item.Has_Annotation,
       'Annotation': item.Annotation_Tag,
-      'Call Status': item.call_Logs_status,
-      'Recording Url': item.Recording_Url,
+      'Call_Status': item.call_Logs_status,
+      'Recording_Url': item.Recording_Url,
       'Time': item.Call_Date_Time,
-      'Inbound Id': item.Inbound_Id,
+      'Inbound_Id': item.Inbound_Id,
       'Affiliate': item.Affiliate,
       'Market': item.Market,
       'Campaign': item.Campaign,
@@ -21967,14 +21969,14 @@ var CallLogsReport = function CallLogsReport() {
       'Type': item.Type,
       'Customer': item.Customer,
       'Target': item.Target,
-      'Target Description': item.Target_Description,
-      'Source/Hangup': item.Source_Hangup,
-      'Conn. Duration': item.Conn_Duration,
-      'Time To Call': item.Time_To_Call,
-      'Call Length In Seconds': item.call_Length_In_Seconds,
+      'Target_Description': item.Target_Description,
+      'Source_Hangup': item.Source_Hangup,
+      'Conn_Duration': item.Conn_Duration,
+      'Time_To_Call': item.Time_To_Call,
+      'Call_Length_In_Seconds': item.call_Length_In_Seconds,
       'Revenue': item.Revenue,
       'Payout': item.payoutAmount,
-      'Total Cost': item.Total_Cost,
+      'Total_Cost': item.Total_Cost,
       'Profit': item.Profit,
       'City': item.City,
       'State': item.State,
@@ -21982,35 +21984,35 @@ var CallLogsReport = function CallLogsReport() {
     };
   });
 
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(newCallCallLogs),
-      _useState2 = _slicedToArray(_useState, 2),
-      mainData = _useState2[0],
-      setMainData = _useState2[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(newCallCallLogs),
+      _useState6 = _slicedToArray(_useState5, 2),
+      mainData = _useState6[0],
+      setMainData = _useState6[1];
 
   var columns = [{
     Header: 'SL',
     accessor: 'SL'
   }, {
     Header: 'Call Date',
-    accessor: 'Call Date'
+    accessor: 'Call_Date'
   }, {
     Header: 'Has Annotation',
-    accessor: 'Has Annotation'
+    accessor: 'Has_Annotation'
   }, {
     Header: 'Annotation Tag',
-    accessor: 'Annotation Tag'
+    accessor: 'Annotation_Tag'
   }, {
     Header: 'Call Status',
-    accessor: 'Call Status'
+    accessor: 'Call_Status'
   }, {
     Header: 'Recording Url',
-    accessor: 'Recording Url'
+    accessor: 'Recording_Url'
   }, {
     Header: 'Time',
     accessor: 'Time'
   }, {
     Header: 'Inbound Id',
-    accessor: 'Inbound Id'
+    accessor: 'Inbound_Id'
   }, {
     Header: 'Affiliate',
     accessor: 'Affiliate'
@@ -22037,19 +22039,19 @@ var CallLogsReport = function CallLogsReport() {
     accessor: 'Target'
   }, {
     Header: 'Target Description',
-    accessor: 'Target Description'
+    accessor: 'Target_Description'
   }, {
     Header: 'Source/Hangup',
-    accessor: 'Source/Hangup'
+    accessor: 'Source_Hangup'
   }, {
     Header: 'Conn. Duration',
-    accessor: 'Conn. Duration'
+    accessor: 'Conn_Duration'
   }, {
     Header: 'Time To Call',
-    accessor: 'Time To Call'
+    accessor: 'Time_To_Call'
   }, {
     Header: 'Call Length In Seconds',
-    accessor: 'Call Length In Seconds'
+    accessor: 'Call_Length_In_Seconds'
   }, {
     Header: 'Revenue',
     accessor: 'Revenue'
@@ -22058,7 +22060,7 @@ var CallLogsReport = function CallLogsReport() {
     accessor: 'Payout'
   }, {
     Header: 'Total Cost',
-    accessor: 'Total Cost'
+    accessor: 'Total_Cost'
   }, {
     Header: 'Profit',
     accessor: 'Profit'
@@ -22071,7 +22073,7 @@ var CallLogsReport = function CallLogsReport() {
   }, {
     Header: 'Zipcode',
     accessor: 'Zipcode'
-  }]; // const [data, setData] = React.useState(React.useMemo(() => makeData(20), []))
+  }];
 
   var _React$useState = react__WEBPACK_IMPORTED_MODULE_0__.useState(false),
       _React$useState2 = _slicedToArray(_React$useState, 2),
@@ -22091,36 +22093,41 @@ var CallLogsReport = function CallLogsReport() {
     });
   };
 
-  var handleUpdate = function handleUpdate() {};
+  var handlePending = function handlePending() {
+    setLoading(true);
+    _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_4__.Inertia.post(route('add.pending.bill.call'), {
+      inboundIds: inboundIds
+    }, {
+      onFinish: function onFinish() {
+        setLoading(false);
+      }
+    });
+  };
 
-  var handlePending = function handlePending() {};
+  var handleArchived = function handleArchived() {
+    _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_4__.Inertia.post(route('add.arichived.bill.call'), {
+      inboundIds: inboundIds
+    });
+  };
 
-  var handleArchived = function handleArchived() {};
-
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_6__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__.default, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_7__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_components_EnhancedTable__WEBPACK_IMPORTED_MODULE_1__.default, {
       columns: columns,
       data: mainData,
       setData: setMainData,
       updateMyData: updateMyData,
       skipPageReset: skipPageReset,
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      inboundIds: inboundIds,
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         className: classes.topBtn,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_7__.default, {
-          variant: "contained",
-          type: "submit",
-          color: "primary",
-          className: classes.button,
-          onClick: handleUpdate,
-          children: "Update"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_7__.default, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_8__.default, {
           variant: "contained",
           type: "submit",
           color: "primary",
           className: classes.button,
           onClick: handlePending,
           children: "Pending"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_7__.default, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_8__.default, {
           variant: "contained",
           type: "submit",
           color: "primary",
@@ -22134,7 +22141,7 @@ var CallLogsReport = function CallLogsReport() {
 };
 
 CallLogsReport.layout = function (page) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Layout_Layout__WEBPACK_IMPORTED_MODULE_2__.default, {
     title: "Call Logs Report",
     children: page
   });
@@ -22391,6 +22398,7 @@ var EnhancedTable = function EnhancedTable(_ref3) {
       setData = _ref3.setData,
       updateMyData = _ref3.updateMyData,
       skipPageReset = _ref3.skipPageReset,
+      inboundIds = _ref3.inboundIds,
       children = _ref3.children;
 
   var _useTable = (0,react_table__WEBPACK_IMPORTED_MODULE_4__.useTable)({
@@ -22484,9 +22492,15 @@ var EnhancedTable = function EnhancedTable(_ref3) {
 
   var classes = tableStyles();
 
-  var test = function test(e, row) {
-    console.log(e);
-    console.log(row);
+  var storeSelectedData = function storeSelectedData(e, row) {
+    var data = row.values.Inbound_Id;
+
+    if (!inboundIds.includes(data)) {
+      inboundIds.push(data);
+    } else {
+      var itemIndx = inboundIds.indexOf(data);
+      inboundIds.splice(itemIndx, 1);
+    }
   };
 
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_9__.default, {
@@ -22522,7 +22536,7 @@ var EnhancedTable = function EnhancedTable(_ref3) {
               children: row.cells.map(function (cell) {
                 return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_14__.default, _objectSpread(_objectSpread({}, cell.getCellProps({
                   onClick: function onClick(e) {
-                    return test(e, row);
+                    return storeSelectedData(e, row);
                   }
                 })), {}, {
                   children: cell.render('Cell')

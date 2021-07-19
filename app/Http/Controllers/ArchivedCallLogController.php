@@ -36,12 +36,7 @@ class ArchivedCallLogController extends Controller
     public function store(Request $request)
     {
         // static data
-        $Inbound_Ids = [
-            'v2sThRjxXcoFmiS62BwOnb9Mn6hBz3n0gN8ZmQYItYA6INj6VKJJ8aDg',
-            'v2Hy_3I80ZFU5GrbENdDNQ3qRh8hcrxU3LIHKFZwWo86R5j7mJ7E65mQ',
-            'v2uqQu1K4lUgYWs4FLWVIoWkunTcSn5RV7vQdaPR7vnGj0jxhxp_MZNw',
-            'v2sgWl1a2X7sfAI_pOim1VXs-4eeYmN9F79jBz18vJAYA-hiIfjnIexw'
-        ];
+        $Inbound_Ids = $request->inboundIds;
 
         $result = false;
 

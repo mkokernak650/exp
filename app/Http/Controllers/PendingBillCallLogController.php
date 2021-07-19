@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PendingBillCallLog;
 use App\Models\RingbaCallLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class PendingBillCallLogController extends Controller
 {
@@ -33,15 +35,15 @@ class PendingBillCallLogController extends Controller
     public function store(Request $request)
     {
         // static data
-        $Inbound_Ids = [
-            'v2aFk5HE8nfM3x4Y-O2_OBccSfbF2WSoYyMijk9pfzs76anTfVL7mfPg',
-            'v2cSKHRYELZD2n9SFxQcjJOfaMTP9pcy4dc8CebROdc6jfNV2AYaxoeA',
-        ];
+        $Inbound_Ids = $request->inboundIds;
+        // $Inbound_Ids = [
+        //     'v2aFk5HE8nfM3x4Y-O2_OBccSfbF2WSoYyMijk9pfzs76anTfVL7mfPg',
+        //     'v2cSKHRYELZD2n9SFxQcjJOfaMTP9pcy4dc8CebROdc6jfNV2AYaxoeA',
+        // ];
 
         $result = false;
 
-        foreach ($Inbound_Ids as $Inbound_Id) 
-        {
+        foreach ($Inbound_Ids as $Inbound_Id) {
             $pendingBillCallLog = new PendingBillCallLog();
 
             // find existing record
@@ -78,13 +80,12 @@ class PendingBillCallLogController extends Controller
 
             // delete Record from Ringa Call log after transfer archived call log table;
             $data->delete();
-
         }
-
-        if($result) {
-            echo 'Insert successfully';
-        }else {
-            echo 'Somthing Wrong';
+        if ($result) {
+            return Redirect::route('call-logs-report');
+            //    return Redirect::back()->with('succcess','Successfully moved');
+        } else {
+            return Redirect::back()->with('failed', 'Moved to failed');
         }
     }
 }
