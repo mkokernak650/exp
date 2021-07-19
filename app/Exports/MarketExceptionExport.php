@@ -2,19 +2,19 @@
 
 namespace App\Exports;
 
-use App\Models\Market;
+use App\Models\MarketExcptions;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class MarketExport implements FromCollection, WithHeadings, WithMapping
+class MarketExceptionExport implements FromCollection,  WithHeadings, WithMapping
 {
     /**
     * @return \Illuminate\Support\Collection
     */
     public function collection()
     {
-        return Market::all();
+        return MarketExcptions::all();
     }
 
     public function headings() : array
@@ -25,11 +25,11 @@ class MarketExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($market) : array
+    public function map($marketExcptions) : array
     {
         return [
-            $market->id,
-            $market->market_name
+            $marketExcptions->id,
+            $marketExcptions->market_name
         ];
     }
 }
