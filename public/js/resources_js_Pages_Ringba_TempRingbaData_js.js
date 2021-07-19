@@ -21797,6 +21797,7 @@ var EnhancedTable = function EnhancedTable(_ref3) {
       setData = _ref3.setData,
       updateMyData = _ref3.updateMyData,
       skipPageReset = _ref3.skipPageReset,
+      inboundIds = _ref3.inboundIds,
       children = _ref3.children;
 
   var _useTable = (0,react_table__WEBPACK_IMPORTED_MODULE_4__.useTable)({
@@ -21890,9 +21891,15 @@ var EnhancedTable = function EnhancedTable(_ref3) {
 
   var classes = tableStyles();
 
-  var test = function test(e, row) {
-    console.log(e);
-    console.log(row);
+  var storeSelectedData = function storeSelectedData(e, row) {
+    var data = row.values.Inbound_Id;
+
+    if (!inboundIds.includes(data)) {
+      inboundIds.push(data);
+    } else {
+      var itemIndx = inboundIds.indexOf(data);
+      inboundIds.splice(itemIndx, 1);
+    }
   };
 
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_9__.default, {
@@ -21928,7 +21935,7 @@ var EnhancedTable = function EnhancedTable(_ref3) {
               children: row.cells.map(function (cell) {
                 return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_14__.default, _objectSpread(_objectSpread({}, cell.getCellProps({
                   onClick: function onClick(e) {
-                    return test(e, row);
+                    return storeSelectedData(e, row);
                   }
                 })), {}, {
                   children: cell.render('Cell')
