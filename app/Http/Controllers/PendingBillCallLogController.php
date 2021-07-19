@@ -82,10 +82,10 @@ class PendingBillCallLogController extends Controller
             $data->delete();
         }
         if ($result) {
-            return Redirect::route('call-logs-report');
-            //    return Redirect::back()->with('succcess','Successfully moved');
+            return redirect()->back()->with('success',"sdfsd");
+            // return response()->json(["msg" => "successfully moved", "status_code" => 200]);
         } else {
-            return Redirect::back()->with('failed', 'Moved to failed');
+            return response()->json(["msg" => "moving failed", "status_code" => 500]);
         }
     }
 }

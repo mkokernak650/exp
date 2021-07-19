@@ -1,14 +1,13 @@
 import React from 'react'
 import {
   Checkbox, TableBody, TableCell, TableContainer, TableFooter,
-  TableHead, TablePagination, TableRow, TableSortLabel, Paper, Typography
+  TableHead, TablePagination, TableRow, TableSortLabel, Paper, Button
 } from '@material-ui/core'
 import MaUTable from '@material-ui/core/Table'
 import { makeStyles } from '@material-ui/core/styles';
 import TablePaginationActions from './TablePaginationActions'
 import TableToolbar from './TableToolbar'
 import PropTypes from 'prop-types'
-
 
 import {
   useGlobalFilter,
@@ -37,8 +36,13 @@ const IndeterminateCheckbox = React.forwardRef(
 )
 
 const tableStyles = makeStyles((theme) => ({
-  TableFooterRow: {
-
+  topBtn: {
+    display: 'flex',
+    gap: '10px',
+    marginLeft: '10px'
+  },
+  button: {
+    width: 130,
   }
 }));
 
@@ -185,11 +189,16 @@ const EnhancedTable = ({
     )
     setData(newData)
   }
-  const tableTitle = () => {
+  const TableTitle = () => {
     return (
-      <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-        Call Logs Report
-      </Typography>
+      <div className={classes.topBtn}>
+        <Button variant="contained" type="submit" color="primary" className={classes.button} >
+          Import
+        </Button>
+        <Button variant="contained" type="submit" color="primary" className={classes.button}>
+          Export
+        </Button>
+      </div>
     )
   }
 
@@ -221,7 +230,7 @@ const EnhancedTable = ({
           preGlobalFilteredRows={preGlobalFilteredRows}
           setGlobalFilter={setGlobalFilter}
           globalFilter={globalFilter}
-          tableTitle={tableTitle}
+          TableTitle={TableTitle}
         >{children}</TableToolbar>
         <MaUTable {...getTableProps()}>
           <TableHead>

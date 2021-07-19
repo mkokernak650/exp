@@ -46,6 +46,7 @@ const TableToolbar = props => {
     preGlobalFilteredRows,
     setGlobalFilter,
     globalFilter,
+    TableTitle
   } = props
   return (
     <Toolbar
@@ -68,9 +69,6 @@ const TableToolbar = props => {
           {props.children}
         </div>
       ) : (
-        // <Typography className={classes.title} variant="h6" id="tableTitle">
-        //   Users
-        // </Typography>
         ""
       )}
 
@@ -81,11 +79,14 @@ const TableToolbar = props => {
           </IconButton>
         </Tooltip>
       ) : (
-        <GlobalFilter
-          preGlobalFilteredRows={preGlobalFilteredRows}
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-        />
+        <>
+          <GlobalFilter
+            preGlobalFilteredRows={preGlobalFilteredRows}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+          />
+          <TableTitle />
+        </>
       )}
     </Toolbar>
   )
