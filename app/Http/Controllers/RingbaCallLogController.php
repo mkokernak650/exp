@@ -139,19 +139,17 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->Has_Annotation         = $this->has_annotations;
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
             $ringbaCallLogs->save();
-
             // $row->delete();
 
-            $market_exception = MarketExcptions::where([
-                'customer_id', '=', $this->get_customer_name_id,
-                'market_id', '=', $this->get_market,
-                'start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000)
-            ])->get();
+            // $market_exception = MarketExcptions::where([
+            //     'customer_id', '=', $this->get_customer_name_id,
+            //     'market_id', '=', $this->get_market,
+            //     'start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000)
+            // ])->get();
 
-            if ($market_exception > 0) {
-                $this->insertExceptions($ringbaCallLogs->id);
-            }
-
+            // if ($market_exception > 0) {
+            //     $this->insertExceptions($ringbaCallLogs->id);
+            // }
         }
     }
 
