@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
+use App\Http\Controllers\ZipcodeDataController;
 use Illuminate\Support\Facades\Auth;
 use Whoops\Run;
 
@@ -123,3 +124,11 @@ Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketContr
 
 Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
         ->name('zipcode.television.market.export');
+
+// TODO Zipcodedata Controller
+Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
+        ->name('zipcode.data');
+Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
+        ->name('zipcode.data.import');
+Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
+        ->name('zipcode.data.export');

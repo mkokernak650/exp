@@ -169,6 +169,11 @@ function ResponsiveDrawer(props) {
                     title: 'Television Market Report',
                     href: 'zipcode.television.market',
                     Icon: <UserIcon />,
+                },
+                {
+                    title: 'Zip Code',
+                    href: 'zipcode.data',
+                    Icon: <UserIcon />,
                 }
             ]
         },
@@ -182,8 +187,6 @@ function ResponsiveDrawer(props) {
             }
         }
     }
-
-
 
     const drawer = (
         <div>
