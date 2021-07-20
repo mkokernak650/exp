@@ -114,6 +114,9 @@ Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
 //TODO ZipcodebyTelevisionMarketController
 Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])
         ->name('zipcode.television.market');
+        
+Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])
+        ->name('zipcode.television.market.import');
 
-Route::post('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'import'])
-        ->name('zipcode.television.market');
+Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
+        ->name('zipcode.television.market.export');

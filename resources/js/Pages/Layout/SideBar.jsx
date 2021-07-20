@@ -159,6 +159,11 @@ function ResponsiveDrawer(props) {
                     title: 'Customer Report',
                     href: 'customer-report',
                     Icon: <UserIcon />,
+                },
+                {
+                    title: 'Television Market Report',
+                    href: 'zipcode.television.market',
+                    Icon: <UserIcon />,
                 }
             ]
         },

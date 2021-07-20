@@ -6,7 +6,7 @@ use App\Models\ZipcodeByTelevisionMarket;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ZipcodeByTalevisionMarketImport implements ToModel, WithHeadingRow
+class ZipcodeByTelevisionMarketImport implements ToModel, WithHeadingRow
 {
     /**
     * @param array $row
@@ -32,6 +32,5 @@ class ZipcodeByTalevisionMarketImport implements ToModel, WithHeadingRow
             'race_hispanic' => $row['race_hispanic'],
             'race_other'    => $row['race_other']
         ]);
-        
     }
 }
