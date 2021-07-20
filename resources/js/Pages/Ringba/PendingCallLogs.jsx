@@ -199,25 +199,23 @@ const CallLogsReport = () => {
     setOpen(false);
   };
   const handlePending = () => {
-    // Inertia.post(route('add.pending.bill.call'), {inboundIds}, {
-    //     // onFinish: () => {
-    //     //     setLoading(false)
-    //     // }
-    // })
-    axios
-      .post(route("add.pending.bill.call"), { inboundIds })
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          setSuccess(res.data.msg);
-          setOpen(true);
-          setMainData(newCallCallLogs)
-          console.log(newCallCallLogs)
-        } else {
-          setSuccess(res.data.msg);
-          setOpen(true);
-        }
-      })
-      .catch((err) => {});
+    Inertia.post(route('add.pending.bill.call'), {inboundIds}, {
+        // onFinish: () => {
+        //     setLoading(false)
+        // }
+    })
+    // axios
+    //   .post(route("add.pending.bill.call"), { inboundIds })
+    //   .then((res) => {
+    //     if (res.data.status_code === 200) {
+    //       setSuccess(res.data.msg);
+    //       setOpen(true);
+    //     } else {
+    //       setSuccess(res.data.msg);
+    //       setOpen(true);
+    //     }
+    //   })
+    //   .catch((err) => {});
   };
 
   const handleArchived = () => {

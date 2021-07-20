@@ -122,6 +122,11 @@ function ResponsiveDrawer(props) {
                     title: 'Archived Call Logs Report',
                     href: 'archived-call-log-report',
                     Icon: <UserIcon />,
+                },
+                {
+                    title: 'Pending Call Logs Report',
+                    href: 'pending-call-log-report',
+                    Icon: <UserIcon />,
                 }
             ]
         },

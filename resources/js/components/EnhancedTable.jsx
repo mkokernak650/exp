@@ -84,6 +84,7 @@ const EditableCell = ({
       onChange={onChange}
       onBlur={onBlur}
     />
+    // <p>{value}</p>
   )
 }
 
