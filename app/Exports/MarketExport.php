@@ -10,25 +10,26 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 class MarketExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         return Market::all();
     }
 
-    public function headings() : array
+    public function headings(): array
     {
         return [
-            'ID',
             'Market name'
         ];
     }
 
-    public function map($market) : array
+    public function map($market): array
     {
+        // echo '<pre>';
+        // var_dump($market);
+        // echo '</pre>';
         return [
-            $market->id,
             $market->market_name
         ];
     }

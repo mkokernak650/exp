@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\ZipcodeByTalevisionMarketImport;
+use App\Exports\ZipcodeByTelevisionMarketExport;
+use App\Imports\ZipcodeByTelevisionMarketImport;
 use App\Models\Customer;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ZipcodeByTelevisionMarketController extends Controller
 {
-    
+
     public function index()
     {
         $customer = Customer::all();
@@ -22,8 +23,16 @@ class ZipcodeByTelevisionMarketController extends Controller
 
     public function import(Request $request)
     {
-        Excel::import(new ZipcodeByTalevisionMarketImport, $request->importfile);
+        //post
+        Excel::import(new ZipcodeByTelevisionMarketImport, $request->importfile);
+        return back()->with('Import successfully');
+        // dd(ZipcodeByTelevisionMarket::all());
+    }
 
-        dd(ZipcodeByTelevisionMarket::all());
+    public function export($type)
+    {
+        // get request
+        Excel::download(new ZipcodeByTelevisionMarketExport, 'Zipcode_by_television_marker.' . $type);
+        return back()->with('Export successfully');
     }
 }

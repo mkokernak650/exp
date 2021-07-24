@@ -165,6 +165,21 @@ function ResponsiveDrawer(props) {
                     title: 'Customer Report',
                     href: 'customer-report',
                     Icon: <UserIcon />,
+                },
+                {
+                    title: 'Television Market Report',
+                    href: 'zipcode.television.market',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Zip Code',
+                    href: 'zipcode.data',
+                    Icon: <UserIcon />,
+                },
+                {
+                    title: 'Market',
+                    href: 'market.data',
+                    Icon: <UserIcon />,
                 }
             ]
         },
@@ -178,8 +193,6 @@ function ResponsiveDrawer(props) {
             }
         }
     }
-
-
 
     const drawer = (
         <div>

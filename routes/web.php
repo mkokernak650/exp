@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
+use App\Http\Controllers\ZipcodeDataController;
 use Illuminate\Support\Facades\Auth;
 use Whoops\Run;
 
@@ -90,10 +91,14 @@ Route::get('market-export/{type}', [MarketController::class, 'export'])->name('m
 
 Route::post('market-import', [MarketController::class, 'import'])->name('market.import');
 
+Route::get('/market-data', function() {
+        return inertia::render('Settings/Market');
+})->name('market.data');
 
 // TODO Customet Controller
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])
         ->name('customer-report');
+Route::get('customer-export/{type}', [CustomerController::class, 'export'])->name('customer.export');
 
 // TODO Archived Call log Controller for store test
 /**
@@ -117,6 +122,17 @@ Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
 //TODO ZipcodebyTelevisionMarketController
 Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])
         ->name('zipcode.television.market');
+        
+Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])
+        ->name('zipcode.television.market.import');
 
-Route::post('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'import'])
-        ->name('zipcode.television.market');
+Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
+        ->name('zipcode.television.market.export');
+
+// TODO Zipcodedata Controller
+Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
+        ->name('zipcode.data');
+Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
+        ->name('zipcode.data.import');
+Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
+        ->name('zipcode.data.export');

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import EnhancedTable from '../../components/EnhancedTable'
 import Layout from '../Layout/Layout'
-import { usePage } from '@inertiajs/inertia-react';
+import { usePage, InertiaLink } from '@inertiajs/inertia-react';
 import { Inertia } from '@inertiajs/inertia'
 
 // const fileupload = useRef(null)
@@ -83,7 +83,7 @@ const ZipcodeByTelevionMarkter = () => {
         // console.log(form.entries)
 
         // post(route('zipcode.television.market'), form)
-        Inertia.post(route('zipcode.television.market'), form)
+        Inertia.post(route('zipcode.television.market.import'), form)
     }
 
     return (
@@ -93,6 +93,8 @@ const ZipcodeByTelevionMarkter = () => {
                 <input id='importfile' type="file" name='importfile' />
                 <button type='submit'>Import</button>
            </form>
+
+           <a href={route('zipcode.television.market.export', 'xlsx')}> Export </a>
 
         </div>
     )

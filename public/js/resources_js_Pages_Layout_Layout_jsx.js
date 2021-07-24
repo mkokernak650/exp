@@ -17935,6 +17935,18 @@ function ResponsiveDrawer(props) {
       title: 'Customer Report',
       href: 'customer-report',
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: 'Television Market Report',
+      href: 'zipcode.television.market',
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: 'Zip Code',
+      href: 'zipcode.data',
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: 'Market',
+      href: 'market.data',
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }];
 

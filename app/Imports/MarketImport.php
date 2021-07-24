@@ -15,9 +15,7 @@ class MarketImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-        // create row name with row name
         return new Market([
-            'creater_id' => $row['creater_id'],
             'market_name' => $row['market_name']
         ]);
     }
