@@ -16,9 +16,5 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-/public/js
-/public/*.js
-/public/js/*
 /storage/framework/laravel-excel/*.tmp
-/public/js/*
 *.tmp
