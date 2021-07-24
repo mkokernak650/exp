@@ -98,6 +98,7 @@ Route::get('/market-data', function() {
 // TODO Customet Controller
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])
         ->name('customer-report');
+Route::get('customer-export/{type}', [CustomerController::class, 'export'])->name('customer.export');
 
 // TODO Archived Call log Controller for store test
 /**
