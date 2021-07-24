@@ -122,6 +122,74 @@ class RingbaApiHelpers
     // return ['success'];
   }
 
+  private function getDataById($inboundId)
+  {
+    $params = [
+      'dateRange' => [
+        'past' => 10000,
+        'days' => 10001
+      ],
+      'timeSeries' => [
+        'timeGroup' => 'hour'
+      ],
+      'callLog' => [
+        'page' => 0,
+        'pageSize' => 10000,
+        'sort' => 'dtStamp',
+        'sortDirection' => 'desc'
+      ],
+      'timezoneId' => 'Eastern Standard Time',
+      "filters" => [
+        [
+          'key' => 'inboundCallId',
+          'value' => $inboundId
+        ]
+      ]
+    ];
+
+    $response =  json_decode($this->postRequest('calllogs/date', $params));
+   return $response->result->callLog->data;
+  }
+
+  /**
+   * @for update Ringba call log
+   * @Received inbound id
+   * @return Object
+   */
+  public function getUpdateData($inboundId)
+  {
+    $result =  $this->getDataById($inboundId);
+    return $result[0];
+  }
+
+  // get update data by inboundId
+  public function updatAnnotation($inboundId)
+  {
+    $data =  $this->getDataById($inboundId);
+
+    $annotation_tag = '';
+    $has_annotation = 'NO';
+
+    foreach ($data as $d) {
+      $hasTag = $d->tags;
+
+      if (count($hasTag) > 0) {
+        foreach ($hasTag as $tag) {
+          if ($tag->tagType === 'Annotations') {
+            $annotation_tag = $tag->tagName;
+            $has_annotation = 'Yes';
+            break;
+          }
+        }
+      }
+    }
+
+    return [
+      'annotation_tag' => $annotation_tag,
+      'has_annotation' => $has_annotation
+    ];
+  }
+
   public function getDataDateWise($params)
   {
     return json_decode($this->postRequest('calllogs/date', $params));

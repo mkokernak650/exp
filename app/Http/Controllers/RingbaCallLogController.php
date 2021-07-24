@@ -154,7 +154,8 @@ class RingbaCallLogController extends Controller
 
     private function columns($row)
     {
-        $results = json_decode($row);
+        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->name === 'dtStamp') {
                 $this->get_dtStamp = $item->formattedValue;
@@ -223,7 +224,8 @@ class RingbaCallLogController extends Controller
     }
     private function events($row)
     {
-        $results = json_decode($row);
+        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = "Yes";
@@ -233,7 +235,8 @@ class RingbaCallLogController extends Controller
     }
     private function tags($row)
     {
-        $results = json_decode($row);
+        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
@@ -264,7 +267,97 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    // 
+    /**
+     * @request post 
+     * Receive Array of Ibound id
+     * @return null
+     */
+    public function updateByInboundId(Request $request, $inboundIds = [])
+    {
+        if (count($inboundIds) > 0) {
+            $i = 0;
+            while ($i < count($inboundIds)) {
+                $this->updateData($inboundIds[$i]);
+                $i++;
+            }
+        }
+    }
+
+    // update data by $inboundId 
+    private function updateData($inboundId)
+    {
+        $row = $this->_ringba->getUpdateData($inboundId);
+
+        if ($row->columns) $this->columns($row->columns);
+        if ($row->events) $this->events($row->events);
+        if ($row->tags) $this->tags($row->tags);
+
+        $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
+
+        $findData->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
+        $findData->Call_Date              = date('d-M-y', $this->get_dtStamp / 1000);
+        $findData->Campaign               = $this->get_campaignName;
+        $findData->Campaign_Id            = $this->get_campaignId;
+        $findData->Affiliate              = $this->get_affiliateName;
+        $findData->Affiliate_Id           = $this->get_affiliateId;
+        $findData->Inbound                = $this->get_inboundPhoneNumber;
+        $findData->Inbound_Id             = $this->get_inboundCallId;
+        $findData->Dialed                 = $this->get_number;
+        $findData->Time_To_Call           = $this->get_timeToConnect;
+        $findData->Account_Id             = $this->get_accountId;
+        $findData->Total_Cost             = $this->get_totalAmount;
+        $findData->payoutAmount           = $this->get_payoutAmount;
+        $findData->Conn_Duration          = $this->get_callConnectionLength;
+        $findData->call_Length_In_Seconds = $this->get_callLengthInSeconds;
+        $findData->Profit                 = $this->get_profit;
+        $findData->Target                 = $this->get_targetName;
+        $findData->Target_Description     = $this->get_Target_Description;
+        $findData->Revenue                = $this->get_revenue;
+        $findData->call_Logs_status       = $this->get_call_log_status;
+        $findData->Duplicate_Call         = $this->get_duplicated_status;
+        $findData->Source_Hangup          = $this->get_source_hangup;
+        $findData->City                   = $this->get_city;
+        $findData->State                  = $this->get_state;
+        $findData->Zipcode                = $this->get_zipcode;
+        // $findData->Market                 = $this->get_market;
+        // $findData->Type                   = $this->get_type;
+        $findData->Call_Qualification     = $this->get_call_qualification;
+        $findData->Recording_Url          = $this->get_recordingUrl;
+        $findData->Customer               = $this->get_customer_name_id;
+        $findData->Has_Annotation         = $this->has_annotations;
+        $findData->Annotation_Tag         = $this->get_annotations_tag;
+        $findData->save();
+    }
+
+    /**
+     * @request post
+     * Receive Array of Inbound id,
+     * @return null
+     */
+    public function getAnnotation(Request $request, $inboundIds = [])
+    {
+        if (count($inboundIds) > 0) {
+            $i = 0;
+
+            while ($i < count($inboundIds)) {
+                $data = $this->_ringba->updatAnnotation($inboundIds[$i]);
+                $this->updateAnnotation($inboundIds[$i], $data);
+                $i++;
+            }
+        }
+    }
+
+    // for update annotation
+    private function updateAnnotation($inboundId, $data = [])
+    {
+        $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
+
+        $findData->Has_Annotation = $data['has_annotation'];
+        $findData->Annotation_Tag = $data['annotation_tag'];
+        $findData->save();
+    }
+
+    // for insert Exception data
     private function insertExceptions($insertId)
     {
         $insertedData = RingbaCallLog::find($insertId);
