@@ -174,6 +174,11 @@ function ResponsiveDrawer(props) {
                     title: 'Zip Code',
                     href: 'zipcode.data',
                     Icon: <UserIcon />,
+                },
+                {
+                    title: 'Market',
+                    href: 'market.data',
+                    Icon: <UserIcon />,
                 }
             ]
         },

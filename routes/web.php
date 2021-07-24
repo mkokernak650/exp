@@ -91,6 +91,9 @@ Route::get('market-export/{type}', [MarketController::class, 'export'])->name('m
 
 Route::post('market-import', [MarketController::class, 'import'])->name('market.import');
 
+Route::get('/market-data', function() {
+        return inertia::render('Settings/Market');
+})->name('market.data');
 
 // TODO Customet Controller
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])

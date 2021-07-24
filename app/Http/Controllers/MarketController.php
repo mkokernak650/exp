@@ -36,9 +36,9 @@ class MarketController extends Controller
     public function import(Request $request)
     {
         // post request
-        Excel::import(new MarketImport, $request->file);
+        // dd($request->importfile);
+        Excel::import(new MarketImport, $request->importfile);
         return back()->with('Successfully import!');
-
     }
 
     public function export($type)
@@ -47,4 +47,5 @@ class MarketController extends Controller
         Excel::download(new MarketExport,  'markets.' . $type);
         return back()->with('Export successfully');
     }
+
 }
