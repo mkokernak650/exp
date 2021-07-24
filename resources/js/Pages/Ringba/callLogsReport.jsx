@@ -199,19 +199,25 @@ const CallLogsReport = () => {
     setOpen(false);
   };
   const handlePending = () => {
-    // Inertia.post(route('add.pending.bill.call'), {inboundIds}, {
-    //     // onFinish: () => {
-    //     //     setLoading(false)
-    //     // }
-    // })
     axios
       .post(route("add.pending.bill.call"), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           setSuccess(res.data.msg);
           setOpen(true);
-          setMainData(newCallCallLogs)
-          console.log(newCallCallLogs)
+          const a = { ...mainData };
+          let i = 0;
+          while (i <= Object.keys(a).length) {
+            for (let b = 0; b <= inboundIds.length; b++) {
+              if(Object.values(Object.values(a)[i]).includes(inboundIds[b])) {
+              const index=Object.values(a).indexOf(inboundIds[b])
+              console.log(Object.values(Object.values(a)[i]))
+              }
+            }
+            i += 1;
+          }
+
+          setMainData(a);
         } else {
           setSuccess(res.data.msg);
           setOpen(true);

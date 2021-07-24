@@ -1,13 +1,24 @@
-import React from 'react'
+import React from "react";
 import {
-  Checkbox, TableBody, TableCell, TableContainer, TableFooter,
-  TableHead, TablePagination, TableRow, TableSortLabel, Paper, Button
-} from '@material-ui/core'
-import MaUTable from '@material-ui/core/Table'
-import { makeStyles } from '@material-ui/core/styles';
-import TablePaginationActions from './TablePaginationActions'
-import TableToolbar from './TableToolbar'
-import PropTypes from 'prop-types'
+  Checkbox,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Paper,
+  Button,
+} from "@material-ui/core";
+import MaUTable from "@material-ui/core/Table";
+import { makeStyles } from "@material-ui/core/styles";
+import TablePaginationActions from "./TablePaginationActions";
+import TableToolbar from "./TableToolbar";
+import PropTypes from "prop-types";
+import NormalModal from "../Shared/NormalModal";
+import { Inertia } from "@inertiajs/inertia";
 
 import {
   useGlobalFilter,
@@ -15,43 +26,48 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
-  useResizeColumns
-} from 'react-table'
+  useResizeColumns,
+} from "react-table";
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef()
-    const resolvedRef = ref || defaultRef
+    const defaultRef = React.useRef();
+    const resolvedRef = ref || defaultRef;
 
     React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
+      resolvedRef.current.indeterminate = indeterminate;
+    }, [resolvedRef, indeterminate]);
 
     return (
       <>
         <Checkbox ref={resolvedRef} {...rest} />
       </>
-    )
+    );
   }
-)
+);
 
 const tableStyles = makeStyles((theme) => ({
   topBtn: {
-    display: 'flex',
-    gap: '10px',
-    marginLeft: '10px'
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
   },
   button: {
     width: 130,
-  }
+  },
+  importForm: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
 }));
 
 const inputStyle = {
   padding: 0,
   margin: 0,
   border: 0,
-  background: 'transparent',
-}
+  background: "transparent",
+};
 
 // Create an editable cell renderer
 const EditableCell = ({
@@ -61,21 +77,21 @@ const EditableCell = ({
   updateMyData, // This is a custom function that we supplied to our table instance
 }) => {
   // We need to keep and update the state of the cell normally
-  const [value, setValue] = React.useState(initialValue)
+  const [value, setValue] = React.useState(initialValue);
 
-  const onChange = e => {
-    setValue(e.target.value)
-  }
+  const onChange = (e) => {
+    setValue(e.target.value);
+  };
 
   // We'll only update the external data when the input is blurred
   const onBlur = () => {
-    updateMyData(index, id, value)
-  }
+    updateMyData(index, id, value);
+  };
 
   // If the initialValue is changed externall, sync it up with our state
   React.useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
+    setValue(initialValue);
+  }, [initialValue]);
 
   return (
     <input
@@ -85,8 +101,8 @@ const EditableCell = ({
       onBlur={onBlur}
     />
     // <p>{value}</p>
-  )
-}
+  );
+};
 
 EditableCell.propTypes = {
   cell: PropTypes.shape({
@@ -99,12 +115,12 @@ EditableCell.propTypes = {
     id: PropTypes.number.isRequired,
   }),
   updateMyData: PropTypes.func.isRequired,
-}
+};
 
 // Set our editable cell renderer as the default Cell renderer
 const defaultColumn = {
   Cell: EditableCell,
-}
+};
 
 const EnhancedTable = ({
   columns,
@@ -113,7 +129,7 @@ const EnhancedTable = ({
   updateMyData,
   skipPageReset,
   inboundIds,
-  children
+  children,
 }) => {
   const {
     getTableProps,
@@ -143,11 +159,11 @@ const EnhancedTable = ({
     usePagination,
     useRowSelect,
     useResizeColumns,
-    hooks => {
-      hooks.allColumns.push(columns => [
+    (hooks) => {
+      hooks.allColumns.push((columns) => [
         // Let's make a column for selection
         {
-          id: 'selection',
+          id: "selection",
           // The header can use the table's getToggleAllRowsSelectedProps method
           // to render a checkbox.  Pagination is a problem since this will select all
           // rows even though not all rows are on the current page.  The solution should
@@ -168,59 +184,78 @@ const EnhancedTable = ({
           ),
         },
         ...columns,
-      ])
+      ]);
     }
-  )
+  );
 
   const handleChangePage = (event, newPage) => {
-    gotoPage(newPage)
-  }
+    gotoPage(newPage);
+  };
 
-  const handleChangeRowsPerPage = event => {
-    setPageSize(Number(event.target.value))
-  }
+  const handleChangeRowsPerPage = (event) => {
+    setPageSize(Number(event.target.value));
+  };
 
   const removeByIndexs = (array, indexs) =>
-    array.filter((_, i) => !indexs.includes(i))
+    array.filter((_, i) => !indexs.includes(i));
 
-  const deleteUserHandler = event => {
+  const deleteUserHandler = (event) => {
     const newData = removeByIndexs(
       data,
-      Object.keys(selectedRowIds).map(x => parseInt(x, 10))
-    )
-    setData(newData)
-  }
+      Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
+    );
+    setData(newData);
+  };
   const TableTitle = () => {
     return (
       <div className={classes.topBtn}>
-        <Button variant="contained" type="submit" color="primary" className={classes.button} >
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+          onClick={openModal}
+        >
           Import
         </Button>
-        <Button variant="contained" type="submit" color="primary" className={classes.button}>
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+          onClick={openModal}
+        >
           Export
         </Button>
       </div>
-    )
-  }
+    );
+  };
 
-  const addUserHandler = user => {
-    const newData = data.concat([user])
-    setData(newData)
-  }
+  const addUserHandler = (user) => {
+    const newData = data.concat([user]);
+    setData(newData);
+  };
 
-
-  const classes = tableStyles()
+  const classes = tableStyles();
   const storeSelectedData = (e, row) => {
-    const data = row.values.Inbound_Id
+    const data = row.values.Inbound_Id;
     if (!inboundIds.includes(data)) {
-      inboundIds.push(data)
+      inboundIds.push(data);
     } else {
-      let itemIndx = inboundIds.indexOf(data)
-      inboundIds.splice(itemIndx, 1)
+      let itemIndx = inboundIds.indexOf(data);
+      inboundIds.splice(itemIndx, 1);
     }
-  }
+  };
 
-
+  const [showModal, setShowModal] = React.useState({ open: false });
+  const openModal = () => {
+    setShowModal({ open: true });
+  };
+  const importHandler = (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    Inertia.post(route("zipcode.data.import"), form);
+  };
   return (
     <Paper>
       <TableContainer>
@@ -232,23 +267,25 @@ const EnhancedTable = ({
           setGlobalFilter={setGlobalFilter}
           globalFilter={globalFilter}
           TableTitle={TableTitle}
-        >{children}</TableToolbar>
+        >
+          {children}
+        </TableToolbar>
         <MaUTable {...getTableProps()}>
           <TableHead>
-            {headerGroups.map(headerGroup => (
+            {headerGroups.map((headerGroup) => (
               <TableRow {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
+                {headerGroup.headers.map((column) => (
                   <TableCell
-                    {...(column.id === 'selection'
+                    {...(column.id === "selection"
                       ? column.getHeaderProps()
                       : column.getHeaderProps(column.getSortByToggleProps()))}
                   >
-                    {column.render('Header')}
-                    {column.id !== 'selection' ? (
+                    {column.render("Header")}
+                    {column.id !== "selection" ? (
                       <TableSortLabel
                         active={column.isSorted}
                         // react-table has a unsorted state which is not treated here
-                        direction={column.isSortedDesc ? 'desc' : 'asc'}
+                        direction={column.isSortedDesc ? "desc" : "asc"}
                       />
                     ) : null}
                   </TableCell>
@@ -258,18 +295,22 @@ const EnhancedTable = ({
           </TableHead>
           <TableBody>
             {page.map((row, i) => {
-              prepareRow(row)
+              prepareRow(row);
               return (
                 <TableRow {...row.getRowProps()}>
-                  {row.cells.map(cell => {
+                  {row.cells.map((cell) => {
                     return (
-                      <TableCell {...cell.getCellProps({ onClick: (e) => storeSelectedData(e, row) })}>
-                        {cell.render('Cell')}
+                      <TableCell
+                        {...cell.getCellProps({
+                          onClick: (e) => storeSelectedData(e, row),
+                        })}
+                      >
+                        {cell.render("Cell")}
                       </TableCell>
-                    )
+                    );
                   })}
                 </TableRow>
-              )
+              );
             })}
           </TableBody>
 
@@ -280,14 +321,14 @@ const EnhancedTable = ({
                   5,
                   10,
                   25,
-                  { label: 'All', value: data.length },
+                  { label: "All", value: data.length },
                 ]}
                 colSpan={3}
                 count={data.length}
                 rowsPerPage={pageSize}
                 page={pageIndex}
                 SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
+                  inputProps: { "aria-label": "rows per page" },
                   native: true,
                 }}
                 onChangePage={handleChangePage}
@@ -298,9 +339,29 @@ const EnhancedTable = ({
           </TableFooter>
         </MaUTable>
       </TableContainer>
+      <NormalModal
+        open={showModal.open}
+        setOpen={setShowModal}
+        width={"500px"}
+        title={""}
+      >
+        <div className="myprofile">
+          <form
+            className={classes.importForm}
+            method="post"
+            encType="multipart/form-data"
+            onSubmit={importHandler}
+          >
+            <input id="importfile" type="file" name="importfile" />
+            <Button variant="contained" type="submit" color="primary">
+              Next
+            </Button>
+          </form>
+        </div>
+      </NormalModal>
     </Paper>
-  )
-}
+  );
+};
 
 EnhancedTable.propTypes = {
   columns: PropTypes.array.isRequired,
@@ -308,6 +369,6 @@ EnhancedTable.propTypes = {
   updateMyData: PropTypes.func.isRequired,
   setData: PropTypes.func.isRequired,
   skipPageReset: PropTypes.bool.isRequired,
-}
+};
 
-export default EnhancedTable
+export default EnhancedTable;
