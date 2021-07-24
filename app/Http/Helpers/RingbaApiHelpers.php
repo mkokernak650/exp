@@ -122,8 +122,7 @@ class RingbaApiHelpers
     // return ['success'];
   }
 
-  // get update data
-  public function updatAnnotation($inboundId)
+  private function getDataById($inboundId)
   {
     $params = [
       'dateRange' => [
@@ -149,12 +148,26 @@ class RingbaApiHelpers
     ];
 
     $response =  json_decode($this->postRequest('calllogs/date', $params));
+   return $response->result->callLog->data;
+  }
+
+  /**
+   * @for update Ringba call log
+   * @Received inbound id
+   * @return Object
+   */
+  public function getUpdateData($inboundId)
+  {
+    return $this->getDataById($inboundId);
+  }
+
+  // get update data by inboundId
+  public function updatAnnotation($inboundId)
+  {
+    $data =  $this->getDataById($inboundId);
+
     $annotation_tag = '';
     $has_annotation = 'NO';
-
-    // when return 1 row
-    // $data = $response->result->callLog->data[0]->tags;
-    $data =  $response->result->callLog->data;
 
     foreach ($data as $d) {
       $hasTag = $d->tags;
