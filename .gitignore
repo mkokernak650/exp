@@ -21,3 +21,4 @@ yarn-error.log
 /public/js/*
 /storage/framework/laravel-excel/*
 /public/js/*
+*.tmp
