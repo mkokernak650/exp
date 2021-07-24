@@ -9,3 +9,9 @@ body{
 .MuiTableCell-root{
     padding: 5px !important;
 }
+.MuiTablePagination-root{
+    overflow:inherit!important;
+}
+.MuiIconButton-root{
+    margin-left: 10px!important;
+}

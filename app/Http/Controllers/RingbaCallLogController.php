@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Redirect;
 class RingbaCallLogController extends Controller
 {
     private $_ringba;
-    private $_ringbaData;
 
     protected $get_dtStamp = null;
     protected $get_accountId = '';

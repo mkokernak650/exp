@@ -1995,7 +1995,7 @@ __webpack_require__.r(__webpack_exports__);
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 ___CSS_LOADER_EXPORT___.push([module.id, "@import url(https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600;700&family=Roboto:wght@500&display=swap);"]);
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "body{\r\n    font-family:\"Roboto\",sans-serif;\r\n}\r\n.makeStyles-menuText-16 .MuiTypography-body1{\r\n    font-weight: bold!important;\r\n}\r\n.MuiTableCell-root{\r\n    padding: 5px !important;\r\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "body{\r\n    font-family:\"Roboto\",sans-serif;\r\n}\r\n.makeStyles-menuText-16 .MuiTypography-body1{\r\n    font-weight: bold!important;\r\n}\r\n.MuiTableCell-root{\r\n    padding: 5px !important;\r\n}\r\n.MuiTablePagination-root{\r\n    overflow:inherit!important;\r\n}\r\n.MuiIconButton-root{\r\n    margin-left: 10px!important;\r\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
