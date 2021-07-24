@@ -19,3 +19,5 @@ yarn-error.log
 /public/js
 /public/*.js
 /public/js/*
+/storage/framework/laravel-excel/*
+/public/js/*
