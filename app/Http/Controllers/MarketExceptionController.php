@@ -43,8 +43,8 @@ class MarketExceptionController extends Controller
     public function marketExceptionReport()
     {
         $marketExceptions = DB::table('market_excptions')
-            ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market',])
-            ->join('customers', 'customers.customer_ID', '=', 'market_excptions.customer_id')
+            ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market'])
+            ->join('customers', 'customers.id', '=', 'market_excptions.customer_id')
             ->join('markets', 'markets.id', '=', 'market_excptions.market_id')
             ->get();
 

@@ -14,6 +14,8 @@ use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use App\Http\Helpers\RingbaApiHelpers;
 use Whoops\Run;
 
 // TODO Login and Log out controller
@@ -108,23 +110,23 @@ Route::get('customer-export/{type}', [CustomerController::class, 'export'])->nam
 Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add.arichived.bill.call');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
-        ->name('archived-call-log-report');
+    ->name('archived-call-log-report');
         
 Route::get('/pending-call-log-report', [ArchivedCallLogController::class, 'index'])
-        ->name('pending-call-log-report');
+     ->name('pending-call-log-report');
 
 /*====== temp route for check get data ===== */
 Route::post('/pending', [PendingBillCallLogController::class, 'store'])
-        ->name('add.pending.bill.call');
+    ->name('add.pending.bill.call');
 Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
 
 
 //TODO ZipcodebyTelevisionMarketController
 Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])
-        ->name('zipcode.television.market');
+    ->name('zipcode.television.market');
         
 Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])
-        ->name('zipcode.television.market.import');
+    ->name('zipcode.television.market.import');
 
 Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
         ->name('zipcode.television.market.export');
@@ -136,3 +138,14 @@ Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
         ->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
+
+
+
+
+// test route
+Route::get('/getupdate/{id}', function ($id) {
+    $api = new RingbaApiHelpers();
+    $results = $api->updatAnnotation($id);
+
+    dd($results);
+});
