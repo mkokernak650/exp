@@ -158,7 +158,8 @@ class RingbaApiHelpers
    */
   public function getUpdateData($inboundId)
   {
-    return $this->getDataById($inboundId);
+    $result =  $this->getDataById($inboundId);
+    return $result[0];
   }
 
   // get update data by inboundId

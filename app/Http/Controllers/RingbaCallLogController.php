@@ -288,9 +288,9 @@ class RingbaCallLogController extends Controller
     {
         $row = $this->_ringba->getUpdateData($inboundId);
 
-        if ($row[0]->columns) $this->columns($row[0]->columns);
-        if ($row[0]->events) $this->events($row[0]->events);
-        if ($row[0]->tags) $this->tags($row[0]->tags);
+        if ($row->columns) $this->columns($row->columns);
+        if ($row->events) $this->events($row->events);
+        if ($row->tags) $this->tags($row->tags);
 
         $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
 
