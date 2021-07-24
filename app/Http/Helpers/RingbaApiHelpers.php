@@ -122,6 +122,60 @@ class RingbaApiHelpers
     // return ['success'];
   }
 
+  // get update data
+  public function updatAnnotation($inboundId)
+  {
+    $params = [
+      'dateRange' => [
+        'past' => 10000,
+        'days' => 10001
+      ],
+      'timeSeries' => [
+        'timeGroup' => 'hour'
+      ],
+      'callLog' => [
+        'page' => 0,
+        'pageSize' => 10000,
+        'sort' => 'dtStamp',
+        'sortDirection' => 'desc'
+      ],
+      'timezoneId' => 'Eastern Standard Time',
+      "filters" => [
+        [
+          'key' => 'inboundCallId',
+          'value' => $inboundId
+        ]
+      ]
+    ];
+
+    $response =  json_decode($this->postRequest('calllogs/date', $params));
+    $annotation_tag = '';
+    $has_annotation = 'NO';
+
+    // when return 1 row
+    // $data = $response->result->callLog->data[0]->tags;
+    $data =  $response->result->callLog->data;
+
+    foreach ($data as $d) {
+      $hasTag = $d->tags;
+
+      if (count($hasTag) > 0) {
+        foreach ($hasTag as $tag) {
+          if ($tag->tagType === 'Annotations') {
+            $annotation_tag = $tag->tagName;
+            $has_annotation = 'Yes';
+            break;
+          }
+        }
+      }
+    }
+
+    return [
+      'annotation_tag' => $annotation_tag,
+      'has_annotation' => $has_annotation
+    ];
+  }
+
   public function getDataDateWise($params)
   {
     return json_decode($this->postRequest('calllogs/date', $params));

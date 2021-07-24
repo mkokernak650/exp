@@ -264,6 +264,43 @@ class RingbaCallLogController extends Controller
         }
     }
 
+
+    // for update data by inbound id;
+    private function updateByInboundId($inboundId)
+    {
+    }
+
+
+    /**
+     * @request post
+     * Receive Array of Inbound id,
+     * @return null
+     */
+    public function getAnnotation(Request $request, $inboundIds = [])
+    {
+        $i = 0;
+        if (count($inboundIds) > 0) {
+            $i = 0;
+
+            while ($i < count($inboundIds)) {
+
+                $data = $this->_ringba->updatAnnotation($inboundIds[$i]);
+                $this->updateAnnotation($inboundIds[$i], $data);
+                $i++;
+            }
+        }
+    }
+
+    // for update annotation
+    private function updateAnnotation($inboundId, $data = [])
+    {
+        $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
+
+        $findData->Has_Annotation = $data['has_annotation'];
+        $findData->Annotation_Tag = $data['annotation_tag'];
+        $findData->save();
+    }
+
     // 
     private function insertExceptions($insertId)
     {
