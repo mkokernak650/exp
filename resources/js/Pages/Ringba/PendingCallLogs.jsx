@@ -7,7 +7,7 @@ import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles( ()=> ({
   topBtn: {
     display: "flex",
     gap: "10px",
@@ -15,6 +15,8 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     width: 130,
+    textTransform:"capitalize",
+    fontSize:"14px"
   },
 }));
 function Alert(props) {
@@ -23,30 +25,24 @@ function Alert(props) {
 
 const CallLogsReport = () => {
   const classes = useStyles();
-  const { allCallLogs } = usePage().props;
+  const { results } = usePage().props;
   const [inboundIds] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
 
-  const newCallCallLogs = allCallLogs.map((item, indx) => {
+  const newCallCallLogs = results.map((item, indx) => {
     return {
-      SL: indx + 1,
-      Call_Date: item.Call_Date_Time,
-      Has_Annotation: item.Has_Annotation,
-      Annotation: item.Annotation_Tag,
+      SN: item.SN,
+      Call_Date : item.Call_Date,
+      Call_Date_Time: item.Call_Date_Time,
       Call_Status: item.call_Logs_status,
-      Recording_Url: item.Recording_Url,
-      Time: item.Call_Date_Time,
       Inbound_Id: item.Inbound_Id,
       Affiliate: item.Affiliate,
-      Market: item.Market,
       Campaign: item.Campaign,
       Inbound: item.Inbound,
       Dialed: item.Dialed,
       Type: item.Type,
       Customer: item.Customer,
-      Target: item.Target,
-      Target_Description: item.Target_Description,
       Source_Hangup: item.Source_Hangup,
       Conn_Duration: item.Conn_Duration,
       Time_To_Call: item.Time_To_Call,
@@ -55,57 +51,39 @@ const CallLogsReport = () => {
       Payout: item.payoutAmount,
       Total_Cost: item.Total_Cost,
       Profit: item.Profit,
-      City: item.City,
-      State: item.State,
-      Zipcode: item.Zipcode,
     };
   });
   const [mainData, setMainData] = useState(newCallCallLogs);
   const columns = [
     {
-      Header: "SL",
-      accessor: "SL",
+      Header: "SN",
+      accessor: "SN",
     },
     {
       Header: "Call Date",
       accessor: "Call_Date",
     },
     {
-      Header: "Has Annotation",
-      accessor: "Has_Annotation",
+      Header: "Call Date Time",
+      accessor: "Call_Date_Time",
     },
     {
-      Header: "Annotation Tag",
-      accessor: "Annotation_Tag",
-    },
-    {
-      Header: "Call Status",
-      accessor: "Call_Status",
-    },
-    {
-      Header: "Recording Url",
-      accessor: "Recording_Url",
-    },
-    {
-      Header: "Time",
-      accessor: "Time",
-    },
-    {
-      Header: "Inbound Id",
-      accessor: "Inbound_Id",
+      Header: "Duplicate Call",
+      accessor: "Duplicate Call",
     },
     {
       Header: "Affiliate",
       accessor: "Affiliate",
     },
     {
-      Header: "Market",
-      accessor: "Market",
-    },
-    {
       Header: "Campaign",
       accessor: "Campaign",
     },
+    {
+      Header: "Inbound Id",
+      accessor: "Inbound_Id",
+    },
+
     {
       Header: "Inbound",
       accessor: "Inbound",
@@ -119,16 +97,8 @@ const CallLogsReport = () => {
       accessor: "Type",
     },
     {
-      Header: "Customer",
-      accessor: "Customer",
-    },
-    {
       Header: "Target",
       accessor: "Target",
-    },
-    {
-      Header: "Target Description",
-      accessor: "Target_Description",
     },
     {
       Header: "Source/Hangup",
@@ -162,17 +132,10 @@ const CallLogsReport = () => {
       Header: "Profit",
       accessor: "Profit",
     },
+
     {
-      Header: "City",
-      accessor: "City",
-    },
-    {
-      Header: "State",
-      accessor: "State",
-    },
-    {
-      Header: "Zipcode",
-      accessor: "Zipcode",
+      Header: "Call Status",
+      accessor: "Call_Status",
     },
   ];
 
@@ -198,12 +161,16 @@ const CallLogsReport = () => {
     }
     setOpen(false);
   };
-  const handlePending = () => {
-    Inertia.post(route('add.pending.bill.call'), {inboundIds}, {
+  const handleCallLogs = () => {
+    Inertia.post(
+      route("add.pending.bill.call"),
+      { inboundIds },
+      {
         // onFinish: () => {
         //     setLoading(false)
         // }
-    })
+      }
+    );
     // axios
     //   .post(route("add.pending.bill.call"), { inboundIds })
     //   .then((res) => {
@@ -218,7 +185,7 @@ const CallLogsReport = () => {
     //   .catch((err) => {});
   };
 
-  const handleArchived = () => {
+  const handleBilled = () => {
     Inertia.post(route("add.arichived.bill.call"), { inboundIds });
   };
 
@@ -239,18 +206,18 @@ const CallLogsReport = () => {
             type="submit"
             color="primary"
             className={classes.button}
-            onClick={handlePending}
+            onClick={handleCallLogs}
           >
-            Pending
+             Call Logs
           </Button>
           <Button
             variant="contained"
             type="submit"
             color="primary"
             className={classes.button}
-            onClick={handleArchived}
+            onClick={handleBilled}
           >
-            Archived
+            Billed
           </Button>
         </div>
       </EnhancedTable>

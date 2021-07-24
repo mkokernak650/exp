@@ -30,10 +30,10 @@ const CallLogsReport = () => {
 
   const newCallCallLogs = allCallLogs.map((item, indx) => {
     return {
-      SL: indx + 1,
+      SN: item.SN,
       Call_Date: item.Call_Date_Time,
       Has_Annotation: item.Has_Annotation,
-      Annotation: item.Annotation_Tag,
+      Annotation_Tag: item.Annotation_Tag,
       Call_Status: item.call_Logs_status,
       Recording_Url: item.Recording_Url,
       Time: item.Call_Date_Time,
@@ -63,8 +63,8 @@ const CallLogsReport = () => {
   const [mainData, setMainData] = useState(newCallCallLogs);
   const columns = [
     {
-      Header: "SL",
-      accessor: "SL",
+      Header: "SN",
+      accessor: "SN",
     },
     {
       Header: "Call Date",

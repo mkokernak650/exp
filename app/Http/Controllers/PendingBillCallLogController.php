@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PendingBillCallLog;
 use App\Models\RingbaCallLog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
+// use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class PendingBillCallLogController extends Controller
@@ -24,7 +24,9 @@ class PendingBillCallLogController extends Controller
     public function index()
     {
         $results = PendingBillCallLog::orderBy('id', 'DESC')->get();
-        dd($results);
+        return Inertia::render('Ringba/PendingCallLogs',[
+            'results'=>$results
+        ]);
     }
 
     /**
