@@ -24,7 +24,7 @@ function Alert(props) {
 const CallLogsReport = () => {
   const classes = useStyles();
   const { allCallLogs } = usePage().props;
-  const [inboundIds] = useState([]);
+  const [inboundIds, setInbounIds] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
 
@@ -205,18 +205,22 @@ const CallLogsReport = () => {
         if (res.data.status_code === 200) {
           setSuccess(res.data.msg);
           setOpen(true);
-          const a = { ...mainData };
+          const a = [...mainData];
           let i = 0;
-          while (i <= Object.keys(a).length) {
+
+          while (i < Object.keys(a).length) {
             for (let b = 0; b <= inboundIds.length; b++) {
-              if(Object.values(Object.values(a)[i]).includes(inboundIds[b])) {
-              const index=Object.values(a).indexOf(inboundIds[b])
-              console.log(Object.values(Object.values(a)[i]))
+              console.log(inboundIds[b])
+              if (Object.values(Object.values(a)[i]).includes(inboundIds[b])) {
+                console.log(inboundIds.length);
+                delete a[i];
+                inboundIds.splice(b, 1);
+              } else {
+                console.log("false");
               }
             }
             i += 1;
           }
-
           setMainData(a);
         } else {
           setSuccess(res.data.msg);
@@ -259,6 +263,24 @@ const CallLogsReport = () => {
             onClick={handleArchived}
           >
             Archived
+          </Button>
+          <Button
+            variant="contained"
+            type="submit"
+            color="primary"
+            className={classes.button}
+            onClick={handleArchived}
+          >
+            Update
+          </Button>
+          <Button
+            variant="contained"
+            type="submit"
+            color="primary"
+            className={classes.button}
+            onClick={handleArchived}
+          >
+            Get Annotation
           </Button>
         </div>
       </EnhancedTable>

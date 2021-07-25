@@ -33,7 +33,7 @@ export default function NormalModal({ open, setOpen, children, width,title }) {
         setOpen({ open: false })
     }
     const body = (
-        <div className={classes.paper} style={{ width: width, margin: 'auto', marginTop: '50px' }}>
+        <div className={classes.paper} style={{ width: width, margin: 'auto', marginTop: '100px' }}>
             <Typography variant='h5' className={classes.title}>{title}</Typography>
             {children}
             <NormalModal />

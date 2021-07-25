@@ -223,7 +223,6 @@ const EnhancedTable = ({
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={openModal}
         >
           Export
         </Button>

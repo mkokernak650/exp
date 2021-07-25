@@ -16037,7 +16037,7 @@ function NormalModal(_ref) {
     style: {
       width: width,
       margin: 'auto',
-      marginTop: '50px'
+      marginTop: '100px'
     },
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_3__.default, {
       variant: "h5",
