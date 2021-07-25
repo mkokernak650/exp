@@ -148,7 +148,7 @@ class RingbaApiHelpers
     ];
 
     $response =  json_decode($this->postRequest('calllogs/date', $params));
-   return $response->result->callLog->data;
+    return $response->result->callLog->data;
   }
 
   /**
