@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
-use App\Models\CountryByMarketReport;
-use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
@@ -14,6 +12,8 @@ use App\Models\RingbaData;
 use App\Models\Target;
 use App\Models\ZipCodeData;
 use App\Models\Exception;
+use App\Models\MarketExcptions;
+use App\Models\ZipcodeByTelevisionMarket;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
@@ -129,25 +129,26 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->City                   = $this->get_city;
             $ringbaCallLogs->State                  = $this->get_state;
             $ringbaCallLogs->Zipcode                = $this->get_zipcode;
-            // $ringbaCallLogs->Market                 = $this->get_market;
-            // $ringbaCallLogs->Type                   = $this->get_type;
+            $ringbaCallLogs->Market                 = $this->get_market;
+            $ringbaCallLogs->Type                   = $this->get_type;
             $ringbaCallLogs->Call_Qualification     = $this->get_call_qualification;
             $ringbaCallLogs->Recording_Url          = $this->get_recordingUrl;
             $ringbaCallLogs->Customer               = $this->get_customer_name_id;
             $ringbaCallLogs->Has_Annotation         = $this->has_annotations;
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
             $ringbaCallLogs->save();
-            // $row->delete();
+            $row->delete();
 
-            // $market_exception = MarketExcptions::where([
-            //     'customer_id', '=', $this->get_customer_name_id,
-            //     'market_id', '=', $this->get_market,
-            //     'start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000)
-            // ])->get();
+            // dd($this->get_customer_name_id, $this->get_market, date('d-M-y', $this->get_dtStamp / 1000));
 
-            // if ($market_exception > 0) {
-            //     $this->insertExceptions($ringbaCallLogs->id);
-            // }
+            $market_exception = MarketExcptions::where('customer_id', '=', $this->get_customer_name_id)
+                ->where('market_id', '=', $this->get_market)
+                ->where('start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000))
+                ->count();
+
+            if ($market_exception > 0) {
+                $this->insertExceptions($ringbaCallLogs->id);
+            }
         }
     }
 
@@ -249,20 +250,22 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
+        // dd($npanxx_number);
         $zipCodeDb      = new ZipCodeData();
-        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS'])
+        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->first();
-
         if ($result) {
-            $country_by_market_reports = new CountryByMarketReport();
-            $res = $country_by_market_reports->select('Market')
-                ->where('Fips', $result->FIPS)
+            $zipcode_by_television_market = new ZipcodeByTelevisionMarket();
+            $res = $zipcode_by_television_market->select('Market')
+                ->where('fips', $result->FIPS)
                 ->first();
+            // dd($res, $result);
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
             $this->get_market = $res->Market;
+            $this->get_type = $result->NXXUseType;
         }
     }
 
@@ -318,8 +321,8 @@ class RingbaCallLogController extends Controller
         $findData->City                   = $this->get_city;
         $findData->State                  = $this->get_state;
         $findData->Zipcode                = $this->get_zipcode;
-        // $findData->Market                 = $this->get_market;
-        // $findData->Type                   = $this->get_type;
+        $findData->Market                 = $this->get_market;
+        $findData->Type                   = $this->get_type;
         $findData->Call_Qualification     = $this->get_call_qualification;
         $findData->Recording_Url          = $this->get_recordingUrl;
         $findData->Customer               = $this->get_customer_name_id;
@@ -330,7 +333,7 @@ class RingbaCallLogController extends Controller
 
     /**
      * @request post
-     * Receive Array of Inbound id,
+     * @param array $inboundIds
      * @return null
      */
     public function getAnnotation(Request $request, $inboundIds = [])
@@ -346,7 +349,11 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    // for update annotation
+    /**
+     * for update annotation
+     * @param mixed $inboundId
+     * @param array $data
+     */
     private function updateAnnotation($inboundId, $data = [])
     {
         $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
@@ -356,7 +363,11 @@ class RingbaCallLogController extends Controller
         $findData->save();
     }
 
-    // for insert Exception data
+    /**
+     * for insert Exception data
+     * @param mixed $inboundId
+     * @return null
+     */
     private function insertExceptions($insertId)
     {
         $insertedData = RingbaCallLog::find($insertId);
@@ -432,7 +443,7 @@ class RingbaCallLogController extends Controller
         return Inertia::render(
             'Ringba/TempRingbaData',
             [
-                'ringbaData' => RingbaData::all(),
+                'ringbaData' => RingbaData::all()
             ]
         );
     }
