@@ -334,7 +334,7 @@ class RingbaCallLogController extends Controller
 
     /**
      * @request post
-     * Receive Array of Inbound id,
+     * @param array $inboundIds
      * @return null
      */
     public function getAnnotation(Request $request, $inboundIds = [])
@@ -350,7 +350,11 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    // for update annotation
+    /**
+     * for update annotation
+     * @param mixed $inboundId
+     * @param array $data
+     */
     private function updateAnnotation($inboundId, $data = [])
     {
         $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
@@ -360,7 +364,11 @@ class RingbaCallLogController extends Controller
         $findData->save();
     }
 
-    // for insert Exception data
+    /**
+     * for insert Exception data
+     * @param mixed $inboundId
+     * @return null
+     */
     private function insertExceptions($insertId)
     {
         $insertedData = RingbaCallLog::find($insertId);
@@ -435,7 +443,7 @@ class RingbaCallLogController extends Controller
         return Inertia::render(
             'Ringba/TempRingbaData',
             [
-                'ringbaData' => RingbaData::all(),
+                'ringbaData' => RingbaData::all()
             ]
         );
     }
