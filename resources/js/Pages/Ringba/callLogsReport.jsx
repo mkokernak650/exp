@@ -14,7 +14,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "10px",
   },
   button: {
-    width: 130,
+    minWidth: "134px",
+    textTransform: "capitalize",
+    fontSize: "14px",
   },
 }));
 function Alert(props) {
@@ -206,21 +208,16 @@ const CallLogsReport = () => {
           setSuccess(res.data.msg);
           setOpen(true);
           const a = [...mainData];
-          let i = 0;
+          console.log(a);
 
-          while (i < Object.keys(a).length) {
-            for (let b = 0; b <= inboundIds.length; b++) {
-              console.log(inboundIds[b])
-              if (Object.values(Object.values(a)[i]).includes(inboundIds[b])) {
-                console.log(inboundIds.length);
-                delete a[i];
-                inboundIds.splice(b, 1);
-              } else {
-                console.log("false");
-              }
+          for (let i = 0; i < Object.keys(a).length; i++) {
+            if (Object.values(Object.values(a)[i]).includes(inboundIds[0])) {
+              delete a[i];
+              inboundIds.splice(0, 1);
+              console.log(inboundIds);
             }
-            i += 1;
           }
+          console.log(a);
           setMainData(a);
         } else {
           setSuccess(res.data.msg);

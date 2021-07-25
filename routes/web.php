@@ -111,6 +111,8 @@ Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
     ->name('archived-call-log-report');
+Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
+    ->name('billed-call-log-report');
         
 Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'index'])
         ->name('pending-call-log-report');

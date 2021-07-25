@@ -4,7 +4,6 @@ import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 import { Inertia } from "@inertiajs/inertia";
-import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles( ()=> ({

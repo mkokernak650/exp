@@ -119,7 +119,7 @@ class RingbaApiHelpers
       $ringbaData->tags = json_encode($data->tags);
       $ringbaData->save();
     }
-    // return ['success'];
+    return ['success'];
   }
 
   private function getDataById($inboundId)

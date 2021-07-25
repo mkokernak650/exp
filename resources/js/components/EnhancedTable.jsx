@@ -54,6 +54,7 @@ const tableStyles = makeStyles((theme) => ({
   },
   button: {
     width: 130,
+    textTransform: "capitalize!important",
   },
   importForm: {
     display: "flex",

@@ -1995,7 +1995,7 @@ __webpack_require__.r(__webpack_exports__);
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 ___CSS_LOADER_EXPORT___.push([module.id, "@import url(https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600;700&family=Roboto:wght@500&display=swap);"]);
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "body{\r\n    font-family:\"Roboto\",sans-serif;\r\n}\r\n.makeStyles-menuText-16 .MuiTypography-body1{\r\n    font-weight: bold!important;\r\n}\r\n.MuiTableCell-root{\r\n    padding: 5px !important;\r\n}\r\n.MuiTablePagination-root{\r\n    overflow:inherit!important;\r\n}\r\n.MuiIconButton-root{\r\n    margin-left: 10px!important;\r\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "body {\r\n  font-family: \"Roboto\", sans-serif;\r\n}\r\n.makeStyles-menuText-16 .MuiTypography-body1 {\r\n  font-weight: bold !important;\r\n}\r\n.MuiTableCell-root {\r\n  padding: 5px !important;\r\n}\r\n.MuiTablePagination-root {\r\n  overflow: inherit !important;\r\n}\r\n.MuiIconButton-root {\r\n  margin-left: 10px !important;\r\n}\r\n/* .makeStyles-highlight-44 {\r\n  background-color: #cacaca !important;\r\n}\r\n.makeStyles-title-45 {\r\n  color: #000 !important;\r\n} */\r\n\r\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -37761,6 +37761,16 @@ var map = {
 		9,
 		"resources_js_Pages_Ringba_ArchivedCallLogReports_jsx"
 	],
+	"./Ringba/BilledCallLogs": [
+		"./resources/js/Pages/Ringba/BilledCallLogs.jsx",
+		9,
+		"resources_js_Pages_Ringba_BilledCallLogs_jsx"
+	],
+	"./Ringba/BilledCallLogs.jsx": [
+		"./resources/js/Pages/Ringba/BilledCallLogs.jsx",
+		9,
+		"resources_js_Pages_Ringba_BilledCallLogs_jsx"
+	],
 	"./Ringba/GetRingbaData": [
 		"./resources/js/Pages/Ringba/GetRingbaData.jsx",
 		9,
@@ -38048,7 +38058,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_jsx":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_ArchivedCallLogReports_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_jsx":1,"resources_js_Pages_Ringba_PendingCallLogs_jsx":1,"resources_js_Pages_Ringba_TempRingbaData_jsx":1,"resources_js_Pages_Ringba_callLogsReport_jsx":1,"resources_js_Pages_Settings_AddMarket_jsx":1,"resources_js_Pages_Settings_CustomerReport_jsx":1,"resources_js_Pages_Settings_Market_jsx":1,"resources_js_Pages_Settings_MarketExceptionForm_jsx":1,"resources_js_Pages_Settings_MarketExceptionReport_jsx":1,"resources_js_Pages_Settings_MarketReport_jsx":1,"resources_js_Pages_Settings_Zipcode_jsx":1,"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_jsx":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_jsx":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_ArchivedCallLogReports_jsx":1,"resources_js_Pages_Ringba_BilledCallLogs_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_jsx":1,"resources_js_Pages_Ringba_PendingCallLogs_jsx":1,"resources_js_Pages_Ringba_TempRingbaData_jsx":1,"resources_js_Pages_Ringba_callLogsReport_jsx":1,"resources_js_Pages_Settings_AddMarket_jsx":1,"resources_js_Pages_Settings_CustomerReport_jsx":1,"resources_js_Pages_Settings_Market_jsx":1,"resources_js_Pages_Settings_MarketExceptionForm_jsx":1,"resources_js_Pages_Settings_MarketExceptionReport_jsx":1,"resources_js_Pages_Settings_MarketReport_jsx":1,"resources_js_Pages_Settings_Zipcode_jsx":1,"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_jsx":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};

@@ -1,9 +1,21 @@
 import React, { useState } from "react";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import { CssBaseline, Button, makeStyles } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 
+const useStyles = makeStyles((theme) => ({
+  topBtn: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
+  },
+  button: {
+    minWidth: "134px",
+    textTransform: "capitalize",
+    fontSize: "14px",
+  },
+}));
 const range = (len) => {
   const arr = [];
   for (let i = 0; i < len; i++) {
@@ -25,6 +37,7 @@ function makeData(...lens) {
 }
 
 const ArchivedCallLogReports = () => {
+  const classes = useStyles();
   const { archivedCallLogs } = usePage().props;
 
   const newCallCallLogs = archivedCallLogs.map((item, indx) => {
@@ -175,7 +188,19 @@ const ArchivedCallLogReports = () => {
         setData={setMainData}
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
-      />
+      >
+        {" "}
+        <div className={classes.topBtn}>
+          <Button
+            variant="contained"
+            type="submit"
+            color="primary"
+            className={classes.button}
+          >
+            Move Call Log
+          </Button>
+        </div>
+      </EnhancedTable>
     </div>
   );
 };

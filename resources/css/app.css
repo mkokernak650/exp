@@ -1,17 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600;700&family=Roboto:wght@500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600;700&family=Roboto:wght@500&display=swap");
 
-body{
-    font-family:"Roboto",sans-serif;
+body {
+  font-family: "Roboto", sans-serif;
 }
-.makeStyles-menuText-16 .MuiTypography-body1{
-    font-weight: bold!important;
+.makeStyles-menuText-16 .MuiTypography-body1 {
+  font-weight: bold !important;
 }
-.MuiTableCell-root{
-    padding: 5px !important;
+.MuiTableCell-root {
+  padding: 5px !important;
 }
-.MuiTablePagination-root{
-    overflow:inherit!important;
+.MuiTablePagination-root {
+  overflow: inherit !important;
 }
-.MuiIconButton-root{
-    margin-left: 10px!important;
+.MuiIconButton-root {
+  margin-left: 10px !important;
 }
+/* .makeStyles-highlight-44 {
+  background-color: #cacaca !important;
+}
+.makeStyles-title-45 {
+  color: #000 !important;
+} */
+

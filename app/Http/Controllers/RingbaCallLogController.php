@@ -80,7 +80,6 @@ class RingbaCallLogController extends Controller
     public function ringbaCallLogs()
     {
         $ringbaMain = RingbaData::all();
-
         foreach ($ringbaMain as $row) {
 
             if ($row->columns) $this->columns($row->columns);
@@ -154,7 +153,7 @@ class RingbaCallLogController extends Controller
 
     private function columns($row)
     {
-        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
         // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->name === 'dtStamp') {
@@ -224,7 +223,7 @@ class RingbaCallLogController extends Controller
     }
     private function events($row)
     {
-        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
         // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
@@ -235,7 +234,7 @@ class RingbaCallLogController extends Controller
     }
     private function tags($row)
     {
-        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
         // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
@@ -425,6 +424,7 @@ class RingbaCallLogController extends Controller
         }
 
         $this->_ringba->getRingbaData($get_past_days_range, $get_days_range);
+
 
 
         // for transfer all data in Ring call log report table;
