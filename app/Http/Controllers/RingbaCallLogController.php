@@ -12,6 +12,7 @@ use App\Models\RingbaData;
 use App\Models\Target;
 use App\Models\ZipCodeData;
 use App\Models\Exception;
+use App\Models\MarketExcptions;
 use App\Models\ZipcodeByTelevisionMarket;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
@@ -137,23 +138,24 @@ class RingbaCallLogController extends Controller
             $ringbaCallLogs->Has_Annotation         = $this->has_annotations;
             $ringbaCallLogs->Annotation_Tag         = $this->get_annotations_tag;
             $ringbaCallLogs->save();
-            // $row->delete();
+            $row->delete();
 
-            // $market_exception = MarketExcptions::where([
-            //     'customer_id', '=', $this->get_customer_name_id,
-            //     'market_id', '=', $this->get_market,
-            //     'start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000)
-            // ])->get();
+            // dd($this->get_customer_name_id, $this->get_market, date('d-M-y', $this->get_dtStamp / 1000));
 
-            // if ($market_exception > 0) {
-            //     $this->insertExceptions($ringbaCallLogs->id);
-            // }
+            $market_exception = MarketExcptions::where('customer_id', '=', $this->get_customer_name_id)
+                ->where('market_id', '=', $this->get_market)
+                ->where('start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000))
+                ->count();
+
+            if ($market_exception > 0) {
+                $this->insertExceptions($ringbaCallLogs->id);
+            }
         }
     }
 
     private function columns($row)
     {
-        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
         // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->name === 'dtStamp') {
@@ -223,7 +225,7 @@ class RingbaCallLogController extends Controller
     }
     private function events($row)
     {
-        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
         // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
@@ -234,7 +236,7 @@ class RingbaCallLogController extends Controller
     }
     private function tags($row)
     {
-        $results = gettype($row) === 'array' ? $row : json_decode($row) ;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
         // $results = json_decode($row);
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
@@ -259,7 +261,7 @@ class RingbaCallLogController extends Controller
             $res = $zipcode_by_television_market->select('Market')
                 ->where('fips', $result->FIPS)
                 ->first();
-                // dd($res, $result);
+            // dd($res, $result);
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
