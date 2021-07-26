@@ -70,13 +70,21 @@ class RingbaCallLogController extends Controller
         dd($this->_ringba->getRingbaData());
     }
 
-    // get data BY scheduler
+    /**
+     * @method use for get data By Scheduler
+     * @call form \Illuminate\Console\Scheduling\Schedule
+     * @return void
+     */
     public function getRingbaDataByScheduler()
     {
         $this->_ringba->getRingbaData();
         $this->ringbaCallLogs();
     }
 
+    /**
+     * @method for ringba calllog
+     * @return void
+     */
     public function ringbaCallLogs()
     {
         $ringbaMain = RingbaData::all();
@@ -87,9 +95,6 @@ class RingbaCallLogController extends Controller
             if ($row->tags) $this->tags($row->tags);
 
             $ringbaCallLogs         = new RingbaCallLog();
-            // $archiveCallLogs        = new ArchivedCallLog();
-            // $pendingBillCallLog     = new PendingBillCallLog();
-            // $billedCallLog          = new BilledCallLog();
 
             $checkRingbaCallLogs        = findDataByInboundId($ringbaCallLogs, $this->get_inboundCallId);
             $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
@@ -101,6 +106,7 @@ class RingbaCallLogController extends Controller
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
                 $this->ringbaDataObject($checkRingbaCallLogs);
+
             } else {
 
                 if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
@@ -112,7 +118,7 @@ class RingbaCallLogController extends Controller
 
                 $ringbaCallLogs->SN                 = "Exp-{$sn}";
                 $ringbaCallLogs->call_Logs_status   = $this->get_call_log_status;
-                
+
                 $this->ringbaDataObject($ringbaCallLogs);
                 $row->delete();
 
@@ -128,6 +134,10 @@ class RingbaCallLogController extends Controller
         }
     }
 
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     */
     private function columns($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
@@ -198,6 +208,11 @@ class RingbaCallLogController extends Controller
             // }
         }
     }
+
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     */
     private function events($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
@@ -209,6 +224,11 @@ class RingbaCallLogController extends Controller
             }
         }
     }
+
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     */
     private function tags($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
@@ -269,13 +289,19 @@ class RingbaCallLogController extends Controller
         if ($row->columns) $this->columns($row->columns);
         if ($row->events) $this->events($row->events);
         if ($row->tags) $this->tags($row->tags);
-   
+
         $ringbaCallLogs = findDataByInboundId(new RingbaCallLog, $this->get_inboundCallId);
 
         $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
 
         $this->ringbaDataObject($ringbaCallLogs);
     }
+
+    /**
+     * @method for bind ringba data & save data
+     * @param mixed Object instance $instance
+     * @return null
+     */
 
     private function ringbaDataObject($instance)
     {
