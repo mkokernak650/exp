@@ -101,7 +101,6 @@ class RingbaCallLogController extends Controller
             $checkPendingBillCallLog    = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
             $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
 
-
             if ($checkRingbaCallLogs !== null) {
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
@@ -113,6 +112,7 @@ class RingbaCallLogController extends Controller
                     // $row->delete();
                     continue;
                 }
+
                 $sn_id = empty($ringbaCallLogs->latest()->first()->id) ? 0 : $ringbaCallLogs->latest()->first()->id;
                 $sn = $sn_id + 1; // db last insert id + 1
 
@@ -137,6 +137,7 @@ class RingbaCallLogController extends Controller
     /**
      * @method for convert and assign value from String to Array
      * @param mixed $row
+     * @return void
      */
     private function columns($row)
     {
@@ -212,6 +213,7 @@ class RingbaCallLogController extends Controller
     /**
      * @method for convert and assign value from String to Array
      * @param mixed $row
+     * @return void
      */
     private function events($row)
     {
@@ -228,6 +230,7 @@ class RingbaCallLogController extends Controller
     /**
      * @method for convert and assign value from String to Array
      * @param mixed $row
+     * @return void
      */
     private function tags($row)
     {
@@ -242,7 +245,10 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    // get Zip Code info via NPANXX number
+    /**
+     * @param mixed $inboundPhoneNumber
+     * @return void
+     */
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
@@ -267,8 +273,9 @@ class RingbaCallLogController extends Controller
 
     /**
      * @request post 
-     * Receive Array of Ibound id
-     * @return null
+     * @param \Illuminate\Http\Request $request
+     * @param array $inboundIds
+     * @return void
      */
     public function updateByInboundId(Request $request, $inboundIds = [])
     {
@@ -281,7 +288,11 @@ class RingbaCallLogController extends Controller
         }
     }
 
-    // update data by $inboundId 
+    /**
+     * @method for update data by $inboundId
+     * @param mixed $inboundId
+     * @return void
+     */
     private function updateData($inboundId)
     {
         $row = $this->_ringba->getUpdateData($inboundId);
@@ -300,9 +311,8 @@ class RingbaCallLogController extends Controller
     /**
      * @method for bind ringba data & save data
      * @param mixed Object instance $instance
-     * @return null
+     * @return void
      */
-
     private function ringbaDataObject($instance)
     {
         $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
@@ -341,8 +351,9 @@ class RingbaCallLogController extends Controller
 
     /**
      * @request post
+     * @param \Illuminate\Http\Request $request
      * @param array $inboundIds
-     * @return null
+     * @return void
      */
     public function getAnnotation(Request $request, $inboundIds = [])
     {
@@ -361,11 +372,12 @@ class RingbaCallLogController extends Controller
      * for update annotation
      * @param mixed $inboundId
      * @param array $data
+     * @return void
      */
     private function updateAnnotation($inboundId, $data = [])
     {
-        $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
-
+        // $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
+        $findData = findDataByInboundId(new RingbaCallLog, $inboundId);
         $findData->Has_Annotation = $data['has_annotation'];
         $findData->Annotation_Tag = $data['annotation_tag'];
         $findData->save();
@@ -374,7 +386,7 @@ class RingbaCallLogController extends Controller
     /**
      * for insert Exception data
      * @param mixed $inboundId
-     * @return null
+     * @return void
      */
     private function insertExceptions($insertId)
     {
@@ -415,6 +427,10 @@ class RingbaCallLogController extends Controller
         $insertedData->delete();
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return success response
+     */
     public function dateWiseData(Request $request)
     {
         $get_past_days_range = null;
