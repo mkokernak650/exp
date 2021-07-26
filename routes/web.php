@@ -155,7 +155,7 @@ Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export
 
 // test route
 Route::get('/getupdate/{id}', function ($id) {
-        $api = new RingbaApiHelpers();
-        $results = $api->updatAnnotation($id);
-        dd($results);
+    $api = new RingbaApiHelpers();
+    $results = $api->getUpdateAnnotation($id);
+    dd($results);
 });
