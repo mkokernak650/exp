@@ -280,12 +280,14 @@ class RingbaCallLogController extends Controller
      */
     public function updateByInboundId(Request $request, $inboundIds = [])
     {
-        if (count($inboundIds) > 0) {
+        if (is_array($inboundIds)) {
             $i = 0;
             while ($i < count($inboundIds)) {
                 $this->updateData($inboundIds[$i]);
                 $i++;
             }
+        } else {
+            $this->updateData($inboundIds);
         }
     }
 
