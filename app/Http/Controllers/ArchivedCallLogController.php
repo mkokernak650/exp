@@ -21,7 +21,7 @@ class ArchivedCallLogController extends Controller
      */
     public function index()
     {
-        $results = ArchivedCallLog::orderBy('id','DESC')->get();
+        $results = ArchivedCallLog::orderBy('id', 'DESC')->get();
         return Inertia::render('Ringba/ArchivedCallLogReports', [
             'archivedCallLogs' => $results
         ]);
@@ -39,8 +39,7 @@ class ArchivedCallLogController extends Controller
 
         $result = false;
 
-        foreach ($Inbound_Ids as $Inbound_Id) 
-        {
+        foreach ($Inbound_Ids as $Inbound_Id) {
             $archivedCallLog = new ArchivedCallLog();
 
             // find existing record
@@ -79,22 +78,18 @@ class ArchivedCallLogController extends Controller
 
             // delete Record from Ringa Call log after transfer archived call log table;
             $data->delete();
-
         }
 
-        if($result) {
-            echo 'Insert successfully';
-        }else {
-            echo 'Somthing Wrong';
+        if ($result) {
+            return response()->json(["msg" => "Data moved to Arichive successfully", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "moving failed", "status_code" => 500]);
         }
     }
 
     public function getcolumn()
     {
         $arch = new ArchivedCallLog();
-        dd( $arch->getTableColumn());
+        dd($arch->getTableColumn());
     }
-
-
-   
 }

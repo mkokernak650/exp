@@ -84,7 +84,6 @@ class PendingBillCallLogController extends Controller
             $data->delete();
         }
         if ($result) {
-            // return redirect()->back()->with('success',"sdfsd");
             return response()->json(["msg" => "Data moved to pending successfully", "status_code" => 200]);
         } else {
             return response()->json(["msg" => "moving failed", "status_code" => 500]);

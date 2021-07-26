@@ -5,8 +5,9 @@ import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 import { Inertia } from "@inertiajs/inertia";
 import MuiAlert from "@material-ui/lab/Alert";
+import { Helmet } from "react-helmet";
 
-const useStyles = makeStyles( ()=> ({
+const useStyles = makeStyles(() => ({
   topBtn: {
     display: "flex",
     gap: "10px",
@@ -14,8 +15,8 @@ const useStyles = makeStyles( ()=> ({
   },
   button: {
     width: 130,
-    textTransform:"capitalize",
-    fontSize:"14px"
+    textTransform: "capitalize",
+    fontSize: "14px",
   },
 }));
 function Alert(props) {
@@ -32,7 +33,7 @@ const CallLogsReport = () => {
   const newCallCallLogs = results.map((item, indx) => {
     return {
       SN: item.SN,
-      Call_Date : item.Call_Date,
+      Call_Date: item.Call_Date,
       Call_Date_Time: item.Call_Date_Time,
       Call_Status: item.call_Logs_status,
       Inbound_Id: item.Inbound_Id,
@@ -190,6 +191,7 @@ const CallLogsReport = () => {
 
   return (
     <div>
+      <Helmet title="Pending Call Logs" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -207,7 +209,7 @@ const CallLogsReport = () => {
             className={classes.button}
             onClick={handleCallLogs}
           >
-             Call Logs
+            Call Logs
           </Button>
           <Button
             variant="contained"

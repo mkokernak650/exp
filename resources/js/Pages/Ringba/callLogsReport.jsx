@@ -6,6 +6,7 @@ import { usePage } from "@inertiajs/inertia-react";
 import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
+import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -207,18 +208,9 @@ const CallLogsReport = () => {
         if (res.data.status_code === 200) {
           setSuccess(res.data.msg);
           setOpen(true);
-          const a = [...mainData];
-          console.log(a);
-
-          for (let i = 0; i < Object.keys(a).length; i++) {
-            if (Object.values(Object.values(a)[i]).includes(inboundIds[0])) {
-              delete a[i];
-              inboundIds.splice(0, 1);
-              console.log(inboundIds);
-            }
-          }
-          console.log(a);
-          setMainData(a);
+          setMainData((oldData) =>
+            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          );
         } else {
           setSuccess(res.data.msg);
           setOpen(true);
@@ -228,11 +220,33 @@ const CallLogsReport = () => {
   };
 
   const handleArchived = () => {
-    Inertia.post(route("add.arichived.bill.call"), { inboundIds });
+    axios
+      .post(route("add.arichived.bill.call"), { inboundIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setSuccess(res.data.msg);
+          setOpen(true);
+          setMainData((oldData) =>
+            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          );
+        } else {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
+  };
+
+  const handleUpdate = () => {
+    axios.post(route("add.arichived.bill.call"), { inboundIds });
+  };
+  const handleAnnotation = () => {
+    axios.post(route("add.arichived.bill.call"), { inboundIds });
   };
 
   return (
     <div>
+      <Helmet title="Call Logs Report" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -266,7 +280,7 @@ const CallLogsReport = () => {
             type="submit"
             color="primary"
             className={classes.button}
-            onClick={handleArchived}
+            onClick={handleUpdate}
           >
             Update
           </Button>
@@ -275,7 +289,7 @@ const CallLogsReport = () => {
             type="submit"
             color="primary"
             className={classes.button}
-            onClick={handleArchived}
+            onClick={handleAnnotation}
           >
             Get Annotation
           </Button>

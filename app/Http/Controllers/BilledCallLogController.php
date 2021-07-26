@@ -6,6 +6,7 @@ use App\Models\BilledCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaCallLog;
 use Inertia\Inertia;
+
 class BilledCallLogController extends Controller
 {
     function __construct()
@@ -21,8 +22,8 @@ class BilledCallLogController extends Controller
     public function index()
     {
         $results = BilledCallLog::orderBy('id', 'DESC')->get();
-        return Inertia::render('Ringba/BilledCallLogs',[
-            'billedCallLogs'=>$results,
+        return Inertia::render('Ringba/BilledCallLogs', [
+            'billedCallLogs' => $results,
         ]);
     }
 
