@@ -436,8 +436,6 @@ class RingbaCallLogController extends Controller
 
         $this->_ringba->getRingbaData($get_past_days_range, $get_days_range);
 
-
-
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
         return Inertia::render(
@@ -462,5 +460,16 @@ class RingbaCallLogController extends Controller
         return Inertia::render('Ringba/callLogsReport', [
             'allCallLogs' => $allCallLogs,
         ]);
+    }
+
+    public function delete()
+    {
+        // $inboundIds = [
+        //     'v2V3ujp1hFp_pzCCS2EPxnzp4Lw9JedEILh9VTXVW5pkvK50q6od32qg',
+        //     'v2hq53_0auhEZX6CPDhucjmQawmHBy_2PXJS_GRK0OwD2GOcSLOblZ_A'
+        // ];
+        $inboundIds = 'v2V3ujp1hFp_pzCCS2EPxnzp4Lw9JedEILh9VTXVW5pkvK50q6od32qg';
+        $data = deleteRecords( new RingbaCallLog(), $inboundIds);
+        dd($data);
     }
 }
