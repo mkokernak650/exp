@@ -3,8 +3,7 @@ import { CssBaseline, Button, makeStyles } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
-
-
+import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -93,6 +92,7 @@ const TempRingbaData = () => {
 
   return (
     <div>
+      <Helmet title="Temp Ringba Data" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -111,7 +111,6 @@ const TempRingbaData = () => {
           >
             Move Call Log
           </Button>
-       
         </div>
       </EnhancedTable>
     </div>

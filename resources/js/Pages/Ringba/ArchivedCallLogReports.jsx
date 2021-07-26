@@ -3,6 +3,7 @@ import { CssBaseline, Button, makeStyles } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
+import { Helmet } from 'react-helmet'
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -181,6 +182,8 @@ const ArchivedCallLogReports = () => {
 
   return (
     <div>
+       <Helmet title="Archive Call Logs"/>
+
       <CssBaseline />
       <EnhancedTable
         columns={columns}

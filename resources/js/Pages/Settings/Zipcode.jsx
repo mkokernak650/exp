@@ -5,7 +5,6 @@ import Layout from '../Layout/Layout'
 import { usePage, InertiaLink } from '@inertiajs/inertia-react';
 import { Inertia } from '@inertiajs/inertia'
 
-// const fileupload = useRef(null)
 
 const range = len => {
     const arr = []
