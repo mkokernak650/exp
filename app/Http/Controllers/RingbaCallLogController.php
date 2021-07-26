@@ -218,7 +218,7 @@ class RingbaCallLogController extends Controller
     private function events($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
-        // $results = json_decode($row);
+        
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = "Yes";
@@ -235,7 +235,7 @@ class RingbaCallLogController extends Controller
     private function tags($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
-        // $results = json_decode($row);
+        
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
@@ -252,17 +252,18 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
-        // dd($npanxx_number);
+        
         $zipCodeDb      = new ZipCodeData();
         $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->first();
+
         if ($result) {
             $zipcode_by_television_market = new ZipcodeByTelevisionMarket();
             $res = $zipcode_by_television_market->select('Market')
                 ->where('fips', $result->FIPS)
                 ->first();
-            // dd($res, $result);
+
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
@@ -304,7 +305,6 @@ class RingbaCallLogController extends Controller
         $ringbaCallLogs = findDataByInboundId(new RingbaCallLog, $this->get_inboundCallId);
 
         $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
-
         $this->ringbaDataObject($ringbaCallLogs);
     }
 
@@ -462,6 +462,7 @@ class RingbaCallLogController extends Controller
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
+
         return Inertia::render(
             'Ringba/TempRingbaData',
             [
@@ -486,7 +487,12 @@ class RingbaCallLogController extends Controller
         ]);
     }
 
-    public function delete()
+    /**
+     * @method POST
+     * @param \Illuminate\Http\Request $request
+     * @param array|string
+     */
+    public function delete(Request $request)
     {
         // $inboundIds = [
         //     'v2V3ujp1hFp_pzCCS2EPxnzp4Lw9JedEILh9VTXVW5pkvK50q6od32qg',

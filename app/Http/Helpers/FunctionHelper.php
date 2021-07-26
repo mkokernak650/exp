@@ -3,7 +3,7 @@
 /**
  *  @param mixed $instance
  *  @param mixed $Inbound_id
- *  @return success true of false
+ *  @return object 
  */
 function findDataByInboundId($instance, $id)
 {
@@ -13,7 +13,7 @@ function findDataByInboundId($instance, $id)
 /**
  * @param mixed $instance
  * @param array|String $inbound_ids 
- * @return array of Object
+ * @return true
  */
 function deleteRecords($instance, $inbound_ids)
 {

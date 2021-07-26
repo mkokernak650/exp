@@ -93,7 +93,7 @@ class RingbaApiHelpers
    * @var mixed $past
    * @var mixed $days
    * @param mixed $past|$days
-   * @return null
+   * @return void
    */
   public function getRingbaData($past = 2, $days = 2)
   {
@@ -125,7 +125,7 @@ class RingbaApiHelpers
       $ringbaData->tags = json_encode($data->tags);
       $ringbaData->save();
     }
-    return ['success'];
+    // return ['success'];
   }
 
   /**
