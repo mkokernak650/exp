@@ -46,6 +46,8 @@ Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCall
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])
         ->name('call-logs-report');
 
+Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])->name('update-data');
+
 Route::get('/delete', [RingbaCallLogController::class, 'delete']);
 
 // Route::post('/get-ringba-data', function ($id) {
@@ -97,7 +99,7 @@ Route::get('market-export/{type}', [MarketController::class, 'export'])->name('m
 
 Route::post('market-import', [MarketController::class, 'import'])->name('market.import');
 
-Route::get('/market-data', function() {
+Route::get('/market-data', function () {
         return inertia::render('Settings/Market');
 })->name('market.data');
 
@@ -114,28 +116,28 @@ Route::get('customer-export/{type}', [CustomerController::class, 'export'])->nam
 Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add.arichived.bill.call');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
-    ->name('archived-call-log-report');
+        ->name('archived-call-log-report');
 Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
-    ->name('billed-call-log-report');
-        
+        ->name('billed-call-log-report');
+
 Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'index'])
         ->name('pending-call-log-report');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
-     ->name('archived-call-log-report');
+        ->name('archived-call-log-report');
 
 /*====== temp route for check get data ===== */
 Route::post('/pending', [PendingBillCallLogController::class, 'store'])
-    ->name('add.pending.bill.call');
+        ->name('add.pending.bill.call');
 Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
 
 
 //TODO ZipcodebyTelevisionMarketController
 Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])
-    ->name('zipcode.television.market');
-        
+        ->name('zipcode.television.market');
+
 Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])
-    ->name('zipcode.television.market.import');
+        ->name('zipcode.television.market.import');
 
 Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
         ->name('zipcode.television.market.export');
@@ -153,9 +155,7 @@ Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export
 
 // test route
 Route::get('/getupdate/{id}', function ($id) {
-    $api = new RingbaApiHelpers();
-    $results = $api->updatAnnotation($id);
-    dd($results);
+        $api = new RingbaApiHelpers();
+        $results = $api->updatAnnotation($id);
+        dd($results);
 });
-
-Route::get('/getbyid/{id}', [RingbaCallLogController::class, 'updateData']);

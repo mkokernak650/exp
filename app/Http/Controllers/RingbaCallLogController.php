@@ -112,7 +112,7 @@ class RingbaCallLogController extends Controller
 
                 $ringbaCallLogs->SN                 = "Exp-{$sn}";
                 $ringbaCallLogs->call_Logs_status   = $this->get_call_log_status;
-                
+
                 $this->ringbaDataObject($ringbaCallLogs);
                 $row->delete();
 
@@ -250,8 +250,9 @@ class RingbaCallLogController extends Controller
      * Receive Array of Ibound id
      * @return null
      */
-    public function updateByInboundId(Request $request, $inboundIds = [])
+    public function updateByInboundId(Request $request)
     {
+        $inboundIds = $request->inboundIds;
         if (count($inboundIds) > 0) {
             $i = 0;
             while ($i < count($inboundIds)) {
@@ -259,6 +260,7 @@ class RingbaCallLogController extends Controller
                 $i++;
             }
         }
+        return response()->json(["msg" => "Updated successfully", "status_code" => 200]);
     }
 
     // update data by $inboundId 
@@ -269,7 +271,7 @@ class RingbaCallLogController extends Controller
         if ($row->columns) $this->columns($row->columns);
         if ($row->events) $this->events($row->events);
         if ($row->tags) $this->tags($row->tags);
-   
+
         $ringbaCallLogs = findDataByInboundId(new RingbaCallLog, $this->get_inboundCallId);
 
         $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
