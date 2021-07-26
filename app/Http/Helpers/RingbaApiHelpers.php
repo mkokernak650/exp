@@ -89,6 +89,12 @@ class RingbaApiHelpers
     return $apiResponse->getBody()->getContents();
   }
 
+  /**
+   * @var mixed $past
+   * @var mixed $days
+   * @param mixed $past|$days
+   * @return null
+   */
   public function getRingbaData($past = 2, $days = 2)
   {
     $params = [
@@ -122,6 +128,11 @@ class RingbaApiHelpers
     return ['success'];
   }
 
+  /**
+   * @var mixed $inboundId
+   * @param mixed $inboundId
+   * @return Object
+   */
   private function getDataById($inboundId)
   {
     $params = [
@@ -153,7 +164,7 @@ class RingbaApiHelpers
 
   /**
    * @for update Ringba call log
-   * @Received inbound id
+   * @param mixed $inboundId
    * @return Object
    */
   public function getUpdateData($inboundId)
@@ -163,6 +174,11 @@ class RingbaApiHelpers
   }
 
   // get update data by inboundId
+  /**
+   * @var mixed $inboundId
+   * @param mixed $inboundId
+   * @return array[annotation_tag,has_annotation]
+   */
   public function updatAnnotation($inboundId)
   {
     $data =  $this->getDataById($inboundId);

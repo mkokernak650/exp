@@ -7,7 +7,7 @@
  */
 function findDataByInboundId($instance, $id)
 {
-  return $instance->where('Inbound_Id', $id)->firstOrFail();
+  return $instance->where('Inbound_Id', $id)->first();
 }
 
 /**
