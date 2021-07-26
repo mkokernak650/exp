@@ -179,7 +179,7 @@ class RingbaApiHelpers
    * @param mixed $inboundId
    * @return array[annotation_tag,has_annotation]
    */
-  public function updatAnnotation($inboundId)
+  public function getUpdateAnnotation($inboundId)
   {
     $data =  $this->getDataById($inboundId);
 

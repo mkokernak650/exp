@@ -357,14 +357,17 @@ class RingbaCallLogController extends Controller
      */
     public function getAnnotation(Request $request, $inboundIds = [])
     {
-        if (count($inboundIds) > 0) {
+        if (is_array($inboundIds)) {
             $i = 0;
 
             while ($i < count($inboundIds)) {
-                $data = $this->_ringba->updatAnnotation($inboundIds[$i]);
+                $data = $this->_ringba->getUpdateAnnotation($inboundIds[$i]);
                 $this->updateAnnotation($inboundIds[$i], $data);
                 $i++;
             }
+        } else {
+            $data = $this->_ringba->getUpdateAnnotation($inboundIds);
+            $this->updateAnnotation($inboundIds, $data);
         }
     }
 
