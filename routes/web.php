@@ -16,6 +16,7 @@ use App\Http\Controllers\ZipcodeDataController;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use App\Http\Helpers\RingbaApiHelpers;
+use App\Models\RingbaCallLog;
 use Whoops\Run;
 
 // TODO Login and Log out controller
@@ -30,7 +31,8 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 
 //TODO Ringba call log contoroller
-Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])->name('token-ringba')->middleware('guest');
+Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])
+        ->name('token-ringba')->middleware('guest');
 
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
         ->name('temp-ringba-data');
@@ -43,6 +45,8 @@ Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCall
 
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])
         ->name('call-logs-report');
+
+Route::get('/delete', [RingbaCallLogController::class, 'delete']);
 
 // Route::post('/get-ringba-data', function ($id) {
 // });
