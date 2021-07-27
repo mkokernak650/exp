@@ -278,8 +278,9 @@ class RingbaCallLogController extends Controller
      * @param array $inboundIds
      * @return void
      */
-    public function updateByInboundId(Request $request, $inboundIds = [])
+    public function updateByInboundId(Request $request)
     {
+        $inboundIds = $request->inboundIds;
         if (is_array($inboundIds)) {
             $i = 0;
             while ($i < count($inboundIds)) {
@@ -289,6 +290,7 @@ class RingbaCallLogController extends Controller
         } else {
             $this->updateData($inboundIds);
         }
+        return response()->json(["msg" => "Updated successfully", "status_code" => 200]);
     }
 
     /**

@@ -238,10 +238,21 @@ const CallLogsReport = () => {
   };
 
   const handleUpdate = () => {
-    axios.post(route("add.arichived.bill.call"), { inboundIds });
+    axios
+      .post(route("update-data"), { inboundIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        } else {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
   };
   const handleAnnotation = () => {
-    axios.post(route("add.arichived.bill.call"), { inboundIds });
+    axios.post(route("update-data"), { inboundIds });
   };
 
   return (
