@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Redirect;
 
 class RingbaCallLogController extends Controller
 {
-    private $_ringba;
+    private $_ringbaApiHelpers;
+    private static $RingbaCallLog;
 
     protected $get_dtStamp = null;
     protected $get_accountId = '';
@@ -62,12 +63,13 @@ class RingbaCallLogController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->_ringba = new RingbaApiHelpers();
+        $this->_ringbaApiHelpers = new RingbaApiHelpers();
+        self::$RingbaCallLog = new RingbaCallLog();
     }
 
     public function RingbaAuth()
     {
-        dd($this->_ringba->getRingbaData());
+        dd($this->_ringbaApiHelpers->getRingbaData());
     }
 
     /**
@@ -77,7 +79,7 @@ class RingbaCallLogController extends Controller
      */
     public function getRingbaDataByScheduler()
     {
-        $this->_ringba->getRingbaData();
+        $this->_ringbaApiHelpers->getRingbaData();
         $this->ringbaCallLogs();
     }
 
@@ -300,13 +302,13 @@ class RingbaCallLogController extends Controller
      */
     private function updateData($inboundId)
     {
-        $row = $this->_ringba->getUpdateData($inboundId);
+        $row = $this->_ringbaApiHelpers->getUpdateData($inboundId);
 
         if ($row->columns) $this->columns($row->columns);
         if ($row->events) $this->events($row->events);
         if ($row->tags) $this->tags($row->tags);
 
-        $ringbaCallLogs = findDataByInboundId(new RingbaCallLog, $this->get_inboundCallId);
+        $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
 
         $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
         $this->ringbaDataObject($ringbaCallLogs);
@@ -365,12 +367,12 @@ class RingbaCallLogController extends Controller
             $i = 0;
 
             while ($i < count($inboundIds)) {
-                $data = $this->_ringba->getUpdateAnnotation($inboundIds[$i]);
+                $data = $this->_ringbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
                 $this->updateAnnotation($inboundIds[$i], $data);
                 $i++;
             }
         } else {
-            $data = $this->_ringba->getUpdateAnnotation($inboundIds);
+            $data = $this->_ringbaApiHelpers->getUpdateAnnotation($inboundIds);
             $this->updateAnnotation($inboundIds, $data);
         }
     }
@@ -384,7 +386,7 @@ class RingbaCallLogController extends Controller
     private function updateAnnotation($inboundId, $data = [])
     {
         // $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
-        $findData = findDataByInboundId(new RingbaCallLog, $inboundId);
+        $findData = findDataByInboundId(self::$RingbaCallLog, $inboundId);
         $findData->Has_Annotation = $data['has_annotation'];
         $findData->Annotation_Tag = $data['annotation_tag'];
         $findData->save();
@@ -465,7 +467,7 @@ class RingbaCallLogController extends Controller
             $get_days_range = 1;
         }
 
-        $this->_ringba->getRingbaData($get_past_days_range, $get_days_range);
+        $this->_ringbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
@@ -488,9 +490,9 @@ class RingbaCallLogController extends Controller
 
     public function callLogsReport()
     {
-        $allCallLogs = RingbaCallLog::all();
+        // $allCallLogs = RingbaCallLog::all();
         return Inertia::render('Ringba/callLogsReport', [
-            'allCallLogs' => $allCallLogs,
+            'allCallLogs' => self::$RingbaCallLog::all(),
         ]);
     }
 
@@ -506,7 +508,7 @@ class RingbaCallLogController extends Controller
         //     'v2hq53_0auhEZX6CPDhucjmQawmHBy_2PXJS_GRK0OwD2GOcSLOblZ_A'
         // ];
         $inboundIds = 'v2V3ujp1hFp_pzCCS2EPxnzp4Lw9JedEILh9VTXVW5pkvK50q6od32qg';
-        $data = deleteRecords(new RingbaCallLog(), $inboundIds);
+        $data = deleteRecords(self::$RingbaCallLog, $inboundIds);
         dd($data);
     }
 }
