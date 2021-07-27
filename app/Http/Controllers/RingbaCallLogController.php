@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class RingbaCallLogController extends Controller
 {
-    private $_ringbaApiHelpers;
+    private static $RingbaApiHelpers;
     private static $RingbaCallLog;
 
     protected $get_dtStamp = null;
@@ -63,13 +63,13 @@ class RingbaCallLogController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->_ringbaApiHelpers = new RingbaApiHelpers();
+        self::$RingbaApiHelpers = new RingbaApiHelpers();
         self::$RingbaCallLog = new RingbaCallLog();
     }
 
     public function RingbaAuth()
     {
-        dd($this->_ringbaApiHelpers->getRingbaData());
+        dd(self::$RingbaApiHelpers->getRingbaData());
     }
 
     /**
@@ -79,7 +79,7 @@ class RingbaCallLogController extends Controller
      */
     public function getRingbaDataByScheduler()
     {
-        $this->_ringbaApiHelpers->getRingbaData();
+        self::$RingbaApiHelpers->getRingbaData();
         $this->ringbaCallLogs();
     }
 
@@ -98,7 +98,7 @@ class RingbaCallLogController extends Controller
 
             $ringbaCallLogs         = new RingbaCallLog();
 
-            $checkRingbaCallLogs        = findDataByInboundId($ringbaCallLogs, $this->get_inboundCallId);
+            $checkRingbaCallLogs        = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
             $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
             $checkPendingBillCallLog    = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
             $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
@@ -177,8 +177,8 @@ class RingbaCallLogController extends Controller
                 $this->get_targetName = $item->formattedValue;
 
                 if (!empty($this->get_targetName)) {
-                    $targetsTable = new Target();
-                    $result = $targetsTable->where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
+                    // $targetsTable = new Target();
+                    $result = Target::where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
                     if ($result) {
                         $this->get_Target_Description = $result->Description;
                         $this->get_customer_name_id = $result->Customer;
@@ -255,14 +255,14 @@ class RingbaCallLogController extends Controller
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
         
-        $zipCodeDb      = new ZipCodeData();
-        $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
+        // $zipCodeDb      = new ZipCodeData();
+        $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->first();
 
         if ($result) {
-            $zipcode_by_television_market = new ZipcodeByTelevisionMarket();
-            $res = $zipcode_by_television_market->select('Market')
+            // $zipcode_by_television_market = new ZipcodeByTelevisionMarket();
+            $res = ZipcodeByTelevisionMarket::select('Market')
                 ->where('fips', $result->FIPS)
                 ->first();
 
@@ -302,7 +302,7 @@ class RingbaCallLogController extends Controller
      */
     private function updateData($inboundId)
     {
-        $row = $this->_ringbaApiHelpers->getUpdateData($inboundId);
+        $row = self::$RingbaApiHelpers->getUpdateData($inboundId);
 
         if ($row->columns) $this->columns($row->columns);
         if ($row->events) $this->events($row->events);
@@ -367,12 +367,12 @@ class RingbaCallLogController extends Controller
             $i = 0;
 
             while ($i < count($inboundIds)) {
-                $data = $this->_ringbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
+                $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
                 $this->updateAnnotation($inboundIds[$i], $data);
                 $i++;
             }
         } else {
-            $data = $this->_ringbaApiHelpers->getUpdateAnnotation($inboundIds);
+            $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
             $this->updateAnnotation($inboundIds, $data);
         }
     }
@@ -399,7 +399,8 @@ class RingbaCallLogController extends Controller
      */
     private function insertExceptions($insertId)
     {
-        $insertedData = RingbaCallLog::find($insertId);
+        // $insertedData = RingbaCallLog::find($insertId);
+        $insertedData = self::$RingbaCallLog::find($insertId);
         $instance = new Exception();
         $instance->SN                   = $insertedData->SN;
         $instance->Call_Date_Time       = $insertedData->Call_Date_Time;
@@ -467,7 +468,7 @@ class RingbaCallLogController extends Controller
             $get_days_range = 1;
         }
 
-        $this->_ringbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
+        self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
