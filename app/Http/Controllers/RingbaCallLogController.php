@@ -385,7 +385,6 @@ class RingbaCallLogController extends Controller
      */
     private function updateAnnotation($inboundId, $data = [])
     {
-        // $findData = RingbaCallLog::where('Inbound_Id', $inboundId)->first();
         $findData = findDataByInboundId(self::$RingbaCallLog, $inboundId);
         $findData->Has_Annotation = $data['has_annotation'];
         $findData->Annotation_Tag = $data['annotation_tag'];
