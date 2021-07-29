@@ -122,7 +122,7 @@ class RingbaCallLogController extends Controller
                 $ringbaCallLogs->call_Logs_status   = $this->get_call_log_status;
 
                 $this->ringbaDataObject($ringbaCallLogs);
-                $row->delete();
+                // $row->delete();
 
                 $market_exception = MarketExcptions::where('customer_id', '=', $this->get_customer_name_id)
                     ->where('market_id', '=', $this->get_market)
@@ -264,6 +264,7 @@ class RingbaCallLogController extends Controller
             // $zipcode_by_television_market = new ZipcodeByTelevisionMarket();
             $res = ZipcodeByTelevisionMarket::select('Market')
                 ->where('fips', $result->FIPS)
+                ->where('zip_code', $result->ZipCode)
                 ->first();
 
             $this->get_zipcode = $result->ZipCode;
