@@ -31,7 +31,11 @@ const CustomerReport = () => {
   const newCustomer = billedCallLogs.map((item, indx) => {
     return {
       SN: item.SN,
-      Recording_Url: item.Recording_Url,
+      Recording_Url: (
+        <a target="_blank" href={item.Recording_Url}>
+          Recording URL
+        </a>
+      ),
       Call_Date_Time: item.Call_Date_Time,
       Call_Date: item.Call_Date,
       Duplicate_Call: item.Duplicate_Call,
@@ -195,6 +199,10 @@ const CustomerReport = () => {
     );
   };
 
+  const TableTitle = () => {
+    return <div></div>;
+  };
+
   return (
     <div>
       <Helmet title="Billed Call Logs" />
@@ -206,6 +214,7 @@ const CustomerReport = () => {
         setData={setMainData}
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
+        TableTitle={TableTitle}
       />
     </div>
   );

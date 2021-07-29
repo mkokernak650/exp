@@ -27,6 +27,13 @@ function makeData(...lens) {
     }
     return makeDataLevel()
 }
+    const TableTitle = () => {
+    return (
+      <div>
+
+      </div>
+    );
+  };
 
 
 const MarketReport = () => {
@@ -78,6 +85,7 @@ const MarketReport = () => {
                 setData={setMainData}
                 updateMyData={updateMyData}
                 skipPageReset={skipPageReset}
+                TableTitle={TableTitle}
             />
 
         </div>

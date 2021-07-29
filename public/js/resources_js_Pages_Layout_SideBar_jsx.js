@@ -10014,20 +10014,20 @@ var useStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_4__.default
       top: 64
     },
     root: {
-      display: 'flex'
+      display: "flex"
     },
-    drawer: _defineProperty({}, theme.breakpoints.up('sm'), {
+    drawer: _defineProperty({}, theme.breakpoints.up("sm"), {
       width: drawerWidth,
       flexShrink: 0
     }),
-    appBar: _defineProperty({}, theme.breakpoints.up('sm'), {
+    appBar: _defineProperty({}, theme.breakpoints.up("sm"), {
       width: "calc(100% - ".concat(drawerWidth, "px)"),
       marginLeft: drawerWidth
     }),
     menuButton: _defineProperty({
       marginRight: theme.spacing(2)
-    }, theme.breakpoints.up('sm'), {
-      display: 'none'
+    }, theme.breakpoints.up("sm"), {
+      display: "none"
     }),
     toolbar: theme.mixins.toolbar,
     drawerPaper: {
@@ -10042,22 +10042,22 @@ var useStyles = (0,_material_ui_core_styles__WEBPACK_IMPORTED_MODULE_4__.default
       minWidth: 30
     },
     menuText: {
-      color: 'rgb(69 72 77)',
-      '& span, & svg': {
-        fontSize: '15px'
+      color: "rgb(69 72 77)",
+      "& span, & svg": {
+        fontSize: "15px"
       },
-      fontWeight: 'bold!important'
+      fontWeight: "bold!important"
     },
     link: {
-      textDecoration: 'none'
+      textDecoration: "none"
     },
     nested: {
       marginLeft: "25px"
     },
     item: {
-      color: 'rgb(107, 119, 140)',
-      '& span, & svg': {
-        fontSize: '13px'
+      color: "rgb(107, 119, 140)",
+      "& span, & svg": {
+        fontSize: "13px"
       }
     }
   };
@@ -10079,91 +10079,80 @@ function ResponsiveDrawer(props) {
 
   var items = [{
     id: 1,
-    href: 'home',
+    href: "home",
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_6__.default, {
       size: "20"
     }),
-    title: 'Dashboard',
+    title: "Dashboard",
     active: false,
     collapse: false
   }, {
     id: 2,
-    href: 'getringbadata',
+    href: "getringbadata",
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_7__.default, {
       size: "20"
     }),
-    title: 'Ringba',
+    title: "Ringba",
     active: false,
     collapse: true,
     submenu: [{
-      title: 'Get Ringba Data',
-      href: 'getringbadata',
+      title: "Get Ringba Data",
+      href: "getringbadata",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Temp Ringba Data',
-      href: 'tempringbadata',
+      title: "Temp Ringba Data",
+      href: "tempringbadata",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Call Logs Report',
-      href: 'call-logs-report',
+      title: "Call Logs Report",
+      href: "call-logs-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Archived Call Logs Report',
-      href: 'archived-call-log-report',
+      title: "Archived Call Logs Report",
+      href: "archived-call-log-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Pending Call Logs Report',
-      href: 'pending-call-log-report',
+      title: "Pending Call Logs Report",
+      href: "pending-call-log-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: 'Billed Call Logs Report',
-      href: 'billed-call-log-report',
+      title: "Billed Call Logs Report",
+      href: "billed-call-log-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }, {
     id: 3,
-    href: 'market-exception-report',
+    href: "zipcode.television.market",
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_9__.default, {
       size: "20"
     }),
-    title: 'Settings',
+    title: "Settings",
     active: false,
     collapse: true,
     submenu: [// {
-    //     title: 'Add Market Exception',
-    //     href: 'market-exception-form',
+    //     title: 'Market Exception Report',
+    //     href: 'market-exception-report',
+    //     Icon: <UserIcon />,
+    // },
+    // {
+    //     title: 'Customer Report',
+    //     href: 'customer-report',
     //     Icon: <UserIcon />,
     // },
     {
-      title: 'Market Exception Report',
-      href: 'market-exception-report',
+      title: "Television By Market Report",
+      href: "zipcode.television.market",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, // {
-    //     title: 'Add Market',
-    //     href: 'add-market',
+    }, {
+      title: "Zip Code",
+      href: "zipcode.data",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    } // {
+    //     title: 'Market',
+    //     href: 'market.data',
     //     Icon: <UserIcon />,
-    // },
-    {
-      title: 'Market Report',
-      href: 'market-report',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Customer Report',
-      href: 'customer-report',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Television Market Report',
-      href: 'zipcode.television.market',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Zip Code',
-      href: 'zipcode.data',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: 'Market',
-      href: 'market.data',
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }]
+    // }
+    ]
   }];
 
   var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(),
@@ -10189,7 +10178,7 @@ function ResponsiveDrawer(props) {
               return handleClick(menu.id);
             },
             style: {
-              textDecoration: 'none'
+              textDecoration: "none"
             },
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(_material_ui_core__WEBPACK_IMPORTED_MODULE_11__.default, {
               button: true,
@@ -10204,7 +10193,7 @@ function ResponsiveDrawer(props) {
           }, menu.id) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
             href: route(menu.href),
             style: {
-              textDecoration: 'none'
+              textDecoration: "none"
             },
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(_material_ui_core__WEBPACK_IMPORTED_MODULE_11__.default, {
               button: true,
@@ -10228,7 +10217,7 @@ function ResponsiveDrawer(props) {
                 return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
                   href: route(submenu.href),
                   style: {
-                    textDecoration: 'none'
+                    textDecoration: "none"
                   },
                   children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(_material_ui_core__WEBPACK_IMPORTED_MODULE_11__.default, {
                     button: true,
@@ -10266,7 +10255,7 @@ function ResponsiveDrawer(props) {
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_20__.default, {
           container: container,
           variant: "temporary",
-          anchor: theme.direction === 'rtl' ? 'right' : 'left',
+          anchor: theme.direction === "rtl" ? "right" : "left",
           open: mobileOpen,
           onClose: handleDrawerToggle,
           classes: {

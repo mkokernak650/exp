@@ -105,7 +105,6 @@ class RingbaCallLogController extends Controller
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
                 $this->ringbaDataObject($checkRingbaCallLogs);
-
             } else {
 
                 if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
@@ -218,7 +217,7 @@ class RingbaCallLogController extends Controller
     private function events($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
-        
+
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = "Yes";
@@ -235,7 +234,7 @@ class RingbaCallLogController extends Controller
     private function tags($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
-        
+
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
@@ -252,7 +251,7 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
-        
+
         $zipCodeDb      = new ZipCodeData();
         $result         = $zipCodeDb->select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
@@ -288,7 +287,12 @@ class RingbaCallLogController extends Controller
                 $i++;
             }
         }
-        return response()->json(["msg" => "Updated successfully", "status_code" => 200]);
+        $allData = RingbaCallLog::all();
+        return response()->json($allData);
+        // return Inertia::render('Ringba/callLogsReport', [
+        //     'allCallLogs' => $test,
+        // ])->with(["msg" => "Updated successfully", "status_code" => 200]);
+        // return response()->json(["msg" => "Updated successfully", "status_code" => 200]);
     }
 
     /**
@@ -357,11 +361,11 @@ class RingbaCallLogController extends Controller
      * @param array $inboundIds
      * @return void
      */
-    public function getAnnotation(Request $request, $inboundIds = [])
+    public function getAnnotation(Request $request)
     {
+        $inboundIds=$request->inboundIds;
         if (is_array($inboundIds)) {
             $i = 0;
-
             while ($i < count($inboundIds)) {
                 $data = $this->_ringba->getUpdateAnnotation($inboundIds[$i]);
                 $this->updateAnnotation($inboundIds[$i], $data);
@@ -371,6 +375,7 @@ class RingbaCallLogController extends Controller
             $data = $this->_ringba->getUpdateAnnotation($inboundIds);
             $this->updateAnnotation($inboundIds, $data);
         }
+
     }
 
     /**

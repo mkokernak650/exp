@@ -15,6 +15,10 @@ body {
 .MuiIconButton-root {
   margin-left: 10px !important;
 }
+
+.MuiTableCell-head{
+  min-width: 200px;
+}
 /* .makeStyles-highlight-44 {
   background-color: #cacaca !important;
 }

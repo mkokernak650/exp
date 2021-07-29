@@ -29,8 +29,6 @@ function makeData(...lens) {
   const makeDataLevel = (depth = 0) => {
     const len = lens[depth];
     return range(len).map((d) => {
-      console.log(d);
-
       return {
         subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
       };
@@ -90,6 +88,10 @@ const TempRingbaData = () => {
     );
   };
 
+  const TableTitle = () => {
+    return <div></div>;
+  };
+
   return (
     <div>
       <Helmet title="Temp Ringba Data" />
@@ -100,6 +102,7 @@ const TempRingbaData = () => {
         setData={setRingbadata}
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
+        TableTitle={TableTitle}
       >
         {" "}
         <div className={classes.topBtn}>

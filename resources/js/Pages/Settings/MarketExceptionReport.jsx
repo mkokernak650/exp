@@ -26,6 +26,14 @@ function makeData(...lens) {
     return makeDataLevel()
 }
 
+    const TableTitle = () => {
+    return (
+      <div>
+
+      </div>
+    );
+  };
+
 
 const MarketExceptionReport = () => {
     const { marketExceptions } = usePage().props
@@ -86,6 +94,7 @@ const MarketExceptionReport = () => {
                 setData={setMainData}
                 updateMyData={updateMyData}
                 skipPageReset={skipPageReset}
+                TableTitle={TableTitle}
             />
         </div>
     )

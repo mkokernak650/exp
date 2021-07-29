@@ -73,6 +73,13 @@ const CustomerReport = () => {
             })
         )
     }
+        const TableTitle = () => {
+    return (
+      <div>
+
+      </div>
+    );
+  };
 
     return (
         <div>
@@ -83,6 +90,7 @@ const CustomerReport = () => {
                 setData={setMainData}
                 updateMyData={updateMyData}
                 skipPageReset={skipPageReset}
+                TableTitle={TableTitle}
             />
 
         </div>

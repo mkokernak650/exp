@@ -9,15 +9,15 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
-  topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
-  },
   button: {
     minWidth: "134px",
     textTransform: "capitalize",
     fontSize: "14px",
+  },
+  topBtn: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
   },
 }));
 function Alert(props) {
@@ -28,8 +28,13 @@ const CallLogsReport = () => {
   const classes = useStyles();
   const { allCallLogs } = usePage().props;
   const [inboundIds, setInbounIds] = useState([]);
+  const [rowId, serRowId] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
+  //  const [showModal, setShowModal] = React.useState({ open: false });
+  // const openModal = () => {
+  //   setShowModal({ open: true });
+  // };
 
   const newCallCallLogs = allCallLogs.map((item, indx) => {
     return {
@@ -38,7 +43,11 @@ const CallLogsReport = () => {
       Has_Annotation: item.Has_Annotation,
       Annotation_Tag: item.Annotation_Tag,
       Call_Status: item.call_Logs_status,
-      Recording_Url: item.Recording_Url,
+      Recording_Url: (
+        <a target="_blank" href={item.Recording_Url}>
+          Recording URL
+        </a>
+      ),
       Time: item.Call_Date_Time,
       Inbound_Id: item.Inbound_Id,
       Affiliate: item.Affiliate,
@@ -195,13 +204,50 @@ const CallLogsReport = () => {
     );
   };
 
+  const TableTitle = () => {
+    return (
+      <div></div>
+      // <div>
+
+      // </div>
+      // <div className={classes.topBtn}>
+      //   <Button
+      //     variant="contained"
+      //     type="submit"
+      //     color="primary"
+      //     className={classes.button}
+      //     onClick={openModal}
+      //   >
+      //     Import
+      //   </Button>
+      //   <Button
+      //     variant="contained"
+      //     type="submit"
+      //     color="primary"
+      //     className={classes.button}
+      //   >
+      //     Export
+      //   </Button>
+      // </div>
+    );
+  };
+
+  const deleteHandler = () => {};
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setOpen(false);
   };
+
+  // const importHandler = (e) => {
+  //   e.preventDefault();
+  //   const form = new FormData(e.target);
+  //   Inertia.post(route("zipcode.data.import"), form);
+  // };
   const handlePending = () => {
+    console.log(inboundIds);
     axios
       .post(route("add.pending.bill.call"), { inboundIds })
       .then((res) => {
@@ -211,6 +257,7 @@ const CallLogsReport = () => {
           setMainData((oldData) =>
             oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
           );
+          setInbounIds([]);
         } else {
           setSuccess(res.data.msg);
           setOpen(true);
@@ -220,6 +267,8 @@ const CallLogsReport = () => {
   };
 
   const handleArchived = () => {
+    console.log(inboundIds);
+
     axios
       .post(route("add.arichived.bill.call"), { inboundIds })
       .then((res) => {
@@ -229,6 +278,7 @@ const CallLogsReport = () => {
           setMainData((oldData) =>
             oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
           );
+          setInbounIds([]);
         } else {
           setSuccess(res.data.msg);
           setOpen(true);
@@ -241,9 +291,11 @@ const CallLogsReport = () => {
     axios
       .post(route("update-data"), { inboundIds })
       .then((res) => {
-        if (res.data.status_code === 200) {
-          setSuccess(res.data.msg);
+        if (res.status === 200) {
+          setSuccess("Successfully Updated");
           setOpen(true);
+          setMainData(res.data);
+          setInbounIds([]);
         } else {
           setSuccess(res.data.msg);
           setOpen(true);
@@ -252,7 +304,9 @@ const CallLogsReport = () => {
       .catch((err) => {});
   };
   const handleAnnotation = () => {
-    axios.post(route("update-data"), { inboundIds });
+    // axios.post(route("update-data"), { inboundIds })
+    // .then(res=>{
+    // })
   };
 
   return (
@@ -266,6 +320,7 @@ const CallLogsReport = () => {
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
         inboundIds={inboundIds}
+        TableTitle={TableTitle}
       >
         <div className={classes.topBtn}>
           <Button
@@ -315,6 +370,27 @@ const CallLogsReport = () => {
       >
         <Alert severity="success">{success}</Alert>
       </Snackbar>
+
+      {/* <NormalModal
+        open={showModal.open}
+        setOpen={setShowModal}
+        width={"500px"}
+        title={""}
+      >
+        <div className="myprofile">
+          <form
+            className={classes.importForm}
+            method="post"
+            encType="multipart/form-data"
+            onSubmit={importHandler}
+          >
+            <input id="importfile" type="file" name="importfile" />
+            <Button variant="contained" type="submit" color="primary">
+              Next
+            </Button>
+          </form>
+        </div>
+      </NormalModal> */}
     </div>
   );
 };

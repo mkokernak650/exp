@@ -156,6 +156,13 @@ const CallLogsReport = () => {
       })
     );
   };
+      const TableTitle = () => {
+    return (
+      <div>
+
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -166,6 +173,7 @@ const CallLogsReport = () => {
         setData={setMainData}
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
+        TableTitle={TableTitle}
       ></EnhancedTable>
     </div>
   );

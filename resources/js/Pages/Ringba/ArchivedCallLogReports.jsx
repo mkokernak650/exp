@@ -6,17 +6,19 @@ import { usePage } from "@inertiajs/inertia-react";
 import { Helmet } from 'react-helmet'
 
 const useStyles = makeStyles((theme) => ({
-  topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
-  },
   button: {
     minWidth: "134px",
     textTransform: "capitalize",
     fontSize: "14px",
   },
+   topBtn: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
+  }
 }));
+
+
 const range = (len) => {
   const arr = [];
   for (let i = 0; i < len; i++) {
@@ -164,7 +166,12 @@ const ArchivedCallLogReports = () => {
   const [data, setData] = React.useState(React.useMemo(() => makeData(20), []));
 
   const [skipPageReset, setSkipPageReset] = React.useState(false);
-
+    const TableTitle = () => {
+    return (
+      <div>
+      </div>
+    );
+  };
   const updateMyData = (rowIndex, columnId, value) => {
     setSkipPageReset(true);
     setData((old) =>
@@ -179,11 +186,15 @@ const ArchivedCallLogReports = () => {
       })
     );
   };
+     const importHandler = (e) => {  
+    e.preventDefault();
+    const form = new FormData(e.target);
+    Inertia.post(route("zipcode.data.import"), form);
+  };
 
   return (
     <div>
        <Helmet title="Archive Call Logs"/>
-
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -191,6 +202,8 @@ const ArchivedCallLogReports = () => {
         setData={setMainData}
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
+        TableTitle={TableTitle}
+
       >
         {" "}
         <div className={classes.topBtn}>

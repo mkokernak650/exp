@@ -17,8 +17,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import TablePaginationActions from "./TablePaginationActions";
 import TableToolbar from "./TableToolbar";
 import PropTypes from "prop-types";
-import NormalModal from "../Shared/NormalModal";
-import { Inertia } from "@inertiajs/inertia";
 
 import {
   useGlobalFilter,
@@ -95,13 +93,13 @@ const EditableCell = ({
   }, [initialValue]);
 
   return (
-    <input
-      style={inputStyle}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-    />
-    // <p>{value}</p>
+    // <input
+    //   style={inputStyle}
+    //   value={value}
+    //   onChange={onChange}
+    //   onBlur={onBlur}
+    // />
+    <p>{value}</p>
   );
 };
 
@@ -130,6 +128,7 @@ const EnhancedTable = ({
   updateMyData,
   skipPageReset,
   inboundIds,
+  TableTitle,
   children,
 }) => {
   const {
@@ -160,6 +159,7 @@ const EnhancedTable = ({
     usePagination,
     useRowSelect,
     useResizeColumns,
+    
     (hooks) => {
       hooks.allColumns.push((columns) => [
         // Let's make a column for selection
@@ -200,36 +200,14 @@ const EnhancedTable = ({
   const removeByIndexs = (array, indexs) =>
     array.filter((_, i) => !indexs.includes(i));
 
-  const deleteUserHandler = (event) => {
+  const deleteHandler = (event) => {
     const newData = removeByIndexs(
       data,
       Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
     );
     setData(newData);
   };
-  const TableTitle = () => {
-    return (
-      <div className={classes.topBtn}>
-        <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-          onClick={openModal}
-        >
-          Import
-        </Button>
-        <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-        >
-          Export
-        </Button>
-      </div>
-    );
-  };
+
 
   const addUserHandler = (user) => {
     const newData = data.concat([user]);
@@ -247,26 +225,19 @@ const EnhancedTable = ({
     }
   };
 
-  const [showModal, setShowModal] = React.useState({ open: false });
-  const openModal = () => {
-    setShowModal({ open: true });
-  };
-  const importHandler = (e) => {
-    e.preventDefault();
-    const form = new FormData(e.target);
-    Inertia.post(route("zipcode.data.import"), form);
-  };
+ 
   return (
     <Paper>
       <TableContainer>
         <TableToolbar
           numSelected={Object.keys(selectedRowIds).length}
-          deleteUserHandler={deleteUserHandler}
+          deleteHandler={deleteHandler}
           addUserHandler={addUserHandler}
           preGlobalFilteredRows={preGlobalFilteredRows}
           setGlobalFilter={setGlobalFilter}
           globalFilter={globalFilter}
           TableTitle={TableTitle}
+          deleteHandler={deleteHandler}
         >
           {children}
         </TableToolbar>
@@ -339,26 +310,7 @@ const EnhancedTable = ({
           </TableFooter>
         </MaUTable>
       </TableContainer>
-      <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
-        width={"500px"}
-        title={""}
-      >
-        <div className="myprofile">
-          <form
-            className={classes.importForm}
-            method="post"
-            encType="multipart/form-data"
-            onSubmit={importHandler}
-          >
-            <input id="importfile" type="file" name="importfile" />
-            <Button variant="contained" type="submit" color="primary">
-              Next
-            </Button>
-          </form>
-        </div>
-      </NormalModal>
+  
     </Paper>
   );
 };

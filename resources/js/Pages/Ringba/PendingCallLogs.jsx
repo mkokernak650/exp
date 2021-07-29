@@ -155,6 +155,10 @@ const CallLogsReport = () => {
     );
   };
 
+  const TableTitle = () => {
+    return <div></div>;
+  };
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -200,6 +204,7 @@ const CallLogsReport = () => {
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
         inboundIds={inboundIds}
+        TableTitle={TableTitle}
       >
         <div className={classes.topBtn}>
           <Button
@@ -209,7 +214,7 @@ const CallLogsReport = () => {
             className={classes.button}
             onClick={handleCallLogs}
           >
-            Call Logs
+            Move Call Log
           </Button>
           <Button
             variant="contained"
