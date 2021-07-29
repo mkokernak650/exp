@@ -72,6 +72,19 @@ class RingbaCallLogController extends Controller
         dd(self::$RingbaApiHelpers->getRingbaData());
     }
 
+   /**
+    * for move data from Ringba temporary table id id
+    * @param \Illuminate\Http\Request $request post
+    * @return void
+    */
+    public function moveDataToCallLogs(Request $request)
+    {
+        // $ids = $request->id;
+        $ids = [45,46,47,48,49,50,51,52,53];
+        $results = RingbaData::whereIn('id', $ids)->get();
+        $this->ringbaCallLogs($results);
+    }
+
     /**
      * @method use for get data By Scheduler
      * @call form \Illuminate\Console\Scheduling\Schedule
@@ -87,16 +100,17 @@ class RingbaCallLogController extends Controller
      * @method for ringba calllog
      * @return void
      */
-    public function ringbaCallLogs()
+    public function ringbaCallLogs($getRingbaDateById = null)
     {
-        $ringbaMain = RingbaData::all();
+        $ringbaMain = $getRingbaDateById === null ? RingbaData::all() : $getRingbaDateById;
+
         foreach ($ringbaMain as $row) {
 
-            if ($row->columns) $this->columns($row->columns);
-            if ($row->events) $this->events($row->events);
-            if ($row->tags) $this->tags($row->tags);
+            if ($row->columns)  $this->columns($row->columns);
+            if ($row->events)   $this->events($row->events);
+            if ($row->tags)     $this->tags($row->tags);
 
-            $ringbaCallLogs         = new RingbaCallLog();
+            $ringbaCallLogs             = new RingbaCallLog();
 
             $checkRingbaCallLogs        = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
             $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
@@ -104,6 +118,7 @@ class RingbaCallLogController extends Controller
             $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
 
             if ($checkRingbaCallLogs !== null) {
+                
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
                 $this->ringbaDataObject($checkRingbaCallLogs);
@@ -322,6 +337,7 @@ class RingbaCallLogController extends Controller
      */
     private function ringbaDataObject($instance)
     {
+        
         $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
         $instance->Call_Date              = date('d-M-y', $this->get_dtStamp / 1000);
         $instance->Campaign               = $this->get_campaignName;
