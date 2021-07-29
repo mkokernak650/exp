@@ -73,7 +73,7 @@ class RingbaCallLogController extends Controller
     }
 
    /**
-    * for move data from Ringba temporary table id id
+    * for move data from Ringba temporary table id
     * @param \Illuminate\Http\Request $request post
     * @return void
     */
@@ -83,6 +83,18 @@ class RingbaCallLogController extends Controller
         $ids = [45,46,47,48,49,50,51,52,53];
         $results = RingbaData::whereIn('id', $ids)->get();
         $this->ringbaCallLogs($results);
+    }
+    
+    /**
+     * for delete Ringba data form Ringba temporary table
+     * @param \Illuminate\Http\Request $request post
+     * @return success
+     */
+    public function deleteRingbaData(Request $request)
+    {
+        $ids= [1,2];
+        $results = RingbaData::whereIn('id', $ids)->delete();
+        dd($results);
     }
 
     /**
