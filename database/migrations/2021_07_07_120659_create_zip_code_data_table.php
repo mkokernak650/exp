@@ -23,7 +23,7 @@ class CreateZipCodeDataTable extends Migration
             $table->string('City')->nullable();
             $table->string('County')->nullable();
             $table->string('CountyPop')->nullable();
-            $table->string('ZipCodeCount')->nullable();
+            $table->bigInteger('ZipCodeCount')->nullable();
             $table->string('ZipCodeFreq')->nullable();
             $table->string('Latitude')->nullable();
             $table->string('Longitude')->nullable();
@@ -46,7 +46,6 @@ class CreateZipCodeDataTable extends Migration
             $table->string('Flags')->nullable();
             $table->string('WeightedLat')->nullable();
             $table->string('WeightedLon')->nullable();
-            $table->string('_ID')->nullable();
             $table->timestamps();
         });
     }

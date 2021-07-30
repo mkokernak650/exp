@@ -281,13 +281,13 @@ class RingbaCallLogController extends Controller
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
         
-        // $zipCodeDb      = new ZipCodeData();
         $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
+            ->orderBy('ZipCodeCount', 'DESC')
             ->first();
 
         if ($result) {
-            // $zipcode_by_television_market = new ZipcodeByTelevisionMarket();
+
             $res = ZipcodeByTelevisionMarket::select('Market')
                 ->where('fips', $result->FIPS)
                 ->where('zip_code', $result->ZipCode)
