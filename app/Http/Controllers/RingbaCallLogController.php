@@ -72,19 +72,19 @@ class RingbaCallLogController extends Controller
         dd(self::$RingbaApiHelpers->getRingbaData());
     }
 
-   /**
-    * for move data from Ringba temporary table id
-    * @param \Illuminate\Http\Request $request post
-    * @return void
-    */
+    /**
+     * for move data from Ringba temporary table id
+     * @param \Illuminate\Http\Request $request post
+     * @return void
+     */
     public function moveDataToCallLogs(Request $request)
     {
         // $ids = $request->id;
-        $ids = [45,46,47,48,49,50,51,52,53];
+        $ids = [45, 46, 47, 48, 49, 50, 51, 52, 53];
         $results = RingbaData::whereIn('id', $ids)->get();
         $this->ringbaCallLogs($results);
     }
-    
+
     /**
      * for delete Ringba data form Ringba temporary table
      * @param \Illuminate\Http\Request $request post
@@ -92,7 +92,7 @@ class RingbaCallLogController extends Controller
      */
     public function deleteRingbaData(Request $request)
     {
-        $ids= [1,2];
+        $ids = [1, 2];
         $results = RingbaData::whereIn('id', $ids)->delete();
         dd($results);
     }
@@ -130,7 +130,7 @@ class RingbaCallLogController extends Controller
             $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
 
             if ($checkRingbaCallLogs !== null) {
-                
+
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
                 $this->ringbaDataObject($checkRingbaCallLogs);
@@ -280,7 +280,7 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
-        
+        dd($npanxx_number);
         $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->orderBy('ZipCodeCount', 'DESC')
@@ -353,7 +353,6 @@ class RingbaCallLogController extends Controller
      */
     private function ringbaDataObject($instance)
     {
-        
         $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
         $instance->Call_Date              = date('d-M-y', $this->get_dtStamp / 1000);
         $instance->Campaign               = $this->get_campaignName;
@@ -396,7 +395,7 @@ class RingbaCallLogController extends Controller
      */
     public function getAnnotation(Request $request)
     {
-        $inboundIds=$request->inboundIds;
+        $inboundIds = $request->inboundIds;
         if (is_array($inboundIds)) {
             $i = 0;
             while ($i < count($inboundIds)) {
@@ -408,7 +407,6 @@ class RingbaCallLogController extends Controller
             $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
             $this->updateAnnotation($inboundIds, $data);
         }
-
     }
 
     /**
