@@ -32,17 +32,11 @@ class PendingBillCallLogController extends Controller
     /**
      * @param Array of inbound Id
      * @method POST
-     * @return true or false 
+     * @return JsonResponse Success|| fail
      */
     public function store(Request $request)
     {
-        // static data
         $Inbound_Ids = $request->inboundIds;
-        // $Inbound_Ids = [
-        //     'v2aFk5HE8nfM3x4Y-O2_OBccSfbF2WSoYyMijk9pfzs76anTfVL7mfPg',
-        //     'v2cSKHRYELZD2n9SFxQcjJOfaMTP9pcy4dc8CebROdc6jfNV2AYaxoeA',
-        // ];
-
         $result = false;
 
         foreach ($Inbound_Ids as $Inbound_Id) {
@@ -89,4 +83,6 @@ class PendingBillCallLogController extends Controller
             return response()->json(["msg" => "moving failed", "status_code" => 500]);
         }
     }
+
+    // private function dataStore($toInstance, $for)
 }
