@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Market;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Redirect;
 use App\Exports\MarketExport;
 use App\Imports\MarketImport;
 

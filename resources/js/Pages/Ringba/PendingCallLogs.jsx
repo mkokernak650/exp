@@ -35,6 +35,7 @@ const CallLogsReport = () => {
       SN: item.SN,
       Call_Date: item.Call_Date,
       Call_Date_Time: item.Call_Date_Time,
+      Duplicate_Call : item.Duplicate_Call,
       Call_Status: item.call_Logs_status,
       Inbound_Id: item.Inbound_Id,
       Affiliate: item.Affiliate,
@@ -42,13 +43,14 @@ const CallLogsReport = () => {
       Inbound: item.Inbound,
       Dialed: item.Dialed,
       Type: item.Type,
+      Target : item.Target,
       Customer: item.Customer,
       Source_Hangup: item.Source_Hangup,
       Conn_Duration: item.Conn_Duration,
       Time_To_Call: item.Time_To_Call,
       Call_Length_In_Seconds: item.call_Length_In_Seconds,
       Revenue: item.Revenue,
-      Payout: item.payoutAmount,
+      Payout: item.payout,
       Total_Cost: item.Total_Cost,
       Profit: item.Profit,
     };
@@ -69,7 +71,7 @@ const CallLogsReport = () => {
     },
     {
       Header: "Duplicate Call",
-      accessor: "Duplicate Call",
+      accessor: "Duplicate_Call",
     },
     {
       Header: "Affiliate",

@@ -287,15 +287,15 @@ class RingbaCallLogController extends Controller
             ->first();
 
         if ($result) {
-
             $res = ZipcodeByTelevisionMarket::select('Market')
                 ->where('fips', $result->FIPS)
                 ->where('zip_code', $result->ZipCode)
                 ->first();
+
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
-            $this->get_market = $res->Market;
+            $this->get_market = $res->Market ?? '';
             $this->get_type = $result->NXXUseType;
         }
     }

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { CssBaseline, makeStyles } from "@material-ui/core";
+import { CssBaseline, makeStyles, Button } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
-
+import NormalModal from "../../Shared/NormalModal";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -16,128 +16,185 @@ const useStyles = makeStyles((theme) => ({
     textTransform: "capitalize",
     fontSize: "14px",
   },
+  importForm: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
 }));
 
-const CallLogsReport = () => {
-  const { allCallLogs } = usePage().props;
-
-
-  const newCallCallLogs = allCallLogs.map((item, indx) => {
-    return {};
+const ZipcodeDatabase = () => {
+  const { allZipcodes } = usePage().props;
+  const classes = useStyles();
+  const [showModal, setShowModal] = React.useState({ open: false });
+  const openModal = () => {
+    setShowModal({ open: true });
+  };
+  const newZipcodes = allZipcodes.map((item, indx) => {
+    return {
+      SL: indx + 1,
+      NPA: item.NPA,
+      NXX: item.NXX,
+      NPANXX: item.NPANXX,
+      ZipCode: item.ZipCode,
+      State: item.State,
+      City: item.City,
+      County: item.County,
+      CountyPop: item.CountyPop,
+      ZipCodeCount: item.ZipCodeCount,
+      ZipCodeFreq: item.ZipCodeFreq,
+      Latitude: item.Latitude,
+      Longitude: item.Longitude,
+      TimeZone: item.TimeZone,
+      ObservesDST: item.ObservesDST,
+      NXXUseType: item.NXXUseType,
+      NXXIntroVersion: item.NXXIntroVersion,
+      NPANew: item.NPANew,
+      FIPS: item.FIPS,
+      Status: item.Status,
+      LATA: item.LATA,
+      Overlay: item.Overlay,
+      RateCenter: item.RateCenter,
+      SwitchCLLI: item.SwitchCLLI,
+      MSA_CBSA: item.MSA_CBSA,
+      MSA_CBSA_CODE: item.MSA_CBSA_CODE,
+      OCN: item.OCN,
+      Company: item.Company,
+      CoverageAreaName: item.CoverageAreaName,
+      Flags: item.Flags,
+      WeightedLat: item.WeightedLat,
+      WeightedLon: item.WeightedLon,
+    };
   });
-  const [mainData, setMainData] = useState(newCallCallLogs);
+  const [mainData, setMainData] = useState(newZipcodes);
   const columns = [
     {
-      Header: "SN",
-      accessor: "SN",
+      Header: "SL",
+      accessor: "SL",
     },
     {
-      Header: "Call Date",
-      accessor: "Call_Date",
+      Header: "NPA",
+      accessor: "NPA",
     },
     {
-      Header: "Has Annotation",
-      accessor: "Has_Annotation",
+      Header: "NXX",
+      accessor: "NXX",
     },
     {
-      Header: "Annotation Tag",
-      accessor: "Annotation_Tag",
+      Header: "NPANXX",
+      accessor: "NPANXX",
     },
     {
-      Header: "Call Status",
-      accessor: "Call_Status",
-    },
-    {
-      Header: "Recording Url",
-      accessor: "Recording_Url",
-    },
-    {
-      Header: "Time",
-      accessor: "Time",
-    },
-    {
-      Header: "Inbound Id",
-      accessor: "Inbound_Id",
-    },
-    {
-      Header: "Affiliate",
-      accessor: "Affiliate",
-    },
-    {
-      Header: "Market",
-      accessor: "Market",
-    },
-    {
-      Header: "Campaign",
-      accessor: "Campaign",
-    },
-    {
-      Header: "Inbound",
-      accessor: "Inbound",
-    },
-    {
-      Header: "Dialed",
-      accessor: "Dialed",
-    },
-    {
-      Header: "Type",
-      accessor: "Type",
-    },
-    {
-      Header: "Customer",
-      accessor: "Customer",
-    },
-    {
-      Header: "Target",
-      accessor: "Target",
-    },
-    {
-      Header: "Target Description",
-      accessor: "Target_Description",
-    },
-    {
-      Header: "Source/Hangup",
-      accessor: "Source_Hangup",
-    },
-    {
-      Header: "Conn. Duration",
-      accessor: "Conn_Duration",
-    },
-    {
-      Header: "Time To Call",
-      accessor: "Time_To_Call",
-    },
-    {
-      Header: "Call Length In Seconds",
-      accessor: "Call_Length_In_Seconds",
-    },
-    {
-      Header: "Revenue",
-      accessor: "Revenue",
-    },
-    {
-      Header: "Payout",
-      accessor: "Payout",
-    },
-    {
-      Header: "Total Cost",
-      accessor: "Total_Cost",
-    },
-    {
-      Header: "Profit",
-      accessor: "Profit",
-    },
-    {
-      Header: "City",
-      accessor: "City",
+      Header: "ZipCode",
+      accessor: "ZipCode",
     },
     {
       Header: "State",
       accessor: "State",
     },
     {
-      Header: "Zipcode",
-      accessor: "Zipcode",
+      Header: "City",
+      accessor: "City",
+    },
+    {
+      Header: "County",
+      accessor: "County",
+    },
+    {
+      Header: "CountyPop",
+      accessor: "CountyPop",
+    },
+    {
+      Header: "ZipCodeCount",
+      accessor: "ZipCodeCount",
+    },
+    {
+      Header: "ZipCodeFreq",
+      accessor: "ZipCodeFreq",
+    },
+    {
+      Header: "Latitude",
+      accessor: "Latitude",
+    },
+    {
+      Header: "Longitude",
+      accessor: "Longitude",
+    },
+    {
+      Header: "TimeZone",
+      accessor: "TimeZone",
+    },
+    {
+      Header: "ObservesDST",
+      accessor: "ObservesDST",
+    },
+    {
+      Header: "NXXUseType",
+      accessor: "NXXUseType",
+    },
+    {
+      Header: "NXXIntroVersion",
+      accessor: "NXXIntroVersion",
+    },
+    {
+      Header: "NPANew",
+      accessor: "NPANew",
+    },
+    {
+      Header: "FIPS",
+      accessor: "FIPS",
+    },
+    {
+      Header: "Status",
+      accessor: "Status",
+    },
+    {
+      Header: "LATA",
+      accessor: "LATA",
+    },
+    {
+      Header: "Overlay",
+      accessor: "Overlay",
+    },
+    {
+      Header: "RateCenter",
+      accessor: "RateCenter",
+    },
+    {
+      Header: "SwitchCLLI",
+      accessor: "SwitchCLLI",
+    },
+    {
+      Header: "MSA_CBSA",
+      accessor: "MSA_CBSA",
+    },
+    {
+      Header: "MSA_CBSA_CODE",
+      accessor: "MSA_CBSA_CODE",
+    },
+    {
+      Header: "OCN",
+      accessor: "OCN",
+    },
+    {
+      Header: "Company",
+      accessor: "Company",
+    },
+    {
+      Header: "CoverageAreaName",
+      accessor: "CoverageAreaName",
+    },
+    {
+      Header: "Flags",
+      accessor: "Flags",
+    },
+    {
+      Header: "WeightedLat",
+      accessor: "WeightedLat",
+    },
+    {
+      Header: "WeightedLon",
+      accessor: "WeightedLon",
     },
   ];
 
@@ -156,10 +213,26 @@ const CallLogsReport = () => {
       })
     );
   };
-      const TableTitle = () => {
+  const TableTitle = () => {
     return (
-      <div>
-
+      <div className={classes.topBtn}>
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+          onClick={openModal}
+        >
+          Import
+        </Button>
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+        >
+          Export
+        </Button>
       </div>
     );
   };
@@ -175,11 +248,31 @@ const CallLogsReport = () => {
         skipPageReset={skipPageReset}
         TableTitle={TableTitle}
       ></EnhancedTable>
+      <NormalModal
+        open={showModal.open}
+        setOpen={setShowModal}
+        width={"500px"}
+        title={""}
+      >
+        <div className="myprofile">
+          <form
+            className={classes.importForm}
+            method="post"
+            encType="multipart/form-data"
+            // onSubmit={importHandler}
+          >
+            <input id="importfile" type="file" name="importfile" />
+            <Button variant="contained" type="submit" color="primary">
+              Next
+            </Button>
+          </form>
+        </div>
+      </NormalModal>
     </div>
   );
 };
 
-CallLogsReport.layout = (page) => (
-  <Layout title="Call Logs Report">{page}</Layout>
+ZipcodeDatabase.layout = (page) => (
+  <Layout title="Zipcode Database">{page}</Layout>
 );
-export default CallLogsReport;
+export default ZipcodeDatabase;
