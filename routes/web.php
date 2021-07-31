@@ -51,9 +51,17 @@ Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport
 Route::get('/exceptions', [ExceptionController::class, 'index'])
         ->name('get.exceptions');
 
-Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])->name('update-data');
+Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
+        ->name('update-data');
 
-Route::get('/delete', [RingbaCallLogController::class, 'delete']);
+Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
+        ->name('delete.ringba.date');
+
+Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
+        ->name('update.annotation');
+
+Route::post('/move-from-pending-bill-to-ringba-call-log', [RingbaCallLogController::class, 'fromPendingBill'])
+        ->name('move.from.pending.bill.to.ringba.call.log');
 
 // Route::post('/get-ringba-data', function ($id) {
 // });
