@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 const ZipcodeDatabase = () => {
   const { allZipcodes } = usePage().props;
+  const [inboundIds, setInbounIds] = useState([]);
   const classes = useStyles();
   const [showModal, setShowModal] = React.useState({ open: false });
   const openModal = () => {
@@ -247,6 +248,8 @@ const ZipcodeDatabase = () => {
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
         TableTitle={TableTitle}
+        inboundIds={inboundIds}
+
       ></EnhancedTable>
       <NormalModal
         open={showModal.open}

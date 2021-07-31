@@ -6,7 +6,7 @@ import { usePage } from "@inertiajs/inertia-react";
 import { Inertia } from "@inertiajs/inertia";
 import MuiAlert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet";
-
+import axios from "axios";
 const useStyles = makeStyles(() => ({
   topBtn: {
     display: "flex",
@@ -26,7 +26,7 @@ function Alert(props) {
 const CallLogsReport = () => {
   const classes = useStyles();
   const { results } = usePage().props;
-  const [inboundIds] = useState([]);
+  const [inboundIds,setInbounIds] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
 
@@ -35,7 +35,7 @@ const CallLogsReport = () => {
       SN: item.SN,
       Call_Date: item.Call_Date,
       Call_Date_Time: item.Call_Date_Time,
-      Duplicate_Call : item.Duplicate_Call,
+      Duplicate_Call: item.Duplicate_Call,
       Call_Status: item.call_Logs_status,
       Inbound_Id: item.Inbound_Id,
       Affiliate: item.Affiliate,
@@ -43,7 +43,7 @@ const CallLogsReport = () => {
       Inbound: item.Inbound,
       Dialed: item.Dialed,
       Type: item.Type,
-      Target : item.Target,
+      Target: item.Target,
       Customer: item.Customer,
       Source_Hangup: item.Source_Hangup,
       Conn_Duration: item.Conn_Duration,
@@ -161,34 +161,31 @@ const CallLogsReport = () => {
     return <div></div>;
   };
 
+  const MoveCallLog = () => {
+    console.log(inboundIds);
+    axios
+      .post(route("move.from.pending.bill.to.ringba.call.log"), { inboundIds })
+      .then((res) => {
+        console.log(res);
+        if (res.data.status_code === 200) {
+          setSuccess(res.data.msg);
+          setOpen(true);
+          setMainData((oldData) =>
+            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          );
+          setInbounIds([]);
+        } else {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
+  };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setOpen(false);
-  };
-  const handleCallLogs = () => {
-    Inertia.post(
-      route("add.pending.bill.call"),
-      { inboundIds },
-      {
-        // onFinish: () => {
-        //     setLoading(false)
-        // }
-      }
-    );
-    // axios
-    //   .post(route("add.pending.bill.call"), { inboundIds })
-    //   .then((res) => {
-    //     if (res.data.status_code === 200) {
-    //       setSuccess(res.data.msg);
-    //       setOpen(true);
-    //     } else {
-    //       setSuccess(res.data.msg);
-    //       setOpen(true);
-    //     }
-    //   })
-    //   .catch((err) => {});
   };
 
   const handleBilled = () => {
@@ -214,7 +211,7 @@ const CallLogsReport = () => {
             type="submit"
             color="primary"
             className={classes.button}
-            onClick={handleCallLogs}
+            onClick={MoveCallLog}
           >
             Move Call Log
           </Button>

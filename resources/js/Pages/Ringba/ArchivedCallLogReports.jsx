@@ -3,21 +3,20 @@ import { CssBaseline, Button, makeStyles } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
-import { Helmet } from 'react-helmet'
-
+import { Helmet } from "react-helmet";
+import axios from 'axios'
 const useStyles = makeStyles((theme) => ({
   button: {
     minWidth: "134px",
     textTransform: "capitalize",
     fontSize: "14px",
   },
-   topBtn: {
+  topBtn: {
     display: "flex",
     gap: "10px",
     marginLeft: "10px",
-  }
+  },
 }));
-
 
 const range = (len) => {
   const arr = [];
@@ -42,6 +41,8 @@ function makeData(...lens) {
 const ArchivedCallLogReports = () => {
   const classes = useStyles();
   const { archivedCallLogs } = usePage().props;
+  const [inboundIds, setInbounIds] = useState([]);
+
 
   const newCallCallLogs = archivedCallLogs.map((item, indx) => {
     return {
@@ -166,11 +167,8 @@ const ArchivedCallLogReports = () => {
   const [data, setData] = React.useState(React.useMemo(() => makeData(20), []));
 
   const [skipPageReset, setSkipPageReset] = React.useState(false);
-    const TableTitle = () => {
-    return (
-      <div>
-      </div>
-    );
+  const TableTitle = () => {
+    return <div></div>;
   };
   const updateMyData = (rowIndex, columnId, value) => {
     setSkipPageReset(true);
@@ -186,15 +184,33 @@ const ArchivedCallLogReports = () => {
       })
     );
   };
-     const importHandler = (e) => {  
+  const importHandler = (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
     Inertia.post(route("zipcode.data.import"), form);
   };
+  const MoveCallLog = () => {
+    axios
+      .post(route("move.from.pending.bill.to.ringba.call.log"), { inboundIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setSuccess(res.data.msg);
+          setOpen(true);
+          setMainData((oldData) =>
+            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          );
+          setInbounIds([]);
+        } else {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
+  };
 
   return (
     <div>
-       <Helmet title="Archive Call Logs"/>
+      <Helmet title="Archive Call Logs" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -203,6 +219,7 @@ const ArchivedCallLogReports = () => {
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
         TableTitle={TableTitle}
+        inboundIds={inboundIds}
 
       >
         {" "}
@@ -212,6 +229,7 @@ const ArchivedCallLogReports = () => {
             type="submit"
             color="primary"
             className={classes.button}
+            onClick={MoveCallLog}
           >
             Move Call Log
           </Button>
