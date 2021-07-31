@@ -38,7 +38,7 @@ class PendingBillCallLogController extends Controller
     {
         $Inbound_Ids = $request->inboundIds;
         $result = false;
-
+        // dd($Inbound_Ids);
         foreach ($Inbound_Ids as $Inbound_Id) {
             $pendingBillCallLog = new PendingBillCallLog();
 
@@ -52,30 +52,8 @@ class PendingBillCallLogController extends Controller
             // get data for store db
             $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 
-            $pendingBillCallLog->SN                        = $data->SN;
-            $pendingBillCallLog->Call_Date                 = $data->Call_Date;
-            $pendingBillCallLog->Call_Date_Time            = $data->Call_Date_Time;
-            $pendingBillCallLog->Duplicate_Call            = $data->Duplicate_Call;
-            $pendingBillCallLog->Affiliate                 = $data->Affiliate;
-            $pendingBillCallLog->Campaign                  = $data->Campaign;
-            $pendingBillCallLog->Inbound_Id                = $data->Inbound_Id;
-            $pendingBillCallLog->Inbound                   = $data->Inbound;
-            $pendingBillCallLog->Dialed                    = $data->Dialed;
-            $pendingBillCallLog->Type                      = $data->Type;
-            $pendingBillCallLog->Target                    = $data->Target;
-            $pendingBillCallLog->Source_Hangup             = $data->Source_Hangup;
-            $pendingBillCallLog->Conn_Duration             = $data->Conn_Duration;
-            $pendingBillCallLog->Time_To_Call              = $data->Time_To_Call;
-            $pendingBillCallLog->call_Length_In_Seconds    = $data->call_Length_In_Seconds;
-            $pendingBillCallLog->Revenue                   = $data->Revenue;
-            $pendingBillCallLog->payout                    = $data->payoutAmount;
-            $pendingBillCallLog->Profit                    = $data->Profit;
-            $pendingBillCallLog->Total_Cost                = $data->Total_Cost;
-            $pendingBillCallLog->call_Logs_status          = 'Pending';
-            $result = $pendingBillCallLog->save();
-
-            // delete Record from Ringa Call log after transfer archived call log table;
-            $data->delete();
+            $pendingBillCallLog->call_Logs_status = 'Pending';
+            $result = dataMoveHelper($pendingBillCallLog, $data);
         }
         if ($result) {
             return response()->json(["msg" => "Data moved to pending successfully", "status_code" => 200]);
