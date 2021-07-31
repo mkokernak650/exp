@@ -66,4 +66,20 @@ class ArchivedCallLogController extends Controller
         $arch = new ArchivedCallLog();
         dd($arch->getTableColumn());
     }
+
+    public function moveToCallLog(Request $request)
+    {
+        $inboundIds = array();
+        if (is_array($inboundIds)) {
+            $i = 0;
+
+            while ($i < count($inboundIds)) {
+                $dataById = findDataByInboundId(new ArchivedCallLog(), $inboundIds[$i]);
+                $ringbaCallLog = new RingbaCallLog();
+                $ringbaCallLog->call_Logs_status = 'Active';
+                dataMoveHelper($ringbaCallLog, $dataById);
+                $i++;
+            }
+        }
+    }
 }
