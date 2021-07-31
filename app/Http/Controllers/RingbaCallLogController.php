@@ -280,7 +280,7 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
-        dd($npanxx_number);
+        // dd($npanxx_number);
         $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->orderBy('ZipCodeCount', 'DESC')
@@ -404,7 +404,6 @@ class RingbaCallLogController extends Controller
         }
         $allData = RingbaCallLog::all();
         return response()->json($allData);
-
     }
 
     /**
@@ -510,6 +509,10 @@ class RingbaCallLogController extends Controller
         );
     }
 
+    /**
+     * for get Ringba temporary data
+     * @return JsonObject
+     */
     public function tempRingbaData()
     {
         $ringbaData =  RingbaData::all();
@@ -518,12 +521,38 @@ class RingbaCallLogController extends Controller
         ]);
     }
 
+    /**
+     * for get Ringba Call log report  data
+     * @return JsonObject
+     */
     public function callLogsReport()
     {
-        // $allCallLogs = RingbaCallLog::all();
         return Inertia::render('Ringba/callLogsReport', [
             'allCallLogs' => self::$RingbaCallLog::all(),
         ]);
+    }
+
+    /**
+     * @method for move data from PendingCallLog to RingbaCallLog
+     * @method post
+     * @param array|string
+     * @param \Illuminate\Http\Request $request
+     */
+    public function fromPendingBill(Request $request)
+    {
+        $inboundIds = [
+            'v2iTe-8frMOOI01yA7GxnDpvMv-kN3uzhcpglc6LfkdlDEpX2fiigEdg'
+        ];
+        if (is_array($inboundIds)) {
+            $i = 0;
+
+            while ($i < count($inboundIds)) {
+                $dataById = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
+                self::$RingbaCallLog->call_Logs_status = 'Active';
+                dataMoveHelper(self::$RingbaCallLog, $dataById);
+                $i++;
+            }
+        }
     }
 
     /**
