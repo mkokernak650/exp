@@ -47,20 +47,20 @@ const ArchivedCallLogReports = () => {
     return {
       SN: item.SN,
       Campaign: item.Campaign,
-      "Call Date": item.Call_Date_Time,
-      "Call Date Time": item.Call_Date_Time,
-      "Conn. Duration": item.Conn_Duration,
-      "Call Length In Seconds": item.call_Length_In_Seconds,
+      Call_Date: item.Call_Date_Time,
+      Call_Date_Time: item.Call_Date_Time,
+      Conn_Duration: item.Conn_Duration,
+      Call_Length_In_Seconds: item.call_Length_In_Seconds,
       Customer: item.Customer,
       Target: item.Target,
-      "Target Description": item.Target_Description,
+      Target_Description: item.Target_Description,
       Affiliate: item.Affiliate,
       Market: item.Market,
       Revenue: item.Revenue,
-      Payout: item.payoutAmount,
-      "Total Cost": item.Total_Cost,
+      Payout: item.payout,
+      Total_Cost: item.Total_Cost,
       Profit: item.Profit,
-      "Inbound Id": item.Inbound_Id,
+      Inbound_Id: item.Inbound_Id,
       Inbound: item.Inbound,
       Time: item.Call_Date_Time,
       Dialed: item.Dialed,
@@ -82,19 +82,19 @@ const ArchivedCallLogReports = () => {
     },
     {
       Header: "Call Date",
-      accessor: "Call Date",
+      accessor: "Call_Date",
     },
     {
       Header: "Call Date Time",
-      accessor: "Call Date Time",
+      accessor: "Call_Date_Time",
     },
     {
       Header: "Conn. Duration",
-      accessor: "Conn. Duration",
+      accessor: "Conn_Duration",
     },
     {
       Header: "Call Length In Seconds",
-      accessor: "Call Length In Seconds",
+      accessor: "Call_Length_In_Seconds",
     },
     {
       Header: "Customer",
@@ -106,7 +106,7 @@ const ArchivedCallLogReports = () => {
     },
     {
       Header: "Target Description",
-      accessor: "Target Description",
+      accessor: "Target_Description",
     },
     {
       Header: "Affiliate",
@@ -126,7 +126,7 @@ const ArchivedCallLogReports = () => {
     },
     {
       Header: "Total Cost",
-      accessor: "Total Cost",
+      accessor: "Total_Cost",
     },
     {
       Header: "Profit",
@@ -138,7 +138,7 @@ const ArchivedCallLogReports = () => {
     },
     {
       Header: "Inbound Id",
-      accessor: "Inbound Id",
+      accessor: "Inbound_Id",
     },
     {
       Header: "Dialed",

@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketExcptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use App\Models\Market;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Customer;
 use Inertia\Inertia;
@@ -22,20 +20,23 @@ class MarketExceptionController extends Controller
 
     public function addMarketException(Request $request)
     {
+        $allMarketExceptions = MarketExcptions::all();
+        $exisxtData = $allMarketExceptions->where('customer_id', $request->customer)->where('market_id', $request->market);
+        if (!$exisxtData->isEmpty()) {
+            return response()->json(["msg" => "Data already Exist"]);
+        }
         MarketExcptions::create([
             'customer_id' => $request->customer,
             'market_id' => $request->market,
             'start_date' => $request->start_date,
         ]);
-        $allMarketExceptions =MarketExcptions::all();
-        $exisxtData=$allMarketExceptions->where('customer_id',$request->customer)->where('market_id',$request->market);
-        dd($exisxtData);
-        return redirect::back()->with("success", "Successfully Submitted");
+
+        return response()->json(["msg" => "Successfully added"]);
     }
 
     public function marketExceptionForm()
     {
-        $allMarkets = Market::all();
+        $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
         $allCustomers = Customer::all();
         return Inertia::render('Settings/MarketExceptionForm', [
             'allCustomers' => $allCustomers,

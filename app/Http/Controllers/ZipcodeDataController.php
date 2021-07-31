@@ -1,22 +1,27 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Exports\ZipcodeDataExport;
 use App\Imports\ZipcodeDataImport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Customer;
+use App\Models\ZipCodeData;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ZipcodeDataController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     
     public function index()
     {
-        $customer = Customer::all();
-        return Inertia::render('Settings/Zipcode', [
-            'allCustomers' => $customer
+        $allZipcodes = ZipCodeData::take(10)->get();
+        // dd($allZipcodes);
+        return Inertia::render('Settings/ZipcodeDatabase', [
+            'allZipcodes' => $allZipcodes
         ]);
     }
 

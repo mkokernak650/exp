@@ -43,10 +43,10 @@ const TempRingbaData = () => {
 
   const newRingbadata = ringbaData.map((item, indx) => {
     return {
-      SL: indx,
-      CallLog_columns: JSON.stringify(item.columns),
-      CallLog_events: JSON.stringify(item.events),
-      CallLog_Tags: JSON.stringify(item.tags),
+      SL: indx+1,
+      CallLog_columns: JSON.stringify(item.columns).substr(0,100),
+      CallLog_events: JSON.stringify(item.events).substr(0,100),
+      CallLog_Tags: JSON.stringify(item.tags).substr(0,100),
     };
   });
   const [mainData, setRingbadata] = useState(newRingbadata);

@@ -37841,16 +37841,6 @@ var map = {
 		9,
 		"resources_js_Pages_Settings_AddMarket_jsx"
 	],
-	"./Settings/AddTarget": [
-		"./resources/js/Pages/Settings/AddTarget.jsx",
-		9,
-		"resources_js_Pages_Settings_AddTarget_jsx"
-	],
-	"./Settings/AddTarget.jsx": [
-		"./resources/js/Pages/Settings/AddTarget.jsx",
-		9,
-		"resources_js_Pages_Settings_AddTarget_jsx"
-	],
 	"./Settings/CustomerReport": [
 		"./resources/js/Pages/Settings/CustomerReport.jsx",
 		9,
@@ -37900,6 +37890,16 @@ var map = {
 		"./resources/js/Pages/Settings/MarketReport.jsx",
 		9,
 		"resources_js_Pages_Settings_MarketReport_jsx"
+	],
+	"./Settings/Targets": [
+		"./resources/js/Pages/Settings/Targets.jsx",
+		9,
+		"resources_js_Pages_Settings_Targets_jsx"
+	],
+	"./Settings/Targets.jsx": [
+		"./resources/js/Pages/Settings/Targets.jsx",
+		9,
+		"resources_js_Pages_Settings_Targets_jsx"
 	],
 	"./Settings/Zipcode": [
 		"./resources/js/Pages/Settings/Zipcode.jsx",
@@ -38098,7 +38098,7 @@ module.exports = webpackAsyncContext;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_jsx":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_ArchivedCallLogReports_jsx":1,"resources_js_Pages_Ringba_BilledCallLogs_jsx":1,"resources_js_Pages_Ringba_Exception_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_jsx":1,"resources_js_Pages_Ringba_PendingCallLogs_jsx":1,"resources_js_Pages_Ringba_TempRingbaData_jsx":1,"resources_js_Pages_Ringba_callLogsReport_jsx":1,"resources_js_Pages_Settings_AddCustomer_jsx":1,"resources_js_Pages_Settings_AddMarket_jsx":1,"resources_js_Pages_Settings_AddTarget_jsx":1,"resources_js_Pages_Settings_CustomerReport_jsx":1,"resources_js_Pages_Settings_Market_jsx":1,"resources_js_Pages_Settings_MarketExceptionForm_jsx":1,"resources_js_Pages_Settings_MarketExceptionReport_jsx":1,"resources_js_Pages_Settings_MarketReport_jsx":1,"resources_js_Pages_Settings_Zipcode_jsx":1,"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_jsx":1,"resources_js_Pages_Settings_ZipcodeDatabase_jsx":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_Auth_Login_jsx":1,"resources_js_Pages_Home_Dashboard_jsx":1,"resources_js_Pages_Layout_Footer_jsx":1,"resources_js_Pages_Layout_Layout_jsx":1,"resources_js_Pages_Layout_NavBar_jsx":1,"resources_js_Pages_Layout_SideBar_jsx":1,"resources_js_Pages_Ringba_ArchivedCallLogReports_jsx":1,"resources_js_Pages_Ringba_BilledCallLogs_jsx":1,"resources_js_Pages_Ringba_Exception_jsx":1,"resources_js_Pages_Ringba_GetRingbaData_jsx":1,"resources_js_Pages_Ringba_PendingCallLogs_jsx":1,"resources_js_Pages_Ringba_TempRingbaData_jsx":1,"resources_js_Pages_Ringba_callLogsReport_jsx":1,"resources_js_Pages_Settings_AddCustomer_jsx":1,"resources_js_Pages_Settings_AddMarket_jsx":1,"resources_js_Pages_Settings_CustomerReport_jsx":1,"resources_js_Pages_Settings_Market_jsx":1,"resources_js_Pages_Settings_MarketExceptionForm_jsx":1,"resources_js_Pages_Settings_MarketExceptionReport_jsx":1,"resources_js_Pages_Settings_MarketReport_jsx":1,"resources_js_Pages_Settings_Targets_jsx":1,"resources_js_Pages_Settings_Zipcode_jsx":1,"resources_js_Pages_Settings_ZipcodeByTelevisionMarket_jsx":1,"resources_js_Pages_Settings_ZipcodeDatabase_jsx":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};

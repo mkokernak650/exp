@@ -173,25 +173,35 @@ function ResponsiveDrawer(props) {
           Icon: <UserIcon />,
         },
         {
+          title: "Targets",
+          href: "target",
+          Icon: <UserIcon />,
+        },
+        {
           title: "Television By Market Report",
           href: "zipcode.television.market",
           Icon: <UserIcon />,
         },
         {
           title: "Zip Code",
-          href: "zipcode.data",
+          href: "zipcode-data",
           Icon: <UserIcon />,
         },
         {
-          title: "Add Market",
-          href: "add-market",
+          title: "Zipcode Database",
+          href: "zipcode-data",
           Icon: <UserIcon />,
         },
-        {
-          title: "Markets",
-          href: "market-report",
-          Icon: <UserIcon />,
-        },
+        // {
+        //   title: "Add Market",
+        //   href: "add-market",
+        //   Icon: <UserIcon />,
+        // },
+        // {
+        //   title: "Markets",
+        //   href: "market-report",
+        //   Icon: <UserIcon />,
+        // },
       ],
     },
   ];

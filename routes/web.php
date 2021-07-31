@@ -14,6 +14,7 @@ use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
+use App\Http\Controllers\TargetController;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use App\Http\Helpers\RingbaApiHelpers;
@@ -155,11 +156,14 @@ Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketContro
 
 // TODO Zipcodedata Controller
 Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
-        ->name('zipcode.data');
+        ->name('zipcode-data');
 Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
         ->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
+
+// TODO Target Controller
+Route::get('/target', [TargetController::class, 'index'])->name('target');
 
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])->name('update.annotation');
 

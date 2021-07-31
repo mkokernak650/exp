@@ -280,22 +280,21 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
-        dd($npanxx_number);
         $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->orderBy('ZipCodeCount', 'DESC')
             ->first();
 
         if ($result) {
-
             $res = ZipcodeByTelevisionMarket::select('Market')
                 ->where('fips', $result->FIPS)
                 ->where('zip_code', $result->ZipCode)
                 ->first();
+
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
-            $this->get_market = $res->Market;
+            $this->get_market = $res->Market ?? '';
             $this->get_type = $result->NXXUseType;
         }
     }
@@ -404,7 +403,6 @@ class RingbaCallLogController extends Controller
         }
         $allData = RingbaCallLog::all();
         return response()->json($allData);
-
     }
 
     /**

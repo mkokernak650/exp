@@ -10148,22 +10148,32 @@ function ResponsiveDrawer(props) {
       href: "customer-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
+      title: "Targets",
+      href: "target",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
       title: "Television By Market Report",
       href: "zipcode.television.market",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
       title: "Zip Code",
-      href: "zipcode.data",
+      href: "zipcode-data",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
-      title: "Add Market",
-      href: "add-market",
+      title: "Zipcode Database",
+      href: "zipcode-data",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }, {
-      title: "Markets",
-      href: "market-report",
-      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    }]
+    } // {
+    //   title: "Add Market",
+    //   href: "add-market",
+    //   Icon: <UserIcon />,
+    // },
+    // {
+    //   title: "Markets",
+    //   href: "market-report",
+    //   Icon: <UserIcon />,
+    // },
+    ]
   }];
 
   var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(),
