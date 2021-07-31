@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchivedCallLog;
 use App\Models\RingbaCallLog;
+use App\Models\Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -48,7 +49,6 @@ class ArchivedCallLogController extends Controller
                 continue;
             }
             $ringbaCallLog = new RingbaCallLog();
-
             // get for store data
             $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 

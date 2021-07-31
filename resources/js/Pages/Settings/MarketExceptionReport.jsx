@@ -41,8 +41,8 @@ const MarketExceptionReport = () => {
     const newMarketExceptions = marketExceptions.map((item, indx) => {
         return {
             SL: indx + 1,
-            Customer: item.customer,
-            Market: item.market,
+            Customer: item.customer_id,
+            Market: item.market_id,
             'Start Date': item.start_date
         }
     })

@@ -10088,7 +10088,6 @@ function ResponsiveDrawer(props) {
     collapse: false
   }, {
     id: 2,
-    href: "getringbadata",
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_7__.default, {
       size: "20"
     }),
@@ -10116,30 +10115,39 @@ function ResponsiveDrawer(props) {
       href: "pending-call-log-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }, {
+      title: "Exceptions",
+      href: "get.exceptions",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
       title: "Billed Call Logs Report",
       href: "billed-call-log-report",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
     }]
   }, {
     id: 3,
-    href: "zipcode.television.market",
     Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_9__.default, {
       size: "20"
     }),
     title: "Settings",
     active: false,
     collapse: true,
-    submenu: [// {
-    //     title: 'Market Exception Report',
-    //     href: 'market-exception-report',
-    //     Icon: <UserIcon />,
-    // },
-    // {
-    //     title: 'Customer Report',
-    //     href: 'customer-report',
-    //     Icon: <UserIcon />,
-    // },
-    {
+    submenu: [{
+      title: "Add Market Exception",
+      href: "market-exception-form",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: "Market Exception Report",
+      href: "market-exception-report",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: "Add Customer",
+      href: "add.customer",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: "Customer Report",
+      href: "customer-report",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
       title: "Television By Market Report",
       href: "zipcode.television.market",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
@@ -10147,12 +10155,15 @@ function ResponsiveDrawer(props) {
       title: "Zip Code",
       href: "zipcode.data",
       Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
-    } // {
-    //     title: 'Market',
-    //     href: 'market.data',
-    //     Icon: <UserIcon />,
-    // }
-    ]
+    }, {
+      title: "Add Market",
+      href: "add-market",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }, {
+      title: "Markets",
+      href: "market-report",
+      Icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_feather__WEBPACK_IMPORTED_MODULE_8__.default, {})
+    }]
   }];
 
   var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(),
@@ -10166,6 +10177,8 @@ function ResponsiveDrawer(props) {
         inActive(items[i].id);
       }
     }
+
+    console.log(active);
   };
 
   var drawer = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
@@ -10173,7 +10186,7 @@ function ResponsiveDrawer(props) {
       children: items.map(function (menu) {
         return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           children: [menu.collapse ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_inertiajs_inertia_react__WEBPACK_IMPORTED_MODULE_2__.InertiaLink, {
-            href: route(menu.href),
+            href: menu.href ? route(menu.href) : "#",
             onClick: function onClick() {
               return handleClick(menu.id);
             },

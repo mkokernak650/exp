@@ -14,7 +14,6 @@ import Grid from "@material-ui/core/Grid";
 import { Inertia } from "@inertiajs/inertia";
 import { Helmet } from "react-helmet";
 import axios from "axios";
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "grid",
@@ -40,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const AddMarket = () => {
+const AddCustomer = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
@@ -64,33 +63,35 @@ const AddMarket = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    axios.post(route("store-market"), values).then((res) => {
-      setLoading(false);
-      if (res.status === 200) {
-        setResponse(res.data.msg);
-        setOpen(true);
-      }
-    });
+    axios
+      .post(route("store-customer"), values)
+      .then((res) => {
+        if (res.status === 200) {
+          setLoading(false);
+          setResponse(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
   };
 
   return (
     <>
-      <Helmet title="Call Logs Report" />
+      <Helmet title="Add Customer" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Market
+          Add Customer
         </Typography>
         <form validate onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Market"
+                label="Customer"
                 margin="normal"
-                name="market"
+                name="customer"
                 onChange={handleChange}
                 type="text"
-                // value={values.name}
                 variant="outlined"
                 required="true"
               />
@@ -127,5 +128,5 @@ const AddMarket = () => {
   );
 };
 
-AddMarket.layout = (page) => <Layout title="Add Market">{page}</Layout>;
-export default AddMarket;
+AddCustomer.layout = (page) => <Layout title="Add Customer">{page}</Layout>;
+export default AddCustomer;

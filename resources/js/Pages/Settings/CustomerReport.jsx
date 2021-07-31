@@ -36,7 +36,6 @@ const CustomerReport = () => {
         return {
             SL: indx + 1,
             Customer: item.customer_name,
-            'Customer Id': item.customer_ID
         }
     })
     const [mainData, setMainData] = useState(newCustomer)
@@ -48,10 +47,6 @@ const CustomerReport = () => {
         {
             Header: 'Customer',
             accessor: 'Customer',
-        },
-        {
-            Header: 'Customer Id',
-            accessor: 'Customer Id',
         }
     ]
 

@@ -103,7 +103,6 @@ function ResponsiveDrawer(props) {
     },
     {
       id: 2,
-      href: "getringbadata",
       Icon: <UsersIcon size="20" />,
       title: "Ringba",
       active: false,
@@ -135,6 +134,11 @@ function ResponsiveDrawer(props) {
           Icon: <UserIcon />,
         },
         {
+          title: "Exceptions",
+          href: "get.exceptions",
+          Icon: <UserIcon />,
+        },
+        {
           title: "Billed Call Logs Report",
           href: "billed-call-log-report",
           Icon: <UserIcon />,
@@ -143,23 +147,31 @@ function ResponsiveDrawer(props) {
     },
     {
       id: 3,
-      href: "zipcode.television.market",
       Icon: <SettingsIcon size="20" />,
       title: "Settings",
       active: false,
       collapse: true,
       submenu: [
-        // {
-        //     title: 'Market Exception Report',
-        //     href: 'market-exception-report',
-
-        //     Icon: <UserIcon />,
-        // },
-        // {
-        //     title: 'Customer Report',
-        //     href: 'customer-report',
-        //     Icon: <UserIcon />,
-        // },
+        {
+          title: "Add Market Exception",
+          href: "market-exception-form",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Market Exception Report",
+          href: "market-exception-report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Add Customer",
+          href: "add.customer",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Customer Report",
+          href: "customer-report",
+          Icon: <UserIcon />,
+        },
         {
           title: "Television By Market Report",
           href: "zipcode.television.market",
@@ -170,11 +182,16 @@ function ResponsiveDrawer(props) {
           href: "zipcode.data",
           Icon: <UserIcon />,
         },
-        // {
-        //     title: 'Market',
-        //     href: 'market.data',
-        //     Icon: <UserIcon />,
-        // }
+        {
+          title: "Add Market",
+          href: "add-market",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Markets",
+          href: "market-report",
+          Icon: <UserIcon />,
+        },
       ],
     },
   ];
@@ -185,6 +202,7 @@ function ResponsiveDrawer(props) {
         inActive(items[i].id);
       }
     }
+    console.log(active);
   };
 
   const drawer = (
@@ -194,7 +212,7 @@ function ResponsiveDrawer(props) {
           <div key={menu.id}>
             {menu.collapse ? (
               <InertiaLink
-                href={route(menu.href)}
+                href={menu.href ? route(menu.href) : "#"}
                 onClick={() => handleClick(menu.id)}
                 style={{ textDecoration: "none" }}
                 key={menu.id}

@@ -19,10 +19,17 @@ class MarketController extends Controller
 
     public function addMarket(Request $request)
     {
+        $allMarkets = Market::all();
+        $existing_market = $allMarkets->where('market', $request->market)->first();
+        if ($existing_market) {
+            return response()->json(["msg" => "Market already exists"]);
+        }
+
         Market::create([
             'market_name' => $request->market,
         ]);
-        return redirect::back()->with("success", "Successfully Submitted");
+        return response()->json(["msg" => "Successfully added"]);
+
     }
 
     public function marketReport()
@@ -47,5 +54,4 @@ class MarketController extends Controller
         Excel::download(new MarketExport,  'markets.' . $type);
         return back()->with('Export successfully');
     }
-
 }

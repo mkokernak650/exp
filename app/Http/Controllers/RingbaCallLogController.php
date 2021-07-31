@@ -292,7 +292,6 @@ class RingbaCallLogController extends Controller
                 ->where('fips', $result->FIPS)
                 ->where('zip_code', $result->ZipCode)
                 ->first();
-
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
@@ -321,10 +320,6 @@ class RingbaCallLogController extends Controller
         }
         $allData = RingbaCallLog::all();
         return response()->json($allData);
-        // return Inertia::render('Ringba/callLogsReport', [
-        //     'allCallLogs' => $test,
-        // ])->with(["msg" => "Updated successfully", "status_code" => 200]);
-        // return response()->json(["msg" => "Updated successfully", "status_code" => 200]);
     }
 
     /**
@@ -408,6 +403,8 @@ class RingbaCallLogController extends Controller
             $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
             $this->updateAnnotation($inboundIds, $data);
         }
+        $allData = RingbaCallLog::all();
+        return response()->json($allData);
 
     }
 

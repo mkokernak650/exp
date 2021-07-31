@@ -24,8 +24,8 @@ class PendingBillCallLogController extends Controller
     public function index()
     {
         $results = PendingBillCallLog::orderBy('id', 'DESC')->get();
-        return Inertia::render('Ringba/PendingCallLogs',[
-            'results'=>$results
+        return Inertia::render('Ringba/PendingCallLogs', [
+            'results' => $results
         ]);
     }
 

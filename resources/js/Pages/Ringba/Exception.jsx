@@ -3,7 +3,6 @@ import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
-import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet";
@@ -24,22 +23,18 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const CallLogsReport = () => {
+const Exceptions = () => {
   const classes = useStyles();
-  const { allCallLogs } = usePage().props;
+  const { Exceptions } = usePage().props;
   const [inboundIds, setInbounIds] = useState([]);
-  const [rowId, serRowId] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
-  //  const [showModal, setShowModal] = React.useState({ open: false });
-  // const openModal = () => {
-  //   setShowModal({ open: true });
-  // };
 
-  const newCallCallLogs = allCallLogs.map((item, indx) => {
+  const newExceptions = Exceptions.map((item, indx) => {
     return {
       SN: item.SN,
       Call_Date: item.Call_Date_Time,
+      Duplicate_Call: item.Duplicate_Call,
       Has_Annotation: item.Has_Annotation,
       Annotation_Tag: item.Annotation_Tag,
       Call_Status: item.call_Logs_status,
@@ -49,11 +44,11 @@ const CallLogsReport = () => {
         </a>
       ),
       Time: item.Call_Date_Time,
-      Inbound_Id: item.Inbound_Id,
       Affiliate: item.Affiliate,
       Market: item.Market,
       Campaign: item.Campaign,
       Inbound: item.Inbound,
+      Inbound_Id: item.Inbound_Id,
       Dialed: item.Dialed,
       Type: item.Type,
       Customer: item.Customer,
@@ -72,7 +67,7 @@ const CallLogsReport = () => {
       Zipcode: item.Zipcode,
     };
   });
-  const [mainData, setMainData] = useState(newCallCallLogs);
+  const [mainData, setMainData] = useState(newExceptions);
   const columns = [
     {
       Header: "SN",
@@ -91,25 +86,26 @@ const CallLogsReport = () => {
       accessor: "Annotation_Tag",
     },
     {
-      Header: "Call Status",
-      accessor: "Call_Status",
-    },
-    {
       Header: "Recording Url",
       accessor: "Recording_Url",
+    },
+    {
+      Header: "Call Status",
+      accessor: "Call_Status",
     },
     {
       Header: "Time",
       accessor: "Time",
     },
     {
-      Header: "Inbound Id",
-      accessor: "Inbound_Id",
+      Header: "Duplicate Call",
+      accessor: "Duplicate_Call",
     },
     {
       Header: "Affiliate",
       accessor: "Affiliate",
     },
+
     {
       Header: "Market",
       accessor: "Market",
@@ -121,6 +117,10 @@ const CallLogsReport = () => {
     {
       Header: "Inbound",
       accessor: "Inbound",
+    },
+    {
+      Header: "Inbound ID",
+      accessor: "Inbound_Id",
     },
     {
       Header: "Dialed",
@@ -216,15 +216,6 @@ const CallLogsReport = () => {
       //     type="submit"
       //     color="primary"
       //     className={classes.button}
-      //     onClick={openModal}
-      //   >
-      //     Import
-      //   </Button>
-      //   <Button
-      //     variant="contained"
-      //     type="submit"
-      //     color="primary"
-      //     className={classes.button}
       //   >
       //     Export
       //   </Button>
@@ -241,11 +232,6 @@ const CallLogsReport = () => {
     setOpen(false);
   };
 
-  // const importHandler = (e) => {
-  //   e.preventDefault();
-  //   const form = new FormData(e.target);
-  //   Inertia.post(route("zipcode.data.import"), form);
-  // };
   const handlePending = () => {
     console.log(inboundIds);
     axios
@@ -267,8 +253,6 @@ const CallLogsReport = () => {
   };
 
   const handleArchived = () => {
-    console.log(inboundIds);
-
     axios
       .post(route("add.arichived.bill.call"), { inboundIds })
       .then((res) => {
@@ -303,7 +287,7 @@ const CallLogsReport = () => {
       })
       .catch((err) => {});
   };
-  
+
   const handleAnnotation = () => {
     axios
       .post(route("update.annotation"), { inboundIds })
@@ -382,32 +366,9 @@ const CallLogsReport = () => {
       >
         <Alert severity="success">{success}</Alert>
       </Snackbar>
-
-      {/* <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
-        width={"500px"}
-        title={""}
-      >
-        <div className="myprofile">
-          <form
-            className={classes.importForm}
-            method="post"
-            encType="multipart/form-data"
-            onSubmit={importHandler}
-          >
-            <input id="importfile" type="file" name="importfile" />
-            <Button variant="contained" type="submit" color="primary">
-              Next
-            </Button>
-          </form>
-        </div>
-      </NormalModal> */}
     </div>
   );
 };
 
-CallLogsReport.layout = (page) => (
-  <Layout title="Call Logs Report">{page}</Layout>
-);
-export default CallLogsReport;
+Exceptions.layout = (page) => <Layout title="Exceptions">{page}</Layout>;
+export default Exceptions;

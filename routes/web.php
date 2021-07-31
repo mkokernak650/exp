@@ -11,6 +11,7 @@ use App\Http\Controllers\PendingBillCallLogController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Controllers\RingbaCallLogController;
+use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +46,9 @@ Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCall
 
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])
         ->name('call-logs-report');
+
+Route::get('/exceptions', [ExceptionController::class, 'index'])
+        ->name('get.exceptions');
 
 Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])->name('update-data');
 
@@ -104,8 +108,15 @@ Route::get('/market-data', function () {
 })->name('market.data');
 
 // TODO Customet Controller
+Route::get('/add-customer', function () {
+        return Inertia::render('Settings/AddCustomer');
+})->name('add.customer');
+
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])
         ->name('customer-report');
+
+Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])->name('store-customer');
+
 Route::get('customer-export/{type}', [CustomerController::class, 'export'])->name('customer.export');
 
 // TODO Archived Call log Controller for store test
@@ -150,12 +161,11 @@ Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
-
-
+Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])->name('update.annotation');
 
 // test route
 Route::get('/getupdate/{id}', function ($id) {
-    $api = new RingbaApiHelpers();
-    $results = $api->getUpdateAnnotation($id);
-    dd($results);
+        $api = new RingbaApiHelpers();
+        $results = $api->getUpdateAnnotation($id);
+        dd($results);
 });

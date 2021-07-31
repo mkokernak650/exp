@@ -118,7 +118,7 @@ const MarketExceptionForm = () => {
                             >
                                 <option value="">Select Market</option>
                                 {allMarkets.map((option, indx) => (
-                                    <option key={indx} value={option.market_name}>
+                                    <option key={indx} value={option.id}>
                                         {option.market_name}
                                     </option>
                                 ))}

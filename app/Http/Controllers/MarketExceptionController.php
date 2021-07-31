@@ -27,6 +27,9 @@ class MarketExceptionController extends Controller
             'market_id' => $request->market,
             'start_date' => $request->start_date,
         ]);
+        $allMarketExceptions =MarketExcptions::all();
+        $exisxtData=$allMarketExceptions->where('customer_id',$request->customer)->where('market_id',$request->market);
+        dd($exisxtData);
         return redirect::back()->with("success", "Successfully Submitted");
     }
 
@@ -42,12 +45,12 @@ class MarketExceptionController extends Controller
 
     public function marketExceptionReport()
     {
-        $marketExceptions = DB::table('market_excptions')
-            ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market'])
-            ->join('customers', 'customers.id', '=', 'market_excptions.customer_id')
-            ->join('markets', 'markets.id', '=', 'market_excptions.market_id')
-            ->get();
-
+        // $marketExceptions = DB::table('market_excptions')
+        //     ->select(['market_excptions.id', 'market_excptions.start_date as start_date', 'customers.customer_name as customer', 'markets.market_name as market'])
+        //     ->join('customers', 'customers.id', '=', 'market_excptions.customer_id')
+        //     ->join('markets', 'markets.id', '=', 'market_excptions.market_id')
+        //     ->get();
+        $marketExceptions = MarketExcptions::all();
         return Inertia::render('Settings/MarketExceptionReport', [
             'marketExceptions' => $marketExceptions,
         ]);
@@ -58,7 +61,6 @@ class MarketExceptionController extends Controller
         // post request
         Excel::import(new MarketExceptionImport, $request->file);
         return back()->with('Successfully import!');
-
     }
 
     public function export($type)
@@ -67,5 +69,4 @@ class MarketExceptionController extends Controller
         Excel::download(new MarketExceptionExport,  'MarketExceptionExport.' . $type);
         return back()->with('Export successfully');
     }
-
 }

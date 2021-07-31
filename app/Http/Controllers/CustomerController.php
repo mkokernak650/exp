@@ -15,13 +15,26 @@ class CustomerController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     public function customerReport()
     {
         $allCustomers = Customer::all();
         return Inertia::render('Settings/CustomerReport', [
             'allCustomers' => $allCustomers,
         ]);
+    }
+
+    public function storeCustomer(Request $request)
+    {
+        $allCustomers = Customer::all();
+        $existing_cutomer = $allCustomers->where('customer_name', $request->customer)->first();
+        if ($existing_cutomer) {
+            return response()->json(["msg" => "Cutomer already exists"]);
+        }
+        Customer::create([
+            'customer_name' => $request->customer,
+        ]);
+        return response()->json(["msg" => "Successfully Added"]);
     }
 
     public function import(Request $request)
