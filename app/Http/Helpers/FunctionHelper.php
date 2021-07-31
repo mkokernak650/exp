@@ -39,3 +39,12 @@ if (!function_exists('deleteRecords')) {
     return true;
   }
 }
+
+if(!function_exists('varDump')) {
+  function varDump($data)
+  {
+    echo '<pre>';
+    var_dump($data);
+    echo '</pre>';
+  }
+}
