@@ -60,8 +60,7 @@ Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
         ->name('update.annotation');
 
-Route::post('/move-from-pending-bill-to-ringba-call-log', [RingbaCallLogController::class, 'fromPendingBill'])
-        ->name('move.from.pending.bill.to.ringba.call.log');
+
 
 // Route::post('/get-ringba-data', function ($id) {
 // });
@@ -146,9 +145,18 @@ Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'in
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report');
 
-/*====== temp route for check get data ===== */
+Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToCallLog'])
+        ->name('archived.to.call.log');
+
+// TODO PendingBillCallLogController 
+Route::post('/move-from-pending-bill-to-ringba-call-log', [PendingBillCallLogController::class, 'moveToCallLog'])
+        ->name('move.from.pending.bill.to.ringba.call.log');
+
 Route::post('/pending', [PendingBillCallLogController::class, 'store'])
         ->name('add.pending.bill.call');
+
+
+/*====== temp route for check get data ===== */
 Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
 
 

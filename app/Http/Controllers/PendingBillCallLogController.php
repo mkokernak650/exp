@@ -62,5 +62,26 @@ class PendingBillCallLogController extends Controller
         }
     }
 
-    // private function dataStore($toInstance, $for)
+    /**
+     * @method post
+     * @param array
+     * @param \Illuminate\Http\Request $request
+     */
+    public function moveToCallLog(Request $request)
+    {
+        $inboundIds = [
+            'v2iTe-8frMOOI01yA7GxnDpvMv-kN3uzhcpglc6LfkdlDEpX2fiigEdg'
+        ];
+        if (is_array($inboundIds)) {
+            $i = 0;
+
+            while ($i < count($inboundIds)) {
+                $dataById = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
+                $ringbaCallLog = new RingbaCallLog();
+                $ringbaCallLog->call_Logs_status = 'Active';
+                dataMoveHelper($ringbaCallLog, $dataById);
+                $i++;
+            }
+        }
+    }
 }
