@@ -4,6 +4,7 @@ import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 import NormalModal from "../../Shared/NormalModal";
+import { Inertia } from "@inertiajs/inertia";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -238,6 +239,13 @@ const ZipcodeDatabase = () => {
     );
   };
 
+  const importHandler = (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    // post(route('zipcode.data'), form)
+    Inertia.post(route("zipcode.data.import"), form);
+  };
+
   return (
     <div>
       <CssBaseline />
@@ -249,7 +257,6 @@ const ZipcodeDatabase = () => {
         skipPageReset={skipPageReset}
         TableTitle={TableTitle}
         inboundIds={inboundIds}
-
       ></EnhancedTable>
       <NormalModal
         open={showModal.open}
@@ -262,7 +269,7 @@ const ZipcodeDatabase = () => {
             className={classes.importForm}
             method="post"
             encType="multipart/form-data"
-            // onSubmit={importHandler}
+            onSubmit={importHandler}
           >
             <input id="importfile" type="file" name="importfile" />
             <Button variant="contained" type="submit" color="primary">

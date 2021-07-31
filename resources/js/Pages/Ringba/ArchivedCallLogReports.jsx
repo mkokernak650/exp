@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { CssBaseline, Button, makeStyles } from "@material-ui/core";
+import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
+import { Inertia } from "@inertiajs/inertia";
+import MuiAlert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet";
-import axios from 'axios'
+import axios from "axios";
 const useStyles = makeStyles((theme) => ({
   button: {
     minWidth: "134px",
@@ -18,6 +20,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 const range = (len) => {
   const arr = [];
   for (let i = 0; i < len; i++) {
@@ -42,7 +47,8 @@ const ArchivedCallLogReports = () => {
   const classes = useStyles();
   const { archivedCallLogs } = usePage().props;
   const [inboundIds, setInbounIds] = useState([]);
-
+  const [success, setSuccess] = useState();
+  const [open, setOpen] = useState(false);
 
   const newCallCallLogs = archivedCallLogs.map((item, indx) => {
     return {
@@ -58,7 +64,7 @@ const ArchivedCallLogReports = () => {
       Affiliate: item.Affiliate,
       Market: item.Market,
       Revenue: item.Revenue,
-      Payout: item.payout,
+      Payout: item.payoutAmount,
       Total_Cost: item.Total_Cost,
       Profit: item.Profit,
       Inbound_Id: item.Inbound_Id,
@@ -191,7 +197,7 @@ const ArchivedCallLogReports = () => {
   };
   const MoveCallLog = () => {
     axios
-      .post(route("move.from.pending.bill.to.ringba.call.log"), { inboundIds })
+      .post(route("archived.to.call.log"), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           setSuccess(res.data.msg);
@@ -208,6 +214,12 @@ const ArchivedCallLogReports = () => {
       .catch((err) => {});
   };
 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
   return (
     <div>
       <Helmet title="Archive Call Logs" />
@@ -220,7 +232,6 @@ const ArchivedCallLogReports = () => {
         skipPageReset={skipPageReset}
         TableTitle={TableTitle}
         inboundIds={inboundIds}
-
       >
         {" "}
         <div className={classes.topBtn}>
@@ -235,6 +246,15 @@ const ArchivedCallLogReports = () => {
           </Button>
         </div>
       </EnhancedTable>
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        className={classes.snackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success">{success}</Alert>
+      </Snackbar>
     </div>
   );
 };

@@ -106,14 +106,14 @@ const TempRingbaData = () => {
       >
         {" "}
         <div className={classes.topBtn}>
-          <Button
+          {/* <Button
             variant="contained"
             type="submit"
             color="primary"
             className={classes.button}
           >
             Move Call Log
-          </Button>
+          </Button> */}
         </div>
       </EnhancedTable>
     </div>
