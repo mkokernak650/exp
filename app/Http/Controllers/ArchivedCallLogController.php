@@ -48,36 +48,10 @@ class ArchivedCallLogController extends Controller
             if ($existData) {
                 continue;
             }
-            $ringbaCallLog = new RingbaCallLog();
-            // get for store data
-            $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 
-            $archivedCallLog->SN                        = $data->SN;
-            $archivedCallLog->Campaign                  = $data->Campaign;
-            $archivedCallLog->Call_Date                 = $data->Call_Date;
-            $archivedCallLog->Call_Date_Time            = $data->Call_Date_Time;
-            $archivedCallLog->Conn_Duration             = $data->Conn_Duration;
-            $archivedCallLog->call_Length_In_Seconds    = $data->call_Length_In_Seconds;
-            $archivedCallLog->Customer                  = $data->Customer;
-            $archivedCallLog->Target                    = $data->Target;
-            $archivedCallLog->Target_Description        = $data->Target_Description;
-            $archivedCallLog->Affiliate                 = $data->Affiliate;
-            $archivedCallLog->Market                    = $data->Market;
-            $archivedCallLog->Revenue                   = $data->Revenue;
-            $archivedCallLog->payout                    = $data->payoutAmount;
-            $archivedCallLog->Total_Cost                = $data->Total_Cost;
-            $archivedCallLog->Profit                    = $data->Profit;
-            $archivedCallLog->Inbound_Id                = $data->Inbound_Id;
-            $archivedCallLog->Inbound                   = $data->Inbound;
-            $archivedCallLog->Dialed                    = $data->Dialed;
-            $archivedCallLog->Type                      = $data->Type;
-            $archivedCallLog->City                      = $data->City;
-            $archivedCallLog->State                     = $data->State;
-            $archivedCallLog->Zipcode                   = $data->Zipcode;
-            $result = $archivedCallLog->save();
-
-            // delete Record from Ringa Call log after transfer archived call log table;
-            $data->delete();
+            // get data for store data
+            $data = findDataByInboundId(new RingbaCallLog(), $Inbound_Id);
+            $result = dataMoveHelper($archivedCallLog, $data);
         }
 
         if ($result) {
