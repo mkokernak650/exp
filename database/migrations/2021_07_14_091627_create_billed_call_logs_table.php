@@ -20,6 +20,7 @@ class CreateBilledCallLogsTable extends Migration
             $table->string('Call_Date_Time')->nullable();
             $table->string('Call_Date')->nullable();
             $table->string('Duplicate_Call')->nullable();
+            $table->string('Customer')->nullable();
             $table->string('Affiliate')->nullable();
             $table->string('Affiliate_Id')->nullable();
             $table->string('Market')->nullable();
