@@ -27,13 +27,8 @@ const CallLogsReport = () => {
   const classes = useStyles();
   const { allCallLogs } = usePage().props;
   const [inboundIds, setInbounIds] = useState([]);
-  const [rowId, serRowId] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
-  //  const [showModal, setShowModal] = React.useState({ open: false });
-  // const openModal = () => {
-  //   setShowModal({ open: true });
-  // };
 
   const newCallCallLogs = allCallLogs.map((item, indx) => {
     return {
@@ -204,31 +199,7 @@ const CallLogsReport = () => {
   };
 
   const TableTitle = () => {
-    return (
-      <div></div>
-      // <div>
-
-      // </div>
-      // <div className={classes.topBtn}>
-      //   <Button
-      //     variant="contained"
-      //     type="submit"
-      //     color="primary"
-      //     className={classes.button}
-      //     onClick={openModal}
-      //   >
-      //     Import
-      //   </Button>
-      //   <Button
-      //     variant="contained"
-      //     type="submit"
-      //     color="primary"
-      //     className={classes.button}
-      //   >
-      //     Export
-      //   </Button>
-      // </div>
-    );
+    return <div></div>;
   };
 
   const deleteHandler = () => {};
@@ -240,11 +211,6 @@ const CallLogsReport = () => {
     setOpen(false);
   };
 
-  // const importHandler = (e) => {
-  //   e.preventDefault();
-  //   const form = new FormData(e.target);
-  //   Inertia.post(route("zipcode.data.import"), form);
-  // };
   const handlePending = () => {
     console.log(inboundIds);
     axios
@@ -267,7 +233,6 @@ const CallLogsReport = () => {
 
   const handleArchived = () => {
     console.log(inboundIds);
-
     axios
       .post(route("add.arichived.bill.call"), { inboundIds })
       .then((res) => {
@@ -302,7 +267,7 @@ const CallLogsReport = () => {
       })
       .catch((err) => {});
   };
-  
+
   const handleAnnotation = () => {
     axios
       .post(route("update.annotation"), { inboundIds })

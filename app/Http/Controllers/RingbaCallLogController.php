@@ -540,18 +540,21 @@ class RingbaCallLogController extends Controller
      */
     public function fromPendingBill(Request $request)
     {
-        $inboundIds = [
-            'v2iTe-8frMOOI01yA7GxnDpvMv-kN3uzhcpglc6LfkdlDEpX2fiigEdg'
-        ];
+        $inboundIds = $request->inboundIds;
+        $result = false;
         if (is_array($inboundIds)) {
             $i = 0;
-
             while ($i < count($inboundIds)) {
                 $dataById = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
                 self::$RingbaCallLog->call_Logs_status = 'Active';
-                dataMoveHelper(self::$RingbaCallLog, $dataById);
+                $result= dataMoveHelper(self::$RingbaCallLog, $dataById);
                 $i++;
             }
+        }
+        if ($result) {
+            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "moving failed", "status_code" => 500]);
         }
     }
 

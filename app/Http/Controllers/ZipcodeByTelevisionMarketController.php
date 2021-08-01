@@ -15,9 +15,11 @@ class ZipcodeByTelevisionMarketController extends Controller
 
     public function index()
     {
-        $customer = Customer::all();
-        return Inertia::render('Settings/ZipcodeByTelevisionMarket', [
-            'allCustomers' => $customer
+        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::take(10)->get();
+        // dd($allZipcodesByTelevisionMarket);
+
+        return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
+            'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket
         ]);
     }
 

@@ -69,17 +69,22 @@ class ArchivedCallLogController extends Controller
 
     public function moveToCallLog(Request $request)
     {
-        $inboundIds = array();
+        $inboundIds = $request->inboundIds;
+        $result = false;
         if (is_array($inboundIds)) {
             $i = 0;
-
             while ($i < count($inboundIds)) {
                 $dataById = findDataByInboundId(new ArchivedCallLog(), $inboundIds[$i]);
                 $ringbaCallLog = new RingbaCallLog();
                 $ringbaCallLog->call_Logs_status = 'Active';
-                dataMoveHelper($ringbaCallLog, $dataById);
+                $result = dataMoveHelper($ringbaCallLog, $dataById);
                 $i++;
             }
+        }
+        if ($result) {
+            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "moving failed", "status_code" => 500]);
         }
     }
 }
