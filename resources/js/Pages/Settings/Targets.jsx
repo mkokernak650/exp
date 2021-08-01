@@ -3,6 +3,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
+import { Helmet } from "react-helmet";
 
 const range = (len) => {
   const arr = [];
@@ -80,6 +81,7 @@ const Targets = () => {
 
   return (
     <div>
+      <Helmet title="Targets" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}

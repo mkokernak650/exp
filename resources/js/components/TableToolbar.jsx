@@ -3,7 +3,7 @@ import clsx from "clsx";
 import DeleteIcon from "@material-ui/icons/Delete";
 import GlobalFilter from "./GlobalFilter";
 import IconButton from "@material-ui/core/IconButton";
-import { lighten, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -41,7 +41,6 @@ const TableToolbar = (props) => {
   const classes = useToolbarStyles();
   const {
     numSelected,
-    addUserHandler,
     deleteHandler,
     preGlobalFilteredRows,
     setGlobalFilter,
@@ -54,8 +53,6 @@ const TableToolbar = (props) => {
         [classes.highlight]: numSelected > 0,
       })}
     >
-      {/* <AddUserDialog addUserHandler={addUserHandler} /> */}
-
       {numSelected > 0 ? (
         <div className={classes.topBar}>
           <Typography className={classes.title} variant="subtitle1">
@@ -89,11 +86,10 @@ const TableToolbar = (props) => {
 
 TableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
-  addUserHandler: PropTypes.func.isRequired,
   deleteHandler: PropTypes.func.isRequired,
   setGlobalFilter: PropTypes.func.isRequired,
   preGlobalFilteredRows: PropTypes.array.isRequired,
-  globalFilter: PropTypes.string.isRequired,
+  globalFilter: PropTypes.string,
 };
 
 export default TableToolbar;

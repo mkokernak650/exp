@@ -108,6 +108,7 @@ export default function PrimarySearchAppBar({ onMobileNavOpen }) {
                 method="post"
                 href={route("logout")}
                 className={classes.link}
+                as="div"
             >
                 <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
             </InertiaLink>

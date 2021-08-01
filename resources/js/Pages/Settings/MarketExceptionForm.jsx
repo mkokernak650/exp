@@ -11,9 +11,9 @@ import {
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import { Inertia } from "@inertiajs/inertia";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
+import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,6 +80,8 @@ const MarketExceptionForm = () => {
 
   return (
     <>
+      <Helmet title="Market Exception Form" />
+
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
           Add Market Exception

@@ -217,7 +217,6 @@ function ResponsiveDrawer(props) {
         inActive(items[i].id);
       }
     }
-    console.log(active);
   };
 
   const drawer = (

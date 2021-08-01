@@ -5,6 +5,7 @@ import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 import NormalModal from "../../Shared/NormalModal";
 import { Inertia } from "@inertiajs/inertia";
+import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -200,7 +201,8 @@ const ZipcodeDatabase = () => {
     },
   ];
 
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
+  const [skipPageReset, setSkipPageReset] = useState(false);
+  const [value, setValue] = useState("");
   const updateMyData = (rowIndex, columnId, value) => {
     setSkipPageReset(true);
     setData((old) =>
@@ -238,16 +240,22 @@ const ZipcodeDatabase = () => {
       </div>
     );
   };
+  const handleChange = (e) => {
+    setValue(e.target.files[0]);
+    console.log(e.target.files[0]);
+  };
 
   const importHandler = (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
-    // post(route('zipcode.data'), form)
-    Inertia.post(route("zipcode.data.import"), form);
+    console.log(form);
+    // // post(route('zipcode.data'), form)
+    // Inertia.post(route("zipcode.data.import"), form);
   };
 
   return (
     <div>
+      <Helmet title="Zipcode Database" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -264,14 +272,19 @@ const ZipcodeDatabase = () => {
         width={"500px"}
         title={""}
       >
-        <div className="myprofile">
+        <div className="Zipcode file import">
           <form
             className={classes.importForm}
             method="post"
             encType="multipart/form-data"
             onSubmit={importHandler}
           >
-            <input id="importfile" type="file" name="importfile" />
+            <input
+              id="importfile"
+              type="file"
+              name="importfile"
+              onChange={handleChange}
+            />
             <Button variant="contained" type="submit" color="primary">
               Next
             </Button>

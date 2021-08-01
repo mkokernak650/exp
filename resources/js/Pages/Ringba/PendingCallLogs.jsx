@@ -26,7 +26,7 @@ function Alert(props) {
 const CallLogsReport = () => {
   const classes = useStyles();
   const { results } = usePage().props;
-  const [inboundIds,setInbounIds] = useState([]);
+  const [inboundIds, setInbounIds] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
 
@@ -50,7 +50,7 @@ const CallLogsReport = () => {
       Time_To_Call: item.Time_To_Call,
       Call_Length_In_Seconds: item.call_Length_In_Seconds,
       Revenue: item.Revenue,
-      Payout: item.payout,
+      Payout: item.payoutAmount,
       Total_Cost: item.Total_Cost,
       Profit: item.Profit,
     };
@@ -162,7 +162,6 @@ const CallLogsReport = () => {
   };
 
   const MoveCallLog = () => {
-    console.log(inboundIds);
     axios
       .post(route("move.from.pending.bill.to.ringba.call.log"), { inboundIds })
       .then((res) => {
@@ -189,7 +188,22 @@ const CallLogsReport = () => {
   };
 
   const handleBilled = () => {
-    Inertia.post(route("add.arichived.bill.call"), { inboundIds });
+    axios
+      .post(route("store.bill.call.logs"), { inboundIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setSuccess(res.data.msg);
+          setOpen(true);
+          setMainData((oldData) =>
+            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          );
+          setInbounIds([]);
+        } else {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
   };
 
   return (

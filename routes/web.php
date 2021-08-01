@@ -157,7 +157,7 @@ Route::post('/pending', [PendingBillCallLogController::class, 'store'])
 
 
 /*====== temp route for check get data ===== */
-Route::get('/billed-call-log', [BilledCallLogController::class, 'store']);
+Route::post('/billed-call-log', [BilledCallLogController::class, 'store'])->name('store.bill.call.logs');
 
 
 //TODO ZipcodebyTelevisionMarketController

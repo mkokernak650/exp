@@ -10193,8 +10193,6 @@ function ResponsiveDrawer(props) {
         inActive(items[i].id);
       }
     }
-
-    console.log(active);
   };
 
   var drawer = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {

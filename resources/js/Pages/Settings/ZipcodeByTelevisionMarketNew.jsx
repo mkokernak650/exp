@@ -5,6 +5,7 @@ import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 import NormalModal from "../../Shared/NormalModal";
 import { Inertia } from "@inertiajs/inertia";
+import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -171,6 +172,7 @@ const ZipcodeByTelevisionMarketNew = () => {
 
   return (
     <div>
+      <Helmet title="Zipcode Television Market" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}

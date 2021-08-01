@@ -3,6 +3,9 @@
 body {
   font-family: "Roboto", sans-serif;
 }
+.layout main{
+  overflow:auto;
+}
 .makeStyles-menuText-16 .MuiTypography-body1 {
   font-weight: bold !important;
 }

@@ -307,7 +307,7 @@ const Exceptions = () => {
 
   return (
     <div>
-      <Helmet title="Call Logs Report" />
+      <Helmet title="Exception" />
       <CssBaseline />
       <EnhancedTable
         columns={columns}

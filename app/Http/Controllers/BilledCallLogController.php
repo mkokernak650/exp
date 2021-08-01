@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BilledCallLog;
 use Illuminate\Http\Request;
-use App\Models\RingbaCallLog;
+use App\Models\PendingBillCallLog;
 use Inertia\Inertia;
 
 class BilledCallLogController extends Controller
@@ -34,11 +34,7 @@ class BilledCallLogController extends Controller
      */
     public function store(Request $request)
     {
-        $Inbound_Ids = [
-            'v2S1VpImE32RX04SZwExEpJsc_jxcVjY50CP4n24h752fXai9b-38V2w',
-            'v2ELXNxHOaRPDzZWjLsu6VkpVWLhVhoGEWFkIgElVaxQTZwb6hrsgj9g',
-            'v2Z8sU4f19s805f5xM2AmLZxh5UUtep9LNSxK8HV6jfFJZ9PQ7WeqGxQ'
-        ];
+        $Inbound_Ids = $request->inboundIds;
 
         $result = false;
 
@@ -50,8 +46,7 @@ class BilledCallLogController extends Controller
             if ($existData) {
                 continue;
             }
-            $ringbaCallLog = new RingbaCallLog();
-
+            $ringbaCallLog = new PendingBillCallLog();
             // get for store data
             $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
 
@@ -91,9 +86,9 @@ class BilledCallLogController extends Controller
             $data->delete();
         }
         if ($result) {
-            echo 'Insert successfully';
+            return response()->json(["msg" => "Data moved to Billed successfully", "status_code" => 200]);
         } else {
-            echo 'Somthing Wrong';
+            return response()->json(["msg" => "Data Moving failed", "status_code" => 500]);
         }
     }
 }

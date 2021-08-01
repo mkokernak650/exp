@@ -15845,6 +15845,7 @@ function PrimarySearchAppBar(_ref) {
       method: "post",
       href: route("logout"),
       className: classes.link,
+      as: "div",
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_material_ui_core__WEBPACK_IMPORTED_MODULE_6__.default, {
         onClick: handleMenuClose,
         children: " Logout"

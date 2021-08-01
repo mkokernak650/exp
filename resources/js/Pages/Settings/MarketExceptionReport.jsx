@@ -3,6 +3,7 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import EnhancedTable from '../../components/EnhancedTable'
 import Layout from '../Layout/Layout'
 import { usePage } from '@inertiajs/inertia-react';
+import { Helmet } from "react-helmet";
 
 
 
@@ -87,6 +88,7 @@ const MarketExceptionReport = () => {
 
     return (
         <div>
+            <Helmet title="Market Exceptions Report" />
             <CssBaseline />
             <EnhancedTable
                 columns={columns}

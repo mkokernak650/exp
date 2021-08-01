@@ -36,6 +36,7 @@ const CustomerReport = () => {
           Recording URL
         </a>
       ),
+      Added_Time: item.created_at,
       Call_Date_Time: item.Call_Date_Time,
       Call_Date: item.Call_Date,
       Duplicate_Call: item.Duplicate_Call,
@@ -43,6 +44,7 @@ const CustomerReport = () => {
       Market: item.Market,
       Campaign: item.Campaign,
       Inbound: item.Inbound,
+      Inbound_Id:item.Inbound_Id,
       Dialed: item.Dialed,
       Type: item.Type,
       Target: item.Target,
@@ -61,7 +63,7 @@ const CustomerReport = () => {
       Zipcode: item.Zipcode,
       Annotation_Tag: item.Annotation_Tag,
       Has_Annotation: item.Has_Annotation,
-      Customer: item.Customer,
+      // Customer: item.Customer,
     };
   });
   const [mainData, setMainData] = useState(newCustomer);
@@ -69,6 +71,10 @@ const CustomerReport = () => {
     {
       Header: "SN",
       accessor: "SN",
+    },
+    {
+      Header: "Added Time",
+      accessor: "Added_Time",
     },
     {
       Header: "Recording Url",
@@ -101,6 +107,10 @@ const CustomerReport = () => {
     {
       Header: "Inbound",
       accessor: "Inbound",
+    },
+    {
+      Header: "Inbound Id",
+      accessor: "Inbound_Id",
     },
     {
       Header: "Dialed",
@@ -174,10 +184,10 @@ const CustomerReport = () => {
       Header: "Annotation Tag",
       accessor: "Annotation_Tag",
     },
-    {
-      Header: "Customer",
-      accessor: "Customer",
-    },
+    // {
+    //   Header: "Customer",
+    //   accessor: "Customer",
+    // },
   ];
 
   const [data, setData] = React.useState(React.useMemo(() => makeData(20), []));

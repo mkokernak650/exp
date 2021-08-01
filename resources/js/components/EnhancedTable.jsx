@@ -61,12 +61,6 @@ const tableStyles = makeStyles((theme) => ({
   },
 }));
 
-const inputStyle = {
-  padding: 0,
-  margin: 0,
-  border: 0,
-  background: "transparent",
-};
 
 // Create an editable cell renderer
 const EditableCell = ({
