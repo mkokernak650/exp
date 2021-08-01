@@ -17,6 +17,7 @@ class CreateExceptionsTable extends Migration
             $table->id();
             $table->string('SN')->nullable();
             $table->string('Call_Date_Time')->nullable();
+            $table->string('Call_Date')->nullable();
             $table->string('Has_Annotation')->nullable();
             $table->string('Annotation_Tag')->nullable();
             $table->text('Recording_Url')->nullable();
@@ -38,6 +39,7 @@ class CreateExceptionsTable extends Migration
             $table->string('Source_Hangup')->nullable();
             $table->string('Conn_Duration')->nullable();
             $table->string('Time_To_Call')->nullable();
+            $table->string('Account_Id')->nullable();
             $table->string('call_Length_In_Seconds')->nullable();
             $table->string('Revenue')->nullable();
             $table->string('payoutAmount')->nullable();
