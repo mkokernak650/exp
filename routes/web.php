@@ -136,11 +136,7 @@ Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report');
-Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
-        ->name('billed-call-log-report');
 
-Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'index'])
-        ->name('pending-call-log-report');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report');
@@ -151,6 +147,9 @@ Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToC
 // TODO PendingBillCallLogController 
 Route::post('/move-from-pending-bill-to-ringba-call-log', [PendingBillCallLogController::class, 'moveToCallLog'])
         ->name('move.from.pending.bill.to.ringba.call.log');
+
+Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'index'])
+        ->name('pending-call-log-report');
 
 Route::post('/pending', [PendingBillCallLogController::class, 'store'])
         ->name('add.pending.bill.call');
@@ -189,3 +188,11 @@ Route::get('/getupdate/{id}', function ($id) {
         $results = $api->getUpdateAnnotation($id);
         dd($results);
 });
+
+//TODO BilledCallLogController
+Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
+        ->name('billed-call-log-report');
+Route::get('billed-store', [BilledCallLogController::class, 'store'])
+        ->name('billed.store');
+
+Route::get('/formPending', [BilledCallLogController::class, 'formPending']);

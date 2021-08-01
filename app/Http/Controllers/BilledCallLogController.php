@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\BilledCallLog;
+use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use App\Models\RingbaCallLog;
 use Inertia\Inertia;
 
 class BilledCallLogController extends Controller
 {
+    private static $billedCallLog;
     function __construct()
     {
         $this->middleware('auth');
+        self::$billedCallLog = new BilledCallLog();
     }
 
     /**
@@ -35,9 +38,9 @@ class BilledCallLogController extends Controller
     public function store(Request $request)
     {
         $Inbound_Ids = [
-            'v2S1VpImE32RX04SZwExEpJsc_jxcVjY50CP4n24h752fXai9b-38V2w',
-            'v2ELXNxHOaRPDzZWjLsu6VkpVWLhVhoGEWFkIgElVaxQTZwb6hrsgj9g',
-            'v2Z8sU4f19s805f5xM2AmLZxh5UUtep9LNSxK8HV6jfFJZ9PQ7WeqGxQ'
+            'v2iTe-8frMOOI01yA7GxnDpvMv-kN3uzhcpglc6LfkdlDEpX2fiigEdg',
+            'v2-0dsnlvCvvCnnrjXXVPGvmPLBP7RChtkTpC2DkdVIsp3WXvGcY3iqg',
+            'v2-0dsnlvCvvCnnrjXXVPGvmPLBP7RChtkTpC2DkdVIsp3WXvGcY3iqg'
         ];
 
         $result = false;
@@ -54,6 +57,8 @@ class BilledCallLogController extends Controller
 
             // get for store data
             $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
+
+            // $result = dataMoveHelper(self::$billedCallLog, $data);
 
             $billedCallLog->SN                  = $data->SN;
             $billedCallLog->Recording_Url       = $data->Recording_Url;
@@ -94,6 +99,63 @@ class BilledCallLogController extends Controller
             echo 'Insert successfully';
         } else {
             echo 'Somthing Wrong';
+        }
+    }
+
+    public function formPending()
+    {
+        $Inbound_Ids = ['v2-0dsnlvCvvCnnrjXXVPGvmPLBP7RChtkTpC2DkdVIsp3WXvGcY3iqg'];
+
+        foreach ($Inbound_Ids as $Inbound_Id) {
+            $billedCallLog = new BilledCallLog();
+            $existData = findDataByInboundId($billedCallLog, $Inbound_Id);
+            if ($existData) {
+                return response()->json(["msg" => "Already exists", "status_code" => 500]);
+            } else {
+                
+                $pending = new PendingBillCallLog();
+                $data = findDataByInboundId($pending, $Inbound_Id);
+
+                $billedCallLog->SN                  = $data->SN;
+                $billedCallLog->Recording_Url       = $data->Recording_Url;
+                $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;
+                $billedCallLog->Call_Date           = $data->Call_Date;
+                $billedCallLog->Duplicate_Call      = $data->Duplicate_Call;
+                $billedCallLog->Affiliate           = $data->Affiliate;
+                $billedCallLog->Affiliate_Id        = $data->Affiliate_Id;
+                $billedCallLog->Market              = $data->Market;
+                $billedCallLog->Campaign            = $data->Campaign;
+                $billedCallLog->Campaign_Id         = $data->Campaign_Id;
+                $billedCallLog->Inbound             = $data->Inbound;
+                $billedCallLog->Inbound_Id          = $data->Inbound_Id;
+                $billedCallLog->Dialed              = $data->Dialed;
+                $billedCallLog->Type                = $data->Type;
+                $billedCallLog->Target              = $data->Target;
+                $billedCallLog->Target_Description  = $data->Target_Description;
+                $billedCallLog->Source_Hangup       = $data->Source_Hangup;
+                $billedCallLog->Conn_Duration       = $data->Conn_Duration;
+                $billedCallLog->Time_To_Call        = $data->Time_To_Call;
+                $billedCallLog->call_Length_In_Seconds = $data->call_Length_In_Seconds;
+                $billedCallLog->Revenue             = $data->Revenue;
+                $billedCallLog->payoutAmount        = $data->payoutAmount;
+                $billedCallLog->Total_Cost          = $data->Total_Cost;
+                $billedCallLog->Profit              = $data->Profit;
+                $billedCallLog->call_Logs_status    = 'Billed';
+                $billedCallLog->City                = $data->City;
+                $billedCallLog->State               = $data->State;
+                $billedCallLog->Zipcode             = $data->Zipcode;
+                $billedCallLog->Has_Annotation      = $data->Has_Annotation;
+                $billedCallLog->Annotation_Tag      = $data->Annotation_Tag;
+                $result = $billedCallLog->save();
+
+                // delete Record from Ringa Call log after transfer Billed call log table;
+                $data->delete();
+            }
+            if ($result) {
+                return response()->json(["msg" => "Data moved to pending successfully", "status_code" => 200]);
+            } else {
+                return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            }
         }
     }
 }
