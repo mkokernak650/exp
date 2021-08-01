@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\BilledCallLog;
 use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
@@ -11,10 +12,12 @@ use Inertia\Inertia;
 class BilledCallLogController extends Controller
 {
     private static $billedCallLog;
+    private static $RingbaApiHelpers;
     function __construct()
     {
         $this->middleware('auth');
         self::$billedCallLog = new BilledCallLog();
+        self::$RingbaApiHelpers = new RingbaApiHelpers();
     }
 
     /**
@@ -24,9 +27,8 @@ class BilledCallLogController extends Controller
      */
     public function index()
     {
-        $results = BilledCallLog::orderBy('id', 'DESC')->get();
         return Inertia::render('Ringba/BilledCallLogs', [
-            'billedCallLogs' => $results,
+            'billedCallLogs' => self::$billedCallLog::orderBy('id', 'DESC')->get(),
         ]);
     }
 
@@ -157,5 +159,42 @@ class BilledCallLogController extends Controller
                 return response()->json(["msg" => "moving failed", "status_code" => 500]);
             }
         }
+    }
+    /**
+     * @request post
+     * @param \Illuminate\Http\Request $request
+     * @param array $inboundIds
+     * @return void
+     */
+    public function getAnnotation(Request $request)
+    {
+        $inboundIds = $request->inboundIds;
+        if (is_array($inboundIds)) {
+            $i = 0;
+            while ($i < count($inboundIds)) {
+                $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
+                $this->updateAnnotation($inboundIds[$i], $data);
+                $i++;
+            }
+        } else {
+            $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
+            $this->updateAnnotation($inboundIds, $data);
+        }
+        $allData = self::$billedCallLog::all();
+        return response()->json($allData);
+    }
+
+    /**
+     * for update annotation
+     * @param mixed $inboundId
+     * @param array $data
+     * @return void
+     */
+    private function updateAnnotation($inboundId, $data = [])
+    {
+        $findData = findDataByInboundId(self::$billedCallLog, $inboundId);
+        $findData->Has_Annotation = $data['has_annotation'];
+        $findData->Annotation_Tag = $data['annotation_tag'];
+        $findData->save();
     }
 }
