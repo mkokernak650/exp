@@ -172,7 +172,7 @@ Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketContro
 // TODO Zipcodedata Controller
 Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
         ->name('zipcode-data');
-Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
+Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
         ->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');

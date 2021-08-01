@@ -240,10 +240,13 @@ const ZipcodeDatabase = () => {
   };
 
   const importHandler = (e) => {
+
     e.preventDefault();
-    const form = new FormData(e.target);
+    console.log('hellow');
+    // const form = new FormData(e.target);
+    // console.log(form);
     // post(route('zipcode.data'), form)
-    Inertia.post(route("zipcode.data.import"), form);
+    // Inertia.post(route("zipcode.data.import"), form);
   };
 
   return (
