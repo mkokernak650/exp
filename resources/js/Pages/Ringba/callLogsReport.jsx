@@ -346,27 +346,6 @@ const CallLogsReport = () => {
       >
         <Alert severity="success">{success}</Alert>
       </Snackbar>
-
-      {/* <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
-        width={"500px"}
-        title={""}
-      >
-        <div className="myprofile">
-          <form
-            className={classes.importForm}
-            method="post"
-            encType="multipart/form-data"
-            onSubmit={importHandler}
-          >
-            <input id="importfile" type="file" name="importfile" />
-            <Button variant="contained" type="submit" color="primary">
-              Next
-            </Button>
-          </form>
-        </div>
-      </NormalModal> */}
     </div>
   );
 };
