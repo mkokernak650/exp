@@ -52,7 +52,14 @@ if (!function_exists('varDump')) {
 if (!function_exists('dataMoveHelper')) {
   function dataMoveHelper($to_instance, $from_instance)
   {
-    $fields = ['SN', 'Call_Date_Time', 'Call_Date', 'Duplicate_Call', 'Campaign', 'Campaign_Id', 'Affiliate', 'Affiliate_Id', 'Inbound', 'Inbound_Id', 'Dialed', 'Time_To_Call', 'Account_Id', 'Total_Cost', 'payoutAmount', 'Conn_Duration', 'call_Length_In_Seconds', 'Profit', 'Target', 'Target_Description', 'Revenue', 'Source_Hangup', 'City', 'State', 'Zipcode', 'Market', 'Type', 'Call_Qualification', 'Recording_Url', 'Customer', 'Has_Annotation', 'Annotation_Tag'];
+    $fields = [
+      'SN', 'Call_Date_Time', 'Call_Date', 'Duplicate_Call', 'Campaign',
+      'Campaign_Id', 'Affiliate', 'Affiliate_Id', 'Inbound', 'Inbound_Id', 'Dialed',
+      'Time_To_Call', 'Account_Id', 'Total_Cost', 'payoutAmount', 'Conn_Duration',
+      'call_Length_In_Seconds', 'Profit', 'Target', 'Target_Description', 'Revenue',
+      'Source_Hangup', 'City', 'State', 'Zipcode', 'Market', 'Type', 'Call_Qualification',
+      'Recording_Url', 'Customer', 'Has_Annotation', 'Annotation_Tag'
+    ];
     $i = 0;
     while ($i < count($fields)) {
       $to_instance->{$fields[$i]} = $from_instance->{$fields[$i]};

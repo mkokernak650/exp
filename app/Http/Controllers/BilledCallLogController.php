@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\BilledCallLog;
+use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use App\Models\PendingBillCallLog;
 use Inertia\Inertia;
 
 class BilledCallLogController extends Controller
 {
+    private static $billedCallLog;
+    private static $RingbaApiHelpers;
     function __construct()
     {
         $this->middleware('auth');
+        self::$billedCallLog = new BilledCallLog();
+        self::$RingbaApiHelpers = new RingbaApiHelpers();
     }
 
     /**
@@ -21,9 +27,8 @@ class BilledCallLogController extends Controller
      */
     public function index()
     {
-        $results = BilledCallLog::orderBy('id', 'DESC')->get();
         return Inertia::render('Ringba/BilledCallLogs', [
-            'billedCallLogs' => $results,
+            'billedCallLogs' => self::$billedCallLog::orderBy('id', 'DESC')->get(),
         ]);
     }
 
@@ -49,6 +54,8 @@ class BilledCallLogController extends Controller
             $ringbaCallLog = new PendingBillCallLog();
             // get for store data
             $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
+
+            // $result = dataMoveHelper(self::$billedCallLog, $data);
 
             $billedCallLog->SN                  = $data->SN;
             $billedCallLog->Recording_Url       = $data->Recording_Url;
@@ -90,5 +97,99 @@ class BilledCallLogController extends Controller
         } else {
             return response()->json(["msg" => "Data Moving failed", "status_code" => 500]);
         }
+    }
+
+    public function formPending()
+    {
+        $Inbound_Ids = ['v2-0dsnlvCvvCnnrjXXVPGvmPLBP7RChtkTpC2DkdVIsp3WXvGcY3iqg'];
+
+        foreach ($Inbound_Ids as $Inbound_Id) {
+            $billedCallLog = new BilledCallLog();
+            $existData = findDataByInboundId($billedCallLog, $Inbound_Id);
+            if ($existData) {
+                return response()->json(["msg" => "Already exists", "status_code" => 500]);
+            } else {
+                
+                $pending = new PendingBillCallLog();
+                $data = findDataByInboundId($pending, $Inbound_Id);
+
+                $billedCallLog->SN                  = $data->SN;
+                $billedCallLog->Recording_Url       = $data->Recording_Url;
+                $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;
+                $billedCallLog->Call_Date           = $data->Call_Date;
+                $billedCallLog->Duplicate_Call      = $data->Duplicate_Call;
+                $billedCallLog->Affiliate           = $data->Affiliate;
+                $billedCallLog->Affiliate_Id        = $data->Affiliate_Id;
+                $billedCallLog->Market              = $data->Market;
+                $billedCallLog->Campaign            = $data->Campaign;
+                $billedCallLog->Campaign_Id         = $data->Campaign_Id;
+                $billedCallLog->Inbound             = $data->Inbound;
+                $billedCallLog->Inbound_Id          = $data->Inbound_Id;
+                $billedCallLog->Dialed              = $data->Dialed;
+                $billedCallLog->Type                = $data->Type;
+                $billedCallLog->Target              = $data->Target;
+                $billedCallLog->Target_Description  = $data->Target_Description;
+                $billedCallLog->Source_Hangup       = $data->Source_Hangup;
+                $billedCallLog->Conn_Duration       = $data->Conn_Duration;
+                $billedCallLog->Time_To_Call        = $data->Time_To_Call;
+                $billedCallLog->call_Length_In_Seconds = $data->call_Length_In_Seconds;
+                $billedCallLog->Revenue             = $data->Revenue;
+                $billedCallLog->payoutAmount        = $data->payoutAmount;
+                $billedCallLog->Total_Cost          = $data->Total_Cost;
+                $billedCallLog->Profit              = $data->Profit;
+                $billedCallLog->call_Logs_status    = 'Billed';
+                $billedCallLog->City                = $data->City;
+                $billedCallLog->State               = $data->State;
+                $billedCallLog->Zipcode             = $data->Zipcode;
+                $billedCallLog->Has_Annotation      = $data->Has_Annotation;
+                $billedCallLog->Annotation_Tag      = $data->Annotation_Tag;
+                $result = $billedCallLog->save();
+
+                // delete Record from Ringa Call log after transfer Billed call log table;
+                $data->delete();
+            }
+            if ($result) {
+                return response()->json(["msg" => "Data moved to pending successfully", "status_code" => 200]);
+            } else {
+                return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            }
+        }
+    }
+    /**
+     * @request post
+     * @param \Illuminate\Http\Request $request
+     * @param array $inboundIds
+     * @return void
+     */
+    public function getAnnotation(Request $request)
+    {
+        $inboundIds = $request->inboundIds;
+        if (is_array($inboundIds)) {
+            $i = 0;
+            while ($i < count($inboundIds)) {
+                $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
+                $this->updateAnnotation($inboundIds[$i], $data);
+                $i++;
+            }
+        } else {
+            $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
+            $this->updateAnnotation($inboundIds, $data);
+        }
+        $allData = self::$billedCallLog::all();
+        return response()->json($allData);
+    }
+
+    /**
+     * for update annotation
+     * @param mixed $inboundId
+     * @param array $data
+     * @return void
+     */
+    private function updateAnnotation($inboundId, $data = [])
+    {
+        $findData = findDataByInboundId(self::$billedCallLog, $inboundId);
+        $findData->Has_Annotation = $data['has_annotation'];
+        $findData->Annotation_Tag = $data['annotation_tag'];
+        $findData->save();
     }
 }

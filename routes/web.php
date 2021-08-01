@@ -22,19 +22,26 @@ use App\Models\RingbaCallLog;
 use Whoops\Run;
 
 // TODO Login and Log out controller
-Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
-Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')->middleware('guest');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/', [LoginController::class, 'showLoginform'])
+        ->name('login')
+        ->middleware('guest');
+Route::post('/login', [LoginController::class, 'login'])
+        ->name('login.attempt')
+        ->middleware('guest');
+Route::post('/logout', [LoginController::class, 'logout'])
+        ->name('logout');
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');
 // Auth::routes();
 
 // TODO Home Controller
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])
+        ->name('home');
 
 
 //TODO Ringba call log contoroller
 Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])
-        ->name('token-ringba')->middleware('guest');
+        ->name('token-ringba')
+        ->middleware('guest');
 
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
         ->name('temp-ringba-data');
@@ -47,9 +54,6 @@ Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCall
 
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])
         ->name('call-logs-report');
-
-Route::get('/exceptions', [ExceptionController::class, 'index'])
-        ->name('get.exceptions');
 
 Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
         ->name('update-data');
@@ -99,17 +103,21 @@ Route::post('/market-exception-import', [MarketExceptionController::class, 'impo
 
 
 //TODO Market Controllet
-Route::post('/store-market', [MarketController::class, 'addMarket'])->name('store-market');
+Route::post('/store-market', [MarketController::class, 'addMarket'])
+        ->name('store-market');
 
-Route::get('/market-report', [MarketController::class, 'marketReport'])->name('market-report');
+Route::get('/market-report', [MarketController::class, 'marketReport'])
+        ->name('market-report');
 
 Route::get('/add-market', function () {
         return inertia::render('Settings/AddMarket');
 })->name('add-market');
 
-Route::get('market-export/{type}', [MarketController::class, 'export'])->name('market.export');
+Route::get('market-export/{type}', [MarketController::class, 'export'])
+        ->name('market.export');
 
-Route::post('market-import', [MarketController::class, 'import'])->name('market.import');
+Route::post('market-import', [MarketController::class, 'import'])
+        ->name('market.import');
 
 Route::get('/market-data', function () {
         return inertia::render('Settings/Market');
@@ -123,24 +131,23 @@ Route::get('/add-customer', function () {
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])
         ->name('customer-report');
 
-Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])->name('store-customer');
+Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])
+        ->name('store-customer');
 
-Route::get('customer-export/{type}', [CustomerController::class, 'export'])->name('customer.export');
+Route::get('customer-export/{type}', [CustomerController::class, 'export'])
+        ->name('customer.export');
 
 // TODO Archived Call log Controller for store test
 /**
  * This is Route created temporary
  */
 
-Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add.arichived.bill.call');
+Route::post('/archived', [ArchivedCallLogController::class, 'store'])
+        ->name('add.arichived.bill.call');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report');
-Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
-        ->name('billed-call-log-report');
 
-Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'index'])
-        ->name('pending-call-log-report');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
         ->name('archived-call-log-report');
@@ -151,6 +158,9 @@ Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToC
 // TODO PendingBillCallLogController 
 Route::post('/move-from-pending-bill-to-ringba-call-log', [PendingBillCallLogController::class, 'moveToCallLog'])
         ->name('move.from.pending.bill.to.ringba.call.log');
+
+Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'index'])
+        ->name('pending-call-log-report');
 
 Route::post('/pending', [PendingBillCallLogController::class, 'store'])
         ->name('add.pending.bill.call');
@@ -173,15 +183,19 @@ Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketContro
 // TODO Zipcodedata Controller
 Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
         ->name('zipcode-data');
-Route::post('zipcode-data-import', [ZipcodeDataController::class, 'import'])
+
+Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
         ->name('zipcode.data.import');
+
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
 // TODO Target Controller
-Route::get('/target', [TargetController::class, 'index'])->name('target');
+Route::get('/target', [TargetController::class, 'index'])
+        ->name('target');
 
-Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])->name('update.annotation');
+Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
+        ->name('update.annotation');
 
 // test route
 Route::get('/getupdate/{id}', function ($id) {
@@ -189,3 +203,23 @@ Route::get('/getupdate/{id}', function ($id) {
         $results = $api->getUpdateAnnotation($id);
         dd($results);
 });
+
+//TODO BilledCallLogController
+Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
+        ->name('billed-call-log-report');
+
+Route::get('billed-store', [BilledCallLogController::class, 'store'])
+        ->name('billed.store');
+
+Route::get('/formPending', [BilledCallLogController::class, 'formPending']);
+
+
+//TODO ExceptionContorller
+Route::get('/exceptions', [ExceptionController::class, 'index'])
+        ->name('get.exceptions');
+
+Route::get('move-exception-to-arhived', [ExceptionController::class, 'moveToArhived'])
+        ->name('move.exception.to.arhived');
+
+Route::get('move-exception-to-pending', [ExceptionController::class, 'moveToPending'])
+        ->name('move.exception.to.pending');

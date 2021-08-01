@@ -78,7 +78,7 @@ class PendingBillCallLogController extends Controller
                 $dataById = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
                 $ringbaCallLog = new RingbaCallLog();
                 $ringbaCallLog->call_Logs_status = 'Active';
-                $result=dataMoveHelper($ringbaCallLog, $dataById);
+                $result = dataMoveHelper($ringbaCallLog, $dataById);
                 $i++;
             }
         }
