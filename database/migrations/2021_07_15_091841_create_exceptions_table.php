@@ -48,6 +48,7 @@ class CreateExceptionsTable extends Migration
             $table->string('City')->nullable();
             $table->string('State')->nullable();
             $table->string('Zipcode')->nullable();
+            $table->string('Call_Qualification')->nullable();
             $table->timestamps();
         });
     }
