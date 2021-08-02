@@ -6,7 +6,6 @@ use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\BilledCallLog;
 use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
-use App\Models\PendingBillCallLog;
 use Inertia\Inertia;
 
 class BilledCallLogController extends Controller
