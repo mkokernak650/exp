@@ -11,7 +11,6 @@ import {
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import { Inertia } from "@inertiajs/inertia";
 import { Helmet } from "react-helmet";
 import axios from "axios";
 

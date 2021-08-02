@@ -15,7 +15,8 @@ class ZipcodeByTelevisionMarketController extends Controller
 
     public function index()
     {
-        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::take(10)->get();
+        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::take(1000)->get();
+        // $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::all();
         // dd($allZipcodesByTelevisionMarket);
 
         return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
@@ -27,14 +28,14 @@ class ZipcodeByTelevisionMarketController extends Controller
     {
         //post
         Excel::import(new ZipcodeByTelevisionMarketImport, $request->importfile);
-        return back()->with('Import successfully');
+        return back();
         // dd(ZipcodeByTelevisionMarket::all());
     }
 
-    public function export($type)
+    public function export(Request $request)
     {
         // get request
-        Excel::download(new ZipcodeByTelevisionMarketExport, 'Zipcode_by_television_marker.' . $type);
-        return back()->with('Export successfully');
+        Excel::download(new ZipcodeByTelevisionMarketExport, 'Zipcode_by_television_marker.' . $request->type);
+        return back();
     }
 }

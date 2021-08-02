@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { CssBaseline, makeStyles, Button } from "@material-ui/core";
+import {
+  CssBaseline,
+  makeStyles,
+  Button,
+  Snackbar,
+  CircularProgress,
+  TextField,
+} from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
 import NormalModal from "../../Shared/NormalModal";
-import { Inertia } from "@inertiajs/inertia";
 import { Helmet } from "react-helmet";
+import MuiAlert from "@material-ui/lab/Alert";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   topBtn: {
@@ -18,21 +26,36 @@ const useStyles = makeStyles((theme) => ({
     textTransform: "capitalize",
     fontSize: "14px",
   },
-  importForm: {
+  import: {
     display: "flex",
     flexDirection: "column",
     gap: "20px",
   },
 }));
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 const ZipcodeByTelevisionMarketNew = () => {
+  const classes = useStyles();
   const { allZipcodesByTelevisionMarket } = usePage().props;
   const [inboundIds, setInbounIds] = useState([]);
-  const classes = useStyles();
-  const [showModal, setShowModal] = React.useState({ open: false });
-  const openModal = () => {
-    setShowModal({ open: true });
+  const [importModal, setImportModal] = useState({ open: false });
+  const [exportModal, setExportModal] = useState({ open: false });
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState(null);
+  const [type, setType] = useState(null);
+
+  const openImportModal = () => {
+    setImportModal({ open: true });
   };
+  const openExportModal = () => {
+    setExportModal({ open: true });
+  };
+
   const newAllZipcodesByTelevisionMarket = allZipcodesByTelevisionMarket.map(
     (item, indx) => {
       return {
@@ -124,8 +147,8 @@ const ZipcodeByTelevisionMarketNew = () => {
       accessor: "race_other",
     },
   ];
+  const [skipPageReset, setSkipPageReset] = useState(false);
 
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
   const updateMyData = (rowIndex, columnId, value) => {
     setSkipPageReset(true);
     setData((old) =>
@@ -141,11 +164,13 @@ const ZipcodeByTelevisionMarketNew = () => {
     );
   };
 
-  const importHandler = (e) => {
-    e.preventDefault();
-    const form = new FormData(e.target);
-    Inertia.post(route("zipcode.television.market.import"), form);
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
   };
+
   const TableTitle = () => {
     return (
       <div className={classes.topBtn}>
@@ -154,7 +179,7 @@ const ZipcodeByTelevisionMarketNew = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={openModal}
+          onClick={openImportModal}
         >
           Import
         </Button>
@@ -163,11 +188,60 @@ const ZipcodeByTelevisionMarketNew = () => {
           type="submit"
           color="primary"
           className={classes.button}
+          onClick={openExportModal}
         >
           Export
         </Button>
       </div>
     );
+  };
+
+  const handleImportChange = (e) => {
+    setValue(e.target.files[0]);
+  };
+
+  const handleExportChange = (e) => {
+    setType(e.target.value);
+  };
+
+  const importHandler = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("importfile", value);
+    axios
+      .post(route("zipcode.television.market.import"), formData)
+      .then((res) => {
+        setLoading(false);
+        if (res.status === 200) {
+          setImportModal({ open: false });
+          setResponse("Imported Successfully");
+          setOpen(true);
+        } else {
+          setResponse("Import failed");
+        }
+      })
+      .catch((err) => {});
+  };
+
+  const exportHandler = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    axios
+      .post(route("zipcode.television.market.export"), { type })
+      .then((res) => {
+        setLoading(false);
+        if (res.status === 200) {
+          setImportModal({ open: false });
+          setResponse("Exported Successfully");
+          setOpen(true);
+        } else {
+          setResponse("Export failed");
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -182,25 +256,72 @@ const ZipcodeByTelevisionMarketNew = () => {
         skipPageReset={skipPageReset}
         TableTitle={TableTitle}
         inboundIds={inboundIds}
+        setInbounIds={setInbounIds}
       ></EnhancedTable>
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        className={classes.snackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success">{response}</Alert>
+      </Snackbar>
+
       <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
+        open={importModal.open}
+        setOpen={setImportModal}
         width={"500px"}
         title={""}
       >
-        <div className="myprofile">
-          <form
-            className={classes.importForm}
-            method="post"
-            encType="multipart/form-data"
-            onSubmit={importHandler}
+        <div className={classes.import}>
+          <input
+            id="importfile"
+            type="file"
+            name="importfile"
+            onChange={handleImportChange}
+          />
+          <Button variant="contained" color="primary" onClick={importHandler}>
+            {loading ? (
+              <CircularProgress color="secondary" thickness="3" size="2rem" />
+            ) : (
+              "Next"
+            )}
+          </Button>
+        </div>
+      </NormalModal>
+
+      <NormalModal
+        open={exportModal.open}
+        setOpen={setExportModal}
+        width={"500px"}
+        title={""}
+      >
+        <div className={classes.import}>
+          <TextField
+            id="standard-select-currency-native"
+            select
+            name="market"
+            onChange={handleExportChange}
+            SelectProps={{
+              native: true,
+            }}
+            fullWidth
+            required="true"
           >
-            <input id="importfile" type="file" name="importfile" />
-            <Button variant="contained" type="submit" color="primary">
-              Next
-            </Button>
-          </form>
+            <option value="">Select Type</option>
+            <option value="xlsx">XLSX</option>
+            <option value="csv">CSV</option>
+            <option value="xlx">XLX</option>
+            <option value="tsv">TSV</option>
+          </TextField>
+          <Button variant="contained" color="primary" onClick={exportHandler}>
+            {loading ? (
+              <CircularProgress color="secondary" thickness="3" size="2rem" />
+            ) : (
+              "Next"
+            )}
+          </Button>
         </div>
       </NormalModal>
     </div>

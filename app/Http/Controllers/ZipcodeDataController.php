@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Exports\ZipcodeDataExport;
 use App\Imports\ZipcodeDataImport;
 use Illuminate\Http\Request;
@@ -15,28 +16,30 @@ class ZipcodeDataController extends Controller
         $this->middleware('auth');
     }
 
-    
+
     public function index()
     {
-        $allZipcodes = ZipCodeData::take(10)->get();
+        $allZipcodes = ZipCodeData::take(1000)->get();
+        // $allZipcodes = ZipCodeData::all();
+
         // dd($allZipcodes);
         return Inertia::render('Settings/ZipcodeDatabase', [
             'allZipcodes' => $allZipcodes
         ]);
     }
 
-    public function export($type)
+    public function export(Request $request)
     {
-        return Excel::download(new ZipcodeDataExport,  'Zipcode_database.' . $type);
+        Excel::download(new ZipcodeDataExport,  'Zipcode_database.' . $request->type);
+        return back();
         // return Excel::download(new MarketExport,  'mark.'. \Maatwebsite\Excel\Excel::XLSX);
         // return (new MarketExport)->download('invoices.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
     public function import(Request $request)
     {
-        dd("test");
         Excel::import(new ZipcodeDataImport, $request->importfile);
-       
+
         // Session::put('success', 'Your file is imported Successfully in database');
         return back();
     }

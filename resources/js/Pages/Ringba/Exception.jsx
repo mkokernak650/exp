@@ -277,7 +277,7 @@ const Exceptions = () => {
 
   const handleAnnotation = () => {
     axios
-      .post(route("update.annotation"), { inboundIds })
+      .post(route("exception.get.annotation"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
           setSuccess("Successfully Updated");

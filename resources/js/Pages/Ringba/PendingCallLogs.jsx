@@ -3,10 +3,11 @@ import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
-import { Inertia } from "@inertiajs/inertia";
 import MuiAlert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet";
 import axios from "axios";
+
+
 const useStyles = makeStyles(() => ({
   topBtn: {
     display: "flex",
@@ -19,6 +20,7 @@ const useStyles = makeStyles(() => ({
     fontSize: "14px",
   },
 }));
+
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
