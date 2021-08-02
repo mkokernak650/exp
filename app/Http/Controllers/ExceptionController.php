@@ -4,15 +4,58 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\ArchivedCallLog;
-use Illuminate\Http\Request;
-use App\Models\Exception;
 use App\Models\PendingBillCallLog;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Models\Target;
+use App\Models\ZipCodeData;
+use App\Models\Exception;
+use App\Models\ZipcodeByTelevisionMarket;
+
 
 class ExceptionController extends Controller
 {
     private static $RingbaApiHelpers;
     private static $Exception;
+
+    protected $get_dtStamp = null;
+    protected $get_accountId = '';
+    protected $get_campaignId = '';
+    protected $get_campaignName = '';
+    protected $get_affiliateId = '';
+    protected $get_affiliateName = '';
+    protected $get_number = '';
+    protected $get_inboundCallId = '';
+    protected $get_inboundPhoneNumber = '';
+    protected $get_totalAmount = '';
+    protected $get_targetName = '';
+    protected $get_Target_Description = '';
+    protected $get_targetId = '';
+    protected $get_targetBuyerId = '';
+    protected $get_targetBuyer = '';
+    protected $get_timeToConnect = null;
+    protected $get_callConnectionLength = null;
+    protected $get_targetNumber = '';
+    protected $get_recordingUrl = '';
+    // protected $get_conversionAmount = null;
+    protected $get_callLengthInSeconds = null;
+    protected $get_callCompletedDt = '';
+    protected $get_payoutAmount = null;
+    protected $get_profit = '';
+    protected $get_duplicated_status = 'No';
+    protected $get_source_hangup = '';
+    protected $get_customer_name_id = null;
+    protected $get_revenue = null;
+    protected $get_annotations_tag = '';
+    protected $has_annotations = 'NO';
+    protected $get_call_log_status = 'Exception';
+    protected $get_call_qualification = 'Not Qualified';
+    protected $get_city = "";
+    protected $get_state = "";
+    protected $get_zipcode = "";
+    protected $get_market = "";
+    protected $get_type = "";
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -124,6 +167,200 @@ class ExceptionController extends Controller
             return response()->json(["msg" => "Data moved to Archive successfully", "status_code" => 200]);
         } else {
             return response()->json(["msg" => "Data moving failed", "status_code" => 500]);
+        }
+    }
+
+    /**
+     * @method for ringba calllog
+     * @method post 
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
+    public function updateExceptionReport(Request $request)
+    {
+        $inboundIds = $request->inboundIs;
+        $inboundIds = ['v2XrWUbyC6CyrpVZSkUKr-QS5vL1CUl8aTEYQnc_jfwbI9NB4Zk7j9Pw'];
+
+        $i = 0;
+        while ($i < count($inboundIds)) :
+
+            $apiResposnse = self::$RingbaApiHelpers->getUpdateData($inboundIds[$i]);
+
+            if ($apiResposnse->columns)  $this->columns($apiResposnse->columns);
+            if ($apiResposnse->events)   $this->events($apiResposnse->events);
+            if ($apiResposnse->tags)     $this->tags($apiResposnse->tags);
+            $getDataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
+
+            $getDataById->Call_Date_Time       = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
+            $getDataById->Has_Annotation       = $this->has_annotations;
+            $getDataById->Annotation_Tag       = $this->get_annotations_tag;
+            $getDataById->Recording_Url        = $this->get_recordingUrl;
+            $getDataById->call_time            = '';
+            $getDataById->Duplicate_Call       = $this->get_duplicated_status;
+            $getDataById->Affiliate            = $this->get_affiliateName;
+            $getDataById->Affiliate_Id         = $this->get_affiliateName;
+            $getDataById->Market               = $this->get_market;
+            $getDataById->Campaign             = $this->get_campaignName;
+            $getDataById->Campaign_Id          = $this->get_campaignId;
+            $getDataById->Inbound              = $this->get_inboundPhoneNumber;
+            $getDataById->Inbound_Id           = $this->get_inboundCallId;
+            $getDataById->Dialed               = $this->get_number;
+            $getDataById->Type                 = $this->get_type;
+            $getDataById->Customer             = $this->get_customer_name_id;
+            $getDataById->Target               = $this->get_targetName;
+            $getDataById->Target_Description   = $this->get_Target_Description;
+            $getDataById->Source_Hangup        = $this->get_source_hangup;
+            $getDataById->Conn_Duration        = $this->get_callConnectionLength;
+            $getDataById->Time_To_Call         = $this->get_timeToConnect;
+            $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
+            $getDataById->Revenue              = $this->get_revenue;
+            $getDataById->payoutAmount         = $this->get_payoutAmount;
+            $getDataById->Total_Cost           = $this->get_totalAmount;
+            $getDataById->Profit               = $this->get_profit;
+            $getDataById->City                 = $this->get_city;
+            $getDataById->State                = $this->get_state;
+            $getDataById->Zipcode              = $this->get_zipcode;
+            dd($getDataById);
+            //     $getDataById->save();
+            $i++;
+        endwhile;
+    }
+
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     * @return void
+     */
+    private function columns($row)
+    {
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
+        // $results = json_decode($row);
+        foreach ($results as $item) {
+            if ($item->name === 'dtStamp') {
+                $this->get_dtStamp = $item->formattedValue;
+            } else if ($item->name === 'accountId') {
+                $this->get_accountId = $item->formattedValue;
+            } else if ($item->name === 'campaignId') {
+                $this->get_campaignId = $item->formattedValue;
+            } else if ($item->name === 'campaignName') {
+                $this->get_campaignName = $item->formattedValue;
+            } else if ($item->name === 'affiliateId') {
+                $this->get_affiliateId = $item->formattedValue;
+            } else if ($item->name === 'affiliateName') {
+                $this->get_affiliateName = $item->formattedValue;
+            } else if ($item->name === 'number') {
+                $this->get_number = $item->formattedValue;
+            } else if ($item->name === 'inboundCallId') {
+                $this->get_inboundCallId = $item->formattedValue;
+            } else if ($item->name === 'inboundPhoneNumber') {
+                $this->get_inboundPhoneNumber = $item->formattedValue;
+                $this->zipCodeInfo($this->get_inboundPhoneNumber);
+            } else if ($item->name === 'totalAmount') {
+                $this->get_totalAmount = $item->formattedValue;
+            } else if ($item->name === 'callCompletedDt') {
+                $this->get_callCompletedDt = $item->formattedValue;
+            } else if ($item->name === 'source') {
+                $this->get_source_hangup = $item->formattedValue;
+            } else if ($item->name === 'profit') {
+                $this->get_profit = $item->formattedValue;
+            } else if ($item->name === 'targetName') {
+                $this->get_targetName = $item->formattedValue;
+
+                if (!empty($this->get_targetName)) {
+                    // $targetsTable = new Target();
+                    $result = Target::where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
+                    if ($result) {
+                        $this->get_Target_Description = $result->Description;
+                        $this->get_customer_name_id = $result->Customer;
+                    }
+                }
+            } else if ($item->name === 'targetId') {
+                $this->get_targetId = $item->formattedValue;
+            } else if ($item->name === 'targetBuyerId') {
+                $this->get_targetBuyerId = $item->formattedValue;
+            } else if ($item->name === 'targetBuyer') {
+                $this->get_targetBuyer = $item->formattedValue;
+            } else if ($item->name === 'timeToConnect') {
+                $this->get_timeToConnect = $item->formattedValue;
+            } else if ($item->name === 'callConnectionLength') {
+                $this->get_callConnectionLength = $item->formattedValue;
+            } else if ($item->name === 'targetNumber') {
+                $this->get_targetNumber = $item->formattedValue;
+            } else if ($item->name === 'recordingUrl') {
+                $this->get_recordingUrl = $item->formattedValue;
+            } else if ($item->name === 'conversionAmount') {
+                // $this->get_conversionAmount = $item->formattedValue;
+                $this->get_revenue = $item->formattedValue;
+            } else if ($item->name === 'callLengthInSeconds') {
+                $this->get_callLengthInSeconds = $item->formattedValue;
+            } else if ($item->name === 'payoutAmount') {
+                $this->get_payoutAmount = $item->formattedValue;
+            }
+            // else if ($item->name === 'revenue') {
+            //     $this->get_revenue = $item->formattedValue;
+            // }
+        }
+    }
+
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     * @return void
+     */
+    private function events($row)
+    {
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
+
+        foreach ($results as $item) {
+            if ($item->name === 'DuplicateCall') {
+                $this->get_duplicated_status = "Yes";
+                return;
+            }
+        }
+    }
+
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     * @return void
+     */
+    private function tags($row)
+    {
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
+
+        foreach ($results as $item) {
+            if ($item->tagType === 'Annotations') {
+                $this->has_annotations = 'Yes';
+                $this->get_annotations_tag = $item->tagName;
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param mixed $inboundPhoneNumber
+     * @return void
+     */
+    private function zipCodeInfo($inboundPhoneNumber)
+    {
+        $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
+        // dd($npanxx_number);
+        $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
+            ->where('NPANXX', $npanxx_number)
+            ->orderBy('ZipCodeCount', 'DESC')
+            ->first();
+
+        if ($result) {
+            $res = ZipcodeByTelevisionMarket::select('Market')
+                ->where('fips', $result->FIPS)
+                ->where('zip_code', $result->ZipCode)
+                ->first();
+
+            $this->get_zipcode = $result->ZipCode;
+            $this->get_state = $result->State;
+            $this->get_city = $result->City;
+            $this->get_market = $res->Market ?? '';
+            $this->get_type = $result->NXXUseType;
         }
     }
 }
