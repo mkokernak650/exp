@@ -61,8 +61,7 @@ Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
 Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
         ->name('delete.ringba.date');
 
-Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
-        ->name('update.annotation');
+
 
 
 
@@ -213,13 +212,15 @@ Route::get('billed-store', [BilledCallLogController::class, 'store'])
 
 Route::get('/formPending', [BilledCallLogController::class, 'formPending']);
 
+Route::post('/billed-get-annotation', [BilledCallLogController::class, 'getAnnotation'])->name('billed.get.annotation');
 
 //TODO ExceptionContorller
 Route::get('/exceptions', [ExceptionController::class, 'index'])
         ->name('get.exceptions');
 
-Route::get('move-exception-to-arhived', [ExceptionController::class, 'moveToArhived'])
+
+Route::post('move-exception-to-arhived', [ExceptionController::class, 'moveToArhived'])
         ->name('move.exception.to.arhived');
 
-Route::get('move-exception-to-pending', [ExceptionController::class, 'moveToPending'])
+Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPending'])
         ->name('move.exception.to.pending');

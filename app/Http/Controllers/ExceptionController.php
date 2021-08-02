@@ -72,10 +72,8 @@ class ExceptionController extends Controller
      */
     public function moveToPending(Request $request)
     {
-        // $inboundIds = $request->inboundIds;
-        $inboundIds = [
-            'v2XrWUbyC6CyrpVZSkUKr-QS5vL1CUl8aTEYQnc_jfwbI9NB4Zk7j9Pw'
-        ];
+        $inboundIds = $request->inboundIds;
+
         $result = false;
         if (is_array($inboundIds)) {
             $i = 0;
@@ -92,9 +90,9 @@ class ExceptionController extends Controller
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+            return response()->json(["msg" => "Data moved to Pending successfully", "status_code" => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(["msg" => "Data moving failed", "status_code" => 500]);
         }
     }
 
@@ -105,10 +103,8 @@ class ExceptionController extends Controller
      */
     public function moveToArhived(Request $request)
     {
-        // $inboundIds = $request->inboundIds;
-        $inboundIds = [
-            'v2XrWUbyC6CyrpVZSkUKr-QS5vL1CUl8aTEYQnc_jfwbI9NB4Zk7j9Pw'
-        ];
+        $inboundIds = $request->inboundIds;
+
         $result = false;
         if (is_array($inboundIds)) {
             $i = 0;
@@ -125,9 +121,9 @@ class ExceptionController extends Controller
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+            return response()->json(["msg" => "Data moved to Archive successfully", "status_code" => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(["msg" => "Data moving failed", "status_code" => 500]);
         }
     }
 }

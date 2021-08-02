@@ -207,20 +207,7 @@ const Exceptions = () => {
   const TableTitle = () => {
     return (
       <div></div>
-      // <div>
-
-      // </div>
-      // <div className={classes.topBtn}>
-      //   <Button
-      //     variant="contained"
-      //     type="submit"
-      //     color="primary"
-      //     className={classes.button}
-      //   >
-      //     Export
-      //   </Button>
-      // </div>
-    );
+    )
   };
 
   const deleteHandler = () => {};
@@ -235,7 +222,7 @@ const Exceptions = () => {
   const handlePending = () => {
     console.log(inboundIds);
     axios
-      .post(route("add.pending.bill.call"), { inboundIds })
+      .post(route("move.exception.to.pending"), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           setSuccess(res.data.msg);
@@ -254,7 +241,7 @@ const Exceptions = () => {
 
   const handleArchived = () => {
     axios
-      .post(route("add.arichived.bill.call"), { inboundIds })
+      .post(route("move.exception.to.arhived"), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           setSuccess(res.data.msg);

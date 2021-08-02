@@ -1,9 +1,27 @@
 import React, { useState } from "react";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
+import axios from "axios";
+import MuiAlert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet";
+
+const useStyles = makeStyles((theme) => ({
+  button: {
+    minWidth: "134px",
+    textTransform: "capitalize",
+    fontSize: "14px",
+  },
+  topBtn: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
+  },
+}));
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const range = (len) => {
   const arr = [];
@@ -25,10 +43,14 @@ function makeData(...lens) {
   return makeDataLevel();
 }
 
-const CustomerReport = () => {
+const BilledCallLogs = () => {
+  const classes = useStyles();
   const { billedCallLogs } = usePage().props;
+  const [inboundIds, setInbounIds] = useState([]);
+  const [success, setSuccess] = useState();
+  const [open, setOpen] = useState(false);
 
-  const newCustomer = billedCallLogs.map((item, indx) => {
+  const newBilledCallLogs = billedCallLogs.map((item, indx) => {
     return {
       SN: item.SN,
       Recording_Url: (
@@ -40,11 +62,12 @@ const CustomerReport = () => {
       Call_Date_Time: item.Call_Date_Time,
       Call_Date: item.Call_Date,
       Duplicate_Call: item.Duplicate_Call,
+      Customer: item.Customer,
       Affiliate: item.Affiliate,
       Market: item.Market,
       Campaign: item.Campaign,
       Inbound: item.Inbound,
-      Inbound_Id:item.Inbound_Id,
+      Inbound_Id: item.Inbound_Id,
       Dialed: item.Dialed,
       Type: item.Type,
       Target: item.Target,
@@ -63,10 +86,9 @@ const CustomerReport = () => {
       Zipcode: item.Zipcode,
       Annotation_Tag: item.Annotation_Tag,
       Has_Annotation: item.Has_Annotation,
-      // Customer: item.Customer,
     };
   });
-  const [mainData, setMainData] = useState(newCustomer);
+  const [mainData, setMainData] = useState(newBilledCallLogs);
   const columns = [
     {
       Header: "SN",
@@ -91,6 +113,10 @@ const CustomerReport = () => {
     {
       Header: "Duplicate Call",
       accessor: "Duplicate_Call",
+    },
+    {
+      Header: "Customer",
+      accessor: "Customer",
     },
     {
       Header: "Affiliate",
@@ -184,10 +210,6 @@ const CustomerReport = () => {
       Header: "Annotation Tag",
       accessor: "Annotation_Tag",
     },
-    // {
-    //   Header: "Customer",
-    //   accessor: "Customer",
-    // },
   ];
 
   const [data, setData] = React.useState(React.useMemo(() => makeData(20), []));
@@ -209,14 +231,38 @@ const CustomerReport = () => {
     );
   };
 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
   const TableTitle = () => {
     return <div></div>;
+  };
+
+  const handleAnnotation = () => {
+    
+    axios
+      .post(route("billed.get.annotation"), { inboundIds })
+      .then((res) => {
+        if (res.status === 200) {
+          setSuccess("Successfully Updated");
+          setOpen(true);
+          setMainData(res.data);
+          setInbounIds([]);
+        } else {
+          setSuccess(res.data.msg);
+          setOpen(true);
+        }
+      })
+      .catch((err) => {});
   };
 
   return (
     <div>
       <Helmet title="Billed Call Logs" />
-
       <CssBaseline />
       <EnhancedTable
         columns={columns}
@@ -224,13 +270,35 @@ const CustomerReport = () => {
         setData={setMainData}
         updateMyData={updateMyData}
         skipPageReset={skipPageReset}
+        inboundIds={inboundIds}
         TableTitle={TableTitle}
-      />
+      >
+        <div className={classes.topBtn}>
+          <Button
+            variant="contained"
+            type="submit"
+            color="primary"
+            className={classes.button}
+            onClick={handleAnnotation}
+          >
+            Get Annotation
+          </Button>
+        </div>
+      </EnhancedTable>
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        className={classes.snackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success">{success}</Alert>
+      </Snackbar>
     </div>
   );
 };
 
-CustomerReport.layout = (page) => (
-  <Layout title="Customer Report">{page}</Layout>
+BilledCallLogs.layout = (page) => (
+  <Layout title="Billed Call Logs">{page}</Layout>
 );
-export default CustomerReport;
+export default BilledCallLogs;
