@@ -178,7 +178,7 @@ class ExceptionController extends Controller
      */
     public function updateExceptionReport(Request $request)
     {
-        $inboundIds = $request->inboundIs;
+        // $inboundIds = $request->inboundIs;
         $inboundIds = ['v2XrWUbyC6CyrpVZSkUKr-QS5vL1CUl8aTEYQnc_jfwbI9NB4Zk7j9Pw'];
 
         $i = 0;
@@ -189,6 +189,7 @@ class ExceptionController extends Controller
             if ($apiResposnse->columns)  $this->columns($apiResposnse->columns);
             if ($apiResposnse->events)   $this->events($apiResposnse->events);
             if ($apiResposnse->tags)     $this->tags($apiResposnse->tags);
+
             $getDataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
 
             $getDataById->Call_Date_Time       = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
@@ -220,8 +221,8 @@ class ExceptionController extends Controller
             $getDataById->City                 = $this->get_city;
             $getDataById->State                = $this->get_state;
             $getDataById->Zipcode              = $this->get_zipcode;
-            dd($getDataById);
-            //     $getDataById->save();
+            // dd($getDataById);
+            $getDataById->save();
             $i++;
         endwhile;
     }

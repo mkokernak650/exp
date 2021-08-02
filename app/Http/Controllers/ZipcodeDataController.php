@@ -15,7 +15,6 @@ class ZipcodeDataController extends Controller
         $this->middleware('auth');
     }
 
-    
     public function index()
     {
         $allZipcodes = ZipCodeData::take(10)->get();
