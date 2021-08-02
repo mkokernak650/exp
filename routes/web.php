@@ -218,7 +218,6 @@ Route::post('/billed-get-annotation', [BilledCallLogController::class, 'getAnnot
 Route::get('/exceptions', [ExceptionController::class, 'index'])
         ->name('get.exceptions');
 
-
 Route::post('move-exception-to-arhived', [ExceptionController::class, 'moveToArhived'])
         ->name('move.exception.to.arhived');
 
@@ -226,3 +225,6 @@ Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPen
         ->name('move.exception.to.pending');
         
 Route::post('/exception-get-annotation', [ExceptionController::class, 'getAnnotation'])->name('exception.get.annotation');
+
+Route::get('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
+        ->name('update.exception.report');

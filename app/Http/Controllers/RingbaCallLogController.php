@@ -116,8 +116,10 @@ class RingbaCallLogController extends Controller
     {
         $ringbaMain = $getRingbaDateById === null ? RingbaData::all() : $getRingbaDateById;
 
-        foreach ($ringbaMain as $row) {
+        $sn_id = empty(self::$RingbaCallLog->latest('id')->first()->id) ? 0 : self::$RingbaCallLog->latest('id')->first()->id;
 
+        foreach ($ringbaMain as $row) {
+            $sn_id++;
             if ($row->columns)  $this->columns($row->columns);
             if ($row->events)   $this->events($row->events);
             if ($row->tags)     $this->tags($row->tags);
@@ -128,6 +130,7 @@ class RingbaCallLogController extends Controller
             $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
             $checkPendingBillCallLog    = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
             $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
+
 
             if ($checkRingbaCallLogs !== null) {
 
@@ -141,10 +144,7 @@ class RingbaCallLogController extends Controller
                     continue;
                 }
 
-                $sn_id = empty($ringbaCallLogs->latest()->first()->id) ? 0 : $ringbaCallLogs->latest()->first()->id;
-                $sn = $sn_id + 1; // db last insert id + 1
-
-                $ringbaCallLogs->SN                 = "Exp-{$sn}";
+                $ringbaCallLogs->SN                 = "Exp-{$sn_id}";
                 $ringbaCallLogs->call_Logs_status   = $this->get_call_log_status;
 
                 $this->ringbaDataObject($ringbaCallLogs);
@@ -549,7 +549,7 @@ class RingbaCallLogController extends Controller
             while ($i < count($inboundIds)) {
                 $dataById = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
                 self::$RingbaCallLog->call_Logs_status = 'Active';
-                $result= dataMoveHelper(self::$RingbaCallLog, $dataById);
+                $result = dataMoveHelper(self::$RingbaCallLog, $dataById);
                 $i++;
             }
         }
