@@ -48,7 +48,7 @@ class ExceptionController extends Controller
     protected $get_revenue = null;
     protected $get_annotations_tag = '';
     protected $has_annotations = 'NO';
-    protected $get_call_log_status = 'Exception';
+    protected $get_call_log_status = 'Exceptions';
     protected $get_call_qualification = 'Not Qualified';
     protected $get_city = "";
     protected $get_state = "";
