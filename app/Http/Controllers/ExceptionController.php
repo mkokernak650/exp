@@ -196,7 +196,7 @@ class ExceptionController extends Controller
             $getDataById->Has_Annotation       = $this->has_annotations;
             $getDataById->Annotation_Tag       = $this->get_annotations_tag;
             $getDataById->Recording_Url        = $this->get_recordingUrl;
-            $getDataById->call_time            = '';
+            $getDataById->call_time            = date('d-M-y', $this->get_dtStamp / 1000);
             $getDataById->Duplicate_Call       = $this->get_duplicated_status;
             $getDataById->Affiliate            = $this->get_affiliateName;
             $getDataById->Affiliate_Id         = $this->get_affiliateName;
