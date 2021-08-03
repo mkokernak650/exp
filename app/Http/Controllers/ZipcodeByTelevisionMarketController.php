@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\ZipcodeByTelevisionMarketExport;
 use App\Imports\ZipcodeByTelevisionMarketImport;
-use App\Models\Customer;
 use App\Models\ZipcodeByTelevisionMarket;
+// use App\Exports\CustomerExport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,25 +17,22 @@ class ZipcodeByTelevisionMarketController extends Controller
     {
         $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::take(1000)->get();
         // $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::all();
-        // dd($allZipcodesByTelevisionMarket);
-
         return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
             'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket
         ]);
+    }
+
+    public function export($type)
+    {
+        // get request
+        // return Excel::download(new CustomerExport,  'zipcodeTelevisionMerket.' . $type);
+        return Excel::download(new ZipcodeByTelevisionMarketExport, 'Zipcode_by_television_market.' .  $type);
     }
 
     public function import(Request $request)
     {
         //post
         Excel::import(new ZipcodeByTelevisionMarketImport, $request->importfile);
-        return back();
-        // dd(ZipcodeByTelevisionMarket::all());
-    }
-
-    public function export(Request $request)
-    {
-        // get request
-        Excel::download(new ZipcodeByTelevisionMarketExport, 'Zipcode_by_television_marker.' . $request->type);
         return back();
     }
 }

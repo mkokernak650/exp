@@ -178,8 +178,8 @@ class ExceptionController extends Controller
      */
     public function updateExceptionReport(Request $request)
     {
-        // $inboundIds = $request->inboundIs;
-        $inboundIds = ['v2XrWUbyC6CyrpVZSkUKr-QS5vL1CUl8aTEYQnc_jfwbI9NB4Zk7j9Pw'];
+        $inboundIds = $request->inboundIds;
+
 
         $i = 0;
         while ($i < count($inboundIds)) :
@@ -225,6 +225,8 @@ class ExceptionController extends Controller
             $getDataById->save();
             $i++;
         endwhile;
+        $allData = Exception::all();
+        return response()->json($allData);
     }
 
     /**

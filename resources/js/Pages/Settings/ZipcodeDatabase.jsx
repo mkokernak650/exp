@@ -5,7 +5,10 @@ import {
   Button,
   Snackbar,
   CircularProgress,
-  TextField,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormLabel,
 } from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
@@ -221,8 +224,8 @@ const ZipcodeDatabase = () => {
   ];
 
   const [skipPageReset, setSkipPageReset] = useState(false);
-  const [value, setValue] = useState(null);
-  const [type, setType] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [type, setType] = useState("xlsx");
 
   const updateMyData = (rowIndex, columnId, value) => {
     setSkipPageReset(true);
@@ -270,7 +273,7 @@ const ZipcodeDatabase = () => {
     );
   };
   const handleImportChange = (e) => {
-    setValue(e.target.files[0]);
+    setSelectedFile(e.target.files[0]);
   };
 
   const handleExportChange = (e) => {
@@ -281,10 +284,12 @@ const ZipcodeDatabase = () => {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData();
-    formData.append("importfile", value);
+    formData.append("importfile", selectedFile);
     axios
       .post(route("zipcode.data.import"), formData)
       .then((res) => {
+        console.log(res);
+        setSelectedFile(null);
         setLoading(false);
         if (res.status === 200) {
           setImportModal({ open: false });
@@ -297,19 +302,25 @@ const ZipcodeDatabase = () => {
       .catch((err) => {});
   };
 
+  const triggerExportLink = (link) => {
+    return window.open(link);
+  };
+
+  const baseUrl = window.location.origin;
   const exportHandler = (e) => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("zipcode.data.export"), {type})
+      .get(`${baseUrl}/zipcode-data-export/${type}`)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
-          setImportModal({ open: false });
+          setExportModal({ open: false });
+          triggerExportLink(res.request.responseURL);
           setResponse("Exported Successfully");
           setOpen(true);
         } else {
-          setResponse("Export failed");
+          setResponse("Exporting failed");
         }
       })
       .catch((err) => {
@@ -353,7 +364,13 @@ const ZipcodeDatabase = () => {
             name="importfile"
             onChange={handleImportChange}
           />
-          <Button variant="contained" color="primary" onClick={importHandler}>
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={importHandler}
+            disabled={!selectedFile}
+          >
             {loading ? (
               <CircularProgress color="secondary" thickness="3" size="2rem" />
             ) : (
@@ -370,23 +387,18 @@ const ZipcodeDatabase = () => {
         title={""}
       >
         <div className={classes.import}>
-          <TextField
-            id="standard-select-currency-native"
-            select
-            name="market"
+          <FormLabel component="legend">Select Type</FormLabel>
+          <RadioGroup
+            aria-label="type"
+            name="type"
+            value={type}
             onChange={handleExportChange}
-            SelectProps={{
-              native: true,
-            }}
-            fullWidth
-            required="true"
           >
-            <option value="">Select Type</option>
-            <option value="xlsx">XLSX</option>
-            <option value="csv">CSV</option>
-            <option value="xlx">XLX</option>
-            <option value="tsv">TSV</option>
-          </TextField>
+            <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
+            <FormControlLabel value="csv" control={<Radio />} label="CSV" />
+            <FormControlLabel value="xls" control={<Radio />} label="XLS" />
+            <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
+          </RadioGroup>
           <Button variant="contained" color="primary" onClick={exportHandler}>
             {loading ? (
               <CircularProgress color="secondary" thickness="3" size="2rem" />
