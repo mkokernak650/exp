@@ -39,7 +39,6 @@ class ZipcodeDataController extends Controller
     public function import(Request $request)
     {
         Excel::import(new ZipcodeDataImport, $request->importfile);
-
         // Session::put('success', 'Your file is imported Successfully in database');
         return back();
     }
