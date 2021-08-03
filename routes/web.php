@@ -176,7 +176,7 @@ Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::c
 Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])
         ->name('zipcode.television.market.import');
 
-Route::post('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'export'])
+Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
         ->name('zipcode.television.market.export');
 
 // TODO Zipcodedata Controller
@@ -186,7 +186,7 @@ Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
         ->name('zipcode.data.import');
 
-Route::post('/zipcode-data-export', [ZipcodeDataController::class, 'export'])
+Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
 // TODO Target Controller
@@ -226,5 +226,5 @@ Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPen
         
 Route::post('/exception-get-annotation', [ExceptionController::class, 'getAnnotation'])->name('exception.get.annotation');
 
-Route::get('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
+Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
         ->name('update.exception.report');

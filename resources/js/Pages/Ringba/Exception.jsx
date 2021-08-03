@@ -260,7 +260,7 @@ const Exceptions = () => {
 
   const handleUpdate = () => {
     axios
-      .post(route("update-data"), { inboundIds })
+      .post(route("update.exception.report"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
           setSuccess("Successfully Updated");
