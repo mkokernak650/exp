@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
+import {
+  CssBaseline,
+  Button,
+  makeStyles,
+  Snackbar,
+  CircularProgress,
+} from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
@@ -29,6 +35,9 @@ const CallLogsReport = () => {
   const [inboundIds, setInbounIds] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
+
 
   const newCallCallLogs = allCallLogs.map((item, indx) => {
     return {
@@ -37,6 +46,7 @@ const CallLogsReport = () => {
       Has_Annotation: item.Has_Annotation,
       Annotation_Tag: item.Annotation_Tag,
       Call_Status: item.call_Logs_status,
+      Duplicate_Call: item.Duplicate_Call,
       Recording_Url: (
         <a target="_blank" href={item.Recording_Url}>
           Recording URL
@@ -87,6 +97,10 @@ const CallLogsReport = () => {
     {
       Header: "Call Status",
       accessor: "Call_Status",
+    },
+    {
+      Header: "Duplicate Call",
+      accessor: "Duplicate_Call",
     },
     {
       Header: "Recording Url",
@@ -252,9 +266,11 @@ const CallLogsReport = () => {
   };
 
   const handleUpdate = () => {
+    setLoading(true);
     axios
       .post(route("update-data"), { inboundIds })
       .then((res) => {
+        setLoading(false);
         if (res.status === 200) {
           setSuccess("Successfully Updated");
           setOpen(true);
@@ -269,9 +285,12 @@ const CallLogsReport = () => {
   };
 
   const handleAnnotation = () => {
+    setAnnotationLoading(true);
+
     axios
       .post(route("update.annotation"), { inboundIds })
       .then((res) => {
+        setAnnotationLoading(false);
         if (res.status === 200) {
           setSuccess("Successfully Updated");
           setOpen(true);
@@ -324,7 +343,15 @@ const CallLogsReport = () => {
             className={classes.button}
             onClick={handleUpdate}
           >
-            Update
+            {loading ? (
+              <CircularProgress
+                color="secondary"
+                size="1.5rem"
+                thickness="2.6"
+              />
+            ) : (
+              "Update"
+            )}
           </Button>
           <Button
             variant="contained"
@@ -333,7 +360,15 @@ const CallLogsReport = () => {
             className={classes.button}
             onClick={handleAnnotation}
           >
-            Get Annotation
+            {annotationLoading ? (
+              <CircularProgress
+                color="secondary"
+                size="1.5rem"
+                thickness="2.6"
+              />
+            ) : (
+              "   Get Annotation"
+            )}
           </Button>
         </div>
       </EnhancedTable>

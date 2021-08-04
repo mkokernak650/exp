@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ZipcodeDataExport;
-// use App\Exports\CustomerExport;
 use App\Imports\ZipcodeDataImport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,21 +21,24 @@ class ZipcodeDataController extends Controller
     {
         $allZipcodes = ZipCodeData::take(1000)->get();
         // $allZipcodes = ZipCodeData::all();
+
         return Inertia::render('Settings/ZipcodeDatabase', [
             'allZipcodes' => $allZipcodes
         ]);
     }
 
-    public function export($type)
+    public function export(Request $request)
     {
-        return Excel::download(new ZipcodeDataExport,  'Zipcode_database.' .  $type);
-        // return Excel::download(new CustomerExport,  'zipcode.' . $type);
+        Excel::download(new ZipcodeDataExport,  'Zipcode_database.' . $request->type);
+        return back();
+        // return Excel::download(new MarketExport,  'mark.'. \Maatwebsite\Excel\Excel::XLSX);
         // return (new MarketExport)->download('invoices.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
     public function import(Request $request)
     {
-        Excel::import(new ZipcodeDataImport, $request->importfile);
-        return back();
+       return Excel::import(new ZipcodeDataImport, $request->importfile);
+        // $newZipcodes = ZipCodeData::orderBy('SN', 'DESC')->take(1000)->get();
+        // return response()->json($newZipcodes);
     }
 }

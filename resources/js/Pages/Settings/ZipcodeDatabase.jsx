@@ -292,6 +292,7 @@ const ZipcodeDatabase = () => {
         setSelectedFile(null);
         setLoading(false);
         if (res.status === 200) {
+          setMainData(res.data)
           setImportModal({ open: false });
           setResponse("Imported Successfully");
           setOpen(true);

@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
+import {
+  CssBaseline,
+  Button,
+  makeStyles,
+  Snackbar,
+  CircularProgress,
+} from "@material-ui/core";
 import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
 import { usePage } from "@inertiajs/inertia-react";
@@ -29,6 +35,8 @@ const Exceptions = () => {
   const [inboundIds, setInbounIds] = useState([]);
   const [success, setSuccess] = useState();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
 
   const newExceptions = Exceptions.map((item, indx) => {
     return {
@@ -205,9 +213,7 @@ const Exceptions = () => {
   };
 
   const TableTitle = () => {
-    return (
-      <div></div>
-    )
+    return <div></div>;
   };
 
   const deleteHandler = () => {};
@@ -220,7 +226,6 @@ const Exceptions = () => {
   };
 
   const handlePending = () => {
-    console.log(inboundIds);
     axios
       .post(route("move.exception.to.pending"), { inboundIds })
       .then((res) => {
@@ -259,9 +264,11 @@ const Exceptions = () => {
   };
 
   const handleUpdate = () => {
+    setLoading(true);
     axios
       .post(route("update.exception.report"), { inboundIds })
       .then((res) => {
+        setLoading(false);
         if (res.status === 200) {
           setSuccess("Successfully Updated");
           setOpen(true);
@@ -276,9 +283,11 @@ const Exceptions = () => {
   };
 
   const handleAnnotation = () => {
+    setAnnotationLoading(true);
     axios
       .post(route("exception.get.annotation"), { inboundIds })
       .then((res) => {
+        setAnnotationLoading(false);
         if (res.status === 200) {
           setSuccess("Successfully Updated");
           setOpen(true);
@@ -331,7 +340,15 @@ const Exceptions = () => {
             className={classes.button}
             onClick={handleUpdate}
           >
-            Update
+            {loading ? (
+              <CircularProgress
+                color="secondary"
+                size="1.5rem"
+                thickness="2.6"
+              />
+            ) : (
+              "Update"
+            )}
           </Button>
           <Button
             variant="contained"
@@ -340,7 +357,15 @@ const Exceptions = () => {
             className={classes.button}
             onClick={handleAnnotation}
           >
-            Get Annotation
+            {annotationLoading ? (
+              <CircularProgress
+                color="secondary"
+                size="1.5rem"
+                thickness="2.6"
+              />
+            ) : (
+              "   Get Annotation"
+            )}
           </Button>
         </div>
       </EnhancedTable>
