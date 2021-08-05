@@ -189,6 +189,8 @@ Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
+Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
+
 // TODO Target Controller
 Route::get('/target', [TargetController::class, 'index'])
         ->name('target');
@@ -223,7 +225,7 @@ Route::post('move-exception-to-arhived', [ExceptionController::class, 'moveToArh
 
 Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPending'])
         ->name('move.exception.to.pending');
-        
+
 Route::post('/exception-get-annotation', [ExceptionController::class, 'getAnnotation'])->name('exception.get.annotation');
 
 Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
