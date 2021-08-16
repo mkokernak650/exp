@@ -7,6 +7,7 @@ use App\Imports\ZipcodeDataImport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\ZipCodeData;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ZipcodeDataController extends Controller
@@ -40,5 +41,20 @@ class ZipcodeDataController extends Controller
         Excel::import(new ZipcodeDataImport, $request->importfile);
         $newZipcodes = ZipCodeData::orderBy('id', 'DESC')->take(1000)->get();
         return response()->json($newZipcodes);
+    }
+
+    /**
+     * @method post
+     * @param mixed array($page, $take) 
+     * @param \Illuminate\Http\Request $request
+     */
+    public function pagination($page = 1)
+    {
+        // DB::enableQueryLog();
+        // varDump(DB::getQueryLog());
+        $take = 50;
+        $skip = ($page === 0 || $page === 1) ? 0 : $take * ($page - 1);
+        $results = ZipCodeData::skip($skip)->take($take)->get();
+        varDump($results);
     }
 }

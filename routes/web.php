@@ -192,6 +192,8 @@ Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
+Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
+
 // TODO Target Controller
 Route::get('/target', [TargetController::class, 'index'])
         ->name('target');

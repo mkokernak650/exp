@@ -87,7 +87,6 @@ class BilledCallLogController extends Controller
             $billedCallLog->Has_Annotation      = $data->Has_Annotation;
             $billedCallLog->Annotation_Tag      = $data->Annotation_Tag;
             $billedCallLog->Customer            = $data->Customer;
-
             $result = $billedCallLog->save();
 
             // delete Record from Ringa Call log after transfer Billed call log table;
