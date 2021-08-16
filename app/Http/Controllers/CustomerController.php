@@ -16,6 +16,11 @@ class CustomerController extends Controller
         $this->middleware('auth');
     }
 
+    public function addCustomerForm()
+    {
+        return Inertia::render('Settings/AddCustomer');
+    }
+
     public function customerReport()
     {
         $allCustomers = Customer::all();

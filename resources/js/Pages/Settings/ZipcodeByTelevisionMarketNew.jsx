@@ -183,6 +183,7 @@ const ZipcodeByTelevisionMarketNew = () => {
           color="primary"
           className={classes.button}
           onClick={openImportModal}
+          disabled={mainData == ""}
         >
           Import
         </Button>
@@ -192,6 +193,7 @@ const ZipcodeByTelevisionMarketNew = () => {
           color="primary"
           className={classes.button}
           onClick={openExportModal}
+          disabled={mainData == ""}
         >
           Export
         </Button>
@@ -218,6 +220,7 @@ const ZipcodeByTelevisionMarketNew = () => {
         setSelectedFile(null);
         setLoading(false);
         if (res.status === 200) {
+          setMainData(res.data);
           setImportModal({ open: false });
           setResponse("Imported Successfully");
           setOpen(true);

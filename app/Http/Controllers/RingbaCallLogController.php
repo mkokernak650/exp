@@ -15,7 +15,6 @@ use App\Models\Exception;
 use App\Models\MarketExcptions;
 use App\Models\ZipcodeByTelevisionMarket;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Redirect;
 
 class RingbaCallLogController extends Controller
 {
@@ -70,6 +69,11 @@ class RingbaCallLogController extends Controller
     public function RingbaAuth()
     {
         dd(self::$RingbaApiHelpers->getRingbaData());
+    }
+
+    public function getRingbaDataForm()
+    {
+        return Inertia::render("Ringba/GetRingbaData");
     }
 
     /**

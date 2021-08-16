@@ -53,8 +53,12 @@
         "@material-ui/pickers": "^3.3.10",
         "@types/date-fns": "^2.6.0",
         "date-fns": "^2.23.0",
+        "ka-table": "^6.11.7",
+        "materialize-css": "^1.0.0",
         "node-polyfill-webpack-plugin": "^1.1.4",
         "path-browserify": "^1.0.1",
+        "react-filter-control": "^2.1.0",
+        "react-google-recaptcha": "^2.1.0",
         "react-table": "^7.7.0"
     },
     "browser": {

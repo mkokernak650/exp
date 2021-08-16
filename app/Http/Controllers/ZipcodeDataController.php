@@ -38,9 +38,9 @@ class ZipcodeDataController extends Controller
 
     public function import(Request $request)
     {
-        return Excel::import(new ZipcodeDataImport, $request->importfile);
-        // $newZipcodes = ZipCodeData::orderBy('SN', 'DESC')->take(1000)->get();
-        // return response()->json($newZipcodes);
+        Excel::import(new ZipcodeDataImport, $request->importfile);
+        $newZipcodes = ZipCodeData::orderBy('id', 'DESC')->take(1000)->get();
+        return response()->json($newZipcodes);
     }
 
     /**

@@ -115,7 +115,7 @@ class BilledCallLogController extends Controller
 
     //             $pending = new PendingBillCallLog();
     //             $data = findDataByInboundId($pending, $Inbound_Id);
-               
+
     //             $billedCallLog->SN                  = $data->SN;
     //             $billedCallLog->Recording_Url       = $data->Recording_Url;
     //             $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;

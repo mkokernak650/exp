@@ -5,10 +5,10 @@ export default function Layout({ title, children }) {
     const [isMobileNavOpen, setMobileNavOpen] = useState(false);
     return (
         <div className='layout'>
-            <NavBar />
-            <div className="main">
+            <NavBar  main={children}/>
+            {/* <div className="main">
                 <SideBar onMobileClose={() => setMobileNavOpen(false)} openMobile={isMobileNavOpen} main={children}/>
-            </div>
+            </div> */}
         </div>
     )
 }

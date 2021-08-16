@@ -1,6 +1,7 @@
 import { InertiaApp } from '@inertiajs/inertia-react';
 import { render } from 'react-dom';
 import '../css/app.css'
+import '../css/utilities.css'
 
 if (window?.Ziggy?.baseProtocol === 'http') {
   window.Ziggy.baseProtocol = 'https'

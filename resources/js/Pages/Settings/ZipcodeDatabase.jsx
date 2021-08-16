@@ -250,6 +250,7 @@ const ZipcodeDatabase = () => {
   };
   const TableTitle = () => {
     return (
+      
       <div className={classes.topBtn}>
         <Button
           variant="contained"
@@ -257,6 +258,7 @@ const ZipcodeDatabase = () => {
           color="primary"
           className={classes.button}
           onClick={openImportModal}
+          disabled={mainData == ""}
         >
           Import
         </Button>
@@ -266,6 +268,7 @@ const ZipcodeDatabase = () => {
           color="primary"
           className={classes.button}
           onClick={openExportModal}
+          disabled={mainData == ""}
         >
           Export
         </Button>
@@ -288,11 +291,10 @@ const ZipcodeDatabase = () => {
     axios
       .post(route("zipcode.data.import"), formData)
       .then((res) => {
-        console.log(res);
         setSelectedFile(null);
         setLoading(false);
         if (res.status === 200) {
-          setMainData(res.data)
+          setMainData(res.data);
           setImportModal({ open: false });
           setResponse("Imported Successfully");
           setOpen(true);

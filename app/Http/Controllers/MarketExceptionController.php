@@ -56,6 +56,13 @@ class MarketExceptionController extends Controller
             'marketExceptions' => $marketExceptions,
         ]);
     }
+    public function test()
+    {
+        $test = MarketExcptions::all();
+        return Inertia::render('Settings/Market', [
+            'test' => $test,
+        ]);
+    }
 
     public function import(Request $request)
     {
