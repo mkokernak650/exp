@@ -86,6 +86,8 @@ class BilledCallLogController extends Controller
             $billedCallLog->Zipcode             = $data->Zipcode;
             $billedCallLog->Has_Annotation      = $data->Has_Annotation;
             $billedCallLog->Annotation_Tag      = $data->Annotation_Tag;
+            $billedCallLog->Customer            = $data->Customer;
+
             $result = $billedCallLog->save();
 
             // delete Record from Ringa Call log after transfer Billed call log table;
@@ -114,7 +116,7 @@ class BilledCallLogController extends Controller
 
     //             $pending = new PendingBillCallLog();
     //             $data = findDataByInboundId($pending, $Inbound_Id);
-               
+
     //             $billedCallLog->SN                  = $data->SN;
     //             $billedCallLog->Recording_Url       = $data->Recording_Url;
     //             $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;

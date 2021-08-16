@@ -1,32 +1,465 @@
-import Layout from '../Layout/Layout'
-import { Inertia } from '@inertiajs/inertia'
+import Layout from "../Layout/Layout";
+import "./Demo.scss";
+import M from "materialize-css";
+import React, { useEffect, useState } from "react";
+import { kaReducer, Table } from "ka-table";
+import {
+  DataType,
+  SortingMode,
+  PagingPosition,
+  EditingMode,
+  ActionType,
+} from "ka-table/enums";
+import { kaPropsUtils } from "ka-table/utils";
+import { usePage } from "@inertiajs/inertia-react";
+import {
+  deselectAllFilteredRows,
+  deselectRow,
+  selectAllFilteredRows,
+  selectRow,
+  selectRowsRange,
+} from "ka-table/actionCreators";
+import FilterControl from "react-filter-control";
+import { filterData } from "../filterData";
+import "ka-table/style.scss";
+import search from "../../../images/search.svg";
+import eyeIcon from "../../../images/eyeIcon.svg";
+import closeNav from "../../../images/closeNav.svg";
+import { hideColumn, showColumn } from "ka-table/actionCreators";
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
+import Tooltip from "@material-ui/core/Tooltip";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import Checkbox from "@material-ui/core/Checkbox";
+import axios from "axios";
+export const fields = [
+  {
+    caption: "customer",
+    name: "customer",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "market",
+    name: "market",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+];
+
+export const groups = [
+  {
+    caption: "And",
+    name: "and",
+  },
+  {
+    caption: "Or",
+    name: "or",
+  },
+];
+export const filter = {
+  groupName: "and",
+  items: [
+    {
+      field: "customer",
+      operator: "isNotEmpty",
+    },
+    // {
+    //   field: "market",
+    //   key: "2",
+    //   operator: "contains",
+    //   value: "Columbia, SC",
+    // },
+  ],
+};
 
 const Market = () => {
-
-    const importHendler = (e) => {
-        e.preventDefault()
-
-        const form = new FormData(e.target)
-
-        // console.log(form.entries)
-
-        // post(route('zipcode.television.market'), form)
-        Inertia.post(route('market.import'), form)
-    }
-
+  const { test } = usePage().props;
+  const [market, setMarket] = useState(test);
+  const [showColumns, setShowColumns] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false);
+  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const dataArray = market.map((item, index) => ({
+    sl: index + 1,
+    customer: item.customer_id,
+    market: item.market_id,
+    start_date: item.start_date,
+    id: item.id,
+    key: index,
+  }));
+  const SelectionCell = ({
+    rowKeyValue,
+    dispatch,
+    isSelectedRow,
+    selectedRows,
+  }) => {
     return (
-        <div>
+      <Checkbox
+        checked={isSelectedRow}
+        color="primary"
+        onChange={(event) => {
+          if (event.nativeEvent.shiftKey) {
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+          } else if (event.currentTarget.checked) {
+            dispatch(selectRow(rowKeyValue));
+            setTableToolbar(true);
+            const rowId = market[rowKeyValue - 1].id;
+            if (!selectedRowIds.includes(rowId)) {
+              selectedRowIds.push(rowId);
+            }
+          } else {
+            dispatch(deselectRow(rowKeyValue));
+            const rowId = market[rowKeyValue - 1].id;
+            const itemIndx = selectedRowIds.indexOf(rowId);
+            selectedRowIds.splice(itemIndx);
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+          }
+        }}
+      />
+    );
+  };
 
-            <form method='post' encType='multipart/form-data' onSubmit={importHendler}>
-                <input id='importfile' type="file" name='importfile' />
-                <button type='submit'>Import</button>
-            </form>
+  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
+    return (
+      <Checkbox
+        checked={areAllRowsSelected}
+        color="primary"
+        onChange={(event) => {
+          if (event.currentTarget.checked) {
+            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true);
+            let i = 0;
+            while (i < market.length) {
+              if (selectedRowIds) {
+                if (!selectedRowIds.includes(i + 1)) {
+                  selectedRowIds.push(market[i].id);
+                  continue;
+                }
+              } else {
+                selectedRowIds.push(market[i].id);
+              }
+              i++;
+            }
+          } else {
+            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            setTableToolbar(false);
+            if (selectedRowIds) {
+              selectedRowIds.splice(0, selectedRowIds.length);
+            }
+          }
+        }}
+      />
+    );
+  };
+  console.log("out", selectedRowIds);
+  const tablePropsInit = {
+    columns: [
+      {
+        key: "selection-cell",
+      },
+      {
+        key: "sl",
+        title: "SL",
+        dataType: DataType.Number,
+        style: { minWidth: 100 },
+      },
+      {
+        key: "customer",
+        title: "Customer",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
+        key: "market",
+        title: "Market",
+        dataType: DataType.String,
+        style: { width: 230 },
+      },
+      {
+        key: "start_date",
+        title: "Start Date",
+        dataType: DataType.String,
+        style: { minWidth: 100 },
+      },
+    ],
+    paging: {
+      enabled: true,
+      pageIndex: 0,
+      pageSize: 10,
+      pageSizes: [5, 10, 15],
+      position: PagingPosition.Bottom,
+    },
+    data: dataArray,
+    rowKeyField: "id",
+    sortingMode: SortingMode.Single,
+    columnResizing: true,
+    columnReordering: true,
+    // rowReordering: true,
+  };
 
-            <a href={route('market.export', 'csv')}> Export </a>
+  const [tableProps, changeTableProps] = useState(tablePropsInit);
+  const dispatch = (action) => {
+    changeTableProps((prevState) => kaReducer(prevState, action));
+  };
+  const [filterValue, changeFilter] = useState(filter);
+  const onFilterChanged = (newFilterValue) => {
+    changeFilter(newFilterValue);
+  };
 
+  const [serachSidebar, setSearchSidebar] = useState(false);
+
+  const handleSearch = () => {
+    setSearchSidebar((prevState) => !prevState);
+  };
+
+  const handleColumns = () => {
+    setShowColumns((prevState) => !prevState);
+  };
+  const closeSidebar = () => {
+    setSearchSidebar(false);
+  };
+  const deleteHandler = () => {
+    axios.post("market-delete", {selectedRowIds}).then((res) => {
+      console.log(res);
+    });
+  };
+  useEffect(() => M.AutoInit());
+
+  const TableToolbar = () => {
+    return (
+      <div className="table-toolbar">
+        <Tooltip title="Delete">
+          <IconButton aria-label="delete">
+            <DeleteIcon style={{ color: "#fff" }} onClick={deleteHandler}/>
+          </IconButton>
+        </Tooltip>
+      </div>
+    );
+  };
+
+  const ColumnSettings = (tableProps) => {
+    const columnsSettingsProps = {
+      data: tableProps.columns.map((c) => ({
+        ...c,
+        visible: c.visible !== false,
+      })),
+      rowKeyField: "key",
+      columns: [
+        {
+          key: "visible",
+          title: "Visible",
+          isEditable: false,
+          style: { textAlign: "center" },
+          width: 80,
+          dataType: DataType.Boolean,
+        },
+        {
+          key: "title",
+          isEditable: false,
+          title: "Fields",
+          dataType: DataType.String,
+        },
+      ],
+      editingMode: EditingMode.None,
+    };
+    const dispatchSettings = (action) => {
+      if (action.type === ActionType.UpdateCellValue) {
+        tableProps.dispatch(
+          action.value
+            ? showColumn(action.rowKeyValue)
+            : hideColumn(action.rowKeyValue)
+        );
+      }
+    };
+    return (
+      <Table
+        {...columnsSettingsProps}
+        childComponents={{
+          rootDiv: {
+            elementAttributes: () => ({
+              style: { width: 400, marginBottom: 20 },
+            }),
+          },
+          cell: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "visible":
+                  return <CellEditorBoolean {...props} />;
+              }
+            },
+          },
+        }}
+        dispatch={dispatchSettings}
+      />
+    );
+  };
+  return (
+    <div className="selection-demo">
+      {tableToolbar ? (
+        <TableToolbar />
+      ) : (
+        <div className="table-top">
+          <div className="columns-show-hide" onClick={handleColumns}>
+            <img src={eyeIcon} alt="search"></img>
+          </div>
+          <div className="search-icon" onClick={handleSearch}>
+            <span>Search Here</span>
+            <img src={search} alt="search"></img>
+          </div>
+
+          {serachSidebar ? (
+            <div className="search-sidebar">
+              <div className="search-top">
+                <div className="title">
+                  <span>Search</span>
+                </div>
+                <a className="close-nav" onClick={closeSidebar}>
+                  <img src={closeNav} alt="file not found"></img>
+                </a>
+              </div>
+
+              <div className="top-element">
+                <FilterControl
+                  {...{
+                    fields,
+                    groups,
+                    filterValue,
+                    onFilterValueChanged: onFilterChanged,
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
+          {showColumns ? (
+            <div className="column-settings">
+              <ColumnSettings {...tableProps} dispatch={dispatch} />
+            </div>
+          ) : (
+            ""
+          )}
         </div>
-    )
-}
+      )}
+      <Table
+        {...tableProps}
+        childComponents={{
+          cellText: {
+            content: (props) => {
+              if (props.column.key === "selection-cell") {
+                return <SelectionCell {...props} />;
+              }
+            },
+          },
+          filterRowCell: {
+            content: (props) => {
+              if (props.column.key === "selection-cell") {
+                return <></>;
+              }
+            },
+          },
+          headCell: {
+            content: (props) => {
+              if (props.column.key === "selection-cell") {
+                return (
+                  <SelectionHeader
+                    {...props}
+                    areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                      tableProps
+                    )}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                  />
+                );
+              }
+            },
+          },
+          cell: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "drag":
+                  return (
+                    <img
+                      style={{ cursor: "move" }}
+                      src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                      alt="draggable"
+                    />
+                  );
+              }
+            },
+          },
+        }}
+        dispatch={dispatch}
+        extendedFilter={(data) => filterData(data, filterValue)}
+      />
+    </div>
+  );
+};
 
-Market.layout = page => <Layout title="Market">{page}</Layout>
-export default Market
+Market.layout = (page) => <Layout title="Market">{page}</Layout>;
+export default Market;

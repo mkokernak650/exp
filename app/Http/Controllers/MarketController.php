@@ -16,6 +16,9 @@ class MarketController extends Controller
         $this->middleware('auth');
     }
 
+
+
+
     public function addMarket(Request $request)
     {
         $allMarkets = Market::all();
@@ -28,7 +31,6 @@ class MarketController extends Controller
             'market_name' => $request->market,
         ]);
         return response()->json(["msg" => "Successfully added"]);
-
     }
 
     public function marketReport()
@@ -52,5 +54,14 @@ class MarketController extends Controller
         // get request
         Excel::download(new MarketExport,  'markets.' . $type);
         return back()->with('Export successfully');
+    }
+
+    public function delete(Request $request)
+    {
+        $i = 0;
+        while ($i <= count($request->selectedRowIds)) {
+            Market::where('id',$request->selectedRowIds[$i])->delete();
+            $i++;
+        }
     }
 }

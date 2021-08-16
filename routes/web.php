@@ -15,6 +15,7 @@ use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
 use App\Http\Controllers\TargetController;
+use App\Http\Controllers\WebFormController;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use App\Http\Helpers\RingbaApiHelpers;
@@ -60,7 +61,7 @@ Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
 
 Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
         ->name('delete.ringba.date');
-
+Route::post('/market-delete', [MarketController::class, 'delete']);
 
 
 
@@ -74,9 +75,11 @@ Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
 // })->name('home');
 
 
-Route::get('/get-ringba-data', function () {
-        return inertia::render('Ringba/GetRingbaData');
-})->name('getringbadata');
+// Route::get('/get-ringba-data', function () {
+//         return inertia::render('Ringba/GetRingbaData');
+// })->name('getringbadata');
+
+Route::get('/get-ringba-data', [RingbaCallLogController::class, 'getRingbaDataForm'])->name('get.ringbadata');
 
 
 
@@ -90,9 +93,11 @@ Route::get('/market-exception-form', [MarketExceptionController::class, 'marketE
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])
         ->name('market-exception-report');
 
-Route::get('/market-exception', function () {
-        return inertia::render('Settings/MarketException');
-})->name('market-exception');
+// Route::get('/market-exception', function () {
+//         return inertia::render('Settings/MarketException');
+// })->name('market-exception');
+
+
 
 Route::get('/market-exception-export/{type}', [MarketExceptionController::class, 'export'])
         ->name('market.exception.export');
@@ -108,9 +113,7 @@ Route::post('/store-market', [MarketController::class, 'addMarket'])
 Route::get('/market-report', [MarketController::class, 'marketReport'])
         ->name('market-report');
 
-Route::get('/add-market', function () {
-        return inertia::render('Settings/AddMarket');
-})->name('add-market');
+
 
 Route::get('market-export/{type}', [MarketController::class, 'export'])
         ->name('market.export');
@@ -123,9 +126,9 @@ Route::get('/market-data', function () {
 })->name('market.data');
 
 // TODO Customet Controller
-Route::get('/add-customer', function () {
-        return Inertia::render('Settings/AddCustomer');
-})->name('add.customer');
+
+Route::get('/add-customer', [CustomerController::class, 'addCustomerForm'])
+        ->name('add.customer');
 
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])
         ->name('customer-report');
@@ -223,8 +226,22 @@ Route::post('move-exception-to-arhived', [ExceptionController::class, 'moveToArh
 
 Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPending'])
         ->name('move.exception.to.pending');
-        
+
 Route::post('/exception-get-annotation', [ExceptionController::class, 'getAnnotation'])->name('exception.get.annotation');
 
 Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
         ->name('update.exception.report');
+
+
+//test-route
+
+
+Route::get('/ka-table', [MarketExceptionController::class, 'test'])
+        ->name('ka.table');
+
+Route::get('web-form', function () {
+        return Inertia::render('WebForm');
+});
+
+Route::post('/web-form-store', [WebFormController::class, 'store'])->name('webform.store');
+Route::get('/web-form-reports', [WebFormController::class, 'index'])->name('webform.reports');

@@ -12,7 +12,10 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ZipcodeByTelevisionMarketController extends Controller
 {
-
+    function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
         $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::take(1000)->get();
@@ -33,6 +36,7 @@ class ZipcodeByTelevisionMarketController extends Controller
     {
         //post
         Excel::import(new ZipcodeByTelevisionMarketImport, $request->importfile);
-        return back();
+        $newData = ZipcodeByTelevisionMarket::orderBy('id', 'DESC')->take(1000)->get();
+        return response()->json($newData);
     }
 }
