@@ -11,6 +11,7 @@ use App\Models\Target;
 use App\Models\ZipCodeData;
 use App\Models\Exception;
 use App\Models\ZipcodeByTelevisionMarket;
+use Illuminate\Support\Facades\DB;
 
 
 class ExceptionController extends Controller
@@ -364,6 +365,22 @@ class ExceptionController extends Controller
             $this->get_city = $result->City;
             $this->get_market = $res->Market ?? '';
             $this->get_type = $result->NXXUseType;
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  DB::table('exceptions')->where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        }
+        if ($result) {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
 }

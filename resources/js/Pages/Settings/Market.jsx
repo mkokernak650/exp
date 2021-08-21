@@ -1,6 +1,4 @@
 import Layout from "../Layout/Layout";
-import "./Demo.scss";
-import M from "materialize-css";
 import React, { useEffect, useState } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
@@ -31,7 +29,21 @@ import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
+import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
+
+const useStyles = makeStyles(() => ({
+  topBtn: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
+  },
+  button: {
+    width: 130,
+    textTransform: "capitalize",
+    fontSize: "14px",
+  },
+}));
 export const fields = [
   {
     caption: "customer",
@@ -138,6 +150,7 @@ export const filter = {
 };
 
 const Market = () => {
+  const classes = useStyles();
   const { test } = usePage().props;
   const [market, setMarket] = useState(test);
   const [showColumns, setShowColumns] = useState(false);
@@ -167,15 +180,15 @@ const Market = () => {
           } else if (event.currentTarget.checked) {
             dispatch(selectRow(rowKeyValue));
             setTableToolbar(true);
-            const rowId = market[rowKeyValue - 1].id;
-            if (!selectedRowIds.includes(rowId)) {
-              selectedRowIds.push(rowId);
+            const id = parseInt(rowKeyValue);
+            if (!selectedRowIds.includes(id)) {
+              selectedRowIds.push(id);
             }
           } else {
             dispatch(deselectRow(rowKeyValue));
-            const rowId = market[rowKeyValue - 1].id;
-            const itemIndx = selectedRowIds.indexOf(rowId);
-            selectedRowIds.splice(itemIndx);
+            const id = parseInt(rowKeyValue);
+            const itemIndx = selectedRowIds.indexOf(id);
+            selectedRowIds.splice(itemIndx, 1);
             if (selectedRowIds.length < 1) {
               setTableToolbar(false);
             }
@@ -184,7 +197,6 @@ const Market = () => {
       />
     );
   };
-
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -196,38 +208,34 @@ const Market = () => {
             setTableToolbar(true);
             let i = 0;
             while (i < market.length) {
-              if (selectedRowIds) {
-                if (!selectedRowIds.includes(i + 1)) {
-                  selectedRowIds.push(market[i].id);
-                  continue;
-                }
-              } else {
-                selectedRowIds.push(market[i].id);
-              }
+              selectedRowIds.push(market[i].id);
               i++;
             }
           } else {
             dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            setTableToolbar(false);
             if (selectedRowIds) {
               selectedRowIds.splice(0, selectedRowIds.length);
+            }
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
             }
           }
         }}
       />
     );
   };
-  console.log("out", selectedRowIds);
+
   const tablePropsInit = {
     columns: [
       {
         key: "selection-cell",
+        style: { width: 80 },
       },
       {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
-        style: { minWidth: 100 },
+        style: { width: 100 },
       },
       {
         key: "customer",
@@ -239,8 +247,14 @@ const Market = () => {
         key: "market",
         title: "Market",
         dataType: DataType.String,
-        style: { width: 230 },
+        style: { width: 350 },
       },
+      // {
+      //   key: "id",
+      //   title: "id",
+      //   dataType: DataType.String,
+      //   style: { width: 230 },
+      // },
       {
         key: "start_date",
         title: "Start Date",
@@ -285,20 +299,53 @@ const Market = () => {
     setSearchSidebar(false);
   };
   const deleteHandler = () => {
-    axios.post("market-delete", {selectedRowIds}).then((res) => {
-      console.log(res);
-    });
+    axios
+      .post("market-exception-delete", { selectedRowIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          const newData = filteredData.data.filter(
+            (item) => !selectedRowIds.includes(item.id)
+          );
+          filteredData.data = newData;
+          changeTableProps(filteredData);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
-  useEffect(() => M.AutoInit());
+
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <DeleteIcon style={{ color: "#fff" }} onClick={deleteHandler}/>
+          <IconButton aria-label="delete" onClick={deleteHandler}>
+            <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
+
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+        >
+          Move Call Log
+        </Button>
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+        >
+          Billed
+        </Button>
       </div>
     );
   };
@@ -359,6 +406,7 @@ const Market = () => {
       />
     );
   };
+
   return (
     <div className="selection-demo">
       {tableToolbar ? (

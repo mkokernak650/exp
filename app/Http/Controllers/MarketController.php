@@ -58,10 +58,14 @@ class MarketController extends Controller
 
     public function delete(Request $request)
     {
-        $i = 0;
-        while ($i <= count($request->selectedRowIds)) {
-            Market::where('id',$request->selectedRowIds[$i])->delete();
-            $i++;
-        }
+        // $test= Market::all();
+        // return $test;
+        // $i = 0;
+        // while ($i <= count($request->selectedRowIds)) {
+         
+
+        //     Market::where('id', $request->selectedRowIds[$i])->delete();
+        //     $i++;
+        // }
     }
 }

@@ -1,21 +1,48 @@
-import React, { useState } from "react";
-import { CssBaseline, Button, makeStyles, Snackbar } from "@material-ui/core";
-import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
+import M from "materialize-css";
+import React, { useEffect, useState } from "react";
+import { kaReducer, Table } from "ka-table";
+import {
+  DataType,
+  SortingMode,
+  PagingPosition,
+  EditingMode,
+  ActionType,
+} from "ka-table/enums";
+import { kaPropsUtils } from "ka-table/utils";
 import { usePage } from "@inertiajs/inertia-react";
+import {
+  deselectAllFilteredRows,
+  deselectRow,
+  selectAllFilteredRows,
+  selectRow,
+  selectRowsRange,
+} from "ka-table/actionCreators";
+import FilterControl from "react-filter-control";
+import { filterData } from "../filterData";
+import "ka-table/style.scss";
+import search from "../../../images/search.svg";
+import eyeIcon from "../../../images/eyeIcon.svg";
+import closeNav from "../../../images/closeNav.svg";
+import { hideColumn, showColumn } from "ka-table/actionCreators";
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
+import Tooltip from "@material-ui/core/Tooltip";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import Checkbox from "@material-ui/core/Checkbox";
+import {
+  Button,
+  makeStyles,
+  Snackbar,
+  CircularProgress,
+} from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
-import { Helmet } from "react-helmet";
 import axios from "axios";
-
+import { Helmet } from "react-helmet";
 
 const useStyles = makeStyles(() => ({
-  topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
-  },
   button: {
-    width: 130,
+    width: "auto",
     textTransform: "capitalize",
     fontSize: "14px",
   },
@@ -24,169 +51,1430 @@ const useStyles = makeStyles(() => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+export const fields = [
+  {
+    caption: "SN",
+    name: "SN",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Call Date",
+    name: "Call_Date",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Has Annotation",
+    name: "Has_Annotation",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Annotation Tag",
+    name: "Annotation_Tag",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Call Status",
+    name: "Call_Status",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Duplicate Call",
+    name: "Duplicate_Call",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Inbound Id",
+    name: "Inbound_Id",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Affiliate",
+    name: "Affiliate",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Market",
+    name: "Market",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Campaign",
+    name: "Campaign",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Inbound",
+    name: "Inbound",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Dialed",
+    name: "Dialed",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Type",
+    name: "Type",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Customer",
+    name: "Customer",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Target",
+    name: "Target",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Target Description",
+    name: "Target_Description",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Source Hangup",
+    name: "Source_Hangup",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Time To Call",
+    name: "Time_To_Call",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "call Length In Seconds",
+    name: "call_Length_In_Seconds",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Revenue",
+    name: "Revenue",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Conn.Duration",
+    name: "Conn_Duration",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Time",
+    name: "Call_Date_Time",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Payout",
+    name: "Payout",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Total_Cost",
+    name: "Total Cost",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Profit",
+    name: "Profit",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "City",
+    name: "City",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "State",
+    name: "State",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "Zipcode",
+    name: "Zipcode",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+];
 
-const CallLogsReport = () => {
+export const groups = [
+  {
+    caption: "And",
+    name: "and",
+  },
+  {
+    caption: "Or",
+    name: "or",
+  },
+];
+export const filter = {
+  groupName: "and",
+  items: [
+    {
+      field: "SN",
+      operator: "isNotEmpty",
+    },
+  ],
+};
+
+const PendingCallLogsReport = () => {
   const classes = useStyles();
   const { results } = usePage().props;
+  const [showColumns, setShowColumns] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false);
+  const [selectedRowIds, setselectedRowIds] = useState([]);
   const [inboundIds, setInbounIds] = useState([]);
-  const [success, setSuccess] = useState();
+  const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
 
-  const newCallCallLogs = results.map((item, indx) => {
-    return {
-      SN: item.SN,
-      Call_Date: item.Call_Date,
-      Call_Date_Time: item.Call_Date_Time,
-      Duplicate_Call: item.Duplicate_Call,
-      Call_Status: item.call_Logs_status,
-      Inbound_Id: item.Inbound_Id,
-      Affiliate: item.Affiliate,
-      Campaign: item.Campaign,
-      Inbound: item.Inbound,
-      Dialed: item.Dialed,
-      Type: item.Type,
-      Target: item.Target,
-      Customer: item.Customer,
-      Source_Hangup: item.Source_Hangup,
-      Conn_Duration: item.Conn_Duration,
-      Time_To_Call: item.Time_To_Call,
-      Call_Length_In_Seconds: item.call_Length_In_Seconds,
-      Revenue: item.Revenue,
-      Payout: item.payoutAmount,
-      Total_Cost: item.Total_Cost,
-      Profit: item.Profit,
-    };
-  });
-  const [mainData, setMainData] = useState(newCallCallLogs);
-  const columns = [
-    {
-      Header: "SN",
-      accessor: "SN",
-    },
-    {
-      Header: "Call Date",
-      accessor: "Call_Date",
-    },
-    {
-      Header: "Call Date Time",
-      accessor: "Call_Date_Time",
-    },
-    {
-      Header: "Duplicate Call",
-      accessor: "Duplicate_Call",
-    },
-    {
-      Header: "Affiliate",
-      accessor: "Affiliate",
-    },
-    {
-      Header: "Campaign",
-      accessor: "Campaign",
-    },
-    {
-      Header: "Inbound Id",
-      accessor: "Inbound_Id",
-    },
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+  const dataArray = results.map((item, index) => ({
+    sl: index + 1,
+    SN: item.SN,
+    Call_Date: item.Call_Date,
+    Call_Date_Time: item.Call_Date_Time,
+    Duplicate_Call: item.Duplicate_Call,
+    Call_Status: item.call_Logs_status,
+    Inbound_Id: item.Inbound_Id,
+    Affiliate: item.Affiliate,
+    Campaign: item.Campaign,
+    Inbound: item.Inbound,
+    Dialed: item.Dialed,
+    Type: item.Type,
+    Target: item.Target,
+    Customer: item.Customer,
+    Source_Hangup: item.Source_Hangup,
+    Conn_Duration: item.Conn_Duration,
+    Time_To_Call: item.Time_To_Call,
+    Call_Length_In_Seconds: item.call_Length_In_Seconds,
+    Revenue: item.Revenue,
+    Payout: item.payoutAmount,
+    Total_Cost: item.Total_Cost,
+    Profit: item.Profit,
+    id: item.id,
+    key: index,
+  }));
 
-    {
-      Header: "Inbound",
-      accessor: "Inbound",
-    },
-    {
-      Header: "Dialed",
-      accessor: "Dialed",
-    },
-    {
-      Header: "Type",
-      accessor: "Type",
-    },
-    {
-      Header: "Target",
-      accessor: "Target",
-    },
-    {
-      Header: "Source/Hangup",
-      accessor: "Source_Hangup",
-    },
-    {
-      Header: "Conn. Duration",
-      accessor: "Conn_Duration",
-    },
-    {
-      Header: "Time To Call",
-      accessor: "Time_To_Call",
-    },
-    {
-      Header: "Call Length In Seconds",
-      accessor: "Call_Length_In_Seconds",
-    },
-    {
-      Header: "Revenue",
-      accessor: "Revenue",
-    },
-    {
-      Header: "Payout",
-      accessor: "Payout",
-    },
-    {
-      Header: "Total Cost",
-      accessor: "Total_Cost",
-    },
-    {
-      Header: "Profit",
-      accessor: "Profit",
-    },
+  const tablePropsInit = {
+    columns: [
+      {
+        key: "selection-cell",
+        style: { width: 80 },
+      },
+      {
+        key: "sl",
+        title: "SL",
+        dataType: DataType.Number,
+        style: { width: 100 },
+      },
+      {
+        key: "SN",
+        title: "SN",
+        dataType: DataType.String,
+        style: { width: 130 },
+      },
+      {
+        key: "Call_Date",
+        title: "Call Date",
+        dataType: DataType.String,
+        style: { width: 200 },
+      },
+      {
+        key: "Call_Status",
+        title: "Call Status",
+        dataType: DataType.String,
+        style: { width: 130 },
+      },
+      {
+        key: "Duplicate_Call",
+        title: "Duplicate Call",
+        dataType: DataType.String,
+        style: { width: 150 },
+      },
+      {
+        key: "Inbound_Id",
+        title: "Inbound Id",
+        dataType: DataType.String,
+        style: { width: 600 },
+      },
+      {
+        key: "Affiliate",
+        title: "Affiliate",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
 
-    {
-      Header: "Call Status",
-      accessor: "Call_Status",
+      {
+        key: "Campaign",
+        title: "Campaign",
+        dataType: DataType.String,
+        style: { width: 200 },
+      },
+      {
+        key: "Inbound",
+        title: "Inbound",
+        dataType: DataType.String,
+        style: { width: 200 },
+      },
+      {
+        key: "Dialed",
+        title: "Dialed",
+        dataType: DataType.String,
+        style: { width: 200 },
+      },
+      {
+        key: "Type",
+        title: "Type",
+        dataType: DataType.String,
+        style: { width: 100 },
+      },
+      {
+        key: "Customer",
+        title: "Customer",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
+        key: "Target",
+        title: "Target",
+        dataType: DataType.String,
+        style: { width: 350 },
+      },
+      {
+        key: "Source_Hangup",
+        title: "Source/Hangup",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
+        key: "Time_To_Call",
+        title: "Time To Call",
+        dataType: DataType.String,
+        style: { width: 130 },
+      },
+      {
+        key: "Call_Length_In_Seconds",
+        title: "Call Length In Seconds",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
+        key: "Revenue",
+        title: "Revenue",
+        dataType: DataType.String,
+        style: { width: 120 },
+      },
+      {
+        key: "Conn_Duration",
+        title: "Conn.Duration",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
+        key: "Payout",
+        title: "Payout",
+        dataType: DataType.String,
+        style: { width: 100 },
+      },
+      {
+        key: "Total_Cost",
+        title: "Total Cost",
+        dataType: DataType.String,
+        style: { width: 120 },
+      },
+      {
+        key: "Profit",
+        title: "Profit",
+        dataType: DataType.String,
+        style: { width: 120 },
+      }
+    ],
+    paging: {
+      enabled: true,
+      pageIndex: 0,
+      pageSize: 10,
+      pageSizes: [5, 10, 15],
+      position: PagingPosition.Bottom,
     },
-  ];
-
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
-  const updateMyData = (rowIndex, columnId, value) => {
-    setSkipPageReset(true);
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    );
+    data: dataArray,
+    rowKeyField: "id",
+    sortingMode: SortingMode.Single,
+    columnResizing: true,
+    columnReordering: true,
+    // rowReordering: true,
   };
 
-  const TableTitle = () => {
-    return <div></div>;
+  const [tableProps, changeTableProps] = useState(tablePropsInit);
+
+  const SelectionCell = ({
+    rowKeyValue,
+    dispatch,
+    isSelectedRow,
+    selectedRows,
+  }) => {
+    return (
+      <Checkbox
+        checked={isSelectedRow}
+        color="primary"
+        onChange={(event) => {
+          if (event.nativeEvent.shiftKey) {
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+          } else if (event.currentTarget.checked) {
+            dispatch(selectRow(rowKeyValue));
+            setTableToolbar(true);
+            const id = parseInt(rowKeyValue);
+            if (!selectedRowIds.includes(id)) {
+              selectedRowIds.push(id);
+            }
+            const selectedRowData = tableProps.data.filter(
+              (item) => item.id == id
+            );
+            inboundIds.push(selectedRowData[0].Inbound_Id);
+          } else {
+            dispatch(deselectRow(rowKeyValue));
+            const id = parseInt(rowKeyValue);
+            const itemIndx = selectedRowIds.indexOf(id);
+            selectedRowIds.splice(itemIndx, 1);
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+            const selectedRowData = tableProps.data.filter(
+              (item) => item.id == id
+            );
+            const inboundIndx = selectedRowData.indexOf(
+              selectedRowData.Inbound_Id
+            );
+            inboundIds.splice(inboundIndx, 1);
+          }
+        }}
+      />
+    );
+  };
+  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
+    return (
+      <Checkbox
+        checked={areAllRowsSelected}
+        color="primary"
+        onChange={(event) => {
+          if (event.currentTarget.checked) {
+            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true);
+            let i = 0;
+            while (i < results.length) {
+              selectedRowIds.push(results[i].id);
+              inboundIds.push(results[i].Inbound_Id);
+              i++;
+            }
+          } else {
+            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            // if (selectedRowIds) {
+            selectedRowIds.splice(0, selectedRowIds.length);
+            inboundIds.splice(0, inboundIds.length);
+
+            // }
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+          }
+        }}
+      />
+    );
+  };
+  const dispatch = (action) => {
+    changeTableProps((prevState) => kaReducer(prevState, action));
+  };
+  const [filterValue, changeFilter] = useState(filter);
+  const onFilterChanged = (newFilterValue) => {
+    changeFilter(newFilterValue);
+  };
+
+  const [serachSidebar, setSearchSidebar] = useState(false);
+
+  const handleSearch = () => {
+    setSearchSidebar((prevState) => !prevState);
+  };
+
+  const handleColumns = () => {
+    setShowColumns((prevState) => !prevState);
+  };
+  const closeSidebar = () => {
+    setSearchSidebar(false);
+  };
+  const deleteHandler = () => {
+    axios
+      .post(route("pending.delete"), { selectedRowIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          const newData = filteredData.data.filter(
+            (item) => !selectedRowIds.includes(item.id)
+          );
+          filteredData.data = newData;
+          changeTableProps(filteredData);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+        } else {
+          setOpen(true);
+          setResponse(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setTableToolbar(false);
+      });
   };
 
   const MoveCallLog = () => {
     axios
       .post(route("move.from.pending.bill.to.ringba.call.log"), { inboundIds })
       .then((res) => {
-        console.log(res);
         if (res.data.status_code === 200) {
-          setSuccess(res.data.msg);
+          setResponse(res.data.msg);
           setOpen(true);
-          setMainData((oldData) =>
-            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          let filteredData = tableProps;
+          const newData = filteredData.data.filter(
+            (item) => !inboundIds.includes(item.Inbound_Id)
           );
+          filteredData.data = newData;
+          changeTableProps(filteredData);
+          setTableToolbar(false);
           setInbounIds([]);
         } else {
-          setSuccess(res.data.msg);
+          setResponse(res.data.msg);
           setOpen(true);
         }
       })
       .catch((err) => {});
-  };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
   };
 
   const handleBilled = () => {
@@ -194,35 +1482,39 @@ const CallLogsReport = () => {
       .post(route("store.bill.call.logs"), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setSuccess(res.data.msg);
+          setResponse(res.data.msg);
           setOpen(true);
-          setMainData((oldData) =>
-            oldData.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          let filteredData = tableProps;
+          const newData = filteredData.data.filter(
+            (item) => !inboundIds.includes(item.Inbound_Id)
           );
+          filteredData.data = newData;
+          changeTableProps(filteredData);
+          setTableToolbar(false);
           setInbounIds([]);
         } else {
-          setSuccess(res.data.msg);
+          setResponse(res.data.msg);
           setOpen(true);
+          setInbounIds([]);
+          setselectedRowIds([]);
         }
       })
       .catch((err) => {});
   };
 
-  return (
-    <div>
-      <Helmet title="Pending Call Logs" />
-      <CssBaseline />
-      <EnhancedTable
-        columns={columns}
-        data={mainData}
-        setData={setMainData}
-        updateMyData={updateMyData}
-        skipPageReset={skipPageReset}
-        inboundIds={inboundIds}
-        TableTitle={TableTitle}
-      >
-        <div className={classes.topBtn}>
-          <Button
+
+  useEffect(() => M.AutoInit());
+
+  const TableToolbar = () => {
+    return (
+      <div className="table-toolbar">
+        <Tooltip title="Delete">
+          <IconButton aria-label="delete" onClick={deleteHandler}>
+            <DeleteIcon style={{ color: "#031b4e" }} />
+          </IconButton>
+        </Tooltip>
+
+        <Button
             variant="contained"
             type="submit"
             color="primary"
@@ -240,8 +1532,169 @@ const CallLogsReport = () => {
           >
             Billed
           </Button>
+      </div>
+    );
+  };
+
+  const ColumnSettings = (tableProps) => {
+    const columnsSettingsProps = {
+      data: tableProps.columns.map((c) => ({
+        ...c,
+        visible: c.visible !== false,
+      })),
+      rowKeyField: "key",
+      columns: [
+        {
+          key: "visible",
+          title: "Visible",
+          isEditable: false,
+          style: { textAlign: "center" },
+          width: 80,
+          dataType: DataType.Boolean,
+        },
+        {
+          key: "title",
+          isEditable: false,
+          title: "Fields",
+          dataType: DataType.String,
+        },
+      ],
+      editingMode: EditingMode.None,
+    };
+    const dispatchSettings = (action) => {
+      if (action.type === ActionType.UpdateCellValue) {
+        tableProps.dispatch(
+          action.value
+            ? showColumn(action.rowKeyValue)
+            : hideColumn(action.rowKeyValue)
+        );
+      }
+    };
+    return (
+      <Table
+        {...columnsSettingsProps}
+        childComponents={{
+          rootDiv: {
+            elementAttributes: () => ({
+              style: { width: 400, marginBottom: 20 },
+            }),
+          },
+          cell: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "visible":
+                  return <CellEditorBoolean {...props} />;
+              }
+            },
+          },
+        }}
+        dispatch={dispatchSettings}
+      />
+    );
+  };
+
+  return (
+    <>
+          <Helmet title="Pending Call Logs Report" />
+
+    <div className="selection-demo">
+      {tableToolbar ? (
+        <TableToolbar />
+      ) : (
+        <div className="table-top">
+          <div className="columns-show-hide" onClick={handleColumns}>
+            <img src={eyeIcon} alt="search"></img>
+          </div>
+          <div className="search-icon" onClick={handleSearch}>
+            <span>Search Here</span>
+            <img src={search} alt="search"></img>
+          </div>
+
+          {serachSidebar ? (
+            <div className="search-sidebar">
+              <div className="search-top">
+                <div className="title">
+                  <span>Search</span>
+                </div>
+                <a className="close-nav" onClick={closeSidebar}>
+                  <img src={closeNav} alt="file not found"></img>
+                </a>
+              </div>
+
+              <div className="top-element">
+                <FilterControl
+                  {...{
+                    fields,
+                    groups,
+                    filterValue,
+                    onFilterValueChanged: onFilterChanged,
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
+          {showColumns ? (
+            <div className="column-settings">
+              <ColumnSettings {...tableProps} dispatch={dispatch} />
+            </div>
+          ) : (
+            ""
+          )}
         </div>
-      </EnhancedTable>
+      )}
+      <Table
+        {...tableProps}
+        childComponents={{
+          cellText: {
+            content: (props) => {
+              if (props.column.key === "selection-cell") {
+                return <SelectionCell {...props} />;
+              }
+            },
+          },
+          filterRowCell: {
+            content: (props) => {
+              if (props.column.key === "selection-cell") {
+                return <></>;
+              }
+            },
+          },
+          headCell: {
+            content: (props) => {
+              if (props.column.key === "selection-cell") {
+                return (
+                  <SelectionHeader
+                    {...props}
+                    areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                      tableProps
+                    )}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                  />
+                );
+              }
+            },
+          },
+          cell: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "drag":
+                  return (
+                    <img
+                      style={{ cursor: "move" }}
+                      src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                      alt="draggable"
+                    />
+                  );
+              }
+            },
+          },
+        }}
+        dispatch={dispatch}
+        extendedFilter={(data) => filterData(data, filterValue)}
+      />
+
       <Snackbar
         open={open}
         autoHideDuration={3000}
@@ -249,13 +1702,14 @@ const CallLogsReport = () => {
         className={classes.snackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert severity="success">{success}</Alert>
+        <Alert severity="success">{response}</Alert>
       </Snackbar>
     </div>
+  </>
   );
 };
 
-CallLogsReport.layout = (page) => (
-  <Layout title="Call Logs Report">{page}</Layout>
+PendingCallLogsReport.layout = (page) => (
+  <Layout title="Pending Call Logs Report">{page}</Layout>
 );
-export default CallLogsReport;
+export default PendingCallLogsReport;

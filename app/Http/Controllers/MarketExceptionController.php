@@ -77,4 +77,20 @@ class MarketExceptionController extends Controller
         Excel::download(new MarketExceptionExport,  'MarketExceptionExport.' . $type);
         return back()->with('Export successfully');
     }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  DB::table('market_excptions')->where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        }
+        if ($result) {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
 }
