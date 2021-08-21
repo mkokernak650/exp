@@ -5,6 +5,21 @@ body {
   margin: 0;
   background: white !important;
 }
+
+div::-webkit-scrollbar {
+  width: 12px; /* width of the entire scrollbar */
+}
+
+div::-webkit-scrollbar-track {
+  background: white; /* color of the tracking area */
+}
+
+div::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* color of the scroll thumb */
+  border-radius: 20px; /* roundness of the scroll thumb */
+  border: 3px solid white; /* creates padding around scroll thumb */
+}
+
 .layout main {
   overflow: auto;
 }
@@ -46,40 +61,50 @@ body {
   margin-bottom: 10px;
   /* min-height: 64px; */
 }
+.table-top .top-left{
+  display: flex;
+  gap: 15px;
+}
 .table-toolbar {
   min-height: 64px;
-  background: #f50057;
+  gap: 15px;
   display: flex;
   align-items: center;
   padding-left: 20px;
   color: white;
 }
+
 .columns-show-hide {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 100%;
   cursor: pointer;
+  margin-left: 32px;
 }
 .columns-show-hide:hover {
   transition: all 0.5s ease-in-out;
-  background: #e0e0e0;
+  background: #f3f3f3;
 }
 
 .columns-show-hide img {
   width: 20px;
   height: 20px;
 }
-
-.ka tr:hover {
-  /* background-color: #e7eaf3; */
-  /* border-bottom: 1px solid #dedce4; */
-  /* box-shadow: 0 2px 2px #dfdfdf; */
+.ka .ka-table-wrapper {
+  height: 600px;
 }
+.ka .ka-thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-shadow: 1px 1px 3px 1px #ccc;
+}
+
 .ka-thead-row {
-  box-sizing: 0 1px 4px 1px #cacaca!important;
+  box-sizing: 0 1px 4px 1px #cacaca !important;
 }
 .ka .ka-cell {
   font-size: 14px;
@@ -94,6 +119,9 @@ body {
   background-color: #f0f2f8 !important;
   color: #031b4e !important;
 }
+.ka .MuiCheckbox-colorPrimary.Mui-checked {
+  color: #0069ff !important;
+}
 
 .ka-thead-background {
   background-color: white !important;
@@ -103,7 +131,16 @@ body {
   border-top: 1px solid #eaeaf1 !important;
   border-bottom: 1px solid #eaeaf1 !important;
 }
+.ka .ka-row:hover {
+  box-shadow: 2px 3px 6px 1px #ccc;
+}
+.ka .ka-row-selected {
+  background: #eff2f5 !important;
+}
 .ka .ka-thead-cell {
+  padding: 6px 20px;
+}
+.ka .ka-cell {
   padding: 6px 20px;
 }
 .ka .ka-cell:hover {
@@ -124,6 +161,9 @@ body {
   width: 200px !important;
   box-shadow: none !important;
 }
+.column-settings .ka-table-wrapper {
+  height: 380px !important;
+}
 .column-settings .ka-row .ka-cell:first-child {
   width: 36px !important;
   text-align: left;
@@ -135,6 +175,7 @@ body {
 }
 .column-settings .ka-row:hover {
   background-color: #f0f2f8;
+  box-shadow: none;
 }
 .column-settings .ka-row .ka-cell {
   padding: 6px 7px;
@@ -171,7 +212,7 @@ body {
   position: fixed;
   right: 0;
   background-color: #000;
-  transition: all 2s;
+  transition: 0.5s ease-in-out;
   padding-top: 10px;
   box-shadow: 0px 0px 10px #ccc;
   background: white;
@@ -293,6 +334,9 @@ body {
 }
 .top-element .fc-condition .fc-dropdownmenu-contextmenu {
   width: 135px;
+  height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .fc-condition input {
   border-radius: 5px;

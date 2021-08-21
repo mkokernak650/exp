@@ -7,6 +7,7 @@ use App\Models\BilledCallLog;
 use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class BilledCallLogController extends Controller
 {
@@ -194,5 +195,21 @@ class BilledCallLogController extends Controller
         $findData->Has_Annotation = $data['has_annotation'];
         $findData->Annotation_Tag = $data['annotation_tag'];
         $findData->save();
+    }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  DB::table('billed_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        }
+        if ($result) {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
     }
 }

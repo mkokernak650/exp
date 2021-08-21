@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PendingBillCallLog;
 use App\Models\RingbaCallLog;
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PendingBillCallLogController extends Controller
@@ -86,6 +86,22 @@ class PendingBillCallLogController extends Controller
             return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
         } else {
             return response()->json(["msg" => "moving failed", "status_code" => 500]);
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  DB::table('pending_bill_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        }
+        if ($result) {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
 }

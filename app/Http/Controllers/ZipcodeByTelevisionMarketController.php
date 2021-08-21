@@ -9,6 +9,7 @@ use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class ZipcodeByTelevisionMarketController extends Controller
 {
@@ -38,5 +39,21 @@ class ZipcodeByTelevisionMarketController extends Controller
         Excel::import(new ZipcodeByTelevisionMarketImport, $request->importfile);
         $newData = ZipcodeByTelevisionMarket::orderBy('id', 'DESC')->take(1000)->get();
         return response()->json($newData);
+    }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  DB::table('zipcode_by_television_markets')->where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        }
+        if ($result) {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
     }
 }

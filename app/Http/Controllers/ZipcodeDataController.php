@@ -57,4 +57,20 @@ class ZipcodeDataController extends Controller
         $results = ZipCodeData::skip($skip)->take($take)->get();
         varDump($results);
     }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  DB::table('zip_code_data')->where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        }
+        if ($result) {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
 }

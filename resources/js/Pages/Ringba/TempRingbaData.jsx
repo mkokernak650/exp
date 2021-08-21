@@ -1,122 +1,547 @@
-import React, { useState } from "react";
-import { CssBaseline, Button, makeStyles } from "@material-ui/core";
-import EnhancedTable from "../../components/EnhancedTable";
 import Layout from "../Layout/Layout";
+import M from "materialize-css";
+import React, { useEffect, useState } from "react";
+import { kaReducer, Table } from "ka-table";
+import {
+  DataType,
+  SortingMode,
+  PagingPosition,
+  EditingMode,
+  ActionType,
+} from "ka-table/enums";
+import { kaPropsUtils } from "ka-table/utils";
 import { usePage } from "@inertiajs/inertia-react";
+import {
+  deselectAllFilteredRows,
+  deselectRow,
+  selectAllFilteredRows,
+  selectRow,
+  selectRowsRange,
+} from "ka-table/actionCreators";
+import FilterControl from "react-filter-control";
+import { filterData } from "../filterData";
+import "ka-table/style.scss";
+import search from "../../../images/search.svg";
+import eyeIcon from "../../../images/eyeIcon.svg";
+import closeNav from "../../../images/closeNav.svg";
+import { hideColumn, showColumn } from "ka-table/actionCreators";
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
+import Tooltip from "@material-ui/core/Tooltip";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import Checkbox from "@material-ui/core/Checkbox";
+import { makeStyles, Snackbar } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
+import axios from "axios";
 import { Helmet } from "react-helmet";
 
-const useStyles = makeStyles((theme) => ({
-  topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
-  },
+const useStyles = makeStyles(() => ({
   button: {
-    minWidth: "134px",
-    textTransform: "capitalize",
-    fontSize: "14px",
+    width: "auto",
   },
 }));
-const range = (len) => {
-  const arr = [];
-  for (let i = 0; i < len; i++) {
-    arr.push(i);
-  }
-  return arr;
-};
 
-function makeData(...lens) {
-  const makeDataLevel = (depth = 0) => {
-    const len = lens[depth];
-    return range(len).map((d) => {
-      return {
-        subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
-      };
-    });
-  };
-  return makeDataLevel();
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+export const fields = [
+  {
+    caption: "CallLog Columns",
+    name: "CallLog_Columns",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "CallLog Events",
+    name: "CallLog_events",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "CallLog Tags",
+    name: "CallLog_Tags",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+];
+
+export const groups = [
+  {
+    caption: "And",
+    name: "and",
+  },
+  {
+    caption: "Or",
+    name: "or",
+  },
+];
+export const filter = {
+  groupName: "and",
+  items: [
+    {
+      field: "CallLog_Columns",
+      operator: "isNotEmpty",
+    },
+  ],
+};
 
 const TempRingbaData = () => {
   const classes = useStyles();
   const { ringbaData } = usePage().props;
+  const [showColumns, setShowColumns] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false);
+  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
 
-  const newRingbadata = ringbaData.map((item, indx) => {
-    return {
-      SL: indx+1,
-      CallLog_columns: JSON.stringify(item.columns).substr(0,100),
-      CallLog_events: JSON.stringify(item.events).substr(0,100),
-      CallLog_Tags: JSON.stringify(item.tags).substr(0,100),
-    };
-  });
-  const [mainData, setRingbadata] = useState(newRingbadata);
-  const columns = [
-    {
-      Header: "SL",
-      accessor: "SL",
-    },
-    {
-      Header: "CallLog_columns",
-      accessor: "CallLog_columns",
-    },
-    {
-      Header: "CallLog_events",
-      accessor: "CallLog_events",
-    },
-    {
-      Header: "CallLog_Tags",
-      accessor: "CallLog_Tags",
-    },
-  ];
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+  const dataArray = ringbaData.map((item, index) => ({
+    sl: index + 1,
+    CallLog_Columns: JSON.stringify(item.columns).substr(0, 100),
+    CallLog_Events: JSON.stringify(item.events).substr(0, 100),
+    CallLog_Tags: JSON.stringify(item.tags).substr(0, 100),
+    id: item.id,
+    key: index,
+  }));
 
-  const [data, setData] = React.useState(React.useMemo(() => makeData(20), []));
+  const tablePropsInit = {
+    columns: [
+      {
+        key: "selection-cell",
+        style: { width: 80 },
+      },
+      {
+        key: "sl",
+        title: "SL",
+        dataType: DataType.Number,
+        style: { width: 100 },
+      },
+      {
+        key: "CallLog_Columns",
+        title: "CallLog Columns",
+        dataType: DataType.String,
+        style: { width: 450 },
+      },
+      {
+        key: "CallLog_Events",
+        title: "CallLog Events",
+        dataType: DataType.String,
+        style: { width: 450 },
+      },
+      {
+        key: "CallLog_Tags",
+        title: "CallLog Tags",
+        dataType: DataType.String,
+        style: { width: 450 },
+      },
+    ],
+    paging: {
+      enabled: true,
+      pageIndex: 0,
+      pageSize: 10,
+      pageSizes: [5, 10, 15],
+      position: PagingPosition.Bottom,
+    },
+    data: dataArray,
+    rowKeyField: "id",
+    sortingMode: SortingMode.Single,
+    columnResizing: true,
+    columnReordering: true,
+  };
 
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
+  const [tableProps, changeTableProps] = useState(tablePropsInit);
 
-  const updateMyData = (rowIndex, columnId, value) => {
-    setSkipPageReset(true);
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
+  const SelectionCell = ({
+    rowKeyValue,
+    dispatch,
+    isSelectedRow,
+    selectedRows,
+  }) => {
+    return (
+      <Checkbox
+        checked={isSelectedRow}
+        color="primary"
+        onChange={(event) => {
+          if (event.nativeEvent.shiftKey) {
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+          } else if (event.currentTarget.checked) {
+            dispatch(selectRow(rowKeyValue));
+            setTableToolbar(true);
+            const id = parseInt(rowKeyValue);
+            if (!selectedRowIds.includes(id)) {
+              selectedRowIds.push(id);
+            }
+          } else {
+            dispatch(deselectRow(rowKeyValue));
+            const id = parseInt(rowKeyValue);
+            const itemIndx = selectedRowIds.indexOf(id);
+            selectedRowIds.splice(itemIndx, 1);
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+          }
+        }}
+      />
+    );
+  };
+  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
+    return (
+      <Checkbox
+        checked={areAllRowsSelected}
+        color="primary"
+        onChange={(event) => {
+          if (event.currentTarget.checked) {
+            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true);
+            let i = 0;
+            while (i < ringbaData.length) {
+              selectedRowIds.push(ringbaData[i].id);
+              i++;
+            }
+          } else {
+            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            // if (selectedRowIds) {
+            selectedRowIds.splice(0, selectedRowIds.length);
+            // }
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+          }
+        }}
+      />
+    );
+  };
+  const dispatch = (action) => {
+    changeTableProps((prevState) => kaReducer(prevState, action));
+  };
+  const [filterValue, changeFilter] = useState(filter);
+  const onFilterChanged = (newFilterValue) => {
+    changeFilter(newFilterValue);
+  };
+
+  const [serachSidebar, setSearchSidebar] = useState(false);
+
+  const handleSearch = () => {
+    setSearchSidebar((prevState) => !prevState);
+  };
+
+  const handleColumns = () => {
+    setShowColumns((prevState) => !prevState);
+  };
+  const closeSidebar = () => {
+    setSearchSidebar(false);
+  };
+  const deleteHandler = () => {
+    axios
+      .post("temp-ringba-data-delete", { selectedRowIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          const newData = filteredData.data.filter(
+            (item) => !selectedRowIds.includes(item.id)
+          );
+          filteredData.data = newData;
+          changeTableProps(filteredData);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+        } else {
+          setOpen(true);
+          setResponse(res.data.msg);
         }
-        return row;
       })
+      .catch((err) => {
+        console.log(err);
+        setTableToolbar(false);
+      });
+  };
+
+  useEffect(() => M.AutoInit());
+
+  const TableToolbar = () => {
+    return (
+      <div className="table-toolbar">
+        <Tooltip title="Delete">
+          <IconButton aria-label="delete" onClick={deleteHandler}>
+            <DeleteIcon style={{ color: "#031b4e" }} />
+          </IconButton>
+        </Tooltip>
+      </div>
     );
   };
 
-  const TableTitle = () => {
-    return <div></div>;
+  const ColumnSettings = (tableProps) => {
+    const columnsSettingsProps = {
+      data: tableProps.columns.map((c) => ({
+        ...c,
+        visible: c.visible !== false,
+      })),
+      rowKeyField: "key",
+      columns: [
+        {
+          key: "visible",
+          title: "Visible",
+          isEditable: false,
+          style: { textAlign: "center" },
+          width: 80,
+          dataType: DataType.Boolean,
+        },
+        {
+          key: "title",
+          isEditable: false,
+          title: "Fields",
+          dataType: DataType.String,
+        },
+      ],
+      editingMode: EditingMode.None,
+    };
+    const dispatchSettings = (action) => {
+      if (action.type === ActionType.UpdateCellValue) {
+        tableProps.dispatch(
+          action.value
+            ? showColumn(action.rowKeyValue)
+            : hideColumn(action.rowKeyValue)
+        );
+      }
+    };
+    return (
+      <Table
+        {...columnsSettingsProps}
+        childComponents={{
+          rootDiv: {
+            elementAttributes: () => ({
+              style: { width: 400, marginBottom: 20 },
+            }),
+          },
+          cell: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "visible":
+                  return <CellEditorBoolean {...props} />;
+              }
+            },
+          },
+        }}
+        dispatch={dispatchSettings}
+      />
+    );
   };
 
   return (
-    <div>
+    <>
       <Helmet title="Temp Ringba Data" />
-      <CssBaseline />
-      <EnhancedTable
-        columns={columns}
-        data={mainData}
-        setData={setRingbadata}
-        updateMyData={updateMyData}
-        skipPageReset={skipPageReset}
-        TableTitle={TableTitle}
-      >
-        {" "}
-        <div className={classes.topBtn}>
-          {/* <Button
-            variant="contained"
-            type="submit"
-            color="primary"
-            className={classes.button}
-          >
-            Move Call Log
-          </Button> */}
-        </div>
-      </EnhancedTable>
-    </div>
+
+      <div className="selection-demo">
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
+          <div className="table-top">
+            <div className="columns-show-hide" onClick={handleColumns}>
+              <img src={eyeIcon} alt="search"></img>
+            </div>
+            <div className="search-icon" onClick={handleSearch}>
+              <span>Search Here</span>
+              <img src={search} alt="search"></img>
+            </div>
+
+            {serachSidebar ? (
+              <div className="search-sidebar">
+                <div className="search-top">
+                  <div className="title">
+                    <span>Search</span>
+                  </div>
+                  <a className="close-nav" onClick={closeSidebar}>
+                    <img src={closeNav} alt="file not found"></img>
+                  </a>
+                </div>
+
+                <div className="top-element">
+                  <FilterControl
+                    {...{
+                      fields,
+                      groups,
+                      filterValue,
+                      onFilterValueChanged: onFilterChanged,
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+            {showColumns ? (
+              <div className="column-settings">
+                <ColumnSettings {...tableProps} dispatch={dispatch} />
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
+        )}
+        <Table
+          {...tableProps}
+          childComponents={{
+            cellText: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <SelectionCell {...props} />;
+                }
+              },
+            },
+            filterRowCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <></>;
+                }
+              },
+            },
+            headCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return (
+                    <SelectionHeader
+                      {...props}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                        tableProps
+                      )}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    />
+                  );
+                }
+              },
+            },
+            cell: {
+              content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return (
+                      <img
+                        style={{ cursor: "move" }}
+                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                        alt="draggable"
+                      />
+                    );
+                }
+              },
+            },
+          }}
+          dispatch={dispatch}
+          extendedFilter={(data) => filterData(data, filterValue)}
+        />
+
+        <Snackbar
+          open={open}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          className={classes.snackbar}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert severity="success">{response}</Alert>
+        </Snackbar>
+      </div>
+    </>
   );
 };
 

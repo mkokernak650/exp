@@ -50,11 +50,17 @@ Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'
 Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])
         ->name('tempringbadata');
 
+Route::post('/temp-ringba-data-delete', [RingbaCallLogController::class, 'tempDataDelete'])
+        ->name('temp.ringba.data.delete');
+
 Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCallLogs'])
         ->name('ringbaCallLogs');
 
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])
         ->name('call-logs-report');
+
+Route::post('/call-logs-delete', [RingbaCallLogController::class, 'delete'])
+        ->name('call.logs.delete');
 
 Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
         ->name('update-data');
@@ -92,6 +98,9 @@ Route::get('/market-exception-form', [MarketExceptionController::class, 'marketE
 
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])
         ->name('market-exception-report');
+
+Route::post('/market-exception-delete', [MarketExceptionController::class, 'delete'])->name('market.exception.delete');
+
 
 // Route::get('/market-exception', function () {
 //         return inertia::render('Settings/MarketException');
@@ -135,6 +144,8 @@ Route::get('/customer-report', [CustomerController::class, 'customerReport'])
 
 Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])
         ->name('store-customer');
+Route::post('/customer-delete', [CustomerController::class, 'delete'])
+        ->name('customer.delete');
 
 Route::get('customer-export/{type}', [CustomerController::class, 'export'])
         ->name('customer.export');
@@ -167,6 +178,9 @@ Route::get('/pending-call-log-report', [PendingBillCallLogController::class, 'in
 Route::post('/pending', [PendingBillCallLogController::class, 'store'])
         ->name('add.pending.bill.call');
 
+Route::post('/pending-delete', [PendingBillCallLogController::class, 'delete'])
+        ->name('pending.delete');
+
 
 /*====== temp route for check get data ===== */
 Route::post('/billed-call-log', [BilledCallLogController::class, 'store'])->name('store.bill.call.logs');
@@ -182,6 +196,9 @@ Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketContr
 Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
         ->name('zipcode.television.market.export');
 
+        Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketController::class, 'delete'])
+        ->name('zipcode.television.market.delete');
+
 // TODO Zipcodedata Controller
 Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
         ->name('zipcode-data');
@@ -192,11 +209,16 @@ Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
+        Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])
+        ->name('zipcode.data.delete');
+
 Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
 
 // TODO Target Controller
 Route::get('/target', [TargetController::class, 'index'])
         ->name('target');
+Route::post('/target-delete', [TargetController::class, 'delete'])
+        ->name('target.delete');
 
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
         ->name('update.annotation');
@@ -218,6 +240,7 @@ Route::get('billed-store', [BilledCallLogController::class, 'store'])
 Route::get('/formPending', [BilledCallLogController::class, 'formPending']);
 
 Route::post('/billed-get-annotation', [BilledCallLogController::class, 'getAnnotation'])->name('billed.get.annotation');
+Route::post('/billed-delete', [BilledCallLogController::class, 'delete'])->name('billed.delete');
 
 //TODO ExceptionContorller
 Route::get('/exceptions', [ExceptionController::class, 'index'])
@@ -230,6 +253,7 @@ Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPen
         ->name('move.exception.to.pending');
 
 Route::post('/exception-get-annotation', [ExceptionController::class, 'getAnnotation'])->name('exception.get.annotation');
+Route::post('/exception-delete', [ExceptionController::class, 'delete'])->name('exception.delete');
 
 Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
         ->name('update.exception.report');
@@ -247,3 +271,5 @@ Route::get('web-form', function () {
 
 Route::post('/web-form-store', [WebFormController::class, 'store'])->name('webform.store');
 Route::get('/web-form-reports', [WebFormController::class, 'index'])->name('webform.reports');
+Route::post('/web-form-reports-delete', [WebFormController::class, 'delete'])->name('webform.reports.delete');
+
