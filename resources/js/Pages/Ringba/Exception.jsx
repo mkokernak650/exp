@@ -1164,11 +1164,7 @@ const Exceptions = () => {
     Annotation_Tag: item.Annotation_Tag,
     Call_Status: item.call_Logs_status,
     Duplicate_Call: item.Duplicate_Call,
-    Recording_Url: (
-      <a target="_blank" href={item.Recording_Url}>
-        Recording URL
-      </a>
-    ),
+    Recording_Url: item.Recording_Url,
     Inbound_Id: item.Inbound_Id,
     Affiliate: item.Affiliate,
     Market: item.Market,
@@ -1394,7 +1390,15 @@ const Exceptions = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "Recording_Url") {
+        return (
+          <a target="_blank" href={value}>
+            Recording URL
+          </a>
+        );
+      }
+    },
   };
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);

@@ -49,6 +49,10 @@ div::-webkit-scrollbar-thumb {
   color: #000 !important;
 } */
 
+.add-target .MuiGrid-item{
+  padding:4px!important;
+}
+
 /*ka-table*/
 .ka {
   box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
@@ -94,7 +98,7 @@ div::-webkit-scrollbar-thumb {
   height: 20px;
 }
 .ka .ka-table-wrapper {
-  height: 600px;
+  max-height: 600px;
 }
 .ka .ka-thead {
   position: sticky;
@@ -162,7 +166,7 @@ div::-webkit-scrollbar-thumb {
   box-shadow: none !important;
 }
 .column-settings .ka-table-wrapper {
-  height: 380px !important;
+  max-height: 380px !important;
 }
 .column-settings .ka-row .ka-cell:first-child {
   width: 36px !important;

@@ -196,7 +196,7 @@ Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketContr
 Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])
         ->name('zipcode.television.market.export');
 
-        Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketController::class, 'delete'])
+Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketController::class, 'delete'])
         ->name('zipcode.television.market.delete');
 
 // TODO Zipcodedata Controller
@@ -209,14 +209,22 @@ Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])
         ->name('zipcode.data.export');
 
-        Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])
+Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])
         ->name('zipcode.data.delete');
 
 Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
 
 // TODO Target Controller
-Route::get('/target', [TargetController::class, 'index'])
-        ->name('target');
+Route::get('/target-form', [TargetController::class, 'index'])
+        ->name('target.form');
+
+Route::get('/target-report', [TargetController::class, 'TargetsReport'])
+        ->name('target.report');
+
+Route::post('/add-target', [TargetController::class, 'addTarget'])
+        ->name('add.target');
+
+
 Route::post('/target-delete', [TargetController::class, 'delete'])
         ->name('target.delete');
 
@@ -272,4 +280,3 @@ Route::get('web-form', function () {
 Route::post('/web-form-store', [WebFormController::class, 'store'])->name('webform.store');
 Route::get('/web-form-reports', [WebFormController::class, 'index'])->name('webform.reports');
 Route::post('/web-form-reports-delete', [WebFormController::class, 'delete'])->name('webform.reports.delete');
-

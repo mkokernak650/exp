@@ -24,8 +24,9 @@ import { filterData } from "../filterData";
 import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
+import ThreeDots from "../../../images/three-dots.svg";
 import closeNav from "../../../images/closeNav.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
+import { hideColumn, showColumn,closeRowEditors} from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -259,8 +260,14 @@ const Targets = () => {
     );
   };
 
+ 
+
   const tablePropsInit = {
     columns: [
+      {
+        key: "test",
+        style: { width: 20 },
+      },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -282,13 +289,13 @@ const Targets = () => {
         key: "Description",
         title: "Description",
         dataType: DataType.String,
-        style: { width: 350 },
+        style: { width: 400 },
       },
       {
         key: "Ringba_Target_Name",
         title: "Ringba Target Name",
         dataType: DataType.String,
-        style: { width: 710 },
+        style: { width: 360 },
       },
     ],
     paging: {
@@ -517,6 +524,8 @@ const Targets = () => {
                 }
               },
             },
+
+ 
           }}
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}

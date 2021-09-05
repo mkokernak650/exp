@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Target;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use App\Models\Customer;
 
 class TargetController extends Controller
 {
@@ -16,11 +17,40 @@ class TargetController extends Controller
 
     public function index()
     {
+        $allCustomers = Customer::all();
+        return Inertia::render('Settings/AddTargets', [
+            'allCustomers' => $allCustomers
+        ]);
+    }
+
+    public function TargetsReport()
+    {
         $allTargets = Target::all();
         return Inertia::render('Settings/Targets', [
             'allTargets' => $allTargets
         ]);
     }
+
+    public function addTarget(Request $request){
+        $allTargets = Target::all();
+        $exisxtData = $allTargets->where('Customer', $request->Customer)->where('Ringba_Targets_Name', $request->Ringba_Targets_Name);
+        if (!$exisxtData->isEmpty()) {
+            return response()->json(["msg" => "Data already Exist"]);
+        }
+        $result=Target::create([
+            'Customer' => $request->Customer,
+            'Ringba_Targets_Name' => $request->Ringba_Targets_Name,
+            'Description' => $request->Description,
+        ]);
+
+        if($result){
+        return response()->json(["msg" => "Successfully added"]);
+        }else{
+        return response()->json(["msg" => "An internal error occured"]);
+        }
+    }
+
+
 
     public function delete(Request $request)
     {

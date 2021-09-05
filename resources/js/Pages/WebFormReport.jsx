@@ -581,11 +581,6 @@ const WebFormReport = () => {
     ZipCode: item.zipcode,
     Country: item.country,
     Website: item.website,
-    // Website: (
-    //   <a target="_blank" href={item.website}>
-    //     Website
-    //   </a>
-    // ),
     Comment: item.comment,
     Created_Time: item.created_at,
     id: item.id,
@@ -722,7 +717,7 @@ const WebFormReport = () => {
         key: "Country",
         title: "Country",
         dataType: DataType.String,
-        style: { width: 260 },
+        style: { width: 300 },
       },
       {
         key: "Website",
@@ -749,13 +744,21 @@ const WebFormReport = () => {
       pageSize: 10,
       pageSizes: [5, 10, 15],
       position: PagingPosition.Bottom,
-    },  
+    },
     data: dataArray,
     rowKeyField: "id",
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "Website") {
+        return (
+          <a target="_blank" href={value}>
+            {value}
+          </a>
+        );
+      }
+    },
   };
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);

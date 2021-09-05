@@ -295,9 +295,9 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "Add Market Exception",
+          title: "Add Market Exasdception",
           href: "market-exception-form",
-          Icon: <UserIcon />,
+          // Icon: <UserIcon />,
         },
         {
           title: "Market Exception Report",
@@ -314,41 +314,29 @@ export default function PersistentDrawerLeft(props) {
           href: "customer-report",
           Icon: <UserIcon />,
         },
-        {
-          title: "Targets",
-          href: "target",
+           {
+          title: "Add Target",
+          href: "target.form",
           Icon: <UserIcon />,
         },
-        // {
-        //   title: "Television By Market Report",
-        //   href: "zipcode.television.market",
-        //   Icon: <UserIcon />,
-        // },
+        {
+          title: "Targets",
+          href: "target.report",
+          Icon: <UserIcon />,
+        },
+
         {
           title: "New Television By Market Report",
           href: "zipcode.television.market",
           Icon: <UserIcon />,
         },
-        // {
-        //   title: "Zip Code",
-        //   href: "zipcode-data",
-        //   Icon: <UserIcon />,
-        // },
+
         {
           title: "Zipcode Database",
           href: "zipcode-data",
           Icon: <UserIcon />,
         },
-        // {
-        //   title: "Add Market",
-        //   href: "add-market",
-        //   Icon: <UserIcon />,
-        // },
-        // {
-        //   title: "Markets",
-        //   href: "market-report",
-        //   Icon: <UserIcon />,
-        // },
+
       ],
     },
     {

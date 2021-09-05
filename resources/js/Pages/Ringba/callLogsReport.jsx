@@ -1156,44 +1156,42 @@ const CallLogsReport = () => {
     }
     setOpen(false);
   };
-  const dataArray = allCallLogs.map((item, index) => ({
-    sl: index + 1,
-    SN: item.SN,
-    Call_Date: item.Call_Date_Time,
-    Has_Annotation: item.Has_Annotation,
-    Annotation_Tag: item.Annotation_Tag,
-    Call_Status: item.call_Logs_status,
-    Duplicate_Call: item.Duplicate_Call,
-    Recording_Url: (
-      <a target="_blank" href={item.Recording_Url}>
-        Recording URL
-      </a>
-    ),
-    Inbound_Id: item.Inbound_Id,
-    Affiliate: item.Affiliate,
-    Market: item.Market,
-    Campaign: item.Campaign,
-    Inbound: item.Inbound,
-    Dialed: item.Dialed,
-    Type: item.Type,
-    Customer: item.Customer,
-    Target: item.Target,
-    Target_Description: item.Target_Description,
-    Source_Hangup: item.Source_Hangup,
-    Time_To_Call: item.Time_To_Call,
-    Call_Length_In_Seconds: item.call_Length_In_Seconds,
-    Revenue: item.Revenue,
-    Conn_Duration: item.Conn_Duration,
-    Time: item.Call_Date_Time,
-    Payout: item.payoutAmount,
-    Total_Cost: item.Total_Cost,
-    Profit: item.Profit,
-    City: item.City,
-    State: item.State,
-    Zipcode: item.Zipcode,
-    id: item.id,
-    key: index,
-  }));
+  const dataArray = allCallLogs.map((item, index) => {
+    return {
+      sl: index + 1,
+      SN: item.SN,
+      Call_Date: item.Call_Date_Time,
+      Has_Annotation: item.Has_Annotation,
+      Annotation_Tag: item.Annotation_Tag,
+      Call_Status: item.call_Logs_status,
+      Duplicate_Call: item.Duplicate_Call,
+      Recording_Url: item.Recording_Url,
+      Inbound_Id: item.Inbound_Id,
+      Affiliate: item.Affiliate,
+      Market: item.Market,
+      Campaign: item.Campaign,
+      Inbound: item.Inbound,
+      Dialed: item.Dialed,
+      Type: item.Type,
+      Customer: item.Customer,
+      Target: item.Target,
+      Target_Description: item.Target_Description,
+      Source_Hangup: item.Source_Hangup,
+      Time_To_Call: item.Time_To_Call,
+      Call_Length_In_Seconds: item.call_Length_In_Seconds,
+      Revenue: item.Revenue,
+      Conn_Duration: item.Conn_Duration,
+      Time: item.Call_Date_Time,
+      Payout: item.payoutAmount,
+      Total_Cost: item.Total_Cost,
+      Profit: item.Profit,
+      City: item.City,
+      State: item.State,
+      Zipcode: item.Zipcode,
+      id: item.id,
+      key: index,
+    };
+  });
 
   const tablePropsInit = {
     columns: [
@@ -1246,8 +1244,7 @@ const CallLogsReport = () => {
       {
         key: "Recording_Url",
         title: "Recording_Url",
-        dataType: DataType.String,
-        style: { width: 190 },
+        style: { width: 210 },
       },
       {
         key: "Inbound_Id",
@@ -1395,6 +1392,15 @@ const CallLogsReport = () => {
     columnResizing: true,
     columnReordering: true,
     // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "Recording_Url") {
+        return (
+          <a target="_blank" href={value}>
+            Recording URL
+          </a>
+        );
+      }
+    },
   };
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);
@@ -1423,7 +1429,6 @@ const CallLogsReport = () => {
               (item) => item.id == id
             );
             inboundIds.push(selectedRowData[0].Inbound_Id);
-            console.log(selectedRowIds);
           } else {
             dispatch(deselectRow(rowKeyValue));
             const id = parseInt(rowKeyValue);
@@ -1439,7 +1444,6 @@ const CallLogsReport = () => {
               selectedRowData.Inbound_Id
             );
             inboundIds.splice(inboundIndx, 1);
-            console.log(selectedRowIds);
           }
         }}
       />
@@ -1462,11 +1466,9 @@ const CallLogsReport = () => {
             }
           } else {
             dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
             selectedRowIds.splice(0, selectedRowIds.length);
             inboundIds.splice(0, inboundIds.length);
 
-            // }
             if (selectedRowIds.length < 1) {
               setTableToolbar(false);
             }
@@ -1493,7 +1495,6 @@ const CallLogsReport = () => {
     setShowColumns((prevState) => !prevState);
   };
   const hideCoumnSettings = () => {
-    console.log('hiding')
     setShowColumns(false);
   };
   const closeSidebar = () => {
@@ -1746,117 +1747,117 @@ const CallLogsReport = () => {
 
   return (
     <>
-         <Helmet title="Call Logs Report" />
+      <Helmet title="Call Logs Report" />
 
-    <div className="selection-demo">
-      {tableToolbar ? (
-        <TableToolbar />
-      ) : (
-        <div className="table-top">
-          <div className="columns-show-hide" onClick={handleColumns}>
-            <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
-          </div>
-          <div className="search-icon" onClick={handleSearch}>
-            <span>Search Here</span>
-            <img src={search} alt="search"></img>
-          </div>
+      <div className="selection-demo">
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
+          <div className="table-top">
+            <div className="columns-show-hide" onClick={handleColumns}>
+              <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
+            </div>
+            <div className="search-icon" onClick={handleSearch}>
+              <span>Search Here</span>
+              <img src={search} alt="search"></img>
+            </div>
 
-          {serachSidebar ? (
-            <div className="search-sidebar">
-              <div className="search-top">
-                <div className="title">
-                  <span>Search</span>
+            {serachSidebar ? (
+              <div className="search-sidebar">
+                <div className="search-top">
+                  <div className="title">
+                    <span>Search</span>
+                  </div>
+                  <a className="close-nav" onClick={closeSidebar}>
+                    <img src={closeNav} alt="file not found"></img>
+                  </a>
                 </div>
-                <a className="close-nav" onClick={closeSidebar}>
-                  <img src={closeNav} alt="file not found"></img>
-                </a>
-              </div>
 
-              <div className="top-element">
-                <FilterControl
-                  {...{
-                    fields,
-                    groups,
-                    filterValue,
-                    onFilterValueChanged: onFilterChanged,
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
-          {showColumns ? (
-            <div className="column-settings">
-              <ColumnSettings {...tableProps} dispatch={dispatch} />
-            </div>
-          ) : (
-            ""
-          )}
-        </div>
-      )}
-      <Table
-        {...tableProps}
-        childComponents={{
-          cellText: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <SelectionCell {...props} />;
-              }
-            },
-          },
-          filterRowCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <></>;
-              }
-            },
-          },
-          headCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return (
-                  <SelectionHeader
-                    {...props}
-                    areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                      tableProps
-                    )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                <div className="top-element">
+                  <FilterControl
+                    {...{
+                      fields,
+                      groups,
+                      filterValue,
+                      onFilterValueChanged: onFilterChanged,
+                    }}
                   />
-                );
-              }
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+            {showColumns ? (
+              <div className="column-settings">
+                <ColumnSettings {...tableProps} dispatch={dispatch} />
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
+        )}
+        <Table
+          {...tableProps}
+          childComponents={{
+            cellText: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <SelectionCell {...props} />;
+                }
+              },
             },
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "drag":
+            filterRowCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <></>;
+                }
+              },
+            },
+            headCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
                   return (
-                    <img
-                      style={{ cursor: "move" }}
-                      src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                      alt="draggable"
+                    <SelectionHeader
+                      {...props}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                        tableProps
+                      )}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
-              }
+                }
+              },
             },
-          },
-        }}
-        dispatch={dispatch}
-        extendedFilter={(data) => filterData(data, filterValue)}
-      />
+            cell: {
+              content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return (
+                      <img
+                        style={{ cursor: "move" }}
+                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                        alt="draggable"
+                      />
+                    );
+                }
+              },
+            },
+          }}
+          dispatch={dispatch}
+          extendedFilter={(data) => filterData(data, filterValue)}
+        />
 
-      <Snackbar
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleClose}
-        className={classes.snackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert severity="success">{response}</Alert>
-      </Snackbar>
-    </div>
- </>
+        <Snackbar
+          open={open}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          className={classes.snackbar}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert severity="success">{response}</Alert>
+        </Snackbar>
+      </div>
+    </>
   );
 };
 
