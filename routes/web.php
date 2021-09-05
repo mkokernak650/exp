@@ -228,6 +228,9 @@ Route::post('/add-target', [TargetController::class, 'addTarget'])
 Route::post('/target-delete', [TargetController::class, 'delete'])
         ->name('target.delete');
 
+Route::post('/target-edit', [TargetController::class, 'edit'])
+        ->name('target.edit');
+
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
         ->name('update.annotation');
 

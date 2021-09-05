@@ -31,26 +31,42 @@ class TargetController extends Controller
         ]);
     }
 
-    public function addTarget(Request $request){
+    public function addTarget(Request $request)
+    {
         $allTargets = Target::all();
         $exisxtData = $allTargets->where('Customer', $request->Customer)->where('Ringba_Targets_Name', $request->Ringba_Targets_Name);
         if (!$exisxtData->isEmpty()) {
             return response()->json(["msg" => "Data already Exist"]);
         }
-        $result=Target::create([
+        $result = Target::create([
             'Customer' => $request->Customer,
             'Ringba_Targets_Name' => $request->Ringba_Targets_Name,
             'Description' => $request->Description,
         ]);
 
-        if($result){
-        return response()->json(["msg" => "Successfully added"]);
-        }else{
-        return response()->json(["msg" => "An internal error occured"]);
+        if ($result) {
+            return response()->json(["msg" => "Successfully added"]);
+        } else {
+            return response()->json(["msg" => "An internal error occured"]);
         }
     }
 
+    public function edit(Request $request)
+    {
+        $data = Target::find($request->id);
+        $data->Customer  = $request->Customer;
+        $data->Description = $request->Description;
+        $data->Ringba_Targets_Name  = $request->Ringba_Targets_Name;
+        $result=$data->save();
+        $allTargets = Target::all();
 
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200,"targetData"=>$allTargets]);
+        }
+        else {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
 
     public function delete(Request $request)
     {
@@ -63,7 +79,7 @@ class TargetController extends Controller
         if ($result) {
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
         }
-        if ($result) {
+        else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
