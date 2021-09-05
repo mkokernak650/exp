@@ -51,7 +51,7 @@ class RingbaCallLogController extends Controller
     protected $get_customer_name_id = null;
     protected $get_revenue = null;
     protected $get_annotations_tag = '';
-    protected $has_annotations = 'NO';
+    protected $has_annotations = 'No';
     protected $get_call_log_status = 'Active';
     protected $get_call_qualification = 'Not Qualified';
     protected $get_city = "";
@@ -59,17 +59,14 @@ class RingbaCallLogController extends Controller
     protected $get_zipcode = "";
     protected $get_market = "";
     protected $get_type = "";
+    // protected $array = [];
+    // protected $annotation = [];
 
     public function __construct()
     {
         $this->middleware('auth');
         self::$RingbaApiHelpers = new RingbaApiHelpers();
         self::$RingbaCallLog = new RingbaCallLog();
-    }
-
-    public function RingbaAuth()
-    {
-        dd(self::$RingbaApiHelpers->getRingbaData());
     }
 
     public function getRingbaDataForm()
@@ -165,6 +162,7 @@ class RingbaCallLogController extends Controller
                 }
             }
         }
+        // dd('duplicate', $this->array, 'annotation', $this->annotation);
     }
 
     /**
@@ -255,7 +253,11 @@ class RingbaCallLogController extends Controller
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = "Yes";
+                // array_push($this->array, $this->get_duplicated_status);
                 return;
+            } else {
+                $this->get_duplicated_status = "No";
+                // array_push($this->array, $this->get_duplicated_status);
             }
         }
     }
@@ -273,7 +275,11 @@ class RingbaCallLogController extends Controller
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
                 $this->get_annotations_tag = $item->tagName;
+                // array_push($this->annotation, $this->has_annotations);
                 return;
+            } else {
+                $this->has_annotations = 'No';
+                // array_push($this->annotation, $this->has_annotations);
             }
         }
     }
@@ -594,8 +600,7 @@ class RingbaCallLogController extends Controller
         }
         if ($result) {
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        }
-        if ($result) {
+        } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
@@ -609,8 +614,7 @@ class RingbaCallLogController extends Controller
         }
         if ($result) {
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        }
-        if ($result) {
+        } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
