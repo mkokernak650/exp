@@ -66,12 +66,7 @@ class RingbaCallLogController extends Controller
         self::$RingbaApiHelpers = new RingbaApiHelpers();
         self::$RingbaCallLog = new RingbaCallLog();
     }
-
-    public function RingbaAuth()
-    {
-        dd(self::$RingbaApiHelpers->getRingbaData());
-    }
-
+    
     public function getRingbaDataForm()
     {
         return Inertia::render("Ringba/GetRingbaData");
@@ -142,6 +137,7 @@ class RingbaCallLogController extends Controller
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
                 $this->ringbaDataObject($checkRingbaCallLogs);
+
             } else {
 
                 if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {

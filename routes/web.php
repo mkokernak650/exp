@@ -40,9 +40,6 @@ Route::get('/home', [HomeController::class, 'index'])
 
 
 //TODO Ringba call log contoroller
-Route::get('/token-ringba', [RingbaCallLogController::class, 'RingbaAuth'])
-        ->name('token-ringba')
-        ->middleware('guest');
 
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
         ->name('temp-ringba-data');
