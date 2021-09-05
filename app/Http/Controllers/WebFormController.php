@@ -9,10 +9,16 @@ use Illuminate\Support\Facades\DB;
 
 class WebFormController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        $allData=WebForm::all();
-        return Inertia::render('WebFormReport',[
+        $allData = WebForm::all();
+        return Inertia::render('WebFormReport', [
             'allReports' => $allData
         ]);
     }
