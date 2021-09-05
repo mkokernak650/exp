@@ -24,7 +24,7 @@ import { filterData } from "../filterData";
 import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
-import ThreeDots from "../../../images/three-dots.svg";
+// import ThreeDots from "../../../images/three-dots.svg";
 import closeNav from "../../../images/closeNav.svg";
 import { hideColumn, showColumn,closeRowEditors} from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
