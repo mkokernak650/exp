@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\{
+    Affiliate,
     ArchivedCallLog,
     BilledCallLog,
     RingbaCallLog,
@@ -75,7 +76,6 @@ class RingbaCallLogController extends Controller
     {
         return Inertia::render("Ringba/GetRingbaData");
     }
-
     /**
      * for move data from Ringba temporary table id
      * @param \Illuminate\Http\Request $request post
@@ -164,6 +164,8 @@ class RingbaCallLogController extends Controller
                 }
             }
         }
+        $this->getAffiliate();
+
         // dd('duplicate', $this->array, 'annotation', $this->annotation);
     }
 
@@ -478,6 +480,28 @@ class RingbaCallLogController extends Controller
         // $instance->Zipcode              = $insertedData->Zipcode;
         // $instance->save();
         // $insertedData->delete();
+    }
+
+    private function getAffiliate()
+    {
+        $get_affiliate =  RingbaCallLog::distinct()->get(['Affiliate', 'Affiliate_Id']);
+        $results = Affiliate::all();
+
+        $aff_key = [];
+        $aff_val = [];
+        foreach ($results as $res) {
+            array_push($aff_key, $res->affiliate_id);
+            array_push($aff_val, $res->affiliate_name);
+        }
+
+        foreach ($get_affiliate as $aff_item) {
+            if (!in_array($aff_item->Affiliate, $aff_val) || !in_array($aff_item->Affiliate_Id, $aff_key)) {
+                $affiliateModel = new Affiliate();
+                $affiliateModel->affiliate_id = $aff_item->Affiliate_Id;
+                $affiliateModel->affiliate_name = $aff_item->Affiliate;
+                $affiliateModel->save();
+            }
+        }
     }
 
     /**
