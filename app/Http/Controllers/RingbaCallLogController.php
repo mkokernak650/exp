@@ -3,19 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
-use App\Models\ArchivedCallLog;
-use App\Models\BilledCallLog;
-use App\Models\RingbaCallLog;
-use App\Models\PendingBillCallLog;
 use Illuminate\Http\Request;
-use App\Models\RingbaData;
-use App\Models\Target;
-use App\Models\ZipCodeData;
-use App\Models\Exception;
-use App\Models\MarketExcptions;
-use App\Models\ZipcodeByTelevisionMarket;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use App\Models\{
+    ArchivedCallLog,
+    BilledCallLog,
+    RingbaCallLog,
+    PendingBillCallLog,
+    RingbaData,
+    Target,
+    ZipCodeData,
+    Exception,
+    MarketExcptions,
+    ZipcodeByTelevisionMarket
+};
 
 class RingbaCallLogController extends Controller
 {
