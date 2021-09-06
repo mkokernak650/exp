@@ -1,0 +1,566 @@
+import Layout from "../Layout/Layout";
+// import "./Demo.scss";
+import M from "materialize-css";
+import React, { useEffect, useState } from "react";
+import { kaReducer, Table } from "ka-table";
+import {
+  DataType,
+  SortingMode,
+  PagingPosition,
+  EditingMode,
+  ActionType,
+} from "ka-table/enums";
+import { kaPropsUtils } from "ka-table/utils";
+import { usePage } from "@inertiajs/inertia-react";
+import {
+  deselectAllFilteredRows,
+  deselectRow,
+  selectAllFilteredRows,
+  selectRow,
+  selectRowsRange,
+} from "ka-table/actionCreators";
+import FilterControl from "react-filter-control";
+import { filterData } from "../filterData";
+import "ka-table/style.scss";
+import search from "../../../images/search.svg";
+import eyeIcon from "../../../images/eyeIcon.svg";
+import closeNav from "../../../images/closeNav.svg";
+// import ThreeDots from "../../../images/three-dots.svg";
+import Edit from "../../../images/edit1.svg";
+
+import Cancel from "../../../images/Cancel.svg";
+import { hideColumn, showColumn } from "ka-table/actionCreators";
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
+import Tooltip from "@material-ui/core/Tooltip";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
+import { Button, makeStyles } from "@material-ui/core";
+import axios from "axios";
+import { Helmet } from "react-helmet";
+import NormalModal from "../../Shared/NormalModal";
+
+const useStyles = makeStyles(() => ({
+  topBtn: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "10px",
+  },
+  button: {
+    width: 130,
+    textTransform: "capitalize",
+    fontSize: "14px",
+  },
+  editButton: {
+    marginTop: "15px",
+  },
+}));
+export const fields = [
+  {
+    caption: "Broadcast Week",
+    name: "broadcast_week",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  }
+  
+];
+
+export const groups = [
+  {
+    caption: "And",
+    name: "and",
+  },
+  {
+    caption: "Or",
+    name: "or",
+  },
+];
+export const filter = {
+  groupName: "and",
+  items: [
+    {
+      field: "broadcast_week",
+      operator: "isNotEmpty",
+    },
+  ],
+};
+
+const BroadcastWeekReport = () => {
+  const classes = useStyles();
+  const { BroadCastWeeks } = usePage().props;
+  const [showColumns, setShowColumns] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false);
+  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [showModal, setShowModal] = useState({ open: false });
+  const [editData, setEditData] = useState();
+
+  const handleEdit = (itemId) => {
+    BroadCastWeeks.filter((item) => {
+      if (item.id === itemId) {
+        setEditData(item);
+      }
+    });
+    setShowModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  const handleEditSubmit = () => {
+    axios
+      .post(route("market.exception.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setEditData();
+          setShowModal({ open: false });
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = () => {
+    setShowModal({ open: false });
+  };
+
+  const dataArray = BroadCastWeeks.map((item, index) => ({
+    edit: item.id,
+    sl: index + 1,
+    broadcast_week: item.broad_cast_week,
+    start_date: item.start_date,
+    end_date:item.end_date,
+    id: item.id,
+    key: index,
+  }));
+  const SelectionCell = ({
+    rowKeyValue,
+    dispatch,
+    isSelectedRow,
+    selectedRows,
+  }) => {
+    return (
+      <Checkbox
+        checked={isSelectedRow}
+        color="primary"
+        onChange={(event) => {
+          if (event.nativeEvent.shiftKey) {
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+          } else if (event.currentTarget.checked) {
+            dispatch(selectRow(rowKeyValue));
+            setTableToolbar(true);
+            const id = parseInt(rowKeyValue);
+            if (!selectedRowIds.includes(id)) {
+              selectedRowIds.push(id);
+            }
+          } else {
+            dispatch(deselectRow(rowKeyValue));
+            const id = parseInt(rowKeyValue);
+            const itemIndx = selectedRowIds.indexOf(id);
+            selectedRowIds.splice(itemIndx, 1);
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+          }
+        }}
+      />
+    );
+  };
+  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
+    return (
+      <Checkbox
+        checked={areAllRowsSelected}
+        color="primary"
+        onChange={(event) => {
+          if (event.currentTarget.checked) {
+            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true);
+            let i = 0;
+            while (i < BroadcastWeekReport.length) {
+              selectedRowIds.push(BroadcastWeekReport[i].id);
+              i++;
+            }
+          } else {
+            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            if (selectedRowIds) {
+              selectedRowIds.splice(0, selectedRowIds.length);
+            }
+            if (selectedRowIds.length < 1) {
+              setTableToolbar(false);
+            }
+          }
+        }}
+      />
+    );
+  };
+
+  const tablePropsInit = {
+    columns: [
+      {
+        key: "edit",
+        style: { width: 20 },
+      },
+      {
+        key: "selection-cell",
+        style: { width: 80 },
+      },
+      {
+        key: "sl",
+        title: "SL",
+        dataType: DataType.Number,
+        style: { width: 100 },
+      },
+      {
+        key: "broadcast_week",
+        title: "Broadcast Week",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
+        key: "start_date",
+        title: "Start Date",
+        dataType: DataType.String,
+        style: { width: 350 },
+      },
+      {
+        key: "end_date",
+        title: "End Date",
+        dataType: DataType.String,
+        style: { minWidth: 100 },
+      },
+    ],
+    paging: {
+      enabled: true,
+      pageIndex: 0,
+      pageSize: 10,
+      pageSizes: [5, 10, 15],
+      position: PagingPosition.Bottom,
+    },
+    data: dataArray,
+    rowKeyField: "id",
+    sortingMode: SortingMode.Single,
+    columnResizing: true,
+    columnReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
+    },
+  };
+
+  const [tableProps, changeTableProps] = useState(tablePropsInit);
+  const dispatch = (action) => {
+    changeTableProps((prevState) => kaReducer(prevState, action));
+  };
+  const [filterValue, changeFilter] = useState(filter);
+  const onFilterChanged = (newFilterValue) => {
+    changeFilter(newFilterValue);
+  };
+
+  const [serachSidebar, setSearchSidebar] = useState(false);
+
+  const handleSearch = () => {
+    setSearchSidebar((prevState) => !prevState);
+  };
+
+  const handleColumns = () => {
+    setShowColumns((prevState) => !prevState);
+  };
+  const closeSidebar = () => {
+    setSearchSidebar(false);
+  };
+  const deleteHandler = () => {
+    axios
+      .post(route("broadcast.week.delete"), { selectedRowIds })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          const newData = filteredData.data.filter(
+            (item) => !selectedRowIds.includes(item.id)
+          );
+          filteredData.data = newData;
+          changeTableProps(filteredData);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => M.AutoInit());
+
+  const TableToolbar = () => {
+    return (
+      <div className="table-toolbar">
+        <Tooltip title="Delete">
+          <IconButton aria-label="delete" onClick={deleteHandler}>
+            <DeleteIcon style={{ color: "#031b4e" }} />
+          </IconButton>
+        </Tooltip>
+      </div>
+    );
+  };
+
+  const ColumnSettings = (tableProps) => {
+    const columnsSettingsProps = {
+      data: tableProps.columns.map((c) => ({
+        ...c,
+        visible: c.visible !== false,
+      })),
+      rowKeyField: "key",
+      columns: [
+        {
+          key: "visible",
+          title: "Visible",
+          isEditable: false,
+          style: { textAlign: "center" },
+          width: 80,
+          dataType: DataType.Boolean,
+        },
+        {
+          key: "title",
+          isEditable: false,
+          title: "Fields",
+          dataType: DataType.String,
+        },
+      ],
+      editingMode: EditingMode.None,
+    };
+    const dispatchSettings = (action) => {
+      if (action.type === ActionType.UpdateCellValue) {
+        tableProps.dispatch(
+          action.value
+            ? showColumn(action.rowKeyValue)
+            : hideColumn(action.rowKeyValue)
+        );
+      }
+    };
+    return (
+      <Table
+        {...columnsSettingsProps}
+        childComponents={{
+          rootDiv: {
+            elementAttributes: () => ({
+              style: { width: 400, marginBottom: 20 },
+            }),
+          },
+          cell: {
+            content: (props) => {
+              switch (props.column.key) {
+                case "visible":
+                  return <CellEditorBoolean {...props} />;
+              }
+            },
+          },
+        }}
+        dispatch={dispatchSettings}
+      />
+    );
+  };
+
+  return (
+    <>
+      <Helmet title="Broadcast Week Report" />
+
+      <div className="selection-demo">
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
+          <div className="table-top">
+            <div className="columns-show-hide" onClick={handleColumns}>
+              <img src={eyeIcon} alt="search"></img>
+            </div>
+            <div className="search-icon" onClick={handleSearch}>
+              <span>Search Here</span>
+              <img src={search} alt="search"></img>
+            </div>
+
+            {serachSidebar ? (
+              <div className="search-sidebar">
+                <div className="search-top">
+                  <div className="title">
+                    <span>Search</span>
+                  </div>
+                  <a className="close-nav" onClick={closeSidebar}>
+                    <img src={closeNav} alt="file not found"></img>
+                  </a>
+                </div>
+
+                <div className="top-element">
+                  <FilterControl
+                    {...{
+                      fields,
+                      groups,
+                      filterValue,
+                      onFilterValueChanged: onFilterChanged,
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+            {showColumns ? (
+              <div className="column-settings">
+                <ColumnSettings {...tableProps} dispatch={dispatch} />
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
+        )}
+        <Table
+          {...tableProps}
+          childComponents={{
+            cellText: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <SelectionCell {...props} />;
+                }
+              },
+            },
+            filterRowCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <></>;
+                }
+              },
+            },
+            headCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return (
+                    <SelectionHeader
+                      {...props}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                        tableProps
+                      )}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    />
+                  );
+                }
+              },
+            },
+            cell: {
+              content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return (
+                      <img
+                        style={{ cursor: "move" }}
+                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                        alt="draggable"
+                      />
+                    );
+                }
+              },
+            },
+          }}
+          dispatch={dispatch}
+          extendedFilter={(data) => filterData(data, filterValue)}
+        />
+      </div>
+
+      <NormalModal
+        open={showModal.open}
+        setOpen={setShowModal}
+        width={"600px"}
+        title={"Edit Market Exception"}
+      >
+        <div className="edit_target">
+          <form className={classes.form}>
+            <span>Customer:</span>
+            <TextField
+              value={editData ? editData.customer_id : ""}
+              fullWidth
+              margin="normal"
+              name="customer_id"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Market:</span>
+            <TextField
+              value={editData ? editData.market_id : ""}
+              fullWidth
+              margin="normal"
+              name="market_id"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Start Date:</span>
+
+            <TextField
+              type="date"
+              name="start_date"
+              onChange={handleEditChange}
+              defaultValue={editData ? editData.start_date : ""}
+              margin="normal"
+              fullWidth
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleEditSubmit}
+              className={classes.editButton}
+            >
+              Edit
+            </Button>
+          </form>
+
+          <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
+    </>
+  );
+};
+
+BroadcastWeekReport.layout = (page) => (
+  <Layout title="BroadcastWeekReport">{page}</Layout>
+);
+export default BroadcastWeekReport;

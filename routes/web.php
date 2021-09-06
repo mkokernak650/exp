@@ -15,6 +15,8 @@ use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
 use App\Http\Controllers\TargetController;
+use App\Http\Controllers\BroadCastMonthController;
+use App\Http\Controllers\BroadCastWeeksController;
 use App\Http\Controllers\WebFormController;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -271,11 +273,22 @@ Route::post('/exception-delete', [ExceptionController::class, 'delete'])->name('
 Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
         ->name('update.exception.report');
 
-// Route::get('/add-broadcast-month', [BilledCallLogController::class, 'index'])
-//         ->name('billed-call-log-report');
+Route::get('/add-broadcast-month', [BroadCastMonthController::class, 'index'])
+        ->name('add.broadcast.month');
 
+Route::post('/broadcast-month-store', [BroadCastMonthController::class, 'store'])->name('broadcast.month.store');
 
-//test-route
+Route::get('/broadcast-month-report', [BroadCastMonthController::class, 'broadCastMonthReport'])
+        ->name('broadcast.month.report');
+Route::post('/broadcast-month-delete', [BroadCastMonthController::class, 'delete'])->name('broadcast.month.delete');
+
+Route::get('/add-broadcast-week', [BroadCastWeeksController::class, 'index'])
+        ->name('add.broadcast.week');
+
+Route::post('/broadcast-week-store', [BroadCastWeeksController::class, 'store'])->name('broadcast.week.store');
+Route::get('/broadcast-week-report', [BroadCastWeeksController::class, 'broadCastWeekReport'])
+        ->name('broadcast.week.report');
+ Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'])->name('broadcast.week.delete');
 
 
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])

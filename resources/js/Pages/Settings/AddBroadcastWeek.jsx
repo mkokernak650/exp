@@ -11,7 +11,6 @@ import {
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 
@@ -37,17 +36,17 @@ const useStyles = makeStyles((theme) => ({
   },
   MuiGridItem: {
     padding: "4px",
+    marginBottom: "15px",
   },
 }));
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const AddBroadcastMonth = () => {
+const AddBroadcastWeek = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { success } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
@@ -69,12 +68,14 @@ const AddBroadcastMonth = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("add.target"), values)
+      .post(route("broadcast.week.store"), values)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
           setResponse(res.data.msg);
           setOpen(true);
+        } else {
+          setLoading(false);
         }
       })
       .catch((err) => {
@@ -84,15 +85,28 @@ const AddBroadcastMonth = () => {
 
   return (
     <>
-      <Helmet title="Add Broadcast Month" />
+      <Helmet title="Add Broadcast Week" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Broadcast Month
+          Add Broadcast Week
         </Typography>
-        <form validate onSubmit={handleSubmit} className="add-target">
+        <form validate='true' onSubmit={handleSubmit} className="add-target">
           <Grid container spacing={4}>
-            <Grid item xs={12} classes={classes.MuiGridItem}>
-            <TextField
+            <Grid item xs={12} className={classes.MuiGridItem}>
+              <TextField
+                fullWidth
+                label="Broadcast Week"
+                margin="normal"
+                name="broad_cast_week"
+                onChange={handleChange}
+                type="text"
+                variant="outlined"
+                required={true}
+
+              />
+            </Grid>
+            <Grid item xs={12} className={classes.MuiGridItem}>
+              <TextField
                 id="date"
                 label="Start Date"
                 type="date"
@@ -103,12 +117,13 @@ const AddBroadcastMonth = () => {
                   shrink: true,
                 }}
                 fullWidth
-                required="true"
+                required={true}
+
               />
             </Grid>
 
-            <Grid item xs={12} classes={classes.MuiGridItem}>
-            <TextField
+            <Grid item xs={12} className={classes.MuiGridItem}>
+              <TextField
                 id="date"
                 label="End Date"
                 type="date"
@@ -119,22 +134,11 @@ const AddBroadcastMonth = () => {
                   shrink: true,
                 }}
                 fullWidth
-                required="true"
+                required={true}
+
               />
             </Grid>
 
-            <Grid item xs={12} classes={classes.MuiGridItem}>
-              <TextField
-                fullWidth
-                label="Broadcast Month"
-                margin="normal"
-                name="Description"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
-                required="true"
-              />
-            </Grid>
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
                 {loading ? <CircularProgress color="secondary" /> : "Submit"}
@@ -158,5 +162,7 @@ const AddBroadcastMonth = () => {
   );
 };
 
-AddBroadcastMonth.layout = (page) => <Layout title="Add Broadcast Month">{page}</Layout>;
-export default AddBroadcastMonth;
+AddBroadcastWeek.layout = (page) => (
+  <Layout title="Add Broadcast Week">{page}</Layout>
+);
+export default AddBroadcastWeek;

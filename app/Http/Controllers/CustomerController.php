@@ -32,9 +32,8 @@ class CustomerController extends Controller
 
     public function storeCustomer(Request $request)
     {
-        $allCustomers = Customer::all();
-        $existing_cutomer = $allCustomers->where('customer_name', $request->customer)->first();
-        if ($existing_cutomer) {
+        $existData = Customer::where('customer_name', $request->customer)->count();
+        if ($existData > 0) {
             return response()->json(["msg" => "Cutomer already exists"]);
         }
         Customer::create([
@@ -62,12 +61,11 @@ class CustomerController extends Controller
     {
         $data = Customer::find($request->id);
         $data->customer_name  = $request->customer_name;
-        $result=$data->save();
+        $result = $data->save();
 
         if ($result) {
             return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
-        }
-        else {
+        } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
     }

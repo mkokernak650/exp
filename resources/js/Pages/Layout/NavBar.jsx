@@ -284,12 +284,8 @@ export default function PersistentDrawerLeft(props) {
           title: "Billed Call Logs Report",
           href: "billed-call-log-report",
           Icon: <UserIcon />,
-        },
-        // {
-        //   title: "Add Broadcast Month",
-        //   href: "add.broadcast.month",
-        //   Icon: <UserIcon />,
-        // },
+        }
+      
       ],
     },
     {
@@ -339,6 +335,27 @@ export default function PersistentDrawerLeft(props) {
         {
           title: "Zipcode Database",
           href: "zipcode-data",
+          Icon: <UserIcon />,
+        },
+
+        {
+          title: "Add Broadcast Month",
+          href: "add.broadcast.month",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Broadcast Month Report",
+          href: "broadcast.month.report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Add Broadcast Week",
+          href: "add.broadcast.week",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Broadcast Week Report",
+          href: "broadcast.week.report",
           Icon: <UserIcon />,
         },
       ],
