@@ -81,7 +81,7 @@ const AddCustomer = () => {
         <Typography variant="h5" className={classes.title}>
           Add Customer
         </Typography>
-        <form validate onSubmit={handleSubmit}>
+        <form validate='true' onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -92,7 +92,8 @@ const AddCustomer = () => {
                 onChange={handleChange}
                 type="text"
                 variant="outlined"
-                required="true"
+                required={true}
+
               />
             </Grid>
 

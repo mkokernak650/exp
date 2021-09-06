@@ -16,7 +16,8 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'flex-start',
         flexDirection: 'column',
-        marginTop: '50px'
+        margin: '100px auto auto auto',
+        position: 'relative'
     },
     title: {
         display: 'flex',
@@ -33,7 +34,7 @@ export default function NormalModal({ open, setOpen, children, width,title }) {
         setOpen({ open: false })
     }
     const body = (
-        <div className={classes.paper} style={{ width: width, margin: 'auto', marginTop: '100px' }}>
+        <div className={classes.paper} style={{ width: width}}>
             <Typography variant='h5' className={classes.title}>{title}</Typography>
             {children}
             {/* <NormalModal /> */}

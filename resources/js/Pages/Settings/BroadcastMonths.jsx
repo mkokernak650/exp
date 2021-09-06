@@ -35,16 +35,19 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
+  MuiGridItem: {
+    padding: "4px",
+  },
 }));
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const MarketExceptionForm = () => {
+const AddBroadcastMonth = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { allCustomers, allMarkets, success } = usePage().props;
+  const { success } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
@@ -66,7 +69,7 @@ const MarketExceptionForm = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("add-market-exception"), values)
+      .post(route("add.target"), values)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
@@ -74,75 +77,62 @@ const MarketExceptionForm = () => {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setLoading(false);
+      });
   };
 
   return (
     <>
-      <Helmet title="Market Exception Form" />
+      <Helmet title="Add Broadcast Month" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Market Exception
+          Add Broadcast Month
         </Typography>
-        <form validate='true' onSubmit={handleSubmit}>
+        <form validate onSubmit={handleSubmit} className="add-target">
           <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="customer"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Customer</option>
-                {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_ID}>
-                    {option.customer_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="market"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-
-              >
-                <option value="">Select Market</option>
-                {allMarkets.map((option, indx) => (
-                  <option key={indx} value={option.market}>
-                    {option.market}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
+            <Grid item xs={12} classes={classes.MuiGridItem}>
+            <TextField
                 id="date"
                 label="Start Date"
                 type="date"
                 name="start_date"
                 onChange={handleChange}
                 defaultValue="2021-01-06"
-                className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
                 }}
                 fullWidth
-                required={true}
+                required="true"
+              />
+            </Grid>
+
+            <Grid item xs={12} classes={classes.MuiGridItem}>
+            <TextField
+                id="date"
+                label="End Date"
+                type="date"
+                name="end_date"
+                onChange={handleChange}
+                defaultValue="2021-01-06"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                fullWidth
+                required="true"
+              />
+            </Grid>
+
+            <Grid item xs={12} classes={classes.MuiGridItem}>
+              <TextField
+                fullWidth
+                label="Broadcast Month"
+                margin="normal"
+                name="Description"
+                onChange={handleChange}
+                type="text"
+                variant="outlined"
+                required="true"
               />
             </Grid>
             <Grid item xs={12}>
@@ -168,7 +158,5 @@ const MarketExceptionForm = () => {
   );
 };
 
-MarketExceptionForm.layout = (page) => (
-  <Layout title="Market Exception">{page}</Layout>
-);
-export default MarketExceptionForm;
+AddBroadcastMonth.layout = (page) => <Layout title="Add Broadcast Month">{page}</Layout>;
+export default AddBroadcastMonth;

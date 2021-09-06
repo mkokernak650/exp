@@ -25,7 +25,10 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import ThreeDots from "../../../images/three-dots.svg";
+import Edit from "../../../images/edit1.svg";
 import closeNav from "../../../images/closeNav.svg";
+import Cancel from "../../../images/Cancel.svg";
+
 import {
   hideColumn,
   showColumn,
@@ -49,10 +52,13 @@ const useStyles = makeStyles(() => ({
     marginLeft: "10px",
   },
   button: {
-    width: 130,
+    width: '130',
     textTransform: "capitalize",
     fontSize: "14px",
   },
+  editButton:{
+    marginTop:"15px"
+  }
 }));
 export const fields = [
   {
@@ -211,10 +217,9 @@ const Targets = () => {
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
-  console.log(editData);
   const handleEditSubmit = () => {
     axios
-      .post(route("target.edit"), editData)
+      .post(route("customer.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
           setEditData();
@@ -229,8 +234,13 @@ const Targets = () => {
       });
   };
 
+  const handleCloseModal = () => {
+    setShowModal({ open: false });
+  };
+
+
   const dataArray = allTargets.map((item, index) => ({
-    test: item.id,
+    edit: item.id,
     sl: index + 1,
     customer: item.Customer,
     Ringba_Target_Name: item.Ringba_Targets_Name,
@@ -302,7 +312,7 @@ const Targets = () => {
   const tablePropsInit = {
     columns: [
       {
-        key: "test",
+        key: "edit",
         style: { width: 20 },
       },
       {
@@ -349,10 +359,10 @@ const Targets = () => {
     columnReordering: true,
 
     format: ({ column, value }) => {
-      if (column.key === "test") {
+      if (column.key === "edit") {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={ThreeDots} alt="edit-icon"></img>
+            <img src={Edit} alt="edit-icon"></img>
           </div>
         );
       }
@@ -593,7 +603,6 @@ const Targets = () => {
               name="Customer"
               type="text"
               variant="outlined"
-              required="true"
               onChange={handleEditChange}
             />
             <span>Description:</span>
@@ -604,7 +613,6 @@ const Targets = () => {
               name="Description"
               type="text"
               variant="outlined"
-              required="true"
               onChange={handleEditChange}
             />
             <span>Ringba Target Name:</span>
@@ -615,17 +623,22 @@ const Targets = () => {
               name="Ringba_Targets_Name"
               type="text"
               variant="outlined"
-              required="true"
               onChange={handleEditChange}
             />
             <Button
               variant="contained"
               color="primary"
               onClick={handleEditSubmit}
+              className={classes.editButton}
+
             >
               Edit
             </Button>
           </form>
+
+          <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
         </div>
       </NormalModal>
     </>

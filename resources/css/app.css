@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600;family=Montserrat&700&family=Roboto:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato&family=Poppins:wght@400;500;600&family=Montserrat&700&family=Roboto:wght@500&display=swap%22");
 
 body {
   font-family: "Roboto", sans-serif;
@@ -86,7 +86,7 @@ div::-webkit-scrollbar-thumb {
   align-items: center;
   border-radius: 100%;
   cursor: pointer;
-  margin-left: 32px;
+  /* margin-left: 32px; */
 }
 .columns-show-hide:hover {
   transition: all 0.5s ease-in-out;
@@ -424,6 +424,34 @@ div::-webkit-scrollbar-thumb {
   color: #000 !important;
 }
 
+
+.close-modal {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-modal-icon {
+  top: 6px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: #edeaea;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: hover 0.5s;
+  cursor: pointer;
+  position: absolute;
+}
+.close-modal-icon:hover{
+    background: #dcd8d8;
+}
+
+.close-modal-icon img{
+    width: 13px;
+    height: 13px;
+}
 /*conditon-style*/
 
 /*ka-table*/

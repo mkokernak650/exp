@@ -58,6 +58,20 @@ class CustomerController extends Controller
         return back()->with('Export successfully');
     }
 
+    public function edit(Request $request)
+    {
+        $data = Customer::find($request->id);
+        $data->customer_name  = $request->customer_name;
+        $result=$data->save();
+
+        if ($result) {
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+        }
+        else {
+            return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
+        }
+    }
+
     public function delete(Request $request)
     {
         $result = true;
