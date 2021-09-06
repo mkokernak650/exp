@@ -25,15 +25,21 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
+// import ThreeDots from "../../../images/three-dots.svg";
+import Edit from "../../../images/edit1.svg";
+
+import Cancel from "../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
 import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import NormalModal from "../../Shared/NormalModal";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -45,6 +51,9 @@ const useStyles = makeStyles(() => ({
     width: 130,
     textTransform: "capitalize",
     fontSize: "14px",
+  },
+  editButton: {
+    marginTop: "15px",
   },
 }));
 export const fields = [
@@ -152,7 +161,42 @@ const MarketExceptionReport = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [showModal, setShowModal] = useState({ open: false });
+  const [editData, setEditData] = useState();
+
+  const handleEdit = (itemId) => {
+    marketExceptions.filter((item) => {
+      if (item.id === itemId) {
+        setEditData(item);
+      }
+    });
+    setShowModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  const handleEditSubmit = () => {
+    axios
+      .post(route("market.exception.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setEditData();
+          setShowModal({ open: false });
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = () => {
+    setShowModal({ open: false });
+  };
+
   const dataArray = marketExceptions.map((item, index) => ({
+    edit: item.id,
     sl: index + 1,
     customer: item.customer_id,
     market: item.market_id,
@@ -224,6 +268,10 @@ const MarketExceptionReport = () => {
   const tablePropsInit = {
     columns: [
       {
+        key: "edit",
+        style: { width: 20 },
+      },
+      {
         key: "selection-cell",
         style: { width: 80 },
       },
@@ -270,7 +318,15 @@ const MarketExceptionReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
+    },
   };
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);
@@ -489,6 +545,60 @@ const MarketExceptionReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
       </div>
+
+      <NormalModal
+        open={showModal.open}
+        setOpen={setShowModal}
+        width={"600px"}
+        title={"Edit Market Exception"}
+      >
+        <div className="edit_target">
+          <form className={classes.form}>
+            <span>Customer:</span>
+            <TextField
+              value={editData ? editData.customer_id : ""}
+              fullWidth
+              margin="normal"
+              name="customer_id"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Market:</span>
+            <TextField
+              value={editData ? editData.market_id : ""}
+              fullWidth
+              margin="normal"
+              name="market_id"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Start Date:</span>
+
+            <TextField
+              type="date"
+              name="start_date"
+              onChange={handleEditChange}
+              defaultValue={editData ? editData.start_date : ""}
+              margin="normal"
+              fullWidth
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleEditSubmit}
+              className={classes.editButton}
+            >
+              Edit
+            </Button>
+          </form>
+
+          <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
     </>
   );
 };

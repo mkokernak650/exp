@@ -24,17 +24,26 @@ import { filterData } from "../filterData";
 import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
-// import ThreeDots from "../../../images/three-dots.svg";
+import ThreeDots from "../../../images/three-dots.svg";
+import Edit from "../../../images/edit1.svg";
 import closeNav from "../../../images/closeNav.svg";
-import { hideColumn, showColumn,closeRowEditors} from "ka-table/actionCreators";
+import Cancel from "../../../images/Cancel.svg";
+
+import {
+  hideColumn,
+  showColumn,
+  closeRowEditors,
+} from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
 import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import NormalModal from "../../Shared/NormalModal";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -43,10 +52,13 @@ const useStyles = makeStyles(() => ({
     marginLeft: "10px",
   },
   button: {
-    width: 130,
+    width: '130',
     textTransform: "capitalize",
     fontSize: "14px",
   },
+  editButton:{
+    marginTop:"15px"
+  }
 }));
 export const fields = [
   {
@@ -191,7 +203,44 @@ const Targets = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [showModal, setShowModal] = useState({ open: false });
+  const [editData, setEditData] = useState();
+
+  const handleEdit = (itemId) => {
+    allTargets.filter((item) => {
+      if (item.id === itemId) {
+        setEditData(item);
+      }
+    });
+    setShowModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  const handleEditSubmit = () => {
+    axios
+      .post(route("customer.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setEditData();
+          setShowModal({ open: false });
+          
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = () => {
+    setShowModal({ open: false });
+  };
+
+
   const dataArray = allTargets.map((item, index) => ({
+    edit: item.id,
     sl: index + 1,
     customer: item.Customer,
     Ringba_Target_Name: item.Ringba_Targets_Name,
@@ -242,8 +291,8 @@ const Targets = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < MarketExceptionReport.length) {
-              selectedRowIds.push(MarketExceptionReport[i].id);
+            while (i < allTargets.length) {
+              selectedRowIds.push(allTargets[i].id);
               i++;
             }
           } else {
@@ -260,12 +309,10 @@ const Targets = () => {
     );
   };
 
- 
-
   const tablePropsInit = {
     columns: [
       {
-        key: "test",
+        key: "edit",
         style: { width: 20 },
       },
       {
@@ -310,6 +357,16 @@ const Targets = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
+
+    format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
+    },
     // rowReordering: true,
   };
 
@@ -524,13 +581,66 @@ const Targets = () => {
                 }
               },
             },
-
- 
           }}
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
       </div>
+
+      <NormalModal
+        open={showModal.open}
+        setOpen={setShowModal}
+        width={"600px"}
+        title={"Edit Targets"}
+      >
+        <div className="edit_target">
+          <form className={classes.form}>
+            <span>Customer:</span>
+            <TextField
+              value={editData ? editData.Customer : ""}
+              fullWidth
+              margin="normal"
+              name="Customer"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Description:</span>
+            <TextField
+              value={editData ? editData.Description : ""}
+              fullWidth
+              margin="normal"
+              name="Description"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Ringba Target Name:</span>
+            <TextField
+              value={editData ? editData.Ringba_Targets_Name : ""}
+              fullWidth
+              margin="normal"
+              name="Ringba_Targets_Name"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleEditSubmit}
+              className={classes.editButton}
+
+            >
+              Edit
+            </Button>
+          </form>
+
+          <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
     </>
   );
 };

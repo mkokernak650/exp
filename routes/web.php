@@ -96,6 +96,8 @@ Route::get('/market-exception-form', [MarketExceptionController::class, 'marketE
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])
         ->name('market-exception-report');
 
+Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
+        ->name('market.exception.edit');
 Route::post('/market-exception-delete', [MarketExceptionController::class, 'delete'])->name('market.exception.delete');
 
 
@@ -143,6 +145,9 @@ Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])
         ->name('store-customer');
 Route::post('/customer-delete', [CustomerController::class, 'delete'])
         ->name('customer.delete');
+
+Route::post('/customer-edit', [CustomerController::class, 'edit'])
+        ->name('customer.edit');
 
 Route::get('customer-export/{type}', [CustomerController::class, 'export'])
         ->name('customer.export');
@@ -225,6 +230,9 @@ Route::post('/add-target', [TargetController::class, 'addTarget'])
 Route::post('/target-delete', [TargetController::class, 'delete'])
         ->name('target.delete');
 
+Route::post('/target-edit', [TargetController::class, 'edit'])
+        ->name('target.edit');
+
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
         ->name('update.annotation');
 
@@ -262,6 +270,9 @@ Route::post('/exception-delete', [ExceptionController::class, 'delete'])->name('
 
 Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])
         ->name('update.exception.report');
+
+// Route::get('/add-broadcast-month', [BilledCallLogController::class, 'index'])
+//         ->name('billed-call-log-report');
 
 
 //test-route

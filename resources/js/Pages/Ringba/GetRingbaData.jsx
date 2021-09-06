@@ -76,7 +76,7 @@ const GetRingbaData = () => {
         <Typography variant="h5" className={classes.title}>
           Fetch Ringba Data
         </Typography>
-        <form validate onSubmit={handleSubmit}>
+        <form validate='true' onSubmit={handleSubmit}>
           <TextField
             id="date"
             label="Start Date"

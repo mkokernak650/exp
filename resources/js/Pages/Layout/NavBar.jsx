@@ -285,6 +285,11 @@ export default function PersistentDrawerLeft(props) {
           href: "billed-call-log-report",
           Icon: <UserIcon />,
         },
+        // {
+        //   title: "Add Broadcast Month",
+        //   href: "add.broadcast.month",
+        //   Icon: <UserIcon />,
+        // },
       ],
     },
     {
@@ -295,7 +300,7 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "Add Market Exasdception",
+          title: "Add Market Exception",
           href: "market-exception-form",
           // Icon: <UserIcon />,
         },
@@ -314,7 +319,7 @@ export default function PersistentDrawerLeft(props) {
           href: "customer-report",
           Icon: <UserIcon />,
         },
-           {
+        {
           title: "Add Target",
           href: "target.form",
           Icon: <UserIcon />,
@@ -336,7 +341,6 @@ export default function PersistentDrawerLeft(props) {
           href: "zipcode-data",
           Icon: <UserIcon />,
         },
-
       ],
     },
     {

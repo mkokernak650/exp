@@ -90,7 +90,7 @@ const AddTargets = () => {
         <Typography variant="h5" className={classes.title}>
           Add Target
         </Typography>
-        <form validate onSubmit={handleSubmit} className="add-target">
+        <form validate='true' onSubmit={handleSubmit} className="add-target">
           <Grid container spacing={4}>
             <Grid item xs={12} classes={classes.MuiGridItem}>
               <TextField
@@ -102,7 +102,8 @@ const AddTargets = () => {
                   native: true,
                 }}
                 fullWidth
-                required="true"
+                required={true}
+
               >
                 <option value="">Select Customer</option>
                 {allCustomers.map((option, indx) => (
@@ -123,7 +124,8 @@ const AddTargets = () => {
                 onChange={handleChange}
                 type="text"
                 variant="outlined"
-                required="true"
+                required={true}
+
               />
             </Grid>
 
@@ -136,7 +138,8 @@ const AddTargets = () => {
                 onChange={handleChange}
                 type="text"
                 variant="outlined"
-                required="true"
+                required={true}
+
               />
             </Grid>
             <Grid item xs={12}>

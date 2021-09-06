@@ -208,7 +208,6 @@ class RingbaCallLogController extends Controller
                 $this->get_profit = $item->formattedValue;
             } else if ($item->name === 'targetName') {
                 $this->get_targetName = $item->formattedValue;
-
                 if (!empty($this->get_targetName)) {
                     // $targetsTable = new Target();
                     $result = Target::where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
