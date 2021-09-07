@@ -102,10 +102,9 @@ Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit']
         ->name('market.exception.edit');
 Route::post('/market-exception-delete', [MarketExceptionController::class, 'delete'])->name('market.exception.delete');
 
+Route::get('/test-affiliate', [MarketExceptionController::class, 'testReport'])
+        ->name('testAffiliate');
 
-// Route::get('/market-exception', function () {
-//         return inertia::render('Settings/MarketException');
-// })->name('market-exception');
 
 
 
