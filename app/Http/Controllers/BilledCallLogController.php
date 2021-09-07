@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
-use App\Models\BilledCallLog;
-use App\Models\PendingBillCallLog;
+use App\Models\{BilledCallLog, PendingBillCallLog};
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +13,7 @@ class BilledCallLogController extends Controller
 {
     private static $billedCallLog;
     private static $RingbaApiHelpers;
+
     function __construct()
     {
         $this->middleware('auth');
@@ -60,7 +61,8 @@ class BilledCallLogController extends Controller
             $billedCallLog->SN                  = $data->SN;
             $billedCallLog->Recording_Url       = $data->Recording_Url;
             $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;
-            $billedCallLog->Call_Date           = $data->Call_Date;
+            // $billedCallLog->Call_Date           = $data->Call_Date;
+            $billedCallLog->Call_Date           = Carbon::parse($data->Call_Date)->format('Y-m-d');
             $billedCallLog->Duplicate_Call      = $data->Duplicate_Call;
             $billedCallLog->Affiliate           = $data->Affiliate;
             $billedCallLog->Affiliate_Id        = $data->Affiliate_Id;
@@ -94,9 +96,15 @@ class BilledCallLogController extends Controller
             $data->delete();
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Billed successfully", "status_code" => 200]);
+            return response()->json([
+                "msg" => "Data moved to Billed successfully",
+                "status_code" => 200
+            ]);
         } else {
-            return response()->json(["msg" => "Data Moving failed", "status_code" => 500]);
+            return response()->json([
+                "msg" => "Data Moving failed",
+                "status_code" => 500
+            ]);
         }
     }
 
@@ -199,16 +207,16 @@ class BilledCallLogController extends Controller
 
     public function delete(Request $request)
     {
-        $result = true;
+        $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('billed_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+            // $result =  DB::table('billed_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+            $result =  BilledCallLog::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        }
-        if ($result) {
+        } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
