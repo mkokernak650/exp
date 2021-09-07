@@ -43,6 +43,15 @@ class MarketExceptionController extends Controller
             'allMarkets' => $allMarkets
         ]);
     }
+    public function testReport()
+    {
+        $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
+        $allCustomers = Customer::all();
+        return Inertia::render('GenerateReport/GenerateReportAffiliate', [
+            'allCustomers' => $allCustomers,
+            'allMarkets' => $allMarkets
+        ]);
+    }
 
     public function marketExceptionReport()
     {

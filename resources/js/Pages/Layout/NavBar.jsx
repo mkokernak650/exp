@@ -33,7 +33,7 @@ import { useState } from "react";
 import Logo from "../../../images/webform/logo.png";
 import MoreIcon from "@material-ui/icons/MoreVert";
 
-const drawerWidth = 240;
+const drawerWidth = 280;
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -284,12 +284,36 @@ export default function PersistentDrawerLeft(props) {
           title: "Billed Call Logs Report",
           href: "billed-call-log-report",
           Icon: <UserIcon />,
+        },
+      ],
+    },
+
+    {
+      id: 3,
+      Icon: <UsersIcon size="20" />,
+      title: "Generate Reports",
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: "Affiliate",
+          href: "testAffiliate",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Target",
+          href: "tempringbadata",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Market Exception",
+          href: "call-logs-report",
+          Icon: <UserIcon />,
         }
-      
       ],
     },
     {
-      id: 3,
+      id: 4,
       Icon: <SettingsIcon size="20" />,
       title: "Settings",
       active: false,
@@ -361,7 +385,7 @@ export default function PersistentDrawerLeft(props) {
       ],
     },
     {
-      id: 4,
+      id: 5,
       href: "webform.reports",
       Icon: <BarChartIcon size="20" />,
       title: "Webform Reports",
@@ -370,14 +394,20 @@ export default function PersistentDrawerLeft(props) {
     },
   ];
 
-  let [active, inActive] = useState();
+  const [active, inActive] = useState({
+    id:'',active: false
+  });
   const handleClick = (id) => {
     for (let i = 0; i < items.length; i++) {
       if (id === items[i].id) {
-        inActive(items[i].id);
+        
+        // inActive(items[i].id);
+        inActive({...active,id:items[i].id,active:!active.active});
       }
     }
   };
+  console.log(active)
+
 
   return (
     <div className={classes.root}>
@@ -473,7 +503,7 @@ export default function PersistentDrawerLeft(props) {
                       primary={menu.title}
                       className={classes.menuText}
                     />
-                    {active === menu.id ? <ExpandLess /> : <ExpandMore />}
+                    {active.id === menu.id && active.active ? <ExpandLess /> : <ExpandMore />}
                   </ListItem>
                 </InertiaLink>
               ) : (
@@ -494,11 +524,11 @@ export default function PersistentDrawerLeft(props) {
               )}
               {menu.collapse ? (
                 <Collapse
-                  in={active === menu.id}
+                  in={active.id === menu.id && active.active}
                   timeout="auto"
                   unmountOnExit
                   className={`${
-                    menu.active ? "classes.active" : "classes.inActive"
+                    menu.active ? "sidebar-menu-active" : "sidebar-menu-inactive"
                   }`}
                 >
                   <List component="div" disablePadding>
