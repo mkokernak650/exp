@@ -7,7 +7,6 @@ use App\Models\{BilledCallLog, PendingBillCallLog};
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
 
 class BilledCallLogController extends Controller
 {
