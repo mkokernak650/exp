@@ -70,3 +70,20 @@ if (!function_exists('dataMoveHelper')) {
     return true;
   }
 }
+
+if (!function_exists('deleteSuccessOrFailed')) {
+  /**
+   * @param $result true|false
+   * @param Array $success['msg', status_code]
+   * @param Array $failed['msg', status_code]
+   * @return response json
+   */
+  function deleteSuccessOrFailed($result, $success = [], $failed = [])
+  {
+    if ($result) {
+      return response()->json(["msg" => $success['msg'] || "Successfully Deleted", "status_code" => $success['status_code'] || 200]);
+    } else {
+      return response()->json(["msg" => $failed['msg'] || "Deleting Failed", "status_code" => $failed['status_code'] || 500]);
+    }
+  }
+}

@@ -20,9 +20,9 @@ class MarketExceptionController extends Controller
 
     public function addMarketException(Request $request)
     {
-      
+
         $existData = MarketExcptions::where('customer_id', $request->customer)->where('market_id', $request->market)->count();
-        if ($existData>0) {
+        if ($existData > 0) {
             return response()->json(["msg" => "Data already Exist"]);
         }
         MarketExcptions::create([
@@ -90,31 +90,31 @@ class MarketExceptionController extends Controller
     public function edit(Request $request)
     {
         $data = MarketExcptions::find($request->id);
-        $data->customer_id	  = $request->customer_id	;
-        $data->market_id = $request->market_id;
-        $data->start_date  = $request->start_date;
-        $result=$data->save();
+        $data->customer_id  = $request->customer_id;
+        $data->market_id    = $request->market_id;
+        $data->start_date   = $request->start_date;
+        $result             = $data->save();
 
-        if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        }
-        else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
-        }
+        deleteSuccessOrFailed($result);
+        // if ($result) {
+        //     return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        // } else {
+        //     return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        // }
     }
 
     public function delete(Request $request)
     {
-        $result = true;
+        $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('market_excptions')->where('id', $request->selectedRowIds[$i])->delete();
+            // $result =  DB::table('market_excptions')->where('id', $request->selectedRowIds[$i])->delete();
+            $result =  MarketExcptions::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        }
-        if ($result) {
+        } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }

@@ -181,7 +181,6 @@ class ExceptionController extends Controller
     {
         $inboundIds = $request->inboundIds;
 
-
         $i = 0;
         while ($i < count($inboundIds)) :
 
@@ -370,16 +369,16 @@ class ExceptionController extends Controller
 
     public function delete(Request $request)
     {
-        $result = true;
+        $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('exceptions')->where('id', $request->selectedRowIds[$i])->delete();
+            // $result =  DB::table('exceptions')->where('id', $request->selectedRowIds[$i])->delete();
+            $result =  Exception::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        }
-        if ($result) {
+        } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }

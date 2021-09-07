@@ -16,9 +16,6 @@ class MarketController extends Controller
         $this->middleware('auth');
     }
 
-
-
-
     public function addMarket(Request $request)
     {
         $allMarkets = Market::all();

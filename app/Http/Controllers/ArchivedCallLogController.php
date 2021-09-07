@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchivedCallLog;
 use App\Models\RingbaCallLog;
-use App\Models\Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
