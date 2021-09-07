@@ -629,6 +629,7 @@ class RingbaCallLogController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
+    
     public function tempDataDelete(Request $request)
     {
         $result = false;

@@ -17,13 +17,14 @@ use App\Http\Controllers\{
     BroadCastMonthController,
     BroadCastWeeksController,
     WebFormController,
-    Auth\LoginController
+    Auth\LoginController,
+    ReportGeneratorController
 };
 // use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Helpers\RingbaApiHelpers;
-
+use Carbon\Carbon;
 
 // TODO Login and Log out controller
 Route::get('/', [LoginController::class, 'showLoginform'])
@@ -43,9 +44,11 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
+Route::get('/get-date', [ReportGeneratorController::class, 'reports']);
+// echo Carbon::parse('24-Jul-21 17:49:59')->format('H:m:i');
+
 
 //TODO Ringba call log contoroller
-
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
     ->name('temp-ringba-data');
 
