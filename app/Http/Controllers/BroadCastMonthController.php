@@ -20,17 +20,17 @@ class BroadCastMonthController extends Controller
     public function store(Request $request)
     {
         $existData = BroadCastMonth::where([
-            'broad_cast_month' => $request->broad_cast_month,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date
+            'broad_cast_month'  => $request->broad_cast_month,
+            'start_date'        => $request->start_date,
+            'end_date'          => $request->end_date
         ])->count();
         if ($existData > 0) {
             return response()->json(["msg" => "Data already exists"]);
         }
         BroadCastMonth::create([
-            'broad_cast_month' => $request->broad_cast_month,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
+            'broad_cast_month'  => $request->broad_cast_month,
+            'start_date'        => $request->start_date,
+            'end_date'          => $request->end_date,
         ]);
         return response()->json(["msg" => "Successfully Added"]);
     }
@@ -39,7 +39,7 @@ class BroadCastMonthController extends Controller
     {
         $BroadCastMonths = BroadCastMonth::all();
         return Inertia::render('Settings/BroadcastMonthReport', [
-            'BroadCastMonths' => $BroadCastMonths,
+            'BroadCastMonths'   => $BroadCastMonths,
         ]);
     }
 
@@ -54,13 +54,13 @@ class BroadCastMonthController extends Controller
         }
         if ($result) {
             return response()->json([
-                "msg" => "Successfully Deleted",
-                "status_code" => 200
+                "msg"           => "Successfully Deleted",
+                "status_code"   => 200
             ]);
         } else {
             return response()->json([
-                "msg" => "Deleting Failed",
-                "status_code" => 500
+                "msg"           => "Deleting Failed",
+                "status_code"   => 500
             ]);
         }
     }
