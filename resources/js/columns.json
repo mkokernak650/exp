@@ -1,445 +1,212 @@
 [
-    {
-        "name": "IVRNodeEnter",
-        "weigth": 500,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:15.1733913Z",
-                "formattedValue": 1626110175173,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "NodeType",
-                "original": "EnrichNode",
-                "formattedValue": "EnrichNode",
-                "type": "string",
-                "sum": false
-            },
-            {
-                "name": "stepName",
-                "original": "Profile",
-                "formattedValue": "Profile",
-                "type": "string",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "DataEnrichment",
-        "weigth": 500,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:16.7202593Z",
-                "formattedValue": 1626110176720,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "success",
-                "original": "yes",
-                "formattedValue": "yes",
-                "type": "string",
-                "sum": false
-            },
-            {
-                "name": "errorMessage",
-                "original": "",
-                "formattedValue": "",
-                "type": "string",
-                "sum": false
-            },
-            {
-                "name": "cost",
-                "original": 0.12,
-                "formattedValue": 0.12,
-                "type": "currency",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "IVRNodeExit",
-        "weigth": 500,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:16.7202593Z",
-                "formattedValue": 1626110176720,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "NodeType",
-                "original": "EnrichNode",
-                "formattedValue": "EnrichNode",
-                "type": "string",
-                "sum": false
-            },
-            {
-                "name": "stepName",
-                "original": "Profile",
-                "formattedValue": "Profile",
-                "type": "string",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "IVRNodeEnter",
-        "weigth": 500,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:16.7202593Z",
-                "formattedValue": 1626110176720,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "NodeType",
-                "original": "DialNode",
-                "formattedValue": "DialNode",
-                "type": "string",
-                "sum": false
-            },
-            {
-                "name": "stepName",
-                "original": "On Success: Dial",
-                "formattedValue": "On Success: Dial",
-                "type": "string",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "CallPlanDetail",
-        "weigth": 800,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:16.7358901Z",
-                "formattedValue": 1626110176735,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "IneligibleTargets",
-                "original": "Spectrum Reach - Cash[1,1] TagFail\r\nLegacy Health-Misc.[1,1] TagFail\r\nLegacy Health-Charter[1,1] TagFail\r\nLegacy Health-AMC[1,1] TagFail",
-                "formattedValue": "Spectrum Reach - Cash[1,1] TagFail\r\nLegacy Health-Misc.[1,1] TagFail\r\nLegacy Health-Charter[1,1] TagFail\r\nLegacy Health-AMC[1,1] TagFail",
-                "type": "list",
-                "sum": false
-            },
-            {
-                "name": "EligibleTargets",
-                "original": "Legacy Healing -Revshare[1,1]",
-                "formattedValue": "Legacy Healing -Revshare[1,1]",
-                "type": "list",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "TargetDialed",
-        "weigth": 410,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:16.7515682Z",
-                "formattedValue": 1626110176751,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "targetName",
-                "original": "Legacy Healing -Revshare",
-                "formattedValue": "Legacy Healing -Revshare",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetId",
-                "original": "TAc35562c1b5344d619e413923d29aaa2c",
-                "formattedValue": "TAc35562c1b5344d619e413923d29aaa2c",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetNumber",
-                "original": "+18508055432",
-                "formattedValue": "+18508055432",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyerId",
-                "original": "BUcdbadab123474146bd0208686961cf1a",
-                "formattedValue": "BUcdbadab123474146bd0208686961cf1a",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyer",
-                "original": "Legacy Healing Centers",
-                "formattedValue": "Legacy Healing Centers",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "totalAmount",
-                "original": 0.175,
-                "formattedValue": 0.175,
-                "type": "currency",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "ConnectedCall",
-        "weigth": 500,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:16:23.7051288Z",
-                "formattedValue": 1626110183705,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "timeToConnect",
-                "original": 8,
-                "formattedValue": 8,
-                "type": "seconds",
-                "sum": false
-            },
-            {
-                "name": "callConnectionDt",
-                "original": 1626110183689,
-                "formattedValue": 1626110183689,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "targetName",
-                "original": "Legacy Healing -Revshare",
-                "formattedValue": "Legacy Healing -Revshare",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetNumber",
-                "original": "+18508055432",
-                "formattedValue": "+18508055432",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetId",
-                "original": "TAc35562c1b5344d619e413923d29aaa2c",
-                "formattedValue": "TAc35562c1b5344d619e413923d29aaa2c",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyerId",
-                "original": "BUcdbadab123474146bd0208686961cf1a",
-                "formattedValue": "BUcdbadab123474146bd0208686961cf1a",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyer",
-                "original": "Legacy Healing Centers",
-                "formattedValue": "Legacy Healing Centers",
-                "type": "text",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "ConvertedCall",
-        "weigth": 600,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:17:19.8444015Z",
-                "formattedValue": 1626110239844,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "conversionAmount",
-                "original": 61,
-                "formattedValue": 61,
-                "type": "currency",
-                "sum": false
-            },
-            {
-                "name": "payoutAmount",
-                "original": 0,
-                "formattedValue": 0,
-                "type": "currency",
-                "sum": false
-            },
-            {
-                "name": "targetBuyerId",
-                "original": "BUcdbadab123474146bd0208686961cf1a",
-                "formattedValue": "BUcdbadab123474146bd0208686961cf1a",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyer",
-                "original": "Legacy Healing Centers",
-                "formattedValue": "Legacy Healing Centers",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetName",
-                "original": "Legacy Healing -Revshare",
-                "formattedValue": "Legacy Healing -Revshare",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetNumber",
-                "original": "+18508055432",
-                "formattedValue": "+18508055432",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetId",
-                "original": "TAc35562c1b5344d619e413923d29aaa2c",
-                "formattedValue": "TAc35562c1b5344d619e413923d29aaa2c",
-                "type": "text",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "CompletedCall",
-        "weigth": 700,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:17:19.8444015Z",
-                "formattedValue": 1626110239844,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "callLengthInSeconds",
-                "original": 64,
-                "formattedValue": 64,
-                "type": "seconds",
-                "sum": false
-            },
-            {
-                "name": "callCompletedDt",
-                "original": 1626110239813,
-                "formattedValue": 1626110239813,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "targetBuyerId",
-                "original": "BUcdbadab123474146bd0208686961cf1a",
-                "formattedValue": "BUcdbadab123474146bd0208686961cf1a",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyer",
-                "original": "Legacy Healing Centers",
-                "formattedValue": "Legacy Healing Centers",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "totalAmount",
-                "original": 0.23,
-                "formattedValue": 0.23,
-                "type": "currency",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "PayoutCall",
-        "weigth": 610,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:17:19.875694Z",
-                "formattedValue": 1626110239875,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "payoutAmount",
-                "original": 57.2,
-                "formattedValue": 57.2,
-                "type": "currency",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "EndCallSource",
-        "weigth": 1130,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:17:19.8912748Z",
-                "formattedValue": 1626110239891,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "source",
-                "original": "Target",
-                "formattedValue": "Target",
-                "type": "text",
-                "sum": false
-            }
-        ]
-    },
-    {
-        "name": "RecordedCall",
-        "weigth": 1030,
-        "columns": [
-            {
-                "name": "dtStamp",
-                "original": "2021-07-12T17:17:20.8315571Z",
-                "formattedValue": 1626110240831,
-                "type": "date",
-                "sum": false
-            },
-            {
-                "name": "recordingUrl",
-                "original": "https://media.ringba.com/recording-public?v=v1&k=AFhWt2Q%2fPMB2Qy5AgYzYS6oOrM7iZC5gC79X9MIlIk%2fPe0e1zD9Zccr7QcEoNf0zL9AJ12QAO4YyR58riQeNRwXxru36Xgv%2bUf9B%2bi2LMIRwmBWuarxzjoFOOptHaqLSUGV%2bZ%2bzuo6S7pE8glF%2fmCPDKfVxld7nYrnKMgquFAxNkfihDK%2bWnOGdQtDO50HVfGg8Um0dQQjDPN6JS7DyhulhmFybPDFPHxBIGJ57wsZMucCyFH5wXndqjTXrJ2veosjPDH3%2bCJw1gjvd5mchk2FXp%2fVQ%3d",
-                "formattedValue": "https://media.ringba.com/recording-public?v=v1&k=AFhWt2Q%2fPMB2Qy5AgYzYS6oOrM7iZC5gC79X9MIlIk%2fPe0e1zD9Zccr7QcEoNf0zL9AJ12QAO4YyR58riQeNRwXxru36Xgv%2bUf9B%2bi2LMIRwmBWuarxzjoFOOptHaqLSUGV%2bZ%2bzuo6S7pE8glF%2fmCPDKfVxld7nYrnKMgquFAxNkfihDK%2bWnOGdQtDO50HVfGg8Um0dQQjDPN6JS7DyhulhmFybPDFPHxBIGJ57wsZMucCyFH5wXndqjTXrJ2veosjPDH3%2bCJw1gjvd5mchk2FXp%2fVQ%3d",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyerId",
-                "original": "BUcdbadab123474146bd0208686961cf1a",
-                "formattedValue": "BUcdbadab123474146bd0208686961cf1a",
-                "type": "text",
-                "sum": false
-            },
-            {
-                "name": "targetBuyer",
-                "original": "Legacy Healing Centers",
-                "formattedValue": "Legacy Healing Centers",
-                "type": "text",
-                "sum": false
-            }
-        ]
-    }
+  {
+    "name": "dtStamp",
+    "original": "2021-08-23T02:23:32.0200942Z",
+    "formattedValue": 1629685412020,
+    "type": "date",
+    "sum": false
+  },
+  {
+    "name": "accountId",
+    "original": "RA30665ea879dd4e9587342088ee1f39a8",
+    "formattedValue": "RA30665ea879dd4e9587342088ee1f39a8",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "campaignId",
+    "original": "CA24a3d56ff56c49f29f5dbfa4ec80df93",
+    "formattedValue": "CA24a3d56ff56c49f29f5dbfa4ec80df93",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "campaignName",
+    "original": "Verify Benefits",
+    "formattedValue": "Verify Benefits",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "affiliateId",
+    "original": "AFf10ea449d2944a44ae12586e800a5dc5",
+    "formattedValue": "AFf10ea449d2944a44ae12586e800a5dc5",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "affiliateName",
+    "original": "WE Network",
+    "formattedValue": "WE Network",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "number",
+    "original": "+18002553196",
+    "formattedValue": "+18002553196",
+    "type": "phone",
+    "sum": false
+  },
+  {
+    "name": "numberPoolId",
+    "original": "",
+    "formattedValue": "",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "numberPoolName",
+    "original": "",
+    "formattedValue": "",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "inboundCallId",
+    "original": "v2AGrEE4z6_hEeYgmQ5btuYSKmBw4QD_gqGfFPyE9bU8UUN6ZLawfoxw",
+    "formattedValue": "v2AGrEE4z6_hEeYgmQ5btuYSKmBw4QD_gqGfFPyE9bU8UUN6ZLawfoxw",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "inboundPhoneNumber",
+    "original": "+17325108824",
+    "formattedValue": "+17325108824",
+    "type": "phone",
+    "sum": false
+  },
+  {
+    "name": "previouseCallTargetName",
+    "original": "",
+    "formattedValue": "",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "previouseCallCallId",
+    "original": "",
+    "formattedValue": 0,
+    "type": "bool",
+    "sum": false
+  },
+  {
+    "name": "previouseCallDateTime",
+    "original": 1629685412020,
+    "formattedValue": 1629685412020,
+    "type": "date",
+    "sum": false
+  },
+  {
+    "name": "totalAmount",
+    "original": 0.23,
+    "formattedValue": 0.23,
+    "type": "currency",
+    "sum": false
+  },
+  {
+    "name": "targetName",
+    "original": "Legacy Health-AMC",
+    "formattedValue": "Legacy Health-AMC",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "targetId",
+    "original": "TA61d7589312894c629af08171751feace",
+    "formattedValue": "TA61d7589312894c629af08171751feace",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "targetNumber",
+    "original": "+13213412056",
+    "formattedValue": "+13213412056",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "targetBuyerId",
+    "original": "BUcdbadab123474146bd0208686961cf1a",
+    "formattedValue": "BUcdbadab123474146bd0208686961cf1a",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "targetBuyer",
+    "original": "Legacy Healing Centers",
+    "formattedValue": "Legacy Healing Centers",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "timeToConnect",
+    "original": 3,
+    "formattedValue": 3,
+    "type": "seconds",
+    "sum": false
+  },
+  {
+    "name": "callConnectionDt",
+    "original": 1629685415124,
+    "formattedValue": 1629685415124,
+    "type": "date",
+    "sum": false
+  },
+  {
+    "name": "conversionAmount",
+    "original": 61,
+    "formattedValue": 61,
+    "type": "currency",
+    "sum": false
+  },
+  {
+    "name": "callLengthInSeconds",
+    "original": 102,
+    "formattedValue": 102,
+    "type": "seconds",
+    "sum": false
+  },
+  {
+    "name": "callCompletedDt",
+    "original": 1629685514083,
+    "formattedValue": 1629685514083,
+    "type": "date",
+    "sum": false
+  },
+  {
+    "name": "payoutAmount",
+    "original": 57,
+    "formattedValue": 57,
+    "type": "currency",
+    "sum": false
+  },
+  {
+    "name": "source",
+    "original": "Caller",
+    "formattedValue": "Caller",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "recordingUrl",
+    "original": "https://media.ringba.com/recording-public?v=v1&k=ZOeHn9yPLxLg%2buaLcQ8uFm7DqPR%2boWxxbIIrl%2b%2b009Srd%2bh2Ywi76lcr0%2f%2f7%2fMfriEqXGlNHqhKmg3ydqISKXs%2bQt7H%2feTxMCHJ0IkNp5%2fqly9wfpkCe9KA7Mpf2Abl1NffQuoXPpt7zyCVkXSlNGSXzH1k22fYpiuqZXFddysmeWJBCuiC3TyVKFfqyeKy8PzWQRjN4pXe7UHP9rYlDoU0iqpv9XBitGLLmv9T8ZP53bt5xyugEjk3v88hICCR%2b9GTN4LdyQ9xjB6BNPGfz9dA%2fJT0%3d",
+    "formattedValue": "https://media.ringba.com/recording-public?v=v1&k=ZOeHn9yPLxLg%2buaLcQ8uFm7DqPR%2boWxxbIIrl%2b%2b009Srd%2bh2Ywi76lcr0%2f%2f7%2fMfriEqXGlNHqhKmg3ydqISKXs%2bQt7H%2feTxMCHJ0IkNp5%2fqly9wfpkCe9KA7Mpf2Abl1NffQuoXPpt7zyCVkXSlNGSXzH1k22fYpiuqZXFddysmeWJBCuiC3TyVKFfqyeKy8PzWQRjN4pXe7UHP9rYlDoU0iqpv9XBitGLLmv9T8ZP53bt5xyugEjk3v88hICCR%2b9GTN4LdyQ9xjB6BNPGfz9dA%2fJT0%3d",
+    "type": "text",
+    "sum": false
+  },
+  {
+    "name": "callConnectionLength",
+    "original": 99,
+    "formattedValue": 99,
+    "type": "seconds",
+    "sum": false
+  },
+  {
+    "name": "profit",
+    "original": 4,
+    "formattedValue": 4,
+    "type": "currency",
+    "sum": false
+  }
 ]
