@@ -18,6 +18,7 @@ class CreateReportGeneratorsTable extends Migration
             $table->string('Call_Date')->nullable();
             $table->string('Call_Time')->nullable();
             $table->string('Campaign')->nullable();
+            $table->string('Dialed')->nullable();
             $table->string('Target')->nullable();
             $table->string('Affiliate')->nullable();
             $table->string('City')->nullable();
