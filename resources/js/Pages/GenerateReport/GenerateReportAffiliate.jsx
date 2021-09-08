@@ -52,9 +52,16 @@ function Alert(props) {
 }
 const GenerateReportAffiliate = () => {
   const classes = useStyles();
+  let today = new Date();
+  let dd = String(today.getDate()).padStart(2, "0");
+  let mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  let yyyy = today.getFullYear();
+
+  today = yyyy + "-" + mm + "-" + dd;
   const [values, setValues] = useState({
-    type:"billed",
-    start_date:""
+    type: "billed",
+    start_date: today,
+    end_date:today
   });
   const [loading, setLoading] = useState(false);
   const { affiliates, broadCastMonths, broadCastWeeks } = usePage().props;
@@ -67,8 +74,6 @@ const GenerateReportAffiliate = () => {
     }
     setOpen(false);
   };
-
- 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,15 +104,7 @@ const GenerateReportAffiliate = () => {
   // const handleDateChange = (date) => {
   //   setSelectedDate(date);
   // };
-  console.log(values)
-
-  // let today = new Date();
-  // let dd = String(today.getDate()).padStart(2, "0");
-  // let mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-  // let yyyy = today.getFullYear();
-
-  // today = mm + "/" + dd + "/" + yyyy;
-  // setValues({start_date:today})
+  console.log(values);
 
   return (
     <>
@@ -228,7 +225,7 @@ const GenerateReportAffiliate = () => {
                 type="date"
                 name="start_date"
                 onChange={handleChange}
-                defaultValue="2021-01-06"
+                defaultValue={values.start_date}
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
@@ -244,7 +241,7 @@ const GenerateReportAffiliate = () => {
                 type="date"
                 name="end_date"
                 onChange={handleChange}
-                defaultValue="2021-01-06"
+                defaultValue={values.end_date}
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
