@@ -60,7 +60,7 @@ class BilledCallLogController extends Controller
             $billedCallLog->Recording_Url       = $data->Recording_Url;
             $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;
             // $billedCallLog->Call_Date           = $data->Call_Date;
-            $billedCallLog->Call_Date           = Carbon::parse($data->Call_Date)->format('Y-m-d');
+            $billedCallLog->Call_Date           = dateFormat($data->Call_Date);
             $billedCallLog->Duplicate_Call      = $data->Duplicate_Call;
             $billedCallLog->Affiliate           = $data->Affiliate;
             $billedCallLog->Affiliate_Id        = $data->Affiliate_Id;

@@ -16,9 +16,11 @@ class ReportGeneratorController extends Controller
         $start_date     = '2021-07-13';
         $end_date       = '2021-07-26';
 
-        if ($report_type) {
+        if ($report_type === 'Billed') {
             $results = $this->fetchData(new BilledCallLog(), $affiliate_id, $start_date, $end_date);
             dd($results);
+        } else {
+
         }
     }
 
