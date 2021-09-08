@@ -18,7 +18,8 @@ use App\Http\Controllers\{
     BroadCastWeeksController,
     WebFormController,
     Auth\LoginController,
-    ReportGeneratorController
+    ReportGeneratorController,
+    GenerateReportAffiliateController
 };
 // use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -106,8 +107,7 @@ Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit']
 Route::post('/market-exception-delete', [MarketExceptionController::class, 'delete'])
     ->name('market.exception.delete');
 
-Route::get('/test-affiliate', [MarketExceptionController::class, 'testReport'])
-        ->name('testAffiliate');
+
 
 
 Route::get('/market-exception-export/{type}', [MarketExceptionController::class, 'export'])
@@ -299,6 +299,11 @@ Route::get('/broadcast-week-report', [BroadCastWeeksController::class, 'broadCas
 Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'])
     ->name('broadcast.week.delete');
 
+
+//Generate-Report 
+Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
+    ->name('generate.report.affiliate');
+//Generate-Report 
 
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])
     ->name('ka.table');

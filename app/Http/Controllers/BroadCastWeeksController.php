@@ -48,7 +48,7 @@ class BroadCastWeeksController extends Controller
 
     public function delete(Request $request)
     {
-        $result = true;
+        $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
             // $result =  DB::table('broad_cast_weeks')->where('id', $request->selectedRowIds[$i])->delete();

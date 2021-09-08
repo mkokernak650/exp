@@ -54,7 +54,6 @@ class BilledCallLogController extends Controller
             $ringbaCallLog = new PendingBillCallLog();
             // get for store data
             $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
-
             // $result = dataMoveHelper(self::$billedCallLog, $data);
 
             $billedCallLog->SN                  = $data->SN;

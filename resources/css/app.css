@@ -23,7 +23,7 @@ div::-webkit-scrollbar-thumb {
 .layout main {
   overflow: auto;
 }
-.makeStyles-menuText-16 .MuiTypography-body1 {
+ .makeStyles-menuText-16 .MuiTypography-body1 {
   font-weight: bold !important;
 }
 .MuiTableCell-root {
@@ -32,8 +32,9 @@ div::-webkit-scrollbar-thumb {
 .MuiTablePagination-root {
   overflow: inherit !important;
 }
+/* commented for date-picker */
 .MuiIconButton-root {
-  margin-left: 10px !important;
+  margin-left: 10px !important; 
 }
 
 .MuiTableCell-head {
@@ -41,7 +42,7 @@ div::-webkit-scrollbar-thumb {
 }
 .MuiIconButton-edgeStart {
   margin: 0 !important;
-}
+} 
 
 .makeStyles-drawerHeader-13{
   justify-content:space-between!important;

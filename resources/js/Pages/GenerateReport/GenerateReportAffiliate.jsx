@@ -8,7 +8,8 @@ import {
   Button,
   Snackbar,
   Radio,
-  FormControlLabel,RadioGroup 
+  FormControlLabel,
+  RadioGroup,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
@@ -16,6 +17,13 @@ import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+
+// import DateFnsUtils from "@date-io/date-fns";
+// import {
+//   MuiPickersUtilsProvider,
+//   KeyboardTimePicker,
+//   KeyboardDatePicker,
+// } from "@material-ui/pickers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,12 +52,14 @@ function Alert(props) {
 }
 const GenerateReportAffiliate = () => {
   const classes = useStyles();
-  const [values, setValues] = useState();
+  const [values, setValues] = useState({
+    type:"billed",
+    start_date:""
+  });
   const [loading, setLoading] = useState(false);
-  const { allCustomers, allMarkets, success } = usePage().props;
+  const { affiliates, broadCastMonths, broadCastWeeks } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
-  const [type, setType] = useState("billed");
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -57,6 +67,8 @@ const GenerateReportAffiliate = () => {
     }
     setOpen(false);
   };
+
+ 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -80,10 +92,22 @@ const GenerateReportAffiliate = () => {
       })
       .catch((err) => {});
   };
+  // const [selectedDate, setSelectedDate] = useState(
+  //   new Date("2014-08-18T21:11:54")
+  // );
 
-  const handleExportChange = (e) => {
-    setType(e.target.value);
-  };
+  // const handleDateChange = (date) => {
+  //   setSelectedDate(date);
+  // };
+  console.log(values)
+
+  // let today = new Date();
+  // let dd = String(today.getDate()).padStart(2, "0");
+  // let mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  // let yyyy = today.getFullYear();
+
+  // today = mm + "/" + dd + "/" + yyyy;
+  // setValues({start_date:today})
 
   return (
     <>
@@ -92,14 +116,36 @@ const GenerateReportAffiliate = () => {
         <Typography variant="h5" className={classes.title}>
           Generate Report Affiliate
         </Typography>
-        <form validate="true" onSubmit={handleSubmit} className="generate-report-affiliate">
+        <form
+          validate="true"
+          onSubmit={handleSubmit}
+          className="generate-report-affiliate"
+        >
           <Grid container spacing={4}>
+            {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <Grid item xs={12}>
+                <KeyboardDatePicker
+                  margin="normal"
+                  id="date-picker-dialog"
+                  label="Date picker dialog"
+                  format="MM/dd/yyyy"
+                  // value={selectedDate}
+                  // onChange={handleDateChange}
+                  KeyboardButtonProps={{
+                    "aria-label": "change date",
+                  }}
+                  fullWidth
+                  name="start_date"
+                  onChange={handleChange}
+                />
+              </Grid>
+            </MuiPickersUtilsProvider> */}
             <Grid item xs={12}>
               <RadioGroup
                 aria-label="type"
                 name="type"
-                value={type}
-                onChange={handleExportChange}
+                value={values.type}
+                onChange={handleChange}
               >
                 <FormControlLabel
                   value="general"
@@ -117,7 +163,7 @@ const GenerateReportAffiliate = () => {
               <TextField
                 id="standard-select-currency-native"
                 select
-                name="customer"
+                name="affiliate_id"
                 onChange={handleChange}
                 SelectProps={{
                   native: true,
@@ -125,10 +171,10 @@ const GenerateReportAffiliate = () => {
                 fullWidth
                 required={true}
               >
-                <option value="">Select Customer</option>
-                {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_ID}>
-                    {option.customer_name}
+                <option value="">Select Affiliate</option>
+                {affiliates.map((option, indx) => (
+                  <option key={indx} value={option.affiliate_id}>
+                    {option.affiliate_name}
                   </option>
                 ))}
               </TextField>
@@ -137,7 +183,7 @@ const GenerateReportAffiliate = () => {
               <TextField
                 id="standard-select-currency-native"
                 select
-                name="customer"
+                name="broad_cast_month"
                 onChange={handleChange}
                 SelectProps={{
                   native: true,
@@ -145,10 +191,10 @@ const GenerateReportAffiliate = () => {
                 fullWidth
                 required={true}
               >
-                <option value="">Select Customer</option>
-                {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_ID}>
-                    {option.customer_name}
+                <option value="">Select Broadcast Month</option>
+                {broadCastMonths.map((option, indx) => (
+                  <option key={indx} value={option.broad_cast_month}>
+                    {option.broad_cast_month}
                   </option>
                 ))}
               </TextField>
@@ -158,7 +204,7 @@ const GenerateReportAffiliate = () => {
               <TextField
                 id="standard-select-currency-native"
                 select
-                name="market"
+                name="broad_cast_week"
                 onChange={handleChange}
                 SelectProps={{
                   native: true,
@@ -166,10 +212,10 @@ const GenerateReportAffiliate = () => {
                 fullWidth
                 required={true}
               >
-                <option value="">Select Market</option>
-                {allMarkets.map((option, indx) => (
-                  <option key={indx} value={option.market}>
-                    {option.market}
+                <option value="">Select Broadcast Week</option>
+                {broadCastWeeks.map((option, indx) => (
+                  <option key={indx} value={option.broad_cast_week}>
+                    {option.broad_cast_week}
                   </option>
                 ))}
               </TextField>
@@ -194,9 +240,9 @@ const GenerateReportAffiliate = () => {
             <Grid item xs={12}>
               <TextField
                 id="date"
-                label="Start Date"
+                label="End Date"
                 type="date"
-                name="start_date"
+                name="end_date"
                 onChange={handleChange}
                 defaultValue="2021-01-06"
                 className={classes.textField}

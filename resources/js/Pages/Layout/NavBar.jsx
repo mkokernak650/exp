@@ -297,7 +297,7 @@ export default function PersistentDrawerLeft(props) {
       submenu: [
         {
           title: "Affiliate",
-          href: "testAffiliate",
+          href: "generate.report.affiliate",
           Icon: <UserIcon />,
         },
         {
@@ -406,7 +406,6 @@ export default function PersistentDrawerLeft(props) {
       }
     }
   };
-  console.log(active)
 
 
   return (
