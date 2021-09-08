@@ -282,6 +282,7 @@ class RingbaCallLogController extends Controller
                 return;
             } else {
                 $this->has_annotations = 'No';
+                $this->get_annotations_tag="";
                 // array_push($this->annotation, $this->has_annotations);
             }
         }
@@ -363,7 +364,7 @@ class RingbaCallLogController extends Controller
     private function ringbaDataObject($instance)
     {
         $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
-        $instance->Call_Date              = date('d-M-y', $this->get_dtStamp / 1000);
+        $instance->Call_Date              = dateFormat($this->get_dtStamp / 1000);
         $instance->Campaign               = $this->get_campaignName;
         $instance->Campaign_Id            = $this->get_campaignId;
         $instance->Affiliate              = $this->get_affiliateName;

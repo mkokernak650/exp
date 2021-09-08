@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 if (!function_exists('findDataByInboundId')) {
 
   /**
@@ -62,6 +64,9 @@ if (!function_exists('dataMoveHelper')) {
     ];
     $i = 0;
     while ($i < count($fields)) {
+      if($to_instance->{$fields[$i]} === 'Call_Date' ) {
+        $to_instance->{$fields[$i]} = $from_instance->{dateFormat($fields[$i])};
+      }
       $to_instance->{$fields[$i]} = $from_instance->{$fields[$i]};
       $i++;
     }
@@ -85,5 +90,16 @@ if (!function_exists('deleteSuccessOrFailed')) {
     } else {
       return response()->json(["msg" => $failed['msg'] || "Deleting Failed", "status_code" => $failed['status_code'] || 500]);
     }
+  }
+}
+
+if( !function_exists('dateFormat')) {
+  /**
+   * @param $date
+   * @return Date('Y-m-d')
+   */
+  function dateFormat($date)
+  {
+    return Carbon::parse($date)->format('Y-m-d');
   }
 }
