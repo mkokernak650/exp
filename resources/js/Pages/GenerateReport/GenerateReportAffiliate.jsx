@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState,useEffect } from "react";
 import Layout from "../Layout/Layout";
 import {
   CircularProgress,
@@ -17,13 +17,8 @@ import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-
-// import DateFnsUtils from "@date-io/date-fns";
-// import {
-//   MuiPickersUtilsProvider,
-//   KeyboardTimePicker,
-//   KeyboardDatePicker,
-// } from "@material-ui/pickers";
+import * as FileSaver from "file-saver";
+import * as XLSX from "xlsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,21 +47,21 @@ function Alert(props) {
 }
 const GenerateReportAffiliate = () => {
   const classes = useStyles();
-  let today = new Date();
-  let dd = String(today.getDate()).padStart(2, "0");
-  let mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-  let yyyy = today.getFullYear();
-
-  today = yyyy + "-" + mm + "-" + dd;
-  const [values, setValues] = useState({
-    type: "billed",
-    start_date: today,
-    end_date:today
-  });
+  // const [values, setValues] = useState({
+  //   type: "billed",
+  //   start_date: currentDate(),
+  //   end_date: currentDate(),
+  // });
   const [loading, setLoading] = useState(false);
   const { affiliates, broadCastMonths, broadCastWeeks } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
+  const [type, setType] = useState({ type: "billed" });
+  const [affiliate, setAffiliate] = useState();
+  const [month, setMonth] = useState("");
+  const [week, setWeek] = useState("");
+  const [startDate, setStartDate] = useState({ start_date: "" });
+  const [endDate, setEndDate] = useState({ end_date: "" });
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -75,36 +70,100 @@ const GenerateReportAffiliate = () => {
     setOpen(false);
   };
 
-  const handleChange = (e) => {
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   setValues((oldValues) => ({
+  //     ...oldValues,
+  //     [name]: value,
+  //   }));
+  // };
+  const typeHandleChange = (e) => {
     const { name, value } = e.target;
-    setValues((oldValues) => ({
-      ...oldValues,
-      [name]: value,
-    }));
+    setType({ [name]: value });
+    console.log(type);
+  };
+  const affiliateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setAffiliate({ [name]: value });
+  };
+  const monthHandleChange = (e) => {
+    const { name, value } = e.target;
+    setMonth({ [name]: value });
+    broadCastMonths.filter((item) => {
+      if (item.broad_cast_month === value) {
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
+      }
+    });
+  };
+  const weekHandleChange = (e) => {
+    const { name, value } = e.target;
+    setWeek({ [name]: value });
+    broadCastWeeks.filter((item) => {
+      if (item.broad_cast_week === value) {
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
+      }
+    });
+    if (value === "") {
+      setStartDate({ ...startDate, start_date: "" });
+      setEndDate({ ...endDate, end_date: "" });
+    }
+  };
+  const startDateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setStartDate({ [name]: value });
+  };
+  const endDateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setEndDate({ [name]: value });
+  };
+  const values = {
+    ...type,
+    ...affiliate,
+    ...month,
+    ...week,
+    ...startDate,
+    ...endDate,
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    axios
-      .post(route("add-market-exception"), values)
-      .then((res) => {
-        setLoading(false);
-        if (res.status === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
-        }
-      })
-      .catch((err) => {});
+    // e.preventDefault();
+    // setLoading(true);
+    // axios
+    //   .post(route("add-market-exception"), values)
+    //   .then((res) => {
+    //     setLoading(false);
+    //     if (res.status === 200) {
+    //       setResponse(res.data.msg);
+    //       setOpen(true);
+    //     }
+    //   })
+    //   .catch((err) => {});
   };
-  // const [selectedDate, setSelectedDate] = useState(
-  //   new Date("2014-08-18T21:11:54")
-  // );
+  const [data, setData] = useState([]);
+  const fileName = "myfile";
+  useEffect(() => {
+    const fetchData = () => {
+      axios.get("https://jsonplaceholder.typicode.com/posts").then((r) => {
+        setData(r.data);
+      });
+    };
+    fetchData();
+  }, []);
 
-  // const handleDateChange = (date) => {
-  //   setSelectedDate(date);
-  // };
-  console.log(values);
+  const fileType =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  const fileExtension = ".xlsx";
+
+  const exportToCSV = (apiData, fileName) => {
+    const ws = XLSX.utils.json_to_sheet(apiData);
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
+  };
 
   return (
     <>
@@ -119,30 +178,12 @@ const GenerateReportAffiliate = () => {
           className="generate-report-affiliate"
         >
           <Grid container spacing={4}>
-            {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <Grid item xs={12}>
-                <KeyboardDatePicker
-                  margin="normal"
-                  id="date-picker-dialog"
-                  label="Date picker dialog"
-                  format="MM/dd/yyyy"
-                  // value={selectedDate}
-                  // onChange={handleDateChange}
-                  KeyboardButtonProps={{
-                    "aria-label": "change date",
-                  }}
-                  fullWidth
-                  name="start_date"
-                  onChange={handleChange}
-                />
-              </Grid>
-            </MuiPickersUtilsProvider> */}
             <Grid item xs={12}>
               <RadioGroup
                 aria-label="type"
                 name="type"
-                value={values.type}
-                onChange={handleChange}
+                value={type.type}
+                onChange={typeHandleChange}
               >
                 <FormControlLabel
                   value="general"
@@ -161,7 +202,7 @@ const GenerateReportAffiliate = () => {
                 id="standard-select-currency-native"
                 select
                 name="affiliate_id"
-                onChange={handleChange}
+                onChange={affiliateHandleChange}
                 SelectProps={{
                   native: true,
                 }}
@@ -181,7 +222,7 @@ const GenerateReportAffiliate = () => {
                 id="standard-select-currency-native"
                 select
                 name="broad_cast_month"
-                onChange={handleChange}
+                onChange={monthHandleChange}
                 SelectProps={{
                   native: true,
                 }}
@@ -202,7 +243,7 @@ const GenerateReportAffiliate = () => {
                 id="standard-select-currency-native"
                 select
                 name="broad_cast_week"
-                onChange={handleChange}
+                onChange={weekHandleChange}
                 SelectProps={{
                   native: true,
                 }}
@@ -224,8 +265,8 @@ const GenerateReportAffiliate = () => {
                 label="Start Date"
                 type="date"
                 name="start_date"
-                onChange={handleChange}
-                defaultValue={values.start_date}
+                onChange={startDateHandleChange}
+                value={startDate.start_date}
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
@@ -240,8 +281,8 @@ const GenerateReportAffiliate = () => {
                 label="End Date"
                 type="date"
                 name="end_date"
-                onChange={handleChange}
-                defaultValue={values.end_date}
+                onChange={endDateHandleChange}
+                value={endDate.end_date}
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
@@ -251,7 +292,7 @@ const GenerateReportAffiliate = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
+              <Button variant="contained" color="primary" onClick={(e) => exportToCSV(data, fileName)}>
                 {loading ? <CircularProgress color="secondary" /> : "Generate"}
               </Button>
             </Grid>

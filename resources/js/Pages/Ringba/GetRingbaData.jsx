@@ -10,6 +10,8 @@ import {
   Paper,
 } from "@material-ui/core";
 import { Helmet } from "react-helmet";
+import { currentDate } from "../../Helpers/CurrentDate";
+
 // import {
 //   MuiPickersUtilsProvider,
 //   KeyboardTimePicker,
@@ -48,7 +50,10 @@ const useStyles = makeStyles((theme) => ({
 
 const GetRingbaData = () => {
   const classes = useStyles();
-  const [values, setValues] = useState();
+  const [values, setValues] = useState({
+    start_date:currentDate(),
+    end_date:currentDate(),
+  });
   const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,7 +88,7 @@ const GetRingbaData = () => {
             type="date"
             name="startDate"
             onChange={handleChange}
-            defaultValue="2021-06-01"
+            defaultValue={values.start_date}
             className={classes.textField}
             InputLabelProps={{
               shrink: true,
@@ -96,7 +101,7 @@ const GetRingbaData = () => {
             label="End Date"
             type="date"
             name="endDate"
-            defaultValue="2021-07-01"
+            defaultValue={values.end_date}
             className={classes.textField}
             onChange={handleChange}
             InputLabelProps={{
