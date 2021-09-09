@@ -45,6 +45,9 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
+Route::get('/get-date',function() {
+    echo date('Y-m-d', strtotime('2021-07-01'));
+});
 // Route::get('/get-date', [ReportGeneratorController::class, 'reports']);
 // echo Carbon::parse('24-Jul-21 17:49:59')->format('H:m:i');
 
