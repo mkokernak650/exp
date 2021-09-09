@@ -1,4 +1,4 @@
-import { React, useState,useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import Layout from "../Layout/Layout";
 import {
   CircularProgress,
@@ -128,7 +128,7 @@ const GenerateReportAffiliate = () => {
     ...endDate,
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
     // e.preventDefault();
     // setLoading(true);
     // axios
@@ -141,17 +141,14 @@ const GenerateReportAffiliate = () => {
     //     }
     //   })
     //   .catch((err) => {});
-  };
+  // };
   const [data, setData] = useState([]);
   const fileName = "myfile";
-  useEffect(() => {
-    const fetchData = () => {
-      axios.get("https://jsonplaceholder.typicode.com/posts").then((r) => {
-        setData(r.data);
-      });
-    };
-    fetchData();
-  }, []);
+  const handleSubmit = () => {
+    axios.post(route("affiliate.report.generator"), values).then((r) => {
+      console.log(r)
+    });
+  };
 
   const fileType =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
@@ -174,7 +171,7 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form
           validate="true"
-          onSubmit={handleSubmit}
+          // onSubmit={handleSubmit}
           className="generate-report-affiliate"
         >
           <Grid container spacing={4}>
@@ -292,7 +289,12 @@ const GenerateReportAffiliate = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={(e) => exportToCSV(data, fileName)}>
+              <Button
+                variant="contained"
+                color="primary"
+                // type="submit"
+                onClick={(e) => handleSubmit()}
+              >
                 {loading ? <CircularProgress color="secondary" /> : "Generate"}
               </Button>
             </Grid>
