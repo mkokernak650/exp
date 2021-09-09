@@ -45,7 +45,7 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
-Route::get('/get-date', [ReportGeneratorController::class, 'reports']);
+// Route::get('/get-date', [ReportGeneratorController::class, 'reports']);
 // echo Carbon::parse('24-Jul-21 17:49:59')->format('H:m:i');
 
 
@@ -321,3 +321,7 @@ Route::get('/web-form-reports', [WebFormController::class, 'index'])
 
 Route::post('/web-form-reports-delete', [WebFormController::class, 'delete'])
     ->name('webform.reports.delete');
+
+// TODO Report generator
+Route::post('/affiliate-report-generator', [ReportGeneratorController::class, 'affiliateReport'])
+    ->name('affiliate.report.generator');
