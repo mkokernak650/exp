@@ -34,8 +34,8 @@ Route::get('/', [LoginController::class, 'showLoginform'])
 
 Route::post('/login', [LoginController::class, 'login'])
     ->name('login.attempt')
-
     ->middleware('guest');
+
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');
@@ -44,13 +44,6 @@ Route::post('/logout', [LoginController::class, 'logout'])
 // TODO Home Controller
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
-
-Route::get('/get-date',function() {
-    echo date('Y-m-d', strtotime('2021-07-01'));
-});
-// Route::get('/get-date', [ReportGeneratorController::class, 'reports']);
-// echo Carbon::parse('24-Jul-21 17:49:59')->format('H:m:i');
-
 
 //TODO Ringba call log contoroller
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
@@ -78,8 +71,6 @@ Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
     ->name('delete.ringba.date');
 Route::post('/market-delete', [MarketController::class, 'delete']);
 
-// Route::post('/get-ringba-data', function ($id) {
-// });
 // Route::post('login')->name('login.attempt')->uses('Auth\LoginController@login')->middleware('guest');
 
 // Route::get('/', function () {
@@ -109,9 +100,6 @@ Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit']
 
 Route::post('/market-exception-delete', [MarketExceptionController::class, 'delete'])
     ->name('market.exception.delete');
-
-
-
 
 Route::get('/market-exception-export/{type}', [MarketExceptionController::class, 'export'])
     ->name('market.exception.export');
@@ -162,9 +150,6 @@ Route::get('customer-export/{type}', [CustomerController::class, 'export'])
 
 Route::post('/archived', [ArchivedCallLogController::class, 'store'])
     ->name('add.arichived.bill.call');
-
-Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
-    ->name('archived-call-log-report');
 
 Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])
     ->name('archived-call-log-report');
@@ -306,8 +291,8 @@ Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'
 //Generate-Report 
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
     ->name('generate.report.affiliate');
-//Generate-Report 
 
+//Generate-Report 
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])
     ->name('ka.table');
 
@@ -328,3 +313,9 @@ Route::post('/web-form-reports-delete', [WebFormController::class, 'delete'])
 // TODO Report generator
 Route::post('/affiliate-report-generator', [ReportGeneratorController::class, 'affiliateReport'])
     ->name('affiliate.report.generator');
+
+Route::get('/target-report-generator', [ReportGeneratorController::class, 'targetReport'])
+    ->name('target.report.generator');
+
+Route::get('market-exception-report-generator', [ReportGeneratorController::class, 'marketExceptionReport'])
+    ->name('market.exception.report.generator');

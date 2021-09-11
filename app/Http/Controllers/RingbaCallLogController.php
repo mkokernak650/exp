@@ -10,6 +10,7 @@ use App\Models\{
     Affiliate,
     ArchivedCallLog,
     BilledCallLog,
+    Customer,
     RingbaCallLog,
     PendingBillCallLog,
     RingbaData,
@@ -164,7 +165,11 @@ class RingbaCallLogController extends Controller
                 }
             }
         }
+        // for inser Affiliate 
         $this->getAffiliate();
+
+        // for insert Customer
+        $this->getCustomer();
 
         // dd('duplicate', $this->array, 'annotation', $this->annotation);
     }
@@ -282,7 +287,7 @@ class RingbaCallLogController extends Controller
                 return;
             } else {
                 $this->has_annotations = 'No';
-                $this->get_annotations_tag="";
+                $this->get_annotations_tag = "";
                 // array_push($this->annotation, $this->has_annotations);
             }
         }
@@ -482,6 +487,7 @@ class RingbaCallLogController extends Controller
         // $insertedData->delete();
     }
 
+    // for get Affiliate 
     private function getAffiliate()
     {
         $get_affiliate =  RingbaCallLog::distinct()->get(['Affiliate', 'Affiliate_Id']);
@@ -500,6 +506,25 @@ class RingbaCallLogController extends Controller
                 $affiliateModel->affiliate_id = $aff_item->Affiliate_Id;
                 $affiliateModel->affiliate_name = $aff_item->Affiliate;
                 $affiliateModel->save();
+            }
+        }
+    }
+
+    // for get Customer
+    public function getCustomer()
+    {
+        $get_customers =  RingbaCallLog::distinct()->get(['Customer']);
+        $all_customer = Customer::all();
+        $customer_arr = [];
+        foreach ($all_customer as $cus) {
+            array_push($customer_arr, $cus->Customer);
+        }
+
+        foreach ($get_customers as $customer) {
+            if (!in_array($customer->Customer, $customer_arr)) {
+                $customer_inc = new Customer();
+                $customer_inc->customer_name = $customer->Customer;
+                $customer_inc->save();
             }
         }
     }
@@ -630,7 +655,7 @@ class RingbaCallLogController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
-    
+
     public function tempDataDelete(Request $request)
     {
         $result = false;
