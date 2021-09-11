@@ -128,25 +128,21 @@ const GenerateReportAffiliate = () => {
     ...endDate,
   };
 
-  // const handleSubmit = (e) => {
-    // e.preventDefault();
-    // setLoading(true);
-    // axios
-    //   .post(route("add-market-exception"), values)
-    //   .then((res) => {
-    //     setLoading(false);
-    //     if (res.status === 200) {
-    //       setResponse(res.data.msg);
-    //       setOpen(true);
-    //     }
-    //   })
-    //   .catch((err) => {});
-  // };
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
+  // const sheetData = [
+  //   {
+  //     userId: 1,
+  //     id: 1,
+  //   },
+  // ];
   const fileName = "myfile";
   const handleSubmit = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
-      console.log(r)
+      console.log("response", r.data);
+      const mainData = [];
+
+      console.log(mainData);
+      exportToCSV(r.data, "test");
     });
   };
 
@@ -155,11 +151,32 @@ const GenerateReportAffiliate = () => {
   const fileExtension = ".xlsx";
 
   const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(apiData);
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
+    console.log(`apiData`, apiData);
+    const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
+    // ws.A1.v='n';
+    const secondData = apiData.data.length + 5;
+    const call_summary = [];
+    call_summary.push(["Target wise summary", ""]);
+    Object.keys(apiData.call_summary).forEach((cf) => {
+      console.log(cf)
+      call_summary.push([cf, apiData.call_summary[cf]]);
+    });
+    console.log("call_summary", call_summary);
+    const thirdData = apiData.data.length + call_summary.length + 6;
+    const category = [];
+    category.push(["Category", ""]);
+    Object.keys(apiData.tag_count).forEach((cat) => {
+      // console.log(cat)
+      category.push([cat, apiData.tag_count[cat]]);
+    });
+    console.log("category", category);
+
+    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
+    XLSX.utils.sheet_add_aoa(ws, category, { origin: `C${thirdData}` });
+    // const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    // const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    // const data = new Blob([excelBuffer], { type: fileType });
+    // FileSaver.saveAs(data, fileName + fileExtension);
   };
 
   return (

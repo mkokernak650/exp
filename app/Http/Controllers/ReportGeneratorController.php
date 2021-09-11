@@ -16,9 +16,9 @@ class ReportGeneratorController extends Controller
     {
         $newData        = [];
         $report_type    = true;
-        $affiliate_id   = 'AFd3d075c572a14ed19698e10c07dc00dd';
-        $start_date     = date('Y-m-d', strtotime('2021-07-01'));
-        $end_date       = date('Y-m-d', strtotime('2021-07-26')); //'2021-07-26';
+        $affiliate_id   = $request->affiliate_id;
+        $start_date     = date('Y-m-d', strtotime($request->start_date));
+        $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $archived       = [];
         $call_summary   = [];
 
