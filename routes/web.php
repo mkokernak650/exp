@@ -316,3 +316,6 @@ Route::post('/affiliate-report-generator', [ReportGeneratorController::class, 'a
 
 Route::get('/target-report-generator', [ReportGeneratorController::class, 'targetReport'])
     ->name('target.report.generator');
+
+Route::get('market-exception-report-generator', [ReportGeneratorController::class, 'marketExceptionReport'])
+    ->name('market.exception.report.generator');
