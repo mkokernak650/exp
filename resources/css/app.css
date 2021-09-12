@@ -61,6 +61,13 @@ div::-webkit-scrollbar-thumb {
   margin-left: 0!important;
 }
 
+.generate-report-target .MuiFormGroup-root{
+  flex-direction: row;
+}
+.generate-report-target .MuiIconButton-root{
+  margin-left: 0!important;
+}
+
 .add-target .MuiGrid-item {
   padding: 4px !important;
 }

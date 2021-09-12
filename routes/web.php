@@ -19,13 +19,13 @@ use App\Http\Controllers\{
     WebFormController,
     Auth\LoginController,
     ReportGeneratorController,
-    GenerateReportAffiliateController
+    GenerateReportAffiliateController,
+    GenerateReportTargetController
 };
 // use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 use App\Http\Helpers\RingbaApiHelpers;
-use Carbon\Carbon;
 
 // TODO Login and Log out controller
 Route::get('/', [LoginController::class, 'showLoginform'])
@@ -292,6 +292,9 @@ Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
     ->name('generate.report.affiliate');
 
+Route::get('/generate-report-target', [GenerateReportTargetController::class, 'GenerateReportTargetForm'])
+    ->name('generate.report.target');
+
 //Generate-Report 
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])
     ->name('ka.table');
@@ -314,7 +317,7 @@ Route::post('/web-form-reports-delete', [WebFormController::class, 'delete'])
 Route::post('/affiliate-report-generator', [ReportGeneratorController::class, 'affiliateReport'])
     ->name('affiliate.report.generator');
 
-Route::get('/target-report-generator', [ReportGeneratorController::class, 'targetReport'])
+Route::post('/target-report-generator', [ReportGeneratorController::class, 'targetReport'])
     ->name('target.report.generator');
 
 Route::get('market-exception-report-generator', [ReportGeneratorController::class, 'marketExceptionReport'])

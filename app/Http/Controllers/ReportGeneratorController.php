@@ -106,11 +106,11 @@ class ReportGeneratorController extends Controller
     public function targetReport(Request $request)
     {
         $newData        = [];
-        $report_type    = 'Billed'; // billed or general
-        $customer_name  = 'Legacy Healing Centers';
-        $target_name    = 'Legacy Health-Charter';
-        $start_date     = date('Y-m-d', strtotime('2021-07-01'));
-        $end_date       = date('Y-m-d', strtotime('2021-07-26')); //'2021-07-26';
+        $report_type    = $request->type; // billed or general
+        $customer_name  = $request->customer;
+        $target_name    = "Legacy Health-Charter";
+        $start_date     = date('Y-m-d', strtotime($request->start_date));
+        $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $archived       = [];
         $call_summary   = [];
 
@@ -126,7 +126,7 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
 
-        if ($report_type === 'Billed') {
+        if ($report_type === 'billed') {
             $billed = $this->fetchTargetData(new BilledCallLog(), $customer_name, $target_name, $start_date, $end_date);
         } else {
             $billed = $this->fetchTargetData(new BilledCallLog(), $customer_name, $target_name, $start_date, $end_date);

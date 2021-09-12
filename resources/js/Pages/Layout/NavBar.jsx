@@ -302,7 +302,7 @@ export default function PersistentDrawerLeft(props) {
         },
         {
           title: "Target",
-          href: "tempringbadata",
+          href: "generate.report.target",
           Icon: <UserIcon />,
         },
         {

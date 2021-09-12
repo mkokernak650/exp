@@ -17,7 +17,7 @@ class TargetController extends Controller
 
     public function index()
     {
-        $allCustomers = Customer::all();
+        $allCustomers = Customer::select('customer_name')->distinct()->get();
         return Inertia::render('Settings/AddTargets', [
             'allCustomers' => $allCustomers
         ]);

@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState } from "react";
 import Layout from "../Layout/Layout";
 import {
   CircularProgress,
@@ -47,11 +47,7 @@ function Alert(props) {
 }
 const GenerateReportAffiliate = () => {
   const classes = useStyles();
-  // const [values, setValues] = useState({
-  //   type: "billed",
-  //   start_date: currentDate(),
-  //   end_date: currentDate(),
-  // });
+
   const [loading, setLoading] = useState(false);
   const { affiliates, broadCastMonths, broadCastWeeks } = usePage().props;
   const [open, setOpen] = useState(false);
@@ -70,18 +66,9 @@ const GenerateReportAffiliate = () => {
     setOpen(false);
   };
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-
-  //   setValues((oldValues) => ({
-  //     ...oldValues,
-  //     [name]: value,
-  //   }));
-  // };
   const typeHandleChange = (e) => {
     const { name, value } = e.target;
     setType({ [name]: value });
-    console.log(type);
   };
   const affiliateHandleChange = (e) => {
     const { name, value } = e.target;
@@ -128,21 +115,10 @@ const GenerateReportAffiliate = () => {
     ...endDate,
   };
 
-  // const [data, setData] = useState([]);
-  // const sheetData = [
-  //   {
-  //     userId: 1,
-  //     id: 1,
-  //   },
-  // ];
   const fileName = "myfile";
   const handleSubmit = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
-      console.log("response", r.data);
-      const mainData = [];
-
-      console.log(mainData);
-      exportToCSV(r.data, "test");
+      exportToCSV(r.data, "Affiliate_Report");
     });
   };
 
@@ -151,32 +127,28 @@ const GenerateReportAffiliate = () => {
   const fileExtension = ".xlsx";
 
   const exportToCSV = (apiData, fileName) => {
-    console.log(`apiData`, apiData);
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    // ws.A1.v='n';
     const secondData = apiData.data.length + 5;
     const call_summary = [];
     call_summary.push(["Target wise summary", ""]);
     Object.keys(apiData.call_summary).forEach((cf) => {
-      console.log(cf)
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
-    console.log("call_summary", call_summary);
     const thirdData = apiData.data.length + call_summary.length + 6;
     const category = [];
-    category.push(["Category", ""]);
+    category.push(["Category", "Total Calls", "Total Revenue"]);
     Object.keys(apiData.tag_count).forEach((cat) => {
-      // console.log(cat)
-      category.push([cat, apiData.tag_count[cat]]);
+      category.push(Object.values(apiData.tag_count[cat]));
     });
-    console.log("category", category);
 
     XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
     XLSX.utils.sheet_add_aoa(ws, category, { origin: `C${thirdData}` });
-    // const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    // const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    // const data = new Blob([excelBuffer], { type: fileType });
-    // FileSaver.saveAs(data, fileName + fileExtension);
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
+    setOpen(true);
+    setResponse("Report Generated Successfully");
   };
 
   return (
@@ -186,11 +158,7 @@ const GenerateReportAffiliate = () => {
         <Typography variant="h5" className={classes.title}>
           Generate Report Affiliate
         </Typography>
-        <form
-          validate="true"
-          // onSubmit={handleSubmit}
-          className="generate-report-affiliate"
-        >
+        <form validate="true" className="generate-report-affiliate">
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <RadioGroup
@@ -309,7 +277,6 @@ const GenerateReportAffiliate = () => {
               <Button
                 variant="contained"
                 color="primary"
-                // type="submit"
                 onClick={(e) => handleSubmit()}
               >
                 {loading ? <CircularProgress color="secondary" /> : "Generate"}
@@ -334,6 +301,6 @@ const GenerateReportAffiliate = () => {
 };
 
 GenerateReportAffiliate.layout = (page) => (
-  <Layout title="Market Exception">{page}</Layout>
+  <Layout title="Generate Report Affiliate">{page}</Layout>
 );
 export default GenerateReportAffiliate;

@@ -107,7 +107,7 @@ const AddTargets = () => {
               >
                 <option value="">Select Customer</option>
                 {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_ID}>
+                  <option key={indx} value={option.customer_name}>
                     {option.customer_name}
                   </option>
                 ))}
