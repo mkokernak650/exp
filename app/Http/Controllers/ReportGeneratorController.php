@@ -92,7 +92,7 @@ class ReportGeneratorController extends Controller
         $call_summary['data_range']             = $data_range;
         $call_summary['targets']                = $target;
         $call_summary['total_call']             = $total_call;
-        $call_summary['total_minutes']          = (float) $total_seconds / 60;
+        $call_summary['total_minutes']          = secondToMinutes($total_seconds);
         $call_summary['total_payment']          = (float) $total_payment;
         $call_summary['avg_payout_amount']      = (float) $avg_payout_amount;
 
@@ -107,7 +107,7 @@ class ReportGeneratorController extends Controller
     {
         $newData        = [];
         $report_type    = $request->type; // billed or general
-        $customer_name  = $request->customer;
+        $customer_name  = $request->customer_name;
         $target_name    = "Legacy Health-Charter";
         $start_date     = date('Y-m-d', strtotime($request->start_date));
         $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
@@ -187,7 +187,7 @@ class ReportGeneratorController extends Controller
 
         $call_summary['data_range']             = $data_range;
         $call_summary['total_call']             = $total_call;
-        $call_summary['total_minutes']          = (float) $total_seconds / 60;
+        $call_summary['total_minutes']          = secondToMinutes($total_seconds);
 
         $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.');
         $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.');
@@ -263,7 +263,7 @@ class ReportGeneratorController extends Controller
 
         $call_summary['data_range']             = $data_range;
         $call_summary['total_call']             = $total_call;
-        $call_summary['total_minutes']          = (float) $total_seconds / 60;
+        $call_summary['total_minutes']          = secondToMinutes($total_seconds);
         $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.');
         $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.');
 
