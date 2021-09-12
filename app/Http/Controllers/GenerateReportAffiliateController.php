@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
 use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;

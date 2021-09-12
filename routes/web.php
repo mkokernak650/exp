@@ -20,7 +20,8 @@ use App\Http\Controllers\{
     Auth\LoginController,
     ReportGeneratorController,
     GenerateReportAffiliateController,
-    GenerateReportTargetController
+    GenerateReportTargetController,
+    GenerateReportMarketExceptionController
 };
 // use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -295,6 +296,9 @@ Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::cla
 Route::get('/generate-report-target', [GenerateReportTargetController::class, 'GenerateReportTargetForm'])
     ->name('generate.report.target');
 
+Route::get('/generate-report-market-exception', [GenerateReportMarketExceptionController::class, 'GenerateReportMArketExceptionForm'])
+    ->name('generate.report.market.exception');
+
 //Generate-Report 
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])
     ->name('ka.table');
@@ -320,5 +324,5 @@ Route::post('/affiliate-report-generator', [ReportGeneratorController::class, 'a
 Route::post('/target-report-generator', [ReportGeneratorController::class, 'targetReport'])
     ->name('target.report.generator');
 
-Route::get('market-exception-report-generator', [ReportGeneratorController::class, 'marketExceptionReport'])
+Route::post('market-exception-report-generator', [ReportGeneratorController::class, 'marketExceptionReport'])
     ->name('market.exception.report.generator');

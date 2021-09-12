@@ -102,13 +102,14 @@ class ReportGeneratorController extends Controller
             'tag_count'     => $tag_count
         ];
     }
-
+    //TODO target report generate
     public function targetReport(Request $request)
     {
         $newData        = [];
         $report_type    = $request->type; // billed or general
         $customer_name  = $request->customer_name;
-        $target_name    = "Legacy Health-Charter";
+        // $target_name    = "Legacy Health-Charter";
+        $target_name    = $request->target_name;
         $start_date     = date('Y-m-d', strtotime($request->start_date));
         $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $archived       = [];
@@ -131,7 +132,8 @@ class ReportGeneratorController extends Controller
             ['Call_Date', '>=', $start_date],
             ['Call_Date', '<=', $end_date]
         ];
-        if ($target_name !== '') {
+
+        if ($target_name !== '' && $target_name !== null) {
             $condition[] = ['Target', '=', $target_name];
         }
 
@@ -189,28 +191,22 @@ class ReportGeneratorController extends Controller
         $call_summary['total_call']             = $total_call;
         $call_summary['total_minutes']          = secondToMinutes($total_seconds);
 
-        $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.');
-        $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.');
+        $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.', '');
+        $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.', '');
 
-        dd([
+        return [
             'data'          => $newData,
             'call_summary'  => $call_summary,
             'tag_count'     => $tag_count
-        ]);
-
-        // return [
-        //     'data'          => $newData,
-        //     'call_summary'  => $call_summary,
-        //     'tag_count'     => $tag_count
-        // ];
+        ];
     }
-
-    public function marketExceptionReport()
+    // TODO MarketExcptions report Gene
+    public function marketExceptionReport(Request $request)
     {
-        $customer_name  = 'Legacy Healing Centers';
-        $market_name    = 'Roanoke-Lynchburg, VA';
-        $start_date     = date('Y-m-d', strtotime('2021-07-01'));
-        $end_date       = date('Y-m-d', strtotime('2021-07-30')); //'2021-07-26';
+        $customer_name  = $request->customer_name;
+        $market_name    = $request->market;
+        $start_date     = date('Y-m-d', strtotime($request->start_date));
+        $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $call_summary   = [];
 
         // summary of calls
@@ -288,7 +284,7 @@ class ReportGeneratorController extends Controller
     {
         return $instance
             ->where($condition)->get([
-                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status'
+                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status', 'Target_Description'
             ]);
     }
 }

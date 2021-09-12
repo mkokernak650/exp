@@ -138,7 +138,7 @@ const GenerateReportTarget = () => {
   const handleSubmit = () => {
     axios.post(route("target.report.generator"), values).then((r) => {
       console.log(r.data);
-      // exportToCSV(r.data, "Target_Report");
+      exportToCSV(r.data, "Target_Report");
     });
   };
 
@@ -240,7 +240,7 @@ const GenerateReportTarget = () => {
               </TextField>
             </Grid>
 
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
                 select
@@ -259,7 +259,7 @@ const GenerateReportTarget = () => {
                   </option>
                 ))}
               </TextField>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
