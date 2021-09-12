@@ -25,7 +25,7 @@ class ReportGeneratorController extends Controller
     public function affiliateReport(Request $request)
     {
         $newData        = [];
-        $report_type    = true;
+        $report_type    = $request->type;
         $affiliate_id   = $request->affiliate_id;
         $start_date     = date('Y-m-d', strtotime($request->start_date));
         $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
@@ -44,7 +44,7 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
 
-        if ($report_type === 'Billed') {
+        if ($report_type === 'billed') {
             $billed = $this->fetchAffiliatData(new BilledCallLog(), $affiliate_id, $start_date, $end_date);
         } else {
             $billed = $this->fetchAffiliatData(new BilledCallLog(), $affiliate_id, $start_date, $end_date);
@@ -135,7 +135,7 @@ class ReportGeneratorController extends Controller
             $condition[] = ['Target', '=', $target_name];
         }
 
-        if ($report_type === 'Billed') {
+        if ($report_type === 'billed') {
             $billed = $this->fetchTargetData(new BilledCallLog(), $condition);
         } else {
             $billed = $this->fetchTargetData(new BilledCallLog(), $condition);
@@ -192,12 +192,17 @@ class ReportGeneratorController extends Controller
         $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.');
         $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.');
 
-
-        return [
+        dd([
             'data'          => $newData,
             'call_summary'  => $call_summary,
             'tag_count'     => $tag_count
-        ];
+        ]);
+
+        // return [
+        //     'data'          => $newData,
+        //     'call_summary'  => $call_summary,
+        //     'tag_count'     => $tag_count
+        // ];
     }
 
     public function marketExceptionReport()
