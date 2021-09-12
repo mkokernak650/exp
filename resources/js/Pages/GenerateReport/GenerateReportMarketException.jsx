@@ -7,9 +7,6 @@ import {
   TextField,
   Button,
   Snackbar,
-  Radio,
-  FormControlLabel,
-  RadioGroup,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
@@ -52,11 +49,10 @@ const GenerateReportMarketException = () => {
   const { markets, customers } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
-  const [type, setType] = useState({ type: "billed" });
   const [customer, setCustomer] = useState();
   const [market, setMarket] = useState();
-  const [startDate, setStartDate] = useState({start_date:''});
-  const [endDate, setEndDate] = useState({end_date:''});
+  const [startDate, setStartDate] = useState({ start_date: "" });
+  const [endDate, setEndDate] = useState({ end_date: "" });
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -65,10 +61,6 @@ const GenerateReportMarketException = () => {
     setOpen(false);
   };
 
-  const typeHandleChange = (e) => {
-    const { name, value } = e.target;
-    setType({ [name]: value });
-  };
   const marketHandleChange = (e) => {
     const { name, value } = e.target;
     setMarket({ [name]: value });
@@ -87,7 +79,6 @@ const GenerateReportMarketException = () => {
     setEndDate({ [name]: value });
   };
   const values = {
-    ...type,
     ...customer,
     ...market,
     ...startDate,
@@ -110,7 +101,7 @@ const GenerateReportMarketException = () => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
     const secondData = apiData.data.length + 5;
     const call_summary = [];
-    call_summary.push(["Target wise summary", ""]);
+    call_summary.push(["Summary of Calls", ""]);
     Object.keys(apiData.call_summary).forEach((cf) => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
@@ -140,26 +131,6 @@ const GenerateReportMarketException = () => {
         </Typography>
         <form validate="true" className="generate-report-target">
           <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <RadioGroup
-                aria-label="type"
-                name="type"
-                value={type.type}
-                onChange={typeHandleChange}
-              >
-                <FormControlLabel
-                  value="general"
-                  control={<Radio color="primary" />}
-                  label="General"
-                />
-                <FormControlLabel
-                  value="billed"
-                  control={<Radio color="primary" />}
-                  label="Billed"
-                />
-              </RadioGroup>
-            </Grid>
-
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
