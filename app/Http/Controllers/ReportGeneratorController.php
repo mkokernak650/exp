@@ -126,11 +126,20 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
 
-        if ($report_type === 'billed') {
-            $billed = $this->fetchTargetData(new BilledCallLog(), $customer_name, $target_name, $start_date, $end_date);
+        $condition = [
+            ['Customer', '=', $customer_name],
+            ['Call_Date', '>=', $start_date],
+            ['Call_Date', '<=', $end_date]
+        ];
+        if ($target_name !== '') {
+            $condition[] = ['Target', '=', $target_name];
+        }
+
+        if ($report_type === 'Billed') {
+            $billed = $this->fetchTargetData(new BilledCallLog(), $condition);
         } else {
-            $billed = $this->fetchTargetData(new BilledCallLog(), $customer_name, $target_name, $start_date, $end_date);
-            $archived = $this->fetchTargetData(new ArchivedCallLog(), $customer_name, $target_name, $start_date, $end_date);
+            $billed = $this->fetchTargetData(new BilledCallLog(), $condition);
+            $archived = $this->fetchTargetData(new ArchivedCallLog(), $condition);
         }
 
         foreach ($billed as $bill) {
@@ -270,13 +279,10 @@ class ReportGeneratorController extends Controller
             ]);
     }
 
-    private function fetchTargetData($instance, $customer_name, $target_name, $start_date, $end_date)
+    private function fetchTargetData($instance, $condition)
     {
         return $instance
-            ->where('Customer', '=', $customer_name)
-            ->where('Target', '=', $target_name)
-            ->where('Call_Date', '>=', $start_date)
-            ->where('Call_Date', '<=', $end_date)->get([
+            ->where($condition)->get([
                 'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status'
             ]);
     }
