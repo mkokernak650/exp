@@ -43,12 +43,17 @@ class ReportGeneratorController extends Controller
         // category of calls
         $annotation_tag = [];
         $tag_count = [];
+        $condition = [
+            ['Affiliate_Id', '=', $affiliate_id],
+            ['Call_Date', '>=', $start_date],
+            ['Call_Date', '<=', $end_date]
+        ];
 
         if ($report_type === 'billed') {
-            $billed = $this->fetchAffiliatData(new BilledCallLog(), $affiliate_id, $start_date, $end_date);
+            $billed = $this->fetchData(new BilledCallLog(), $condition);
         } else {
-            $billed = $this->fetchAffiliatData(new BilledCallLog(), $affiliate_id, $start_date, $end_date);
-            $archived = $this->fetchAffiliatData(new ArchivedCallLog(), $affiliate_id, $start_date, $end_date);
+            $billed = $this->fetchData(new BilledCallLog(), $condition);
+            $archived = $this->fetchData(new ArchivedCallLog(), $condition);
         }
         foreach ($billed as $bill) {
             array_push($newData, $bill);
@@ -138,10 +143,10 @@ class ReportGeneratorController extends Controller
         }
 
         if ($report_type === 'billed') {
-            $billed = $this->fetchTargetData(new BilledCallLog(), $condition);
+            $billed = $this->fetchData(new BilledCallLog(), $condition);
         } else {
-            $billed = $this->fetchTargetData(new BilledCallLog(), $condition);
-            $archived = $this->fetchTargetData(new ArchivedCallLog(), $condition);
+            $billed = $this->fetchData(new BilledCallLog(), $condition);
+            $archived = $this->fetchData(new ArchivedCallLog(), $condition);
         }
 
         foreach ($billed as $bill) {
@@ -280,11 +285,11 @@ class ReportGeneratorController extends Controller
             ]);
     }
 
-    private function fetchTargetData($instance, $condition)
+    private function fetchData($instance, $condition)
     {
         return $instance
             ->where($condition)->get([
-                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status', 'Target_Description'
+                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status', 'Zipcode', 'Target_Description', 'payoutAmount'
             ]);
     }
 }
