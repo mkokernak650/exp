@@ -43,8 +43,6 @@ class CustomerController extends Controller
 
     public function import(Request $request)
     {
-        // post request
-        // dd($request->importfile);
         Excel::import(new CustomerImport, $request->importfile);
         return back()->with('Successfully import!');
     }
@@ -59,7 +57,7 @@ class CustomerController extends Controller
     public function edit(Request $request)
     {
         $data = Customer::find($request->id);
-        $data->customer_name  = $request->customer_name;
+        $data->customer_name  = $request->customer;
         $result = $data->save();
 
         if ($result) {

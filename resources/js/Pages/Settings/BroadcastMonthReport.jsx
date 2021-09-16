@@ -230,10 +230,10 @@ const BroadcastMonthReport = () => {
 
   const tablePropsInit = {
     columns: [
-      {
-        key: "edit",
-        style: { width: 20 },
-      },
+      // {
+      //   key: "edit",
+      //   style: { width: 20 },
+      // },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -275,15 +275,15 @@ const BroadcastMonthReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === "edit") {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={Edit} alt="edit-icon"></img>
-          </div>
-        );
-      }
-    },
+    // format: ({ column, value }) => {
+    //   if (column.key === "edit") {
+    //     return (
+    //       <div className="edit-icon" onClick={() => handleEdit(value)}>
+    //         <img src={Edit} alt="edit-icon"></img>
+    //       </div>
+    //     );
+    //   }
+    // },
   };
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);

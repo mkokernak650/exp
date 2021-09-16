@@ -27,7 +27,6 @@ import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
 // import ThreeDots from "../../../images/three-dots.svg";
 import Edit from "../../../images/edit1.svg";
-
 import Cancel from "../../../images/Cancel.svg";
 
 import { hideColumn, showColumn } from "ka-table/actionCreators";
@@ -52,9 +51,9 @@ const useStyles = makeStyles(() => ({
     textTransform: "capitalize",
     fontSize: "14px",
   },
-  editButton:{
-    marginTop:"15px"
-  }
+  editButton: {
+    marginTop: "15px",
+  },
 }));
 export const fields = [
   {
@@ -125,38 +124,6 @@ const CustomerReport = () => {
   const [selectedRowIds, setselectedRowIds] = useState([]);
   const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
-
-  const handleEdit = (itemId) => {
-    allCustomers.filter((item) => {
-      if (item.id === itemId) {
-        setEditData(item);
-      }
-    });
-    setShowModal({ open: true });
-  };
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-  const handleEditSubmit = () => {
-    axios
-      .post(route("target.edit"), editData)
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          setEditData();
-          setShowModal({ open: false });
-        } else {
-          console.log(res.data.msg);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
-  };
-
 
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
@@ -313,6 +280,43 @@ const CustomerReport = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleEdit = (itemId) => {
+    tableProps.data.filter((item) => {
+      if (item.id == itemId) {
+        setEditData(item);
+      }
+    });
+    setShowModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  const handleEditSubmit = () => {
+    axios
+      .post(route("customer.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id === editData.id) {
+              filteredData.data[indx].customer = editData.customer;
+            }
+          });
+          setEditData();
+          setShowModal({ open: false });
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = () => {
+    setShowModal({ open: false });
   };
 
   useEffect(() => M.AutoInit());
@@ -499,21 +503,20 @@ const CustomerReport = () => {
           <form className={classes.form}>
             <span>Customer:</span>
             <TextField
-              value={editData ? editData.customer_name : ""}
+              value={editData ? editData.customer : ""}
               fullWidth
               margin="normal"
-              name="customer_name"
+              name="customer"
               type="text"
               variant="outlined"
               onChange={handleEditChange}
             />
-         
+
             <Button
               variant="contained"
               color="primary"
               onClick={handleEditSubmit}
               className={classes.editButton}
-
             >
               Edit
             </Button>

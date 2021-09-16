@@ -107,13 +107,14 @@ class ReportGeneratorController extends Controller
             'tag_count'     => $tag_count
         ];
     }
-
+    //TODO target report generate
     public function targetReport(Request $request)
     {
         $newData        = [];
         $report_type    = $request->type; // billed or general
         $customer_name  = $request->customer_name;
-        $target_name    = "Legacy Health-Charter";
+        // $target_name    = "Legacy Health-Charter";
+        $target_name    = $request->target_name;
         $start_date     = date('Y-m-d', strtotime($request->start_date));
         $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $archived       = [];
@@ -136,7 +137,8 @@ class ReportGeneratorController extends Controller
             ['Call_Date', '>=', $start_date],
             ['Call_Date', '<=', $end_date]
         ];
-        if ($target_name !== '') {
+
+        if ($target_name !== '' && $target_name !== null) {
             $condition[] = ['Target', '=', $target_name];
         }
 
@@ -193,8 +195,9 @@ class ReportGeneratorController extends Controller
         $call_summary['data_range']             = $data_range;
         $call_summary['total_call']             = $total_call;
         $call_summary['total_minutes']          = secondToMinutes($total_seconds);
-        $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.');
-        $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.');
+
+        $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.', '');
+        $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.', '');
 
         return [
             'data'          => $newData,
@@ -202,21 +205,19 @@ class ReportGeneratorController extends Controller
             'tag_count'     => $tag_count
         ];
     }
-
-    public function marketExceptionReport()
+    // TODO MarketExcptions report Gene
+    public function marketExceptionReport(Request $request)
     {
-        $customer_name  = 'Legacy Healing Centers';
-        $market_name    = 'Roanoke-Lynchburg, VA';
-        $start_date     = date('Y-m-d', strtotime('2021-07-01'));
-        $end_date       = date('Y-m-d', strtotime('2021-07-30')); //'2021-07-26';
+        $customer_name  = $request->customer_name;
+        $market_name    = $request->market;
+        $start_date     = date('Y-m-d', strtotime($request->start_date));
+        $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $call_summary   = [];
 
         // summary of calls
         $data_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+        $total_revenue  = 1;
 
-        // category of calls
-        $annotation_tag = [];
-        $tag_count = [];
 
 
         if (!empty($market_name)) {
@@ -226,6 +227,9 @@ class ReportGeneratorController extends Controller
             $all_markets = MarketExcptions::where([['customer_id', '=', $customer_name], ['market_id', '=', $market_name]])
                 ->get(['customer_id', 'market_id', 'start_date']);
         }
+        if (empty($all_markets)) {
+            return false;
+        }
         foreach ($all_markets as $market) {
 
             // summary of calls
@@ -233,6 +237,10 @@ class ReportGeneratorController extends Controller
             $total_call     = 0;
             $total_seconds  = 0;
             $total_revenue  = 1;
+            
+            // category of calls
+            $annotation_tag = [];
+            $tag_count = [];
 
             $get_call_logs = RingbaCallLog::where([
                 ['Customer', '=', $customer_name],
@@ -262,8 +270,8 @@ class ReportGeneratorController extends Controller
         $call_summary['data_range']             = $data_range;
         $call_summary['total_call']             = $total_call;
         $call_summary['total_minutes']          = secondToMinutes($total_seconds);
-        $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.');
-        $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.');
+        $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.', '');
+        $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.', '');
 
         return [
             'data'          => $get_call_logs,

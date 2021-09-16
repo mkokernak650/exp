@@ -307,7 +307,7 @@ export default function PersistentDrawerLeft(props) {
         },
         {
           title: "Market Exception",
-          href: "call-logs-report",
+          href: "generate.report.market.exception",
           Icon: <UserIcon />,
         }
       ],

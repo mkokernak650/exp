@@ -52,13 +52,13 @@ const useStyles = makeStyles(() => ({
     marginLeft: "10px",
   },
   button: {
-    width: '130',
+    width: "130",
     textTransform: "capitalize",
     fontSize: "14px",
   },
-  editButton:{
-    marginTop:"15px"
-  }
+  editButton: {
+    marginTop: "15px",
+  },
 }));
 export const fields = [
   {
@@ -205,39 +205,6 @@ const Targets = () => {
   const [selectedRowIds, setselectedRowIds] = useState([]);
   const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
-
-  const handleEdit = (itemId) => {
-    allTargets.filter((item) => {
-      if (item.id === itemId) {
-        setEditData(item);
-      }
-    });
-    setShowModal({ open: true });
-  };
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-  const handleEditSubmit = () => {
-    axios
-      .post(route("customer.edit"), editData)
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          setEditData();
-          setShowModal({ open: false });
-          
-        } else {
-          console.log(res.data.msg);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
-  };
-
 
   const dataArray = allTargets.map((item, index) => ({
     edit: item.id,
@@ -411,6 +378,46 @@ const Targets = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleEdit = (itemId) => {
+    tableProps.data.filter((item) => {
+      if (item.id == itemId) {
+        setEditData(item);
+      }
+    });
+    setShowModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  const handleEditSubmit = () => {
+    axios
+      .post(route("target.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id === editData.id) {
+              filteredData.data[indx].customer = editData.customer;
+              filteredData.data[indx].Ringba_Target_Name =
+                editData.Ringba_Target_Name;
+              filteredData.data[indx].Description = editData.Description;
+            }
+          });
+          setEditData();
+          setShowModal({ open: false });
+        } else {
+          console.log(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = () => {
+    setShowModal({ open: false });
   };
 
   useEffect(() => M.AutoInit());
@@ -597,10 +604,10 @@ const Targets = () => {
           <form className={classes.form}>
             <span>Customer:</span>
             <TextField
-              value={editData ? editData.Customer : ""}
+              value={editData ? editData.customer : ""}
               fullWidth
               margin="normal"
-              name="Customer"
+              name="customer"
               type="text"
               variant="outlined"
               onChange={handleEditChange}
@@ -617,10 +624,10 @@ const Targets = () => {
             />
             <span>Ringba Target Name:</span>
             <TextField
-              value={editData ? editData.Ringba_Targets_Name : ""}
+              value={editData ? editData.Ringba_Target_Name : ""}
               fullWidth
               margin="normal"
-              name="Ringba_Targets_Name"
+              name="Ringba_Target_Name"
               type="text"
               variant="outlined"
               onChange={handleEditChange}
@@ -630,7 +637,6 @@ const Targets = () => {
               color="primary"
               onClick={handleEditSubmit}
               className={classes.editButton}
-
             >
               Edit
             </Button>

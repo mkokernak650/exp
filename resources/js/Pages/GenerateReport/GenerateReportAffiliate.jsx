@@ -130,7 +130,7 @@ const GenerateReportAffiliate = () => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
     const secondData = apiData.data.length + 5;
     const call_summary = [];
-    call_summary.push(["Target wise summary", ""]);
+    call_summary.push(["Summary of Calls", ""]);
     Object.keys(apiData.call_summary).forEach((cf) => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });

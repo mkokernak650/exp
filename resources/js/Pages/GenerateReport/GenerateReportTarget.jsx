@@ -74,10 +74,10 @@ const GenerateReportTarget = () => {
     const { name, value } = e.target;
     setType({ [name]: value });
   };
-  const affiliateHandleChange = (e) => {
-    const { name, value } = e.target;
-    setAffiliate({ [name]: value });
-  };
+  // const affiliateHandleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setAffiliate({ [name]: value });
+  // };
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
     setCustomer({ [name]: value });
@@ -137,8 +137,7 @@ const GenerateReportTarget = () => {
 
   const handleSubmit = () => {
     axios.post(route("target.report.generator"), values).then((r) => {
-      console.log(r.data);
-      // exportToCSV(r.data, "Target_Report");
+      exportToCSV(r.data, "Target_Report");
     });
   };
 
@@ -150,7 +149,7 @@ const GenerateReportTarget = () => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
     const secondData = apiData.data.length + 5;
     const call_summary = [];
-    call_summary.push(["Target wise summary", ""]);
+    call_summary.push(["Summary of Calls", ""]);
     Object.keys(apiData.call_summary).forEach((cf) => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
@@ -170,7 +169,7 @@ const GenerateReportTarget = () => {
     setOpen(true);
     setResponse("Report Generated Successfully");
   };
-  console.log(targets)
+  console.log(targets);
 
   return (
     <>
@@ -213,11 +212,14 @@ const GenerateReportTarget = () => {
                 fullWidth
               >
                 <option value="">Select Customer</option>
-                {targets.map((option) => option.Customer).filter((item,i,arr)=>arr.indexOf(item)===i).map((test,key)=>(
-                  <option key={key} value={test}>
-                    {test}
-                  </option>
-                ))}
+                {targets
+                  .map((option) => option.Customer)
+                  .filter((item, i, arr) => arr.indexOf(item) === i)
+                  .map((test, key) => (
+                    <option key={key} value={test}>
+                      {test}
+                    </option>
+                  ))}
               </TextField>
             </Grid>
             <Grid item xs={12}>
@@ -240,7 +242,7 @@ const GenerateReportTarget = () => {
               </TextField>
             </Grid>
 
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
                 select
@@ -259,7 +261,7 @@ const GenerateReportTarget = () => {
                   </option>
                 ))}
               </TextField>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"

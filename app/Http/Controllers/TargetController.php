@@ -52,7 +52,7 @@ class TargetController extends Controller
     public function edit(Request $request)
     {
         $data = Target::find($request->id);
-        $data->Customer  = $request->Customer;
+        $data->Customer  = $request->customer;
         $data->Description = $request->Description;
         $data->Ringba_Targets_Name  = $request->Ringba_Targets_Name;
         $result = $data->save();
