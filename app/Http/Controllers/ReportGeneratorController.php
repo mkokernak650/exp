@@ -24,9 +24,10 @@ class ReportGeneratorController extends Controller
 
     public function affiliateReport(Request $request)
     {
+        // SELECT * FROM `ringba_call_logs` WHERE Affiliate_Id='AFe13f165279994a0781aa2da2cc26db98' AND Call_Date>='2021-06-28' AND Call_Date <= '2021-07-25'
         $newData        = [];
         $report_type    = $request->type;
-        $affiliate_id   = $request->affiliate_id;
+        $affiliate_ids  = [$request->affiliate_id]; // array
         $start_date     = date('Y-m-d', strtotime($request->start_date));
         $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $archived       = [];
@@ -44,16 +45,15 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
         $condition = [
-            ['Affiliate_Id', '=', $affiliate_id],
             ['Call_Date', '>=', $start_date],
             ['Call_Date', '<=', $end_date]
         ];
 
         if ($report_type === 'billed') {
-            $billed = $this->fetchData(new BilledCallLog(), $condition);
+            $billed = $this->fetchAffiliatData(new BilledCallLog(), $condition, $affiliate_ids);
         } else {
-            $billed = $this->fetchData(new BilledCallLog(), $condition);
-            $archived = $this->fetchData(new ArchivedCallLog(), $condition);
+            $billed = $this->fetchAffiliatData(new BilledCallLog(), $condition, $affiliate_ids);
+            $archived = $this->fetchAffiliatData(new ArchivedCallLog(), $condition, $affiliate_ids);
         }
         foreach ($billed as $bill) {
             array_push($newData, $bill);
@@ -141,10 +141,10 @@ class ReportGeneratorController extends Controller
         }
 
         if ($report_type === 'billed') {
-            $billed = $this->fetchData(new BilledCallLog(), $condition);
+            $billed = $this->targetReportData(new BilledCallLog(), $condition);
         } else {
-            $billed = $this->fetchData(new BilledCallLog(), $condition);
-            $archived = $this->fetchData(new ArchivedCallLog(), $condition);
+            $billed = $this->targetReportData(new BilledCallLog(), $condition);
+            $archived = $this->targetReportData(new ArchivedCallLog(), $condition);
         }
 
         foreach ($billed as $bill) {
@@ -272,21 +272,22 @@ class ReportGeneratorController extends Controller
         ];
     }
 
-    private function fetchAffiliatData($instance, $affiliate_id, $start_date, $end_date)
+    private function fetchAffiliatData($instance, $condition, $affiliate_ids)
     {
         return $instance
-            ->where('Affiliate_Id', '=', $affiliate_id)
-            ->where('Call_Date', '>=', $start_date)
-            ->where('Call_Date', '<=', $end_date)->get([
-                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'payoutAmount', 'call_Logs_status', 'Zipcode', 'Target_Description'
+            ->whereIn('Affiliate_Id', $affiliate_ids)
+            ->where($condition)
+            ->get([
+                'Call_Date', 'Call_Date_Time', 'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode', 'Dialed',  'Annotation_Tag',  'Target',  'Source_Hangup',  'Type', 'Duplicate_Call', 'Conn_Duration', 'payoutAmount', 'call_Logs_status'
             ]);
     }
 
-    private function fetchData($instance, $condition)
+    private function targetReportData($instance, $condition)
     {
         return $instance
-            ->where($condition)->get([
-                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed', 'Annotation_Tag', 'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status', 'Zipcode', 'Target_Description', 'payoutAmount'
+            ->where($condition)
+            ->get([
+                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed',  'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status',
             ]);
     }
 }

@@ -252,4 +252,10 @@ class RingbaApiHelpers
     $result = json_decode($this->getRequest('stats'));
     return $result->campaigns;
   }
+  // get compaigns get affiliate
+  public function getAffiliate()
+  {
+    $result = json_decode($this->getRequest('Publishers'));
+    return $result->publishers;
+  }
 }
