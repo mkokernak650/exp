@@ -26,12 +26,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('getdata:daily')->everyMinute();
 
         // get Rinba data 
-        $schedule->call( function (){
-            $ringba = new RingbaCallLogController();
-            $ringba->getRingbaDataByScheduler();
-        })->daily();
+        // $schedule->call( function (){
+        //     $ringba = new RingbaCallLogController();
+        //     $ringba->getRingbaDataByScheduler();
+        // })->daily();
         
         // $schedule->call( function (){
         //     $ringba = new RingbaCallLogController();
