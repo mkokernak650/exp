@@ -15,6 +15,7 @@ import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "grid",
@@ -35,9 +36,9 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
-  MuiGridItem:{
-    padding:"4px",
-  }
+  MuiGridItem: {
+    padding: "4px",
+  },
 }));
 
 function Alert(props) {
@@ -56,6 +57,8 @@ const AddTargets = () => {
     }
     setOpen(false);
   };
+
+ 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -78,7 +81,7 @@ const AddTargets = () => {
         }
       })
       .catch((err) => {
-        setLoading(false)
+        setLoading(false);
       });
   };
 
@@ -90,7 +93,7 @@ const AddTargets = () => {
         <Typography variant="h5" className={classes.title}>
           Add Target
         </Typography>
-        <form validate='true' onSubmit={handleSubmit} className="add-target">
+        <form validate="true" onSubmit={handleSubmit} className="add-target">
           <Grid container spacing={4}>
             <Grid item xs={12} classes={classes.MuiGridItem}>
               <TextField
@@ -103,7 +106,6 @@ const AddTargets = () => {
                 }}
                 fullWidth
                 required={true}
-
               >
                 <option value="">Select Customer</option>
                 {allCustomers.map((option, indx) => (
@@ -113,7 +115,7 @@ const AddTargets = () => {
                 ))}
               </TextField>
             </Grid>
-
+          
 
             <Grid item xs={12} classes={classes.MuiGridItem}>
               <TextField
@@ -125,11 +127,10 @@ const AddTargets = () => {
                 type="text"
                 variant="outlined"
                 required={true}
-
               />
             </Grid>
 
-           <Grid item xs={12} classes={classes.MuiGridItem}>
+            <Grid item xs={12} classes={classes.MuiGridItem}>
               <TextField
                 fullWidth
                 label="Description"
@@ -139,7 +140,6 @@ const AddTargets = () => {
                 type="text"
                 variant="outlined"
                 required={true}
-
               />
             </Grid>
             <Grid item xs={12}>

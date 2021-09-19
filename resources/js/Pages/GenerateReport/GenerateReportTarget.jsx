@@ -19,6 +19,8 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import { currentDate } from "../../Helpers/CurrentDate";
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,6 +80,9 @@ const GenerateReportTarget = () => {
   //   const { name, value } = e.target;
   //   setAffiliate({ [name]: value });
   // };
+
+ 
+
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
     setCustomer({ [name]: value });
@@ -134,10 +139,13 @@ const GenerateReportTarget = () => {
     ...endDate,
   };
   console.log(values);
+  const fileName = `${values.type}_Report_For_${values.target_name}_From_${
+    values.start_date
+  }_To_${values.end_date}_Created@${currentDate()}`;
 
   const handleSubmit = () => {
     axios.post(route("target.report.generator"), values).then((r) => {
-      exportToCSV(r.data, "Target_Report");
+      exportToCSV(r.data, fileName);
     });
   };
 
@@ -169,7 +177,6 @@ const GenerateReportTarget = () => {
     setOpen(true);
     setResponse("Report Generated Successfully");
   };
-  console.log(targets);
 
   return (
     <>
@@ -199,7 +206,7 @@ const GenerateReportTarget = () => {
                 />
               </RadioGroup>
             </Grid>
-
+          
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"

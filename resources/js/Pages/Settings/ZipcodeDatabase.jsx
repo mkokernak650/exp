@@ -1789,7 +1789,6 @@ const ZipcodeDatabase = () => {
                 color="primary"
                 className={classes.button}
                 onClick={openImportModal}
-                disabled={allZipcodes == ""}
               >
                 Import
               </Button>

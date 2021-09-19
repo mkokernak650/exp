@@ -19,6 +19,9 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import { currentDate } from "../../Helpers/CurrentDate";
+import MultiSelect from "react-multiple-select-dropdown-lite";
+import "react-multiple-select-dropdown-lite/dist/index.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -98,6 +101,17 @@ const GenerateReportAffiliate = () => {
       setEndDate({ ...endDate, end_date: "" });
     }
   };
+
+  const handleOnchange = (val) => {
+    setvalue(val);
+  };
+
+  const options = [
+    { label: "Option 1", value: "option_1" },
+    { label: "Option 2", value: "option_2" },
+    { label: "Option 3", value: "option_3" },
+    { label: "Option 4", value: "option_4" },
+  ];
   const startDateHandleChange = (e) => {
     const { name, value } = e.target;
     setStartDate({ [name]: value });
@@ -114,11 +128,27 @@ const GenerateReportAffiliate = () => {
     ...startDate,
     ...endDate,
   };
+  
 
-  const fileName = "myfile";
+  let affiliate_name = "";
+  if (values?.affiliate_id) {
+    let i = 0;
+    while (i < affiliates.length) {
+      if (affiliates[i].affiliate_id === values.affiliate_id) {
+        affiliate_name = affiliates[i].affiliate_name;
+        break;
+      }
+      i++;
+    }
+  }
+
+  const fileName = `${values.type}_Report_For_${affiliate_name}_From_${
+    values.start_date
+  }_To_${values.end_date}_Created@${currentDate()}`;
+
   const handleSubmit = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
-      exportToCSV(r.data, "Affiliate_Report");
+      exportToCSV(r.data, fileName);
     });
   };
 
@@ -151,6 +181,9 @@ const GenerateReportAffiliate = () => {
     setResponse("Report Generated Successfully");
   };
 
+
+
+
   return (
     <>
       <Helmet title="Generate Report Affiliate" />
@@ -180,7 +213,7 @@ const GenerateReportAffiliate = () => {
               </RadioGroup>
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              {/* <TextField
                 id="standard-select-currency-native"
                 select
                 name="affiliate_id"
@@ -197,7 +230,9 @@ const GenerateReportAffiliate = () => {
                     {option.affiliate_name}
                   </option>
                 ))}
-              </TextField>
+              </TextField> */}
+
+              <MultiSelect onChange={handleOnchange} options={options} />
             </Grid>
             <Grid item xs={12}>
               <TextField
