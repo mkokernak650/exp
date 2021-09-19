@@ -43,6 +43,9 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
+  multiselect:{
+    width: "100%",
+  }
 }));
 
 function Alert(props) {
@@ -73,10 +76,10 @@ const GenerateReportAffiliate = () => {
     const { name, value } = e.target;
     setType({ [name]: value });
   };
-  const affiliateHandleChange = (e) => {
-    const { name, value } = e.target;
-    setAffiliate({ [name]: value });
+  const affiliateHandleChange = (val,key) => {
+    setAffiliate({ [key]: val });
   };
+  console.log(affiliate)
   const monthHandleChange = (e) => {
     const { name, value } = e.target;
     setMonth({ [name]: value });
@@ -102,16 +105,13 @@ const GenerateReportAffiliate = () => {
     }
   };
 
-  const handleOnchange = (val) => {
-    setvalue(val);
-  };
+ 
 
-  const options = [
-    { label: "Option 1", value: "option_1" },
-    { label: "Option 2", value: "option_2" },
-    { label: "Option 3", value: "option_3" },
-    { label: "Option 4", value: "option_4" },
-  ];
+ const options= affiliates.map((item) => ({
+    label: item.affiliate_name,
+    value: item.affiliate_id,
+  }));
+ 
   const startDateHandleChange = (e) => {
     const { name, value } = e.target;
     setStartDate({ [name]: value });
@@ -128,7 +128,6 @@ const GenerateReportAffiliate = () => {
     ...startDate,
     ...endDate,
   };
-  
 
   let affiliate_name = "";
   if (values?.affiliate_id) {
@@ -181,9 +180,6 @@ const GenerateReportAffiliate = () => {
     setResponse("Report Generated Successfully");
   };
 
-
-
-
   return (
     <>
       <Helmet title="Generate Report Affiliate" />
@@ -232,7 +228,7 @@ const GenerateReportAffiliate = () => {
                 ))}
               </TextField> */}
 
-              <MultiSelect onChange={handleOnchange} options={options} />
+              <MultiSelect name="affiliate_id" onChange={(val)=>affiliateHandleChange(val,"affiliate_id")} options={options}  className={classes.multiselect}/>
             </Grid>
             <Grid item xs={12}>
               <TextField
