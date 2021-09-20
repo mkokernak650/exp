@@ -21,7 +21,8 @@ use App\Http\Controllers\{
     ReportGeneratorController,
     GenerateReportAffiliateController,
     GenerateReportTargetController,
-    GenerateReportMarketExceptionController
+    GenerateReportMarketExceptionController,
+    AffiliateController
 };
 // use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -131,7 +132,7 @@ Route::get('/add-customer', [CustomerController::class, 'addCustomerForm'])
     ->name('add.customer');
 
 Route::get('/customer-report', [CustomerController::class, 'customerReport'])
-    ->name('customer-report');
+    ->name('customer.report');
 
 Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])
     ->name('store-customer');
@@ -141,8 +142,41 @@ Route::post('/customer-delete', [CustomerController::class, 'delete'])
 Route::post('/customer-edit', [CustomerController::class, 'edit'])
     ->name('customer.edit');
 
+Route::post('/move-customer-archive', [CustomerController::class, 'moveArchive'])
+    ->name('move.customer.archive');
+
+Route::post('/active-customer', [CustomerController::class, 'activeCustomer'])
+    ->name('active.customer');
+
+Route::get('/archived-customers', [CustomerController::class, 'archivedCustomers'])
+    ->name('archived.customers');
+
 Route::get('customer-export/{type}', [CustomerController::class, 'export'])
     ->name('customer.export');
+
+    Route::get('/add-affiliate', [AffiliateController::class, 'addAffiliateForm'])
+    ->name('add.affiliate');
+
+Route::post('/store-affiliate', [AffiliateController::class, 'storeAffiliate'])
+    ->name('store-affiliate');
+
+Route::get('/affiliate-report', [AffiliateController::class, 'affiliateReport'])
+    ->name('affiliate.report');
+
+Route::post('/affiliate-delete', [AffiliateController::class, 'delete'])
+    ->name('affiliate.delete');
+
+Route::post('/affiliate-edit', [AffiliateController::class, 'edit'])
+    ->name('affiliate.edit');
+
+Route::post('/move-affiliate-archive', [AffiliateController::class, 'moveArchive'])
+    ->name('move.affiliate.archive');
+
+Route::post('/active-affiliate', [AffiliateController::class, 'activeAffiliate'])
+    ->name('active.affiliate');
+
+Route::get('/archived-affiliates', [AffiliateController::class, 'archivedAffiliates'])
+    ->name('archived.affiliates');
 
 // TODO Archived Call log Controller for store test
 /**

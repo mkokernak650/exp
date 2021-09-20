@@ -309,7 +309,7 @@ export default function PersistentDrawerLeft(props) {
           title: "Market Exception",
           href: "generate.report.market.exception",
           Icon: <UserIcon />,
-        }
+        },
       ],
     },
     {
@@ -336,7 +336,28 @@ export default function PersistentDrawerLeft(props) {
         },
         {
           title: "Customer Report",
-          href: "customer-report",
+          href: "customer.report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Archived Customers",
+          href: "archived.customers",
+          Icon: <UserIcon />,
+        },
+
+        {
+          title: "Add Affiliate",
+          href: "add.affiliate",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Affiliate Report",
+          href: "affiliate.report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Archived Affiliates",
+          href: "archived.affiliates",
           Icon: <UserIcon />,
         },
         {
@@ -395,18 +416,17 @@ export default function PersistentDrawerLeft(props) {
   ];
 
   const [active, inActive] = useState({
-    id:'',active: false
+    id: "",
+    active: false,
   });
   const handleClick = (id) => {
     for (let i = 0; i < items.length; i++) {
       if (id === items[i].id) {
-        
         // inActive(items[i].id);
-        inActive({...active,id:items[i].id,active:!active.active});
+        inActive({ ...active, id: items[i].id, active: !active.active });
       }
     }
   };
-
 
   return (
     <div className={classes.root}>
@@ -502,7 +522,11 @@ export default function PersistentDrawerLeft(props) {
                       primary={menu.title}
                       className={classes.menuText}
                     />
-                    {active.id === menu.id && active.active ? <ExpandLess /> : <ExpandMore />}
+                    {active.id === menu.id && active.active ? (
+                      <ExpandLess />
+                    ) : (
+                      <ExpandMore />
+                    )}
                   </ListItem>
                 </InertiaLink>
               ) : (
@@ -527,7 +551,9 @@ export default function PersistentDrawerLeft(props) {
                   timeout="auto"
                   unmountOnExit
                   className={`${
-                    menu.active ? "sidebar-menu-active" : "sidebar-menu-inactive"
+                    menu.active
+                      ? "sidebar-menu-active"
+                      : "sidebar-menu-inactive"
                   }`}
                 >
                   <List component="div" disablePadding>

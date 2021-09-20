@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const AddCustomer = () => {
+const AddAffiliate = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,7 @@ const AddCustomer = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("store-customer"), values)
+      .post(route("store-affiliate"), values)
       .then((res) => {
         if (res.status === 200) {
           setLoading(false);
@@ -77,19 +77,30 @@ const AddCustomer = () => {
 
   return (
     <>
-      <Helmet title="Add Customer" />
+      <Helmet title="Add Affiliate" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Customer
+          Add Affiliate
         </Typography>
         <form validate='true' onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Customer Name"
+                label="Affiliate Id"
                 margin="normal"
-                name="customer"
+                name="affiliate_id"
+                onChange={handleChange}
+                type="text"
+                variant="outlined"
+                required={true}
+
+              />
+              <TextField
+                fullWidth
+                label="Affiliate Name"
+                margin="normal"
+                name="affiliate_name"
                 onChange={handleChange}
                 type="text"
                 variant="outlined"
@@ -157,5 +168,5 @@ const AddCustomer = () => {
   );
 };
 
-AddCustomer.layout = (page) => <Layout title="Add Customer">{page}</Layout>;
-export default AddCustomer;
+AddAffiliate.layout = (page) => <Layout title="Add Affiliate">{page}</Layout>;
+export default AddAffiliate;

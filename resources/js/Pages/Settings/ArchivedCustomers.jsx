@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout";
-// import "./Demo.scss";
 import M from "materialize-css";
 import React, { useEffect, useState } from "react";
 import { kaReducer, Table } from "ka-table";
@@ -198,7 +197,7 @@ export const filter = {
   ],
 };
 
-const CustomerReport = () => {
+const ArchivedCustomers = () => {
   const classes = useStyles();
   const { allCustomers } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
@@ -208,7 +207,7 @@ const CustomerReport = () => {
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
-  console.log(allCustomers);
+
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -401,9 +400,9 @@ const CustomerReport = () => {
     setShowModal({ open: true });
   };
 
-  const handleArchived = () => {
+  const handleActive = () => {
     axios
-      .post(route("move.customer.archive"), { selectedRowIds })
+      .post(route("active.customer"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           setResponse(res.data.msg);
@@ -473,9 +472,9 @@ const CustomerReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleArchived}
+          onClick={handleActive}
         >
-          Archived
+          Active
         </Button>
       </div>
     );
@@ -540,8 +539,7 @@ const CustomerReport = () => {
 
   return (
     <>
-      <Helmet title="Customer Report" />
-
+      <Helmet title="Archived Customers" />
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -719,7 +717,7 @@ const CustomerReport = () => {
   );
 };
 
-CustomerReport.layout = (page) => (
-  <Layout title="Customer Report">{page}</Layout>
+ArchivedCustomers.layout = (page) => (
+  <Layout title="Archived Customers">{page}</Layout>
 );
-export default CustomerReport;
+export default ArchivedCustomers;

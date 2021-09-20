@@ -27,7 +27,7 @@ class ReportGeneratorController extends Controller
         // SELECT * FROM `ringba_call_logs` WHERE Affiliate_Id='AFe13f165279994a0781aa2da2cc26db98' AND Call_Date>='2021-06-28' AND Call_Date <= '2021-07-25'
         $newData        = [];
         $report_type    = $request->type;
-        $affiliate_ids  = [$request->affiliate_id]; // array
+        $affiliate_ids  = $request->affiliate_id; // array
         $start_date     = date('Y-m-d', strtotime($request->start_date));
         $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
         $archived       = [];

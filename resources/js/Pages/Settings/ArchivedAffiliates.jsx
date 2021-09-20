@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout";
-// import "./Demo.scss";
 import M from "materialize-css";
 import React, { useEffect, useState } from "react";
 import { kaReducer, Table } from "ka-table";
@@ -63,8 +62,46 @@ function Alert(props) {
 
 export const fields = [
   {
-    caption: "customer",
-    name: "customer",
+    caption: "affiliate_id",
+    name: "Affiliate Id",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "affiliate_name",
+    name: "Affiliate Name",
     operators: [
       {
         caption: "Contains",
@@ -102,7 +139,7 @@ export const fields = [
   },
   {
     caption: "email",
-    name: "email",
+    name: "Email",
     operators: [
       {
         caption: "Contains",
@@ -140,7 +177,45 @@ export const fields = [
   },
   {
     caption: "telephone",
-    name: "telephone",
+    name: "Telephone",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
+    caption: "address",
+    name: "Address",
     operators: [
       {
         caption: "Contains",
@@ -192,15 +267,15 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "customer",
+      field: "Affiliate Id",
       operator: "isNotEmpty",
     },
   ],
 };
 
-const CustomerReport = () => {
+const ArchivedAffiliates = () => {
   const classes = useStyles();
-  const { allCustomers } = usePage().props;
+  const { allAffiliates } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -208,11 +283,12 @@ const CustomerReport = () => {
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
-  console.log(allCustomers);
-  const dataArray = allCustomers.map((item, index) => ({
+
+  const dataArray = allAffiliates.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    customer: item.customer_name,
+    affiliate_id: item.affiliate_id,
+    affiliate_name: item.affiliate_name,
     email: item.email,
     telephone: item.telephone,
     address: item.address,
@@ -294,11 +370,17 @@ const CustomerReport = () => {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
-        style: { width: 20 },
+        style: { width: 40 },
       },
       {
-        key: "customer",
-        title: "Customer",
+        key: "affiliate_id",
+        title: "Affiliate Id",
+        dataType: DataType.String,
+        style: { width: 350 },
+      },
+      {
+        key: "affiliate_name",
+        title: "Affiliate Name",
         dataType: DataType.String,
         style: { width: 240 },
       },
@@ -372,7 +454,7 @@ const CustomerReport = () => {
   };
   const deleteHandler = () => {
     axios
-      .post(route("customer.delete"), { selectedRowIds })
+      .post(route("affiliate.delete"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
@@ -401,9 +483,10 @@ const CustomerReport = () => {
     setShowModal({ open: true });
   };
 
-  const handleArchived = () => {
+  
+  const handleActive = () => {
     axios
-      .post(route("move.customer.archive"), { selectedRowIds })
+      .post(route("active.affiliate"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           setResponse(res.data.msg);
@@ -430,13 +513,14 @@ const CustomerReport = () => {
   };
   const handleEditSubmit = () => {
     axios
-      .post(route("customer.edit"), editData)
+      .post(route("affiliate.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
           filteredData.data.filter((item, indx) => {
             if (item.id === editData.id) {
-              filteredData.data[indx].customer = editData.customer;
+              filteredData.data[indx].affiliate_id = editData.affiliate_id;
+              filteredData.data[indx].affiliate_name = editData.affiliate_name;
               filteredData.data[indx].email = editData.email;
               filteredData.data[indx].telephone = editData.telephone;
               filteredData.data[indx].address = editData.address;
@@ -473,9 +557,9 @@ const CustomerReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleArchived}
+          onClick={handleActive}
         >
-          Archived
+          Active
         </Button>
       </div>
     );
@@ -540,7 +624,7 @@ const CustomerReport = () => {
 
   return (
     <>
-      <Helmet title="Customer Report" />
+      <Helmet title="Archived Affiliates" />
 
       <div className="selection-demo">
         {tableToolbar ? (
@@ -655,16 +739,26 @@ const CustomerReport = () => {
         open={showModal.open}
         setOpen={setShowModal}
         width={"600px"}
-        title={"Edit Customer"}
+        title={"Edit Affiliate"}
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Customer:</span>
+            <span>Affiliate Id:</span>
             <TextField
-              value={editData ? editData.customer : ""}
+              value={editData ? editData.affiliate_id : ""}
               fullWidth
               margin="normal"
-              name="customer"
+              name="affiliate_id"
+              type="text"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>Affiliate Name:</span>
+            <TextField
+              value={editData ? editData.affiliate_name : ""}
+              fullWidth
+              margin="normal"
+              name="affiliate_name"
               type="text"
               variant="outlined"
               onChange={handleEditChange}
@@ -719,7 +813,7 @@ const CustomerReport = () => {
   );
 };
 
-CustomerReport.layout = (page) => (
-  <Layout title="Customer Report">{page}</Layout>
+ArchivedAffiliates.layout = (page) => (
+  <Layout title="Archived Affiliates">{page}</Layout>
 );
-export default CustomerReport;
+export default ArchivedAffiliates;

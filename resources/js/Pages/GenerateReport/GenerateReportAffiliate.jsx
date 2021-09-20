@@ -43,9 +43,9 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
-  multiselect:{
+  multiselect: {
     width: "100%",
-  }
+  },
 }));
 
 function Alert(props) {
@@ -76,10 +76,11 @@ const GenerateReportAffiliate = () => {
     const { name, value } = e.target;
     setType({ [name]: value });
   };
-  const affiliateHandleChange = (val,key) => {
-    setAffiliate({ [key]: val });
+  const affiliateHandleChange = (val, key) => {
+    const affiliate_ids = val.split(",");
+    setAffiliate({ [key]: affiliate_ids });
   };
-  console.log(affiliate)
+  console.log(affiliate);
   const monthHandleChange = (e) => {
     const { name, value } = e.target;
     setMonth({ [name]: value });
@@ -105,13 +106,11 @@ const GenerateReportAffiliate = () => {
     }
   };
 
- 
-
- const options= affiliates.map((item) => ({
+  const options = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.affiliate_id,
   }));
- 
+
   const startDateHandleChange = (e) => {
     const { name, value } = e.target;
     setStartDate({ [name]: value });
@@ -228,7 +227,13 @@ const GenerateReportAffiliate = () => {
                 ))}
               </TextField> */}
 
-              <MultiSelect name="affiliate_id" onChange={(val)=>affiliateHandleChange(val,"affiliate_id")} options={options}  className={classes.multiselect}/>
+              <MultiSelect
+                name="affiliate_id"
+                onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
+                options={options}
+                className={classes.multiselect}
+                placeholder="Select Affiliates"
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField

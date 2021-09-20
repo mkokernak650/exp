@@ -23,20 +23,33 @@ class CustomerController extends Controller
 
     public function customerReport()
     {
-        $allCustomers = Customer::all();
+        $allCustomers = Customer::where('status', '=', '1')->get();
         return Inertia::render('Settings/CustomerReport', [
+            'allCustomers' =>  $allCustomers,
+        ]);
+    }
+
+    public function archivedCustomers()
+    {
+        $allCustomers = Customer::where('status', '=', '0')->get();
+        return Inertia::render('Settings/ArchivedCustomers', [
             'allCustomers' => $allCustomers,
         ]);
     }
 
+
+
     public function storeCustomer(Request $request)
     {
-        $existData = Customer::where('customer_name', $request->customer)->count();
+        $existData = Customer::where('customer_name', $request->customer)->where('email', $request->email)->where('telephone', $request->telephone)->where('address', $request->address)->count();
         if ($existData > 0) {
             return response()->json(["msg" => "Cutomer already exists"]);
         }
         Customer::create([
             'customer_name' => $request->customer,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'address' => $request->address,
         ]);
         return response()->json(["msg" => "Successfully Added"]);
     }
@@ -58,12 +71,56 @@ class CustomerController extends Controller
     {
         $data = Customer::find($request->id);
         $data->customer_name  = $request->customer;
+        $data->email  = $request->email;
+        $data->telephone  = $request->telephone;
+        $data->address = $request->address;
         $result = $data->save();
 
         if ($result) {
             return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
+        }
+    }
+
+    public function moveArchive(Request $request)
+    {
+        $result = true;
+        $ids = $request->selectedRowIds;
+
+        if (is_array($ids)) {
+            $i = 0;
+            while ($i < count($ids)) {
+                $dataById = Customer::find($ids[$i]);
+                $dataById->status = "0";
+                $result = $dataById->save();
+                $i++;
+            }
+        }
+        if ($result) {
+            return response()->json(["msg" => "Data moved to Archive successfully", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+        }
+    }
+    public function activeCustomer(Request $request)
+    {
+        $result = true;
+        $ids = $request->selectedRowIds;
+
+        if (is_array($ids)) {
+            $i = 0;
+            while ($i < count($ids)) {
+                $dataById = Customer::find($ids[$i]);
+                $dataById->status = "1";
+                $result = $dataById->save();
+                $i++;
+            }
+        }
+        if ($result) {
+            return response()->json(["msg" => "Customer active successfully", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "active failed", "status_code" => 500]);
         }
     }
 
