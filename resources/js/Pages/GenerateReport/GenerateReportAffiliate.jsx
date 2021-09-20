@@ -80,7 +80,8 @@ const GenerateReportAffiliate = () => {
     const affiliate_ids = val.split(",");
     setAffiliate({ [key]: affiliate_ids });
   };
-  console.log(affiliate);
+
+  
   const monthHandleChange = (e) => {
     const { name, value } = e.target;
     setMonth({ [name]: value });

@@ -14,7 +14,8 @@ import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-
+import MultiSelect from "react-multiple-select-dropdown-lite";
+import "react-multiple-select-dropdown-lite/dist/index.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,7 +38,10 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "500px",
   },
   MuiGridItem: {
-    padding: "4px",
+    padding: "8px!important",
+  },
+  multiselect: {
+    width: "100%",
   },
 }));
 
@@ -58,7 +62,23 @@ const AddTargets = () => {
     setOpen(false);
   };
 
- 
+  // const options = affiliates.map((item) => ({
+  //   label: item.affiliate_name,
+  //   value: item.affiliate_id,
+  // }));
+
+  const [value, setvalue] = useState("");
+
+  const handleOnchange = (val) => {
+    setvalue(val);
+  };
+
+  const options = [
+    { label: "Option 1", value: "option_1" },
+    { label: "Option 2", value: "option_2" },
+    { label: "Option 3", value: "option_3" },
+    { label: "Option 4", value: "option_4" },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,7 +108,6 @@ const AddTargets = () => {
   return (
     <>
       <Helmet title="Add Target" />
-
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
           Add Target
@@ -115,10 +134,9 @@ const AddTargets = () => {
                 ))}
               </TextField>
             </Grid>
-          
 
             <Grid item xs={12} classes={classes.MuiGridItem}>
-              <TextField
+              {/* <TextField
                 fullWidth
                 label="Target"
                 margin="normal"
@@ -127,6 +145,14 @@ const AddTargets = () => {
                 type="text"
                 variant="outlined"
                 required={true}
+              /> */}
+
+              <MultiSelect
+                name="Ringba_Targets_Name"
+                onChange={handleOnchange}
+                options={options}
+                className={classes.multiselect}
+                placeholder="Select Targets"
               />
             </Grid>
 

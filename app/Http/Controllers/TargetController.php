@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Target;
 use Inertia\Inertia;
 use App\Models\Customer;
+use App\Models\TargetNames;
 
 class TargetController extends Controller
 {
