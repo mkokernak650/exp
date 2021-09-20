@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Helpers\RingbaApiHelpers;
 use Illuminate\Http\Request;
 use App\Models\Target;
 use Inertia\Inertia;
@@ -77,6 +78,26 @@ class TargetController extends Controller
             return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
         } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
+    
+    // fetch data by secdule
+    public static function getAllTarget()
+    {
+        $api = new RingbaApiHelpers();
+        $results = $api->getTargets();
+
+        $targets = TargetNames::all();
+        $all_target_name = [];
+        foreach ($targets as $target) {
+            array_push($all_target_name, $target->target_name);
+        }
+        foreach ($results as $row) {
+            $target = new TargetNames();
+            if (!in_array($row->name, $all_target_name)) {
+                $target->target_name = $row->name;
+                $target->save();
+            }
         }
     }
 }
