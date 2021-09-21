@@ -13,7 +13,6 @@ import { Helmet } from "react-helmet";
 import { currentDate } from "../../Helpers/CurrentDate";
 import { usePage } from "@inertiajs/inertia-react";
 
-
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
@@ -48,7 +47,10 @@ const GetRingbaData = () => {
   const classes = useStyles();
   const { lastDataFetchedDate } = usePage().props;
   const [values, setValues] = useState({
-    start_date: lastDataFetchedDate[0].end_date,
+    start_date:
+      lastDataFetchedDate.length > 0
+        ? lastDataFetchedDate[0].end_date
+        : currentDate(),
     end_date: currentDate(),
   });
   const [loading, setLoading] = useState(false);
