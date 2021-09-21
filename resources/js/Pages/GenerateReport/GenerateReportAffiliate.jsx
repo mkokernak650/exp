@@ -42,10 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
   snackbar: {
     maxWidth: "500px",
-  },
-  multiselect: {
-    width: "100%",
-  },
+  }
 }));
 
 function Alert(props) {
@@ -80,7 +77,6 @@ const GenerateReportAffiliate = () => {
     const affiliate_ids = val.split(",");
     setAffiliate({ [key]: affiliate_ids });
   };
-
   
   const monthHandleChange = (e) => {
     const { name, value } = e.target;
@@ -106,7 +102,6 @@ const GenerateReportAffiliate = () => {
       setEndDate({ ...endDate, end_date: "" });
     }
   };
-
   const options = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.affiliate_id,
@@ -209,30 +204,12 @@ const GenerateReportAffiliate = () => {
               </RadioGroup>
             </Grid>
             <Grid item xs={12}>
-              {/* <TextField
-                id="standard-select-currency-native"
-                select
-                name="affiliate_id"
-                onChange={affiliateHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Affiliate</option>
-                {affiliates.map((option, indx) => (
-                  <option key={indx} value={option.affiliate_id}>
-                    {option.affiliate_name}
-                  </option>
-                ))}
-              </TextField> */}
 
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
                 options={options}
-                className={classes.multiselect}
+                style={{ width: '100%' }}
                 placeholder="Select Affiliates"
               />
             </Grid>

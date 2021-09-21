@@ -18,8 +18,10 @@ class TargetController extends Controller
     public function index()
     {
         $allCustomers = Customer::select('customer_name')->distinct()->get();
+        $allTargetNames = TargetNames::select('target_name')->distinct()->get();
         return Inertia::render('Settings/AddTargets', [
-            'allCustomers' => $allCustomers
+            'allCustomers' => $allCustomers,
+            'allTargetNames' => $allTargetNames
         ]);
     }
 
@@ -33,8 +35,8 @@ class TargetController extends Controller
 
     public function addTarget(Request $request)
     {
-        $exisxtData = Target::where('Customer', $request->Customer)->where('Ringba_Targets_Name', $request->Ringba_Targets_Name);
-        if (!$exisxtData->isEmpty()) {
+        $existData = Target::where('Customer', $request->Customer)->where('Ringba_Targets_Name', $request->Ringba_Targets_Name)->count();
+        if ($existData > 0) {
             return response()->json(["msg" => "Data already Exist"]);
         }
         $result = Target::create([

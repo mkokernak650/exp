@@ -60,6 +60,7 @@ export default function WebForm() {
         if (res.status_code === 200) {
           setResponse(res.data.msg);
           setOpen(true);
+          e.target.reset()
         } else {
           setResponse(res.data.msg);
           setOpen(true);
@@ -143,21 +144,21 @@ export default function WebForm() {
             <input
               type="text"
               name="company"
-              placeholder="Company Name"
+              placeholder="Company Name *"
               onChange={handleChange}
               required
             ></input>
             <input
               type="text"
               name="lname"
-              placeholder="Last Name"
+              placeholder="Last Name *"
               onChange={handleChange}
               required
             ></input>
             <input
               type="email"
               name="email"
-              placeholder="E-mail Address"
+              placeholder="E-mail Address *"
               onChange={handleChange}
               required
             ></input>

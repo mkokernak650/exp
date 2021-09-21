@@ -20,7 +20,8 @@ import { Helmet } from "react-helmet";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import { currentDate } from "../../Helpers/CurrentDate";
-
+import MultiSelect from "react-multiple-select-dropdown-lite";
+import "react-multiple-select-dropdown-lite/dist/index.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,6 +65,8 @@ const GenerateReportTarget = () => {
   const [week, setWeek] = useState("");
   const [startDate, setStartDate] = useState({ start_date: "" });
   const [endDate, setEndDate] = useState({ end_date: "" });
+  const [campaign, setCampaign] = useState("");
+  const [annotation, setAnnotation] = useState("");
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -76,25 +79,35 @@ const GenerateReportTarget = () => {
     const { name, value } = e.target;
     setType({ [name]: value });
   };
-  // const affiliateHandleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setAffiliate({ [name]: value });
-  // };
-
- 
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
     setCustomer({ [name]: value });
     targets.filter((item) => {
       if (item.Customer === value) {
-        setTargetByCustomer([item.Ringba_Targets_Name]);
+        const targetNames = item.Ringba_Targets_Name.split(",");
+        setTargetByCustomer(targetNames);
       }
     });
   };
-  const targetHandleChange = (e) => {
-    const { name, value } = e.target;
-    setTarget({ [name]: value });
+  const targetOptions = targetByCustomer.map((item) => ({
+    label: item,
+    value: item,
+  }));
+
+  const affiliateOptions = affiliates.map((item) => ({
+    label: item.affiliate_name,
+    value: item.affiliate_id,
+  }));
+
+  const targetHandleChange = (val, key) => {
+    const targetNames = val.split(",");
+    setTarget({ [key]: targetNames });
+  };
+
+  const affiliateHandleChange = (val, key) => {
+    const affiliate_ids = val.split(",");
+    setAffiliate({ [key]: affiliate_ids });
   };
   const monthHandleChange = (e) => {
     const { name, value } = e.target;
@@ -128,6 +141,15 @@ const GenerateReportTarget = () => {
     const { name, value } = e.target;
     setEndDate({ [name]: value });
   };
+  const campaignHandleChange = (e) => {
+    const { name, value } = e.target;
+    setCampaign({ [name]: value });
+  };
+  const annotationHandleChange = (e) => {
+    const { name, value } = e.target;
+    setAnnotation({ [name]: value });
+  };
+
   const values = {
     ...type,
     ...affiliate,
@@ -137,8 +159,12 @@ const GenerateReportTarget = () => {
     ...week,
     ...startDate,
     ...endDate,
+    ...campaign,
+    ...annotation,
   };
+
   console.log(values);
+
   const fileName = `${values.type}_Report_For_${values.target_name}_From_${
     values.start_date
   }_To_${values.end_date}_Created@${currentDate()}`;
@@ -206,7 +232,7 @@ const GenerateReportTarget = () => {
                 />
               </RadioGroup>
             </Grid>
-          
+
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
@@ -233,42 +259,55 @@ const GenerateReportTarget = () => {
               <TextField
                 id="standard-select-currency-native"
                 select
-                name="target_name"
-                onChange={targetHandleChange}
+                name="campaign"
+                onChange={campaignHandleChange}
                 SelectProps={{
                   native: true,
                 }}
                 fullWidth
               >
-                <option value="">Select Target Name</option>
-                {targetByCustomer.map((option, indx) => (
-                  <option key={indx} value={option}>
-                    {option}
-                  </option>
-                ))}
+                <option value="">Select Campaign</option>
+                <option value="COVID -19 Addiction Helpline">
+                  COVID -19 Addiction Helpline
+                </option>
+                <option value="Verify Benefits">Verify Benefits</option>
               </TextField>
             </Grid>
+            <Grid item xs={12}>
+              <MultiSelect
+                name="target_name"
+                onChange={(val) => targetHandleChange(val, "target_name")}
+                options={targetOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Targets"
+              />
+            </Grid>
 
-            {/* <Grid item xs={12}>
+            <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
                 select
-                name="affiliate_id"
-                onChange={affiliateHandleChange}
+                name="annotation"
+                onChange={annotationHandleChange}
                 SelectProps={{
                   native: true,
                 }}
                 fullWidth
-                required={true}
               >
-                <option value="">Select Affiliate</option>
-                {affiliates.map((option, indx) => (
-                  <option key={indx} value={option.affiliate_id}>
-                    {option.affiliate_name}
-                  </option>
-                ))}
+                <option value="">Select Annotation</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
               </TextField>
-            </Grid> */}
+            </Grid>
+            <Grid item xs={12}>
+              <MultiSelect
+                name="affiliate_id"
+                onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
+                options={affiliateOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Affiliates"
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"

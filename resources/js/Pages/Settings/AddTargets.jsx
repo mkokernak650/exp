@@ -37,12 +37,10 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
-  MuiGridItem: {
-    padding: "8px!important",
-  },
-  multiselect: {
-    width: "100%",
-  },
+  // MuiGridItem: {
+  //   padding: "8px!important",
+  // },
+
 }));
 
 function Alert(props) {
@@ -52,9 +50,10 @@ const AddTargets = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { allCustomers, success } = usePage().props;
+  const { allCustomers, allTargetNames } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
+  
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -62,23 +61,15 @@ const AddTargets = () => {
     setOpen(false);
   };
 
-  // const options = affiliates.map((item) => ({
-  //   label: item.affiliate_name,
-  //   value: item.affiliate_id,
-  // }));
+  const options = allTargetNames.map((item) => ({
+    label: item.target_name,
+    value: item.target_name,
+  }));
 
-  const [value, setvalue] = useState("");
-
-  const handleOnchange = (val) => {
-    setvalue(val);
+  const [target, setTarget] = useState();
+  const targetHandleChange = (val, key) => {
+    setTarget({ [key]: val });
   };
-
-  const options = [
-    { label: "Option 1", value: "option_1" },
-    { label: "Option 2", value: "option_2" },
-    { label: "Option 3", value: "option_3" },
-    { label: "Option 4", value: "option_4" },
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,16 +79,21 @@ const AddTargets = () => {
     }));
   };
 
+  const finalData = {
+    ...target,
+    ...values,
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("add.target"), values)
+      .post(route("add.target"), finalData)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
           setResponse(res.data.msg);
           setOpen(true);
+          e.target.reset();
         }
       })
       .catch((err) => {
@@ -136,23 +132,14 @@ const AddTargets = () => {
             </Grid>
 
             <Grid item xs={12} classes={classes.MuiGridItem}>
-              {/* <TextField
-                fullWidth
-                label="Target"
-                margin="normal"
-                name="Ringba_Targets_Name"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
-                required={true}
-              /> */}
-
               <MultiSelect
                 name="Ringba_Targets_Name"
-                onChange={handleOnchange}
+                onChange={(val) =>
+                  targetHandleChange(val, "Ringba_Targets_Name")
+                }
                 options={options}
-                className={classes.multiselect}
                 placeholder="Select Targets"
+                style={{ width: '100%' }}
               />
             </Grid>
 
@@ -160,7 +147,6 @@ const AddTargets = () => {
               <TextField
                 fullWidth
                 label="Description"
-                margin="normal"
                 name="Description"
                 onChange={handleChange}
                 type="text"

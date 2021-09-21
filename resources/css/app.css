@@ -20,9 +20,9 @@ div::-webkit-scrollbar-thumb {
   border: 3px solid white; /* creates padding around scroll thumb */
 }
 
-.layout main {
+/* .layout main {
   overflow: auto;
-}
+} */
  .makeStyles-menuText-16 .MuiTypography-body1 {
   font-weight: bold !important;
 }
@@ -68,9 +68,9 @@ div::-webkit-scrollbar-thumb {
   margin-left: 0!important;
 }
 
-.add-target .MuiGrid-item {
+/* .add-target .MuiGrid-item {
   padding: 4px !important;
-}
+} */
 
 /*ka-table*/
 .ka {
@@ -279,8 +279,12 @@ div::-webkit-scrollbar-thumb {
 }
 .ka-paging-page-index,
 .ka-paging-size {
-  width: 30px !important;
-  height: 30px !important;
+  width: 35px !important;
+  height: 35px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
 }
 .ka-paging-page-index:hover {
   background-color: #f1f5f7;

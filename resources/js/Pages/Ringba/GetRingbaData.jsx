@@ -11,13 +11,9 @@ import {
 } from "@material-ui/core";
 import { Helmet } from "react-helmet";
 import { currentDate } from "../../Helpers/CurrentDate";
+import { usePage } from "@inertiajs/inertia-react";
 
-// import {
-//   MuiPickersUtilsProvider,
-//   KeyboardTimePicker,
-//   KeyboardDatePicker,
-// } from "@material-ui/pickers";
-// import DateFnsUtils from "@date-io/date-fns";
+
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
@@ -50,9 +46,10 @@ const useStyles = makeStyles((theme) => ({
 
 const GetRingbaData = () => {
   const classes = useStyles();
+  const { lastDataFetchedDate } = usePage().props;
   const [values, setValues] = useState({
-    start_date:currentDate(),
-    end_date:currentDate(),
+    start_date: lastDataFetchedDate[0].end_date,
+    end_date: currentDate(),
   });
   const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
@@ -62,7 +59,6 @@ const GetRingbaData = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -72,21 +68,19 @@ const GetRingbaData = () => {
       },
     });
   };
-
   return (
     <div>
       <Helmet title="Get Ringba Data" />
-
       <Paper className={classes.container}>
         <Typography variant="h5" className={classes.title}>
           Fetch Ringba Data
         </Typography>
-        <form validate='true' onSubmit={handleSubmit}>
+        <form validate="true" onSubmit={handleSubmit}>
           <TextField
             id="date"
-            label="Start Date"
+            label="Data has been fetched up to this date"
             type="date"
-            name="startDate"
+            name="start_date"
             onChange={handleChange}
             defaultValue={values.start_date}
             className={classes.textField}
@@ -95,12 +89,12 @@ const GetRingbaData = () => {
             }}
             required
           />
-    
+
           <TextField
             id="date"
             label="End Date"
             type="date"
-            name="endDate"
+            name="end_date"
             defaultValue={values.end_date}
             className={classes.textField}
             onChange={handleChange}

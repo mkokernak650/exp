@@ -17,7 +17,7 @@ class CreateRingbaDataFetchedLogsTable extends Migration
             $table->id();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->string('total_data');
+            $table->string('total_data')->nullable()->change();
             $table->timestamps();
         });
     }

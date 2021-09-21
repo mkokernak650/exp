@@ -1159,11 +1159,7 @@ const BilledCallLogs = () => {
   const dataArray = billedCallLogs.map((item, index) => ({
     sl: index + 1,
     SN: item.SN,
-    Recording_Url: (
-      <a target="_blank" href={item.Recording_Url}>
-        Recording URL
-      </a>
-    ),
+    Recording_Url: item.Recording_Url,
     Added_Time: item.created_at,
     Call_Date_Time: item.Call_Date_Time,
     Call_Date: item.Call_Date,
@@ -1388,7 +1384,7 @@ const BilledCallLogs = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [5, 10, 15],
+      pageSizes: [10,20,50,100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -1396,7 +1392,15 @@ const BilledCallLogs = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "Recording_Url") {
+        return (
+          <a target="_blank" href={value}>
+            Recording URL
+          </a>
+        );
+      }
+    },
   };
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);

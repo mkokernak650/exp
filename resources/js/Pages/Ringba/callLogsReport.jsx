@@ -1383,7 +1383,7 @@ const CallLogsReport = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [5, 10, 15],
+      pageSizes: [10,20,50,100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -1402,6 +1402,8 @@ const CallLogsReport = () => {
       }
     },
   };
+
+  console.log(tablePropsInit)
 
   const [tableProps, changeTableProps] = useState(tablePropsInit);
 

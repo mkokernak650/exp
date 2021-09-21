@@ -18,7 +18,8 @@ use App\Models\{
     ZipCodeData,
     Exception,
     MarketExcptions,
-    ZipcodeByTelevisionMarket
+    ZipcodeByTelevisionMarket,
+    RingbaDataFetchedLog
 };
 
 class RingbaCallLogController extends Controller
@@ -75,7 +76,10 @@ class RingbaCallLogController extends Controller
 
     public function getRingbaDataForm()
     {
-        return Inertia::render("Ringba/GetRingbaData");
+        $lastDataFetchedDate = RingbaDataFetchedLog::all();
+        return Inertia::render("Ringba/GetRingbaData", [
+            'lastDataFetchedDate' => $lastDataFetchedDate,
+        ]);
     }
     /**
      * for move data from Ringba temporary table id
@@ -545,6 +549,7 @@ class RingbaCallLogController extends Controller
      */
     public function dateWiseData(Request $request)
     {
+
         $get_past_days_range = null;
         $get_days_range = null;
 
@@ -571,6 +576,12 @@ class RingbaCallLogController extends Controller
         }
 
         self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
+
+        RingbaDataFetchedLog::truncate();
+        RingbaDataFetchedLog::create([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ]);
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
