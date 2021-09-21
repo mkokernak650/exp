@@ -531,7 +531,7 @@ class RingbaCallLogController extends Controller
         $all_customer = Customer::all();
         $customer_arr = [];
         foreach ($all_customer as $cus) {
-            array_push($customer_arr, $cus->Customer);
+            array_push($customer_arr, $cus->customer_name);
         }
 
         foreach ($get_customers as $customer) {

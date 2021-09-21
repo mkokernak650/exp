@@ -42,6 +42,7 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 // Route::post('login')->name('login')->uses('Auth\LoginController@login');
 // Auth::routes();
+Route::get('/get-customer', [RingbaCallLogController::class, 'getCustomer']);
 
 // TODO Home Controller
 Route::get('/home', [HomeController::class, 'index'])
