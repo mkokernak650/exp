@@ -82,7 +82,7 @@ class TargetController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
-    
+
     // fetch data by secdule
     public static function getAllTarget()
     {
@@ -94,6 +94,8 @@ class TargetController extends Controller
         foreach ($targets as $target) {
             array_push($all_target_name, $target->target_name);
         }
+
+        dd('from db', $all_target_name, 'from api', $results);
         foreach ($results as $row) {
             $target = new TargetNames();
             if (!in_array($row->name, $all_target_name)) {
