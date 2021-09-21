@@ -66,7 +66,7 @@ const MarketExceptionForm = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("add-market-exception"), values)
+      .post(route("add.market.exception"), values)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {

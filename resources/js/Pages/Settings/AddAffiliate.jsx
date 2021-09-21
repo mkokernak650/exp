@@ -63,7 +63,7 @@ const AddAffiliate = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("store-affiliate"), values)
+      .post(route("store.affiliate"), values)
       .then((res) => {
         if (res.status === 200) {
           setLoading(false);

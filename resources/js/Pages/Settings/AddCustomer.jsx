@@ -63,7 +63,7 @@ const AddCustomer = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("store-customer"), values)
+      .post(route("store.customer"), values)
       .then((res) => {
         if (res.status === 200) {
           setLoading(false);

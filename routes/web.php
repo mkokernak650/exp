@@ -89,13 +89,13 @@ Route::get('/get-ringba-data', [RingbaCallLogController::class, 'getRingbaDataFo
 
 // TODO market exception controllet
 Route::post('/add-market-exception', [MarketExceptionController::class, 'addMarketException'])
-    ->name('add-market-exception');
+    ->name('add.market.exception');
 
 Route::get('/market-exception-form', [MarketExceptionController::class, 'marketExceptionForm'])
-    ->name('market-exception-form');
+    ->name('market.exception.form');
 
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])
-    ->name('market-exception-report');
+    ->name('market.exception.report');
 
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
     ->name('market.exception.edit');
@@ -111,11 +111,11 @@ Route::post('/market-exception-import', [MarketExceptionController::class, 'impo
 
 
 //TODO Market Controllet
-Route::post('/store-market', [MarketController::class, 'addMarket'])
-    ->name('store-market');
+// Route::post('/store-market', [MarketController::class, 'addMarket'])
+//     ->name('store-market');
 
-Route::get('/market-report', [MarketController::class, 'marketReport'])
-    ->name('market-report');
+// Route::get('/market-report', [MarketController::class, 'marketReport'])
+//     ->name('market-report');
 
 Route::get('market-export/{type}', [MarketController::class, 'export'])
     ->name('market.export');
@@ -135,7 +135,7 @@ Route::get('/customer-report', [CustomerController::class, 'customerReport'])
     ->name('customer.report');
 
 Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])
-    ->name('store-customer');
+    ->name('store.customer');
 Route::post('/customer-delete', [CustomerController::class, 'delete'])
     ->name('customer.delete');
 
@@ -158,7 +158,7 @@ Route::get('customer-export/{type}', [CustomerController::class, 'export'])
     ->name('add.affiliate');
 
 Route::post('/store-affiliate', [AffiliateController::class, 'storeAffiliate'])
-    ->name('store-affiliate');
+    ->name('store.affiliate');
 
 Route::get('/affiliate-report', [AffiliateController::class, 'affiliateReport'])
     ->name('affiliate.report');
@@ -225,7 +225,7 @@ Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketContr
 
 // TODO Zipcodedata Controller
 Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])
-    ->name('zipcode-data');
+    ->name('zipcode.data');
 
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])
     ->name('zipcode.data.import');

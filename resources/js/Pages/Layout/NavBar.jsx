@@ -321,12 +321,12 @@ export default function PersistentDrawerLeft(props) {
       submenu: [
         {
           title: "Add Market Exception",
-          href: "market-exception-form",
+          href: "market.exception.form",
           // Icon: <UserIcon />,
         },
         {
           title: "Market Exception Report",
-          href: "market-exception-report",
+          href: "market.exception.report",
           Icon: <UserIcon />,
         },
         {
@@ -379,7 +379,7 @@ export default function PersistentDrawerLeft(props) {
 
         {
           title: "Zipcode Database",
-          href: "zipcode-data",
+          href: "zipcode.data",
           Icon: <UserIcon />,
         },
 
