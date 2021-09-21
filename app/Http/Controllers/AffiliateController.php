@@ -69,7 +69,13 @@ class AffiliateController extends Controller
 
     public function storeAffiliate(Request $request)
     {
-        $existData = Affiliate::where('affiliate_id', $request->affiliate_id)->where('affiliate_name', $request->affiliate_name)->where('email', $request->email)->where('telephone', $request->telephone)->where('address', $request->address)->count();
+        $existData = Affiliate::where([
+            ['affiliate_id', '=', $request->affiliate_id],
+            ['affiliate_name', '=', $request->affiliate_name],
+            ['email', '=', $request->email],
+            ['telephone', '=', $request->telephone],
+            ['address', '=', $request->address]
+        ])->count();
         if ($existData > 0) {
             return response()->json(["msg" => "Cutomer already exists"]);
         }
@@ -172,4 +178,5 @@ class AffiliateController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
+
 }

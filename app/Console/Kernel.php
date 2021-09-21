@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('getdata:daily')->everyMinute();
+        $schedule->command('getdata:daily')->daily();
 
         // get Rinba data 
         // $schedule->call( function (){
