@@ -149,26 +149,31 @@ class ExceptionController extends Controller
     {
         $inboundIds = $request->inboundIds;
 
-        $result = false;
+        $msg = [];
         if (is_array($inboundIds)) {
             $i = 0;
-
             while ($i < count($inboundIds)) {
                 $archivedCallLog = new ArchivedCallLog();
-                if (!findDataByInboundId($archivedCallLog, $inboundIds[$i])) {
+                $exception = new Exception();
 
-                    $dataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
+                if (findDataByInboundId($archivedCallLog, $inboundIds[$i]) === null) {
+
+                    $dataById = findDataByInboundId($exception, $inboundIds[$i]);
                     $archivedCallLog->call_Logs_status = 'Archive';
                     $result = dataMoveHelper($archivedCallLog, $dataById);
+                    if ($result) {
+                        $msg = ["msg" => "Data moved to Archive successfully", "status_code" => 200];
+                    } else {
+                        $msg = ["msg" => "Data moving failed", "status_code" => 500];
+                    }
+                } else {
+                    $msg = ["msg" => "Data already exixts", "status_code" => 500];
                 }
                 $i++;
             }
         }
-        if ($result) {
-            return response()->json(["msg" => "Data moved to Archive successfully", "status_code" => 200]);
-        } else {
-            return response()->json(["msg" => "Data moving failed", "status_code" => 500]);
-        }
+
+        return response()->json($msg);
     }
 
     /**

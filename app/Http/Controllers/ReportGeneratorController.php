@@ -6,14 +6,10 @@ use App\Models\{
     ArchivedCallLog,
     BilledCallLog,
     MarketExcptions,
-    ReportGenerator,
-    RingbaCallLog
+    RingbaCallLog,
+    Exception
 };
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-
-use function PHPUnit\Framework\isEmpty;
 
 class ReportGeneratorController extends Controller
 {
@@ -55,6 +51,7 @@ class ReportGeneratorController extends Controller
             $billed = $this->fetchAffiliatData(new BilledCallLog(), $condition, $affiliate_ids);
             $archived = $this->fetchAffiliatData(new ArchivedCallLog(), $condition, $affiliate_ids);
         }
+        // for billed
         foreach ($billed as $bill) {
             array_push($newData, $bill);
             if (!empty($bill->Annotation_Tag)) {
@@ -70,6 +67,7 @@ class ReportGeneratorController extends Controller
             $total_payment += $bill->payoutAmount;
             $target = $bill->Target_Description;
         }
+        // for archived
         if (!empty($archived)) {
             foreach ($archived as $ar) {
                 array_push($newData, $ar);
@@ -92,6 +90,7 @@ class ReportGeneratorController extends Controller
             $tag_count['archive_call'] = $archive_call;
         }
 
+
         $avg_payout_amount = $total_payment > 0 ? $total_payment / $total_call : 0;
 
         $call_summary['data_range']             = $data_range;
@@ -107,6 +106,7 @@ class ReportGeneratorController extends Controller
             'tag_count'     => $tag_count
         ];
     }
+
     //TODO target report generate
     public function targetReport(Request $request)
     {
@@ -147,8 +147,10 @@ class ReportGeneratorController extends Controller
         } else {
             $billed = $this->targetReportData(new BilledCallLog(), $condition);
             $archived = $this->targetReportData(new ArchivedCallLog(), $condition);
+            $exceptions = $this->targetReportData(new Exception(), $condition);
         }
 
+        // for billed
         foreach ($billed as $bill) {
 
             array_push($newData, $bill);
@@ -166,6 +168,8 @@ class ReportGeneratorController extends Controller
             $total_seconds  += $bill->Conn_Duration;
             $total_revenue  += $bill->Revenue;
         }
+
+        // for archived
         if (!empty($archived)) {
             foreach ($archived as $archive) {
                 array_push($newData, $archive);
@@ -186,6 +190,30 @@ class ReportGeneratorController extends Controller
                 $total_call++;
                 $total_seconds  += $archive->Conn_Duration;
                 $total_revenue  += $archive->Revenue;
+            }
+            $tag_count['archive_call'] = $archive_call;
+        }
+        // for exceptions
+        if (!empty($$exceptions)) {
+            foreach ($$exceptions as $$exception) {
+                array_push($newData, $exception);
+
+                if (empty($exception->Annotation_Tag)) {
+                    $archive_call['qty'] += 1;
+                    $archive_call['revenue'] += $exception->Revenue;
+                }
+                if (!empty($exception->Annotation_Tag)) {
+                    array_push($annotation_tag, $exception->Annotation_Tag);
+                }
+                if (in_array($exception->Annotation_Tag, $annotation_tag)) {
+                    $tag_count[$exception->Annotation_Tag]['name'] = $exception->Annotation_Tag;
+                    $tag_count[$exception->Annotation_Tag]['qty'] = (isset($tag_count[$exception->Annotation_Tag]['qty']) ? $tag_count[$exception->Annotation_Tag]['qty'] : 0) + 1;
+                    $tag_count[$exception->Annotation_Tag]['revenue']  = (isset($tag_count[$exception->Annotation_Tag]['revenue']) ? $tag_count[$exception->Annotation_Tag]['revenue'] : 0) + $exception->Revenue;
+                }
+
+                $total_call++;
+                $total_seconds  += $exception->Conn_Duration;
+                $total_revenue  += $exception->Revenue;
             }
             $tag_count['archive_call'] = $archive_call;
         }
@@ -237,7 +265,7 @@ class ReportGeneratorController extends Controller
             $total_call     = 0;
             $total_seconds  = 0;
             $total_revenue  = 1;
-            
+
             // category of calls
             $annotation_tag = [];
             $tag_count = [];

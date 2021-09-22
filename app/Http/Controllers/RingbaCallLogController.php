@@ -613,7 +613,7 @@ class RingbaCallLogController extends Controller
     public function callLogsReport()
     {
         return Inertia::render('Ringba/callLogsReport', [
-            'allCallLogs' => self::$RingbaCallLog::all(),
+            'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'DESC')->get(),
         ]);
     }
 
