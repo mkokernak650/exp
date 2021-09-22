@@ -113,15 +113,40 @@ class ReportGeneratorController extends Controller
         $newData        = [];
         $report_type    = $request->type; // billed or general
         $customer_name  = $request->customer_name;
-        // $target_name    = "Legacy Health-Charter";
-        $target_name    = $request->target_name;
-        $start_date     = date('Y-m-d', strtotime($request->start_date));
-        $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-        $archived       = [];
-        $call_summary   = [];
+        $affiliate_ids  = $request->affiliate_id; // array
+        $target_name    = $request->target_name; // array
+        $annotation     = $request->annotation;
+        $campaign       = $request->campaign;
 
         // summary of calls
-        $data_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+        $archived       = [];
+        $call_summary   = [];
+        $condition      = [];
+
+        if ($request->start_date !== null && $request->end_date !== null) {
+            $start_date     = date('Y-m-d', strtotime($request->start_date));
+            $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
+            $data_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $call_summary['data_range']  = $data_range;
+            $condition[]    = ['Call_Date', '>=', $start_date];
+            $condition[]    = ['Call_Date', '<=', $end_date];
+        }
+        if ($campaign !== null) {
+            $condition[] = ['Campaign', '=', $campaign];
+        }
+        if ($annotation !== null) {
+            $condition[] = ['Has_Annotation', '=', $annotation];
+        }
+        if ($customer_name !== null) {
+            $condition[] =  ['Customer', '=', $customer_name];
+        }
+        if (!empty($affiliate_ids)) {
+            $condition[] = ['Affiliate_Id', 'in', $affiliate_ids];
+        }
+        if (!empty($target_name)) {
+            $condition[] = ['Target', 'in', $target_name];
+        }
+
         $total_call     = 0;
         $total_seconds  = 0;
         $total_revenue  = 1;
@@ -132,21 +157,11 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
 
-        $condition = [
-            ['Customer', '=', $customer_name],
-            ['Call_Date', '>=', $start_date],
-            ['Call_Date', '<=', $end_date]
-        ];
-
-        if ($target_name !== '' && $target_name !== null) {
-            $condition[] = ['Target', '=', $target_name];
-        }
-
         if ($report_type === 'billed') {
             $billed = $this->targetReportData(new BilledCallLog(), $condition);
         } else {
-            $billed = $this->targetReportData(new BilledCallLog(), $condition);
-            $archived = $this->targetReportData(new ArchivedCallLog(), $condition);
+            $billed     = $this->targetReportData(new BilledCallLog(), $condition);
+            $archived   = $this->targetReportData(new ArchivedCallLog(), $condition);
             $exceptions = $this->targetReportData(new Exception(), $condition);
         }
 
@@ -217,15 +232,17 @@ class ReportGeneratorController extends Controller
             }
             $tag_count['archive_call'] = $archive_call;
         }
-
+        dd($newData);
         $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
 
-        $call_summary['data_range']             = $data_range;
+
         $call_summary['total_call']             = $total_call;
         $call_summary['total_minutes']          = secondToMinutes($total_seconds);
 
         $call_summary['total_revenue']          = (float) number_format($total_revenue, 2, '.', '');
         $call_summary['avg_revenue_amount']     = (float) number_format($avg_revenue_amount, 2, '.', '');
+
+ 
 
         return [
             'data'          => $newData,
