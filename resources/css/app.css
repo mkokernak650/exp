@@ -20,9 +20,9 @@ div::-webkit-scrollbar-thumb {
   border: 3px solid white; /* creates padding around scroll thumb */
 }
 
-/* .layout main {
+.layout main {
   overflow: auto;
-} */
+}
  .makeStyles-menuText-16 .MuiTypography-body1 {
   font-weight: bold !important;
 }

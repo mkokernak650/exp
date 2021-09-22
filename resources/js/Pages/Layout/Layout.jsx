@@ -1,14 +1,8 @@
-import SideBar from './SideBar';
-import NavBar from './NavBar';
-import { useState } from 'react'
+import NavBar from "./NavBar";
 export default function Layout({ title, children }) {
-    const [isMobileNavOpen, setMobileNavOpen] = useState(false);
-    return (
-        <div className='layout'>
-            <NavBar  main={children}/>
-            {/* <div className="main">
-                <SideBar onMobileClose={() => setMobileNavOpen(false)} openMobile={isMobileNavOpen} main={children}/>
-            </div> */}
-        </div>
-    )
+  return (
+    <div className="layout">
+      <NavBar main={children} />
+    </div>
+  );
 }

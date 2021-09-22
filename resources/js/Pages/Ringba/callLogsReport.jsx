@@ -1383,7 +1383,7 @@ const CallLogsReport = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -1391,7 +1391,6 @@ const CallLogsReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
     format: ({ column, value }) => {
       if (column.key === "Recording_Url") {
         return (
@@ -1401,11 +1400,18 @@ const CallLogsReport = () => {
         );
       }
     },
+    // loading: {
+    //   enabled: true,
+    //   text: 'Loading data'
+    // },
   };
 
-  console.log(tablePropsInit)
-
-  const [tableProps, changeTableProps] = useState(tablePropsInit);
+  const OPTION_KEY = "call-logs-report";
+  const stateStore = {
+    ...tablePropsInit,
+    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
+  };
+  const [tableProps, changeTableProps] = useState(stateStore);
 
   const SelectionCell = ({
     rowKeyValue,
@@ -1479,8 +1485,14 @@ const CallLogsReport = () => {
       />
     );
   };
+
   const dispatch = (action) => {
-    changeTableProps((prevState) => kaReducer(prevState, action));
+    changeTableProps((prevState) => {
+      const newState = kaReducer(prevState, action);
+      const { data, ...settingsWithoutData } = newState;
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
+      return newState;
+    });
   };
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
@@ -1750,7 +1762,6 @@ const CallLogsReport = () => {
   return (
     <>
       <Helmet title="Call Logs Report" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -1824,9 +1835,21 @@ const CallLogsReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
+                }
+              },
+
+              elementAttributes: (props) => {
+                if (props.column.key === "SN") {
+                  return {
+                    style: {
+                      ...props.column.style,
+                      position: "sticky",
+                      left: 0,
+                      zIndex: 10,
+                    },
+                  };
                 }
               },
             },
@@ -1841,6 +1864,19 @@ const CallLogsReport = () => {
                         alt="draggable"
                       />
                     );
+                }
+              },
+
+              elementAttributes: (props) => {
+                if (props.column.key === "SN") {
+                  return {
+                    style: {
+                      ...props.column.style,
+                      position: "sticky",
+                      left: 0,
+                      backgroundColor: "#fff",
+                    },
+                  };
                 }
               },
             },

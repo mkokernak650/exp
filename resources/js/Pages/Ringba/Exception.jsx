@@ -1401,7 +1401,12 @@ const Exceptions = () => {
     },
   };
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit);
+  const OPTION_KEY = "exception-report";
+  const stateStore = {
+    ...tablePropsInit,
+    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
+  };
+  const [tableProps, changeTableProps] = useState(stateStore);
 
   const SelectionCell = ({
     rowKeyValue,
@@ -1478,7 +1483,12 @@ const Exceptions = () => {
     );
   };
   const dispatch = (action) => {
-    changeTableProps((prevState) => kaReducer(prevState, action));
+    changeTableProps((prevState) => {
+      const newState = kaReducer(prevState, action);
+      const { data, ...settingsWithoutData } = newState;
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
+      return newState;
+    });
   };
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
