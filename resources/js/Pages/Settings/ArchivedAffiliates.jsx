@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -283,6 +283,8 @@ const ArchivedAffiliates = () => {
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
 
   const dataArray = allAffiliates.map((item, index) => ({
     edit: item.id,
@@ -407,7 +409,7 @@ const ArchivedAffiliates = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -493,7 +495,6 @@ const ArchivedAffiliates = () => {
     setShowModal({ open: true });
   };
 
-  
   const handleActive = () => {
     axios
       .post(route("active.affiliate"), { selectedRowIds })
@@ -509,10 +510,12 @@ const ArchivedAffiliates = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setselectedRowIds([]);
+          emptyCheckbox();
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setselectedRowIds([]);
+          emptyCheckbox();
         }
       })
       .catch((err) => {});
@@ -551,16 +554,63 @@ const ArchivedAffiliates = () => {
     setShowModal({ open: false });
   };
 
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  };
+
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("archived-affiliate"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("archived-affiliate"));
+    storedData.selectedRows = [];
+    localStorage.setItem("archived-affiliate", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+        {/* <Tooltip title="Delete">
+        <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
-        </Tooltip>
+        </Tooltip> */}
 
         <Button
           variant="contained"
@@ -641,7 +691,11 @@ const ArchivedAffiliates = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>

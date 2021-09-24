@@ -124,6 +124,7 @@ const GenerateReportAffiliate = () => {
     ...endDate,
   };
 
+
   let affiliate_name = "";
   if (values?.affiliate_id) {
     let i = 0;

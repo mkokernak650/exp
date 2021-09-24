@@ -1,7 +1,8 @@
 import Layout from "../Layout/Layout";
 // import "./Demo.scss";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -40,10 +41,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
+import { Button, makeStyles, Snackbar } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import NormalModal from "../../Shared/NormalModal";
+import MuiAlert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -60,6 +62,10 @@ const useStyles = makeStyles(() => ({
     marginTop: "15px",
   },
 }));
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 export const fields = [
   {
     caption: "customer",
@@ -205,6 +211,10 @@ const Targets = () => {
   const [selectedRowIds, setselectedRowIds] = useState([]);
   const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
 
   const dataArray = allTargets.map((item, index) => ({
     edit: item.id,
@@ -316,7 +326,7 @@ const Targets = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -351,13 +361,19 @@ const Targets = () => {
       return newState;
     });
   };
+
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
   };
 
   const [serachSidebar, setSearchSidebar] = useState(false);
-
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
   const handleSearch = () => {
     setSearchSidebar((prevState) => !prevState);
   };
@@ -381,11 +397,24 @@ const Targets = () => {
           changeTableProps(filteredData);
           setselectedRowIds([]);
           setTableToolbar(false);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
+          setOpen(true);
+          setResponse(res.data.msg);
         } else {
-          console.log(res.data.msg);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
+          setOpen(true);
+          setResponse(res.data.msg);
         }
       })
       .catch((err) => {
+        setselectedRowIds([]);
+        setTableToolbar(false);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
         console.log(err);
       });
   };
@@ -430,13 +459,60 @@ const Targets = () => {
     setShowModal({ open: false });
   };
 
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  };
+
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("target-report"));
+    storedData.selectedRows = [];
+    localStorage.setItem("target-report", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("target-report"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
+
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -510,7 +586,11 @@ const Targets = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -604,6 +684,15 @@ const Targets = () => {
         />
       </div>
 
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        className={classes.snackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success">{response}</Alert>
+      </Snackbar>
       <NormalModal
         open={showModal.open}
         setOpen={setShowModal}
@@ -653,6 +742,37 @@ const Targets = () => {
           </form>
 
           <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
+
+      <NormalModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        width={"450px"}
+        title={""}
+      >
+        <div className="clear-revenue-payout">
+          <span>
+            {selectedRowIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"}
+          </span>
+          <div className="button">
+            <Button variant="contained" color="primary" onClick={deleteHandler}>
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeleteCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>

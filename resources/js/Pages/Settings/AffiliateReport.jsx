@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -283,6 +283,8 @@ const AffiliateReport = () => {
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
 
   const dataArray = allAffiliates.map((item, index) => ({
     edit: item.id,
@@ -407,7 +409,7 @@ const AffiliateReport = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -475,12 +477,26 @@ const AffiliateReport = () => {
           changeTableProps(filteredData);
           setselectedRowIds([]);
           setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
         } else {
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
           console.log(res.data.msg);
         }
       })
       .catch((err) => {
         console.log(err);
+        setselectedRowIds([]);
+        setTableToolbar(false);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
       });
   };
 
@@ -508,10 +524,12 @@ const AffiliateReport = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setselectedRowIds([]);
+          emptyCheckbox();
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setselectedRowIds([]);
+          emptyCheckbox();
         }
       })
       .catch((err) => {});
@@ -550,13 +568,59 @@ const AffiliateReport = () => {
     setShowModal({ open: false });
   };
 
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  };
+
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("affiliate-report"));
+    storedData.selectedRows = [];
+    localStorage.setItem("affiliate-report", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("affiliate-report"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -640,7 +704,11 @@ const AffiliateReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -814,6 +882,37 @@ const AffiliateReport = () => {
           </form>
 
           <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
+
+      <NormalModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        width={"450px"}
+        title={""}
+      >
+        <div className="clear-revenue-payout">
+          <span>
+            {selectedRowIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"}
+          </span>
+          <div className="button">
+            <Button variant="contained" color="primary" onClick={deleteHandler}>
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeleteCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>

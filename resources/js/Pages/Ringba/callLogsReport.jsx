@@ -1161,9 +1161,9 @@ const CallLogsReport = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
   const rowFunctionalitiesRef = useRef();
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
   let [color, setColor] = useState("#36D7B7");
-  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
@@ -1571,12 +1571,16 @@ const CallLogsReport = () => {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
+          emptyCheckbox();
+
         } else {
           setOpen(true);
           setResponse(res.data.msg);
           setselectedRowIds([]);
           setInbounIds([]);
           setShowDeleteModal({ open: false });
+          emptyCheckbox();
+
         }
       })
       .catch((err) => {
@@ -1585,6 +1589,8 @@ const CallLogsReport = () => {
         setselectedRowIds([]);
         setInbounIds([]);
         setShowDeleteModal({ open: false });
+        emptyCheckbox();
+
       });
   };
 
@@ -1608,6 +1614,10 @@ const CallLogsReport = () => {
         } else {
           setResponse(res.data.msg);
           setOpen(true);
+          setInbounIds([]);
+          setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
+
         }
       })
       .catch((err) => {});
@@ -1701,7 +1711,7 @@ const CallLogsReport = () => {
 
   const handleClear = (inboundIds) => {
     axios
-      .post(route("revenue.update"), { inboundIds })
+      .post(route("exception.revenue.update"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
@@ -1755,11 +1765,13 @@ const CallLogsReport = () => {
   };
 
   useEffect(() => {
-    window.onload  = function () {
-      emptyCheckbox();
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("call-logs-report"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
     };
   }, []);
-  
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true });
   };
@@ -1874,6 +1886,7 @@ const CallLogsReport = () => {
             <PulseLoader color={color} loading={annotationLoading} size={5} />
           </span>
           <span onClick={handleRevenueOpenModal}>Clear</span>
+          {/* <span onClick={handleDeleteOpenModal}>Delete</span> */}
         </div>
       </div>
     );

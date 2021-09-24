@@ -387,4 +387,10 @@ class ExceptionController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
+
+    public function updateRevenue(Request $request)
+    {
+        Exception::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue'=>'','payoutAmount'=>'']);
+       
+    }
 }

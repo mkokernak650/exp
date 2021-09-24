@@ -471,11 +471,11 @@ const ArchivedCustomers = () => {
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
-        <Tooltip title="Delete">
+        {/* <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={deleteHandler}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
-        </Tooltip>
+        </Tooltip> */}
 
         <Button
           variant="contained"

@@ -25,6 +25,7 @@ import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Cancel from "../../../images/Cancel.svg";
+import Edit from "../../../images/three-dots.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -917,7 +918,21 @@ const ArchivedCallLogReports = () => {
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
+  const rowFunctionalitiesRef = useRef();
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
+  const [editData, setEditData] = useState([]);
+
+  const style = {
+    top: position.y < 650 ? position.y - 79 : position.y - 275,
+  };
+
+  const rowFunctionalitiesPosition = (e) => {
+    if (!openRowFunctionalities) {
+      setPosition({ x: e.screenX, y: e.screenY });
+    }
+  };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -925,6 +940,7 @@ const ArchivedCallLogReports = () => {
     setOpen(false);
   };
   const dataArray = archivedCallLogs.map((item, index) => ({
+    // edit: item.id,
     sl: index + 1,
     SN: item.SN,
     Campaign: item.Campaign,
@@ -955,6 +971,10 @@ const ArchivedCallLogReports = () => {
 
   const tablePropsInit = {
     columns: [
+      // {
+      //   key: "edit",
+      //   style: { width: 10 },
+      // },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -1111,7 +1131,18 @@ const ArchivedCallLogReports = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div
+            className="edit-icon"
+            onClick={() => handleRowFunctionalities(value)}
+          >
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
+    },
   };
 
   const OPTION_KEY = "archived-call-logs";
@@ -1236,16 +1267,22 @@ const ArchivedCallLogReports = () => {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
+          emptyCheckbox();
+
         } else {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
+          emptyCheckbox();
+
         }
       })
       .catch((err) => {
         console.log(err);
         setTableToolbar(false);
         setShowDeleteModal({ open: false });
+        emptyCheckbox();
+
       });
   };
 
@@ -1312,12 +1349,48 @@ const ArchivedCallLogReports = () => {
 
   useEffect(() => {
     window.onload = function () {
-      emptyCheckbox();
+      const storedData = JSON.parse(localStorage.getItem("archived-call-logs"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
     };
   }, []);
 
   useEffect(() => M.AutoInit());
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        openRowFunctionalities &&
+        rowFunctionalitiesRef.current &&
+        !rowFunctionalitiesRef.current.contains(e.target)
+      ) {
+        setOpenRowFunctionalities(false);
+      }
+    };
 
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [openRowFunctionalities]);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
@@ -1338,6 +1411,32 @@ const ArchivedCallLogReports = () => {
         </Button>
       </div>
     );
+  };
+
+  const RowFunctionalities = () => {
+    return (
+      <div
+        className="row-functionalities"
+        ref={rowFunctionalitiesRef}
+        style={style}
+      >
+        <div>
+          <span onClick={() => MoveCallLog}>Move CallLog</span>
+          {/* <span onClick={handleDeleteOpenModal}>Delete</span> */}
+        </div>
+      </div>
+    );
+  };
+
+  const handleRowFunctionalities = (id) => {
+    setOpenRowFunctionalities(true);
+    setShowColumns(false);
+    if (editData.length > 0) {
+      const itemIndx = editData.indexOf(id);
+      editData.splice(itemIndx, 1);
+    }
+    const tempData = tableProps.data.filter((item) => item.id == id);
+    editData.push(tempData[0].Inbound_Id);
   };
 
   const ColumnSettings = (tableProps) => {
@@ -1400,7 +1499,8 @@ const ArchivedCallLogReports = () => {
   return (
     <>
       <Helmet title="Archived CallLogs Report" />
-      <div className="selection-demo">
+      <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
+        {openRowFunctionalities ? <RowFunctionalities /> : ""}
         {tableToolbar ? (
           <TableToolbar />
         ) : (

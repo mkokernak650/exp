@@ -1,7 +1,6 @@
 import Layout from "../Layout/Layout";
-// import "./Demo.scss";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -36,7 +35,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
+import { Snackbar, Button, makeStyles } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import NormalModal from "../../Shared/NormalModal";
@@ -56,6 +56,10 @@ const useStyles = makeStyles(() => ({
     marginTop: "15px",
   },
 }));
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 export const fields = [
   {
     caption: "customer",
@@ -161,9 +165,19 @@ const MarketExceptionReport = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [response, setResponse] = useState();
   const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
   const handleEdit = (itemId) => {
     marketExceptions.filter((item) => {
       if (item.id === itemId) {
@@ -310,7 +324,7 @@ const MarketExceptionReport = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -373,14 +387,75 @@ const MarketExceptionReport = () => {
           changeTableProps(filteredData);
           setselectedRowIds([]);
           setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
         } else {
           console.log(res.data.msg);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
         }
       })
       .catch((err) => {
         console.log(err);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
       });
   };
+
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  };
+
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(
+      localStorage.getItem("market-exception-report")
+    );
+    storedData.selectedRows = [];
+    localStorage.setItem("market-exception-report", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(
+        localStorage.getItem("market-exception-report")
+      );
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
 
   useEffect(() => M.AutoInit());
 
@@ -388,7 +463,7 @@ const MarketExceptionReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -462,7 +537,11 @@ const MarketExceptionReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -555,6 +634,15 @@ const MarketExceptionReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
       </div>
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        className={classes.snackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success">{response}</Alert>
+      </Snackbar>
 
       <NormalModal
         open={showModal.open}
@@ -605,6 +693,37 @@ const MarketExceptionReport = () => {
           </form>
 
           <div onClick={handleCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
+
+      <NormalModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        width={"450px"}
+        title={""}
+      >
+        <div className="clear-revenue-payout">
+          <span>
+            {selectedRowIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"}
+          </span>
+          <div className="button">
+            <Button variant="contained" color="primary" onClick={deleteHandler}>
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeleteCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>

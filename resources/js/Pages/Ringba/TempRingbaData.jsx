@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -404,16 +404,19 @@ const TempRingbaData = () => {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
+          emptyCheckbox();
         } else {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
+          emptyCheckbox();
         }
       })
       .catch((err) => {
         console.log(err);
         setTableToolbar(false);
         setShowDeleteModal({ open: false });
+        emptyCheckbox();
       });
   };
 

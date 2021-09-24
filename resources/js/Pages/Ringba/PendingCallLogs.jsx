@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -24,6 +24,7 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
+import Cancel from "../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -39,6 +40,7 @@ import {
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import NormalModal from "../../Shared/NormalModal";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -1147,8 +1149,8 @@ const PendingCallLogsReport = () => {
   const [inboundIds, setInbounIds] = useState([]);
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [annotationLoading, setAnnotationLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1315,13 +1317,13 @@ const PendingCallLogsReport = () => {
         title: "Profit",
         dataType: DataType.String,
         style: { width: 120 },
-      }
+      },
     ],
     paging: {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -1453,14 +1455,20 @@ const PendingCallLogsReport = () => {
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
         } else {
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
         }
       })
       .catch((err) => {
         console.log(err);
         setTableToolbar(false);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
       });
   };
 
@@ -1512,6 +1520,52 @@ const PendingCallLogsReport = () => {
       .catch((err) => {});
   };
 
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  };
+
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("pending-call-logs"));
+    storedData.selectedRows = [];
+    localStorage.setItem("pending-call-logs", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("pending-call-logs"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
 
   useEffect(() => M.AutoInit());
 
@@ -1519,29 +1573,29 @@ const PendingCallLogsReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
 
         <Button
-            variant="contained"
-            type="submit"
-            color="primary"
-            className={classes.button}
-            onClick={MoveCallLog}
-          >
-            Move Call Log
-          </Button>
-          <Button
-            variant="contained"
-            type="submit"
-            color="primary"
-            className={classes.button}
-            onClick={handleBilled}
-          >
-            Billed
-          </Button>
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+          onClick={MoveCallLog}
+        >
+          Move Call Log
+        </Button>
+        <Button
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.button}
+          onClick={handleBilled}
+        >
+          Billed
+        </Button>
       </div>
     );
   };
@@ -1605,117 +1659,152 @@ const PendingCallLogsReport = () => {
 
   return (
     <>
-          <Helmet title="Pending Call Logs Report" />
+      <Helmet title="Pending Call Logs Report" />
 
-    <div className="selection-demo">
-      {tableToolbar ? (
-        <TableToolbar />
-      ) : (
-        <div className="table-top">
-          <div className="columns-show-hide" onClick={handleColumns}>
-            <img src={eyeIcon} alt="search"></img>
-          </div>
-          <div className="search-icon" onClick={handleSearch}>
-            <span>Search Here</span>
-            <img src={search} alt="search"></img>
-          </div>
+      <div className="selection-demo">
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
+          <div className="table-top">
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
+              <img src={eyeIcon} alt="search"></img>
+            </div>
+            <div className="search-icon" onClick={handleSearch}>
+              <span>Search Here</span>
+              <img src={search} alt="search"></img>
+            </div>
 
-          {serachSidebar ? (
-            <div className="search-sidebar">
-              <div className="search-top">
-                <div className="title">
-                  <span>Search</span>
+            {serachSidebar ? (
+              <div className="search-sidebar">
+                <div className="search-top">
+                  <div className="title">
+                    <span>Search</span>
+                  </div>
+                  <a className="close-nav" onClick={closeSidebar}>
+                    <img src={closeNav} alt="file not found"></img>
+                  </a>
                 </div>
-                <a className="close-nav" onClick={closeSidebar}>
-                  <img src={closeNav} alt="file not found"></img>
-                </a>
-              </div>
 
-              <div className="top-element">
-                <FilterControl
-                  {...{
-                    fields,
-                    groups,
-                    filterValue,
-                    onFilterValueChanged: onFilterChanged,
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
-          {showColumns ? (
-            <div className="column-settings">
-              <ColumnSettings {...tableProps} dispatch={dispatch} />
-            </div>
-          ) : (
-            ""
-          )}
-        </div>
-      )}
-      <Table
-        {...tableProps}
-        childComponents={{
-          cellText: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <SelectionCell {...props} />;
-              }
-            },
-          },
-          filterRowCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <></>;
-              }
-            },
-          },
-          headCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return (
-                  <SelectionHeader
-                    {...props}
-                    areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                      tableProps
-                    )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                <div className="top-element">
+                  <FilterControl
+                    {...{
+                      fields,
+                      groups,
+                      filterValue,
+                      onFilterValueChanged: onFilterChanged,
+                    }}
                   />
-                );
-              }
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+            {showColumns ? (
+              <div className="column-settings">
+                <ColumnSettings {...tableProps} dispatch={dispatch} />
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
+        )}
+        <Table
+          {...tableProps}
+          childComponents={{
+            cellText: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <SelectionCell {...props} />;
+                }
+              },
             },
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "drag":
+            filterRowCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <></>;
+                }
+              },
+            },
+            headCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
                   return (
-                    <img
-                      style={{ cursor: "move" }}
-                      src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                      alt="draggable"
+                    <SelectionHeader
+                      {...props}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                        tableProps
+                      )}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
-              }
+                }
+              },
             },
-          },
-        }}
-        dispatch={dispatch}
-        extendedFilter={(data) => filterData(data, filterValue)}
-      />
+            cell: {
+              content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return (
+                      <img
+                        style={{ cursor: "move" }}
+                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                        alt="draggable"
+                      />
+                    );
+                }
+              },
+            },
+          }}
+          dispatch={dispatch}
+          extendedFilter={(data) => filterData(data, filterValue)}
+        />
 
-      <Snackbar
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleClose}
-        className={classes.snackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        <Snackbar
+          open={open}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          className={classes.snackbar}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert severity="success">{response}</Alert>
+        </Snackbar>
+      </div>
+
+      <NormalModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        width={"450px"}
+        title={""}
       >
-        <Alert severity="success">{response}</Alert>
-      </Snackbar>
-    </div>
-  </>
+        <div className="clear-revenue-payout">
+          <span>
+            {inboundIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"}
+          </span>
+          <div className="button">
+            <Button variant="contained" color="primary" onClick={deleteHandler}>
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeleteCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
+    </>
   );
 };
 
