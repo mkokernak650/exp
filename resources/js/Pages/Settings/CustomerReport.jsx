@@ -27,7 +27,6 @@ import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Edit from "../../../images/edit1.svg";
 import Cancel from "../../../images/Cancel.svg";
-
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -208,7 +207,7 @@ const CustomerReport = () => {
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
-  console.log(allCustomers);
+
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
     sl: index + 1,

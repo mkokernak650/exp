@@ -650,22 +650,11 @@ class RingbaCallLogController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param array|string
      */
-    // public function delete(Request $request)
-    // {
-    //     // $inboundIds = [
-    //     //     'v2V3ujp1hFp_pzCCS2EPxnzp4Lw9JedEILh9VTXVW5pkvK50q6od32qg',
-    //     //     'v2hq53_0auhEZX6CPDhucjmQawmHBy_2PXJS_GRK0OwD2GOcSLOblZ_A'
-    //     // ];
-    //     $inboundIds = 'v2V3ujp1hFp_pzCCS2EPxnzp4Lw9JedEILh9VTXVW5pkvK50q6od32qg';
-    //     $data = deleteRecords(self::$RingbaCallLog, $inboundIds);
-    //     dd($data);
-    // }
+
 
     public function delete(Request $request)
     {
-        // $test=RingbaCallLog::all();
-        // $new=$test->where('id', $request->selectedRowIds[0])->first();
-        // dd($new);
+
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
@@ -692,5 +681,11 @@ class RingbaCallLogController extends Controller
         } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
+    }
+
+    public function updateRevenue(Request $request)
+    {
+      RingbaCallLog::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue'=>'','payoutAmount'=>'']);
+       
     }
 }

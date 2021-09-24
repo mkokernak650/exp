@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -24,6 +24,8 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
+import Cancel from "../../../images/Cancel.svg";
+import Edit from "../../../images/three-dots.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -39,6 +41,8 @@ import {
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import NormalModal from "../../Shared/NormalModal";
+import PulseLoader from "react-spinners/PulseLoader";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -1149,6 +1153,27 @@ const CallLogsReport = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [annotationLoading, setAnnotationLoading] = useState(false);
+  const [editData, setEditData] = useState([]);
+  const [sn, setSn] = useState("");
+  const [showRevenueClearModal, setShowRevenueClearModal] = useState({
+    open: false,
+  });
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
+  const rowFunctionalitiesRef = useRef();
+  const showColumnRef = useRef();
+  let [color, setColor] = useState("#36D7B7");
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const style = {
+    top: position.y < 650 ? position.y - 79 : position.y - 275,
+  };
+
+  const rowFunctionalitiesPosition = (e) => {
+    if (!openRowFunctionalities) {
+      setPosition({ x: e.screenX, y: e.screenY });
+    }
+  };
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1158,6 +1183,7 @@ const CallLogsReport = () => {
   };
   const dataArray = allCallLogs.map((item, index) => {
     return {
+      edit: item.id,
       sl: index + 1,
       SN: item.SN,
       Call_Date: item.Call_Date_Time,
@@ -1195,6 +1221,10 @@ const CallLogsReport = () => {
 
   const tablePropsInit = {
     columns: [
+      {
+        key: "edit",
+        style: { width: 10 },
+      },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -1392,6 +1422,16 @@ const CallLogsReport = () => {
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div
+            className="edit-icon"
+            onClick={() => handleRowFunctionalities(value)}
+          >
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
       if (column.key === "Recording_Url") {
         return (
           <a target="_blank" href={value}>
@@ -1504,9 +1544,9 @@ const CallLogsReport = () => {
   const handleSearch = () => {
     setSearchSidebar((prevState) => !prevState);
   };
-
   const handleColumns = () => {
     setShowColumns((prevState) => !prevState);
+    setOpenRowFunctionalities(false);
   };
   const hideCoumnSettings = () => {
     setShowColumns(false);
@@ -1514,6 +1554,7 @@ const CallLogsReport = () => {
   const closeSidebar = () => {
     setSearchSidebar(false);
   };
+
   const deleteHandler = () => {
     axios
       .post("call-logs-delete", { selectedRowIds })
@@ -1529,11 +1570,13 @@ const CallLogsReport = () => {
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
         } else {
           setOpen(true);
           setResponse(res.data.msg);
           setselectedRowIds([]);
           setInbounIds([]);
+          setShowDeleteModal({ open: false });
         }
       })
       .catch((err) => {
@@ -1541,10 +1584,11 @@ const CallLogsReport = () => {
         setTableToolbar(false);
         setselectedRowIds([]);
         setInbounIds([]);
+        setShowDeleteModal({ open: false });
       });
   };
 
-  const handlePending = () => {
+  const handlePending = (inboundIds) => {
     axios
       .post(route("add.pending.bill.call"), { inboundIds })
       .then((res) => {
@@ -1560,6 +1604,7 @@ const CallLogsReport = () => {
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
@@ -1568,7 +1613,7 @@ const CallLogsReport = () => {
       .catch((err) => {});
   };
 
-  const handleArchived = () => {
+  const handleArchived = (inboundIds) => {
     axios
       .post(route("add.arichived.bill.call"), { inboundIds })
       .then((res) => {
@@ -1584,6 +1629,7 @@ const CallLogsReport = () => {
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
@@ -1594,7 +1640,7 @@ const CallLogsReport = () => {
       .catch((err) => {});
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = (inboundIds) => {
     setLoading(true);
     axios
       .post(route("update-data"), { inboundIds })
@@ -1609,16 +1655,21 @@ const CallLogsReport = () => {
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
+          emptyCheckbox();
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          emptyCheckbox();
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        emptyCheckbox();
+      });
   };
-  const handleAnnotation = () => {
+  const handleAnnotation = (inboundIds) => {
     setAnnotationLoading(true);
     axios
       .post(route("update.annotation"), { inboundIds })
@@ -1633,23 +1684,91 @@ const CallLogsReport = () => {
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
+          emptyCheckbox();
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          emptyCheckbox();
+        }
+      })
+      .catch((err) => {
+        emptyCheckbox();
+      });
+  };
+
+  const handleClear = (inboundIds) => {
+    axios
+      .post(route("revenue.update"), { inboundIds })
+      .then((res) => {
+        if (res.status === 200) {
+          setResponse("Successfully Updated");
+          setOpen(true);
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.Inbound_Id === editData[0]) {
+              filteredData.data[indx].Revenue = "";
+              filteredData.data[indx].Payout = "";
+            }
+          });
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+        } else {
+          setResponse(res.data.msg);
+          setOpen(true);
         }
       })
       .catch((err) => {});
   };
+  const handleRevenueCloseModal = () => {
+    setShowRevenueClearModal({ open: false });
+    setOpenRowFunctionalities(false);
+  };
 
+  const handleRevenueOpenModal = () => {
+    let filteredData = tableProps;
+    filteredData.data.filter((item) => {
+      if (item.Inbound_Id === editData[0]) {
+        setSn(item.SN);
+      }
+    });
+    setShowRevenueClearModal({ open: true });
+  };
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setOpenRowFunctionalities(false);
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    setInbounIds([]);
+    emptyCheckbox();
+  };
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("call-logs-report"));
+    storedData.selectedRows = [];
+    localStorage.setItem("call-logs-report", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
+  useEffect(() => {
+    window.onload  = function () {
+      emptyCheckbox();
+    };
+  }, []);
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -1659,7 +1778,7 @@ const CallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handlePending}
+          onClick={() => handlePending(inboundIds)}
         >
           Pending
         </Button>
@@ -1668,7 +1787,7 @@ const CallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleArchived}
+          onClick={() => handleArchived(inboundIds)}
         >
           Archived
         </Button>
@@ -1677,7 +1796,7 @@ const CallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleUpdate}
+          onClick={() => handleUpdate(inboundIds)}
         >
           {loading ? (
             <CircularProgress color="secondary" size="1.5rem" thickness={2.6} />
@@ -1690,7 +1809,7 @@ const CallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleAnnotation}
+          onClick={() => handleAnnotation(inboundIds)}
         >
           {annotationLoading ? (
             <CircularProgress color="secondary" size="1.5rem" thickness={2.6} />
@@ -1700,6 +1819,74 @@ const CallLogsReport = () => {
         </Button>
       </div>
     );
+  };
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        openRowFunctionalities &&
+        rowFunctionalitiesRef.current &&
+        !rowFunctionalitiesRef.current.contains(e.target)
+      ) {
+        setOpenRowFunctionalities(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [openRowFunctionalities]);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const RowFunctionalities = () => {
+    return (
+      <div
+        className="row-functionalities"
+        ref={rowFunctionalitiesRef}
+        style={style}
+      >
+        <div>
+          <span onClick={() => handlePending(editData)}>Pending </span>
+          <span onClick={() => handleArchived(editData)}>Archived</span>
+          <span onClick={() => handleUpdate(editData)}>
+            Update <PulseLoader color={color} loading={loading} size={5} />
+          </span>
+          <span onClick={() => handleAnnotation(editData)}>
+            Get Annotation{" "}
+            <PulseLoader color={color} loading={annotationLoading} size={5} />
+          </span>
+          <span onClick={handleRevenueOpenModal}>Clear</span>
+        </div>
+      </div>
+    );
+  };
+
+  const handleRowFunctionalities = (id) => {
+    setOpenRowFunctionalities(true);
+    setShowColumns(false);
+    if (editData.length > 0) {
+      const itemIndx = editData.indexOf(id);
+      editData.splice(itemIndx, 1);
+    }
+    const tempData = tableProps.data.filter((item) => item.id == id);
+    editData.push(tempData[0].Inbound_Id);
   };
 
   const ColumnSettings = (tableProps) => {
@@ -1745,6 +1932,7 @@ const CallLogsReport = () => {
               style: { width: 400, marginBottom: 20 },
             }),
           },
+
           cell: {
             content: (props) => {
               switch (props.column.key) {
@@ -1758,16 +1946,21 @@ const CallLogsReport = () => {
       />
     );
   };
-
+  console.log(inboundIds);
   return (
     <>
       <Helmet title="Call Logs Report" />
-      <div className="selection-demo">
+      <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
+        {openRowFunctionalities ? <RowFunctionalities /> : ""}
         {tableToolbar ? (
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
               <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -1841,7 +2034,7 @@ const CallLogsReport = () => {
               },
 
               elementAttributes: (props) => {
-                if (props.column.key === "SN") {
+                if (props.column.key === "edit") {
                   return {
                     style: {
                       ...props.column.style,
@@ -1868,7 +2061,7 @@ const CallLogsReport = () => {
               },
 
               elementAttributes: (props) => {
-                if (props.column.key === "SN") {
+                if (props.column.key === "edit") {
                   return {
                     style: {
                       ...props.column.style,
@@ -1895,6 +2088,71 @@ const CallLogsReport = () => {
           <Alert severity="success">{response}</Alert>
         </Snackbar>
       </div>
+
+      <NormalModal
+        open={showRevenueClearModal.open}
+        setOpen={setShowRevenueClearModal}
+        width={"450px"}
+        title={""}
+      >
+        <div className="clear-revenue-payout">
+          <span>
+            Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>{" "}
+            ?
+          </span>
+          <div className="button">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleClear(editData)}
+            >
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleRevenueCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleRevenueCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
+
+      <NormalModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        width={"450px"}
+        title={""}
+      >
+        <div className="clear-revenue-payout">
+          <span>
+            {inboundIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"}
+          </span>
+          <div className="button">
+            <Button variant="contained" color="primary" onClick={deleteHandler}>
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeleteCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
     </>
   );
 };

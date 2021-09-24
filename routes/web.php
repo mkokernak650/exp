@@ -155,7 +155,7 @@ Route::get('/archived-customers', [CustomerController::class, 'archivedCustomers
 Route::get('customer-export/{type}', [CustomerController::class, 'export'])
     ->name('customer.export');
 
-    Route::get('/add-affiliate', [AffiliateController::class, 'addAffiliateForm'])
+Route::get('/add-affiliate', [AffiliateController::class, 'addAffiliateForm'])
     ->name('add.affiliate');
 
 Route::post('/store-affiliate', [AffiliateController::class, 'storeAffiliate'])
@@ -361,3 +361,7 @@ Route::post('/target-report-generator', [ReportGeneratorController::class, 'targ
 
 Route::post('market-exception-report-generator', [ReportGeneratorController::class, 'marketExceptionReport'])
     ->name('market.exception.report.generator');
+
+
+Route::post('/revenue-update', [RingbaCallLogController::class, 'updateRevenue'])
+    ->name('revenue.update');
