@@ -161,7 +161,7 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
 
-        dd($this->targetReportData('billed_call_logs', $condition, $whereIn));
+        // dd($this->targetReportData('billed_call_logs', $condition, $whereIn));
 
         if ($report_type === 'billed') {
             $billed = $this->targetReportData('billed_call_logs', $condition, $whereIn);
@@ -364,7 +364,6 @@ class ReportGeneratorController extends Controller
         $con = rtrim($con, " AND ");
 
         $sql = "SELECT Call_Date, Call_Date_Time, Campaign, Target, Affiliate, City, Market, State, Dialed,Type, Conn_Duration, Duplicate_Call, Source_Hangup, Revenue, call_Logs_status, Target_Description, Annotation_Tag FROM {$tablename}  WHERE {$con}";
-        echo $sql;
         return DB::select($sql);
     }
 }
