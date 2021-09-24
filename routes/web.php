@@ -193,6 +193,9 @@ Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'inde
 Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToCallLog'])
     ->name('archived.to.call.log');
 
+Route::post('/archive-delete', [ArchivedCallLogController::class, 'delete'])
+    ->name('archive.delete');
+
 // TODO PendingBillCallLogController 
 Route::post('/move-from-pending-bill-to-ringba-call-log', [PendingBillCallLogController::class, 'moveToCallLog'])
     ->name('move.from.pending.bill.to.ringba.call.log');

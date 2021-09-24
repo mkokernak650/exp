@@ -1759,6 +1759,7 @@ const CallLogsReport = () => {
       emptyCheckbox();
     };
   }, []);
+  
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true });
   };

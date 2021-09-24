@@ -86,4 +86,19 @@ class ArchivedCallLogController extends Controller
             return response()->json(["msg" => "moving failed", "status_code" => 500]);
         }
     }
+
+    public function delete(Request $request)
+    {
+        $result = false;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  ArchivedCallLog::where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
 }

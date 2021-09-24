@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -24,16 +24,18 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
+import Cancel from "../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
-import { makeStyles, Snackbar } from "@material-ui/core";
+import { makeStyles, Snackbar, Button } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import NormalModal from "../../Shared/NormalModal";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -189,6 +191,8 @@ const TempRingbaData = () => {
   const [selectedRowIds, setselectedRowIds] = useState([]);
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -342,6 +346,48 @@ const TempRingbaData = () => {
   const closeSidebar = () => {
     setSearchSidebar(false);
   };
+
+  const handleDeleteCloseModal = () => {
+    setShowDeleteModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  };
+  useEffect(() => {
+    window.onload = function () {
+      emptyCheckbox();
+    };
+  }, []);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+  const handleDeleteOpenModal = () => {
+    setShowDeleteModal({ open: true });
+  };
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("temp-rigba-data"));
+    storedData.selectedRows = [];
+    localStorage.setItem("temp-rigba-data", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
   const deleteHandler = () => {
     axios
       .post("temp-ringba-data-delete", { selectedRowIds })
@@ -357,14 +403,17 @@ const TempRingbaData = () => {
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
         } else {
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
         }
       })
       .catch((err) => {
         console.log(err);
         setTableToolbar(false);
+        setShowDeleteModal({ open: false });
       });
   };
 
@@ -374,7 +423,7 @@ const TempRingbaData = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -448,7 +497,11 @@ const TempRingbaData = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div
+              className="columns-show-hide"
+              onClick={handleColumns}
+              ref={showColumnRef}
+            >
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -551,6 +604,37 @@ const TempRingbaData = () => {
           <Alert severity="success">{response}</Alert>
         </Snackbar>
       </div>
+
+      <NormalModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        width={"450px"}
+        title={""}
+      >
+        <div className="clear-revenue-payout">
+          <span>
+            {selectedRowIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"}
+          </span>
+          <div className="button">
+            <Button variant="contained" color="primary" onClick={deleteHandler}>
+              Yes
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeleteCloseModal}
+            >
+              No
+            </Button>
+          </div>
+
+          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
+            <img src={Cancel} alt="close-modal-icon"></img>
+          </div>
+        </div>
+      </NormalModal>
     </>
   );
 };
