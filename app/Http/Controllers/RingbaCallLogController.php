@@ -556,8 +556,10 @@ class RingbaCallLogController extends Controller
         $end_date = date_create($request->end_date);
         $current_date = date_create(date('m/d/Y'));
 
+
         $start_current_diff = date_diff($start_date, $current_date);
         $start_current_diff_result = $start_current_diff->format("%a");
+       
 
         $start_end_diff = date_diff($start_date, $end_date);
         $start_end_diff_result = $start_end_diff->format("%a");
@@ -573,7 +575,8 @@ class RingbaCallLogController extends Controller
         } else {
             $get_days_range = 1;
         }
-
+        // dd($get_past_days_range, $get_days_range);
+      
         self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
 
         RingbaDataFetchedLog::truncate();

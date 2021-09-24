@@ -18,3 +18,4 @@ yarn-error.log
 /storage/framework/laravel-excel/*.tmp
 *.tmp
 composer.lock
+query.sql

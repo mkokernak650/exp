@@ -50,6 +50,7 @@ class ArchivedCallLogController extends Controller
 
             // get data for store data
             $data = findDataByInboundId(new RingbaCallLog(), $Inbound_Id);
+            $archivedCallLog->call_Logs_status = 'Archived';
             $result = dataMoveHelper($archivedCallLog, $data);
         }
 

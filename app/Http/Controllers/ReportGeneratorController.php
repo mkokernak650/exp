@@ -10,6 +10,7 @@ use App\Models\{
     Exception
 };
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReportGeneratorController extends Controller
 {
@@ -113,15 +114,43 @@ class ReportGeneratorController extends Controller
         $newData        = [];
         $report_type    = $request->type; // billed or general
         $customer_name  = $request->customer_name;
-        // $target_name    = "Legacy Health-Charter";
-        $target_name    = $request->target_name;
-        $start_date     = date('Y-m-d', strtotime($request->start_date));
-        $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-        $archived       = [];
-        $call_summary   = [];
+        $affiliate_ids  = $request->affiliate_id; // array
+        $target_name    = $request->target_name; // array
+        $annotation     = $request->annotation;
+        $campaign       = $request->campaign;
 
         // summary of calls
-        $data_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+        $archived       = [];
+        $call_summary   = [];
+        $condition      = [];
+        $whereIn        = [];
+
+        if ($request->start_date !== null && $request->end_date !== null) {
+            $start_date     = date('Y-m-d', strtotime($request->start_date));
+            $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
+            $data_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $call_summary['data_range']  = $data_range;
+            $condition[]    = "Call_Date >='$start_date'";
+            $condition[]    = "Call_Date <= '$end_date'";
+        }
+        if ($campaign !== null) {
+            $condition[] = "Campaign='{$campaign}'";
+        }
+        if ($annotation !== null) {
+            $condition[] = "Has_Annotation='$annotation'";
+        }
+        if ($customer_name !== null) {
+            $condition[] =  "Customer='{$customer_name}'";
+        }
+        if (!empty($affiliate_ids) && count($affiliate_ids) > 0 && $affiliate_ids[0] !== null) {
+            $ids = implode("','", $affiliate_ids);
+            $whereIn[] = "Affiliate_Id IN ('$ids')";
+        }
+        if (!empty($target_name) && count($target_name) > 0 && $target_name[0] !== null) {
+            $ids = implode("','", $target_name);
+            $whereIn[] = "Target IN ('$ids')";
+        }
+
         $total_call     = 0;
         $total_seconds  = 0;
         $total_revenue  = 1;
@@ -132,37 +161,31 @@ class ReportGeneratorController extends Controller
         $annotation_tag = [];
         $tag_count = [];
 
-        $condition = [
-            ['Customer', '=', $customer_name],
-            ['Call_Date', '>=', $start_date],
-            ['Call_Date', '<=', $end_date]
-        ];
-
-        if ($target_name !== '' && $target_name !== null) {
-            $condition[] = ['Target', '=', $target_name];
-        }
+        dd($this->targetReportData('billed_call_logs', $condition, $whereIn));
 
         if ($report_type === 'billed') {
-            $billed = $this->targetReportData(new BilledCallLog(), $condition);
+            $billed = $this->targetReportData('billed_call_logs', $condition, $whereIn);
         } else {
-            $billed = $this->targetReportData(new BilledCallLog(), $condition);
-            $archived = $this->targetReportData(new ArchivedCallLog(), $condition);
-            $exceptions = $this->targetReportData(new Exception(), $condition);
+            $billed     = $this->targetReportData('billed_call_logs', $condition, $whereIn);
+            $archived   = $this->targetReportData('archived_call_logs', $condition, $whereIn);
+            $exceptions = $this->targetReportData('exceptions', $condition, $whereIn);
         }
 
         // for billed
         foreach ($billed as $bill) {
-
-            array_push($newData, $bill);
             $call_summary['targets'] = $bill->Target_Description;
+            $annotationTag = $bill->Annotation_Tag;
+            unset($bill->Target_Description);
+            unset($bill->Annotation_Tag);
+            array_push($newData, $bill);
 
-            if (!empty($bill->Annotation_Tag)) {
-                array_push($annotation_tag, $bill->Annotation_Tag);
+            if (!empty($annotationTag)) {
+                array_push($annotation_tag, $annotationTag);
             }
-            if (in_array($bill->Annotation_Tag, $annotation_tag)) {
-                $tag_count[$bill->Annotation_Tag]['name'] = $bill->Annotation_Tag;
-                $tag_count[$bill->Annotation_Tag]['qty'] = (isset($tag_count[$bill->Annotation_Tag]['qty']) ? $tag_count[$bill->Annotation_Tag]['qty'] : 0) + 1;
-                $tag_count[$bill->Annotation_Tag]['revenue']  = (isset($tag_count[$bill->Annotation_Tag]['revenue']) ? $tag_count[$bill->Annotation_Tag]['revenue'] : 0) + $bill->Revenue;
+            if (in_array($annotationTag, $annotation_tag)) {
+                $tag_count[$annotationTag]['name'] = $annotationTag;
+                $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
+                $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $bill->Revenue;
             }
             $total_call++;
             $total_seconds  += $bill->Conn_Duration;
@@ -172,19 +195,22 @@ class ReportGeneratorController extends Controller
         // for archived
         if (!empty($archived)) {
             foreach ($archived as $archive) {
+                $annotationTag = $archive->Annotation_Tag;
+                unset($archive->Target_Description);
+                unset($archive->Annotation_Tag);
                 array_push($newData, $archive);
 
-                if (empty($archive->Annotation_Tag)) {
+                if (empty($annotationTag)) {
                     $archive_call['qty'] += 1;
                     $archive_call['revenue'] += $archive->Revenue;
                 }
-                if (!empty($archive->Annotation_Tag)) {
-                    array_push($annotation_tag, $archive->Annotation_Tag);
+                if (!empty($annotationTag)) {
+                    array_push($annotation_tag, $annotationTag);
                 }
-                if (in_array($archive->Annotation_Tag, $annotation_tag)) {
-                    $tag_count[$archive->Annotation_Tag]['name'] = $archive->Annotation_Tag;
-                    $tag_count[$archive->Annotation_Tag]['qty'] = (isset($tag_count[$archive->Annotation_Tag]['qty']) ? $tag_count[$archive->Annotation_Tag]['qty'] : 0) + 1;
-                    $tag_count[$archive->Annotation_Tag]['revenue']  = (isset($tag_count[$archive->Annotation_Tag]['revenue']) ? $tag_count[$archive->Annotation_Tag]['revenue'] : 0) + $archive->Revenue;
+                if (in_array($annotationTag, $annotation_tag)) {
+                    $tag_count[$annotationTag]['name'] = $annotationTag;
+                    $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
+                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $archive->Revenue;
                 }
 
                 $total_call++;
@@ -194,21 +220,25 @@ class ReportGeneratorController extends Controller
             $tag_count['archive_call'] = $archive_call;
         }
         // for exceptions
-        if (!empty($$exceptions)) {
+        if (!empty($exceptions)) {
             foreach ($$exceptions as $$exception) {
                 array_push($newData, $exception);
+                $annotationTag = $exception->Annotation_Tag;
+                unset($exception->Target_Description);
+                unset($exception->Annotation_Tag);
+                array_push($newData, $exception);
 
-                if (empty($exception->Annotation_Tag)) {
+                if (empty($annotationTag)) {
                     $archive_call['qty'] += 1;
                     $archive_call['revenue'] += $exception->Revenue;
                 }
-                if (!empty($exception->Annotation_Tag)) {
-                    array_push($annotation_tag, $exception->Annotation_Tag);
+                if (!empty($annotationTag)) {
+                    array_push($annotation_tag, $annotationTag);
                 }
-                if (in_array($exception->Annotation_Tag, $annotation_tag)) {
-                    $tag_count[$exception->Annotation_Tag]['name'] = $exception->Annotation_Tag;
-                    $tag_count[$exception->Annotation_Tag]['qty'] = (isset($tag_count[$exception->Annotation_Tag]['qty']) ? $tag_count[$exception->Annotation_Tag]['qty'] : 0) + 1;
-                    $tag_count[$exception->Annotation_Tag]['revenue']  = (isset($tag_count[$exception->Annotation_Tag]['revenue']) ? $tag_count[$exception->Annotation_Tag]['revenue'] : 0) + $exception->Revenue;
+                if (in_array($annotationTag, $annotation_tag)) {
+                    $tag_count[$annotationTag]['name'] = $annotationTag;
+                    $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
+                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $exception->Revenue;
                 }
 
                 $total_call++;
@@ -217,10 +247,10 @@ class ReportGeneratorController extends Controller
             }
             $tag_count['archive_call'] = $archive_call;
         }
-
+        // dd($newData);
         $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
 
-        $call_summary['data_range']             = $data_range;
+
         $call_summary['total_call']             = $total_call;
         $call_summary['total_minutes']          = secondToMinutes($total_seconds);
 
@@ -233,6 +263,7 @@ class ReportGeneratorController extends Controller
             'tag_count'     => $tag_count
         ];
     }
+
     // TODO MarketExcptions report Gene
     public function marketExceptionReport(Request $request)
     {
@@ -318,12 +349,22 @@ class ReportGeneratorController extends Controller
             ]);
     }
 
-    private function targetReportData($instance, $condition)
+    private function targetReportData($tablename, $condition, $whereIn = [])
     {
-        return $instance
-            ->where($condition)
-            ->get([
-                'Call_Date', 'Call_Date_Time', 'Campaign', 'Target', 'Affiliate', 'City', 'Market', 'State', 'Dialed',  'Type', 'Conn_Duration', 'Duplicate_Call', 'Source_Hangup', 'Revenue', 'call_Logs_status',
-            ]);
+
+        $con = '';
+        foreach ($condition as $v) {
+            $con .= $v . " AND ";
+        }
+        if (count($whereIn) > 0) {
+            foreach ($whereIn as $value) {
+                $con .= $value . " AND ";
+            }
+        }
+        $con = rtrim($con, " AND ");
+
+        $sql = "SELECT Call_Date, Call_Date_Time, Campaign, Target, Affiliate, City, Market, State, Dialed,Type, Conn_Duration, Duplicate_Call, Source_Hangup, Revenue, call_Logs_status, Target_Description, Annotation_Tag FROM {$tablename}  WHERE {$con}";
+        echo $sql;
+        return DB::select($sql);
     }
 }
