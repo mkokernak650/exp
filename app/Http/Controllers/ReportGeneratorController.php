@@ -16,7 +16,7 @@ class ReportGeneratorController extends Controller
 {
     function __construct()
     {
-        // $this->middleware('auth');
+        $this->middleware('auth');
     }
 
     public function affiliateReport(Request $request)
