@@ -1153,7 +1153,7 @@ const CallLogsReport = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [annotationLoading, setAnnotationLoading] = useState(false);
-  const editData = [];
+  const [editData, setEditData] = useState([]);
   const [sn, setSn] = useState("");
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({
     open: false,
@@ -1729,7 +1729,7 @@ const CallLogsReport = () => {
 
   const handleRevenueOpenModal = () => {
     let filteredData = tableProps;
-    filteredData.data.filter((item, indx) => {
+    filteredData.data.filter((item) => {
       if (item.Inbound_Id === editData[0]) {
         setSn(item.SN);
       }
@@ -1741,6 +1741,7 @@ const CallLogsReport = () => {
     setOpenRowFunctionalities(false);
     setTableToolbar(false);
     setselectedRowIds([]);
+    setInbounIds([]);
     emptyCheckbox();
   };
 
@@ -1753,6 +1754,11 @@ const CallLogsReport = () => {
     changeTableProps(filteredData);
   };
 
+  useEffect(() => {
+    window.onload  = function () {
+      emptyCheckbox();
+    };
+  }, []);
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true });
   };
@@ -1940,7 +1946,7 @@ const CallLogsReport = () => {
       />
     );
   };
-console.log(inboundIds.length)
+  console.log(inboundIds);
   return (
     <>
       <Helmet title="Call Logs Report" />
