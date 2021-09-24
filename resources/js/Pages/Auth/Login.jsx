@@ -76,7 +76,8 @@ const Login = () => {
                                 type="email"
                                 value={values.email}
                                 variant="outlined"
-                                required="true"
+                                required={true}
+
                             />
                             <TextField
                                 fullWidth
@@ -87,7 +88,8 @@ const Login = () => {
                                 type="password"
                                 value={values.password}
                                 variant="outlined"
-                                required="true"
+                                required={true}
+
                             />
                             <Box sx={{ py: 2 }}>
                                 <Button

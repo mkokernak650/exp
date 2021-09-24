@@ -23,7 +23,7 @@ div::-webkit-scrollbar-thumb {
 .layout main {
   overflow: auto;
 }
- .makeStyles-menuText-16 .MuiTypography-body1 {
+.makeStyles-menuText-16 .MuiTypography-body1 {
   font-weight: bold !important;
 }
 .MuiTableCell-root {
@@ -34,7 +34,7 @@ div::-webkit-scrollbar-thumb {
 }
 /* commented for date-picker */
 .MuiIconButton-root {
-  margin-left: 10px !important; 
+  margin-left: 10px !important;
 }
 
 .MuiTableCell-head {
@@ -42,30 +42,30 @@ div::-webkit-scrollbar-thumb {
 }
 .MuiIconButton-edgeStart {
   margin: 0 !important;
-} 
-
-.makeStyles-drawerHeader-13{
-  justify-content:space-between!important;
 }
 
-.sidebar-menu-inactive{
+.makeStyles-drawerHeader-13 {
+  justify-content: space-between !important;
+}
+
+.sidebar-menu-inactive {
   max-height: 350px;
-  overflow-y: auto!important;
-  overflow-x: hidden!important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
-.generate-report-affiliate .MuiFormGroup-root{
+.generate-report-affiliate .MuiFormGroup-root {
   flex-direction: row;
 }
-.generate-report-affiliate .MuiIconButton-root{
-  margin-left: 0!important;
+.generate-report-affiliate .MuiIconButton-root {
+  margin-left: 0 !important;
 }
 
-.generate-report-target .MuiFormGroup-root{
+.generate-report-target .MuiFormGroup-root {
   flex-direction: row;
 }
-.generate-report-target .MuiIconButton-root{
-  margin-left: 0!important;
+.generate-report-target .MuiIconButton-root {
+  margin-left: 0 !important;
 }
 
 /* .add-target .MuiGrid-item {
@@ -284,7 +284,6 @@ div::-webkit-scrollbar-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 .ka-paging-page-index:hover {
   background-color: #f1f5f7;
@@ -420,34 +419,52 @@ div::-webkit-scrollbar-thumb {
   width: 16px;
   height: 16px;
 }
-/* .fc-button-add {
-  width: 120px;
-  height: 33px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-} */
-/* .fc-button-add:before {
-  margin: 3px;
-  content: "Add Conditon +" !important;
-  font-size: 13px!important;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-  color: black!important;
-  cursor: pointer;
-  width: 0 !important;;
-  height: 0!important;
-} */
 
 .fc-button-add:before {
   color: #000 !important;
 }
 
 
+.row-functionalities {
+  width: 170px;
+  max-height: 300px;
+  position: absolute;
+  border-radius: 10px;
+  /* top: 193px; */
+  left: 350px;
+  z-index: 999;
+  box-shadow: 1px 2px 5px 2px rgb(0 0 0 / 22%);
+  backdrop-filter: blur(7px);
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+}
+
+.row-functionalities div > span {
+  padding: 10px;
+  border-bottom: 1px solid #eaeaf1;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+.row-functionalities span:last-child {
+  border: none;
+}
+
+.row-functionalities span:hover {
+  background-color: #f0f2f8;
+}
+
+.clear-revenue-payout {
+  margin: 30px 0 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+.clear-revenue-payout .button button {
+  margin: 0 10px;
+}
 .close-modal {
   display: flex;
   justify-content: flex-end;
@@ -467,13 +484,13 @@ div::-webkit-scrollbar-thumb {
   cursor: pointer;
   position: absolute;
 }
-.close-modal-icon:hover{
-    background: #dcd8d8;
+.close-modal-icon:hover {
+  background: #dcd8d8;
 }
 
-.close-modal-icon img{
-    width: 13px;
-    height: 13px;
+.close-modal-icon img {
+  width: 13px;
+  height: 13px;
 }
 /*conditon-style*/
 
