@@ -10,39 +10,40 @@ import {
   ActionType,
 } from "ka-table/enums";
 import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
+  hideColumn,
+  showColumn,
 } from "ka-table/actionCreators";
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import FilterControl from "react-filter-control";
 import { filterData } from "../filterData";
 import "ka-table/style.scss";
+import { usePage } from "@inertiajs/inertia-react";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
 import Edit from "../../../images/three-dots.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
+
 import {
   Button,
   makeStyles,
-  Snackbar,
   CircularProgress,
+  IconButton,
+  Checkbox,
+  Tooltip,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
+import ConfirmModal from "../../Shared/ConfirmModal";
+import SnackBar from "../../Shared/SnackBar";
 import PulseLoader from "react-spinners/PulseLoader";
+import { emptyCheckbox } from "../../Helpers/emptyCheckbox";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -52,9 +53,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 export const fields = [
   {
     caption: "SN",
@@ -1175,12 +1173,6 @@ const CallLogsReport = () => {
     }
   };
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
   const dataArray = allCallLogs.map((item, index) => {
     return {
       edit: item.id,
@@ -1548,9 +1540,6 @@ const CallLogsReport = () => {
     setShowColumns((prevState) => !prevState);
     setOpenRowFunctionalities(false);
   };
-  const hideCoumnSettings = () => {
-    setShowColumns(false);
-  };
   const closeSidebar = () => {
     setSearchSidebar(false);
   };
@@ -1571,16 +1560,14 @@ const CallLogsReport = () => {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
-          emptyCheckbox();
-
+          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         } else {
           setOpen(true);
           setResponse(res.data.msg);
           setselectedRowIds([]);
           setInbounIds([]);
           setShowDeleteModal({ open: false });
-          emptyCheckbox();
-
+          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
@@ -1589,8 +1576,7 @@ const CallLogsReport = () => {
         setselectedRowIds([]);
         setInbounIds([]);
         setShowDeleteModal({ open: false });
-        emptyCheckbox();
-
+        emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
   };
 
@@ -1617,7 +1603,6 @@ const CallLogsReport = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-
         }
       })
       .catch((err) => {});
@@ -1666,17 +1651,17 @@ const CallLogsReport = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          emptyCheckbox();
+          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
-          emptyCheckbox();
+          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
-        emptyCheckbox();
+        emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
   };
   const handleAnnotation = (inboundIds) => {
@@ -1695,17 +1680,17 @@ const CallLogsReport = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          emptyCheckbox();
+          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
-          emptyCheckbox();
+          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
-        emptyCheckbox();
+        emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
   };
 
@@ -1752,23 +1737,14 @@ const CallLogsReport = () => {
     setTableToolbar(false);
     setselectedRowIds([]);
     setInbounIds([]);
-    emptyCheckbox();
-  };
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("call-logs-report"));
-    storedData.selectedRows = [];
-    localStorage.setItem("call-logs-report", JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
-    changeTableProps(filteredData);
+    emptyCheckbox("call-logs-report", tableProps, changeTableProps);
   };
 
   useEffect(() => {
     window.onload = function () {
       const storedData = JSON.parse(localStorage.getItem("call-logs-report"));
       if (storedData != null) {
-        emptyCheckbox();
+        emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       }
     };
   }, []);
@@ -1781,7 +1757,7 @@ const CallLogsReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}  >
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -1833,6 +1809,7 @@ const CallLogsReport = () => {
       </div>
     );
   };
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -1852,18 +1829,21 @@ const CallLogsReport = () => {
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
+      console.log(showColumns);
+
       if (
         showColumns &&
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
+        console.log("before", showColumns);
         setShowColumns(false);
+        console.log("after", showColumns);
       }
     };
 
     document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
-      // Cleanup the event listener
       document.removeEventListener("mousedown", checkIfClickedOutside);
     };
   }, [showColumns]);
@@ -1960,7 +1940,6 @@ const CallLogsReport = () => {
       />
     );
   };
-  console.log(inboundIds);
   return (
     <>
       <Helmet title="Call Logs Report" />
@@ -1970,12 +1949,8 @@ const CallLogsReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div
-              className="columns-show-hide"
-              onClick={handleColumns}
-              ref={showColumnRef}
-            >
-              <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
+            <div className="columns-show-hide" onClick={handleColumns}>
+              <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -2008,7 +1983,7 @@ const CallLogsReport = () => {
               ""
             )}
             {showColumns ? (
-              <div className="column-settings">
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
@@ -2092,81 +2067,35 @@ const CallLogsReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
+        <SnackBar open={open} setOpen={setOpen} response={response} />
       </div>
 
-      <NormalModal
+      <ConfirmModal
         open={showRevenueClearModal.open}
         setOpen={setShowRevenueClearModal}
+        btnAction={handleClear}
+        closeAction={handleRevenueCloseModal}
+        editData={editData}
         width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>{" "}
-            ?
-          </span>
-          <div className="button">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleClear(editData)}
-            >
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleRevenueCloseModal}
-            >
-              No
-            </Button>
-          </div>
+        title={
+          <>
+            Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
+          </>
+        }
+      ></ConfirmModal>
 
-          <div onClick={handleRevenueCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
-
-      <NormalModal
+      <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            {inboundIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"}
-          </span>
-          <div className="button">
-            <Button variant="contained" color="primary" onClick={deleteHandler}>
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeleteCloseModal}
-            >
-              No
-            </Button>
-          </div>
-
-          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
+        btnAction={deleteHandler}
+        closeAction={handleDeleteCloseModal}
+        width={"400px"}
+        title={`${
+          inboundIds.length > 1
+            ? "Do you want to delete these records?"
+            : "Do you want to delete this record?"
+        }`}
+      ></ConfirmModal>
     </>
   );
 };
