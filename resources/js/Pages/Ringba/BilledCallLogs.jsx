@@ -1545,11 +1545,11 @@ const BilledCallLogs = () => {
       .catch((err) => {
         console.log(err);
         setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+        setTableToolbar(false);
+        setOpen(true);
+        setResponse(res.data.msg);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
       });
   };
 
@@ -1577,7 +1577,7 @@ const BilledCallLogs = () => {
           emptyCheckbox();
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleDeleteCloseModal = () => {
@@ -1812,7 +1812,7 @@ const BilledCallLogs = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
