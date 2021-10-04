@@ -194,7 +194,9 @@ class RingbaApiHelpers
           if ($tag->tagType === 'Annotations') {
             $annotation_tag = $tag->tagName;
             $has_annotation = 'Yes';
-            break;
+          }else {
+            $annotation_tag = '';
+            $has_annotation = 'NO';
           }
         }
       }

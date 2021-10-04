@@ -287,12 +287,9 @@ class RingbaCallLogController extends Controller
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
                 $this->get_annotations_tag = $item->tagName;
-                // array_push($this->annotation, $this->has_annotations);
-                return;
             } else {
                 $this->has_annotations = 'No';
                 $this->get_annotations_tag = "";
-                // array_push($this->annotation, $this->has_annotations);
             }
         }
     }
@@ -559,7 +556,7 @@ class RingbaCallLogController extends Controller
 
         $start_current_diff = date_diff($start_date, $current_date);
         $start_current_diff_result = $start_current_diff->format("%a");
-       
+
 
         $start_end_diff = date_diff($start_date, $end_date);
         $start_end_diff_result = $start_end_diff->format("%a");
@@ -576,7 +573,7 @@ class RingbaCallLogController extends Controller
             $get_days_range = 1;
         }
         // dd($get_past_days_range, $get_days_range);
-      
+
         self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
 
         RingbaDataFetchedLog::truncate();
@@ -685,7 +682,6 @@ class RingbaCallLogController extends Controller
 
     public function updateRevenue(Request $request)
     {
-      RingbaCallLog::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue'=>'','payoutAmount'=>'']);
-       
+        RingbaCallLog::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue' => '', 'payoutAmount' => '']);
     }
 }
