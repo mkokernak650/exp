@@ -366,8 +366,8 @@ Route::post('market-exception-report-generator', [ReportGeneratorController::cla
     ->name('market.exception.report.generator');
 
 
-Route::post('/revenue-update', [RingbaCallLogController::class, 'updateRevenue'])
-    ->name('revenue.update');
+Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'updateRevenue'])
+    ->name('calllogs.revenue.update');
 
 Route::post('/exception-revenue-update', [ExceptionController::class, 'updateRevenue'])
     ->name('exception.revenue.update');

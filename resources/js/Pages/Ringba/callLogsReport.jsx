@@ -1605,7 +1605,7 @@ const CallLogsReport = () => {
           setOpenRowFunctionalities(false);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleArchived = (inboundIds) => {
@@ -1632,7 +1632,7 @@ const CallLogsReport = () => {
           setselectedRowIds([]);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleUpdate = (inboundIds) => {
@@ -1646,6 +1646,7 @@ const CallLogsReport = () => {
           setOpen(true);
           let filteredData = tableProps;
           filterData.data = res.data;
+          console.log(filteredData)
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
@@ -1657,9 +1658,10 @@ const CallLogsReport = () => {
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
           emptyCheckbox("call-logs-report", tableProps, changeTableProps);
-        }
-      })
+        }})
+
       .catch((err) => {
         emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
@@ -1696,7 +1698,7 @@ const CallLogsReport = () => {
 
   const handleClear = (inboundIds) => {
     axios
-      .post(route("exception.revenue.update"), { inboundIds })
+      .post(route("calllogs.revenue.update"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
@@ -1715,7 +1717,7 @@ const CallLogsReport = () => {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
   const handleRevenueCloseModal = () => {
     setShowRevenueClearModal({ open: false });
@@ -2090,11 +2092,10 @@ const CallLogsReport = () => {
         btnAction={deleteHandler}
         closeAction={handleDeleteCloseModal}
         width={"400px"}
-        title={`${
-          inboundIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
-        }`}
+        title={`${inboundIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
       ></ConfirmModal>
     </>
   );

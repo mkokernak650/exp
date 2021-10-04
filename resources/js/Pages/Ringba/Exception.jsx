@@ -1562,17 +1562,27 @@ const Exceptions = () => {
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
+          setselectedRowIds([]);
+          setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
           emptyCheckbox();
         }
       })
       .catch((err) => {
         console.log(err);
-        setTableToolbar(false);
-        emptyCheckbox();
+        filteredData.data = newData;
+          changeTableProps(filteredData);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
       });
   };
 

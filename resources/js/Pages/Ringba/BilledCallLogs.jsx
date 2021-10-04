@@ -1534,6 +1534,8 @@ const BilledCallLogs = () => {
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
+          setselectedRowIds([]);
+          setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
@@ -1542,9 +1544,12 @@ const BilledCallLogs = () => {
       })
       .catch((err) => {
         console.log(err);
-        setTableToolbar(false);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
+        setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox();
       });
   };
 

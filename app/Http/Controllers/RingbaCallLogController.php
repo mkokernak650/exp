@@ -103,7 +103,6 @@ class RingbaCallLogController extends Controller
     {
         $ids = [1, 2];
         $results = RingbaData::whereIn('id', $ids)->delete();
-        dd($results);
     }
 
     /**
@@ -332,6 +331,7 @@ class RingbaCallLogController extends Controller
      */
     public function updateByInboundId(Request $request)
     {
+        
         $inboundIds = $request->inboundIds;
         if (is_array($inboundIds)) {
             $i = 0;
@@ -360,7 +360,6 @@ class RingbaCallLogController extends Controller
         if ($row->tags) $this->tags($row->tags);
 
         $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
-
         $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
         $this->ringbaDataObject($ringbaCallLogs);
     }
