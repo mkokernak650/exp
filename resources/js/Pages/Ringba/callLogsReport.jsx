@@ -1638,7 +1638,7 @@ const CallLogsReport = () => {
   const handleUpdate = (inboundIds) => {
     setLoading(true);
     axios
-      .post(route("update-data"), { inboundIds })
+      .post(route("update.data"), { inboundIds })
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
