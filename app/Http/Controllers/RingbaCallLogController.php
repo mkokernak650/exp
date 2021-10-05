@@ -327,7 +327,7 @@ class RingbaCallLogController extends Controller
      * @param array $inboundIds
      * @return void
      */
-    public function updateByInboundId(Request $request)
+    public function updateByInboundIds(Request $request)
     {
         $inboundIds = $request->inboundIds;
         if (is_array($inboundIds)) {

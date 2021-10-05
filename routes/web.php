@@ -67,7 +67,7 @@ Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport
 Route::post('/call-logs-delete', [RingbaCallLogController::class, 'delete'])
     ->name('call.logs.delete');
 
-Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
+Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundIds'])
     ->name('update-data');
 
 Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
