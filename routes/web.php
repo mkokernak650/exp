@@ -67,8 +67,8 @@ Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport
 Route::post('/call-logs-delete', [RingbaCallLogController::class, 'delete'])
     ->name('call.logs.delete');
 
-Route::post('/getbyid', [RingbaCallLogController::class, 'updateByInboundId'])
-    ->name('update-data');
+Route::post('/update-data', [RingbaCallLogController::class, 'updateByInboundIds'])
+    ->name('update.data');
 
 Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])
     ->name('delete.ringba.date');
@@ -262,7 +262,7 @@ Route::post('/target-edit', [TargetController::class, 'edit'])
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
     ->name('update.annotation');
 
-// test route
+//TODO test route
 Route::get('/getupdate/{id}', function ($id) {
     $api = new RingbaApiHelpers();
     $results = $api->getUpdateAnnotation($id);
@@ -327,7 +327,7 @@ Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'
     ->name('broadcast.week.delete');
 
 
-//Generate-Report 
+//TODO Generate-Report 
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
     ->name('generate.report.affiliate');
 
