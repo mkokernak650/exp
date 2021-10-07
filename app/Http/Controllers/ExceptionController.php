@@ -194,6 +194,7 @@ class ExceptionController extends Controller
             if ($apiResposnse->columns)  $this->columns($apiResposnse->columns);
             if ($apiResposnse->events)   $this->events($apiResposnse->events);
             if ($apiResposnse->tags)     $this->tags($apiResposnse->tags);
+            // dd($apiResposnse);
 
             $getDataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
 
@@ -335,12 +336,14 @@ class ExceptionController extends Controller
     private function tags($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
-
+        
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
                 $this->get_annotations_tag = $item->tagName;
-                return;
+            } else {
+                $this->has_annotations = 'No';
+                $this->get_annotations_tag = "";
             }
         }
     }
