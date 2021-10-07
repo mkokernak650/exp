@@ -66,7 +66,7 @@ class ExceptionController extends Controller
 
     public function index()
     {
-        $allExceptions = self::$Exception::all();
+        $allExceptions = self::$Exception::latest()->get();
         return Inertia::render('Ringba/Exception', [
             'Exceptions' => $allExceptions
         ]);
@@ -194,8 +194,10 @@ class ExceptionController extends Controller
             if ($apiResposnse->columns)  $this->columns($apiResposnse->columns);
             if ($apiResposnse->events)   $this->events($apiResposnse->events);
             if ($apiResposnse->tags)     $this->tags($apiResposnse->tags);
+            // dd($apiResposnse);
 
             $getDataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
+            // dd($getDataById);
 
             $getDataById->Call_Date_Time       = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
             $getDataById->Has_Annotation       = $this->has_annotations;
@@ -221,6 +223,7 @@ class ExceptionController extends Controller
             $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
             $getDataById->Revenue              = $this->get_revenue;
             $getDataById->payoutAmount         = $this->get_payoutAmount;
+            // $getDataById->payoutAmount         = 'abbas'; for test
             $getDataById->Total_Cost           = $this->get_totalAmount;
             $getDataById->Profit               = $this->get_profit;
             $getDataById->City                 = $this->get_city;
@@ -335,12 +338,14 @@ class ExceptionController extends Controller
     private function tags($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
-
+        
         foreach ($results as $item) {
             if ($item->tagType === 'Annotations') {
                 $this->has_annotations = 'Yes';
                 $this->get_annotations_tag = $item->tagName;
-                return;
+            } else {
+                $this->has_annotations = 'No';
+                $this->get_annotations_tag = "";
             }
         }
     }
