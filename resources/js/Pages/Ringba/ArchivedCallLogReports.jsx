@@ -944,7 +944,7 @@ const ArchivedCallLogReports = () => {
     sl: index + 1,
     SN: item.SN,
     Campaign: item.Campaign,
-    Call_Date: item.Call_Date_Time,
+    Call_Date: item.Call_Date,
     Call_Date_Time: item.Call_Date_Time,
     Conn_Duration: item.Conn_Duration,
     Call_Length_In_Seconds: item.call_Length_In_Seconds,
@@ -994,7 +994,7 @@ const ArchivedCallLogReports = () => {
       {
         key: "Call_Date",
         title: "Call Date",
-        dataType: DataType.String,
+        dataType: DataType.Date,
         style: { width: 200 },
       },
 
@@ -1061,43 +1061,43 @@ const ArchivedCallLogReports = () => {
       {
         key: "Call_Length_In_Seconds",
         title: "Call Length In Seconds",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
         key: "Revenue",
         title: "Revenue",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Conn_Duration",
         title: "Conn.Duration",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
-      {
-        key: "Time",
-        title: "Time",
-        dataType: DataType.String,
-        style: { width: 220 },
-      },
+      // {
+      //   key: "Time",
+      //   title: "Time",
+      //   dataType: DataType.String,
+      //   style: { width: 220 },
+      // },
       {
         key: "Payout",
         title: "Payout",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 100 },
       },
       {
         key: "Total_Cost",
         title: "Total Cost",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Profit",
         title: "Profit",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
@@ -1141,6 +1141,14 @@ const ArchivedCallLogReports = () => {
             <img src={Edit} alt="edit-icon"></img>
           </div>
         );
+      }
+      if (column.key === "Call_Date") {
+        let shortMonth = value.toLocaleString('en-us', { month: 'short' });
+        let format_date = value
+        let dd = String(format_date.getDate()).padStart(2, "0");
+        let yyyy = format_date.getFullYear();
+        format_date = dd + "-" + shortMonth + "-" + yyyy;
+        return format_date;
       }
     },
   };
@@ -1306,7 +1314,7 @@ const ArchivedCallLogReports = () => {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleDeleteCloseModal = () => {
@@ -1577,7 +1585,7 @@ const ArchivedCallLogReports = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }

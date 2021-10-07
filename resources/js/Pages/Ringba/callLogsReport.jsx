@@ -29,7 +29,7 @@ import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Edit from "../../../images/three-dots.svg";
 import DeleteIcon from "@material-ui/icons/Delete";
-
+import produce from "immer"
 import {
   Button,
   makeStyles,
@@ -93,7 +93,7 @@ export const fields = [
     ],
   },
   {
-    caption: "Call Date",
+    caption: "Call Date Time",
     name: "Call_Date",
     operators: [
       {
@@ -208,7 +208,7 @@ export const fields = [
   },
   {
     caption: "Call Status",
-    name: "Call_Status",
+    name: "call_Logs_status",
     operators: [
       {
         caption: "Contains",
@@ -892,7 +892,7 @@ export const fields = [
   },
   {
     caption: "Payout",
-    name: "Payout",
+    name: "payoutAmount",
     operators: [
       {
         caption: "Contains",
@@ -1162,9 +1162,11 @@ const CallLogsReport = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
   let [color, setColor] = useState("#36D7B7");
+  const [drawerWidth,setDrawerWidth] = useState(350)
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
+    left:drawerWidth
   };
 
   const rowFunctionalitiesPosition = (e) => {
@@ -1178,10 +1180,10 @@ const CallLogsReport = () => {
       edit: item.id,
       sl: index + 1,
       SN: item.SN,
-      Call_Date: item.Call_Date_Time,
+      Call_Date: item.Call_Date,
       Has_Annotation: item.Has_Annotation,
       Annotation_Tag: item.Annotation_Tag,
-      Call_Status: item.call_Logs_status,
+      call_Logs_status: item.call_Logs_status,
       Duplicate_Call: item.Duplicate_Call,
       Recording_Url: item.Recording_Url,
       Inbound_Id: item.Inbound_Id,
@@ -1196,11 +1198,11 @@ const CallLogsReport = () => {
       Target_Description: item.Target_Description,
       Source_Hangup: item.Source_Hangup,
       Time_To_Call: item.Time_To_Call,
-      Call_Length_In_Seconds: item.call_Length_In_Seconds,
+      call_Length_In_Seconds: item.call_Length_In_Seconds,
       Revenue: item.Revenue,
       Conn_Duration: item.Conn_Duration,
-      Time: item.Call_Date_Time,
-      Payout: item.payoutAmount,
+      // Time: item.Call_Date_Time,
+      payoutAmount: item.payoutAmount,
       Total_Cost: item.Total_Cost,
       Profit: item.Profit,
       City: item.City,
@@ -1235,8 +1237,8 @@ const CallLogsReport = () => {
       },
       {
         key: "Call_Date",
-        title: "Call Date",
-        dataType: DataType.String,
+        title: "Call Date Time",
+        dataType: DataType.Date,
         style: { width: 200 },
       },
       {
@@ -1252,7 +1254,7 @@ const CallLogsReport = () => {
         style: { width: 350 },
       },
       {
-        key: "Call_Status",
+        key: "call_Logs_status",
         title: "Call Status",
         dataType: DataType.String,
         style: { width: 130 },
@@ -1337,49 +1339,49 @@ const CallLogsReport = () => {
       {
         key: "Time_To_Call",
         title: "Time To Call",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 130 },
       },
       {
-        key: "Call_Length_In_Seconds",
+        key: "call_Length_In_Seconds",
         title: "Call Length In Seconds",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
         key: "Revenue",
         title: "Revenue",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Conn_Duration",
         title: "Conn.Duration",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
+      // {
+      //   key: "Time",
+      //   title: "Time",
+      //   dataType: DataType.String,
+      //   style: { width: 220 },
+      // },
       {
-        key: "Time",
-        title: "Time",
-        dataType: DataType.String,
-        style: { width: 220 },
-      },
-      {
-        key: "Payout",
+        key: "payoutAmount",
         title: "Payout",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 100 },
       },
       {
         key: "Total_Cost",
         title: "Total Cost",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Profit",
         title: "Profit",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
@@ -1431,11 +1433,15 @@ const CallLogsReport = () => {
           </a>
         );
       }
-    },
-    // loading: {
-    //   enabled: true,
-    //   text: 'Loading data'
-    // },
+    if (column.key === "Call_Date") {
+      let shortMonth = value.toLocaleString('en-us', { month: 'short' });
+      let format_date = value
+      let dd = String(format_date.getDate()).padStart(2, "0");
+      let yyyy = format_date.getFullYear();
+      format_date = dd + "-" + shortMonth + "-" + yyyy;
+      return format_date;
+    }
+    }
   };
 
   const OPTION_KEY = "call-logs-report";
@@ -1537,7 +1543,7 @@ const CallLogsReport = () => {
     setSearchSidebar((prevState) => !prevState);
   };
   const handleColumns = () => {
-    setShowColumns((prevState) => !prevState);
+    setShowColumns(true);
     setOpenRowFunctionalities(false);
   };
   const closeSidebar = () => {
@@ -1640,19 +1646,25 @@ const CallLogsReport = () => {
     axios
       .post(route("update-data"), { inboundIds })
       .then((res) => {
-        setLoading(false);
         if (res.status === 200) {
           setResponse("Successfully Updated");
           setOpen(true);
-          let filteredData = tableProps;
-          filterData.data = res.data;
-          console.log(filteredData)
-          changeTableProps(filteredData);
+          for (let i = 0; i < res.data.length; i++) {
+            if (!res.data[i].edit) res.data.edit = ''
+            res.data[i].edit = res.data[i].id
+            if (!res.data[i].sl) res.data.sl = ''
+            res.data[i].sl = i+1
+          }
+          let columnsData = produce(tableProps, draft => {
+            draft.data = res.data;
+          })
+          changeTableProps(columnsData);
+          setLoading(false);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
+          emptyCheckbox("call-logs-report", columnsData, changeTableProps);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
@@ -1660,12 +1672,15 @@ const CallLogsReport = () => {
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
           emptyCheckbox("call-logs-report", tableProps, changeTableProps);
-        }})
+        }
+      })
 
       .catch((err) => {
         emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
   };
+
+
   const handleAnnotation = (inboundIds) => {
     setAnnotationLoading(true);
     axios
@@ -1675,14 +1690,21 @@ const CallLogsReport = () => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
           setOpen(true);
-          let filteredData = tableProps;
-          filterData.data = res.data;
-          changeTableProps(filteredData);
+          for (let i = 0; i < res.data.length; i++) {
+            if (!res.data[i].edit) res.data.edit = ''
+            res.data[i].edit = res.data[i].id
+            if (!res.data[i].sl) res.data.sl = ''
+            res.data[i].sl = i+1
+          }
+          let columnsData = produce(tableProps, draft => {
+            draft.data = res.data;
+          })
+          changeTableProps(columnsData);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          emptyCheckbox("call-logs-report", tableProps, changeTableProps);
+          emptyCheckbox("call-logs-report", columnsData, changeTableProps);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
@@ -1707,7 +1729,7 @@ const CallLogsReport = () => {
           filteredData.data.filter((item, indx) => {
             if (item.Inbound_Id === editData[0]) {
               filteredData.data[indx].Revenue = "";
-              filteredData.data[indx].Payout = "";
+              filteredData.data[indx].payoutAmount = "";
             }
           });
           setShowRevenueClearModal({ open: false });
@@ -1831,19 +1853,14 @@ const CallLogsReport = () => {
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      console.log(showColumns);
-
       if (
         showColumns &&
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        console.log("before", showColumns);
         setShowColumns(false);
-        console.log("after", showColumns);
       }
     };
-
     document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
       document.removeEventListener("mousedown", checkIfClickedOutside);
@@ -1882,6 +1899,7 @@ const CallLogsReport = () => {
       editData.splice(itemIndx, 1);
     }
     const tempData = tableProps.data.filter((item) => item.id == id);
+    console.log(tempData);
     editData.push(tempData[0].Inbound_Id);
   };
 

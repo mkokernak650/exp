@@ -1206,7 +1206,7 @@ const PendingCallLogsReport = () => {
       {
         key: "Call_Date",
         title: "Call Date",
-        dataType: DataType.String,
+        dataType: DataType.Date,
         style: { width: 200 },
       },
       {
@@ -1279,43 +1279,43 @@ const PendingCallLogsReport = () => {
       {
         key: "Time_To_Call",
         title: "Time To Call",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 130 },
       },
       {
         key: "Call_Length_In_Seconds",
         title: "Call Length In Seconds",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
         key: "Revenue",
         title: "Revenue",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Conn_Duration",
         title: "Conn.Duration",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
         key: "Payout",
         title: "Payout",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 100 },
       },
       {
         key: "Total_Cost",
         title: "Total Cost",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Profit",
         title: "Profit",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
     ],
@@ -1331,7 +1331,16 @@ const PendingCallLogsReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === "Call_Date") {
+        let shortMonth = value.toLocaleString('en-us', { month: 'short' });
+        let format_date = value
+        let dd = String(format_date.getDate()).padStart(2, "0");
+        let yyyy = format_date.getFullYear();
+        format_date = dd + "-" + shortMonth + "-" + yyyy;
+        return format_date;
+      }
+    }
   };
 
   const OPTION_KEY = "pending-call-logs";
@@ -1492,7 +1501,7 @@ const PendingCallLogsReport = () => {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleBilled = () => {
@@ -1517,7 +1526,7 @@ const PendingCallLogsReport = () => {
           setselectedRowIds([]);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleDeleteCloseModal = () => {
@@ -1738,7 +1747,7 @@ const PendingCallLogsReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }

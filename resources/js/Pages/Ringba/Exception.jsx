@@ -30,6 +30,7 @@ import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
+import produce from "immer"
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import {
@@ -210,7 +211,7 @@ export const fields = [
   },
   {
     caption: "Call Status",
-    name: "Call_Status",
+    name: "call_Logs_status",
     operators: [
       {
         caption: "Contains",
@@ -894,7 +895,7 @@ export const fields = [
   },
   {
     caption: "Payout",
-    name: "Payout",
+    name: "payoutAmount",
     operators: [
       {
         caption: "Contains",
@@ -1164,9 +1165,11 @@ const Exceptions = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
   let [color, setColor] = useState("#36D7B7");
+  const [drawerWidth, setDrawerWidth] = useState(350)
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
+    left: drawerWidth
   };
 
   const rowFunctionalitiesPosition = (e) => {
@@ -1188,7 +1191,7 @@ const Exceptions = () => {
     Call_Date: item.Call_Date_Time,
     Has_Annotation: item.Has_Annotation,
     Annotation_Tag: item.Annotation_Tag,
-    Call_Status: item.call_Logs_status,
+    call_Logs_status: item.call_Logs_status,
     Duplicate_Call: item.Duplicate_Call,
     Recording_Url: item.Recording_Url,
     Inbound_Id: item.Inbound_Id,
@@ -1203,11 +1206,11 @@ const Exceptions = () => {
     Target_Description: item.Target_Description,
     Source_Hangup: item.Source_Hangup,
     Time_To_Call: item.Time_To_Call,
-    Call_Length_In_Seconds: item.call_Length_In_Seconds,
+    call_Length_In_Seconds: item.call_Length_In_Seconds,
     Revenue: item.Revenue,
     Conn_Duration: item.Conn_Duration,
     Time: item.Call_Date_Time,
-    Payout: item.payoutAmount,
+    payoutAmount: item.payoutAmount,
     Total_Cost: item.Total_Cost,
     Profit: item.Profit,
     City: item.City,
@@ -1242,7 +1245,7 @@ const Exceptions = () => {
       {
         key: "Call_Date",
         title: "Call Date",
-        dataType: DataType.String,
+        dataType: DataType.Date,
         style: { width: 200 },
       },
       {
@@ -1258,7 +1261,7 @@ const Exceptions = () => {
         style: { width: 350 },
       },
       {
-        key: "Call_Status",
+        key: "call_Logs_status",
         title: "Call Status",
         dataType: DataType.String,
         style: { width: 130 },
@@ -1344,49 +1347,49 @@ const Exceptions = () => {
       {
         key: "Time_To_Call",
         title: "Time To Call",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 130 },
       },
       {
-        key: "Call_Length_In_Seconds",
+        key: "call_Length_In_Seconds",
         title: "Call Length In Seconds",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
         key: "Revenue",
         title: "Revenue",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Conn_Duration",
         title: "Conn.Duration",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
+      // {
+      //   key: "Time",
+      //   title: "Time",
+      //   dataType: DataType.String,
+      //   style: { width: 220 },
+      // },
       {
-        key: "Time",
-        title: "Time",
-        dataType: DataType.String,
-        style: { width: 220 },
-      },
-      {
-        key: "Payout",
+        key: "payoutAmount",
         title: "Payout",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 100 },
       },
       {
         key: "Total_Cost",
         title: "Total Cost",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Profit",
         title: "Profit",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
@@ -1437,6 +1440,14 @@ const Exceptions = () => {
             <img src={Edit} alt="edit-icon"></img>
           </div>
         );
+      }
+      if (column.key === "Call_Date") {
+        let shortMonth = value.toLocaleString('en-us', { month: 'short' });
+        let format_date = value
+        let dd = String(format_date.getDate()).padStart(2, "0");
+        let yyyy = format_date.getFullYear();
+        format_date = dd + "-" + shortMonth + "-" + yyyy;
+        return format_date;
       }
     },
   };
@@ -1563,26 +1574,24 @@ const Exceptions = () => {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          emptyCheckbox("exception-report", tableProps, changeTableProps);
+
         } else {
           setselectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          emptyCheckbox("exception-report", tableProps, changeTableProps);
+
         }
       })
       .catch((err) => {
-        console.log(err);
-        filteredData.data = newData;
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+        setselectedRowIds([]);
+        setTableToolbar(false);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox("exception-report", tableProps, changeTableProps);
+
       });
   };
 
@@ -1611,7 +1620,11 @@ const Exceptions = () => {
           setOpenRowFunctionalities(false);
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setOpenRowFunctionalities(false);
+      });
   };
 
   const handleArchived = (inboundIds) => {
@@ -1638,7 +1651,12 @@ const Exceptions = () => {
           setselectedRowIds([]);
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setTableToolbar(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setOpenRowFunctionalities(false);
+      });
   };
 
   const handleUpdate = (inboundIds) => {
@@ -1650,26 +1668,36 @@ const Exceptions = () => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
           setOpen(true);
-          let filteredData = tableProps;
-          filterData.data = res.data;
-          changeTableProps(filteredData);
+          for (let i = 0; i < res.data.length; i++) {
+            if (!res.data[i].edit) res.data.edit = ''
+            res.data[i].edit = res.data[i].id
+            if (!res.data[i].sl) res.data.sl = ''
+            res.data[i].sl = i + 1
+          }
+          let columnsData = produce(tableProps, draft => {
+            draft.data = res.data;
+          })
+          changeTableProps(columnsData);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox();
+          emptyCheckbox("exception-report", columnsData, changeTableProps);
         } else {
-          setResponse(res.data.msg);
-          setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox();
+          emptyCheckbox("exception-report", tableProps, changeTableProps);
+
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setOpenRowFunctionalities(false);
+        emptyCheckbox("exception-report", tableProps, changeTableProps);
+
+      });
   };
   const handleAnnotation = (inboundIds) => {
     setAnnotationLoading(true);
@@ -1680,26 +1708,39 @@ const Exceptions = () => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
           setOpen(true);
-          let filteredData = tableProps;
-          filterData.data = res.data;
-          changeTableProps(filteredData);
+          for (let i = 0; i < res.data.length; i++) {
+            if (!res.data[i].edit) res.data.edit = ''
+            res.data[i].edit = res.data[i].id
+            if (!res.data[i].sl) res.data.sl = ''
+            res.data[i].sl = i + 1
+          }
+          let columnsData = produce(tableProps, draft => {
+            draft.data = res.data;
+          })
+          changeTableProps(columnsData);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox();
+          emptyCheckbox("exception-report", columnsData, changeTableProps);
+
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox();
+          emptyCheckbox("exception-report", tableProps, changeTableProps);
+
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setOpenRowFunctionalities(false);
+        emptyCheckbox("exception-report", tableProps, changeTableProps);
+
+      });
   };
 
   const handleClear = (inboundIds) => {
@@ -1713,7 +1754,7 @@ const Exceptions = () => {
           filteredData.data.filter((item, indx) => {
             if (item.Inbound_Id === editData[0]) {
               filteredData.data[indx].Revenue = "";
-              filteredData.data[indx].Payout = "";
+              filteredData.data[indx].payoutAmount = "";
             }
           });
           setShowRevenueClearModal({ open: false });
@@ -1723,7 +1764,12 @@ const Exceptions = () => {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setOpenRowFunctionalities(false);
+        emptyCheckbox("exception-report", tableProps, changeTableProps);
+      });
   };
   const handleRevenueCloseModal = () => {
     setShowRevenueClearModal({ open: false });
@@ -1749,11 +1795,11 @@ const Exceptions = () => {
     emptyCheckbox();
   };
 
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("exception-report"));
+  const emptyCheckbox = (storageName, tempData, changeTableProps) => {
+    const storedData = JSON.parse(localStorage.getItem(`${storageName}`));
     storedData.selectedRows = [];
     localStorage.setItem("exception-report", JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
+    let filteredData = { ...tempData };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
@@ -2039,7 +2085,7 @@ const Exceptions = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }

@@ -390,7 +390,6 @@ class ExceptionController extends Controller
 
     public function updateRevenue(Request $request)
     {
-        Exception::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue'=>'','payoutAmount'=>'']);
-       
+        Exception::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue' => '', 'payoutAmount' => '']);
     }
 }

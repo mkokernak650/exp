@@ -31,6 +31,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
+import produce from "immer"
 import {
   Button,
   makeStyles,
@@ -892,7 +893,7 @@ export const fields = [
   },
   {
     caption: "Payout",
-    name: "Payout",
+    name: "payoutAmount",
     operators: [
       {
         caption: "Contains",
@@ -1184,9 +1185,9 @@ const BilledCallLogs = () => {
     Source_Hangup: item.Source_Hangup,
     Conn_Duration: item.Conn_Duration,
     Time_To_Call: item.Time_To_Call,
-    Call_Length_In_Seconds: item.call_Length_In_Seconds,
+    call_Length_In_Seconds: item.call_Length_In_Seconds,
     Revenue: item.Revenue,
-    Payout: item.payoutAmount,
+    payoutAmount: item.payoutAmount,
     Total_Cost: item.Total_Cost,
     Profit: item.Profit,
     Call_Status: item.call_Logs_status,
@@ -1227,7 +1228,7 @@ const BilledCallLogs = () => {
       {
         key: "Call_Date",
         title: "Call Date",
-        dataType: DataType.String,
+        dataType: DataType.Date,
         style: { width: 200 },
       },
       {
@@ -1329,43 +1330,43 @@ const BilledCallLogs = () => {
       {
         key: "Time_To_Call",
         title: "Time To Call",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 130 },
       },
       {
-        key: "Call_Length_In_Seconds",
+        key: "call_Length_In_Seconds",
         title: "Call Length In Seconds",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
         key: "Revenue",
         title: "Revenue",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Conn_Duration",
         title: "Conn.Duration",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 240 },
       },
       {
-        key: "Payout",
+        key: "payoutAmount",
         title: "Payout",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 100 },
       },
       {
         key: "Total_Cost",
         title: "Total Cost",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
         key: "Profit",
         title: "Profit",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 120 },
       },
       {
@@ -1406,6 +1407,15 @@ const BilledCallLogs = () => {
             Recording URL
           </a>
         );
+      }
+
+      if (column.key === "Call_Date") {
+        let shortMonth = value.toLocaleString('en-us', { month: 'short' });
+        let format_date = value
+        let dd = String(format_date.getDate()).padStart(2, "0");
+        let yyyy = format_date.getFullYear();
+        format_date = dd + "-" + shortMonth + "-" + yyyy;
+        return format_date;
       }
     },
   };
@@ -1532,14 +1542,14 @@ const BilledCallLogs = () => {
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         } else {
           setselectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
@@ -1549,10 +1559,9 @@ const BilledCallLogs = () => {
         setOpen(true);
         setResponse(res.data.msg);
         setShowDeleteModal({ open: false });
-        emptyCheckbox();
+        emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
       });
   };
-
   const handleAnnotation = () => {
     setAnnotationLoading(true);
     axios
@@ -1562,29 +1571,39 @@ const BilledCallLogs = () => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
           setOpen(true);
-          let filteredData = tableProps;
-          filterData.data = res.data;
-          changeTableProps(filteredData);
+          for (let i = 0; i < res.data.length; i++) {
+            if (!res.data[i].sl) res.data.sl = ''
+            res.data[i].sl = i + 1
+          }
+          let columnsData = produce(tableProps, draft => {
+            draft.data = res.data;
+          })
+          changeTableProps(columnsData);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
-          emptyCheckbox();
+          emptyCheckbox("billed-call-logs", columnsData, changeTableProps);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
-          emptyCheckbox();
+          emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         }
       })
-      .catch((err) => { });
+      .catch((err) => {
+        setInbounIds([]);
+        setselectedRowIds([]);
+        emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
+
+      });
   };
 
   const handleDeleteCloseModal = () => {
     setShowDeleteModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
-    emptyCheckbox();
+    emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
   };
 
   const handleDeleteOpenModal = () => {
@@ -1609,11 +1628,11 @@ const BilledCallLogs = () => {
     };
   }, [showColumns]);
 
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("billed-call-logs"));
+  const emptyCheckbox = (storageName, tempData, changeTableProps) => {
+    const storedData = JSON.parse(localStorage.getItem(`${storageName}`));
     storedData.selectedRows = [];
     localStorage.setItem("billed-call-logs", JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
+    let filteredData = { ...tempData };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
@@ -1622,7 +1641,7 @@ const BilledCallLogs = () => {
     window.onload = function () {
       const storedData = JSON.parse(localStorage.getItem("billed-call-logs"));
       if (storedData != null) {
-        emptyCheckbox();
+        emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
       }
     };
   }, []);

@@ -328,8 +328,9 @@ class RingbaCallLogController extends Controller
      */
     public function updateByInboundId(Request $request)
     {
-        
+
         $inboundIds = $request->inboundIds;
+        // $allData = '';
         if (is_array($inboundIds)) {
             $i = 0;
             while ($i < count($inboundIds)) {
@@ -339,6 +340,7 @@ class RingbaCallLogController extends Controller
         } else {
             $this->updateData($inboundIds);
         }
+
         $allData = RingbaCallLog::all();
         return response()->json($allData);
     }

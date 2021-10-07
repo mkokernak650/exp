@@ -183,7 +183,6 @@ class RingbaApiHelpers
   public function getUpdateAnnotation($inboundId)
   {
     $data =  $this->getDataById($inboundId);
-
     $annotation_tag = '';
     $has_annotation = 'NO';
 
