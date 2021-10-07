@@ -66,7 +66,7 @@ class ExceptionController extends Controller
 
     public function index()
     {
-        $allExceptions = self::$Exception::all();
+        $allExceptions = self::$Exception::latest()->get();
         return Inertia::render('Ringba/Exception', [
             'Exceptions' => $allExceptions
         ]);
@@ -197,6 +197,7 @@ class ExceptionController extends Controller
             // dd($apiResposnse);
 
             $getDataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
+            // dd($getDataById);
 
             $getDataById->Call_Date_Time       = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
             $getDataById->Has_Annotation       = $this->has_annotations;
@@ -222,6 +223,7 @@ class ExceptionController extends Controller
             $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
             $getDataById->Revenue              = $this->get_revenue;
             $getDataById->payoutAmount         = $this->get_payoutAmount;
+            // $getDataById->payoutAmount         = 'abbas'; for test
             $getDataById->Total_Cost           = $this->get_totalAmount;
             $getDataById->Profit               = $this->get_profit;
             $getDataById->City                 = $this->get_city;
