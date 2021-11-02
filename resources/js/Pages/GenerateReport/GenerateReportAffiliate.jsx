@@ -77,7 +77,7 @@ const GenerateReportAffiliate = () => {
     const affiliate_ids = val.split(",");
     setAffiliate({ [key]: affiliate_ids });
   };
-  
+
   const monthHandleChange = (e) => {
     const { name, value } = e.target;
     setMonth({ [name]: value });
@@ -137,12 +137,15 @@ const GenerateReportAffiliate = () => {
     }
   }
 
-  const fileName = `${values.type}_Report_For_${affiliate_name}_From_${
-    values.start_date
-  }_To_${values.end_date}_Created@${currentDate()}`;
+  const fileName = `${values.type}_Report_For_${affiliate_name}_From_${values.start_date
+    }_To_${values.end_date}_Created@${currentDate()}`;
 
   const handleSubmit = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
+      if (r.data.status == 500) {
+        setOpen(true);
+        setResponse(r.data.msg);
+      }
       exportToCSV(r.data, fileName);
     });
   };

@@ -122,7 +122,7 @@ div::-webkit-scrollbar-thumb {
 .ka .ka-thead {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 999;
   box-shadow: 1px 1px 3px 1px #ccc;
 }
 
@@ -174,7 +174,7 @@ div::-webkit-scrollbar-thumb {
   position: absolute;
   border-radius: 10px;
   top: 133px;
-  z-index: 999;
+  z-index: 9999;
   box-shadow: 0 0 5px 0 rgb(0 0 0 / 22%);
   backdrop-filter: blur(7px);
   background: rgba(255, 255, 255, 0.9);
@@ -229,7 +229,7 @@ div::-webkit-scrollbar-thumb {
 
 .search-sidebar {
   top: 64px;
-  z-index: 100;
+  z-index: 9999;
   width: 500px;
   height: 100%;
   position: fixed;
@@ -769,6 +769,28 @@ div::-webkit-scrollbar-thumb {
 
 .web-form .footer .divider {
   margin: 0 10px;
+}
+
+.selection-rows{
+  background-color: rgba(0, 105, 255, 0.2);
+    padding: 5px;
+    border-radius: 5px;
+    color: #031b4e;
+}
+
+.MuiAlert-filledSuccess{
+  background-color: #383838!important;
+  transition: bottom 0.5s, -webkit-transform 0.5s;
+  transition: bottom 0.5s, transform 0.5s;
+  transition: bottom 0.5s, transform 0.5s, -webkit-transform 0.5s;
+  z-index: 999999;
+  -webkit-transform: scale(0);
+          transform: scale(0);
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+}
+.MuiAlert-filledSuccess:hover{
+  background-color: rgba(255, 255, 255, 0.2)!important;
+
 }
 
 /*footer*/

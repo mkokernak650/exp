@@ -135,6 +135,7 @@ class RingbaApiHelpers
    */
   private function getDataById($inboundId)
   {
+
     $params = [
       'dateRange' => [
         'past' => 10000,
@@ -153,15 +154,28 @@ class RingbaApiHelpers
       "filters" => [
         [
           'key' => 'inboundCallId',
-          'value' => $inboundId
+          'value' => $inboundId,
         ]
       ]
     ];
 
     $response =  json_decode($this->postRequest('calllogs/date', $params));
-    // dd($response->result->callLog->data);
     return $response->result->callLog->data;
   }
+
+
+
+  // private function getDataById($inboundId)
+  // {
+
+  //   $params = [
+  //     "InboundCallIds" => $inboundId,
+  //   ];
+
+  //   $response =  json_decode($this->postRequest('calllogs/detail', $params));
+  //   dd($response);
+  //   return $response->result->callLog->data;
+  // }
 
   /**
    * @for update Ringba call log
@@ -171,6 +185,7 @@ class RingbaApiHelpers
   public function getUpdateData($inboundId)
   {
     $result =  $this->getDataById($inboundId);
+    // dd($result);
     return $result[0];
   }
 
@@ -194,7 +209,7 @@ class RingbaApiHelpers
           if ($tag->tagType === 'Annotations') {
             $annotation_tag = $tag->tagName;
             $has_annotation = 'Yes';
-          }else {
+          } else {
             $annotation_tag = '';
             $has_annotation = 'NO';
           }

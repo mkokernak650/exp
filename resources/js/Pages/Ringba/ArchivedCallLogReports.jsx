@@ -32,11 +32,13 @@ import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
-import { Button, makeStyles, Snackbar } from "@material-ui/core";
+import { Button, makeStyles } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
+
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -46,9 +48,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 export const fields = [
   {
     caption: "SN",
@@ -918,6 +918,9 @@ const ArchivedCallLogReports = () => {
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [showCallLogModal, setShowCallLogModal] = useState({
+    open: false,
+  });
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
   const rowFunctionalitiesRef = useRef();
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -933,12 +936,7 @@ const ArchivedCallLogReports = () => {
       setPosition({ x: e.screenX, y: e.screenY });
     }
   };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+
   const dataArray = archivedCallLogs.map((item, index) => ({
     // edit: item.id,
     sl: index + 1,
@@ -1214,18 +1212,18 @@ const ArchivedCallLogReports = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < archivedCallLogs.length) {
-              selectedRowIds.push(archivedCallLogs[i].id);
-              inboundIds.push(archivedCallLogs[i].Inbound_Id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                inboundIds.push(tableProps.data[i].Inbound_Id);
+                continue;
+              }
               i++;
             }
           } else {
             dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
             selectedRowIds.splice(0, selectedRowIds.length);
             inboundIds.splice(0, inboundIds.length);
-
-            // }
             if (selectedRowIds.length < 1) {
               setTableToolbar(false);
             }
@@ -1294,7 +1292,7 @@ const ArchivedCallLogReports = () => {
       });
   };
 
-  const MoveCallLog = () => {
+  const handleMoveCallLog = (inboundIds) => {
     axios
       .post(route("archived.to.call.log"), { inboundIds })
       .then((res) => {
@@ -1309,24 +1307,26 @@ const ArchivedCallLogReports = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
+          setShowCallLogModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
+          setShowCallLogModal({ open: false })
+
         }
       })
       .catch((err) => { });
   };
 
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true })
+  }
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  };
-
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
-  };
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -1403,7 +1403,7 @@ const ArchivedCallLogReports = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -1413,10 +1413,13 @@ const ArchivedCallLogReports = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={MoveCallLog}
+          onClick={() => handleOpenModal(setShowCallLogModal)}
         >
           Move Call Log
         </Button>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -1429,8 +1432,7 @@ const ArchivedCallLogReports = () => {
         style={style}
       >
         <div>
-          <span onClick={() => MoveCallLog}>Move CallLog</span>
-          {/* <span onClick={handleDeleteOpenModal}>Delete</span> */}
+          <span onClick={() => handleMoveCallLog}>Move CallLog</span>
         </div>
       </div>
     );
@@ -1610,50 +1612,31 @@ const ArchivedCallLogReports = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
+        <SnackBar open={open} setOpen={setOpen} response={response} />
 
-        <NormalModal
+        <ConfirmModal
+          open={showCallLogModal.open}
+          setOpen={setShowCallLogModal}
+          btnAction={() => handleMoveCallLog(inboundIds)}
+          closeAction={() => handleCloseModal(setShowCallLogModal)}
+          width={"450px"}
+          title={`${inboundIds.length > 1
+            ? "Do you want to move these records to Call Log?"
+            : "Do you want to move this record to Call Log?"
+            }`}
+        ></ConfirmModal>
+
+        <ConfirmModal
           open={showDeleteModal.open}
           setOpen={setShowDeleteModal}
-          width={"450px"}
-          title={""}
-        >
-          <div className="clear-revenue-payout">
-            <span>
-              {inboundIds.length > 1
-                ? "Do you want to delete these records?"
-                : "Do you want to delete this record?"}
-            </span>
-            <div className="button">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={deleteHandler}
-              >
-                Yes
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleDeleteCloseModal}
-              >
-                No
-              </Button>
-            </div>
-
-            <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-              <img src={Cancel} alt="close-modal-icon"></img>
-            </div>
-          </div>
-        </NormalModal>
+          btnAction={deleteHandler}
+          closeAction={() => handleCloseModal(setShowDeleteModal)}
+          width={"400px"}
+          title={`${inboundIds.length > 1
+            ? "Do you want to delete these records?"
+            : "Do you want to delete this record?"
+            }`}
+        ></ConfirmModal>
       </div>
     </>
   );

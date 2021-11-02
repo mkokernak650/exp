@@ -62,7 +62,7 @@ class TargetController extends Controller
         $result = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200, "targetData" => Target::all()]);
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "targetData" => Target::all()]);
         } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }

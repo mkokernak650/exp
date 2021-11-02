@@ -314,6 +314,9 @@ Route::get('/broadcast-month-report', [BroadCastMonthController::class, 'broadCa
 Route::post('/broadcast-month-delete', [BroadCastMonthController::class, 'delete'])
     ->name('broadcast.month.delete');
 
+    Route::post('/broadcast-month-edit', [BroadCastMonthController::class, 'edit'])
+    ->name('broadcast.month.edit');
+
 Route::get('/add-broadcast-week', [BroadCastWeeksController::class, 'index'])
     ->name('add.broadcast.week');
 
@@ -325,6 +328,9 @@ Route::get('/broadcast-week-report', [BroadCastWeeksController::class, 'broadCas
 
 Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'])
     ->name('broadcast.week.delete');
+
+Route::post('/broadcast-week-edit', [BroadCastWeeksController::class, 'edit'])
+    ->name('broadcast.week.edit');
 
 
 //TODO Generate-Report 

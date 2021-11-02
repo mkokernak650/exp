@@ -21,7 +21,7 @@ class ArchivedCallLogController extends Controller
      */
     public function index()
     {
-        $results = ArchivedCallLog::orderBy('id', 'DESC')->get();
+        $results = ArchivedCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/ArchivedCallLogReports', [
             'archivedCallLogs' => $results
         ]);

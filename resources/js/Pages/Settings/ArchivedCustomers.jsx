@@ -26,19 +26,16 @@ import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Edit from "../../../images/edit1.svg";
 import Cancel from "../../../images/Cancel.svg";
-
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles, Snackbar } from "@material-ui/core";
+import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import NormalModal from "../../Shared/NormalModal";
-import MuiAlert from "@material-ui/lab/Alert";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -56,9 +53,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 
 export const fields = [
   {
@@ -203,7 +198,11 @@ const ArchivedCustomers = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [showModal, setShowModal] = useState({ open: false });
+  const [showEditModal, setShowEditModal] = useState({ open: false });
+  const [showActiveModal, setShowActiveModal] = useState({
+    open: false,
+  });
+
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
@@ -261,8 +260,11 @@ const ArchivedCustomers = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < MarketExceptionReport.length) {
-              selectedRowIds.push(MarketExceptionReport[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -324,7 +326,7 @@ const ArchivedCustomers = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -361,12 +363,7 @@ const ArchivedCustomers = () => {
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
   };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+
   const [serachSidebar, setSearchSidebar] = useState(false);
 
   const handleSearch = () => {
@@ -379,27 +376,6 @@ const ArchivedCustomers = () => {
   const closeSidebar = () => {
     setSearchSidebar(false);
   };
-  const deleteHandler = () => {
-    axios
-      .post(route("customer.delete"), { selectedRowIds })
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-        } else {
-          console.log(res.data.msg);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
 
   const handleEdit = (itemId) => {
     tableProps.data.filter((item) => {
@@ -407,7 +383,7 @@ const ArchivedCustomers = () => {
         setEditData(item);
       }
     });
-    setShowModal({ open: true });
+    setShowEditModal({ open: true });
   };
 
   const handleActive = () => {
@@ -425,13 +401,16 @@ const ArchivedCustomers = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setselectedRowIds([]);
+          setShowActiveModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setselectedRowIds([]);
+          setShowActiveModal({ open: false })
+
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleEditChange = (e) => {
@@ -452,9 +431,12 @@ const ArchivedCustomers = () => {
             }
           });
           setEditData();
-          setShowModal({ open: false });
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg)
         } else {
-          console.log(res.data.msg);
+          setOpen(true);
+          setResponse(res.data.msg)
         }
       })
       .catch((err) => {
@@ -462,30 +444,44 @@ const ArchivedCustomers = () => {
       });
   };
 
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
+
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  }
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
   };
 
   useEffect(() => M.AutoInit());
 
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("archived-customers"));
+    storedData.selectedRows = [];
+    localStorage.setItem("archived-customers", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
-        {/* <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
-          </IconButton>
-        </Tooltip> */}
-
         <Button
           variant="contained"
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleActive}
+          onClick={() => handleOpenModal(setShowActiveModal)}
         >
           Active
         </Button>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -623,7 +619,7 @@ const ArchivedCustomers = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -647,21 +643,11 @@ const ArchivedCustomers = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
       </div>
 
       <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
         width={"600px"}
         title={"Edit Customer"}
       >
@@ -723,6 +709,20 @@ const ArchivedCustomers = () => {
           </div>
         </div>
       </NormalModal>
+
+      <SnackBar open={open} setOpen={setOpen} response={response} />
+
+      <ConfirmModal
+        open={showActiveModal.open}
+        setOpen={setShowActiveModal}
+        btnAction={handleActive}
+        closeAction={() => handleCloseModal(setShowActiveModal)}
+        width={"450px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to active these customers?"
+          : "Do you want to active this customer?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

@@ -28,7 +28,7 @@ class BilledCallLogController extends Controller
     public function index()
     {
         return Inertia::render('Ringba/BilledCallLogs', [
-            'billedCallLogs' => self::$billedCallLog::orderBy('id', 'DESC')->get(),
+            'billedCallLogs' => self::$billedCallLog::orderBy('id', 'asc')->get(),
         ]);
     }
 
@@ -59,7 +59,6 @@ class BilledCallLogController extends Controller
             $billedCallLog->SN                  = $data->SN;
             $billedCallLog->Recording_Url       = $data->Recording_Url;
             $billedCallLog->Call_Date_Time      = $data->Call_Date_Time;
-            // $billedCallLog->Call_Date           = $data->Call_Date;
             $billedCallLog->Call_Date           = dateFormat($data->Call_Date);
             $billedCallLog->Duplicate_Call      = $data->Duplicate_Call;
             $billedCallLog->Affiliate           = $data->Affiliate;
@@ -174,17 +173,8 @@ class BilledCallLogController extends Controller
     public function getAnnotation(Request $request)
     {
         $inboundIds = $request->inboundIds;
-        if (is_array($inboundIds)) {
-            $i = 0;
-            while ($i < count($inboundIds)) {
-                $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
-                $this->updateAnnotation($inboundIds[$i], $data);
-                $i++;
-            }
-        } else {
-            $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
-            $this->updateAnnotation($inboundIds, $data);
-        }
+        $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
+        $this->updateAnnotation($inboundIds, $data);
         $allData = self::$billedCallLog::all();
         return response()->json($allData);
     }

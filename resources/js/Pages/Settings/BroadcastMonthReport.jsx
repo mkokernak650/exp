@@ -1,7 +1,7 @@
 import Layout from "../Layout/Layout";
 // import "./Demo.scss";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -25,9 +25,7 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-// import ThreeDots from "../../../images/three-dots.svg";
 import Edit from "../../../images/edit1.svg";
-
 import Cancel from "../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
@@ -39,6 +37,8 @@ import TextField from "@material-ui/core/TextField";
 import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
 
 const useStyles = makeStyles(() => ({
@@ -95,7 +95,7 @@ export const fields = [
       },
     ],
   }
-  
+
 ];
 
 export const groups = [
@@ -124,8 +124,12 @@ const BroadcastMonthReport = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [showModal, setShowModal] = useState({ open: false });
+  const [showEditModal, setShowEditModal] = useState({ open: false });
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const [editData, setEditData] = useState();
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
+  const showColumnRef = useRef();
 
   const handleEdit = (itemId) => {
     BroadCastMonths.filter((item) => {
@@ -133,20 +137,33 @@ const BroadcastMonthReport = () => {
         setEditData(item);
       }
     });
-    setShowModal({ open: true });
+    setShowEditModal({ open: true });
   };
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
   const handleEditSubmit = () => {
     axios
-      .post(route("market.exception.edit"), editData)
+      .post(route("broadcast.month.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
-          setEditData();
-          setShowModal({ open: false });
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id === editData.id) {
+              filteredData.data[indx].broad_cast_month = editData.broad_cast_week;
+              filteredData.data[indx].start_date = editData.start_date;
+              filteredData.data[indx].end_date = editData.end_date;
+            }
+          });
+          setEditData([]);
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
         } else {
-          console.log(res.data.msg);
+          setEditData([]);
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
         }
       })
       .catch((err) => {
@@ -154,16 +171,24 @@ const BroadcastMonthReport = () => {
       });
   };
 
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  }
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
   };
+
 
   const dataArray = BroadCastMonths.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
     broadcast_month: item.broad_cast_month,
     start_date: item.start_date,
-    end_date:item.end_date,
+    end_date: item.end_date,
     id: item.id,
     key: index,
   }));
@@ -210,8 +235,11 @@ const BroadcastMonthReport = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < BroadcastMonthReport.length) {
-              selectedRowIds.push(BroadcastMonthReport[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -230,10 +258,10 @@ const BroadcastMonthReport = () => {
 
   const tablePropsInit = {
     columns: [
-      // {
-      //   key: "edit",
-      //   style: { width: 20 },
-      // },
+      {
+        key: "edit",
+        style: { width: 20 },
+      },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -267,7 +295,7 @@ const BroadcastMonthReport = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -275,15 +303,15 @@ const BroadcastMonthReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // format: ({ column, value }) => {
-    //   if (column.key === "edit") {
-    //     return (
-    //       <div className="edit-icon" onClick={() => handleEdit(value)}>
-    //         <img src={Edit} alt="edit-icon"></img>
-    //       </div>
-    //     );
-    //   }
-    // },
+    format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
+    },
   };
 
   const OPTION_KEY = "broadcast-month-report";
@@ -330,8 +358,15 @@ const BroadcastMonthReport = () => {
           changeTableProps(filteredData);
           setselectedRowIds([]);
           setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false })
         } else {
-          console.log(res.data.msg);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
@@ -339,16 +374,51 @@ const BroadcastMonthReport = () => {
       });
   };
 
-  useEffect(() => M.AutoInit());
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("broadcast-month-report"));
+    storedData.selectedRows = [];
+    localStorage.setItem("broadcast-month-report", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
 
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("broadcast-week-report"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
+  useEffect(() => M.AutoInit());
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -419,7 +489,7 @@ const BroadcastMonthReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns} ref={showColumnRef}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -487,7 +557,7 @@ const BroadcastMonthReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -512,45 +582,48 @@ const BroadcastMonthReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
       </div>
+      <SnackBar open={open} setOpen={setOpen} response={response} />
 
       <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
         width={"600px"}
-        title={"Edit Market Exception"}
+        title={"Edit BroadCast Month"}
       >
-        <div className="edit_target">
+        <div className="edit-broadcast-month">
           <form className={classes.form}>
-            <span>Customer:</span>
+            <span>BroadCast Month:</span>
             <TextField
-              value={editData ? editData.customer_id : ""}
+              value={editData ? editData.broad_cast_month : ""}
               fullWidth
               margin="normal"
-              name="customer_id"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Market:</span>
-            <TextField
-              value={editData ? editData.market_id : ""}
-              fullWidth
-              margin="normal"
-              name="market_id"
+              name="broad_cast_month"
               type="text"
               variant="outlined"
               onChange={handleEditChange}
             />
             <span>Start Date:</span>
+            <TextField
+              defaultValue={editData ? editData.start_date : ""}
+              fullWidth
+              margin="normal"
+              name="start_date"
+              type="date"
+              variant="outlined"
+              onChange={handleEditChange}
+            />
+            <span>End Date:</span>
 
             <TextField
-              type="date"
-              name="start_date"
-              onChange={handleEditChange}
-              defaultValue={editData ? editData.start_date : ""}
-              margin="normal"
+              defaultValue={editData ? editData.end_date : ""}
               fullWidth
+              margin="normal"
+              name="end_date"
+              type="date"
+              variant="outlined"
+              onChange={handleEditChange}
             />
+
             <Button
               variant="contained"
               color="primary"
@@ -561,11 +634,23 @@ const BroadcastMonthReport = () => {
             </Button>
           </form>
 
-          <div onClick={handleCloseModal} className="close-modal-icon">
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
       </NormalModal>
+
+      <ConfirmModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

@@ -1567,9 +1567,11 @@ const ZipcodeDatabase = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < allZipcodes.length) {
-              selectedRowIds.push(allZipcodes[i].id);
-
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -1621,33 +1623,33 @@ const ZipcodeDatabase = () => {
   const openExportModal = () => {
     setExportModal({ open: true });
   };
-  const deleteHandler = () => {
-    axios
-      .post(route("zipcode-data-delete"), { selectedRowIds })
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-        } else {
-          setOpen(true);
-          setResponse(res.data.msg);
-          setselectedRowIds([]);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setTableToolbar(false);
-        setselectedRowIds([]);
-      });
-  };
+  // const deleteHandler = () => {
+  //   axios
+  //     .post(route("zipcode-data-delete"), { selectedRowIds })
+  //     .then((res) => {
+  //       if (res.data.status_code === 200) {
+  //         let filteredData = tableProps;
+  //         const newData = filteredData.data.filter(
+  //           (item) => !selectedRowIds.includes(item.id)
+  //         );
+  //         filteredData.data = newData;
+  //         changeTableProps(filteredData);
+  //         setselectedRowIds([]);
+  //         setTableToolbar(false);
+  //         setOpen(true);
+  //         setResponse(res.data.msg);
+  //       } else {
+  //         setOpen(true);
+  //         setResponse(res.data.msg);
+  //         setselectedRowIds([]);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       setTableToolbar(false);
+  //       setselectedRowIds([]);
+  //     });
+  // };
 
   const handleImportChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -1676,7 +1678,7 @@ const ZipcodeDatabase = () => {
           setResponse("Import failed");
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const triggerExportLink = (link) => {
@@ -1707,17 +1709,20 @@ const ZipcodeDatabase = () => {
 
   useEffect(() => M.AutoInit());
 
-  const TableToolbar = () => {
-    return (
-      <div className="table-toolbar">
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
-          </IconButton>
-        </Tooltip>
-      </div>
-    );
-  };
+  // const TableToolbar = () => {
+  //   return (
+  //     <div className="table-toolbar">
+  //       {/* <Tooltip title="Delete">
+  //         <IconButton aria-label="delete" onClick={deleteHandler}>
+  //           <DeleteIcon style={{ color: "#031b4e" }} />
+  //         </IconButton>
+  //       </Tooltip> */}
+  //       <div className="selection-rows">
+  //         {selectedRowIds.length} Row Selected
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -1781,9 +1786,7 @@ const ZipcodeDatabase = () => {
       <Helmet title="ZipCode Database" />
 
       <div className="selection-demo">
-        {tableToolbar ? (
-          <TableToolbar />
-        ) : (
+      
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
@@ -1852,7 +1855,7 @@ const ZipcodeDatabase = () => {
               ""
             )}
           </div>
-        )}
+      
         <Table
           {...tableProps}
           childComponents={{
@@ -1879,7 +1882,7 @@ const ZipcodeDatabase = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }

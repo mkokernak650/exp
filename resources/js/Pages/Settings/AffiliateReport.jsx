@@ -37,9 +37,9 @@ import TextField from "@material-ui/core/TextField";
 import { Button, makeStyles, Snackbar } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
-import MuiAlert from "@material-ui/lab/Alert";
-
 const useStyles = makeStyles(() => ({
   topBtn: {
     display: "flex",
@@ -56,9 +56,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 export const fields = [
   {
@@ -279,11 +276,15 @@ const AffiliateReport = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showEditModal, setShowEditModal] = useState({ open: false });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [showArchivedModal, setShowArchivedModal] = useState({
+    open: false,
+  });
+
   const showColumnRef = useRef();
 
   const dataArray = allAffiliates.map((item, index) => ({
@@ -340,8 +341,11 @@ const AffiliateReport = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < MarketExceptionReport.length) {
-              selectedRowIds.push(MarketExceptionReport[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -446,12 +450,7 @@ const AffiliateReport = () => {
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
   };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+
   const [serachSidebar, setSearchSidebar] = useState(false);
 
   const handleSearch = () => {
@@ -506,7 +505,7 @@ const AffiliateReport = () => {
         setEditData(item);
       }
     });
-    setShowModal({ open: true });
+    setShowEditModal({ open: true });
   };
 
   const handleArchived = () => {
@@ -525,14 +524,17 @@ const AffiliateReport = () => {
           setTableToolbar(false);
           setselectedRowIds([]);
           emptyCheckbox();
+          setShowArchivedModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setselectedRowIds([]);
           emptyCheckbox();
+          setShowArchivedModal({ open: false })
+
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleEditChange = (e) => {
@@ -554,9 +556,12 @@ const AffiliateReport = () => {
             }
           });
           setEditData();
-          setShowModal({ open: false });
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
         } else {
-          console.log(res.data.msg);
+          setOpen(true);
+          setResponse(res.data.msg);
         }
       })
       .catch((err) => {
@@ -564,19 +569,17 @@ const AffiliateReport = () => {
       });
   };
 
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
-  };
 
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  };
+  }
 
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
   };
 
   useEffect(() => {
@@ -620,7 +623,7 @@ const AffiliateReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -630,10 +633,13 @@ const AffiliateReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleArchived}
+          onClick={() => handleOpenModal(setShowArchivedModal)}
         >
           Archived
         </Button>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -698,7 +704,6 @@ const AffiliateReport = () => {
   return (
     <>
       <Helmet title="Affiliate Report" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -776,7 +781,7 @@ const AffiliateReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -800,21 +805,12 @@ const AffiliateReport = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
       </div>
+      <SnackBar open={open} setOpen={setOpen} response={response} />
 
       <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
         width={"600px"}
         title={"Edit Affiliate"}
       >
@@ -881,42 +877,35 @@ const AffiliateReport = () => {
             </Button>
           </form>
 
-          <div onClick={handleCloseModal} className="close-modal-icon">
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
       </NormalModal>
 
-      <NormalModal
+      <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            {selectedRowIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"}
-          </span>
-          <div className="button">
-            <Button variant="contained" color="primary" onClick={deleteHandler}>
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeleteCloseModal}
-            >
-              No
-            </Button>
-          </div>
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
 
-          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
+      <ConfirmModal
+        open={showArchivedModal.open}
+        setOpen={setShowArchivedModal}
+        btnAction={handleArchived}
+        closeAction={() => handleCloseModal(setShowArchivedModal)}
+        width={"450px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to move these records to archive?"
+          : "Do you want to move this record to archive?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

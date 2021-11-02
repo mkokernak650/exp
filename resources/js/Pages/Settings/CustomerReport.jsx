@@ -34,11 +34,12 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles, Snackbar } from "@material-ui/core";
+import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
-import MuiAlert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -56,9 +57,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 export const fields = [
   {
@@ -203,13 +201,16 @@ const CustomerReport = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showEditModal, setShowEditModal] = useState({ open: false });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const showColumnRef = useRef();
+  const [showArchivedModal, setShowArchivedModal] = useState({
+    open: false,
+  });
 
+  const showColumnRef = useRef();
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -263,8 +264,11 @@ const CustomerReport = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < MarketExceptionReport.length) {
-              selectedRowIds.push(MarketExceptionReport[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -363,12 +367,7 @@ const CustomerReport = () => {
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
   };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+
   const [serachSidebar, setSearchSidebar] = useState(false);
 
   const handleSearch = () => {
@@ -418,7 +417,7 @@ const CustomerReport = () => {
         setEditData(item);
       }
     });
-    setShowModal({ open: true });
+    setShowEditModal({ open: true });
   };
 
   const handleArchived = () => {
@@ -436,13 +435,19 @@ const CustomerReport = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setselectedRowIds([]);
+          setShowArchivedModal({ open: false })
+          emptyCheckbox();
+
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setselectedRowIds([]);
+          setShowArchivedModal({ open: false })
+          emptyCheckbox();
+
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const handleEditChange = (e) => {
@@ -463,9 +468,14 @@ const CustomerReport = () => {
             }
           });
           setEditData();
-          setShowModal({ open: false });
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
         } else {
-          console.log(res.data.msg);
+          setEditData();
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
         }
       })
       .catch((err) => {
@@ -473,19 +483,17 @@ const CustomerReport = () => {
       });
   };
 
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
-  };
 
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  };
+  }
 
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
   };
 
   useEffect(() => {
@@ -518,7 +526,6 @@ const CustomerReport = () => {
   useEffect(() => {
     window.onload = function () {
       const storedData = JSON.parse(localStorage.getItem("customer-report"));
-      console.log(storedData);
       if (storedData != null) {
         emptyCheckbox();
       }
@@ -530,7 +537,7 @@ const CustomerReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -540,10 +547,13 @@ const CustomerReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleArchived}
+          onClick={() => handleOpenModal(setShowArchivedModal)}
         >
           Archived
         </Button>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -686,7 +696,6 @@ const CustomerReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -711,20 +720,11 @@ const CustomerReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
       </div>
-
+      <SnackBar open={open} setOpen={setOpen} response={response} />
       <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
         width={"600px"}
         title={"Edit Customer"}
       >
@@ -781,42 +781,34 @@ const CustomerReport = () => {
             </Button>
           </form>
 
-          <div onClick={handleCloseModal} className="close-modal-icon">
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
       </NormalModal>
-
-      <NormalModal
+      <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            {selectedRowIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"}
-          </span>
-          <div className="button">
-            <Button variant="contained" color="primary" onClick={deleteHandler}>
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeleteCloseModal}
-            >
-              No
-            </Button>
-          </div>
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
 
-          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
+      <ConfirmModal
+        open={showArchivedModal.open}
+        setOpen={setShowArchivedModal}
+        btnAction={handleArchived}
+        closeAction={() => handleCloseModal(setShowArchivedModal)}
+        width={"450px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to move these records to archive?"
+          : "Do you want to move this record to archive?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

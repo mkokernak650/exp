@@ -12,6 +12,9 @@ import {
 import { Helmet } from "react-helmet";
 import { currentDate } from "../../Helpers/CurrentDate";
 import { usePage } from "@inertiajs/inertia-react";
+import axios from "axios";
+import SnackBar from "../../Shared/SnackBar";
+
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -46,6 +49,8 @@ const useStyles = makeStyles((theme) => ({
 const GetRingbaData = () => {
   const classes = useStyles();
   const { lastDataFetchedDate } = usePage().props;
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
   const [values, setValues] = useState({
     start_date:
       lastDataFetchedDate.length > 0
@@ -64,11 +69,29 @@ const GetRingbaData = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    Inertia.post("temp-ringba-data", values, {
-      onFinish: () => {
+    axios.post(route("temp-ringba-data"), values)
+      .then((res) => {
         setLoading(false);
-      },
-    });
+        if (res.status === 200) {
+          setOpen(true);
+          setResponse("Successfully Data Fetched");
+        } else {
+          setOpen(true);
+          setResponse("Data Fetching Failed");
+        }
+        console.log(res)
+      })
+      .catch((err) => {
+        setLoading(false);
+        setOpen(true);
+        setResponse("Data Fetching Failed");
+      })
+
+    // Inertia.post("temp-ringba-data", values, {
+    //   onFinish: () => {
+    //     setLoading(false);
+    //   },
+    // });
   };
   return (
     <div>
@@ -119,6 +142,7 @@ const GetRingbaData = () => {
           </Button>
         </form>
       </Paper>
+      <SnackBar open={open} setOpen={setOpen} response={response} />
     </div>
   );
 };
