@@ -131,12 +131,6 @@ class RingbaCallLogController extends Controller
 
         $sn_id = empty(self::$RingbaCallLog->latest('id')->first()->id) ? 0 : self::$RingbaCallLog->latest('id')->first()->id;
 
-        $ringbaCallLogsData      = getInboundIds('ringba_call_logs');
-        $archivedCallLogData     = getInboundIds('archived_call_logs');
-        $pendingBillCallLogData  = getInboundIds('pending_bill_call_logs');
-        $billedCallLogData       = getInboundIds('billed_call_logs');
-
-        // varDump($ringbaCallLogsData);
 
         foreach ($ringbaMain as $row) {
             $sn_id++;
@@ -146,28 +140,19 @@ class RingbaCallLogController extends Controller
 
             $ringbaCallLogs             = new RingbaCallLog();
 
-            // $checkRingbaCallLogs        = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
-            // $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
-            // $checkPendingBillCallLog    = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
-            // $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
+            $checkRingbaCallLogs        = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
+            $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
+            $checkPendingBillCallLog    = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
+            $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
 
-            if (in_array($this->get_inboundCallId, $ringbaCallLogsData)) {
-                $checkRingbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
+            if ($checkRingbaCallLogs !== null) {
                 // for existing data update
                 $checkRingbaCallLogs->call_Logs_status = $this->get_call_log_status;
                 $this->ringbaDataObject($checkRingbaCallLogs);
             } else {
 
-                // if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
-                //     // $row->delete();
-                //     continue;
-                // }
-                if (
-                    in_array($this->get_inboundCallId, $ringbaCallLogsData)
-                    || in_array($this->get_inboundCallId, $archivedCallLogData)
-                    || in_array($this->get_inboundCallId, $pendingBillCallLogData)
-                    || in_array($this->get_inboundCallId, $billedCallLogData)
-                ) {
+                if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag) {
+                    // $row->delete();
                     continue;
                 }
 
@@ -537,7 +522,7 @@ class RingbaCallLogController extends Controller
                 $customer_inc->save();
             }
         }
-        
+
         return true;
     }
 
