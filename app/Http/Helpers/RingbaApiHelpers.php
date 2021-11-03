@@ -125,7 +125,7 @@ class RingbaApiHelpers
       $ringbaData->tags = json_encode($data->tags);
       $ringbaData->save();
     }
-    // return ['success'];
+    return $result;
   }
 
   /**

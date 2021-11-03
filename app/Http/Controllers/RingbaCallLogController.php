@@ -21,6 +21,8 @@ use App\Models\{
     ZipcodeByTelevisionMarket,
     RingbaDataFetchedLog
 };
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class RingbaCallLogController extends Controller
 {
@@ -118,6 +120,7 @@ class RingbaCallLogController extends Controller
     }
     public function getCallLogsScheduler()
     {
+        ignore_user_abort();
         $this->ringbaCallLogs();
     }
 
@@ -537,7 +540,7 @@ class RingbaCallLogController extends Controller
                 $customer_inc->save();
             }
         }
-        
+
         return true;
     }
 
@@ -581,8 +584,20 @@ class RingbaCallLogController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
         ]);
-        $this->ringbaCallLogs();
-        // for transfer all data in Ring call log report table;
+        // $this->ringbaCallLogs();
+        // if ($result) {
+        //     $client = new Client(
+        //         [
+        //             // 'base_uri' => 'http://127.0.0.1:8000',
+        //             'timeout'  => 0.5,
+        //         ]
+        //     );
+        //     try {
+        //         $response = $client->get('http://127.0.0.1:8000/get-call-logs-secheduler/');
+        //     } catch (RequestException $e) {
+        //         return (string) $e->getResponse()->getBody();
+        //     }
+        // }
 
         return $result;
 
