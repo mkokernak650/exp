@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         // $schedule->command('getdata:daily')->daily();
         $schedule->command('getdata:daily');
+        $schedule->command('getcalllog:daily');
 
         // get Rinba data 
         // $schedule->call( function (){

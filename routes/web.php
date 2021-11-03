@@ -314,7 +314,7 @@ Route::get('/broadcast-month-report', [BroadCastMonthController::class, 'broadCa
 Route::post('/broadcast-month-delete', [BroadCastMonthController::class, 'delete'])
     ->name('broadcast.month.delete');
 
-    Route::post('/broadcast-month-edit', [BroadCastMonthController::class, 'edit'])
+Route::post('/broadcast-month-edit', [BroadCastMonthController::class, 'edit'])
     ->name('broadcast.month.edit');
 
 Route::get('/add-broadcast-week', [BroadCastWeeksController::class, 'index'])
@@ -377,3 +377,6 @@ Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'update
 
 Route::post('/exception-revenue-update', [ExceptionController::class, 'updateRevenue'])
     ->name('exception.revenue.update');
+
+
+Route::get('/get-call-logs-secheduler', [RingbaCallLogController::class, 'getCallLogsScheduler'])->name('get.call.log.secheduler');
