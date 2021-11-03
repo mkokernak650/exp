@@ -1,6 +1,6 @@
 import Layout from "./Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -32,6 +32,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import { makeStyles } from "@material-ui/core";
 import axios from "axios";
+import SnackBar from "../Shared/SnackBar";
+import ConfirmModal from "../Shared/ConfirmModal";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -586,6 +588,11 @@ const WebFormReport = () => {
     id: item.id,
     key: index,
   }));
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const showColumnRef = useRef();
+
   const SelectionCell = ({
     rowKeyValue,
     dispatch,
@@ -629,8 +636,11 @@ const WebFormReport = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < allReports.length) {
-              selectedRowIds.push(allReports[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -802,11 +812,17 @@ const WebFormReport = () => {
             (item) => !selectedRowIds.includes(item.id)
           );
           filteredData.data = newData;
-          changeTableProps(filteredData);
           setselectedRowIds([]);
           setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
         } else {
-          console.log(res.data.msg);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
         }
       })
       .catch((err) => {
@@ -814,16 +830,66 @@ const WebFormReport = () => {
       });
   };
 
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  }
+
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const emptyCheckbox = () => {
+    const storedData = JSON.parse(localStorage.getItem("webform-report"));
+    storedData.selectedRows = [];
+    localStorage.setItem("webform-report", JSON.stringify(storedData));
+    let filteredData = { ...tableProps };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
+
+  useEffect(() => {
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem("webform-report"));
+      if (storedData != null) {
+        emptyCheckbox();
+      }
+    };
+  }, []);
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -886,104 +952,119 @@ const WebFormReport = () => {
   };
 
   return (
-    <div className="selection-demo">
-      {tableToolbar ? (
-        <TableToolbar />
-      ) : (
-        <div className="table-top">
-          <div className="columns-show-hide" onClick={handleColumns}>
-            <img src={eyeIcon} alt="search"></img>
-          </div>
-          <div className="search-icon" onClick={handleSearch}>
-            <span>Search Here</span>
-            <img src={search} alt="search"></img>
-          </div>
+    <>
+      <div className="selection-demo">
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
+          <div className="table-top">
+            <div className="columns-show-hide" onClick={handleColumns}>
+              <img src={eyeIcon} alt="search"></img>
+            </div>
+            <div className="search-icon" onClick={handleSearch}>
+              <span>Search Here</span>
+              <img src={search} alt="search"></img>
+            </div>
 
-          {serachSidebar ? (
-            <div className="search-sidebar">
-              <div className="search-top">
-                <div className="title">
-                  <span>Search</span>
+            {serachSidebar ? (
+              <div className="search-sidebar">
+                <div className="search-top">
+                  <div className="title">
+                    <span>Search</span>
+                  </div>
+                  <a className="close-nav" onClick={closeSidebar}>
+                    <img src={closeNav} alt="file not found"></img>
+                  </a>
                 </div>
-                <a className="close-nav" onClick={closeSidebar}>
-                  <img src={closeNav} alt="file not found"></img>
-                </a>
-              </div>
 
-              <div className="top-element">
-                <FilterControl
-                  {...{
-                    fields,
-                    groups,
-                    filterValue,
-                    onFilterValueChanged: onFilterChanged,
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
-          {showColumns ? (
-            <div className="column-settings">
-              <ColumnSettings {...tableProps} dispatch={dispatch} />
-            </div>
-          ) : (
-            ""
-          )}
-        </div>
-      )}
-      <Table
-        {...tableProps}
-        childComponents={{
-          cellText: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <SelectionCell {...props} />;
-              }
-            },
-          },
-          filterRowCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <></>;
-              }
-            },
-          },
-          headCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return (
-                  <SelectionHeader
-                    {...props}
-                    areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                      tableProps
-                    )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                <div className="top-element">
+                  <FilterControl
+                    {...{
+                      fields,
+                      groups,
+                      filterValue,
+                      onFilterValueChanged: onFilterChanged,
+                    }}
                   />
-                );
-              }
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+            {showColumns ? (
+              <div className="column-settings">
+                <ColumnSettings {...tableProps} dispatch={dispatch} />
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
+        )}
+        <Table
+          {...tableProps}
+          childComponents={{
+            cellText: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <SelectionCell {...props} />;
+                }
+              },
             },
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "drag":
+            filterRowCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <></>;
+                }
+              },
+            },
+            headCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
                   return (
-                    <img
-                      style={{ cursor: "move" }}
-                      src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                      alt="draggable"
+                    <SelectionHeader
+                      {...props}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                        tableProps
+                      )}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
-              }
+                }
+              },
             },
-          },
-        }}
-        dispatch={dispatch}
-        extendedFilter={(data) => filterData(data, filterValue)}
-      />
-    </div>
+            cell: {
+              content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return (
+                      <img
+                        style={{ cursor: "move" }}
+                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                        alt="draggable"
+                      />
+                    );
+                }
+              },
+            },
+          }}
+          dispatch={dispatch}
+          extendedFilter={(data) => filterData(data, filterValue)}
+        />
+      </div>
+      <SnackBar open={open} setOpen={setOpen} response={response} />
+      <ConfirmModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
+    </>
+
   );
 };
 

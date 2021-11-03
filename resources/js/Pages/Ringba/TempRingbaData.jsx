@@ -24,18 +24,17 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
-import { makeStyles, Snackbar, Button } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
+import { makeStyles, Button } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -43,9 +42,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 export const fields = [
   {
     caption: "CallLog Columns",
@@ -194,12 +191,7 @@ const TempRingbaData = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+
   const dataArray = ringbaData.map((item, index) => ({
     sl: index + 1,
     CallLog_Columns: JSON.stringify(item.columns).substr(0, 100),
@@ -237,7 +229,7 @@ const TempRingbaData = () => {
         key: "CallLog_Tags",
         title: "CallLog Tags",
         dataType: DataType.String,
-        style: { width: 450 },
+        style: { width: 1000 },
       },
     ],
     paging: {
@@ -304,15 +296,16 @@ const TempRingbaData = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < ringbaData.length) {
-              selectedRowIds.push(ringbaData[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
             dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
             selectedRowIds.splice(0, selectedRowIds.length);
-            // }
             if (selectedRowIds.length < 1) {
               setTableToolbar(false);
             }
@@ -347,12 +340,7 @@ const TempRingbaData = () => {
     setSearchSidebar(false);
   };
 
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
-  };
+
   useEffect(() => {
     window.onload = function () {
       emptyCheckbox();
@@ -376,9 +364,16 @@ const TempRingbaData = () => {
       document.removeEventListener("mousedown", checkIfClickedOutside);
     };
   }, [showColumns]);
+
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true });
   };
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  }
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("temp-rigba-data"));
@@ -430,6 +425,9 @@ const TempRingbaData = () => {
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -494,7 +492,6 @@ const TempRingbaData = () => {
   return (
     <>
       <Helmet title="Temp Ringba Data" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -572,7 +569,6 @@ const TempRingbaData = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -597,47 +593,21 @@ const TempRingbaData = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
+        <SnackBar open={open} setOpen={setOpen} response={response} />
+
       </div>
 
-      <NormalModal
+      <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            {selectedRowIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"}
-          </span>
-          <div className="button">
-            <Button variant="contained" color="primary" onClick={deleteHandler}>
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeleteCloseModal}
-            >
-              No
-            </Button>
-          </div>
-
-          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

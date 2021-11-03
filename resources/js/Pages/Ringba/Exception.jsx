@@ -24,7 +24,6 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
 import Edit from "../../../images/three-dots.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
@@ -36,14 +35,14 @@ import Checkbox from "@material-ui/core/Checkbox";
 import {
   Button,
   makeStyles,
-  Snackbar,
   CircularProgress,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
+import ConfirmModal from "../../Shared/ConfirmModal";
 import PulseLoader from "react-spinners/PulseLoader";
+import SnackBar from "../../Shared/SnackBar";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -53,9 +52,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 export const fields = [
   {
     caption: "SN",
@@ -1159,6 +1156,12 @@ const Exceptions = () => {
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({
     open: false,
   });
+  const [showPendingModal, setShowPendingModal] = useState({
+    open: false,
+  });
+  const [showArchivedModal, setShowArchivedModal] = useState({
+    open: false,
+  });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
   const rowFunctionalitiesRef = useRef();
@@ -1178,12 +1181,7 @@ const Exceptions = () => {
     }
   };
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+ 
   const dataArray = Exceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -1513,9 +1511,12 @@ const Exceptions = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < Exceptions.length) {
-              selectedRowIds.push(Exceptions[i].id);
-              inboundIds.push(Exceptions[i].Inbound_Id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                inboundIds.push(tableProps.data[i].Inbound_Id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -1612,12 +1613,16 @@ const Exceptions = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
+          setShowPendingModal({ open: false });
+
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
+          setShowPendingModal({ open: false });
+
         }
       })
       .catch((err) => {
@@ -1644,11 +1649,15 @@ const Exceptions = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
+          setShowArchivedModal({ open: false })
+
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          setShowArchivedModal({ open: false })
+
         }
       })
       .catch((err) => {
@@ -1659,93 +1668,122 @@ const Exceptions = () => {
       });
   };
 
+
   const handleUpdate = (inboundIds) => {
+    const response = []
+    let i = 0;
+    while (i < inboundIds.length) {
+      updatePostRequest(inboundIds, i, response)
+      i = i + 1
+    }
+  };
+
+  const updatePostRequest = (inboundIdsParam, id, response) => {
     setLoading(true);
     axios
-      .post(route("update.exception.report"), { inboundIds })
+      .post(route("update.exception.report"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
-        setLoading(false);
         if (res.status === 200) {
-          setResponse("Successfully Updated");
-          setOpen(true);
-          for (let i = 0; i < res.data.length; i++) {
-            if (!res.data[i].edit) res.data.edit = ''
-            res.data[i].edit = res.data[i].id
-            if (!res.data[i].sl) res.data.sl = ''
-            res.data[i].sl = i + 1
+          response.push(res.data)
+          if (id + 1 < inboundIdsParam.length) {
+            setResponse(`${id + 1} Record Updated`);
+            setOpen(true);
           }
-          let columnsData = produce(tableProps, draft => {
-            draft.data = res.data;
-          })
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox("exception-report", columnsData, changeTableProps);
-        } else {
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox("exception-report", tableProps, changeTableProps);
-
-        }
-      })
-      .catch((err) => {
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
-        emptyCheckbox("exception-report", tableProps, changeTableProps);
-
-      });
-  };
-  const handleAnnotation = (inboundIds) => {
-    setAnnotationLoading(true);
-    axios
-      .post(route("exception.get.annotation"), { inboundIds })
-      .then((res) => {
-        setAnnotationLoading(false);
-        if (res.status === 200) {
-          setResponse("Successfully Updated");
-          setOpen(true);
-          for (let i = 0; i < res.data.length; i++) {
-            if (!res.data[i].edit) res.data.edit = ''
-            res.data[i].edit = res.data[i].id
-            if (!res.data[i].sl) res.data.sl = ''
-            res.data[i].sl = i + 1
+          if (id + 1 === inboundIdsParam.length) {
+            let columnsData = produce(tableProps, draft => {
+              for (let i = 0; i < res.data.length; i++) {
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
+              }
+              draft.data = res.data;
+            })
+            changeTableProps(columnsData);
+            setResponse("Updating Completed");
+            setOpen(true);
+            setLoading(false);
+            setTableToolbar(false);
+            setInbounIds([])
+            setselectedRowIds([]);
+            setOpenRowFunctionalities(false);
+            emptyCheckbox("exception-report", columnsData, changeTableProps);
           }
-          let columnsData = produce(tableProps, draft => {
-            draft.data = res.data;
-          })
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox("exception-report", columnsData, changeTableProps);
-
         } else {
+          setLoading(false);
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
           emptyCheckbox("exception-report", tableProps, changeTableProps);
-
         }
       })
       .catch((err) => {
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
+        setLoading(false);
         emptyCheckbox("exception-report", tableProps, changeTableProps);
-
       });
+  }
+
+  const handleAnnotation = (inboundIds) => {
+    const response = []
+    let i = 0;
+    while (i < inboundIds.length) {
+      annotationPostRequest(inboundIds, i, response)
+      i = i + 1
+    }
   };
 
+
+  const annotationPostRequest = (inboundIdsParam, id, response) => {
+    setAnnotationLoading(true);
+    axios
+      .post(route("exception.get.annotation"), { inboundIds: inboundIdsParam[id] })
+      .then((res) => {
+        if (res.status === 200) {
+          response.push(res.data)
+          if (id + 1 < inboundIdsParam.length) {
+            setResponse(`${id + 1} Record Updated`);
+            setOpen(true);
+          }
+          if (id + 1 === inboundIdsParam.length) {
+            let columnsData = produce(tableProps, draft => {
+              for (let i = 0; i < res.data.length; i++) {
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
+              }
+              draft.data = res.data;
+            })
+            changeTableProps(columnsData);
+            setResponse("Updating Completed");
+            setOpen(true);
+            setAnnotationLoading(false);
+            setTableToolbar(false);
+            setInbounIds([])
+            setselectedRowIds([]);
+            setOpenRowFunctionalities(false);
+            emptyCheckbox("exception-report", columnsData, changeTableProps);
+          }
+        } else {
+          setAnnotationLoading(false);
+          setResponse(res.data.msg);
+          setOpen(true);
+          setInbounIds([]);
+          setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
+          emptyCheckbox("exception-report", tableProps, changeTableProps);
+        }
+      })
+      .catch((err) => {
+        emptyCheckbox("exception-report", tableProps, changeTableProps);
+        setAnnotationLoading(false);
+      });
+  }
   const handleClear = (inboundIds) => {
     axios
-      .post(route("revenue.update"), { inboundIds })
+      .post(route("exception.revenue.update"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
           setResponse("Successfully Updated");
@@ -1771,29 +1809,27 @@ const Exceptions = () => {
         emptyCheckbox("exception-report", tableProps, changeTableProps);
       });
   };
-  const handleRevenueCloseModal = () => {
-    setShowRevenueClearModal({ open: false });
-    setOpenRowFunctionalities(false);
-  };
 
-  const handleRevenueOpenModal = () => {
-    let filteredData = tableProps;
-    filteredData.data.filter((item) => {
-      if (item.Inbound_Id === editData[0]) {
-        console.log(editData)
-        setSn(item.SN);
-      }
-    });
-    setShowRevenueClearModal({ open: true });
-  };
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleOpenModal = (setOpenModal, tableData) => {
+    setOpenModal({ open: true })
+    if (tableData) {
+      let filteredData = tableProps;
+      filteredData.data.filter((item) => {
+        if (item.Inbound_Id === editData[0]) {
+          setSn(item.SN);
+        }
+      });
+      setShowRevenueClearModal({ open: true });
+    }
+  }
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false })
     setOpenRowFunctionalities(false);
     setTableToolbar(false);
     setselectedRowIds([]);
     setInbounIds([]);
-    emptyCheckbox();
-  };
+    emptyCheckbox("exception-report", tableProps, changeTableProps);
+  }
 
   const emptyCheckbox = (storageName, tempData, changeTableProps) => {
     const storedData = JSON.parse(localStorage.getItem(`${storageName}`));
@@ -1808,14 +1844,12 @@ const Exceptions = () => {
     window.onload = function () {
       const storedData = JSON.parse(localStorage.getItem("exception-report"));
       if (storedData != null) {
-        emptyCheckbox();
+        emptyCheckbox("exception-report", tableProps, changeTableProps);
       }
     };
   }, []);
 
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
-  };
+
 
   useEffect(() => M.AutoInit());
 
@@ -1823,7 +1857,7 @@ const Exceptions = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}  >
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -1833,7 +1867,7 @@ const Exceptions = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={() => handlePending(inboundIds)}
+          onClick={() => handleOpenModal(setShowPendingModal)}
         >
           Pending
         </Button>
@@ -1842,7 +1876,7 @@ const Exceptions = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={() => handleArchived(inboundIds)}
+          onClick={() => handleOpenModal(setShowArchivedModal)}
         >
           Archived
         </Button>
@@ -1872,6 +1906,10 @@ const Exceptions = () => {
             "   Get Annotation"
           )}
         </Button>
+
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -1919,8 +1957,8 @@ const Exceptions = () => {
         style={style}
       >
         <div>
-          <span onClick={() => handlePending(editData)}>Pending </span>
-          <span onClick={() => handleArchived(editData)}>Archived</span>
+          <span onClick={() => handleOpenModal(setShowPendingModal)}>Pending </span>
+          <span onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</span>
           <span onClick={() => handleUpdate(editData)}>
             Update <PulseLoader color={color} loading={loading} size={5} />
           </span>
@@ -1928,10 +1966,9 @@ const Exceptions = () => {
             Get Annotation{" "}
             <PulseLoader color={color} loading={annotationLoading} size={5} />
           </span>
-          <span onClick={handleRevenueOpenModal}>Clear</span>
-          {/* <span onClick={handleDeleteOpenModal}>Delete</span> */}
-        </div>
-      </div>
+          <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
+        </div >
+      </div >
     );
   };
 
@@ -2136,85 +2173,58 @@ const Exceptions = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
 
-        <NormalModal
-          open={showRevenueClearModal.open}
-          setOpen={setShowRevenueClearModal}
-          width={"450px"}
-          title={""}
-        >
-          <div className="clear-revenue-payout">
-            <span>
-              Do you want clear <b>revenue</b> and <b>payout</b> for -{" "}
-              <b>{sn}</b> ?
-            </span>
-            <div className="button">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleClear(editData)}
-              >
-                Yes
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleRevenueCloseModal}
-              >
-                No
-              </Button>
-            </div>
-
-            <div onClick={handleRevenueCloseModal} className="close-modal-icon">
-              <img src={Cancel} alt="close-modal-icon"></img>
-            </div>
-          </div>
-        </NormalModal>
-
-        <NormalModal
-          open={showDeleteModal.open}
-          setOpen={setShowDeleteModal}
-          width={"450px"}
-          title={""}
-        >
-          <div className="clear-revenue-payout">
-            <span>
-              {inboundIds.length > 1
-                ? "Do you want to delete these records?"
-                : "Do you want to delete this record?"}
-            </span>
-            <div className="button">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={deleteHandler}
-              >
-                Yes
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleDeleteCloseModal}
-              >
-                No
-              </Button>
-            </div>
-
-            <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-              <img src={Cancel} alt="close-modal-icon"></img>
-            </div>
-          </div>
-        </NormalModal>
+        <SnackBar open={open} setOpen={setOpen} response={response} />
       </div>
+
+      <ConfirmModal
+        open={showRevenueClearModal.open}
+        setOpen={setShowRevenueClearModal}
+        btnAction={handleClear}
+        closeAction={() => handleCloseModal(setShowRevenueClearModal)}
+        editData={editData}
+        width={"450px"}
+        title={
+          <>
+            Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
+          </>
+        }
+      ></ConfirmModal>
+      <ConfirmModal
+        open={showPendingModal.open}
+        setOpen={setShowPendingModal}
+        btnAction={() => handlePending(inboundIds.length > 0 ? inboundIds : editData)}
+        closeAction={() => handleCloseModal(setShowPendingModal)}
+        width={"450px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to move these records to pending?"
+          : "Do you want to move this record to pending?"
+          }`}
+      ></ConfirmModal>
+      <ConfirmModal
+        open={showArchivedModal.open}
+        setOpen={setShowArchivedModal}
+        btnAction={() => handleArchived(inboundIds.length > 0 ? inboundIds : editData)}
+        closeAction={() => handleCloseModal(setShowArchivedModal)}
+        editData={editData}
+        width={"450px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to move these records to archive?"
+          : "Do you want to move this record to archive?"
+          }`}
+      ></ConfirmModal>
+
+      <ConfirmModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

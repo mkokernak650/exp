@@ -798,7 +798,7 @@ const ZipcodeByTelevisionMarketNew = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
-      pageSizes: [10,20,50,100],
+      pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
     data: dataArray,
@@ -859,8 +859,11 @@ const ZipcodeByTelevisionMarketNew = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < allZipcodesByTelevisionMarket.length) {
-              selectedRowIds.push(allZipcodesByTelevisionMarket[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -912,33 +915,33 @@ const ZipcodeByTelevisionMarketNew = () => {
   const openExportModal = () => {
     setExportModal({ open: true });
   };
-  const deleteHandler = () => {
-    axios
-      .post(route("zipcode.television.market.delete"), { selectedRowIds })
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-        } else {
-          setOpen(true);
-          setResponse(res.data.msg);
-          setselectedRowIds([]);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setTableToolbar(false);
-        setselectedRowIds([]);
-      });
-  };
+  // const deleteHandler = () => {
+  //   axios
+  //     .post(route("zipcode.television.market.delete"), { selectedRowIds })
+  //     .then((res) => {
+  //       if (res.data.status_code === 200) {
+  //         let filteredData = tableProps;
+  //         const newData = filteredData.data.filter(
+  //           (item) => !selectedRowIds.includes(item.id)
+  //         );
+  //         filteredData.data = newData;
+  //         changeTableProps(filteredData);
+  //         setselectedRowIds([]);
+  //         setTableToolbar(false);
+  //         setOpen(true);
+  //         setResponse(res.data.msg);
+  //       } else {
+  //         setOpen(true);
+  //         setResponse(res.data.msg);
+  //         setselectedRowIds([]);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       setTableToolbar(false);
+  //       setselectedRowIds([]);
+  //     });
+  // };
 
   const handleImportChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -967,7 +970,7 @@ const ZipcodeByTelevisionMarketNew = () => {
           setResponse("Import failed");
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const triggerExportLink = (link) => {
@@ -998,17 +1001,20 @@ const ZipcodeByTelevisionMarketNew = () => {
 
   useEffect(() => M.AutoInit());
 
-  const TableToolbar = () => {
-    return (
-      <div className="table-toolbar">
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
-          </IconButton>
-        </Tooltip>
-      </div>
-    );
-  };
+  // const TableToolbar = () => {
+  //   return (
+  //     <div className="table-toolbar">
+  //       {/* <Tooltip title="Delete">
+  //         <IconButton aria-label="delete" onClick={deleteHandler}>
+  //           <DeleteIcon style={{ color: "#031b4e" }} />
+  //         </IconButton>
+  //       </Tooltip> */}
+  //       <div className="selection-rows">
+  //         {selectedRowIds.length} Row Selected
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -1069,12 +1075,10 @@ const ZipcodeByTelevisionMarketNew = () => {
 
   return (
     <>
-         <Helmet title="Zipcode By Television Market Report" />
+      <Helmet title="Zipcode By Television Market Report" />
 
-    <div className="selection-demo">
-      {tableToolbar ? (
-        <TableToolbar />
-      ) : (
+      <div className="selection-demo">
+
         <div className="table-top">
           <div className="top-left">
             <div className="columns-show-hide" onClick={handleColumns}>
@@ -1140,126 +1144,126 @@ const ZipcodeByTelevisionMarketNew = () => {
             ""
           )}
         </div>
-      )}
-      <Table
-        {...tableProps}
-        childComponents={{
-          cellText: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <SelectionCell {...props} />;
-              }
+
+        <Table
+          {...tableProps}
+          childComponents={{
+            cellText: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <SelectionCell {...props} />;
+                }
+              },
             },
-          },
-          filterRowCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return <></>;
-              }
+            filterRowCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
+                  return <></>;
+                }
+              },
             },
-          },
-          headCell: {
-            content: (props) => {
-              if (props.column.key === "selection-cell") {
-                return (
-                  <SelectionHeader
-                    {...props}
-                    areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                      tableProps
-                    )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
-                  />
-                );
-              }
-            },
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "drag":
+            headCell: {
+              content: (props) => {
+                if (props.column.key === "selection-cell") {
                   return (
-                    <img
-                      style={{ cursor: "move" }}
-                      src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                      alt="draggable"
+                    <SelectionHeader
+                      {...props}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
+                        tableProps
+                      )}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
-              }
+                }
+              },
             },
-          },
-        }}
-        dispatch={dispatch}
-        extendedFilter={(data) => filterData(data, filterValue)}
-      />
+            cell: {
+              content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return (
+                      <img
+                        style={{ cursor: "move" }}
+                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
+                        alt="draggable"
+                      />
+                    );
+                }
+              },
+            },
+          }}
+          dispatch={dispatch}
+          extendedFilter={(data) => filterData(data, filterValue)}
+        />
 
-      <Snackbar
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleClose}
-        className={classes.snackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert severity="success">{response}</Alert>
-      </Snackbar>
+        <Snackbar
+          open={open}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          className={classes.snackbar}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert severity="success">{response}</Alert>
+        </Snackbar>
 
-      <NormalModal
-        open={importModal.open}
-        setOpen={setImportModal}
-        width={"500px"}
-        title={""}
-      >
-        <div className={classes.import}>
-          <input
-            id="importfile"
-            type="file"
-            name="importfile"
-            onChange={handleImportChange}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={importHandler}
-            disabled={!selectedFile}
-          >
-            {loading ? (
-              <CircularProgress color="secondary" thickness="3" size="2rem" />
-            ) : (
-              "Next"
-            )}
-          </Button>
-        </div>
-      </NormalModal>
+        <NormalModal
+          open={importModal.open}
+          setOpen={setImportModal}
+          width={"500px"}
+          title={""}
+        >
+          <div className={classes.import}>
+            <input
+              id="importfile"
+              type="file"
+              name="importfile"
+              onChange={handleImportChange}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={importHandler}
+              disabled={!selectedFile}
+            >
+              {loading ? (
+                <CircularProgress color="secondary" thickness="3" size="2rem" />
+              ) : (
+                "Next"
+              )}
+            </Button>
+          </div>
+        </NormalModal>
 
-      <NormalModal
-        open={exportModal.open}
-        setOpen={setExportModal}
-        width={"500px"}
-        title={""}
-      >
-        <div className={classes.import}>
-          <FormLabel component="legend">Select Type</FormLabel>
-          <RadioGroup
-            aria-label="type"
-            name="type"
-            value={type}
-            onChange={handleExportChange}
-          >
-            <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
-            <FormControlLabel value="csv" control={<Radio />} label="CSV" />
-            <FormControlLabel value="xls" control={<Radio />} label="XLS" />
-            <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
-          </RadioGroup>
-          <Button variant="contained" color="primary" onClick={exportHandler}>
-            {loading ? (
-              <CircularProgress color="secondary" thickness="3" size="2rem" />
-            ) : (
-              "Next"
-            )}
-          </Button>
-        </div>
-      </NormalModal>
-    </div>
-  </>
+        <NormalModal
+          open={exportModal.open}
+          setOpen={setExportModal}
+          width={"500px"}
+          title={""}
+        >
+          <div className={classes.import}>
+            <FormLabel component="legend">Select Type</FormLabel>
+            <RadioGroup
+              aria-label="type"
+              name="type"
+              value={type}
+              onChange={handleExportChange}
+            >
+              <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
+              <FormControlLabel value="csv" control={<Radio />} label="CSV" />
+              <FormControlLabel value="xls" control={<Radio />} label="XLS" />
+              <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
+            </RadioGroup>
+            <Button variant="contained" color="primary" onClick={exportHandler}>
+              {loading ? (
+                <CircularProgress color="secondary" thickness="3" size="2rem" />
+              ) : (
+                "Next"
+              )}
+            </Button>
+          </div>
+        </NormalModal>
+      </div>
+    </>
   );
 };
 

@@ -88,7 +88,10 @@ const GenerateReportMarketException = () => {
 
   const handleSubmit = () => {
     axios.post(route("market.exception.report.generator"), values).then((r) => {
-      console.log(r.data);
+      if (r.data.status == 500) {
+        setOpen(true);
+        setResponse(r.data.msg);
+      }
       exportToCSV(r.data, "Market_Exception_Report");
     });
   };

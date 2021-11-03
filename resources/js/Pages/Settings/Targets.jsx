@@ -41,11 +41,13 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles, Snackbar } from "@material-ui/core";
+import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import NormalModal from "../../Shared/NormalModal";
-import MuiAlert from "@material-ui/lab/Alert";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
+import produce from "immer"
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -63,9 +65,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 export const fields = [
   {
     caption: "customer",
@@ -209,10 +209,10 @@ const Targets = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [showModal, setShowModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showEditModal, setShowEditModal] = useState({ open: false });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
 
@@ -265,15 +265,18 @@ const Targets = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
+            dispatch(selectAllFilteredRows());
             setTableToolbar(true);
             let i = 0;
-            while (i < allTargets.length) {
-              selectedRowIds.push(allTargets[i].id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                continue;
+              }
               i++;
             }
           } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            dispatch(deselectAllFilteredRows());
             if (selectedRowIds) {
               selectedRowIds.splice(0, selectedRowIds.length);
             }
@@ -368,12 +371,6 @@ const Targets = () => {
   };
 
   const [serachSidebar, setSearchSidebar] = useState(false);
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
   const handleSearch = () => {
     setSearchSidebar((prevState) => !prevState);
   };
@@ -394,8 +391,8 @@ const Targets = () => {
             (item) => !selectedRowIds.includes(item.id)
           );
           filteredData.data = newData;
-          changeTableProps(filteredData);
           setselectedRowIds([]);
+          changeTableProps(filteredData);
           setTableToolbar(false);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
@@ -425,7 +422,7 @@ const Targets = () => {
         setEditData(item);
       }
     });
-    setShowModal({ open: true });
+    setShowEditModal({ open: true });
   };
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
@@ -445,9 +442,16 @@ const Targets = () => {
             }
           });
           setEditData();
-          setShowModal({ open: false });
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
+          setselectedRowIds([])
         } else {
-          console.log(res.data.msg);
+          setEditData();
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
+          setselectedRowIds([])
         }
       })
       .catch((err) => {
@@ -455,19 +459,15 @@ const Targets = () => {
       });
   };
 
-  const handleCloseModal = () => {
-    setShowModal({ open: false });
-  };
-
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  };
+  }
 
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
   };
 
   useEffect(() => {
@@ -483,7 +483,6 @@ const Targets = () => {
 
     document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
-      // Cleanup the event listener
       document.removeEventListener("mousedown", checkIfClickedOutside);
     };
   }, [showColumns]);
@@ -512,13 +511,17 @@ const Targets = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
+  console.log(selectedRowIds);
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -580,7 +583,6 @@ const Targets = () => {
   return (
     <>
       <Helmet title="Targets Report" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -658,7 +660,7 @@ const Targets = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -684,18 +686,10 @@ const Targets = () => {
         />
       </div>
 
-      <Snackbar
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleClose}
-        className={classes.snackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert severity="success">{response}</Alert>
-      </Snackbar>
+
       <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
         width={"600px"}
         title={"Edit Targets"}
       >
@@ -741,42 +735,24 @@ const Targets = () => {
             </Button>
           </form>
 
-          <div onClick={handleCloseModal} className="close-modal-icon">
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
       </NormalModal>
 
-      <NormalModal
+      <SnackBar open={open} setOpen={setOpen} response={response} />
+      <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            {selectedRowIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"}
-          </span>
-          <div className="button">
-            <Button variant="contained" color="primary" onClick={deleteHandler}>
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeleteCloseModal}
-            >
-              No
-            </Button>
-          </div>
-
-          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

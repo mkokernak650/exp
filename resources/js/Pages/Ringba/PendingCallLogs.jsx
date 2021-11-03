@@ -34,13 +34,12 @@ import Checkbox from "@material-ui/core/Checkbox";
 import {
   Button,
   makeStyles,
-  Snackbar,
-  CircularProgress,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
+import ConfirmModal from "../../Shared/ConfirmModal";
+import SnackBar from "../../Shared/SnackBar";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -1150,6 +1149,10 @@ const PendingCallLogsReport = () => {
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [showCallLogModal, setShowCallLogModal] = useState({
+    open: false,
+  });
+  const [showBilledModal, setShowBilledModal] = useState({ open: false });
   const showColumnRef = useRef();
 
   const handleClose = (event, reason) => {
@@ -1404,9 +1407,12 @@ const PendingCallLogsReport = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < results.length) {
-              selectedRowIds.push(results[i].id);
-              inboundIds.push(results[i].Inbound_Id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                inboundIds.push(tableProps.data[i].Inbound_Id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -1481,7 +1487,7 @@ const PendingCallLogsReport = () => {
       });
   };
 
-  const MoveCallLog = () => {
+  const handleMoveCallLog = () => {
     axios
       .post(route("move.from.pending.bill.to.ringba.call.log"), { inboundIds })
       .then((res) => {
@@ -1496,15 +1502,18 @@ const PendingCallLogsReport = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
+          setShowCallLogModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
+          setShowCallLogModal({ open: false })
+
         }
       })
       .catch((err) => { });
   };
 
-  const handleBilled = () => {
+  const handleBilledCallLog = () => {
     axios
       .post(route("store.bill.call.logs"), { inboundIds })
       .then((res) => {
@@ -1519,26 +1528,29 @@ const PendingCallLogsReport = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
+          setShowBilledModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          setShowBilledModal({ open: false })
+
         }
       })
       .catch((err) => { });
   };
 
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true })
+  }
+
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  };
-
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
-  };
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -1582,7 +1594,8 @@ const PendingCallLogsReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}>
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}
+          >
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -1592,7 +1605,7 @@ const PendingCallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={MoveCallLog}
+          onClick={() => handleOpenModal(setShowCallLogModal)}
         >
           Move Call Log
         </Button>
@@ -1601,10 +1614,13 @@ const PendingCallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleBilled}
+          onClick={() => handleOpenModal(setShowBilledModal)}
         >
           Billed
         </Button>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -1772,47 +1788,44 @@ const PendingCallLogsReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
+        <SnackBar open={open} setOpen={setOpen} response={response} />
+
       </div>
 
-      <NormalModal
+      <ConfirmModal
+        open={showCallLogModal.open}
+        setOpen={setShowCallLogModal}
+        btnAction={() => handleMoveCallLog(inboundIds)}
+        closeAction={() => handleCloseModal(setShowCallLogModal)}
+        width={"450px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to move these records to Call Log?"
+          : "Do you want to move this record to Call Log?"
+          }`}
+      ></ConfirmModal>
+      <ConfirmModal
+        open={showBilledModal.open}
+        setOpen={setShowBilledModal}
+        btnAction={() => handleBilledCallLog(inboundIds)}
+        closeAction={() => handleCloseModal(setShowBilledModal)}
+        width={"450px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to move these records to Billed?"
+          : "Do you want to move this record to Billed?"
+          }`}
+      ></ConfirmModal>
+
+      <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        width={"450px"}
-        title={""}
-      >
-        <div className="clear-revenue-payout">
-          <span>
-            {inboundIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"}
-          </span>
-          <div className="button">
-            <Button variant="contained" color="primary" onClick={deleteHandler}>
-              Yes
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeleteCloseModal}
-            >
-              No
-            </Button>
-          </div>
-
-          <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
-          </div>
-        </div>
-      </NormalModal>
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={"400px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
+      ></ConfirmModal>
     </>
   );
 };

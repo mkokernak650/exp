@@ -91,6 +91,9 @@ class ReportGeneratorController extends Controller
             $tag_count['archive_call'] = $archive_call;
         }
 
+        if ($total_payment == 0 || $total_call == 0) {
+            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
 
         $avg_payout_amount = $total_payment > 0 ? $total_payment / $total_call : 0;
 
@@ -158,7 +161,7 @@ class ReportGeneratorController extends Controller
         $archive_call   = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float) 0.00];
 
         // category of calls
-        $annotation_tag = [];   
+        $annotation_tag = [];
         $tag_count = [];
 
         // dd($this->targetReportData('billed_call_logs', $condition, $whereIn));
@@ -247,7 +250,9 @@ class ReportGeneratorController extends Controller
             }
             $tag_count['archive_call'] = $archive_call;
         }
-        // dd($newData);
+        if ($total_revenue == 0 || $total_call == 0) {
+            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
         $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
 
 
@@ -276,7 +281,7 @@ class ReportGeneratorController extends Controller
         // summary of calls
         $data_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
         $total_revenue  = 1;
-
+        $total_call     = 0;
 
 
         if (!empty($market_name)) {
@@ -323,7 +328,9 @@ class ReportGeneratorController extends Controller
                 $total_revenue  += $call_log->Revenue;
             }
         }
-
+        if ($total_revenue == 0 || $total_call == 0) {
+            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
         $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
 
         $call_summary['data_range']             = $data_range;

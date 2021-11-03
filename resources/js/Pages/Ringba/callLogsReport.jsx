@@ -1156,17 +1156,22 @@ const CallLogsReport = () => {
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({
     open: false,
   });
+  const [showPendingModal, setShowPendingModal] = useState({
+    open: false,
+  });
+  const [showArchivedModal, setShowArchivedModal] = useState({
+    open: false,
+  });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
   const rowFunctionalitiesRef = useRef();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
   let [color, setColor] = useState("#36D7B7");
-  const [drawerWidth,setDrawerWidth] = useState(350)
-
+  const [drawerWidth, setDrawerWidth] = useState(350)
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
-    left:drawerWidth
+    left: drawerWidth
   };
 
   const rowFunctionalitiesPosition = (e) => {
@@ -1433,14 +1438,14 @@ const CallLogsReport = () => {
           </a>
         );
       }
-    if (column.key === "Call_Date") {
-      let shortMonth = value.toLocaleString('en-us', { month: 'short' });
-      let format_date = value
-      let dd = String(format_date.getDate()).padStart(2, "0");
-      let yyyy = format_date.getFullYear();
-      format_date = dd + "-" + shortMonth + "-" + yyyy;
-      return format_date;
-    }
+      if (column.key === "Call_Date") {
+        let shortMonth = value.toLocaleString('en-us', { month: 'short' });
+        let format_date = value
+        let dd = String(format_date.getDate()).padStart(2, "0");
+        let yyyy = format_date.getFullYear();
+        format_date = dd + "-" + shortMonth + "-" + yyyy;
+        return format_date;
+      }
     }
   };
 
@@ -1449,6 +1454,7 @@ const CallLogsReport = () => {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
   };
+
   const [tableProps, changeTableProps] = useState(stateStore);
 
   const SelectionCell = ({
@@ -1495,34 +1501,38 @@ const CallLogsReport = () => {
       />
     );
   };
+
+
+
+  const allSelect = (event, dispatch) => {
+    if (event.currentTarget.checked) {
+      dispatch(selectAllFilteredRows());
+      setTableToolbar(true);
+      setInbounIds(tableProps.data.map(item => item.Inbound_Id))
+      setselectedRowIds(tableProps.data.map(item => item.id))
+    } else {
+      dispatch(deselectAllFilteredRows());
+      selectedRowIds.splice(0, selectedRowIds.length);
+      inboundIds.splice(0, inboundIds.length);
+      if (selectedRowIds.length < 1) {
+        setTableToolbar(false);
+      }
+    }
+
+  }
+  
+
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
         checked={areAllRowsSelected}
         color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
-            while (i < allCallLogs.length) {
-              selectedRowIds.push(allCallLogs[i].id);
-              inboundIds.push(allCallLogs[i].Inbound_Id);
-              i++;
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            selectedRowIds.splice(0, selectedRowIds.length);
-            inboundIds.splice(0, inboundIds.length);
-
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
-            }
-          }
-        }}
+        onChange={(event) => allSelect(event, dispatch)}
       />
     );
   };
+
+
 
   const dispatch = (action) => {
     changeTableProps((prevState) => {
@@ -1532,6 +1542,7 @@ const CallLogsReport = () => {
       return newState;
     });
   };
+
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
@@ -1587,6 +1598,7 @@ const CallLogsReport = () => {
   };
 
   const handlePending = (inboundIds) => {
+
     axios
       .post(route("add.pending.bill.call"), { inboundIds })
       .then((res) => {
@@ -1603,18 +1615,22 @@ const CallLogsReport = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
+          setShowPendingModal({ open: false });
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
+          setShowPendingModal({ open: false });
+
         }
       })
       .catch((err) => { });
   };
 
   const handleArchived = (inboundIds) => {
+
     axios
       .post(route("add.arichived.bill.call"), { inboundIds })
       .then((res) => {
@@ -1631,41 +1647,59 @@ const CallLogsReport = () => {
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
+          setShowArchivedModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
+          setselectedRowIds([]);
           setselectedRowIds([]);
         }
       })
       .catch((err) => { });
   };
-
   const handleUpdate = (inboundIds) => {
+    const response = []
+    let i = 0;
+    while (i < inboundIds.length) {
+      updatePostRequest(inboundIds, i, response)
+      i = i + 1
+    }
+  };
+
+  const updatePostRequest = (inboundIdsParam, id, response) => {
     setLoading(true);
     axios
-      .post(route("update.data"), { inboundIds })
+      .post(route("update.data"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          setResponse("Successfully Updated");
-          setOpen(true);
-          for (let i = 0; i < res.data.length; i++) {
-            if (!res.data[i].edit) res.data.edit = ''
-            res.data[i].edit = res.data[i].id
-            if (!res.data[i].sl) res.data.sl = ''
-            res.data[i].sl = i+1
+          response.push(res.data)
+          if (id + 1 < inboundIdsParam.length) {
+            setResponse(`${id + 1} Record Updated`);
+            setOpen(true);
           }
-          let columnsData = produce(tableProps, draft => {
-            draft.data = res.data;
-          })
-          changeTableProps(columnsData);
-          setLoading(false);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox("call-logs-report", columnsData, changeTableProps);
+          if (id + 1 === inboundIdsParam.length) {
+            let columnsData = produce(tableProps, draft => {
+              for (let i = 0; i < res.data.length; i++) {
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
+              }
+              draft.data = res.data;
+            })
+            changeTableProps(columnsData);
+            setResponse("Updating Completed");
+            setOpen(true);
+            setLoading(false);
+            setTableToolbar(false);
+            setInbounIds([])
+            setselectedRowIds([]);
+            setOpenRowFunctionalities(false);
+            emptyCheckbox("call-logs-report", columnsData, changeTableProps);
+          }
         } else {
+          setLoading(false);
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
@@ -1674,49 +1708,67 @@ const CallLogsReport = () => {
           emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         }
       })
-
       .catch((err) => {
+        setLoading(false);
         emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
-  };
+  }
 
 
   const handleAnnotation = (inboundIds) => {
+    const response = []
+    let i = 0;
+    while (i < inboundIds.length) {
+      annotationPostRequest(inboundIds, i, response)
+      i = i + 1
+    }
+  };
+  const annotationPostRequest = (inboundIdsParam, id, response) => {
     setAnnotationLoading(true);
     axios
-      .post(route("update.annotation"), { inboundIds })
+      .post(route("update.annotation"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
-        setAnnotationLoading(false);
         if (res.status === 200) {
-          setResponse("Successfully Updated");
-          setOpen(true);
-          for (let i = 0; i < res.data.length; i++) {
-            if (!res.data[i].edit) res.data.edit = ''
-            res.data[i].edit = res.data[i].id
-            if (!res.data[i].sl) res.data.sl = ''
-            res.data[i].sl = i+1
+          response.push(res.data)
+          if (id + 1 < inboundIdsParam.length) {
+            setResponse(`${id + 1} Record Updated`);
+            setOpen(true);
           }
-          let columnsData = produce(tableProps, draft => {
-            draft.data = res.data;
-          })
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox("call-logs-report", columnsData, changeTableProps);
+          if (id + 1 === inboundIdsParam.length) {
+            let columnsData = produce(tableProps, draft => {
+              for (let i = 0; i < res.data.length; i++) {
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
+              }
+              draft.data = res.data;
+            })
+            changeTableProps(columnsData);
+            setResponse("Updating Completed");
+            setOpen(true);
+            setAnnotationLoading(false);
+            setTableToolbar(false);
+            setInbounIds([])
+            setselectedRowIds([]);
+            setOpenRowFunctionalities(false);
+            emptyCheckbox("call-logs-report", columnsData, changeTableProps);
+          }
         } else {
+          setAnnotationLoading(false);
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
           emptyCheckbox("call-logs-report", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
         emptyCheckbox("call-logs-report", tableProps, changeTableProps);
+        setAnnotationLoading(false);
       });
-  };
+  }
 
   const handleClear = (inboundIds) => {
     axios
@@ -1741,28 +1793,28 @@ const CallLogsReport = () => {
       })
       .catch((err) => { });
   };
-  const handleRevenueCloseModal = () => {
-    setShowRevenueClearModal({ open: false });
-    setOpenRowFunctionalities(false);
-  };
 
-  const handleRevenueOpenModal = () => {
-    let filteredData = tableProps;
-    filteredData.data.filter((item) => {
-      if (item.Inbound_Id === editData[0]) {
-        setSn(item.SN);
-      }
-    });
-    setShowRevenueClearModal({ open: true });
-  };
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleOpenModal = (setOpenModal, tableData) => {
+    setOpenModal({ open: true })
+    if (tableData) {
+      let filteredData = tableProps;
+      filteredData.data.filter((item) => {
+        if (item.Inbound_Id === editData[0]) {
+          setSn(item.SN);
+        }
+      });
+      setShowRevenueClearModal({ open: true });
+    }
+  }
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false })
     setOpenRowFunctionalities(false);
     setTableToolbar(false);
     setselectedRowIds([]);
     setInbounIds([]);
     emptyCheckbox("call-logs-report", tableProps, changeTableProps);
-  };
+  }
+
 
   useEffect(() => {
     window.onload = function () {
@@ -1772,16 +1824,14 @@ const CallLogsReport = () => {
       }
     };
   }, []);
-  const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
-  };
+
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={handleDeleteOpenModal}  >
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}  >
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -1791,7 +1841,7 @@ const CallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={() => handlePending(inboundIds)}
+          onClick={() => handleOpenModal(setShowPendingModal)}
         >
           Pending
         </Button>
@@ -1800,7 +1850,7 @@ const CallLogsReport = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={() => handleArchived(inboundIds)}
+          onClick={() => handleOpenModal(setShowArchivedModal)}
         >
           Archived
         </Button>
@@ -1830,6 +1880,10 @@ const CallLogsReport = () => {
             "   Get Annotation"
           )}
         </Button>
+
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -1868,6 +1922,7 @@ const CallLogsReport = () => {
   }, [showColumns]);
 
   const RowFunctionalities = () => {
+
     return (
       <div
         className="row-functionalities"
@@ -1875,8 +1930,8 @@ const CallLogsReport = () => {
         style={style}
       >
         <div>
-          <span onClick={() => handlePending(editData)}>Pending </span>
-          <span onClick={() => handleArchived(editData)}>Archived</span>
+          <span onClick={() => handleOpenModal(setShowPendingModal)}>Pending </span>
+          <span onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</span>
           <span onClick={() => handleUpdate(editData)}>
             Update <PulseLoader color={color} loading={loading} size={5} />
           </span>
@@ -1884,10 +1939,9 @@ const CallLogsReport = () => {
             Get Annotation{" "}
             <PulseLoader color={color} loading={annotationLoading} size={5} />
           </span>
-          <span onClick={handleRevenueOpenModal}>Clear</span>
-          {/* <span onClick={handleDeleteOpenModal}>Delete</span> */}
-        </div>
-      </div>
+          <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
+        </div >
+      </div >
     );
   };
 
@@ -1899,7 +1953,6 @@ const CallLogsReport = () => {
       editData.splice(itemIndx, 1);
     }
     const tempData = tableProps.data.filter((item) => item.id == id);
-    console.log(tempData);
     editData.push(tempData[0].Inbound_Id);
   };
 
@@ -1961,6 +2014,7 @@ const CallLogsReport = () => {
     );
   };
   return (
+
     <>
       <Helmet title="Call Logs Report" />
       <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
@@ -2094,7 +2148,7 @@ const CallLogsReport = () => {
         open={showRevenueClearModal.open}
         setOpen={setShowRevenueClearModal}
         btnAction={handleClear}
-        closeAction={handleRevenueCloseModal}
+        closeAction={() => handleCloseModal(setShowRevenueClearModal)}
         editData={editData}
         width={"450px"}
         title={
@@ -2103,12 +2157,35 @@ const CallLogsReport = () => {
           </>
         }
       ></ConfirmModal>
+      <ConfirmModal
+        open={showPendingModal.open}
+        setOpen={setShowPendingModal}
+        btnAction={() => handlePending(inboundIds.length > 0 ? inboundIds : editData)}
+        closeAction={() => handleCloseModal(setShowPendingModal)}
+        width={"450px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to move these records to pending?"
+          : "Do you want to move this record to pending?"
+          }`}
+      ></ConfirmModal>
+      <ConfirmModal
+        open={showArchivedModal.open}
+        setOpen={setShowArchivedModal}
+        btnAction={() => handleArchived(inboundIds.length > 0 ? inboundIds : editData)}
+        closeAction={() => handleCloseModal(setShowArchivedModal)}
+        editData={editData}
+        width={"450px"}
+        title={`${inboundIds.length > 1
+          ? "Do you want to move these records to archive?"
+          : "Do you want to move this record to archive?"
+          }`}
+      ></ConfirmModal>
 
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
         btnAction={deleteHandler}
-        closeAction={handleDeleteCloseModal}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
         title={`${inboundIds.length > 1
           ? "Do you want to delete these records?"

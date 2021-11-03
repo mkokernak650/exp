@@ -342,19 +342,8 @@ class RingbaCallLogController extends Controller
      */
     public function updateByInboundIds(Request $request)
     {
-
         $inboundIds = $request->inboundIds;
-        // $allData = '';
-        if (is_array($inboundIds)) {
-            $i = 0;
-            while ($i < count($inboundIds)) {
-                $this->updateData($inboundIds[$i]);
-                $i++;
-            }
-        } else {
-            $this->updateData($inboundIds);
-        }
-
+        $this->updateData($inboundIds);
         $allData = RingbaCallLog::all();
         return response()->json($allData);
     }
@@ -367,13 +356,11 @@ class RingbaCallLogController extends Controller
     private function updateData($inboundId)
     {
         $row = self::$RingbaApiHelpers->getUpdateData($inboundId);
-
         if ($row->columns) $this->columns($row->columns);
         if ($row->events) $this->events($row->events);
         if ($row->tags) $this->tags($row->tags);
-
         $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
-        $ringbaCallLogs->call_Logs_status       = $this->get_call_log_status;
+        $ringbaCallLogs->call_Logs_status      = $this->get_call_log_status;
         $this->ringbaDataObject($ringbaCallLogs);
     }
 
@@ -389,6 +376,7 @@ class RingbaCallLogController extends Controller
         $instance->Campaign               = $this->get_campaignName;
         $instance->Campaign_Id            = $this->get_campaignId;
         $instance->Affiliate              = $this->get_affiliateName;
+        // $instance->Affiliate              = 'test';
         $instance->Affiliate_Id           = $this->get_affiliateId;
         $instance->Inbound                = $this->get_inboundPhoneNumber;
         $instance->Inbound_Id             = $this->get_inboundCallId;
@@ -415,7 +403,7 @@ class RingbaCallLogController extends Controller
         $instance->Customer               = $this->get_customer_name_id;
         $instance->Has_Annotation         = $this->has_annotations;
         $instance->Annotation_Tag         = $this->get_annotations_tag;
-        $instance->save();
+        $test = $instance->save();
     }
 
     /**
@@ -427,17 +415,8 @@ class RingbaCallLogController extends Controller
     public function getAnnotation(Request $request)
     {
         $inboundIds = $request->inboundIds;
-        if (is_array($inboundIds)) {
-            $i = 0;
-            while ($i < count($inboundIds)) {
-                $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds[$i]);
-                $this->updateAnnotation($inboundIds[$i], $data);
-                $i++;
-            }
-        } else {
-            $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
-            $this->updateAnnotation($inboundIds, $data);
-        }
+        $data = self::$RingbaApiHelpers->getUpdateAnnotation($inboundIds);
+        $this->updateAnnotation($inboundIds, $data);
         $allData = RingbaCallLog::all();
         return response()->json($allData);
     }
@@ -589,9 +568,8 @@ class RingbaCallLogController extends Controller
         } else {
             $get_days_range = 1;
         }
-        // dd($get_past_days_range, $get_days_range);
 
-        self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
+        $result = self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
 
         RingbaDataFetchedLog::truncate();
         RingbaDataFetchedLog::create([
@@ -601,13 +579,13 @@ class RingbaCallLogController extends Controller
 
         // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
-
-        return Inertia::render(
-            'Ringba/TempRingbaData',
-            [
-                'ringbaData' => RingbaData::all()
-            ]
-        );
+        return $result;
+        // return Inertia::render(
+        //     'Ringba/TempRingbaData',
+        //     [
+        //         'ringbaData' => RingbaData::all()
+        //     ]
+        // );
     }
 
     /**
@@ -629,7 +607,7 @@ class RingbaCallLogController extends Controller
     public function callLogsReport()
     {
         return Inertia::render('Ringba/callLogsReport', [
-            'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'DESC')->get(),
+            'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
         ]);
     }
 

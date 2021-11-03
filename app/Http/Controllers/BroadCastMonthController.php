@@ -64,4 +64,19 @@ class BroadCastMonthController extends Controller
             ]);
         }
     }
+
+    public function edit(Request $request)
+    {
+        $data = BroadCastMonth::find($request->id);
+        $data->broad_cast_month  = $request->broad_cast_month;
+        $data->start_date  = $request->start_date;
+        $data->end_date  = $request->end_date;
+        $result = $data->save();
+
+        if ($result) {
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+        } else {
+            return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
+        }
+    }
 }

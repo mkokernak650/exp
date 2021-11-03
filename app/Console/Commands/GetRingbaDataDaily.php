@@ -46,6 +46,7 @@ class GetRingbaDataDaily extends Command
     {
         $ringba = new RingbaCallLogController();
         $ringba->getRingbaDataByScheduler();
+        
         TargetController::getAllTarget();
     }
 }

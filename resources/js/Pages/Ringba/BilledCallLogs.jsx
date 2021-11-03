@@ -24,7 +24,6 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -35,13 +34,13 @@ import produce from "immer"
 import {
   Button,
   makeStyles,
-  Snackbar,
   CircularProgress,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
+
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -51,9 +50,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 export const fields = [
   {
     caption: "SN",
@@ -1158,12 +1155,7 @@ const BilledCallLogs = () => {
   const showColumnRef = useRef();
   const [editData, setEditData] = useState([]);
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+
   const dataArray = billedCallLogs.map((item, index) => ({
     sl: index + 1,
     SN: item.SN,
@@ -1481,9 +1473,12 @@ const BilledCallLogs = () => {
             dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
-            while (i < billedCallLogs.length) {
-              selectedRowIds.push(billedCallLogs[i].id);
-              inboundIds.push(billedCallLogs[i].Inbound_Id);
+            while (i < tableProps.data.length) {
+              if (!selectedRowIds.includes(tableProps.data[i].id)) {
+                selectedRowIds.push(tableProps.data[i].id);
+                inboundIds.push(tableProps.data[i].Inbound_Id);
+                continue;
+              }
               i++;
             }
           } else {
@@ -1562,49 +1557,71 @@ const BilledCallLogs = () => {
         emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
       });
   };
-  const handleAnnotation = () => {
+ 
+
+  const handleAnnotation = (inboundIds) => {
+    const response = []
+    let i = 0;
+    while (i < inboundIds.length) {
+      annotationPostRequest(inboundIds, i, response)
+      i = i + 1
+    }
+  };
+  const annotationPostRequest = (inboundIdsParam, id, response) => {
     setAnnotationLoading(true);
     axios
-      .post(route("billed.get.annotation"), { inboundIds })
+      .post(route("billed.get.annotation"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
-        setAnnotationLoading(false);
         if (res.status === 200) {
-          setResponse("Successfully Updated");
-          setOpen(true);
-          for (let i = 0; i < res.data.length; i++) {
-            if (!res.data[i].sl) res.data.sl = ''
-            res.data[i].sl = i + 1
+          response.push(res.data)
+          if (id + 1 < inboundIdsParam.length) {
+            setResponse(`${id + 1} Record Updated`);
+            setOpen(true);
           }
-          let columnsData = produce(tableProps, draft => {
-            draft.data = res.data;
-          })
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          emptyCheckbox("billed-call-logs", columnsData, changeTableProps);
+          if (id + 1 === inboundIdsParam.length) {
+            let columnsData = produce(tableProps, draft => {
+              for (let i = 0; i < res.data.length; i++) {
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
+              }
+              draft.data = res.data;
+            })
+            changeTableProps(columnsData);
+            setResponse("Updating Completed");
+            setOpen(true);
+            setAnnotationLoading(false);
+            setTableToolbar(false);
+            setInbounIds([])
+            setselectedRowIds([]);
+            setOpenRowFunctionalities(false);
+            emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
+          }
         } else {
+          setAnnotationLoading(false);
           setResponse(res.data.msg);
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
           emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
+
         }
       })
       .catch((err) => {
-        setInbounIds([]);
-        setselectedRowIds([]);
         emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
-
+        setAnnotationLoading(false);
       });
-  };
+  }
 
-  const handleDeleteCloseModal = () => {
-    setShowDeleteModal({ open: false });
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
-  };
+  }
+
 
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true });
@@ -1680,7 +1697,7 @@ const BilledCallLogs = () => {
           type="submit"
           color="primary"
           className={classes.button}
-          onClick={handleAnnotation}
+          onClick={() => handleAnnotation(inboundIds)}
         >
           {annotationLoading ? (
             <CircularProgress color="secondary" size="1.5rem" thickness={2.6} />
@@ -1688,6 +1705,9 @@ const BilledCallLogs = () => {
             "   Get Annotation"
           )}
         </Button>
+        <div className="selection-rows">
+          {selectedRowIds.length} Row Selected
+        </div>
       </div>
     );
   };
@@ -1831,7 +1851,6 @@ const BilledCallLogs = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -1856,50 +1875,20 @@ const BilledCallLogs = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
+        <SnackBar open={open} setOpen={setOpen} response={response} />
 
-        <NormalModal
+
+        <ConfirmModal
           open={showDeleteModal.open}
           setOpen={setShowDeleteModal}
-          width={"450px"}
-          title={""}
-        >
-          <div className="clear-revenue-payout">
-            <span>
-              {inboundIds.length > 1
-                ? "Do you want to delete these records?"
-                : "Do you want to delete this record?"}
-            </span>
-            <div className="button">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={deleteHandler}
-              >
-                Yes
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleDeleteCloseModal}
-              >
-                No
-              </Button>
-            </div>
-
-            <div onClick={handleDeleteCloseModal} className="close-modal-icon">
-              <img src={Cancel} alt="close-modal-icon"></img>
-            </div>
-          </div>
-        </NormalModal>
+          btnAction={deleteHandler}
+          closeAction={() => handleCloseModal(setShowDeleteModal)}
+          width={"400px"}
+          title={`${inboundIds.length > 1
+            ? "Do you want to delete these records?"
+            : "Do you want to delete this record?"
+            }`}
+        ></ConfirmModal>
       </div>
     </>
   );

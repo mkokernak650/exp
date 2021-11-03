@@ -51,7 +51,6 @@ class BroadCastWeeksController extends Controller
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            // $result =  DB::table('broad_cast_weeks')->where('id', $request->selectedRowIds[$i])->delete();
             $result =  BroadCastWeeks::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
@@ -66,6 +65,20 @@ class BroadCastWeeksController extends Controller
                 "msg"           => "Deleting Failed",
                 "status_code"   => 500
             ]);
+        }
+    }
+    public function edit(Request $request)
+    {
+        $data = BroadCastWeeks::find($request->id);
+        $data->broad_cast_week  = $request->broad_cast_week;
+        $data->start_date  = $request->start_date;
+        $data->end_date  = $request->end_date;
+        $result = $data->save();
+
+        if ($result) {
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+        } else {
+            return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
     }
 }
