@@ -24,6 +24,7 @@ use App\Models\{
 
 class RingbaCallLogController extends Controller
 {
+    private static $test = [];
     private static $RingbaApiHelpers;
     private static $RingbaCallLog;
 
@@ -113,6 +114,10 @@ class RingbaCallLogController extends Controller
     public function getRingbaDataByScheduler()
     {
         self::$RingbaApiHelpers->getRingbaData();
+        $this->ringbaCallLogs();
+    }
+    public function getCallLogsScheduler()
+    {
         $this->ringbaCallLogs();
     }
 
@@ -560,10 +565,11 @@ class RingbaCallLogController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
         ]);
-
-        // for transfer all data in Ring call log report table;
         $this->ringbaCallLogs();
+        // for transfer all data in Ring call log report table;
+
         return $result;
+
         // return Inertia::render(
         //     'Ringba/TempRingbaData',
         //     [
@@ -580,8 +586,17 @@ class RingbaCallLogController extends Controller
     {
         $ringbaData =  RingbaData::all();
         return Inertia::render('Ringba/TempRingbaData', [
-            'ringbaData' =>  $ringbaData
+            'ringbaData' => $ringbaData
         ]);
+        //    RingbaData::chunk(100, function ($items) {
+        //         foreach ($items as $item) {
+        //             array_push(self::$test,$item);
+        //         }
+        //     });
+        //     return Inertia::render('Ringba/TempRingbaData', [
+        //         'ringbaData' => self::$test
+        //     ]);
+
     }
 
     /**

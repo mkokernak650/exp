@@ -75,6 +75,13 @@ const GetRingbaData = () => {
         if (res.status === 200) {
           setOpen(true);
           setResponse("Successfully Data Fetched");
+          // axios.get(route("get.call.log.secheduler"))
+          //   .then((res) => {
+          //     console.log('call-logs-response', res)
+          //   })
+          //   .catch((err) => {
+          //     console.log('call-logs-response', err)
+          //   })
         } else {
           setOpen(true);
           setResponse("Data Fetching Failed");
@@ -86,12 +93,6 @@ const GetRingbaData = () => {
         setOpen(true);
         setResponse("Data Fetching Failed");
       })
-
-    // Inertia.post("temp-ringba-data", values, {
-    //   onFinish: () => {
-    //     setLoading(false);
-    //   },
-    // });
   };
   return (
     <div>

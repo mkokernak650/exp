@@ -3,24 +3,23 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\RingbaCallLogController;
-use App\Http\Controllers\TargetController;
 use Illuminate\Console\Command;
 
-class GetRingbaDataDaily extends Command
+class GetCallLogs extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'getdata:daily';
+    protected $signature = 'getcalllog:daily';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get Ringba Data Daily';
+    protected $description = 'Get Call Logs Daily';
 
     /**
      * Create a new command instance.
@@ -45,7 +44,6 @@ class GetRingbaDataDaily extends Command
     public function handle()
     {
         $ringba = new RingbaCallLogController();
-        $ringba->getRingbaDataByScheduler();
-        TargetController::getAllTarget();
+        $ringba->getCallLogsScheduler();
     }
 }
