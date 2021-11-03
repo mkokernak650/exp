@@ -131,7 +131,6 @@ class RingbaCallLogController extends Controller
 
         $sn_id = empty(self::$RingbaCallLog->latest('id')->first()->id) ? 0 : self::$RingbaCallLog->latest('id')->first()->id;
 
-
         foreach ($ringbaMain as $row) {
             $sn_id++;
             if ($row->columns)  $this->columns($row->columns);
