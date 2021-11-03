@@ -115,17 +115,28 @@ class RingbaApiHelpers
     ];
 
     $result = json_decode($this->postRequest('calllogs/date', $params));
-    $data = [];
-    $ringbaData = new RingbaData();
-    $ringbaData->truncate();
-    foreach ($result->result->callLog->data as $data) {
+
+    if ($result) {
       $ringbaData = new RingbaData();
-      $ringbaData->columns = json_encode($data->columns);
-      $ringbaData->events = json_encode($data->events);
-      $ringbaData->tags = json_encode($data->tags);
-      $ringbaData->save();
+      $ringbaData->truncate();
+      foreach ($result->result->callLog->data as $data) {
+        $ringbaData = new RingbaData();
+        $ringbaData->columns = json_encode($data->columns);
+        $ringbaData->events = json_encode($data->events);
+        $ringbaData->tags = json_encode($data->tags);
+        $ringbaData->save();
+      }
+      $response  = [
+        'status' => 200,
+        'msg' => 'Data Fetch Successfully'
+      ];
+    } else {
+      $response  = [
+        'status' => 400,
+        'msg' => 'Server Error!'
+      ];
     }
-    return $result;
+    return $response;
   }
 
   /**
