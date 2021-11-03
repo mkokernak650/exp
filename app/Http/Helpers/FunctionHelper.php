@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 if (!function_exists('findDataByInboundId')) {
 
@@ -112,5 +113,18 @@ if (!function_exists('secondToMinutes')) {
   function secondToMinutes($seconds)
   {
     return sprintf("%02.2d:%02.2d", floor($seconds / 60), $seconds % 60);
+  }
+}
+
+if(!function_exists('getInboundIds')) {
+  function getInboundIds($tableName) {
+    $ids = [];
+    $data = DB::table($tableName)->select('Inbound_Id')->get();
+
+    foreach ($data as $key => $value) {
+      $id[]= $value->Inbound_Id;
+   }
+   sort($ids);
+   return $ids;
   }
 }
