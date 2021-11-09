@@ -24,7 +24,6 @@ use App\Models\{
 
 class RingbaCallLogController extends Controller
 {
-    private static $test = [];
     private static $RingbaApiHelpers;
     private static $RingbaCallLog;
 
@@ -66,7 +65,7 @@ class RingbaCallLogController extends Controller
     protected $get_market = "";
     protected $get_type = "";
     // protected $array = [];
-    // protected $annotation = [];
+    protected $payout = [];
 
     public function __construct()
     {
@@ -170,6 +169,38 @@ class RingbaCallLogController extends Controller
                     $this->insertExceptions($ringbaCallLogs->id);
                 }
             }
+            $this->get_accountId =
+                $this->get_campaignId =
+                $this->get_campaignName =
+                $this->get_affiliateId =
+                $this->get_affiliateName =
+                $this->get_number =
+                $this->get_inboundCallId =
+                $this->get_inboundPhoneNumber =
+                $this->get_totalAmount =
+                $this->get_targetName =
+                $this->get_Target_Description =
+                $this->get_targetId =
+                $this->get_targetBuyerId =
+                $this->get_targetBuyer =
+                $this->get_targetNumber =
+                $this->get_recordingUrl =
+                $this->get_callCompletedDt =
+                $this->get_profit =
+                $this->get_source_hangup =
+                $this->get_annotations_tag =
+                $this->get_city =
+                $this->get_state =
+                $this->get_zipcode =
+                $this->get_market =
+                $this->get_type = "";
+                
+            $this->get_callLengthInSeconds =
+                $this->get_payoutAmount =
+                $this->get_customer_name_id = 
+                $this->get_revenue = 
+                $this->get_timeToConnect = 
+                $this->get_callConnectionLength = null;
         }
         // for inser Affiliate 
         $this->getAffiliate();
@@ -177,7 +208,7 @@ class RingbaCallLogController extends Controller
         // for insert Customer
         $this->getCustomer();
 
-        // dd('duplicate', $this->array, 'annotation', $this->annotation);
+        // dd('payout', $this->payout, 'count', count($this->payout));
     }
 
     /**
@@ -207,8 +238,12 @@ class RingbaCallLogController extends Controller
             } else if ($item->name === 'inboundCallId') {
                 $this->get_inboundCallId = $item->formattedValue;
             } else if ($item->name === 'inboundPhoneNumber') {
-                $this->get_inboundPhoneNumber = $item->formattedValue;
-                $this->zipCodeInfo($this->get_inboundPhoneNumber);
+                if ($item->formattedValue) {
+                    $this->get_inboundPhoneNumber = $item->formattedValue;
+                    $this->zipCodeInfo($this->get_inboundPhoneNumber);
+                } else {
+                    $this->get_inboundPhoneNumber = '';
+                }
             } else if ($item->name === 'totalAmount') {
                 $this->get_totalAmount = $item->formattedValue;
             } else if ($item->name === 'callCompletedDt') {
@@ -226,6 +261,9 @@ class RingbaCallLogController extends Controller
                         $this->get_Target_Description = $result->Description;
                         $this->get_customer_name_id = $result->Customer;
                     }
+                } else {
+                    $this->get_Target_Description = '';
+                    $this->get_customer_name_id = null;
                 }
             } else if ($item->name === 'targetId') {
                 $this->get_targetId = $item->formattedValue;
@@ -267,11 +305,9 @@ class RingbaCallLogController extends Controller
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = "Yes";
-                // array_push($this->array, $this->get_duplicated_status);
                 return;
             } else {
                 $this->get_duplicated_status = "No";
-                // array_push($this->array, $this->get_duplicated_status);
             }
         }
     }
@@ -314,12 +350,17 @@ class RingbaCallLogController extends Controller
                 ->where('fips', $result->FIPS)
                 ->where('zip_code', $result->ZipCode)
                 ->first();
-
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
-            $this->get_market = $res->Market ?? '';
+            $this->get_market = $res->Market ?? "";
             $this->get_type = $result->NXXUseType;
+        } else {
+            $this->get_zipcode = '';
+            $this->get_state = '';
+            $this->get_city = '';
+            $this->get_market = '';
+            $this->get_type = '';
         }
     }
 
