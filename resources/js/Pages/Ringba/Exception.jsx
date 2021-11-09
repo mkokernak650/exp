@@ -1169,6 +1169,7 @@ const Exceptions = () => {
   const showColumnRef = useRef();
   let [color, setColor] = useState("#36D7B7");
   const [drawerWidth, setDrawerWidth] = useState(350)
+  const [count, setCount] = useState(0)
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
@@ -1181,7 +1182,7 @@ const Exceptions = () => {
     }
   };
 
- 
+
   const dataArray = Exceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -1571,6 +1572,7 @@ const Exceptions = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setselectedRowIds([]);
+          setInbounIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
@@ -1579,6 +1581,7 @@ const Exceptions = () => {
 
         } else {
           setselectedRowIds([]);
+          setInbounIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
@@ -1589,6 +1592,7 @@ const Exceptions = () => {
       })
       .catch((err) => {
         setselectedRowIds([]);
+          setInbounIds([]);
         setTableToolbar(false);
         setShowDeleteModal({ open: false });
         emptyCheckbox("exception-report", tableProps, changeTableProps);
@@ -1610,6 +1614,7 @@ const Exceptions = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setTableToolbar(false);
+          setselectedRowIds([]);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
@@ -1684,12 +1689,17 @@ const Exceptions = () => {
       .post(route("update.exception.report"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
+          let updateState
+          setCount(prevState => {
+            updateState = prevState + 1
+            return prevState + 1
+          })
           response.push(res.data)
-          if (id + 1 < inboundIdsParam.length) {
-            setResponse(`${id + 1} Record Updated`);
+          if (updateState < inboundIdsParam.length) {
+            setResponse(`${updateState}  Record Updated`);
             setOpen(true);
           }
-          if (id + 1 === inboundIdsParam.length) {
+          if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, draft => {
               for (let i = 0; i < res.data.length; i++) {
                 if (!res.data[i].edit) res.data.edit = ''
@@ -1699,8 +1709,9 @@ const Exceptions = () => {
               }
               draft.data = res.data;
             })
+            setCount(0)
             changeTableProps(columnsData);
-            setResponse("Updating Completed");
+            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
             setOpen(true);
             setLoading(false);
             setTableToolbar(false);
@@ -1741,12 +1752,17 @@ const Exceptions = () => {
       .post(route("exception.get.annotation"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
+          let updateState
+          setCount(prevState => {
+            updateState = prevState + 1
+            return prevState + 1
+          })
           response.push(res.data)
-          if (id + 1 < inboundIdsParam.length) {
-            setResponse(`${id + 1} Record Updated`);
+          if (updateState < inboundIdsParam.length) {
+            setResponse(`${updateState}  Record Updated`);
             setOpen(true);
           }
-          if (id + 1 === inboundIdsParam.length) {
+          if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, draft => {
               for (let i = 0; i < res.data.length; i++) {
                 if (!res.data[i].edit) res.data.edit = ''
@@ -1756,8 +1772,9 @@ const Exceptions = () => {
               }
               draft.data = res.data;
             })
+            setCount(0)
             changeTableProps(columnsData);
-            setResponse("Updating Completed");
+            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
             setOpen(true);
             setAnnotationLoading(false);
             setTableToolbar(false);
@@ -1779,6 +1796,8 @@ const Exceptions = () => {
       .catch((err) => {
         emptyCheckbox("exception-report", tableProps, changeTableProps);
         setAnnotationLoading(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
       });
   }
   const handleClear = (inboundIds) => {
@@ -1800,6 +1819,10 @@ const Exceptions = () => {
         } else {
           setResponse(res.data.msg);
           setOpen(true);
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
         }
       })
       .catch((err) => {
@@ -2050,7 +2073,7 @@ const Exceptions = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-           <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -2084,7 +2107,7 @@ const Exceptions = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

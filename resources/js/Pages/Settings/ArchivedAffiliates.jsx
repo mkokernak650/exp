@@ -835,7 +835,7 @@ const ArchivedAffiliates = () => {
             </Button>
           </form>
 
-          <div onClick={handleCloseModal} className="close-modal-icon">
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>

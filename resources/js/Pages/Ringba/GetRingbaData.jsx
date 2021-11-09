@@ -74,7 +74,7 @@ const GetRingbaData = () => {
         setLoading(false);
         if (res.status === 200) {
           setOpen(true);
-          setResponse("Successfully Data Fetched");
+          setResponse("Data Fetched Successfully");
         } else {
           setOpen(true);
           setResponse("Data Fetching Failed");

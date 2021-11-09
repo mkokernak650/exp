@@ -568,7 +568,7 @@ class RingbaCallLogController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
         ]);
-        // $this->ringbaCallLogs();
+        $this->ringbaCallLogs();
         // if ($result) {
         //     $client = new Client(
         //         [

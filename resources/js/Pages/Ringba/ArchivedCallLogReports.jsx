@@ -1202,33 +1202,29 @@ const ArchivedCallLogReports = () => {
       />
     );
   };
+
+  const allSelect = (event, dispatch) => {
+    if (event.currentTarget.checked) {
+      dispatch(selectAllFilteredRows());
+      setTableToolbar(true);
+      setInbounIds(tableProps.data.map(item => item.Inbound_Id))
+      setselectedRowIds(tableProps.data.map(item => item.id))
+    } else {
+      dispatch(deselectAllFilteredRows());
+      selectedRowIds.splice(0, selectedRowIds.length);
+      inboundIds.splice(0, inboundIds.length);
+      if (selectedRowIds.length < 1) {
+        setTableToolbar(false);
+      }
+    }
+
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
         checked={areAllRowsSelected}
         color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                inboundIds.push(tableProps.data[i].Inbound_Id);
-                continue;
-              }
-              i++;
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            selectedRowIds.splice(0, selectedRowIds.length);
-            inboundIds.splice(0, inboundIds.length);
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
-            }
-          }
-        }}
+        onChange={(event) => allSelect(event, dispatch)}
       />
     );
   };
@@ -1268,6 +1264,7 @@ const ArchivedCallLogReports = () => {
           );
           filteredData.data = newData;
           changeTableProps(filteredData);
+          setInbounIds([]);
           setselectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
@@ -1278,6 +1275,8 @@ const ArchivedCallLogReports = () => {
         } else {
           setOpen(true);
           setResponse(res.data.msg);
+          setInbounIds([]);
+          setselectedRowIds([]);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
 
@@ -1307,10 +1306,16 @@ const ArchivedCallLogReports = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
+          setselectedRowIds([]);
+          setInbounIds([]);
           setShowCallLogModal({ open: false })
         } else {
-          setResponse(res.data.msg);
           setOpen(true);
+          setResponse(res.data.msg);
+          setTableToolbar(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
+          setInbounIds([]);
           setShowCallLogModal({ open: false })
 
         }
@@ -1327,7 +1332,7 @@ const ArchivedCallLogReports = () => {
     setselectedRowIds([]);
     emptyCheckbox();
   }
-
+  console.log(selectedRowIds)
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -1549,7 +1554,7 @@ const ArchivedCallLogReports = () => {
               ""
             )}
             {showColumns ? (
-               <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

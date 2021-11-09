@@ -1397,36 +1397,30 @@ const PendingCallLogsReport = () => {
       />
     );
   };
+
+  const allSelect = (event, dispatch) => {
+    if (event.currentTarget.checked) {
+      dispatch(selectAllFilteredRows());
+      setTableToolbar(true);
+      setInbounIds(tableProps.data.map(item => item.Inbound_Id))
+      setselectedRowIds(tableProps.data.map(item => item.id))
+    } else {
+      dispatch(deselectAllFilteredRows());
+      selectedRowIds.splice(0, selectedRowIds.length);
+      inboundIds.splice(0, inboundIds.length);
+      if (selectedRowIds.length < 1) {
+        setTableToolbar(false);
+      }
+    }
+
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
         checked={areAllRowsSelected}
         color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                inboundIds.push(tableProps.data[i].Inbound_Id);
-                continue;
-              }
-              i++;
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
-            selectedRowIds.splice(0, selectedRowIds.length);
-            inboundIds.splice(0, inboundIds.length);
+        onChange={(event) => allSelect(event, dispatch)}
 
-            // }
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
-            }
-          }
-        }}
       />
     );
   };
@@ -1475,6 +1469,7 @@ const PendingCallLogsReport = () => {
         } else {
           setOpen(true);
           setResponse(res.data.msg);
+          setselectedRowIds([]);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         }
@@ -1503,10 +1498,14 @@ const PendingCallLogsReport = () => {
           setTableToolbar(false);
           setInbounIds([]);
           setShowCallLogModal({ open: false })
+          setInbounIds([]);
+          setselectedRowIds([]);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
           setShowCallLogModal({ open: false })
+          setInbounIds([]);
+          setselectedRowIds([]);
 
         }
       })
@@ -1528,6 +1527,7 @@ const PendingCallLogsReport = () => {
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
+          setselectedRowIds([]);
           setShowBilledModal({ open: false })
         } else {
           setResponse(res.data.msg);
@@ -1691,7 +1691,7 @@ const PendingCallLogsReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-             <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -1725,7 +1725,7 @@ const PendingCallLogsReport = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

@@ -1153,6 +1153,7 @@ const BilledCallLogs = () => {
   const rowFunctionalitiesRef = useRef();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
+  const [count, setCount] = useState(0)
   const [editData, setEditData] = useState([]);
 
 
@@ -1532,6 +1533,7 @@ const BilledCallLogs = () => {
           );
           filteredData.data = newData;
           changeTableProps(filteredData);
+          setInbounIds([])
           setselectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
@@ -1539,6 +1541,7 @@ const BilledCallLogs = () => {
           setShowDeleteModal({ open: false });
           emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         } else {
+          setInbounIds([])
           setselectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
@@ -1549,16 +1552,15 @@ const BilledCallLogs = () => {
       })
       .catch((err) => {
         console.log(err);
+        setInbounIds([])
         setselectedRowIds([]);
         setTableToolbar(false);
-        setOpen(true);
-        setResponse(res.data.msg);
         setShowDeleteModal({ open: false });
         emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
       });
   };
- 
 
+  console.log(inboundIds)
   const handleAnnotation = (inboundIds) => {
     const response = []
     let i = 0;
@@ -1573,12 +1575,17 @@ const BilledCallLogs = () => {
       .post(route("billed.get.annotation"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
+          let updateState
+          setCount(prevState => {
+            updateState = prevState + 1
+            return prevState + 1
+          })
           response.push(res.data)
-          if (id + 1 < inboundIdsParam.length) {
-            setResponse(`${id + 1} Record Updated`);
+          if (updateState < inboundIdsParam.length) {
+            setResponse(`${updateState}  Record Updated`);
             setOpen(true);
           }
-          if (id + 1 === inboundIdsParam.length) {
+          if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, draft => {
               for (let i = 0; i < res.data.length; i++) {
                 if (!res.data[i].edit) res.data.edit = ''
@@ -1588,8 +1595,9 @@ const BilledCallLogs = () => {
               }
               draft.data = res.data;
             })
+            setCount(0)
             changeTableProps(columnsData);
-            setResponse("Updating Completed");
+            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
             setOpen(true);
             setAnnotationLoading(false);
             setTableToolbar(false);
@@ -1612,6 +1620,8 @@ const BilledCallLogs = () => {
       .catch((err) => {
         emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         setAnnotationLoading(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
       });
   }
 
@@ -1779,7 +1789,7 @@ const BilledCallLogs = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-             <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -1813,7 +1823,7 @@ const BilledCallLogs = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

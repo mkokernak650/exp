@@ -1173,6 +1173,7 @@ const CallLogsReport = () => {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
     left: drawerWidth
   };
+  const [count, setCount] = useState(0)
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
@@ -1520,7 +1521,7 @@ const CallLogsReport = () => {
     }
 
   }
-  
+
 
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
@@ -1531,8 +1532,6 @@ const CallLogsReport = () => {
       />
     );
   };
-
-
 
   const dispatch = (action) => {
     changeTableProps((prevState) => {
@@ -1573,6 +1572,7 @@ const CallLogsReport = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setselectedRowIds([]);
+          setInbounIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
@@ -1596,9 +1596,8 @@ const CallLogsReport = () => {
         emptyCheckbox("call-logs-report", tableProps, changeTableProps);
       });
   };
-
   const handlePending = (inboundIds) => {
-
+    console.log(inboundIds)
     axios
       .post(route("add.pending.bill.call"), { inboundIds })
       .then((res) => {
@@ -1626,7 +1625,12 @@ const CallLogsReport = () => {
 
         }
       })
-      .catch((err) => { });
+      .catch((err) => {
+        setOpenRowFunctionalities(false);
+        setShowPendingModal({ open: false });
+        setselectedRowIds([]);
+        setInbounIds([]);
+       });
   };
 
   const handleArchived = (inboundIds) => {
@@ -1653,10 +1657,16 @@ const CallLogsReport = () => {
           setOpen(true);
           setInbounIds([]);
           setselectedRowIds([]);
-          setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
+          setShowArchivedModal({ open: false })
         }
       })
-      .catch((err) => { });
+      .catch((err) => { 
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setOpenRowFunctionalities(false);
+        setShowArchivedModal({ open: false })
+      });
   };
   const handleUpdate = (inboundIds) => {
     const response = []
@@ -1673,12 +1683,17 @@ const CallLogsReport = () => {
       .post(route("update.data"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
+          let updateState
+          setCount(prevState => {
+            updateState = prevState + 1
+            return prevState + 1
+          })
           response.push(res.data)
-          if (id + 1 < inboundIdsParam.length) {
-            setResponse(`${id + 1} Record Updated`);
+          if (updateState < inboundIdsParam.length) {
+            setResponse(`${updateState}  Record Updated`);
             setOpen(true);
           }
-          if (id + 1 === inboundIdsParam.length) {
+          if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, draft => {
               for (let i = 0; i < res.data.length; i++) {
                 if (!res.data[i].edit) res.data.edit = ''
@@ -1688,8 +1703,9 @@ const CallLogsReport = () => {
               }
               draft.data = res.data;
             })
+            setCount(0)
             changeTableProps(columnsData);
-            setResponse("Updating Completed");
+            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
             setOpen(true);
             setLoading(false);
             setTableToolbar(false);
@@ -1714,7 +1730,6 @@ const CallLogsReport = () => {
       });
   }
 
-
   const handleAnnotation = (inboundIds) => {
     const response = []
     let i = 0;
@@ -1729,12 +1744,17 @@ const CallLogsReport = () => {
       .post(route("update.annotation"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
+          let updateState
+          setCount(prevState => {
+            updateState = prevState + 1
+            return prevState + 1
+          })
           response.push(res.data)
-          if (id + 1 < inboundIdsParam.length) {
-            setResponse(`${id + 1} Record Updated`);
+          if (updateState < inboundIdsParam.length) {
+            setResponse(`${updateState}  Record Updated`);
             setOpen(true);
           }
-          if (id + 1 === inboundIdsParam.length) {
+          if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, draft => {
               for (let i = 0; i < res.data.length; i++) {
                 if (!res.data[i].edit) res.data.edit = ''
@@ -1744,8 +1764,9 @@ const CallLogsReport = () => {
               }
               draft.data = res.data;
             })
+            setCount(0)
             changeTableProps(columnsData);
-            setResponse("Updating Completed");
+            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
             setOpen(true);
             setAnnotationLoading(false);
             setTableToolbar(false);
@@ -1786,12 +1807,23 @@ const CallLogsReport = () => {
           });
           setShowRevenueClearModal({ open: false });
           setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
         } else {
           setResponse(res.data.msg);
           setOpen(true);
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
         }
       })
-      .catch((err) => { });
+      .catch((err) => {
+        setShowRevenueClearModal({ open: false });
+        setOpenRowFunctionalities(false);
+        setInbounIds([]);
+          setselectedRowIds([]);
+      });
   };
 
   const handleOpenModal = (setOpenModal, tableData) => {
