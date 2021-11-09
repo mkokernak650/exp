@@ -899,7 +899,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   };
 
   const handleColumns = () => {
-    setShowColumns((prevState) => !prevState);
+    setShowColumns(true);
   };
   const hideCoumnSettings = () => {
     console.log("hiding");
@@ -1081,7 +1081,7 @@ const ZipcodeByTelevisionMarketNew = () => {
 
         <div className="table-top">
           <div className="top-left">
-            <div className="columns-show-hide" onClick={handleColumns}>
+          <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
             </div>
             <Button
@@ -1137,7 +1137,7 @@ const ZipcodeByTelevisionMarketNew = () => {
             ""
           )}
           {showColumns ? (
-            <div className="column-settings">
+              <div className="column-settings" ref={showColumnRef}>
               <ColumnSettings {...tableProps} dispatch={dispatch} />
             </div>
           ) : (

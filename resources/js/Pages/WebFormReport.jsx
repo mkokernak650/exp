@@ -797,7 +797,7 @@ const WebFormReport = () => {
   };
 
   const handleColumns = () => {
-    setShowColumns((prevState) => !prevState);
+    setShowColumns(true);
   };
   const closeSidebar = () => {
     setSearchSidebar(false);
@@ -992,7 +992,7 @@ const WebFormReport = () => {
               ""
             )}
             {showColumns ? (
-              <div className="column-settings">
+                <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

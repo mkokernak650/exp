@@ -334,7 +334,7 @@ const TempRingbaData = () => {
   };
 
   const handleColumns = () => {
-    setShowColumns((prevState) => !prevState);
+    setShowColumns(true);
   };
   const closeSidebar = () => {
     setSearchSidebar(false);
@@ -497,11 +497,7 @@ const TempRingbaData = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div
-              className="columns-show-hide"
-              onClick={handleColumns}
-              ref={showColumnRef}
-            >
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -535,7 +531,7 @@ const TempRingbaData = () => {
               ""
             )}
             {showColumns ? (
-              <div className="column-settings">
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
