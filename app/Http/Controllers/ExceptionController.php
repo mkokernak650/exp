@@ -177,8 +177,6 @@ class ExceptionController extends Controller
     {
         $inboundIds = $request->inboundIds;
 
-
-
         $apiResposnse = self::$RingbaApiHelpers->getUpdateData($inboundIds);
 
         if ($apiResposnse->columns)  $this->columns($apiResposnse->columns);
@@ -213,7 +211,6 @@ class ExceptionController extends Controller
         $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
         $getDataById->Revenue              = $this->get_revenue;
         $getDataById->payoutAmount         = $this->get_payoutAmount;
-        // $getDataById->payoutAmount         = 'abbas'; for test
         $getDataById->Total_Cost           = $this->get_totalAmount;
         $getDataById->Profit               = $this->get_profit;
         $getDataById->City                 = $this->get_city;
@@ -252,8 +249,12 @@ class ExceptionController extends Controller
             } else if ($item->name === 'inboundCallId') {
                 $this->get_inboundCallId = $item->formattedValue;
             } else if ($item->name === 'inboundPhoneNumber') {
-                $this->get_inboundPhoneNumber = $item->formattedValue;
-                $this->zipCodeInfo($this->get_inboundPhoneNumber);
+                if ($item->formattedValue) {
+                    $this->get_inboundPhoneNumber = $item->formattedValue;
+                    $this->zipCodeInfo($this->get_inboundPhoneNumber);
+                } else {
+                    $this->get_inboundPhoneNumber = '';
+                }
             } else if ($item->name === 'totalAmount') {
                 $this->get_totalAmount = $item->formattedValue;
             } else if ($item->name === 'callCompletedDt') {
@@ -264,7 +265,6 @@ class ExceptionController extends Controller
                 $this->get_profit = $item->formattedValue;
             } else if ($item->name === 'targetName') {
                 $this->get_targetName = $item->formattedValue;
-
                 if (!empty($this->get_targetName)) {
                     // $targetsTable = new Target();
                     $result = Target::where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
@@ -272,6 +272,9 @@ class ExceptionController extends Controller
                         $this->get_Target_Description = $result->Description;
                         $this->get_customer_name_id = $result->Customer;
                     }
+                } else {
+                    $this->get_Target_Description = '';
+                    $this->get_customer_name_id = null;
                 }
             } else if ($item->name === 'targetId') {
                 $this->get_targetId = $item->formattedValue;
@@ -314,6 +317,8 @@ class ExceptionController extends Controller
             if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = "Yes";
                 return;
+            } else {
+                $this->get_duplicated_status = "No";
             }
         }
     }
@@ -360,8 +365,14 @@ class ExceptionController extends Controller
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
-            $this->get_market = $res->Market ?? '';
+            $this->get_market = $res->Market ?? "";
             $this->get_type = $result->NXXUseType;
+        } else {
+            $this->get_zipcode = "";
+            $this->get_state = "";
+            $this->get_city = "";
+            $this->get_market = "";
+            $this->get_type = "";
         }
     }
 
