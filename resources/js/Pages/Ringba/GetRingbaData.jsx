@@ -128,11 +128,9 @@ const GetRingbaData = () => {
             color="primary"
             className={classes.button}
           >
-            {loading ? (
-              <CircularProgress color="secondary" />
-            ) : (
-              "Get Ringba Data"
-            )}
+
+            {"Get Ringba Data"}
+            {loading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "10px" }} />}
           </Button>
         </form>
       </Paper>

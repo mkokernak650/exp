@@ -85,8 +85,10 @@ const GenerateReportTarget = () => {
     setCustomer({ [name]: value });
     targets.filter((item) => {
       if (item.Customer === value) {
-        const targetNames = item.Ringba_Targets_Name.split(",");
-        setTargetByCustomer(targetNames);
+        if (item.Ringba_Targets_Name !== null) {
+          const targetNames = item.Ringba_Targets_Name.split(",");
+          setTargetByCustomer(targetNames);
+        }
       }
     });
   };
@@ -163,7 +165,7 @@ const GenerateReportTarget = () => {
     ...annotation,
   };
 
-  const fileName = `${values.type}_Report_For_${values.target_name}_From_${values.start_date
+  const fileName = `${values.type}_Report_For_${values.customer_name}_From_${values.start_date
     }_To_${values.end_date}_Created@${currentDate()}`;
 
   const handleSubmit = () => {

@@ -1,12 +1,16 @@
-export const isEmpty = value => value == null || value.length === 0;
+export const isEmpty = (value) => value == null || value.length === 0;
 
 const contains = (data, item) => {
-  if (!item.value) {
+  if (typeof item.value === 'string') {
     return true;
+  } else {
+    for (let i = 0; i < item.value.length; i++) {
+      if (item.value[i] === data[item.field]) {
+        return data;
+      }
+    }
   }
-  return data[item.field].toLowerCase().includes(item.value.toLowerCase());
 };
-
 const isEmptyCheck = (data, item) => {
   if (data[item.field] === '') {
     return data;
@@ -52,8 +56,14 @@ const isCheck = (data, item) => {
     return true;
   }
   if (data[item.field] !== '') {
-    if (data[item.field].toLowerCase() === item.value.toLowerCase()) {
-      return data;
+    if (item.dataType === 'string') {
+      if (data[item.field].toLowerCase() === item.value.toLowerCase()) {
+        return data;
+      }
+    } else {
+      if (data[item.field] == item.value) {
+        return data;
+      }
     }
   }
 };
@@ -62,47 +72,91 @@ const isNotCheck = (data, item) => {
     return true;
   }
   if (data[item.field] !== '') {
-    if (data[item.field].toLowerCase() !== item.value.toLowerCase()) {
-      return data;
+    if (item.dataType === 'string') {
+      if (data[item.field].toLowerCase() !== item.value.toLowerCase()) {
+        return data;
+      }
+    } else {
+      if (data[item.field] != item.value) {
+        return data;
+      }
     }
   }
 };
 
 const doesNotContain = (data, item) => {
+
   if (!item.value) {
     return true;
   }
-  return !data[item.field].toLowerCase().includes(item.value.toLowerCase());
+  if (item.dataType === 'string') {
+    return !data[item.field].toLowerCase().includes(item.value.toLowerCase());
+  } else {
+    return !data[item.field].toString().includes(item.value);
+  }
 };
 const equals = (data, item) => {
-  let value
+  let value;
   if (item.value != '' || item.value != null) {
-    value = data[item.field]
+    value = data[item.field];
   } else {
-    value = 0
+    value = 0;
   }
   if (!item.value) {
     return true;
   }
-  return (
-    value.toString().toLowerCase() ===
-    item.value.toString().toLowerCase()
-  );
+  return value== item.value
 };
 const isNotEqual = (data, item) => {
-  let value
+  let value;
   if (item.value != '' || item.value != null) {
-    value = data[item.field]
+    value = data[item.field];
   } else {
-    value = 0
+    value = 0;
   }
   if (!item.value) {
     return true;
   }
-  return (
-    value.toString().toLowerCase() !==
-    item.value.toString().toLowerCase()
-  )
+  return value.toString().toLowerCase() !== item.value.toString().toLowerCase();
+};
+
+const dateBetween = (data, item) => {
+  let value;
+  if (item.value != '' || item.value != null) {
+    value = data[item.field];
+  } else {
+    return true;
+  }
+  const startDate = dateFormat(item.value[0]);
+  const endDate = dateFormat(item.value[1]);
+  const tableDate = dateFormat(data[item.field]);
+  if (tableDate >= startDate && tableDate <= endDate) {
+    return true;
+  }
+};
+
+const between = (data, item) => {
+  let value;
+  if (item?.value?.from != '' && item?.value?.to != null) {
+    value = data[item.field];
+  } else {
+    return true;
+  }
+  if (value >= item?.value?.from && value <= item?.value?.to) {
+    return true;
+  }
+
+  // console.log('value',data[item.field]);
+};
+
+const dateFormat = (dataParam) => {
+  let newDate = new Date(dataParam);
+  let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
+  let format_date = newDate;
+  let dd = String(format_date.getDate()).padStart(2, '0');
+  let yyyy = format_date.getFullYear();
+  format_date = dd + '-' + shortMonth + '-' + yyyy;
+  return format_date;
 };
 const more = (data, item) => data[item.field] > item.value;
 const less = (data, item) => data[item.field] < item.value;
@@ -132,6 +186,10 @@ export const filterItem = (data, filter) => {
       return more(data, filter);
     case '<':
       return less(data, filter);
+    case 'dateBetween':
+      return dateBetween(data, filter);
+    case 'between':
+      return between(data, filter);
     default:
       throw Error('unknown operator');
   }
@@ -147,14 +205,14 @@ export const filterGroupOr = (data, items) => {
     if (item.items) {
       const grouped = filterGroup(data, item.groupName, item.items);
       return initialData.concat(
-        grouped.filter(d => initialData.indexOf(d) < 0)
+        grouped.filter((d) => initialData.indexOf(d) < 0)
       );
     }
     return initialData.concat(
-      data.filter(d => initialData.indexOf(d) < 0 && filterItem(d, item))
+      data.filter((d) => initialData.indexOf(d) < 0 && filterItem(d, item))
     );
   }, []);
-  return data.filter(d => filteredData.includes(d));
+  return data.filter((d) => filteredData.includes(d));
 };
 
 export const filterGroupAnd = (data, items) => {
@@ -162,10 +220,11 @@ export const filterGroupAnd = (data, items) => {
     if (item.items) {
       return filterGroup(initialData, item.groupName, item.items);
     }
-    return initialData.filter(d => filterItem(d, item));
+    return initialData.filter((d) => filterItem(d, item));
   }, data);
 };
 
 export const filterData = (data, filterValue) => {
   return filterGroup(data, filterValue.groupName, filterValue.items);
+  
 };

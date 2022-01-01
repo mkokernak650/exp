@@ -16,7 +16,7 @@ class PendingBillCallLogController extends Controller
     }
 
     /**
-     * for display all data 
+     * for display all data
      * @param null
      * @method GET
      * @return Object data
@@ -38,7 +38,7 @@ class PendingBillCallLogController extends Controller
     {
         $Inbound_Ids = $request->inboundIds;
         $result = false;
-        // dd($Inbound_Ids);
+
         foreach ($Inbound_Ids as $Inbound_Id) {
             $pendingBillCallLog = new PendingBillCallLog();
 

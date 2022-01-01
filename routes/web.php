@@ -1,29 +1,29 @@
 <?php
 
 
-use App\Http\Controllers\{
-    ArchivedCallLogController,
-    BilledCallLogController,
-    CustomerController,
-    HomeController,
-    MarketController,
-    MarketExceptionController,
-    PendingBillCallLogController,
-    RingbaCallLogController,
-    ExceptionController,
-    ZipcodeByTelevisionMarketController,
-    ZipcodeDataController,
-    TargetController,
-    BroadCastMonthController,
-    BroadCastWeeksController,
-    WebFormController,
-    Auth\LoginController,
-    ReportGeneratorController,
-    GenerateReportAffiliateController,
-    GenerateReportTargetController,
-    GenerateReportMarketExceptionController,
-    AffiliateController
-};
+use App\Http\Controllers\ArchivedCallLogController;
+use App\Http\Controllers\BilledCallLogController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MarketController;
+use App\Http\Controllers\MarketExceptionController;
+use App\Http\Controllers\PendingBillCallLogController;
+use App\Http\Controllers\RingbaCallLogController;
+use App\Http\Controllers\ExceptionController;
+use App\Http\Controllers\ZipcodeByTelevisionMarketController;
+use App\Http\Controllers\ZipcodeDataController;
+use App\Http\Controllers\TargetController;
+use App\Http\Controllers\BroadCastMonthController;
+use App\Http\Controllers\BroadCastWeeksController;
+use App\Http\Controllers\WebFormController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ReportGeneratorController;
+use App\Http\Controllers\GenerateReportAffiliateController;
+use App\Http\Controllers\GenerateReportTargetController;
+use App\Http\Controllers\GenerateReportMarketExceptionController;
+use App\Http\Controllers\AffiliateController;
+use App\Http\Controllers\TableDetailsController;
+use App\Http\Controllers\TestTableController;
 // use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
@@ -196,7 +196,7 @@ Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToC
 Route::post('/archive-delete', [ArchivedCallLogController::class, 'delete'])
     ->name('archive.delete');
 
-// TODO PendingBillCallLogController 
+// TODO PendingBillCallLogController
 Route::post('/move-from-pending-bill-to-ringba-call-log', [PendingBillCallLogController::class, 'moveToCallLog'])
     ->name('move.from.pending.bill.to.ringba.call.log');
 
@@ -333,7 +333,7 @@ Route::post('/broadcast-week-edit', [BroadCastWeeksController::class, 'edit'])
     ->name('broadcast.week.edit');
 
 
-//TODO Generate-Report 
+//TODO Generate-Report
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
     ->name('generate.report.affiliate');
 
@@ -343,7 +343,7 @@ Route::get('/generate-report-target', [GenerateReportTargetController::class, 'G
 Route::get('/generate-report-market-exception', [GenerateReportMarketExceptionController::class, 'GenerateReportMArketExceptionForm'])
     ->name('generate.report.market.exception');
 
-//Generate-Report 
+//Generate-Report
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])
     ->name('ka.table');
 
@@ -380,3 +380,15 @@ Route::post('/exception-revenue-update', [ExceptionController::class, 'updateRev
 
 
 Route::get('/get-call-logs-secheduler', [RingbaCallLogController::class, 'getCallLogsScheduler'])->name('get.call.log.secheduler');
+Route::post('/add-table-details', [TableDetailsController::class, 'store'])
+    ->name('add.table.details');
+Route::get('/get-table-details', [TableDetailsController::class, 'index'])
+    ->name('get.table.details');
+
+Route::get('/test-table-reports', [TestTableController::class, 'index'])
+    ->name('test.table.reports');
+
+
+    Route::get('custom-filter', function () {
+        return Inertia::render('CustomFilter');
+    });

@@ -565,7 +565,6 @@ export const filter = {
 };
 
 const WebFormReport = () => {
-  const classes = useStyles();
   const { allReports } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
@@ -785,6 +784,7 @@ const WebFormReport = () => {
       return newState;
     });
   };
+  console.log(tableProps)
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
@@ -872,7 +872,7 @@ const WebFormReport = () => {
   useEffect(() => {
     window.onload = function () {
       const storedData = JSON.parse(localStorage.getItem("webform-report"));
-      if (storedData != null) {
+      if (storedData !== null) {
         emptyCheckbox();
       }
     };

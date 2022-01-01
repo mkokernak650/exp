@@ -13,6 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import { currentDate } from "../../Helpers/CurrentDate";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -112,7 +113,7 @@ const AddBroadcastWeek = () => {
                 type="date"
                 name="start_date"
                 onChange={handleChange}
-                defaultValue="2021-01-06"
+                defaultValue={currentDate}
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -129,7 +130,7 @@ const AddBroadcastWeek = () => {
                 type="date"
                 name="end_date"
                 onChange={handleChange}
-                defaultValue="2021-01-06"
+                defaultValue={currentDate}
                 InputLabelProps={{
                   shrink: true,
                 }}

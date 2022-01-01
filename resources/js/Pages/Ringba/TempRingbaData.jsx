@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout";
-import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
@@ -18,8 +17,6 @@ import {
   selectRow,
   selectRowsRange,
 } from "ka-table/actionCreators";
-import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
 import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
@@ -35,6 +32,10 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
+import CustomFilter from "../../components/CustomFilter"
+import { filterData } from '../../Helpers/filterData';
+import { defaultFilter } from "../../Helpers/Filter";
+import { SearchedFields } from "../../Helpers/SearchedFields";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -43,142 +44,6 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-export const fields = [
-  {
-    caption: "CallLog Columns",
-    name: "CallLog_Columns",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
-  {
-    caption: "CallLog Events",
-    name: "CallLog_events",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
-  {
-    caption: "CallLog Tags",
-    name: "CallLog_Tags",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
-];
-
-export const groups = [
-  {
-    caption: "And",
-    name: "and",
-  },
-  {
-    caption: "Or",
-    name: "or",
-  },
-];
-export const filter = {
-  groupName: "and",
-  items: [
-    {
-      field: "CallLog_Columns",
-      operator: "isNotEmpty",
-    },
-  ],
-};
 
 const TempRingbaData = () => {
   const classes = useStyles();
@@ -190,9 +55,12 @@ const TempRingbaData = () => {
   const [open, setOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
+  const [filterValue, setFilterValue] = useState(defaultFilter('and', 'CallLog_Columns', 'isNotEmpty', 'string', 0, ''));
 
-
-  const dataArray = ringbaData.map((item, index) => ({
+  const [filteredData, setFilteredData] = useState(
+    filterData(ringbaData, filterValue)
+  );
+  const dataArray = filteredData.map((item, index) => ({
     sl: index + 1,
     CallLog_Columns: JSON.stringify(item.columns).substr(0, 100),
     CallLog_Events: JSON.stringify(item.events).substr(0, 100),
@@ -245,6 +113,8 @@ const TempRingbaData = () => {
     columnResizing: true,
     columnReordering: true,
   };
+
+  const fields = SearchedFields(tablePropsInit.columns)
 
   const OPTION_KEY = "temp-rigba-data";
   const stateStore = {
@@ -321,10 +191,6 @@ const TempRingbaData = () => {
       localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
       return newState;
     });
-  };
-  const [filterValue, changeFilter] = useState(filter);
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue);
   };
 
   const [serachSidebar, setSearchSidebar] = useState(false);
@@ -415,7 +281,6 @@ const TempRingbaData = () => {
       });
   };
 
-  useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
@@ -500,10 +365,10 @@ const TempRingbaData = () => {
             <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
-            <div className="search-icon" onClick={handleSearch}>
+            {/* <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
               <img src={search} alt="search"></img>
-            </div>
+            </div> */}
 
             {serachSidebar ? (
               <div className="search-sidebar">
@@ -517,14 +382,8 @@ const TempRingbaData = () => {
                 </div>
 
                 <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
+                {/* <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} /> */}
+
                 </div>
               </div>
             ) : (

@@ -1,9 +1,9 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
-import {Button } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import Cancel from "../../images/Cancel.svg";
-
+import {CircularProgress} from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -35,6 +35,7 @@ export default function ConfirmModal({
   editData,
   width,
   title,
+  loading
 }) {
   const classes = useStyles();
   const handleClose = () => {
@@ -50,7 +51,8 @@ export default function ConfirmModal({
             color="primary"
             onClick={() => btnAction(editData)}
           >
-            Yes
+            {"Yes"}
+            {loading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
           </Button>
           <Button variant="contained" color="primary" onClick={closeAction}>
             No

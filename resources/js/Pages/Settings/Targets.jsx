@@ -25,7 +25,6 @@ import { filterData } from "../filterData";
 import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
-import ThreeDots from "../../../images/three-dots.svg";
 import Edit from "../../../images/edit1.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Cancel from "../../../images/Cancel.svg";
@@ -47,7 +46,6 @@ import { Helmet } from "react-helmet";
 import NormalModal from "../../Shared/NormalModal";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
-import produce from "immer"
 
 const useStyles = makeStyles(() => ({
   topBtn: {

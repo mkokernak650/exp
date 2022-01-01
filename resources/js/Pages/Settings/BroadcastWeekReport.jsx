@@ -133,62 +133,12 @@ const BroadcastWeekReport = () => {
   const [open, setOpen] = useState(false);
   const showColumnRef = useRef();
 
-  const handleEdit = (itemId) => {
-    BroadCastWeeks.filter((item) => {
-      if (item.id === itemId) {
-        setEditData(item);
-      }
-    });
-    setShowEditModal({ open: true });
-  };
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-  const handleEditSubmit = () => {
-    axios
-      .post(route("broadcast.week.edit"), editData)
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          filteredData.data.filter((item, indx) => {
-            if (item.id === editData.id) {
-              filteredData.data[indx].broad_cast_week = editData.broad_cast_week;
-              filteredData.data[indx].start_date = editData.start_date;
-              filteredData.data[indx].end_date = editData.end_date;
-            }
-          });
-          setEditData([]);
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
-        } else {
-          setEditData([]);
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
-  }
-
-
-  const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
+ 
 
   const dataArray = BroadCastWeeks.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    broadcast_week: item.broad_cast_week,
+    broad_cast_week: item.broad_cast_week,
     start_date: item.start_date,
     end_date: item.end_date,
     id: item.id,
@@ -275,7 +225,7 @@ const BroadcastWeekReport = () => {
         style: { width: 100 },
       },
       {
-        key: "broadcast_week",
+        key: "broad_cast_week",
         title: "Broadcast Week",
         dataType: DataType.String,
         style: { width: 240 },
@@ -346,6 +296,58 @@ const BroadcastWeekReport = () => {
   };
   const closeSidebar = () => {
     setSearchSidebar(false);
+  };
+
+  const handleEdit = (itemId) => {
+    tableProps.data.filter((item) => {
+      if (item.id === itemId) {
+        setEditData(item);
+      }
+    });
+    setShowEditModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  const handleEditSubmit = () => {
+    axios
+      .post(route("broadcast.week.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id === editData.id) {
+              filteredData.data[indx].broad_cast_week = editData.broad_cast_week;
+              filteredData.data[indx].start_date = editData.start_date;
+              filteredData.data[indx].end_date = editData.end_date;
+            }
+          });
+          setEditData([]);
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
+        } else {
+          setEditData([]);
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  }
+
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
   };
   const deleteHandler = () => {
     axios

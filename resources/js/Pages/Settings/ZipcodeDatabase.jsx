@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -1271,6 +1271,7 @@ const ZipcodeDatabase = () => {
   const [exportModal, setExportModal] = useState({ open: false });
   const [selectedFile, setSelectedFile] = useState(null);
   const [type, setType] = useState("xlsx");
+  const showColumnRef = useRef();
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1708,6 +1709,22 @@ const ZipcodeDatabase = () => {
   };
 
   useEffect(() => M.AutoInit());
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
 
   // const TableToolbar = () => {
   //   return (

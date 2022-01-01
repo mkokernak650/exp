@@ -72,9 +72,10 @@ class BroadCastMonthController extends Controller
         $data->start_date  = $request->start_date;
         $data->end_date  = $request->end_date;
         $result = $data->save();
+        $allData= BroadCastMonth::all();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,"allData" => $allData]);
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }

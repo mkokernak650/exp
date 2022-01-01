@@ -296,6 +296,11 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
+          title: "Market Exception",
+          href: "generate.report.market.exception",
+          Icon: <UserIcon />,
+        },
+        {
           title: "Affiliate",
           href: "generate.report.affiliate",
           Icon: <UserIcon />,
@@ -305,11 +310,7 @@ export default function PersistentDrawerLeft(props) {
           href: "generate.report.target",
           Icon: <UserIcon />,
         },
-        {
-          title: "Market Exception",
-          href: "generate.report.market.exception",
-          Icon: <UserIcon />,
-        },
+
       ],
     },
     {
@@ -550,11 +551,10 @@ export default function PersistentDrawerLeft(props) {
                   in={active.id === menu.id && active.active}
                   timeout="auto"
                   unmountOnExit
-                  className={`${
-                    menu.active
+                  className={`${menu.active
                       ? "sidebar-menu-active"
                       : "sidebar-menu-inactive"
-                  }`}
+                    }`}
                 >
                   <List component="div" disablePadding>
                     {menu.submenu.map((submenu) => (

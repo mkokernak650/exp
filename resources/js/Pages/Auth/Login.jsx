@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import backgroundImage from '../../../images/background_image_compress.jpg'
+import { usePage } from '@inertiajs/inertia-react'
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -38,8 +39,8 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: "#3b3e61",
         width: "100px",
         textTransform: "none",
-        '&:hover':{
-            backgroundColor:"#232b61"
+        '&:hover': {
+            backgroundColor: "#232b61"
         }
     },
     box1: {
@@ -61,16 +62,22 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         // borderRadius: "15px!important",
         // backgroundColor: "red!important"
+    },
+    errorMessage: {
+        color: "#f71328"
     }
 
 }));
 
 const Login = () => {
+    const { errors } = usePage().props
     const classes = useStyles();
     const [values, setValues] = useState({
         email: "",
         password: "",
     });
+
+
 
     function handleChange(e) {
         const key = e.target.name;
@@ -84,7 +91,10 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         Inertia.post(route("login.attempt"), values);
+
     };
+
+
     return (
         <>
             <div className={classes.loginForm}>
@@ -105,7 +115,7 @@ const Login = () => {
                         }}
                     >
                         <Container maxWidth="sm">
-                            <form validate onSubmit={handleSubmit}>
+                            <form validate="true" onSubmit={handleSubmit}>
                                 <Box sx={{ mb: 3 }}>
                                     <Typography
                                         color="textPrimary"
@@ -115,7 +125,7 @@ const Login = () => {
                                         Sign in
                                     </Typography>
                                 </Box>
-
+                                {errors.email && <div className={classes.errorMessage}>{errors.email}</div>}
                                 <TextField
                                     fullWidth
                                     label="Email Address"
@@ -143,6 +153,8 @@ const Login = () => {
 
 
                                 />
+                                {errors.password && <div className={classes.errorMessage}>{errors.password}</div>}
+
                                 <Box sx={{ py: 2 }}>
                                     <Button
                                         color="primary"
@@ -159,6 +171,7 @@ const Login = () => {
                         </Container>
                     </Box>
                 </Paper>
+
             </div>
 
         </>

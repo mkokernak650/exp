@@ -40,6 +40,7 @@ import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
+import produce from "immer"
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -131,62 +132,12 @@ const BroadcastMonthReport = () => {
   const [open, setOpen] = useState(false);
   const showColumnRef = useRef();
 
-  const handleEdit = (itemId) => {
-    BroadCastMonths.filter((item) => {
-      if (item.id === itemId) {
-        setEditData(item);
-      }
-    });
-    setShowEditModal({ open: true });
-  };
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-  const handleEditSubmit = () => {
-    axios
-      .post(route("broadcast.month.edit"), editData)
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          filteredData.data.filter((item, indx) => {
-            if (item.id === editData.id) {
-              filteredData.data[indx].broad_cast_month = editData.broad_cast_week;
-              filteredData.data[indx].start_date = editData.start_date;
-              filteredData.data[indx].end_date = editData.end_date;
-            }
-          });
-          setEditData([]);
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
-        } else {
-          setEditData([]);
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
-  }
-
-  const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
 
 
   const dataArray = BroadCastMonths.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    broadcast_month: item.broad_cast_month,
+    broad_cast_month: item.broad_cast_month,
     start_date: item.start_date,
     end_date: item.end_date,
     id: item.id,
@@ -273,7 +224,7 @@ const BroadcastMonthReport = () => {
         style: { width: 100 },
       },
       {
-        key: "broadcast_month",
+        key: "broad_cast_month",
         title: "Broadcast Month",
         dataType: DataType.String,
         style: { width: 240 },
@@ -345,6 +296,73 @@ const BroadcastMonthReport = () => {
   const closeSidebar = () => {
     setSearchSidebar(false);
   };
+
+  const handleEdit = (itemId) => {
+    tableProps.data.filter((item) => {
+      if (item.id == itemId) {
+        setEditData(item);
+      }
+    });
+    setShowEditModal({ open: true });
+  };
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+  console.log(editData)
+  const handleEditSubmit = () => {
+    axios
+      .post(route("broadcast.month.edit"), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          // let filteredData = tableProps;
+          // console.log(editData);
+          // let columnsData = produce(tableProps, draft => {
+          //   draft.data.filter((item) => {
+          //     if (item.id === editData.id) {
+          //       item.broad_cast_month = editData.broad_cast_month;
+          //       item.start_date = editData.start_date;
+          //       item.end_date = editData.end_date;
+          //     }
+          //   });
+          // })
+          // console.log(columnsData)
+          // changeTableProps(columnsData)
+
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id === editData.id) {
+              filteredData.data[indx].broad_cast_month = editData.broad_cast_month;
+              filteredData.data[indx].start_date = editData.start_date;
+              filteredData.data[indx].end_date = editData.end_date;
+            }
+          });
+          setEditData([]);
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
+        } else {
+          setEditData([]);
+          setShowEditModal({ open: false });
+          setOpen(true);
+          setResponse(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox();
+  }
+
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
+  };
+
   const deleteHandler = () => {
     axios
       .post(route("broadcast.month.delete"), { selectedRowIds })
@@ -489,7 +507,7 @@ const BroadcastMonthReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-              <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -523,7 +541,7 @@ const BroadcastMonthReport = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

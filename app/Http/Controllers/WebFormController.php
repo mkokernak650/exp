@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class WebFormController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('auth');

@@ -6,7 +6,6 @@ import linkedin from "../../images/webform/linkedin.svg";
 import phone from "../../images/webform/phone.svg";
 import separate from "../../images/webform/separate.svg";
 import mail from "../../images/webform/mail.svg";
-import ReCAPTCHA from "react-google-recaptcha";
 import { useState } from "react";
 import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
@@ -216,7 +215,6 @@ export default function WebForm() {
               rows="5"
               onChange={handleChange}
             ></textarea>
-            {/* <ReCAPTCHA sitekey="Your client site key" /> */}
             <div className="form-button">
               <button type="submit" className="btn">
                 Apply Now
