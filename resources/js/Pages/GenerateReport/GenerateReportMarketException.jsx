@@ -49,7 +49,7 @@ const GenerateReportMarketException = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, broadCastWeeks, targets,markets } =
+  const { affiliates, broadCastMonths, broadCastWeeks, targets, markets } =
     usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
@@ -72,10 +72,16 @@ const GenerateReportMarketException = () => {
     setOpen(false);
   };
 
-  const marketHandleChange = (e) => {
+  /*const marketHandleChange = (e) => {
     const { name, value } = e.target;
     setMarket({ [name]: value });
+  };*/
+  const marketHandleChange = (val, key) => {
+    val = val.substring(0, val.length - 1);
+    const marketsName = val.split(",,");
+    setMarket({ [key]: marketsName });
   };
+
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
     setCustomer({ [name]: value });
@@ -96,6 +102,21 @@ const GenerateReportMarketException = () => {
     value: item.affiliate_id,
   }));
 
+  const  annotationOptions  = [
+    { label:  'Yes', value:  'yes' },
+    { label:  'No', value:  'no' },
+  ]
+
+  const  marketOptions  = markets.map((item) => ({
+    label: item.market,
+    value: item.market + ',',
+  }));
+
+  const  broadCastMonthOptions  = broadCastMonths.map((item) => ({
+    label: item.broad_cast_month,
+    value: item.broad_cast_month + ',',
+  }));
+
   const targetHandleChange = (val, key) => {
     const targetNames = val.split(",");
     setTarget({ [key]: targetNames });
@@ -105,7 +126,8 @@ const GenerateReportMarketException = () => {
     const affiliate_ids = val.split(",");
     setAffiliate({ [key]: affiliate_ids });
   };
-  const monthHandleChange = (e) => {
+
+  /*const monthHandleChange = (e) => {
     const { name, value } = e.target;
     setMonth({ [name]: value });
     broadCastMonths.filter((item) => {
@@ -114,7 +136,14 @@ const GenerateReportMarketException = () => {
         setEndDate({ ...endDate, end_date: item.end_date });
       }
     });
+  };*/
+
+  const monthHandleChange = (val, key) => {
+    val = val.substring(0, val.length - 1);
+    const monthsName = val.split(",,");
+    setMonth({ [key]: monthsName });
   };
+
   const weekHandleChange = (e) => {
     const { name, value } = e.target;
     setWeek({ [name]: value });
@@ -141,9 +170,13 @@ const GenerateReportMarketException = () => {
     const { name, value } = e.target;
     setCampaign({ [name]: value });
   };
-  const annotationHandleChange = (e) => {
+  /*const annotationHandleChange = (e) => {
     const { name, value } = e.target;
     setAnnotation({ [name]: value });
+  };*/
+  const annotationHandleChange = (val, key) => {
+    const annotationsName = val.split(",");
+    setAnnotation({ [key]: annotationsName });
   };
 
   const values = {
@@ -211,7 +244,7 @@ const GenerateReportMarketException = () => {
         <form validate="true" className="generate-report-target">
           <Grid container spacing={4}>
             <Grid item xs={12}>
-              <TextField
+              {/*<TextField
                 id="standard-select-currency-native"
                 select
                 name="market"
@@ -227,7 +260,15 @@ const GenerateReportMarketException = () => {
                     {option.market}
                   </option>
                 ))}
-              </TextField>
+              </TextField>*/}
+
+              <MultiSelect
+                name="market"
+                onChange={(val) => marketHandleChange(val, "market")}
+                options={marketOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Market"
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -280,7 +321,7 @@ const GenerateReportMarketException = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <TextField
+              {/*<TextField
                 id="standard-select-currency-native"
                 select
                 name="annotation"
@@ -293,7 +334,15 @@ const GenerateReportMarketException = () => {
                 <option value="">Select Annotation</option>
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
-              </TextField>
+              </TextField>*/}
+
+              <MultiSelect
+                name="annotation"
+                onChange={(val) => annotationHandleChange(val, "annotation")}
+                options={annotationOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Annotation"
+              />
             </Grid>
             <Grid item xs={12}>
               <MultiSelect
@@ -305,7 +354,7 @@ const GenerateReportMarketException = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              {/*<TextField
                 id="standard-select-currency-native"
                 select
                 name="broad_cast_month"
@@ -322,10 +371,17 @@ const GenerateReportMarketException = () => {
                     {option.broad_cast_month}
                   </option>
                 ))}
-              </TextField>
+              </TextField>*/}
+              <MultiSelect
+                name="broad_cast_month"
+                onChange={(val) => monthHandleChange(val, "broad_cast_month")}
+                options={broadCastMonthOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Broadcast Month"
+              />
             </Grid>
 
-            <Grid item xs={12}>
+            {/*<Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
                 select
@@ -344,9 +400,9 @@ const GenerateReportMarketException = () => {
                   </option>
                 ))}
               </TextField>
-            </Grid>
+            </Grid>*/}
 
-            <Grid item xs={12}>
+            {/*<Grid item xs={12}>
               <TextField
                 id="date"
                 label="Start Date"
@@ -377,7 +433,7 @@ const GenerateReportMarketException = () => {
                 fullWidth
               // required={true}
               />
-            </Grid>
+            </Grid>*/}
             <Grid item xs={12}>
               <Button
                 variant="contained"

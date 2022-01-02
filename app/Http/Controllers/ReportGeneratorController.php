@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
+use App\Models\BroadCastMonth;
 use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
 use App\Models\Exception;
@@ -58,7 +59,7 @@ class ReportGeneratorController extends Controller
             $ids = implode("','", $target_name);
             $whereIn[] = "Target IN ('$ids')";
         }
-       
+
 
         $total_call     = 0;
         $total_seconds  = 0;
@@ -216,7 +217,7 @@ class ReportGeneratorController extends Controller
                 $total_revenue  += (int) $exception->$payout_amount;
             }
         }
-  
+
         $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
 
 
@@ -429,7 +430,7 @@ class ReportGeneratorController extends Controller
                 $total_revenue  += (int) $exception->Revenue;
             }
         }
-   
+
         $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
         $call_summary['Total number of calls']             = $total_call;
         $call_summary['Total Minutes']          = secondToMinutes($total_seconds);
@@ -449,34 +450,55 @@ class ReportGeneratorController extends Controller
 
     public function marketExceptionReport(Request $request)
     {
-        $newData        = [];
-        $market_name    = $request->market;
-        $customer_name  = $request->customer_name;
-        $affiliate_ids  = $request->affiliate_id; // array
-        $target_name    = $request->target_name; // array
-        $annotation     = $request->annotation;
-        $campaign       = $request->campaign;
+        $newData          = [];
+        $market_name      = $request->market;
+        $customer_name    = $request->customer_name;
+        $affiliate_ids    = $request->affiliate_id; // array
+        $target_name      = $request->target_name; // array
+        $annotation       = $request->annotation;
+        $campaign         = $request->campaign;
+        $broad_cast_month = $request->input('broad_cast_month');
 
         // summary of calls
         $call_summary   = [];
         $condition      = [];
         $whereIn        = [];
+
+        /*if ($market_name !== null) {
+          $condition[] = "Market='{$market_name}'";
+        }*/
+        if (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
+          $market_name_inputs = implode("','", $market_name);
+          $whereIn[] = "Market IN ('$market_name_inputs')";
+        }
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date     = date('Y-m-d', strtotime($request->start_date));
             $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
             $date_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
             $call_summary['Date Range']  = $date_range;
-            $condition[]    = "Call_Date >='$start_date'";
-            $condition[]    = "Call_Date <= '$end_date'";
         }
-        if ($market_name !== null) {
-            $condition[] = "Market='{$market_name}'";
+
+        if(!empty($broad_cast_month) && count($broad_cast_month) > 0 && $broad_cast_month[0] !== null) {
+            $broadCastMonths = BroadCastMonth::whereIn('broad_cast_month', $request->input('broad_cast_month'))
+                ->select(['end_date', 'start_date', 'broad_cast_month'])->get();
+
+            $broadCastMonthCondition = '';
+            foreach ($broadCastMonths as $broadCastMonth) {
+                $broadCastMonthCondition .= "(Call_Date >='$broadCastMonth->start_date'" . ' AND ' . "Call_Date <= '$broadCastMonth->end_date')" . ' OR ';
+            }
+
+            $condition[]    = "(" . rtrim($broadCastMonthCondition, ' OR') . ")";
         }
+
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
         }
-        if ($annotation !== null) {
+        /*if ($annotation !== null) {
             $condition[] = "Has_Annotation='$annotation'";
+        }*/
+        if (!empty($annotation) && count($annotation) > 0 && $annotation[0] !== null) {
+          $annotation_inputs = implode("','", $annotation);
+          $whereIn[] = "Has_Annotation IN ('$annotation_inputs')";
         }
         if ($customer_name !== null) {
             $condition[] =  "Customer='{$customer_name}'";
@@ -500,7 +522,8 @@ class ReportGeneratorController extends Controller
         $annotation_tags_array = [];
         $tag_count = [];
         $exceptions = $this->marketExceptionReportData('exceptions', $condition, $whereIn);
-        $annotation_tag = 'Call Type';
+//        return $this->marketExceptionReportData('exceptions', $condition, $whereIn);
+        $annotation_tag = 'Annotation';
         $conn_duration = 'Connection Duration';
         // for exceptions
         if (!empty($exceptions)) {
@@ -549,7 +572,7 @@ class ReportGeneratorController extends Controller
         ];
     }
 
-    
+
 
     private function targetReportData($tablename, $condition, $whereIn = [])
     {

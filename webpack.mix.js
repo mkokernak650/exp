@@ -14,7 +14,7 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
     .react()
     .sass('resources/sass/app.scss', 'public/css')
-    .browserSync('consumerexp-ringba-test.dev')
+    .browserSync('consumerexp-ringba.test')
 
 mix.override(config => {
     // Apply a workaround caused by Laravel Mix using the `webpack-dev-server@v4.0.0-beta`:
