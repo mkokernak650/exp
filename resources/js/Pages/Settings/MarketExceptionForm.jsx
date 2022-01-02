@@ -88,7 +88,7 @@ const MarketExceptionForm = () => {
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
-                id="standard-select-currency-native"
+                id="customer"
                 select
                 name="customer"
                 onChange={handleChange}
@@ -109,7 +109,7 @@ const MarketExceptionForm = () => {
 
             <Grid item xs={12}>
               <TextField
-                id="standard-select-currency-native"
+                id="market"
                 select
                 name="market"
                 onChange={handleChange}
@@ -126,6 +126,25 @@ const MarketExceptionForm = () => {
                     {option.market}
                   </option>
                 ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                id="call_type"
+                select
+                name="call_type"
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                required={true}
+              >
+                <option value="">Call Type</option>
+                <option value="1">Landline (L)</option>
+                <option value="2">Wireless (W)</option>
+                <option value="3">Both L & W</option>
               </TextField>
             </Grid>
 

@@ -20,16 +20,18 @@ class MarketExceptionController extends Controller
 
     public function addMarketException(Request $request)
     {
-
-        $existData = MarketExcptions::where('customer_id', $request->customer)->where('market_id', $request->market)->count();
+        $existData = MarketExcptions::where('customer_id', $request->customer)
+            ->where('market_id', $request->market)
+            ->where('call_type', $request->call_type)
+            ->count();
         if ($existData > 0) {
             return response()->json(["msg" => "Data already Exist"]);
         }
 
-        
         MarketExcptions::create([
             'customer_id' => $request->customer,
             'market_id' => $request->market,
+            'call_type' => $request->call_type,
             'start_date' => $request->start_date,
         ]);
 

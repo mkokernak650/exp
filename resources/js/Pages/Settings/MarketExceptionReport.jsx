@@ -133,6 +133,44 @@ export const fields = [
       },
     ],
   },
+  {
+    caption: "call_type",
+    name: "call_type",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
 ];
 
 export const groups = [
@@ -209,10 +247,24 @@ const MarketExceptionReport = () => {
     sl: index + 1,
     customer: item.customer_id,
     market: item.market_id,
+    call_type: selectCallType(item.call_type),
     start_date: item.start_date,
     id: item.id,
     key: index,
   }));
+
+  function selectCallType(callType) {
+      let callTypeString = '';
+      if(callType === 1) {
+          callTypeString = 'Landline';
+      }else if(callType === 2) {
+          callTypeString = 'Wireless';
+      }else if(callType === 3) {
+          callTypeString = 'Both';
+      }
+      return callTypeString;
+  }
+
   const SelectionCell = ({
     rowKeyValue,
     dispatch,
@@ -306,6 +358,12 @@ const MarketExceptionReport = () => {
         title: "Market",
         dataType: DataType.String,
         style: { width: 350 },
+      },
+      {
+        key: "call_type",
+        title: "Call Type",
+        dataType: DataType.String,
+        style: { width: 160 },
       },
       // {
       //   key: "id",
