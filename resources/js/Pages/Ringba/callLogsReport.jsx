@@ -190,7 +190,7 @@ const CallLogsReport = () => {
       {
         key: "Recording_Url",
         title: "Recording_Url",
-        style: { width: 210 },
+        style: { width: 260 },
       },
       {
         key: "Inbound_Id",
@@ -344,9 +344,10 @@ const CallLogsReport = () => {
       }
       if (column.key === "Recording_Url") {
         return (
-          <a target="_blank" href={value}>
-            Recording URL
-          </a>
+          <audio controls style={{ width: '100%' }}>
+            <source src={value} type="audio/mp3" />
+            Your browser does not support the <code>audio</code> element.
+          </audio>
         );
       }
       if (column.key === "Call_Date") {
@@ -446,7 +447,7 @@ const CallLogsReport = () => {
     });
   };
 
- 
+
 
   const [serachSidebar, setSearchSidebar] = useState(false);
 
