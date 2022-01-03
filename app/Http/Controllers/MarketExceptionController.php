@@ -68,8 +68,8 @@ class MarketExceptionController extends Controller
     public function export($type)
     {
         // get request
-        Excel::download(new MarketExceptionExport,  'MarketExceptionExport.' . $type);
-        return back()->with('Export successfully');
+        $marketExceptionExportFile = Excel::download(new MarketExceptionExport,  'MarketExceptionExport.' . $type);
+        return $marketExceptionExportFile;
     }
 
     public function edit(Request $request)
