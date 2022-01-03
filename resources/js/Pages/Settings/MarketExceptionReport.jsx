@@ -32,7 +32,15 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  FormControlLabel,
+  FormLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+} from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
@@ -54,7 +62,6 @@ const useStyles = makeStyles(() => ({
     marginTop: "15px",
   },
 }));
-
 
 export const fields = [
   {
@@ -133,6 +140,44 @@ export const fields = [
       },
     ],
   },
+  {
+    caption: "call_type",
+    name: "call_type",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
 ];
 
 export const groups = [
@@ -167,7 +212,9 @@ const MarketExceptionReport = () => {
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
-
+  const [exportModal, setExportModal] = useState({ open: false });
+  const [type, setType] = useState("xlsx");
+  const [loading, setLoading] = useState(false);
 
   // const handleEdit = (itemId) => {
   //   marketExceptions.filter((item) => {
@@ -202,17 +249,29 @@ const MarketExceptionReport = () => {
       });
   };
 
-
-
   const dataArray = marketExceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
     customer: item.customer_id,
     market: item.market_id,
+    call_type: selectCallType(item.call_type),
     start_date: item.start_date,
     id: item.id,
     key: index,
   }));
+
+  function selectCallType(callType) {
+    let callTypeString = "";
+    if (callType === 1) {
+      callTypeString = "Landline";
+    } else if (callType === 2) {
+      callTypeString = "Wireless";
+    } else if (callType === 3) {
+      callTypeString = "Both";
+    }
+    return callTypeString;
+  }
+
   const SelectionCell = ({
     rowKeyValue,
     dispatch,
@@ -277,8 +336,6 @@ const MarketExceptionReport = () => {
     );
   };
 
-
-
   const tablePropsInit = {
     columns: [
       // {
@@ -306,6 +363,12 @@ const MarketExceptionReport = () => {
         title: "Market",
         dataType: DataType.String,
         style: { width: 350 },
+      },
+      {
+        key: "call_type",
+        title: "Call Type",
+        dataType: DataType.String,
+        style: { width: 160 },
       },
       // {
       //   key: "id",
@@ -411,7 +474,7 @@ const MarketExceptionReport = () => {
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  }
+  };
 
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true });
@@ -457,13 +520,50 @@ const MarketExceptionReport = () => {
     };
   }, []);
 
+  const handleExportTypeChange = (e) => {
+    setType(e.target.value);
+  };
+
+  const openExportModal = () => {
+    setExportModal({ open: true });
+  };
+
+  const triggerExportLink = (link) => {
+    return window.open(link);
+  };
+
+  const baseUrl = window.location.origin;
+  const exportHandler = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    axios
+      .get(`${baseUrl}/market-exception-export/${type}`)
+      .then((res) => {
+        setLoading(false);
+        if (res.status === 200) {
+          setExportModal({ open: false });
+          triggerExportLink(res.request.responseURL);
+          setResponse("Exported Successfully");
+          setOpen(true);
+        } else {
+          setResponse("Exporting failed");
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
+          <IconButton
+            aria-label="delete"
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          >
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -540,8 +640,20 @@ const MarketExceptionReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-               <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search"></img>
+            <div className="top-left">
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <img src={eyeIcon} alt="search"></img>
+              </div>
+              <Button
+                variant="contained"
+                type="submit"
+                color="primary"
+                className={classes.button}
+                onClick={openExportModal}
+                disabled={marketExceptions == ""}
+              >
+                Export
+              </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -574,7 +686,7 @@ const MarketExceptionReport = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
@@ -608,7 +720,7 @@ const MarketExceptionReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -682,7 +794,10 @@ const MarketExceptionReport = () => {
             </Button>
           </form>
 
-          <div onClick={() =>handleCloseModal(setShowEditModal)} className="close-modal-icon">
+          <div
+            onClick={() => handleCloseModal(setShowEditModal)}
+            className="close-modal-icon"
+          >
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
@@ -695,11 +810,41 @@ const MarketExceptionReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${selectedRowIds.length > 1
-          ? "Do you want to delete these records?"
-          : "Do you want to delete this record?"
-          }`}
+        title={`${
+          selectedRowIds.length > 1
+            ? "Do you want to delete these records?"
+            : "Do you want to delete this record?"
+        }`}
       ></ConfirmModal>
+
+      <NormalModal
+        open={exportModal.open}
+        setOpen={setExportModal}
+        width={"500px"}
+        title={""}
+      >
+        <div className={classes.import}>
+          <FormLabel component="legend">Select Type</FormLabel>
+          <RadioGroup
+            aria-label="type"
+            name="type"
+            value={type}
+            onChange={handleExportTypeChange}
+          >
+            <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
+            <FormControlLabel value="csv" control={<Radio />} label="CSV" />
+            <FormControlLabel value="xls" control={<Radio />} label="XLS" />
+            <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
+          </RadioGroup>
+          <Button variant="contained" color="primary" onClick={exportHandler}>
+            {loading ? (
+              <CircularProgress color="secondary" thickness="3" size="2rem" />
+            ) : (
+              "Next"
+            )}
+          </Button>
+        </div>
+      </NormalModal>
     </>
   );
 };
