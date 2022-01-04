@@ -80,9 +80,6 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
   hide: {
     display: "none",
   },
@@ -308,6 +305,11 @@ export default function PersistentDrawerLeft(props) {
         {
           title: "Target",
           href: "generate.report.target",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Destination",
+          href: "generate.report.destination",
           Icon: <UserIcon />,
         },
 
