@@ -17,6 +17,7 @@ class CreateMarketExcptionsTable extends Migration
             $table->id();
             $table->string('customer_id')->nullable();
             $table->string('market_id')->nullable();
+            $table->tinyInteger('call_type')->nullable()->comment('1:L 2:W 3:Both');
             $table->string('start_date')->nullable();
             $table->timestamps();
         });
