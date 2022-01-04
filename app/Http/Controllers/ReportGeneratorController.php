@@ -18,6 +18,11 @@ class ReportGeneratorController extends Controller
         $this->middleware('auth');
     }
 
+    public function destinationReport(Request $request)
+    {
+
+    }
+
     public function affiliateReport(Request $request)
     {
         $newData        = [];
@@ -623,4 +628,23 @@ class ReportGeneratorController extends Controller
         $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status',Annotation_Tag AS 'Call Type',Has_Annotation AS 'Has Annotation' FROM {$tablename}  WHERE {$con}";
         return DB::select($sql);
     }
+
+    /*private function destinationReportData($tablename, $condition, $whereIn = [])
+    {
+        $con = '';
+        foreach ($condition as $v) {
+            $con .= $v . " AND ";
+        }
+        if (count($whereIn) > 0) {
+            foreach ($whereIn as $value) {
+                $con .= $value . " AND ";
+            }
+        }
+        $con = rtrim($con, " AND ");
+        $sql = "SELECT destination_number As 'Destination Number', Affiliate, COUNT(id) AS 'Billable Calls', payoutAmount AS 'Per Call Rate'
+                FROM {$tablename}
+                Group BY destination_number
+                WHERE {$con}";
+        return DB::select($sql);
+    }*/
 }
