@@ -499,8 +499,10 @@ class ReportGeneratorController extends Controller
         // category of calls
         $annotation_tags_array = [];
         $tag_count = [];
+
         $exceptions = $this->marketExceptionReportData('exceptions', $condition, $whereIn);
-        $annotation_tag = 'Call Type';
+
+        $annotation_tag = 'Annotation';
         $conn_duration = 'Connection Duration';
         // for exceptions
         if (!empty($exceptions)) {
