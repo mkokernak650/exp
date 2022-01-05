@@ -35,7 +35,7 @@ class BilledCallLogController extends Controller
     /**
      * @param Array of inbound Id
      * @method POST
-     * @return true or false 
+     * @return true or false
      */
     public function store(Request $request)
     {
@@ -71,6 +71,7 @@ class BilledCallLogController extends Controller
             $billedCallLog->Dialed              = $data->Dialed;
             $billedCallLog->Type                = $data->Type;
             $billedCallLog->Target              = $data->Target;
+            $billedCallLog->Target_Number       = $data->Target_Number;
             $billedCallLog->Target_Description  = $data->Target_Description;
             $billedCallLog->Source_Hangup       = $data->Source_Hangup;
             $billedCallLog->Conn_Duration       = $data->Conn_Duration;

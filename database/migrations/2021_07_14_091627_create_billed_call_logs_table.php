@@ -31,6 +31,7 @@ class CreateBilledCallLogsTable extends Migration
             $table->string('Dialed')->nullable();
             $table->string('Type')->nullable();
             $table->string('Target')->nullable();
+            $table->string('Target_Number')->nullable();
             $table->string('Target_Description')->nullable();
             $table->string('Source_Hangup')->nullable();
             $table->string('Conn_Duration')->nullable();

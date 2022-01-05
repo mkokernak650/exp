@@ -32,6 +32,7 @@ class CreatePendingBillCallLogsTable extends Migration
             $table->string('Market')->nullable();
             $table->string('Type')->nullable();
             $table->string('Target')->nullable();
+            $table->string('Target_Number')->nullable();
             $table->string('Target_Description')->nullable();
             $table->string('Account_Id')->nullable();
             $table->string('Source_Hangup')->nullable();
