@@ -93,6 +93,7 @@ const BilledCallLogs = () => {
     Dialed: item.Dialed,
     Type: item.Type,
     Target: item.Target,
+    Target_Number: item.Target_Number,
     Target_Description: item.Target_Description,
     Source_Hangup: item.Source_Hangup,
     Conn_Duration: item.Conn_Duration,
@@ -226,6 +227,12 @@ const BilledCallLogs = () => {
         title: "Target",
         dataType: DataType.String,
         style: { width: 350 },
+      },
+      {
+        key: "Target_Number",
+        title: "Target Number",
+        dataType: DataType.String,
+        style: { width: 200 },
       },
       {
         key: "Target_Description",

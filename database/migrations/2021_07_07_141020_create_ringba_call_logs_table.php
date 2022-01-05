@@ -33,6 +33,7 @@ class CreateRingbaCallLogsTable extends Migration
             $table->string('call_Length_In_Seconds')->nullable();
             $table->string('Profit')->nullable();
             $table->string('Target')->nullable();
+            $table->string('Target_Number')->nullable();
             $table->string('Target_Description')->nullable();
             $table->string('Revenue')->nullable();
             $table->string('call_Logs_status')->nullable();

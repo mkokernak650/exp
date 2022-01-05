@@ -97,6 +97,7 @@ const ArchivedCallLogReports = () => {
     Call_Length_In_Seconds: item.call_Length_In_Seconds,
     Customer: item.Customer,
     Target: item.Target,
+    Target_Number: item.Target_Number,
     Target_Description: item.Target_Description,
     Affiliate: item.Affiliate,
     Market: item.Market,
@@ -198,6 +199,12 @@ const ArchivedCallLogReports = () => {
         title: "Target",
         dataType: DataType.String,
         style: { width: 350 },
+      },
+      {
+        key: "Target_Number",
+        title: "Target Number",
+        dataType: DataType.String,
+        style: { width: 200 },
       },
       {
         key: "Target_Description",
@@ -702,7 +709,7 @@ const ArchivedCallLogReports = () => {
 
                 <div className="top-element">
                 <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} />
-                  
+
                 </div>
               </div>
             ) : (

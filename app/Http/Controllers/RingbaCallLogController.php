@@ -199,7 +199,7 @@ class RingbaCallLogController extends Controller
                 $this->get_zipcode =
                 $this->get_market =
                 $this->get_type = "";
-                
+
             $this->get_callLengthInSeconds =
                 $this->get_payoutAmount =
                 $this->get_customer_name_id =
@@ -430,6 +430,7 @@ class RingbaCallLogController extends Controller
         $instance->call_Length_In_Seconds = $this->get_callLengthInSeconds;
         $instance->Profit                 = $this->get_profit;
         $instance->Target                 = $this->get_targetName;
+        $instance->Target_Number          = $this->get_targetNumber;
         $instance->Target_Description     = $this->get_Target_Description;
         $instance->Revenue                = $this->get_revenue;
         $instance->Duplicate_Call         = $this->get_duplicated_status;

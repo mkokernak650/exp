@@ -95,6 +95,7 @@ const PendingCallLogsReport = () => {
     Dialed: item.Dialed,
     Type: item.Type,
     Target: item.Target,
+    Target_Number: item.Target_Number,
     Customer: item.Customer,
     Source_Hangup: item.Source_Hangup,
     Conn_Duration: item.Conn_Duration,
@@ -214,6 +215,12 @@ const PendingCallLogsReport = () => {
         title: "Target",
         dataType: DataType.String,
         style: { width: 350 },
+      },
+      {
+        key: "Target_Number",
+        title: "Target Number",
+        dataType: DataType.String,
+        style: { width: 200 },
       },
       {
         key: "Source_Hangup",
@@ -381,7 +388,7 @@ const PendingCallLogsReport = () => {
       return newState;
     });
   };
- 
+
 
   const [serachSidebar, setSearchSidebar] = useState(false);
 
