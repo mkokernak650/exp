@@ -119,6 +119,10 @@ const GenerateReportMarketException = () => {
     ...endDate,
   };
 
+  const triggerExportLink = (link) => {
+    return window.open(link);
+  };
+
   const handleSubmit = () => {
     axios.post(route("destination.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
@@ -135,21 +139,14 @@ const GenerateReportMarketException = () => {
 
   const exportToCSV = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    const secondData = apiData.data.length + 5;
+    const secondData = apiData.data.length + 3;
     const call_summary = [];
-    call_summary.push(["Summary of Calls", ""]);
+
     Object.keys(apiData.call_summary).forEach((cf) => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
-    const thirdData = apiData.data.length + call_summary.length + 6;
-    // const category = [];
-    // category.push(["Category", "Total Calls", "Total Revenue"]);
-    Object.keys(apiData.tag_count).forEach((cat) => {
-      category.push(Object.values(apiData.tag_count[cat]));
-    });
 
     XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    // XLSX.utils.sheet_add_aoa(ws, category, { origin: `C${thirdData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
