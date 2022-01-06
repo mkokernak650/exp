@@ -44,7 +44,7 @@ const MarketExceptionForm = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { allCustomers, allMarkets, success } = usePage().props;
+  const { allCustomers, allMarkets, allCampaigns, success } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
@@ -86,6 +86,26 @@ const MarketExceptionForm = () => {
         </Typography>
         <form validate='true' onSubmit={handleSubmit}>
           <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <TextField
+                id="campaign_id"
+                select
+                name="campaign_id"
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                required={true}
+              >
+                <option value="">Select Campaign</option>
+                {allCampaigns.map((option, indx) => (
+                  <option key={indx} value={option.id}>
+                    {option.campaign_name}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 id="customer"

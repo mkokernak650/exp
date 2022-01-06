@@ -35,7 +35,7 @@ class ReportGeneratorController extends Controller
                 'Customer' => $request->input('customer_name'),
                 'Campaign' => $request->input('campaign'),
             ])->where(function($query) use ($broadCastMonths) {
-                if($broadCastMonths) {
+                if(count($broadCastMonths)) {
                     $query->where([
                         ['Call_Date', '>=', $broadCastMonths->first()->start_date],
                         ['Call_Date', '<=', $broadCastMonths->first()->end_date]

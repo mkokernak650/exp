@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campaign;
 use App\Models\MarketExcptions;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,7 +21,9 @@ class MarketExceptionController extends Controller
 
     public function addMarketException(Request $request)
     {
-        $existData = MarketExcptions::where('customer_id', $request->customer)
+        $existData = MarketExcptions::query()
+            ->where('campaign_id', $request->campaign_id)
+            ->where('customer_id', $request->customer)
             ->where('market_id', $request->market)
             ->where('call_type', $request->call_type)
             ->count();
@@ -29,6 +32,7 @@ class MarketExceptionController extends Controller
         }
 
         MarketExcptions::create([
+            'campaign_id' => $request->campaign_id,
             'customer_id' => $request->customer,
             'market_id' => $request->market,
             'call_type' => $request->call_type,
@@ -42,16 +46,18 @@ class MarketExceptionController extends Controller
     {
         $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
         $allCustomers = Customer::all();
+        $allCampaigns = Campaign::active()->get();
         return Inertia::render('Settings/MarketExceptionForm', [
             'allCustomers' => $allCustomers,
-            'allMarkets' => $allMarkets
+            'allMarkets' => $allMarkets,
+            'allCampaigns' => $allCampaigns
         ]);
     }
 
 
     public function marketExceptionReport()
     {
-        $marketExceptions = MarketExcptions::all();
+        $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')->get();
         return Inertia::render('Settings/MarketExceptionReport', [
             'marketExceptions' => $marketExceptions,
         ]);

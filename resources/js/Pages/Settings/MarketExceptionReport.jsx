@@ -252,6 +252,7 @@ const MarketExceptionReport = () => {
   const dataArray = marketExceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
+    campaign: item.campaign.campaign_name,
     customer: item.customer_id,
     market: item.market_id,
     call_type: selectCallType(item.call_type),
@@ -353,6 +354,12 @@ const MarketExceptionReport = () => {
         style: { width: 100 },
       },
       {
+        key: "campaign",
+        title: "Campaign",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+      {
         key: "customer",
         title: "Customer",
         dataType: DataType.String,
@@ -380,7 +387,7 @@ const MarketExceptionReport = () => {
         key: "start_date",
         title: "Start Date",
         dataType: DataType.String,
-        style: { minWidth: 100 },
+        style: { minWidth: 200 },
       },
     ],
     paging: {

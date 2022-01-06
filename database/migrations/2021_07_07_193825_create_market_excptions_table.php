@@ -15,8 +15,9 @@ class CreateMarketExcptionsTable extends Migration
     {
         Schema::create('market_excptions', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_id')->nullable();
+            $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
             $table->string('market_id')->nullable();
+            $table->string('customer_id')->nullable();
             $table->tinyInteger('call_type')->nullable()->comment('1:L 2:W 3:Both');
             $table->string('start_date')->nullable();
             $table->timestamps();
