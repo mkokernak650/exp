@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\Campaign;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CampaignController extends Controller
 {
@@ -24,5 +25,17 @@ class CampaignController extends Controller
         }
 
         Campaign::insert($newCampaign);
+    }
+
+    public function campaignSettingForm(): Response
+    {
+        $allCampaigns = Campaign::active()->get();
+        return Inertia::render('Settings/Campaign/CampaignSettingForm', compact('allCampaigns'));
+    }
+
+    public function campaignSettingReport(): Response
+    {
+        $allCampaigns = Campaign::get();
+        return Inertia::render('Settings/Campaign/CampaignSettingReport', compact('allCampaigns'));
     }
 }

@@ -324,12 +324,12 @@ export default function PersistentDrawerLeft(props) {
       submenu: [
         {
           title: "Campaign Setting",
-          href: "market.exception.form",
+          href: "campaign.setting.form",
           Icon: <UserIcon />,
         },
         {
           title: "Campaign List",
-          href: "market.exception.report",
+          href: "campaign.setting.report",
           Icon: <UserIcon />,
         },
         {

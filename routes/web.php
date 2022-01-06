@@ -1,34 +1,34 @@
 <?php
 
 
+use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\ArchivedCallLogController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BilledCallLogController;
+use App\Http\Controllers\BroadCastMonthController;
+use App\Http\Controllers\BroadCastWeeksController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExceptionController;
+use App\Http\Controllers\GenerateReportAffiliateController;
+use App\Http\Controllers\GenerateReportDestinationController;
+use App\Http\Controllers\GenerateReportMarketExceptionController;
+use App\Http\Controllers\GenerateReportTargetController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\MarketExceptionController;
 use App\Http\Controllers\PendingBillCallLogController;
+use App\Http\Controllers\ReportGeneratorController;
 use App\Http\Controllers\RingbaCallLogController;
-use App\Http\Controllers\ExceptionController;
+use App\Http\Controllers\TableDetailsController;
+use App\Http\Controllers\TargetController;
+use App\Http\Controllers\TestTableController;
+use App\Http\Controllers\WebFormController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
-use App\Http\Controllers\TargetController;
-use App\Http\Controllers\BroadCastMonthController;
-use App\Http\Controllers\BroadCastWeeksController;
-use App\Http\Controllers\WebFormController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ReportGeneratorController;
-use App\Http\Controllers\GenerateReportAffiliateController;
-use App\Http\Controllers\GenerateReportTargetController;
-use App\Http\Controllers\GenerateReportMarketExceptionController;
-use App\Http\Controllers\AffiliateController;
-use App\Http\Controllers\GenerateReportDestinationController;
-use App\Http\Controllers\TableDetailsController;
-use App\Http\Controllers\TestTableController;
-// use App\Http\Controllers\Auth\LoginController;
+use App\Http\Helpers\RingbaApiHelpers;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
-use App\Http\Helpers\RingbaApiHelpers;
 
 // TODO Login and Log out controller
 Route::get('/', [LoginController::class, 'showLoginform'])
@@ -98,6 +98,12 @@ Route::get('/market-exception-form', [MarketExceptionController::class, 'marketE
 
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])
     ->name('market.exception.report');
+
+Route::get('/campaign-setting-form', [CampaignController::class, 'campaignSettingForm'])
+    ->name('campaign.setting.form');
+
+Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])
+    ->name('campaign.setting.report');
 
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
     ->name('market.exception.edit');
@@ -395,6 +401,6 @@ Route::get('/test-table-reports', [TestTableController::class, 'index'])
     ->name('test.table.reports');
 
 
-    Route::get('custom-filter', function () {
-        return Inertia::render('CustomFilter');
-    });
+Route::get('custom-filter', function () {
+    return Inertia::render('CustomFilter');
+});
