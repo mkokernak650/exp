@@ -107,6 +107,8 @@ Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campa
 
 Route::resource('annotation', AnnotationController::class)->except(['show', 'edit']);
 
+Route::post('change-annotation', [RingbaCallLogController::class, 'changeAnnotation'] )->name('change.annotation');
+
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
     ->name('market.exception.edit');
 

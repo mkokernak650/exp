@@ -655,8 +655,30 @@ class RingbaCallLogController extends Controller
      */
     public function callLogsReport()
     {
+        $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
         return Inertia::render('Ringba/callLogsReport', [
             'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
+            'campaignsWithAnnotations' => $campaignsWithAnnotations
+        ]);
+    }
+
+    public function changeAnnotation(Request $request)
+    {
+        $ringbaCallLog = RingbaCallLog::findOrFail($request->input('indexId'));
+
+        $has_annotation = 'Yes';
+        if (!$request->input('annotation_id')) {
+            $has_annotation = 'No';
+        }
+
+        $ringbaCallLog->update([
+            'Annotation_Tag' => $request->input('annotation_id'),
+            'Has_Annotation' => $has_annotation,
+        ]);
+
+        return response()->json([
+            'has_annotation' => $ringbaCallLog->Has_Annotation,
+            'msg' => 'Annotation Updated.'
         ]);
     }
 

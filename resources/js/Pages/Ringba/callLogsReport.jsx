@@ -30,6 +30,7 @@ import {
   IconButton,
   Checkbox,
   Tooltip,
+  TextField,
 } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
@@ -55,7 +56,7 @@ const useStyles = makeStyles(() => ({
 
 const CallLogsReport = () => {
   const classes = useStyles();
-  const { allCallLogs } = usePage().props;
+  const { allCallLogs, campaignsWithAnnotations } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -88,15 +89,36 @@ const CallLogsReport = () => {
   };
   const [count, setCount] = useState(0)
 
+  const [filteredData, setFilteredData] = useState(
+    filterData(allCallLogs, filterValue)
+  );
+
+  const updateAnnotation = (e, tableIndex) => {
+    e.preventDefault();
+    axios
+      .post(route("change.annotation"), {indexId: tableIndex, annotation_id: e.target.value})
+      .then((res) => {
+        if (res.status === 200) {
+          setResponse(res.data.msg);
+          setOpen(true);
+
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id == tableIndex) {
+              console.log(filteredData.data[indx].Has_Annotation + ' ' + res.data.has_annotation);
+              filteredData.data[indx].Has_Annotation = res.data.has_annotation;
+            }
+          });
+        }
+      })
+      .catch((err) => {});
+  }
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
       setPosition({ x: e.screenX, y: e.screenY });
     }
   };
-  const [filteredData, setFilteredData] = useState(
-    filterData(allCallLogs, filterValue)
-  );
   const dataArray = filteredData.map((item, index) => {
     return {
       edit: item.id,
@@ -104,7 +126,7 @@ const CallLogsReport = () => {
       SN: item.SN,
       Call_Date: item.Call_Date,
       Has_Annotation: item.Has_Annotation,
-      Annotation_Tag: item.Annotation_Tag,
+      Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
       call_Logs_status: item.call_Logs_status,
       Duplicate_Call: item.Duplicate_Call,
       Recording_Url: item.Recording_Url,
@@ -347,6 +369,27 @@ const CallLogsReport = () => {
           >
             <img src={Edit} alt="edit-icon"></img>
           </div>
+        );
+      }
+      if (column.key === "Annotation_Tag") {
+        let arrayValue = value.split(',')
+        return (
+          <TextField
+                id="annotation_id"
+                select
+                name="annotation_id"
+                onChange={(e) => updateAnnotation(e, arrayValue[2])}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                defaultValue={arrayValue[0]}
+              >
+                <option value="">Select Annotation</option>
+                {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0].annotations.map((annotation, index) => (
+                  <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
+                ))}
+              </TextField>
         );
       }
       if (column.key === "Recording_Url") {
