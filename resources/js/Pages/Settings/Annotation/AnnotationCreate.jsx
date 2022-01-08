@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const CampaignSettingForm = () => {
+const AnnotationCreate = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ const CampaignSettingForm = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("campaign.setting.update"), values)
+      .post(route("annotation.store"), values)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
@@ -79,12 +79,12 @@ const CampaignSettingForm = () => {
 
   return (
     <>
-      <Helmet title="Campaign Settings" />
+      <Helmet title="Add Annotation" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Campaign Settings
+          Add Annotation
         </Typography>
-        <form validate="true" onSubmit={handleSubmit}>
+        <form validate='true' onSubmit={handleSubmit}>
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
@@ -109,10 +109,10 @@ const CampaignSettingForm = () => {
 
             <Grid item xs={12}>
               <TextField
-                id="Connection_Duration"
-                label="Connection Duration (in Sec)"
-                type="number"
-                name="connection_duration"
+                id="annotation_name"
+                label="Annotation"
+                type="text"
+                name="annotation_name"
                 onChange={handleChange}
                 className={classes.textField}
                 InputLabelProps={{
@@ -124,7 +124,7 @@ const CampaignSettingForm = () => {
             </Grid>
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
-                {loading ? <CircularProgress color="secondary" /> : "Update"}
+                {loading ? <CircularProgress color="secondary" /> : "Submit"}
               </Button>
             </Grid>
           </Grid>
@@ -145,7 +145,7 @@ const CampaignSettingForm = () => {
   );
 };
 
-CampaignSettingForm.layout = (page) => (
+AnnotationCreate.layout = (page) => (
   <Layout title="Market Exception">{page}</Layout>
 );
-export default CampaignSettingForm;
+export default AnnotationCreate;

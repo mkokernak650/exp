@@ -318,20 +318,34 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 4,
       Icon: <SettingsIcon size="20" />,
-      title: "Settings",
+      title: "Campaign",
       active: false,
       collapse: true,
       submenu: [
+        {
+          title: "Campaign List",
+          href: "campaign.setting.report",
+          Icon: <UserIcon />,
+        },
         {
           title: "Campaign Setting",
           href: "campaign.setting.form",
           Icon: <UserIcon />,
         },
         {
-          title: "Campaign List",
-          href: "campaign.setting.report",
+          title: "Add Annotation",
+          href: "annotation.create",
           Icon: <UserIcon />,
         },
+      ],
+    },
+    {
+      id: 5,
+      Icon: <SettingsIcon size="20" />,
+      title: "Settings",
+      active: false,
+      collapse: true,
+      submenu: [
         {
           title: "Add Market Exception",
           href: "market.exception.form",
@@ -419,7 +433,7 @@ export default function PersistentDrawerLeft(props) {
       ],
     },
     {
-      id: 5,
+      id: 6,
       href: "webform.reports",
       Icon: <BarChartIcon size="20" />,
       title: "Webform Reports",

@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\AffiliateController;
+use App\Http\Controllers\AnnotationController;
 use App\Http\Controllers\ArchivedCallLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BilledCallLogController;
@@ -99,11 +100,12 @@ Route::get('/market-exception-form', [MarketExceptionController::class, 'marketE
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])
     ->name('market.exception.report');
 
-Route::get('/campaign-setting-form', [CampaignController::class, 'campaignSettingForm'])
-    ->name('campaign.setting.form');
+Route::get('/campaign-setting-form', [CampaignController::class, 'campaignSettingForm'])->name('campaign.setting.form');
+Route::post('/campaign-setting-form', [CampaignController::class, 'campaignSettingUpdate'])->name('campaign.setting.update');
+Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])->name('campaign.setting.report');
+Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campaignAnnotations'])->name('campaign.annotations');
 
-Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])
-    ->name('campaign.setting.report');
+Route::resource('annotation', AnnotationController::class)->except(['show', 'edit']);
 
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
     ->name('market.exception.edit');

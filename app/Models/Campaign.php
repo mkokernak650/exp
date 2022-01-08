@@ -21,6 +21,11 @@ class Campaign extends Model
         return $this->hasMany(MarketExcptions::class);
     }
 
+    public function annotations(): HasMany
+    {
+        return $this->hasMany(Annotation::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->whereStatus(1);

@@ -24,6 +24,7 @@ import "ka-table/style.scss";
 import search from "../../../../images/search.svg";
 import eyeIcon from "../../../../images/eyeIcon.svg";
 import closeNav from "../../../../images/closeNav.svg";
+import Edit from "../../../../images/edit1.svg";
 import Cancel from "../../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
@@ -65,46 +66,8 @@ const useStyles = makeStyles(() => ({
 
 export const fields = [
   {
-    caption: "campaign",
-    name: "campaign",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
-  {
-    caption: "duration",
-    name: "duration",
+    caption: "annotation",
+    name: "annotation",
     operators: [
       {
         caption: "Contains",
@@ -194,15 +157,15 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "campaign",
+      field: "annotation",
       operator: "isNotEmpty",
     },
   ],
 };
 
-const CampaignSettingReport = () => {
+const CampaignAnnotations = () => {
   const classes = useStyles();
-  const { allCampaigns } = usePage().props;
+  const { campaign } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -237,13 +200,11 @@ const CampaignSettingReport = () => {
       });
   };
 
-  const dataArray = allCampaigns.map((item, index) => ({
+  const dataArray = campaign.annotations.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    campaign: item.campaign_name,
-    duration: item.connection_duration,
+    annotation: item.annotation_name,
     status: item.status,
-    actions: item.id,
     id: item.id,
     key: index,
   }));
@@ -320,36 +281,25 @@ const CampaignSettingReport = () => {
       // },
       {
         key: "selection-cell",
-        style: { width: 80 },
+        style: { width: 40 },
       },
       {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
-        style: { width: 100 },
+        style: { width: 40 },
       },
       {
-        key: "campaign",
-        title: "Campaign",
+        key: "annotation",
+        title: "Annotation",
         dataType: DataType.String,
         style: { width: 240 },
-      },
-      {
-        key: "duration",
-        title: "Connection Duration",
-        dataType: DataType.String,
-        style: { width: 100 },
       },
       {
         key: "status",
         title: "Status",
         dataType: DataType.String,
         style: { width: 100 },
-      },
-      {
-        key: "actions",
-        title: "Actions",
-        style: { width: 150 },
       },
       // {
       //   key: "id",
@@ -371,23 +321,20 @@ const CampaignSettingReport = () => {
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
       if (column.key === "status") {
         return value == 1 ? "Active" : "Pushed";
-      }
-      if (column.key === "actions") {
-        return (
-          <InertiaLink
-            href={route("campaign.annotations", value)}
-            style={{ textDecoration: "none" }}
-          >
-            <Button variant="contained" color="primary">Annotations</Button>
-          </InertiaLink>
-        );
       }
     },
   };
 
-  const OPTION_KEY = "campaign-setting-report";
+  const OPTION_KEY = "campaign-annotation-report";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
@@ -481,10 +428,10 @@ const CampaignSettingReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(
-      localStorage.getItem("campaign-setting-report")
+      localStorage.getItem("campaign-annotation-report")
     );
     storedData.selectedRows = [];
-    localStorage.setItem("campaign-setting-report", JSON.stringify(storedData));
+    localStorage.setItem("campaign-annotation-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
@@ -493,7 +440,7 @@ const CampaignSettingReport = () => {
   useEffect(() => {
     window.onload = function () {
       const storedData = JSON.parse(
-        localStorage.getItem("campaign-setting-report")
+        localStorage.getItem("campaign-annotation-report")
       );
       if (storedData != null) {
         emptyCheckbox();
@@ -580,7 +527,7 @@ const CampaignSettingReport = () => {
 
   return (
     <>
-      <Helmet title="Campaign Setting Report" />
+      <Helmet title="Campaign Annotations" />
 
       <div className="selection-demo">
         {tableToolbar ? (
@@ -687,7 +634,7 @@ const CampaignSettingReport = () => {
         open={showEditModal.open}
         setOpen={setShowEditModal}
         width={"600px"}
-        title={"Edit Campaign Setting"}
+        title={"Edit Campaign Annotations"}
       >
         <div className="edit_target">
           <form className={classes.form}>
@@ -757,7 +704,7 @@ const CampaignSettingReport = () => {
   );
 };
 
-CampaignSettingReport.layout = (page) => (
-  <Layout title="CampaignSettingReport">{page}</Layout>
+CampaignAnnotations.layout = (page) => (
+  <Layout title="CampaignAnnotationReport">{page}</Layout>
 );
-export default CampaignSettingReport;
+export default CampaignAnnotations;
