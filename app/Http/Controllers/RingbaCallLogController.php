@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Affiliate;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
+use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
@@ -172,6 +173,11 @@ class RingbaCallLogController extends Controller
 
                 if ($market_exception > 0) {
                     $this->insertExceptions($ringbaCallLogs->id);
+                } else {
+                    $campaign_connection_duration = Campaign::where('campaign_name', $this->get_campaignName)->select('connection_duration')->first()->connection_duration;
+                    if ($this->get_callLengthInSeconds < $campaign_connection_duration) {
+                        $this->moveToArchive($ringbaCallLogs->id);
+                    }
                 }
             }
             $this->get_accountId =
@@ -488,6 +494,19 @@ class RingbaCallLogController extends Controller
         $insertedData = self::$RingbaCallLog::find($insertId);
         $instance = new Exception();
         $instance->call_Logs_status     = 'Exceptions';
+        dataMoveHelper($instance, $insertedData);
+    }
+
+    /**
+     * auto validate data by campaign call duration settings
+     * @param mixed $inboundId
+     * @return void
+     */
+    private function moveToArchive($insertId)
+    {
+        $insertedData = self::$RingbaCallLog::find($insertId);
+        $instance = new ArchivedCallLog();
+        $instance->call_Logs_status = 'Archived';
         dataMoveHelper($instance, $insertedData);
     }
 
