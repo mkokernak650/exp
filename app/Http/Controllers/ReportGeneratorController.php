@@ -2,20 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DestinationReportExport;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
 use App\Models\BroadCastMonth;
 use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
 use App\Models\Exception;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportGeneratorController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function destinationReport(Request $request): array
+    {
+        $broadCastMonths = [];
+        if($request->input('broad_cast_month')) {
+            $broadCastMonths = BroadCastMonth::whereIn('broad_cast_month', $request->input('broad_cast_month'))
+                ->select(['end_date', 'start_date', 'broad_cast_month'])
+                ->get();
+        }
+
+        $destinationReport = BilledCallLog::query()
+            ->where([
+                'Customer' => $request->input('customer_name'),
+                'Campaign' => $request->input('campaign'),
+            ])->where(function($query) use ($broadCastMonths) {
+                if(count($broadCastMonths)) {
+                    $query->where([
+                        ['Call_Date', '>=', $broadCastMonths->first()->start_date],
+                        ['Call_Date', '<=', $broadCastMonths->first()->end_date]
+                    ]);
+                }
+                if(count($broadCastMonths) > 1) {
+                    foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
+                        $query->orWhere([
+                            ['Call_Date', '>=', $broadCastMonth->start_date],
+                            ['Call_Date', '<=', $broadCastMonth->end_date]
+                        ]);
+                    }
+                }
+            })
+            ->groupByRaw("extract(year from Call_Date), extract(month from Call_Date), Target_Number, Affiliate")
+            ->selectRaw("DATE_FORMAT(Call_Date, '%M-%Y') as Month, Target_Number as 'Destination_Number', Affiliate, count(Target_Number) as 'Billable_Calls', payoutAmount as 'Per_Call_Rate', count(Target_Number)*payoutAmount as 'Total_Charge'")
+            ->get();
+
+        $call_summary['Billable Calls'] = 0;
+        $call_summary['Total Charges']  = 0;
+
+        foreach ($destinationReport as $destinationData) {
+            $call_summary['Billable Calls'] += $destinationData->Billable_Calls;
+            $call_summary['Total Charges'] += $destinationData->Total_Charge;
+        }
+
+        return [
+            'data'         => $destinationReport,
+            'call_summary' => $call_summary,
+        ];
     }
 
     public function affiliateReport(Request $request)
@@ -623,4 +673,23 @@ class ReportGeneratorController extends Controller
         $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status',Annotation_Tag AS 'Call Type',Has_Annotation AS 'Has Annotation' FROM {$tablename}  WHERE {$con}";
         return DB::select($sql);
     }
+
+    /*private function destinationReportData($tablename, $condition, $whereIn = [])
+    {
+        $con = '';
+        foreach ($condition as $v) {
+            $con .= $v . " AND ";
+        }
+        if (count($whereIn) > 0) {
+            foreach ($whereIn as $value) {
+                $con .= $value . " AND ";
+            }
+        }
+        $con = rtrim($con, " AND ");
+        $sql = "SELECT destination_number As 'Destination Number', Affiliate, COUNT(id) AS 'Billable Calls', payoutAmount AS 'Per Call Rate'
+                FROM {$tablename}
+                Group BY destination_number
+                WHERE {$con}";
+        return DB::select($sql);
+    }*/
 }

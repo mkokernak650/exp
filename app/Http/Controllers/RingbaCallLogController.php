@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Affiliate;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
+use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
@@ -172,6 +173,11 @@ class RingbaCallLogController extends Controller
 
                 if ($market_exception > 0) {
                     $this->insertExceptions($ringbaCallLogs->id);
+                } else {
+                    $campaign_connection_duration = Campaign::where('campaign_name', $this->get_campaignName)->select('connection_duration')->first()->connection_duration;
+                    if ($this->get_callLengthInSeconds < $campaign_connection_duration) {
+                        $this->moveToArchive($ringbaCallLogs->id);
+                    }
                 }
             }
             $this->get_accountId =
@@ -199,7 +205,7 @@ class RingbaCallLogController extends Controller
                 $this->get_zipcode =
                 $this->get_market =
                 $this->get_type = "";
-                
+
             $this->get_callLengthInSeconds =
                 $this->get_payoutAmount =
                 $this->get_customer_name_id =
@@ -430,6 +436,7 @@ class RingbaCallLogController extends Controller
         $instance->call_Length_In_Seconds = $this->get_callLengthInSeconds;
         $instance->Profit                 = $this->get_profit;
         $instance->Target                 = $this->get_targetName;
+        $instance->Target_Number          = $this->get_targetNumber;
         $instance->Target_Description     = $this->get_Target_Description;
         $instance->Revenue                = $this->get_revenue;
         $instance->Duplicate_Call         = $this->get_duplicated_status;
@@ -487,6 +494,19 @@ class RingbaCallLogController extends Controller
         $insertedData = self::$RingbaCallLog::find($insertId);
         $instance = new Exception();
         $instance->call_Logs_status     = 'Exceptions';
+        dataMoveHelper($instance, $insertedData);
+    }
+
+    /**
+     * auto validate data by campaign call duration settings
+     * @param mixed $inboundId
+     * @return void
+     */
+    private function moveToArchive($insertId)
+    {
+        $insertedData = self::$RingbaCallLog::find($insertId);
+        $instance = new ArchivedCallLog();
+        $instance->call_Logs_status = 'Archived';
         dataMoveHelper($instance, $insertedData);
     }
 
@@ -635,8 +655,30 @@ class RingbaCallLogController extends Controller
      */
     public function callLogsReport()
     {
+        $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
         return Inertia::render('Ringba/callLogsReport', [
             'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
+            'campaignsWithAnnotations' => $campaignsWithAnnotations
+        ]);
+    }
+
+    public function changeAnnotation(Request $request)
+    {
+        $ringbaCallLog = RingbaCallLog::findOrFail($request->input('indexId'));
+
+        $has_annotation = 'Yes';
+        if (!$request->input('annotation_id')) {
+            $has_annotation = 'No';
+        }
+
+        $ringbaCallLog->update([
+            'Annotation_Tag' => $request->input('annotation_id'),
+            'Has_Annotation' => $has_annotation,
+        ]);
+
+        return response()->json([
+            'has_annotation' => $ringbaCallLog->Has_Annotation,
+            'msg' => 'Annotation Updated.'
         ]);
     }
 

@@ -80,9 +80,6 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
   hide: {
     display: "none",
   },
@@ -310,11 +307,40 @@ export default function PersistentDrawerLeft(props) {
           href: "generate.report.target",
           Icon: <UserIcon />,
         },
+        {
+          title: "Destination",
+          href: "generate.report.destination",
+          Icon: <UserIcon />,
+        },
 
       ],
     },
     {
       id: 4,
+      Icon: <SettingsIcon size="20" />,
+      title: "Campaign",
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: "Campaign List",
+          href: "campaign.setting.report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Campaign Setting",
+          href: "campaign.setting.form",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Add Annotation",
+          href: "annotation.create",
+          Icon: <UserIcon />,
+        },
+      ],
+    },
+    {
+      id: 5,
       Icon: <SettingsIcon size="20" />,
       title: "Settings",
       active: false,
@@ -407,7 +433,7 @@ export default function PersistentDrawerLeft(props) {
       ],
     },
     {
-      id: 5,
+      id: 6,
       href: "webform.reports",
       Icon: <BarChartIcon size="20" />,
       title: "Webform Reports",

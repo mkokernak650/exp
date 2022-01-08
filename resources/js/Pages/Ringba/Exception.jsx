@@ -125,6 +125,7 @@ const Exceptions = () => {
     Type: item.Type,
     Customer: item.Customer,
     Target: item.Target,
+    Target_Number: item.Target_Number,
     Target_Description: item.Target_Description,
     Source_Hangup: item.Source_Hangup,
     Time_To_Call: item.Time_To_Call,
@@ -253,6 +254,12 @@ const Exceptions = () => {
         title: "Target",
         dataType: DataType.String,
         style: { width: 350 },
+      },
+      {
+        key: "Target_Number",
+        title: "Target Number",
+        dataType: DataType.String,
+        style: { width: 200 },
       },
       {
         key: "Target_Description",
@@ -768,7 +775,7 @@ const Exceptions = () => {
           setOpenRowFunctionalities(false);
           setInbounIds([]);
           setselectedRowIds([]);
-          
+
         }
       })
       .catch((err) => {

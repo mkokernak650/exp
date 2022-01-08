@@ -1,5 +1,5 @@
 import { React, useState } from "react";
-import Layout from "../Layout/Layout";
+import Layout from "../../Layout/Layout";
 import {
   CircularProgress,
   Paper,
@@ -40,11 +40,11 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const MarketExceptionForm = () => {
+const AnnotationCreate = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { allCustomers, allMarkets, allCampaigns, success } = usePage().props;
+  const { allCampaigns } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
@@ -66,7 +66,7 @@ const MarketExceptionForm = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(route("add.market.exception"), values)
+      .post(route("annotation.store"), values)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
@@ -79,10 +79,10 @@ const MarketExceptionForm = () => {
 
   return (
     <>
-      <Helmet title="Market Exception Form" />
+      <Helmet title="Add Annotation" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Market Exception
+          Add Annotation
         </Typography>
         <form validate='true' onSubmit={handleSubmit}>
           <Grid container spacing={4}>
@@ -106,76 +106,14 @@ const MarketExceptionForm = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="customer"
-                select
-                name="customer"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Customer</option>
-                {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_ID}>
-                    {option.customer_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
 
             <Grid item xs={12}>
               <TextField
-                id="market"
-                select
-                name="market"
+                id="annotation_name"
+                label="Annotation"
+                type="text"
+                name="annotation_name"
                 onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-
-              >
-                <option value="">Select Market</option>
-                {allMarkets.map((option, indx) => (
-                  <option key={indx} value={option.market}>
-                    {option.market}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                id="call_type"
-                select
-                name="call_type"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Call Type</option>
-                <option value="1">Landline (L)</option>
-                <option value="2">Wireless (W)</option>
-                <option value="3">Both L & W</option>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                id="date"
-                label="Start Date"
-                type="date"
-                name="start_date"
-                onChange={handleChange}
-                defaultValue="2021-01-06"
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
@@ -207,7 +145,7 @@ const MarketExceptionForm = () => {
   );
 };
 
-MarketExceptionForm.layout = (page) => (
+AnnotationCreate.layout = (page) => (
   <Layout title="Market Exception">{page}</Layout>
 );
-export default MarketExceptionForm;
+export default AnnotationCreate;

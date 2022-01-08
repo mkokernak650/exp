@@ -7,7 +7,7 @@ if (!function_exists('findDataByInboundId')) {
   /**
    *  @param mixed $instance
    *  @param mixed $Inbound_id
-   *  @return object 
+   *  @return object
    */
   function findDataByInboundId($instance, $id)
   {
@@ -20,7 +20,7 @@ if (!function_exists('deleteRecords')) {
 
   /**
    * @param mixed $instance
-   * @param array|String $inbound_ids 
+   * @param array|String $inbound_ids
    * @return true
    */
   function deleteRecords($instance, $inbound_ids)
@@ -58,7 +58,7 @@ if (!function_exists('dataMoveHelper')) {
       'SN', 'Call_Date_Time', 'Call_Date', 'Duplicate_Call', 'Campaign',
       'Campaign_Id', 'Affiliate', 'Affiliate_Id', 'Inbound', 'Inbound_Id', 'Dialed',
       'Time_To_Call', 'Account_Id', 'Total_Cost', 'payoutAmount', 'Conn_Duration',
-      'call_Length_In_Seconds', 'Profit', 'Target', 'Target_Description', 'Revenue',
+      'call_Length_In_Seconds', 'Profit', 'Target', 'Target_Number', 'Target_Description', 'Revenue',
       'Source_Hangup', 'City', 'State', 'Zipcode', 'Market', 'Type', 'Call_Qualification',
       'Recording_Url', 'Customer', 'Has_Annotation', 'Annotation_Tag'
     ];

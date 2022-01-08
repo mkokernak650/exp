@@ -1,4 +1,4 @@
-import Layout from "../Layout/Layout";
+import Layout from "../../Layout/Layout";
 import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
@@ -10,7 +10,7 @@ import {
   ActionType,
 } from "ka-table/enums";
 import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+import { InertiaLink, usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
@@ -19,12 +19,12 @@ import {
   selectRowsRange,
 } from "ka-table/actionCreators";
 import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
+import { filterData } from "../../filterData";
 import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
+import search from "../../../../images/search.svg";
+import eyeIcon from "../../../../images/eyeIcon.svg";
+import closeNav from "../../../../images/closeNav.svg";
+import Cancel from "../../../../images/Cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -34,18 +34,13 @@ import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
 import {
   Button,
-  CircularProgress,
-  FormControlLabel,
-  FormLabel,
   makeStyles,
-  Radio,
-  RadioGroup,
 } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
-import ConfirmModal from "../../Shared/ConfirmModal";
-import NormalModal from "../../Shared/NormalModal";
+import SnackBar from "../../../Shared/SnackBar";
+import ConfirmModal from "../../../Shared/ConfirmModal";
+import NormalModal from "../../../Shared/NormalModal";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -65,8 +60,8 @@ const useStyles = makeStyles(() => ({
 
 export const fields = [
   {
-    caption: "customer",
-    name: "customer",
+    caption: "campaign",
+    name: "campaign",
     operators: [
       {
         caption: "Contains",
@@ -103,8 +98,8 @@ export const fields = [
     ],
   },
   {
-    caption: "market",
-    name: "market",
+    caption: "duration",
+    name: "duration",
     operators: [
       {
         caption: "Contains",
@@ -141,8 +136,8 @@ export const fields = [
     ],
   },
   {
-    caption: "call_type",
-    name: "call_type",
+    caption: "status",
+    name: "status",
     operators: [
       {
         caption: "Contains",
@@ -194,15 +189,15 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "customer",
+      field: "campaign",
       operator: "isNotEmpty",
     },
   ],
 };
 
-const MarketExceptionReport = () => {
+const CampaignSettingReport = () => {
   const classes = useStyles();
-  const { marketExceptions } = usePage().props;
+  const { allCampaigns } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -212,18 +207,6 @@ const MarketExceptionReport = () => {
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
-  const [exportModal, setExportModal] = useState({ open: false });
-  const [type, setType] = useState("xlsx");
-  const [loading, setLoading] = useState(false);
-
-  // const handleEdit = (itemId) => {
-  //   marketExceptions.filter((item) => {
-  //     if (item.id === itemId) {
-  //       setEditData(item);
-  //     }
-  //   });
-  //   setShowEditModal({ open: true });
-  // };
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
@@ -249,29 +232,16 @@ const MarketExceptionReport = () => {
       });
   };
 
-  const dataArray = marketExceptions.map((item, index) => ({
+  const dataArray = allCampaigns.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    campaign: item.campaign.campaign_name,
-    customer: item.customer_id,
-    market: item.market_id,
-    call_type: selectCallType(item.call_type),
-    start_date: item.start_date,
+    campaign: item.campaign_name,
+    duration: item.connection_duration,
+    status: item.status,
+    actions: item.id,
     id: item.id,
     key: index,
   }));
-
-  function selectCallType(callType) {
-    let callTypeString = "";
-    if (callType === 1) {
-      callTypeString = "Landline";
-    } else if (callType === 2) {
-      callTypeString = "Wireless";
-    } else if (callType === 3) {
-      callTypeString = "Both";
-    }
-    return callTypeString;
-  }
 
   const SelectionCell = ({
     rowKeyValue,
@@ -360,22 +330,21 @@ const MarketExceptionReport = () => {
         style: { width: 240 },
       },
       {
-        key: "customer",
-        title: "Customer",
+        key: "duration",
+        title: "Connection Duration",
         dataType: DataType.String,
-        style: { width: 240 },
+        style: { width: 100 },
       },
       {
-        key: "market",
-        title: "Market",
+        key: "status",
+        title: "Status",
         dataType: DataType.String,
-        style: { width: 350 },
+        style: { width: 100 },
       },
       {
-        key: "call_type",
-        title: "Call Type",
-        dataType: DataType.String,
-        style: { width: 160 },
+        key: "actions",
+        title: "Actions",
+        style: { width: 150 },
       },
       // {
       //   key: "id",
@@ -383,12 +352,6 @@ const MarketExceptionReport = () => {
       //   dataType: DataType.String,
       //   style: { width: 230 },
       // },
-      {
-        key: "start_date",
-        title: "Start Date",
-        dataType: DataType.String,
-        style: { minWidth: 200 },
-      },
     ],
     paging: {
       enabled: true,
@@ -402,18 +365,24 @@ const MarketExceptionReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // format: ({ column, value }) => {
-    //   if (column.key === "edit") {
-    //     return (
-    //       <div className="edit-icon" onClick={() => handleEdit(value)}>
-    //         <img src={Edit} alt="edit-icon"></img>
-    //       </div>
-    //     );
-    //   }
-    // },
+    format: ({ column, value }) => {
+      if (column.key === "status") {
+        return value == 1 ? "Active" : "Pushed";
+      }
+      if (column.key === "actions") {
+        return (
+          <InertiaLink
+            href={route("campaign.annotations", value)}
+            style={{ textDecoration: "none" }}
+          >
+            <Button variant="contained" color="primary">Annotations</Button>
+          </InertiaLink>
+        );
+      }
+    },
   };
 
-  const OPTION_KEY = "market-exception-report";
+  const OPTION_KEY = "campaign-setting-report";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
@@ -446,7 +415,7 @@ const MarketExceptionReport = () => {
   };
   const deleteHandler = () => {
     axios
-      .post(route("market.exception.delete"), { selectedRowIds })
+      .post(route("campaign.delete"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
@@ -507,10 +476,10 @@ const MarketExceptionReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(
-      localStorage.getItem("market-exception-report")
+      localStorage.getItem("campaign-setting-report")
     );
     storedData.selectedRows = [];
-    localStorage.setItem("market-exception-report", JSON.stringify(storedData));
+    localStorage.setItem("campaign-setting-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
@@ -519,47 +488,13 @@ const MarketExceptionReport = () => {
   useEffect(() => {
     window.onload = function () {
       const storedData = JSON.parse(
-        localStorage.getItem("market-exception-report")
+        localStorage.getItem("campaign-setting-report")
       );
       if (storedData != null) {
         emptyCheckbox();
       }
     };
   }, []);
-
-  const handleExportTypeChange = (e) => {
-    setType(e.target.value);
-  };
-
-  const openExportModal = () => {
-    setExportModal({ open: true });
-  };
-
-  const triggerExportLink = (link) => {
-    return window.open(link);
-  };
-
-  const baseUrl = window.location.origin;
-  const exportHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    axios
-      .get(`${baseUrl}/market-exception-export/${type}`)
-      .then((res) => {
-        setLoading(false);
-        if (res.status === 200) {
-          setExportModal({ open: false });
-          triggerExportLink(res.request.responseURL);
-          setResponse("Exported Successfully");
-          setOpen(true);
-        } else {
-          setResponse("Exporting failed");
-        }
-      })
-      .catch((err) => {
-        setLoading(false);
-      });
-  };
 
   useEffect(() => M.AutoInit());
 
@@ -640,7 +575,7 @@ const MarketExceptionReport = () => {
 
   return (
     <>
-      <Helmet title="Market Exception Report" />
+      <Helmet title="Campaign Setting Report" />
 
       <div className="selection-demo">
         {tableToolbar ? (
@@ -651,16 +586,6 @@ const MarketExceptionReport = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <img src={eyeIcon} alt="search"></img>
               </div>
-              <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
-                onClick={openExportModal}
-                disabled={marketExceptions == ""}
-              >
-                Export
-              </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -757,7 +682,7 @@ const MarketExceptionReport = () => {
         open={showEditModal.open}
         setOpen={setShowEditModal}
         width={"600px"}
-        title={"Edit Market Exception"}
+        title={"Edit Campaign Setting"}
       >
         <div className="edit_target">
           <form className={classes.form}>
@@ -823,40 +748,11 @@ const MarketExceptionReport = () => {
             : "Do you want to delete this record?"
         }`}
       ></ConfirmModal>
-
-      <NormalModal
-        open={exportModal.open}
-        setOpen={setExportModal}
-        width={"500px"}
-        title={""}
-      >
-        <div className={classes.import}>
-          <FormLabel component="legend">Select Type</FormLabel>
-          <RadioGroup
-            aria-label="type"
-            name="type"
-            value={type}
-            onChange={handleExportTypeChange}
-          >
-            <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
-            <FormControlLabel value="csv" control={<Radio />} label="CSV" />
-            <FormControlLabel value="xls" control={<Radio />} label="XLS" />
-            <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
-          </RadioGroup>
-          <Button variant="contained" color="primary" onClick={exportHandler}>
-            {loading ? (
-              <CircularProgress color="secondary" thickness="3" size="2rem" />
-            ) : (
-              "Next"
-            )}
-          </Button>
-        </div>
-      </NormalModal>
     </>
   );
 };
 
-MarketExceptionReport.layout = (page) => (
-  <Layout title="MarketExceptionReport">{page}</Layout>
+CampaignSettingReport.layout = (page) => (
+  <Layout title="CampaignSettingReport">{page}</Layout>
 );
-export default MarketExceptionReport;
+export default CampaignSettingReport;

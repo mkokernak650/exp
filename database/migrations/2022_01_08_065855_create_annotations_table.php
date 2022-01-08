@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMarketExcptionsTable extends Migration
+class CreateAnnotationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateMarketExcptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('market_excptions', function (Blueprint $table) {
+        Schema::create('annotations', function (Blueprint $table) {
             $table->id();
+            $table->string('annotation_name');
             $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
-            $table->string('market_id')->nullable();
-            $table->string('customer_id')->nullable();
-            $table->tinyInteger('call_type')->nullable()->comment('1:L 2:W 3:Both');
-            $table->string('start_date')->nullable();
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreateMarketExcptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('market_excptions');
+        Schema::dropIfExists('annotations');
     }
 }

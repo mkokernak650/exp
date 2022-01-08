@@ -24,6 +24,7 @@ class CreateArchivedCallLogsTable extends Migration
             $table->string('call_Length_In_Seconds')->nullable();
             $table->string('Customer')->nullable();
             $table->string('Target')->nullable();
+            $table->string('Target_Number')->nullable();
             $table->text('Target_Description')->nullable();
             $table->string('Affiliate')->nullable();
             $table->string('Affiliate_Id')->nullable();

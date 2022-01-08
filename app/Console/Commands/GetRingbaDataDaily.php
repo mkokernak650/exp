@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\TargetController;
 use Illuminate\Console\Command;
@@ -47,5 +48,6 @@ class GetRingbaDataDaily extends Command
         $ringba = new RingbaCallLogController();
         $ringba->getRingbaDataByScheduler();
         TargetController::getAllTarget();
+        CampaignController::getNewCampaigns();
     }
 }

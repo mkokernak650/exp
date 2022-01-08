@@ -95,7 +95,7 @@ class TargetController extends Controller
             array_push($all_target_name, $target->target_name);
         }
 
-        dd('from db', $all_target_name, 'from api', $results);
+//        dd('from db', $all_target_name, 'from api', $results);
         foreach ($results as $row) {
             $target = new TargetNames();
             if (!in_array($row->name, $all_target_name)) {
