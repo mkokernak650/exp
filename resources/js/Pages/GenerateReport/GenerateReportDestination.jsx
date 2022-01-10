@@ -139,7 +139,7 @@ const GenerateReportMarketException = () => {
 
   const exportToCSV = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    const secondData = apiData.data.length + 3;
+    const secondData = apiData.data.length + 4;
     const call_summary = [];
 
     Object.keys(apiData.call_summary).forEach((cf) => {

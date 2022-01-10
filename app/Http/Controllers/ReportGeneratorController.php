@@ -2,17 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\DestinationReportExport;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
 use App\Models\BroadCastMonth;
-use App\Models\MarketExcptions;
-use App\Models\RingbaCallLog;
-use App\Models\Exception;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ReportGeneratorController extends Controller
 {
@@ -29,7 +23,6 @@ class ReportGeneratorController extends Controller
                 ->select(['end_date', 'start_date', 'broad_cast_month'])
                 ->get();
         }
-        
 
         $destinationReport = BilledCallLog::query()
             ->where([
@@ -56,9 +49,30 @@ class ReportGeneratorController extends Controller
             ->get();
 
         $call_summary['Billable Calls'] = 0;
-        $call_summary['Total Charges']  = 0;
-        
-        if ($destinationReport->count()<1) {
+        $call_summary['Total Charges'] = 0;
+        $call_summary['Non-revenue Calls'] = ArchivedCallLog::query()
+            ->where([
+                'Customer' => $request->input('customer_name'),
+                'Campaign' => $request->input('campaign'),
+            ])->where(function ($query) use ($broadCastMonths) {
+                if (count($broadCastMonths)) {
+                    $query->where([
+                        ['Call_Date', '>=', $broadCastMonths->first()->start_date],
+                        ['Call_Date', '<=', $broadCastMonths->first()->end_date]
+                    ]);
+                }
+                if (count($broadCastMonths) > 1) {
+                    foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
+                        $query->orWhere([
+                            ['Call_Date', '>=', $broadCastMonth->start_date],
+                            ['Call_Date', '<=', $broadCastMonth->end_date]
+                        ]);
+                    }
+                }
+            })
+            ->get()->count();
+
+        if ($destinationReport->count() < 1) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         foreach ($destinationReport as $destinationData) {
@@ -74,27 +88,27 @@ class ReportGeneratorController extends Controller
 
     public function affiliateReport(Request $request)
     {
-        $newData        = [];
-        $report_type    = $request->type; // billed or general
-        $customer_name  = $request->customer_name;
-        $affiliate_ids  = $request->affiliate_id; // array
-        $target_name    = $request->target_name; // array
-        $annotation     = $request->annotation;
-        $campaign       = $request->campaign;
+        $newData = [];
+        $report_type = $request->type; // billed or general
+        $customer_name = $request->customer_name;
+        $affiliate_ids = $request->affiliate_id; // array
+        $target_name = $request->target_name; // array
+        $annotation = $request->annotation;
+        $campaign = $request->campaign;
 
         // summary of calls
-        $archived       = [];
-        $call_summary   = [];
-        $condition      = [];
-        $whereIn        = [];
-        $call_summary['Customer Name']             = $customer_name;
+        $archived = [];
+        $call_summary = [];
+        $condition = [];
+        $whereIn = [];
+        $call_summary['Customer Name'] = $customer_name;
         if ($request->start_date !== null && $request->end_date !== null) {
-            $start_date     = date('Y-m-d', strtotime($request->start_date));
-            $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-            $date_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
-            $call_summary['Date Range']  = $date_range;
-            $condition[]    = "Call_Date >='$start_date'";
-            $condition[]    = "Call_Date <= '$end_date'";
+            $start_date = date('Y-m-d', strtotime($request->start_date));
+            $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
+            $date_range = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $call_summary['Date Range'] = $date_range;
+            $condition[] = "Call_Date >='$start_date'";
+            $condition[] = "Call_Date <= '$end_date'";
         }
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
@@ -103,7 +117,7 @@ class ReportGeneratorController extends Controller
             $condition[] = "Has_Annotation='$annotation'";
         }
         if ($customer_name !== null) {
-            $condition[] =  "Customer='{$customer_name}'";
+            $condition[] = "Customer='{$customer_name}'";
         }
         if (!empty($affiliate_ids) && count($affiliate_ids) > 0 && $affiliate_ids[0] !== null) {
             $ids = implode("','", $affiliate_ids);
@@ -115,11 +129,11 @@ class ReportGeneratorController extends Controller
         }
 
 
-        $total_call     = 0;
-        $total_seconds  = 0;
-        $total_revenue  = 0;
-        $target         = '';
-        $archive_call   = ['name' => '', 'qty' => 0, 'revenue' => (float) 0.00];
+        $total_call = 0;
+        $total_seconds = 0;
+        $total_revenue = 0;
+        $target = '';
+        $archive_call = ['name' => '', 'qty' => 0, 'revenue' => (float)0.00];
 
         // category of calls
         $annotation_tags_array = [];
@@ -130,8 +144,8 @@ class ReportGeneratorController extends Controller
             $billed = $this->affiliateReportData('billed_call_logs', $condition, $whereIn);
         } else {
             $callLogs = $this->affiliateReportData('ringba_call_logs', $condition, $whereIn);
-            $billed     = $this->affiliateReportData('billed_call_logs', $condition, $whereIn);
-            $archived   = $this->affiliateReportData('archived_call_logs', $condition, $whereIn);
+            $billed = $this->affiliateReportData('billed_call_logs', $condition, $whereIn);
+            $archived = $this->affiliateReportData('archived_call_logs', $condition, $whereIn);
             $exceptions = $this->affiliateReportData('exceptions', $condition, $whereIn);
         }
 
@@ -162,11 +176,11 @@ class ReportGeneratorController extends Controller
             if (in_array($annotationTag, $annotation_tags_array)) {
                 $tag_count[$annotationTag]['name'] = $annotationTag;
                 $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $bill->$payout_amount;
+                $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $bill->$payout_amount;
             }
             $total_call++;
-            $total_seconds  += $bill->$conn_duration;
-            $total_revenue  += $bill->$payout_amount;
+            $total_seconds += $bill->$conn_duration;
+            $total_revenue += $bill->$payout_amount;
         }
 
 
@@ -195,12 +209,12 @@ class ReportGeneratorController extends Controller
                 if (in_array($annotationTag, $annotation_tags_array)) {
                     $tag_count[$annotationTag]['name'] = $annotationTag;
                     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $callLog->$payout_amount;
+                    $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int)$callLog->$payout_amount;
                 }
 
                 $total_call++;
-                $total_seconds  += $callLog->$conn_duration;
-                $total_revenue  += (int) $callLog->$payout_amount;
+                $total_seconds += $callLog->$conn_duration;
+                $total_revenue += (int)$callLog->$payout_amount;
             }
             // $tag_count[''] = $archive_call;
         }
@@ -229,12 +243,12 @@ class ReportGeneratorController extends Controller
                 if (in_array($annotationTag, $annotation_tags_array)) {
                     $tag_count[$annotationTag]['name'] = $annotationTag;
                     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $archive->$payout_amount;
+                    $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int)$archive->$payout_amount;
                 }
 
                 $total_call++;
-                $total_seconds  += $archive->$conn_duration;
-                $total_revenue  += (int) $archive->$payout_amount;
+                $total_seconds += $archive->$conn_duration;
+                $total_revenue += (int)$archive->$payout_amount;
             }
             // $tag_count[''] = $archive_call;
         }
@@ -263,57 +277,74 @@ class ReportGeneratorController extends Controller
                 if (in_array($annotationTag, $annotation_tags_array)) {
                     $tag_count[$annotationTag]['name'] = $annotationTag;
                     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $exception->$payout_amount;
+                    $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int)$exception->$payout_amount;
                 }
 
                 $total_call++;
-                $total_seconds  += $exception->$conn_duration;
-                $total_revenue  += (int) $exception->$payout_amount;
+                $total_seconds += $exception->$conn_duration;
+                $total_revenue += (int)$exception->$payout_amount;
             }
         }
 
-        $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
+        $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
 
 
-        $call_summary['Total number of calls']             = $total_call;
-        $call_summary['Total Minutes']          = secondToMinutes($total_seconds);
+        $call_summary['Total number of calls'] = $total_call;
+        $call_summary['Total Minutes'] = secondToMinutes($total_seconds);
 
-        $call_summary['Total payout amount']          = (float) number_format($total_revenue, 2, '.', '');
-        $call_summary['Average payout per call']     = (float) number_format($avg_revenue_amount, 2, '.', '');
+        $call_summary['Total payout amount'] = (float)number_format($total_revenue, 2, '.', '');
+        $call_summary['Average payout per call'] = (float)number_format($avg_revenue_amount, 2, '.', '');
         if (empty($newData)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         return [
-            'data'          => $newData,
-            'call_summary'  => $call_summary,
-            'tag_count'     => $tag_count
+            'data'         => $newData,
+            'call_summary' => $call_summary,
+            'tag_count'    => $tag_count
         ];
     }
 
     //TODO target report generate
+
+    private function affiliateReportData($tablename, $condition, $whereIn = [])
+    {
+        $con = '';
+        foreach ($condition as $v) {
+            $con .= $v . " AND ";
+        }
+        if (count($whereIn) > 0) {
+            foreach ($whereIn as $value) {
+                $con .= $value . " AND ";
+            }
+        }
+        $con = rtrim($con, " AND ");
+        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status',Annotation_Tag AS 'Call Type',Has_Annotation AS 'Has Annotation' FROM {$tablename}  WHERE {$con}";
+        return DB::select($sql);
+    }
+
     public function targetReport(Request $request)
     {
-        $newData        = [];
-        $report_type    = $request->type; // billed or general
-        $customer_name  = $request->customer_name;
-        $affiliate_ids  = $request->affiliate_id; // array
-        $target_name    = $request->target_name; // array
-        $annotation     = $request->annotation;
-        $campaign       = $request->campaign;
+        $newData = [];
+        $report_type = $request->type; // billed or general
+        $customer_name = $request->customer_name;
+        $affiliate_ids = $request->affiliate_id; // array
+        $target_name = $request->target_name; // array
+        $annotation = $request->annotation;
+        $campaign = $request->campaign;
 
         // summary of calls
-        $archived       = [];
-        $call_summary   = [];
-        $condition      = [];
-        $whereIn        = [];
-        $call_summary['Customer Name']             = $customer_name;
+        $archived = [];
+        $call_summary = [];
+        $condition = [];
+        $whereIn = [];
+        $call_summary['Customer Name'] = $customer_name;
         if ($request->start_date !== null && $request->end_date !== null) {
-            $start_date     = date('Y-m-d', strtotime($request->start_date));
-            $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-            $date_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
-            $call_summary['Date Range']  = $date_range;
-            $condition[]    = "Call_Date >='$start_date'";
-            $condition[]    = "Call_Date <= '$end_date'";
+            $start_date = date('Y-m-d', strtotime($request->start_date));
+            $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
+            $date_range = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $call_summary['Date Range'] = $date_range;
+            $condition[] = "Call_Date >='$start_date'";
+            $condition[] = "Call_Date <= '$end_date'";
         }
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
@@ -322,7 +353,7 @@ class ReportGeneratorController extends Controller
             $condition[] = "Has_Annotation='$annotation'";
         }
         if ($customer_name !== null) {
-            $condition[] =  "Customer='{$customer_name}'";
+            $condition[] = "Customer='{$customer_name}'";
         }
         if (!empty($affiliate_ids) && count($affiliate_ids) > 0 && $affiliate_ids[0] !== null) {
             $ids = implode("','", $affiliate_ids);
@@ -333,24 +364,23 @@ class ReportGeneratorController extends Controller
             $whereIn[] = "Target IN ('$ids')";
         }
 
-        $total_call     = 0;
-        $total_seconds  = 0;
-        $total_revenue  = 0;
-        $target         = '';
-        $archive_call   = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float) 0.00];
+        $total_call = 0;
+        $total_seconds = 0;
+        $total_revenue = 0;
+        $target = '';
+        $archive_call = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float)0.00];
 
         // category of calls
         $annotation_tags_array = [];
         $tag_count = [];
 
 
-
         if ($report_type === 'billed') {
             $billed = $this->targetReportData('billed_call_logs', $condition, $whereIn);
         } else {
             $callLogs = $this->targetReportData('ringba_call_logs', $condition, $whereIn);
-            $billed     = $this->targetReportData('billed_call_logs', $condition, $whereIn);
-            $archived   = $this->targetReportData('archived_call_logs', $condition, $whereIn);
+            $billed = $this->targetReportData('billed_call_logs', $condition, $whereIn);
+            $archived = $this->targetReportData('archived_call_logs', $condition, $whereIn);
             $exceptions = $this->targetReportData('exceptions', $condition, $whereIn);
         }
         $target_description = 'Target Description';
@@ -379,11 +409,11 @@ class ReportGeneratorController extends Controller
             if (in_array($annotationTag, $annotation_tags_array)) {
                 $tag_count[$annotationTag]['name'] = $annotationTag;
                 $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $bill->Revenue;
+                $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + $bill->Revenue;
             }
             $total_call++;
-            $total_seconds  += $bill->$conn_duration;
-            $total_revenue  += $bill->Revenue;
+            $total_seconds += $bill->$conn_duration;
+            $total_revenue += $bill->Revenue;
         }
 
 
@@ -412,12 +442,12 @@ class ReportGeneratorController extends Controller
                 if (in_array($annotationTag, $annotation_tags_array)) {
                     $tag_count[$annotationTag]['name'] = $annotationTag;
                     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $callLog->Revenue;
+                    $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int)$callLog->Revenue;
                 }
 
                 $total_call++;
-                $total_seconds  += $callLog->$conn_duration;
-                $total_revenue  += (int) $callLog->Revenue;
+                $total_seconds += $callLog->$conn_duration;
+                $total_revenue += (int)$callLog->Revenue;
             }
         }
 
@@ -445,12 +475,12 @@ class ReportGeneratorController extends Controller
                 if (in_array($annotationTag, $annotation_tags_array)) {
                     $tag_count[$annotationTag]['name'] = $annotationTag;
                     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $archive->Revenue;
+                    $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int)$archive->Revenue;
                 }
 
                 $total_call++;
-                $total_seconds  += $archive->$conn_duration;
-                $total_revenue  += (int) $archive->Revenue;
+                $total_seconds += $archive->$conn_duration;
+                $total_revenue += (int)$archive->Revenue;
             }
         }
         // for exceptions
@@ -477,46 +507,64 @@ class ReportGeneratorController extends Controller
                 if (in_array($annotationTag, $annotation_tags_array)) {
                     $tag_count[$annotationTag]['name'] = $annotationTag;
                     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                    $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $exception->Revenue;
+                    $tag_count[$annotationTag]['revenue'] = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int)$exception->Revenue;
                 }
                 $total_call++;
-                $total_seconds  += $exception->$conn_duration;
-                $total_revenue  += (int) $exception->Revenue;
+                $total_seconds += $exception->$conn_duration;
+                $total_revenue += (int)$exception->Revenue;
             }
         }
 
-        $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
-        $call_summary['Total number of calls']             = $total_call;
-        $call_summary['Total Minutes']          = secondToMinutes($total_seconds);
+        $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
+        $call_summary['Total number of calls'] = $total_call;
+        $call_summary['Total Minutes'] = secondToMinutes($total_seconds);
 
-        $call_summary['Total Revenue']          = (float) number_format($total_revenue, 2, '.', '');
-        $call_summary['Avg Revenue Amount']     = (float) number_format($avg_revenue_amount, 2, '.', '');
+        $call_summary['Total Revenue'] = (float)number_format($total_revenue, 2, '.', '');
+        $call_summary['Avg Revenue Amount'] = (float)number_format($avg_revenue_amount, 2, '.', '');
 
         if (empty($newData)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         return [
-            'data'          => $newData,
-            'call_summary'  => $call_summary,
-            'tag_count'     => $tag_count
+            'data'         => $newData,
+            'call_summary' => $call_summary,
+            'tag_count'    => $tag_count
         ];
+    }
+
+    private function targetReportData($tablename, $condition, $whereIn = [])
+    {
+        $con = '';
+        foreach ($condition as $v) {
+            $con .= $v . " AND ";
+        }
+        if (count($whereIn) > 0) {
+            foreach ($whereIn as $value) {
+                $con .= $value . " AND ";
+            }
+        }
+        $con = rtrim($con, " AND ");
+
+        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation'  FROM {$tablename}  WHERE {$con}";
+
+        return DB::select($sql);
     }
 
     public function marketExceptionReport(Request $request)
     {
-        $newData          = [];
-        $market_name      = $request->market;
-        $customer_name    = $request->customer_name;
-        $affiliate_ids    = $request->affiliate_id; // array
-        $target_name      = $request->target_name; // array
-        $annotation       = $request->annotation;
-        $campaign         = $request->campaign;
+        $newData = [];
+        $market_name = $request->market;
+        $customer_name = $request->customer_name;
+        $affiliate_ids = $request->affiliate_id; // array
+        $target_name = $request->target_name; // array
+        $annotation = $request->annotation;
+        $campaign = $request->campaign;
         $broad_cast_month = $request->input('broad_cast_month');
 
         // summary of calls
-        $call_summary   = [];
-        $condition      = [];
-        $whereIn        = [];
+        $call_summary = [];
+        $condition = [];
+        $whereIn = [];
 
         /*if ($market_name !== null) {
           $condition[] = "Market='{$market_name}'";
@@ -526,10 +574,10 @@ class ReportGeneratorController extends Controller
             $whereIn[] = "Market IN ('$market_name_inputs')";
         }
         if ($request->start_date !== null && $request->end_date !== null) {
-            $start_date     = date('Y-m-d', strtotime($request->start_date));
-            $end_date       = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-            $date_range     = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
-            $call_summary['Date Range']  = $date_range;
+            $start_date = date('Y-m-d', strtotime($request->start_date));
+            $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
+            $date_range = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $call_summary['Date Range'] = $date_range;
         }
 
         if (!empty($broad_cast_month) && count($broad_cast_month) > 0 && $broad_cast_month[0] !== null) {
@@ -541,7 +589,7 @@ class ReportGeneratorController extends Controller
                 $broadCastMonthCondition .= "(Call_Date >='$broadCastMonth->start_date'" . ' AND ' . "Call_Date <= '$broadCastMonth->end_date')" . ' OR ';
             }
 
-            $condition[]    = "(" . rtrim($broadCastMonthCondition, ' OR') . ")";
+            $condition[] = "(" . rtrim($broadCastMonthCondition, ' OR') . ")";
         }
 
         if ($campaign !== null) {
@@ -555,7 +603,7 @@ class ReportGeneratorController extends Controller
             $whereIn[] = "Has_Annotation IN ('$annotation_inputs')";
         }
         if ($customer_name !== null) {
-            $condition[] =  "Customer='{$customer_name}'";
+            $condition[] = "Customer='{$customer_name}'";
         }
         if (!empty($affiliate_ids) && count($affiliate_ids) > 0 && $affiliate_ids[0] !== null) {
             $ids = implode("','", $affiliate_ids);
@@ -566,11 +614,11 @@ class ReportGeneratorController extends Controller
             $whereIn[] = "Target IN ('$ids')";
         }
 
-        $total_call     = 0;
-        $total_seconds  = 0;
-        $total_revenue  = 0;
-        $target         = '';
-        $archive_call   = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float) 0.00];
+        $total_call = 0;
+        $total_seconds = 0;
+        $total_revenue = 0;
+        $target = '';
+        $archive_call = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float)0.00];
 
         // category of calls
         $annotation_tags_array = [];
@@ -600,51 +648,32 @@ class ReportGeneratorController extends Controller
                 // }
 
                 $total_call++;
-                $total_seconds  += $exception->$conn_duration;
-                $total_revenue  += (int) $exception->Revenue;
+                $total_seconds += $exception->$conn_duration;
+                $total_revenue += (int)$exception->Revenue;
             }
             // $tag_count['archive_call'] = $archive_call;
         }
         // if ($total_revenue == 0 || $total_call == 0) {
         //     return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         // }
-        $avg_revenue_amount = $total_revenue > 0 ?  $total_revenue / $total_call : 0;
+        $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
 
 
-        $call_summary['Total Number of Calls']             = $total_call;
-        $call_summary['Total Minutes']          = secondToMinutes($total_seconds);
-        $call_summary['Total Revenue']          = (float) number_format($total_revenue, 2, '.', '');
-        $call_summary['Avg Revenue Per Call']     = (float) number_format($avg_revenue_amount, 2, '.', '');
+        $call_summary['Total Number of Calls'] = $total_call;
+        $call_summary['Total Minutes'] = secondToMinutes($total_seconds);
+        $call_summary['Total Revenue'] = (float)number_format($total_revenue, 2, '.', '');
+        $call_summary['Avg Revenue Per Call'] = (float)number_format($avg_revenue_amount, 2, '.', '');
 
         if (empty($newData)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         return [
-            'data'          => $newData,
-            'call_summary'  => $call_summary,
-            'tag_count'     => $tag_count
+            'data'         => $newData,
+            'call_summary' => $call_summary,
+            'tag_count'    => $tag_count
         ];
     }
 
-
-
-    private function targetReportData($tablename, $condition, $whereIn = [])
-    {
-        $con = '';
-        foreach ($condition as $v) {
-            $con .= $v . " AND ";
-        }
-        if (count($whereIn) > 0) {
-            foreach ($whereIn as $value) {
-                $con .= $value . " AND ";
-            }
-        }
-        $con = rtrim($con, " AND ");
-
-        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation'  FROM {$tablename}  WHERE {$con}";
-
-        return DB::select($sql);
-    }
     private function marketExceptionReportData($tablename, $condition, $whereIn = [])
     {
         $con = '';
@@ -659,22 +688,6 @@ class ReportGeneratorController extends Controller
         $con = rtrim($con, " AND ");
         $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation'  FROM {$tablename}  WHERE {$con}";
 
-        return DB::select($sql);
-    }
-
-    private function affiliateReportData($tablename, $condition, $whereIn = [])
-    {
-        $con = '';
-        foreach ($condition as $v) {
-            $con .= $v . " AND ";
-        }
-        if (count($whereIn) > 0) {
-            foreach ($whereIn as $value) {
-                $con .= $value . " AND ";
-            }
-        }
-        $con = rtrim($con, " AND ");
-        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status',Annotation_Tag AS 'Call Type',Has_Annotation AS 'Has Annotation' FROM {$tablename}  WHERE {$con}";
         return DB::select($sql);
     }
 

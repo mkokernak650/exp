@@ -6,8 +6,8 @@ use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
 use App\Models\Target;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class GenerateReportDestinationController extends Controller
 {
@@ -16,7 +16,7 @@ class GenerateReportDestinationController extends Controller
         $this->middleware('auth');
     }
 
-    public function GenerateReportDestination(): \Inertia\Response
+    public function GenerateReportDestination(): Response
     {
         $allTargets = Target::all();
         $affiliates = Affiliate::all();
@@ -24,10 +24,10 @@ class GenerateReportDestinationController extends Controller
         $broadCastWeeks = BroadCastWeeks::all();
 
         return Inertia::render('GenerateReport/GenerateReportDestination', [
-            'targets' => $allTargets,
-            'affiliates' => $affiliates,
+            'targets'         => $allTargets,
+            'affiliates'      => $affiliates,
             'broadCastMonths' => $broadCastMonths,
-            'broadCastWeeks' => $broadCastWeeks,
+            'broadCastWeeks'  => $broadCastWeeks,
         ]);
     }
 }
