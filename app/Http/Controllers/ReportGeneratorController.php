@@ -21,27 +21,28 @@ class ReportGeneratorController extends Controller
         $this->middleware('auth');
     }
 
-    public function destinationReport(Request $request): array
+    public function destinationReport(Request $request)
     {
         $broadCastMonths = [];
-        if($request->input('broad_cast_month')) {
+        if ($request->input('broad_cast_month')) {
             $broadCastMonths = BroadCastMonth::whereIn('broad_cast_month', $request->input('broad_cast_month'))
                 ->select(['end_date', 'start_date', 'broad_cast_month'])
                 ->get();
         }
+        
 
         $destinationReport = BilledCallLog::query()
             ->where([
                 'Customer' => $request->input('customer_name'),
                 'Campaign' => $request->input('campaign'),
-            ])->where(function($query) use ($broadCastMonths) {
-                if(count($broadCastMonths)) {
+            ])->where(function ($query) use ($broadCastMonths) {
+                if (count($broadCastMonths)) {
                     $query->where([
                         ['Call_Date', '>=', $broadCastMonths->first()->start_date],
                         ['Call_Date', '<=', $broadCastMonths->first()->end_date]
                     ]);
                 }
-                if(count($broadCastMonths) > 1) {
+                if (count($broadCastMonths) > 1) {
                     foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
                         $query->orWhere([
                             ['Call_Date', '>=', $broadCastMonth->start_date],
@@ -56,7 +57,10 @@ class ReportGeneratorController extends Controller
 
         $call_summary['Billable Calls'] = 0;
         $call_summary['Total Charges']  = 0;
-
+        
+        if ($destinationReport->count()<1) {
+            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
         foreach ($destinationReport as $destinationData) {
             $call_summary['Billable Calls'] += $destinationData->Billable_Calls;
             $call_summary['Total Charges'] += $destinationData->Total_Charge;

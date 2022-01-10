@@ -20,6 +20,7 @@ use App\Models\Exception;
 use App\Models\MarketExcptions;
 use App\Models\ZipcodeByTelevisionMarket;
 use App\Models\RingbaDataFetchedLog;
+use App\Http\Controllers\CampaignController;
 
 class RingbaCallLogController extends Controller
 {
@@ -126,6 +127,7 @@ class RingbaCallLogController extends Controller
      */
     public function ringbaCallLogs($getRingbaDateById = null)
     {
+        CampaignController::getNewCampaigns();
         $ringbaMain = $getRingbaDateById === null ? RingbaData::all() : $getRingbaDateById;
 
         $sn_id = empty(self::$RingbaCallLog->latest('id')->first()->id) ? 0 : self::$RingbaCallLog->latest('id')->first()->id;

@@ -102,17 +102,17 @@ const GenerateReportMarketException = () => {
     value: item.affiliate_id,
   }));
 
-  const  annotationOptions  = [
-    { label:  'Yes', value:  'yes' },
-    { label:  'No', value:  'no' },
+  const annotationOptions = [
+    { label: 'Yes', value: 'yes' },
+    { label: 'No', value: 'no' },
   ]
 
-  const  marketOptions  = markets.map((item) => ({
+  const marketOptions = markets.map((item) => ({
     label: item.market,
     value: item.market + ',',
   }));
 
-  const  broadCastMonthOptions  = broadCastMonths.map((item) => ({
+  const broadCastMonthOptions = broadCastMonths.map((item) => ({
     label: item.broad_cast_month,
     value: item.broad_cast_month + ',',
   }));
@@ -192,8 +192,6 @@ const GenerateReportMarketException = () => {
     ...annotation,
   };
 
-  // const fileName = `${values.type}_Report_For_${values.target_name}_From_${values.start_date
-  //   }_To_${values.end_date}_Created@${currentDate()}`;
 
   const handleSubmit = () => {
     axios.post(route("market.exception.report.generator"), values).then((r) => {
@@ -244,23 +242,6 @@ const GenerateReportMarketException = () => {
         <form validate="true" className="generate-report-target">
           <Grid container spacing={4}>
             <Grid item xs={12}>
-              {/*<TextField
-                id="standard-select-currency-native"
-                select
-                name="market"
-                onChange={marketHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              >
-                <option value="">Select Market</option>
-                {markets.map((option, indx) => (
-                  <option key={indx} value={option.market}>
-                    {option.market}
-                  </option>
-                ))}
-              </TextField>*/}
 
               <MultiSelect
                 name="market"

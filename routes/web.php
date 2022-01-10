@@ -105,9 +105,16 @@ Route::post('/campaign-setting-form', [CampaignController::class, 'campaignSetti
 Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])->name('campaign.setting.report');
 Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campaignAnnotations'])->name('campaign.annotations');
 
-Route::resource('annotation', AnnotationController::class)->except(['show', 'edit']);
+Route::post('/campaign-delete', [CampaignController::class, 'delete'])
+    ->name('campaign.delete');
+Route::post('/campaign-edit', [CampaignController::class, 'edit'])
+    ->name('campaign.edit');
 
-Route::post('change-annotation', [RingbaCallLogController::class, 'changeAnnotation'] )->name('change.annotation');
+Route::resource('annotation', AnnotationController::class)->except(['show', 'edit']);
+Route::post('/annotation-delete', [AnnotationController::class, 'delete'])
+    ->name('annotation.delete');
+    
+Route::post('change-annotation', [RingbaCallLogController::class, 'changeAnnotation'])->name('change.annotation');
 
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
     ->name('market.exception.edit');

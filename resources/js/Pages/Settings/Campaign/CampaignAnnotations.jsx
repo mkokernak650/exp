@@ -362,7 +362,7 @@ const CampaignAnnotations = () => {
   };
   const deleteHandler = () => {
     axios
-      .post(route("campaign.delete"), { selectedRowIds })
+      .post(route("annotation.delete"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;

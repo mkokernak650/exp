@@ -60,4 +60,34 @@ class CampaignController extends Controller
         $campaign->load('annotations');
         return Inertia::render('Settings/Campaign/CampaignAnnotations', compact('campaign'));
     }
+
+    public function edit(Request $request)
+    {
+        $data = Campaign::find($request->id);
+        $data->Customer  = $request->customer;
+        $data->Description = $request->Description;
+        $data->Ringba_Targets_Name  = $request->Ringba_Targets_Name;
+        $result = $data->save();
+
+        if ($result) {
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "campaignData" => Campaign::all()]);
+        } else {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  Campaign::where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
 }

@@ -213,7 +213,7 @@ const CampaignSettingReport = () => {
   };
   const handleEditSubmit = () => {
     axios
-      .post(route("market.exception.edit"), editData)
+      .post(route("campaign.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
           setEditData();

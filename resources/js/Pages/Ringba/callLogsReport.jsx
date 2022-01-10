@@ -386,7 +386,7 @@ const CallLogsReport = () => {
                 defaultValue={arrayValue[0]}
               >
                 <option value="">Select Annotation</option>
-                {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0].annotations.map((annotation, index) => (
+                {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0]?.annotations.map((annotation, index) => (
                   <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
                 ))}
               </TextField>

@@ -387,7 +387,7 @@ const MarketExceptionReport = () => {
         key: "start_date",
         title: "Start Date",
         dataType: DataType.String,
-        style: { minWidth: 200 },
+        style: { width: 200 },
       },
     ],
     paging: {
