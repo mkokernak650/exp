@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
-use App\Models\Annotation;
+use App\Models\ArchivedCallLog;
 use App\Models\Campaign;
+use App\Models\MarketExcptions;
+use App\Models\RingbaCallLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +14,11 @@ use Inertia\Response;
 
 class CampaignController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public static function getNewCampaigns()
     {
         $ringbaCampaigns = (new RingbaApiHelpers())->getCampaigns();
@@ -43,9 +50,20 @@ class CampaignController extends Controller
 
     public function campaignSettingUpdate(Request $request): JsonResponse
     {
-        Campaign::findOrFail($request->input('campaign_id'))->update([
+        $campaign = Campaign::findOrFail($request->input('campaign_id'));
+        $campaign->update([
             'connection_duration' => $request->input('connection_duration')
         ]);
+
+        $ringbaCallLogs = RingbaCallLog::where('Campaign', $campaign->campaign_name)
+            ->where('call_Length_In_Seconds', '<', (int)$request->input('connection_duration'))
+            ->get();
+        foreach ($ringbaCallLogs as $ringbaCallLog) {
+            $instance = new ArchivedCallLog();
+            $instance->call_Logs_status = 'Archived';
+            dataMoveHelper($instance, $ringbaCallLog);
+        }
+
         return response()->json(['msg' => 'Campaign Settings Updated.']);
     }
 
@@ -61,12 +79,20 @@ class CampaignController extends Controller
         return Inertia::render('Settings/Campaign/CampaignAnnotations', compact('campaign'));
     }
 
+    public function campaignExceptions($campaignId): Response
+    {
+        $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')
+            ->where('campaign_id', $campaignId)
+            ->get();
+        return Inertia::render('Settings/MarketExceptionReport', compact('marketExceptions', 'campaignId'));
+    }
+
     public function edit(Request $request)
     {
         $data = Campaign::find($request->id);
-        $data->Customer  = $request->customer;
+        $data->Customer = $request->customer;
         $data->Description = $request->Description;
-        $data->Ringba_Targets_Name  = $request->Ringba_Targets_Name;
+        $data->Ringba_Targets_Name = $request->Ringba_Targets_Name;
         $result = $data->save();
 
         if ($result) {
@@ -81,7 +107,7 @@ class CampaignController extends Controller
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  Campaign::where('id', $request->selectedRowIds[$i])->delete();
+            $result = Campaign::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {

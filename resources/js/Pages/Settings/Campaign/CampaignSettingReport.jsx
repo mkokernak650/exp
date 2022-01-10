@@ -315,13 +315,13 @@ const CampaignSettingReport = () => {
       // },
       {
         key: "selection-cell",
-        style: { width: 80 },
+        style: { width: 60 },
       },
       {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
-        style: { width: 100 },
+        style: { width: 40 },
       },
       {
         key: "campaign",
@@ -344,7 +344,7 @@ const CampaignSettingReport = () => {
       {
         key: "actions",
         title: "Actions",
-        style: { width: 150 },
+        style: { width: 250 },
       },
       // {
       //   key: "id",
@@ -371,12 +371,19 @@ const CampaignSettingReport = () => {
       }
       if (column.key === "actions") {
         return (
-          <InertiaLink
-            href={route("campaign.annotations", value)}
-            style={{ textDecoration: "none" }}
-          >
-            <Button variant="contained" color="primary">Annotations</Button>
-          </InertiaLink>
+          <div style={{display: 'flex'}}>
+            <InertiaLink
+              href={ route("campaign.annotations", value) }
+            >
+              <Button variant="contained" color="primary">Annotations</Button>
+            </InertiaLink>
+            <InertiaLink
+              href={ route("campaign.exceptions", value) }
+              style={{paddingLeft: '4px'}}
+            >
+              <Button variant="contained" color="primary">Exceptions</Button>
+            </InertiaLink>
+          </div>
         );
       }
     },

@@ -65,8 +65,8 @@ const useStyles = makeStyles(() => ({
 
 export const fields = [
   {
-    caption: "customer",
-    name: "customer",
+    caption: " campaign",
+    name: "campaign",
     operators: [
       {
         caption: "Contains",
@@ -194,7 +194,7 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "customer",
+      field: "campaign",
       operator: "isNotEmpty",
     },
   ],
@@ -202,7 +202,7 @@ export const filter = {
 
 const MarketExceptionReport = () => {
   const classes = useStyles();
-  const { marketExceptions } = usePage().props;
+  const { marketExceptions, campaignId } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -215,15 +215,6 @@ const MarketExceptionReport = () => {
   const [exportModal, setExportModal] = useState({ open: false });
   const [type, setType] = useState("xlsx");
   const [loading, setLoading] = useState(false);
-
-  // const handleEdit = (itemId) => {
-  //   marketExceptions.filter((item) => {
-  //     if (item.id === itemId) {
-  //       setEditData(item);
-  //     }
-  //   });
-  //   setShowEditModal({ open: true });
-  // };
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
@@ -253,25 +244,12 @@ const MarketExceptionReport = () => {
     edit: item.id,
     sl: index + 1,
     campaign: item.campaign.campaign_name,
-    customer: item.customer_id,
     market: item.market_id,
-    call_type: selectCallType(item.call_type),
+    call_type: item.call_type,
     start_date: item.start_date,
     id: item.id,
     key: index,
   }));
-
-  function selectCallType(callType) {
-    let callTypeString = "";
-    if (callType === 1) {
-      callTypeString = "Landline";
-    } else if (callType === 2) {
-      callTypeString = "Wireless";
-    } else if (callType === 3) {
-      callTypeString = "Both";
-    }
-    return callTypeString;
-  }
 
   const SelectionCell = ({
     rowKeyValue,
@@ -356,12 +334,6 @@ const MarketExceptionReport = () => {
       {
         key: "campaign",
         title: "Campaign",
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: "customer",
-        title: "Customer",
         dataType: DataType.String,
         style: { width: 240 },
       },
@@ -544,7 +516,7 @@ const MarketExceptionReport = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .get(`${baseUrl}/market-exception-export/${type}`)
+      .get(`${baseUrl}/market-exception-export/${type}/${campaignId}`)
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
@@ -761,12 +733,12 @@ const MarketExceptionReport = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Customer:</span>
+            <span>Campaign:</span>
             <TextField
-              value={editData ? editData.customer_id : ""}
+              value={editData ? editData.campaign_id : ""}
               fullWidth
               margin="normal"
-              name="customer_id"
+              name="campaign_id"
               type="text"
               variant="outlined"
               onChange={handleEditChange}
