@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campaign;
 use App\Models\PendingBillCallLog;
 use App\Models\RingbaCallLog;
 use Illuminate\Http\Request;
@@ -23,9 +24,11 @@ class PendingBillCallLogController extends Controller
      */
     public function index()
     {
+        $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
         $results = PendingBillCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/PendingCallLogs', [
-            'results' => $results
+            'results' => $results,
+            'campaignsWithAnnotations' => $campaignsWithAnnotations,
         ]);
     }
 

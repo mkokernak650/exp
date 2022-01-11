@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -32,7 +32,7 @@ import produce from "immer"
 import {
   Button,
   makeStyles,
-  CircularProgress,
+  CircularProgress, TextField,
 } from "@material-ui/core";
 import axios from "axios";
 import { Helmet } from "react-helmet";
@@ -56,7 +56,7 @@ const useStyles = makeStyles(() => ({
 
 const BilledCallLogs = () => {
   const classes = useStyles();
-  const { billedCallLogs } = usePage().props;
+  const { billedCallLogs, campaignsWithAnnotations } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -76,6 +76,29 @@ const BilledCallLogs = () => {
   const [filteredData, setFilteredData] = useState(
     filterData(billedCallLogs, filterValue)
   );
+
+  const updateAnnotation = (e, tableIndex) => {
+    e.preventDefault();
+    console.log(tableIndex);
+    axios
+      .post(route("change.annotation", "billedCallLog"), {indexId: tableIndex, annotation_id: e.target.value})
+      .then((res) => {
+        if (res.status === 200) {
+          setResponse(res.data.msg);
+          setOpen(true);
+
+          let filteredData = tableProps;
+          filteredData.data.filter((item, indx) => {
+            if (item.id == tableIndex) {
+              console.log(filteredData.data[indx].Has_Annotation + ' ' + res.data.has_annotation);
+              filteredData.data[indx].Has_Annotation = res.data.has_annotation;
+            }
+          });
+        }
+      })
+      .catch((err) => {});
+  }
+
   const dataArray = filteredData.map((item, index) => ({
     sl: index + 1,
     SN: item.SN,
@@ -107,7 +130,7 @@ const BilledCallLogs = () => {
     City: item.City,
     State: item.State,
     Zipcode: item.Zipcode,
-    Annotation_Tag: item.Annotation_Tag,
+    Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
     Has_Annotation: item.Has_Annotation,
     id: item.id,
     key: index,
@@ -335,6 +358,27 @@ const BilledCallLogs = () => {
         let yyyy = format_date.getFullYear();
         format_date = dd + "-" + shortMonth + "-" + yyyy;
         return format_date;
+      }
+      if (column.key === "Annotation_Tag") {
+        let arrayValue = value.split(',')
+        return (
+          <TextField
+            id="annotation_id"
+            select
+            name="annotation_id"
+            onChange={(e) => updateAnnotation(e, arrayValue[2])}
+            SelectProps={{
+              native: true,
+            }}
+            fullWidth
+            defaultValue={arrayValue[0]}
+          >
+            <option value="">Select Annotation</option>
+            {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0]?.annotations.map((annotation, index) => (
+              <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
+            ))}
+          </TextField>
+        );
       }
     },
   };
