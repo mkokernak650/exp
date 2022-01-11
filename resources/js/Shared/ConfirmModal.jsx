@@ -52,7 +52,7 @@ export default function ConfirmModal({
             onClick={() => btnAction(editData)}
           >
             {"Yes"}
-            {loading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+            {loading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
           </Button>
           <Button variant="contained" color="primary" onClick={closeAction}>
             No

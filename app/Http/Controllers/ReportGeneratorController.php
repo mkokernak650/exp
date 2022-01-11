@@ -91,13 +91,15 @@ class ReportGeneratorController extends Controller
 
     public function affiliateReport(Request $request)
     {
+        $campaign = Campaign::findOrFail($request->input('campaign'));
+
         $newData = [];
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
-        $campaign = $request->campaign;
+        $campaign = $campaign->campaign_name;
 
         // summary of calls
         $archived = [];
@@ -327,13 +329,15 @@ class ReportGeneratorController extends Controller
 
     public function targetReport(Request $request)
     {
+        $campaign = Campaign::findOrFail($request->input('campaign'));
+
         $newData = [];
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
-        $campaign = $request->campaign;
+        $campaign = $campaign->campaign_name;
 
         // summary of calls
         $archived = [];
@@ -555,13 +559,15 @@ class ReportGeneratorController extends Controller
 
     public function marketExceptionReport(Request $request)
     {
+        $campaign = Campaign::findOrFail($request->input('campaign'));
+
         $newData = [];
         $market_name = $request->market;
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
-        $campaign = $request->campaign;
+        $campaign = $campaign->campaign_name;
         $broad_cast_month = $request->input('broad_cast_month');
 
         // summary of calls

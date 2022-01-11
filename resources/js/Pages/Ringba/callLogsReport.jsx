@@ -394,7 +394,7 @@ const CallLogsReport = () => {
       }
       if (column.key === "Recording_Url") {
         return (
-          <audio class="audio-data" controls style={{ width: '100%' }}>
+          <audio className="audio-data" controls style={{ width: '100%' }}>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
@@ -826,7 +826,7 @@ const CallLogsReport = () => {
           onClick={() => handleUpdate(inboundIds)}
         >
           {"Update"}
-          {updateLoading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {updateLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
         </Button>
         <Button
           variant="contained"
@@ -836,7 +836,7 @@ const CallLogsReport = () => {
           onClick={() => handleAnnotation(inboundIds)}
         >
           {"Get Annotation"}
-          {annotationLoading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {annotationLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
         </Button>
 
         <div className="selection-rows">

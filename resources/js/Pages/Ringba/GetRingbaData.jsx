@@ -130,7 +130,7 @@ const GetRingbaData = () => {
           >
 
             {"Get Ringba Data"}
-            {loading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "10px" }} />}
+            {loading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "10px" }} />}
           </Button>
         </form>
       </Paper>

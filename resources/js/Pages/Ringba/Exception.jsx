@@ -865,7 +865,7 @@ const Exceptions = () => {
           onClick={() => handleUpdate(inboundIds)}
         >
           {"Update"}
-          {updateLoading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {updateLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
         </Button>
         <Button
           variant="contained"
@@ -875,7 +875,7 @@ const Exceptions = () => {
           onClick={() => handleAnnotation(inboundIds)}
         >
           {"Get Annotation"}
-          {annotationLoading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {annotationLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
         </Button>
 
         <div className="selection-rows">

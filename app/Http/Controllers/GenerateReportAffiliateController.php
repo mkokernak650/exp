@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campaign;
 use Inertia\Inertia;
 use App\Models\Target;
 use App\Models\Affiliate;
@@ -23,13 +24,14 @@ class GenerateReportAffiliateController extends Controller
         $affiliates = Affiliate::all();
         $broadCastMonths = BroadCastMonth::all();
         $broadCastWeeks = BroadCastWeeks::all();
-
+        $campaigns      = Campaign::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportAffiliate', [
             'targets'=>$allTargets,
             'affiliates' => $affiliates,
             'broadCastMonths' => $broadCastMonths,
             'broadCastWeeks' => $broadCastWeeks,
+            'campaigns' => $campaigns,
         ]);
     }
 }

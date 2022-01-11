@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Models\Target;
 use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
-use App\Models\Customer;
+use App\Models\Campaign;
+use App\Models\Target;
 use App\Models\ZipcodeByTelevisionMarket;
+use Inertia\Inertia;
 
 class GenerateReportMarketExceptionController extends Controller
 {
@@ -17,24 +17,22 @@ class GenerateReportMarketExceptionController extends Controller
         $this->middleware('auth');
     }
 
-
-
     public function GenerateReportMarketExceptionForm()
     {
-        // $customers = Customer::all();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
         $allTargets = Target::all();
         $affiliates = Affiliate::all();
         $broadCastMonths = BroadCastMonth::all();
         $broadCastWeeks = BroadCastWeeks::all();
+        $campaigns = Campaign::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportMarketException', [
-            // 'customers' => $customers,
-            'markets' => $markets,
-            'targets'=>$allTargets,
-            'affiliates' => $affiliates,
+            'markets'         => $markets,
+            'targets'         => $allTargets,
+            'affiliates'      => $affiliates,
             'broadCastMonths' => $broadCastMonths,
-            'broadCastWeeks' => $broadCastWeeks,
+            'broadCastWeeks'  => $broadCastWeeks,
+            'campaigns'       => $campaigns,
         ]);
     }
 }

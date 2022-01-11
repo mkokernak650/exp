@@ -681,7 +681,7 @@ const BilledCallLogs = () => {
           onClick={() => handleAnnotation(inboundIds)}
         >
           {"Get Annotation"}
-          {annotationLoading && <CircularProgress color="white" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {annotationLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
         </Button>
         <div className="selection-rows">
           {selectedRowIds.length} Row Selected

@@ -52,7 +52,7 @@ const GenerateReportAffiliate = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, broadCastWeeks, targets } =
+  const { affiliates, broadCastMonths, broadCastWeeks, targets, campaigns } =
     usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
@@ -293,10 +293,11 @@ const GenerateReportAffiliate = () => {
                 fullWidth
               >
                 <option value="">Select Campaign</option>
-                <option value="COVID -19 Addiction Helpline">
-                  COVID -19 Addiction Helpline
-                </option>
-                <option value="Verify Benefits">Verify Benefits</option>
+                {campaigns.map((campaign, key) => (
+                  <option key={key} value={campaign.id}>
+                    {campaign.campaign_name}
+                  </option>
+                ))}
               </TextField>
             </Grid>
             <Grid item xs={12}>
