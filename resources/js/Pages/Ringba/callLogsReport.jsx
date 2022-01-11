@@ -213,7 +213,7 @@ const CallLogsReport = () => {
       {
         key: "Recording_Url",
         title: "Recording_Url",
-        style: { width: 260 },
+        style: { width: 360 },
       },
       {
         key: "Inbound_Id",
@@ -394,7 +394,7 @@ const CallLogsReport = () => {
       }
       if (column.key === "Recording_Url") {
         return (
-          <audio controls style={{ width: '100%' }}>
+          <audio class="audio-data" controls style={{ width: '100%' }}>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>

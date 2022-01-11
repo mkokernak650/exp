@@ -1078,3 +1078,6 @@ div::-webkit-scrollbar-thumb {
 .text-field-hide{
   display:none
 }
+.audio-data{
+  height:40px;
+}

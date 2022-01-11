@@ -315,6 +315,7 @@ const CampaignAnnotations = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
+    rowReordering: true,
     format: ({ column, value }) => {
       if (column.key === "edit") {
         return (
