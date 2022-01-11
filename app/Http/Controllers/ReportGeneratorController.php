@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
 use App\Models\BroadCastMonth;
+use App\Models\Campaign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +18,8 @@ class ReportGeneratorController extends Controller
 
     public function destinationReport(Request $request)
     {
+        $campaign = Campaign::findOrFail($request->input('campaign_id'));
+
         $broadCastMonths = [];
         if ($request->input('broad_cast_month')) {
             $broadCastMonths = BroadCastMonth::whereIn('broad_cast_month', $request->input('broad_cast_month'))
@@ -26,8 +29,8 @@ class ReportGeneratorController extends Controller
 
         $destinationReport = BilledCallLog::query()
             ->where([
+                'Campaign' => $campaign->campaign_name,
                 'Customer' => $request->input('customer_name'),
-                'Campaign' => $request->input('campaign'),
             ])->where(function ($query) use ($broadCastMonths) {
                 if (count($broadCastMonths)) {
                     $query->where([
@@ -52,8 +55,8 @@ class ReportGeneratorController extends Controller
         $call_summary['Total Charges'] = 0;
         $call_summary['Non-revenue Calls'] = ArchivedCallLog::query()
             ->where([
+                'Campaign' => $campaign->campaign_name,
                 'Customer' => $request->input('customer_name'),
-                'Campaign' => $request->input('campaign'),
             ])->where(function ($query) use ($broadCastMonths) {
                 if (count($broadCastMonths)) {
                     $query->where([

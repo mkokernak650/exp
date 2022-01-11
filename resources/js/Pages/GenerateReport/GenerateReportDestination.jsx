@@ -49,8 +49,7 @@ const GenerateReportMarketException = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { broadCastMonths, broadCastWeeks, targets } =
-    usePage().props;
+  const { broadCastMonths, broadCastWeeks, targets, campaigns } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [customer, setCustomer] = useState();
@@ -168,6 +167,25 @@ const GenerateReportMarketException = () => {
               <TextField
                 id="standard-select-currency-native"
                 select
+                name="campaign_id"
+                onChange={campaignHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              >
+                <option value="">Select Campaign</option>
+                {campaigns.map((campaign, key) => (
+                  <option key={key} value={campaign.id}>
+                    {campaign.campaign_name}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                id="standard-select-currency-native"
+                select
                 name="customer_name"
                 onChange={customerHandleChange}
                 SelectProps={{
@@ -184,24 +202,6 @@ const GenerateReportMarketException = () => {
                       {test}
                     </option>
                   ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="campaign"
-                onChange={campaignHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              >
-                <option value="">Select Campaign</option>
-                <option value="COVID -19 Addiction Helpline">
-                  COVID -19 Addiction Helpline
-                </option>
-                <option value="Verify Benefits">Verify Benefits</option>
               </TextField>
             </Grid>
             <Grid item xs={12}>
