@@ -31,7 +31,6 @@ use App\Http\Helpers\RingbaApiHelpers;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
 
-// TODO Login and Log out controller
 Route::get('/', [LoginController::class, 'showLoginform'])
     ->name('login')
     ->middleware('guest');
@@ -46,11 +45,9 @@ Route::post('/logout', [LoginController::class, 'logout'])
 // Auth::routes();
 Route::get('/get-customer', [RingbaCallLogController::class, 'getCustomer']);
 
-// TODO Home Controller
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
-//TODO Ringba call log contoroller
 Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])
     ->name('temp-ringba-data');
 
@@ -130,7 +127,6 @@ Route::post('/market-exception-import', [MarketExceptionController::class, 'impo
     ->name('market.exception.import');
 
 
-//TODO Market Controllet
 // Route::post('/store-market', [MarketController::class, 'addMarket'])
 //     ->name('store-market');
 
@@ -233,7 +229,6 @@ Route::post('/billed-call-log', [BilledCallLogController::class, 'store'])
     ->name('store.bill.call.logs');
 
 
-//TODO ZipcodebyTelevisionMarketController
 Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])
     ->name('zipcode.television.market');
 
@@ -281,14 +276,12 @@ Route::post('/target-edit', [TargetController::class, 'edit'])
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
     ->name('update.annotation');
 
-//TODO test route
 Route::get('/getupdate/{id}', function ($id) {
     $api = new RingbaApiHelpers();
     $results = $api->getUpdateAnnotation($id);
     dd($results);
 });
 
-//TODO BilledCallLogController
 Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])
     ->name('billed-call-log-report');
 
@@ -303,7 +296,6 @@ Route::post('/billed-get-annotation', [BilledCallLogController::class, 'getAnnot
 Route::post('/billed-delete', [BilledCallLogController::class, 'delete'])
     ->name('billed.delete');
 
-//TODO ExceptionContorller
 Route::get('/exceptions', [ExceptionController::class, 'index'])
     ->name('get.exceptions');
 
@@ -352,7 +344,6 @@ Route::post('/broadcast-week-edit', [BroadCastWeeksController::class, 'edit'])
     ->name('broadcast.week.edit');
 
 
-//TODO Generate-Report
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
     ->name('generate.report.affiliate');
 
