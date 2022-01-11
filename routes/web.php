@@ -115,7 +115,7 @@ Route::resource('annotation', AnnotationController::class)->except(['show', 'edi
 Route::post('/annotation-delete', [AnnotationController::class, 'delete'])
     ->name('annotation.delete');
 
-Route::post('change-annotation', [RingbaCallLogController::class, 'changeAnnotation'])->name('change.annotation');
+Route::post('change-annotation/{tableName}', [RingbaCallLogController::class, 'changeAnnotation'])->name('change.annotation');
 
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
     ->name('market.exception.edit');

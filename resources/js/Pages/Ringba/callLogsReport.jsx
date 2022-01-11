@@ -96,7 +96,7 @@ const CallLogsReport = () => {
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault();
     axios
-      .post(route("change.annotation"), {indexId: tableIndex, annotation_id: e.target.value})
+      .post(route("change.annotation", "ringbaCallLog"), {indexId: tableIndex, annotation_id: e.target.value})
       .then((res) => {
         if (res.status === 200) {
           setResponse(res.data.msg);

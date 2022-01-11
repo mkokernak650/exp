@@ -653,10 +653,6 @@ class RingbaCallLogController extends Controller
         //     ]);
     }
 
-    /**
-     * for get Ringba Call log report  data
-     * @return JsonObject
-     */
     public function callLogsReport()
     {
         $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
@@ -666,22 +662,32 @@ class RingbaCallLogController extends Controller
         ]);
     }
 
-    public function changeAnnotation(Request $request)
+    public function changeAnnotation(Request $request, $tableName)
     {
-        $ringbaCallLog = RingbaCallLog::findOrFail($request->input('indexId'));
+        if($tableName == 'ringbaCallLog') {
+            $callLog = RingbaCallLog::findOrFail($request->input('indexId'));
+        } else if($tableName == 'pendingBillCallLog') {
+            $callLog = PendingBillCallLog::findOrFail($request->input('indexId'));
+        } else if($tableName == 'billedCallLog') {
+            $callLog = BilledCallLog::findOrFail($request->input('indexId'));
+        } else{
+            return response()->json([
+                'msg' => 'Please, reload and try again.'
+            ], 404);
+        }
 
         $has_annotation = 'Yes';
         if (!$request->input('annotation_id')) {
             $has_annotation = 'No';
         }
 
-        $ringbaCallLog->update([
+        $callLog->update([
             'Annotation_Tag' => $request->input('annotation_id'),
             'Has_Annotation' => $has_annotation,
         ]);
 
         return response()->json([
-            'has_annotation' => $ringbaCallLog->Has_Annotation,
+            'has_annotation' => $callLog->Has_Annotation,
             'msg' => 'Annotation Updated.'
         ]);
     }
