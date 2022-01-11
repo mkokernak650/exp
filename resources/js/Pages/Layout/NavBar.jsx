@@ -337,6 +337,11 @@ export default function PersistentDrawerLeft(props) {
           href: "annotation.create",
           Icon: <UserIcon />,
         },
+        {
+          title: "Add Market Exception",
+          href: "market.exception.form",
+          Icon: <UserIcon />,
+        },
       ],
     },
     {
@@ -346,11 +351,6 @@ export default function PersistentDrawerLeft(props) {
       active: false,
       collapse: true,
       submenu: [
-        {
-          title: "Add Market Exception",
-          href: "market.exception.form",
-          // Icon: <UserIcon />,
-        },
         {
           title: "Market Exception Report",
           href: "market.exception.report",

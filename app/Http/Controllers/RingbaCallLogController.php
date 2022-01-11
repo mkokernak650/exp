@@ -168,16 +168,18 @@ class RingbaCallLogController extends Controller
                 $this->ringbaDataObject($ringbaCallLogs);
                 // $row->delete();
 
-                $market_exception = MarketExcptions::where('customer_id', '=', $this->get_customer_name_id)
-                    ->where('market_id', '=', $this->get_market)
+                $campaign = Campaign::where('campaign_name', $this->get_campaignName)->select(['id', 'connection_duration'])->first();
+
+                $market_exception = $campaign->marketExceptions()
+                    ->where('market_id', $this->get_market)
+                    ->where('call_type', $this->get_type)
                     ->where('start_date', '<=', date('d-M-y', $this->get_dtStamp / 1000))
                     ->count();
 
                 if ($market_exception > 0) {
                     $this->insertExceptions($ringbaCallLogs->id);
                 } else {
-                    $campaign_connection_duration = Campaign::where('campaign_name', $this->get_campaignName)->select('connection_duration')->first()->connection_duration;
-                    if ($this->get_callLengthInSeconds < $campaign_connection_duration) {
+                    if ((int)$this->get_callLengthInSeconds < (int)$campaign->connection_duration || is_null($this->get_callLengthInSeconds)) {
                         $this->moveToArchive($ringbaCallLogs->id);
                     }
                 }

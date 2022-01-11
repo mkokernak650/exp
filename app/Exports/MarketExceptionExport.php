@@ -3,25 +3,31 @@
 namespace App\Exports;
 
 use App\Models\MarketExcptions;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\FromCollection;
 
-class MarketExceptionExport implements FromCollection,  WithHeadings, WithMapping
+class MarketExceptionExport implements FromCollection, WithHeadings, WithMapping
 {
-    /**
-     * @return \Illuminate\Support\Collection
-     */
+    protected $campaignId;
+
+    public function __construct($campaignId = null)
+    {
+        $this->campaignId = $campaignId;
+    }
+
     public function collection()
     {
-        return MarketExcptions::all();
+        return MarketExcptions::when($this->campaignId != 'null', function ($query) {
+            $query->where('campaign_id', $this->campaignId);
+        })->with('campaign:id,campaign_name')->get();
     }
 
     public function headings(): array
     {
         return [
             'ID',
-            'Customer',
+            'Campaign',
             'MarketName',
             'CallType',
             'StartDate',
@@ -30,20 +36,11 @@ class MarketExceptionExport implements FromCollection,  WithHeadings, WithMappin
 
     public function map($marketExcptions): array
     {
-        $callTypeString = "";
-        if ($marketExcptions->call_type === 1) {
-            $callTypeString = "Landline";
-        } else if ($marketExcptions->call_type === 2) {
-            $callTypeString = "Wireless";
-        } else if ($marketExcptions->call_type === 3) {
-            $callTypeString = "Both";
-        }
-
         return [
             $marketExcptions->id,
-            $marketExcptions->customer_id,
+            $marketExcptions->campaign->campaign_name,
             $marketExcptions->market_id,
-            $callTypeString,
+            $marketExcptions->call_type,
             $marketExcptions->start_date,
         ];
     }

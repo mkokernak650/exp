@@ -44,7 +44,7 @@ const MarketExceptionForm = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { allCustomers, allMarkets, allCampaigns, success } = usePage().props;
+  const { allMarkets, allCampaigns, success } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
@@ -106,26 +106,6 @@ const MarketExceptionForm = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="customer"
-                select
-                name="customer"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Customer</option>
-                {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_ID}>
-                    {option.customer_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
 
             <Grid item xs={12}>
               <TextField
@@ -162,9 +142,9 @@ const MarketExceptionForm = () => {
                 required={true}
               >
                 <option value="">Call Type</option>
-                <option value="1">Landline (L)</option>
-                <option value="2">Wireless (W)</option>
-                <option value="3">Both L & W</option>
+                <option value="L">Landline (L)</option>
+                <option value="W">Wireless (W)</option>
+                <option value="B">Both L & W</option>
               </TextField>
             </Grid>
 

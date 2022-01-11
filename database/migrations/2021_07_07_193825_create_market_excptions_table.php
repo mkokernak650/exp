@@ -17,8 +17,7 @@ class CreateMarketExcptionsTable extends Migration
             $table->id();
             $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
             $table->string('market_id')->nullable();
-            $table->string('customer_id')->nullable();
-            $table->tinyInteger('call_type')->nullable()->comment('1:L 2:W 3:Both');
+            $table->string('call_type')->nullable();
             $table->string('start_date')->nullable();
             $table->timestamps();
         });

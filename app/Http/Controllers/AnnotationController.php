@@ -9,6 +9,12 @@ use Inertia\Inertia;
 
 class AnnotationController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -33,29 +39,30 @@ class AnnotationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'annotation_name' => ['required', 'string'],
-            'campaign_id' => ['required', 'string']
+            'campaign_id'     => ['required', 'string']
         ]);
 
+        $msg = 'Annotation Added.';
         if (Annotation::where($validated)->first()) {
-            return response()->json(['msg' => 'Annotation Already Exist in this Campaign.']);
+            $msg = 'Annotation Already Exist in this Campaign.';
         }
         Annotation::create($validated);
 
-        return response()->json(['msg' => 'Annotation Added.']);
+        return response()->json(['msg' => $msg]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -66,7 +73,7 @@ class AnnotationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -79,7 +86,7 @@ class AnnotationController extends Controller
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  Annotation::where('id', $request->selectedRowIds[$i])->delete();
+            $result = Annotation::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {

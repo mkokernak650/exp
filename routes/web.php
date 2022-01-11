@@ -104,6 +104,7 @@ Route::get('/campaign-setting-form', [CampaignController::class, 'campaignSettin
 Route::post('/campaign-setting-form', [CampaignController::class, 'campaignSettingUpdate'])->name('campaign.setting.update');
 Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])->name('campaign.setting.report');
 Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campaignAnnotations'])->name('campaign.annotations');
+Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campaignExceptions'])->name('campaign.exceptions');
 
 Route::post('/campaign-delete', [CampaignController::class, 'delete'])
     ->name('campaign.delete');
@@ -113,7 +114,7 @@ Route::post('/campaign-edit', [CampaignController::class, 'edit'])
 Route::resource('annotation', AnnotationController::class)->except(['show', 'edit']);
 Route::post('/annotation-delete', [AnnotationController::class, 'delete'])
     ->name('annotation.delete');
-    
+
 Route::post('change-annotation', [RingbaCallLogController::class, 'changeAnnotation'])->name('change.annotation');
 
 Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit'])
@@ -122,7 +123,7 @@ Route::post('/market-exception-edit', [MarketExceptionController::class, 'edit']
 Route::post('/market-exception-delete', [MarketExceptionController::class, 'delete'])
     ->name('market.exception.delete');
 
-Route::get('/market-exception-export/{type}', [MarketExceptionController::class, 'export'])
+Route::get('/market-exception-export/{type}/{campaign?}', [MarketExceptionController::class, 'export'])
     ->name('market.exception.export');
 
 Route::post('/market-exception-import', [MarketExceptionController::class, 'import'])

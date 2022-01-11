@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MarketExceptionExport;
+use App\Imports\MarketExceptionImport;
 use App\Models\Campaign;
 use App\Models\MarketExcptions;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\Customer;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-use App\Exports\MarketExceptionExport;
-use App\Imports\MarketExceptionImport;
+use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MarketExceptionController extends Controller
 {
@@ -23,7 +23,6 @@ class MarketExceptionController extends Controller
     {
         $existData = MarketExcptions::query()
             ->where('campaign_id', $request->campaign_id)
-            ->where('customer_id', $request->customer)
             ->where('market_id', $request->market)
             ->where('call_type', $request->call_type)
             ->count();
@@ -33,10 +32,9 @@ class MarketExceptionController extends Controller
 
         MarketExcptions::create([
             'campaign_id' => $request->campaign_id,
-            'customer_id' => $request->customer,
-            'market_id' => $request->market,
-            'call_type' => $request->call_type,
-            'start_date' => $request->start_date,
+            'market_id'   => $request->market,
+            'call_type'   => $request->call_type,
+            'start_date'  => $request->start_date,
         ]);
 
         return response()->json(["msg" => "Successfully added"]);
@@ -45,11 +43,9 @@ class MarketExceptionController extends Controller
     public function marketExceptionForm()
     {
         $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
-        $allCustomers = Customer::all();
         $allCampaigns = Campaign::active()->get();
         return Inertia::render('Settings/MarketExceptionForm', [
-            'allCustomers' => $allCustomers,
-            'allMarkets' => $allMarkets,
+            'allMarkets'   => $allMarkets,
             'allCampaigns' => $allCampaigns
         ]);
     }
@@ -60,6 +56,7 @@ class MarketExceptionController extends Controller
         $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')->get();
         return Inertia::render('Settings/MarketExceptionReport', [
             'marketExceptions' => $marketExceptions,
+            'campaignId'       => null,
         ]);
     }
 
@@ -71,20 +68,18 @@ class MarketExceptionController extends Controller
         return back()->with('Successfully import!');
     }
 
-    public function export($type)
+    public function export($type, $campaignId = null): BinaryFileResponse
     {
-        // get request
-        $marketExceptionExportFile = Excel::download(new MarketExceptionExport,  'MarketExceptionExport.' . $type);
-        return $marketExceptionExportFile;
+        return Excel::download(new MarketExceptionExport($campaignId), 'MarketExceptionExport.' . $type);
     }
 
     public function edit(Request $request)
     {
         $data = MarketExcptions::find($request->id);
-        $data->customer_id  = $request->customer_id;
-        $data->market_id    = $request->market_id;
-        $data->start_date   = $request->start_date;
-        $result             = $data->save();
+        $data->customer_id = $request->customer_id;
+        $data->market_id = $request->market_id;
+        $data->start_date = $request->start_date;
+        $result = $data->save();
 
         deleteSuccessOrFailed($result);
         // if ($result) {
@@ -100,7 +95,7 @@ class MarketExceptionController extends Controller
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
             // $result =  DB::table('market_excptions')->where('id', $request->selectedRowIds[$i])->delete();
-            $result =  MarketExcptions::where('id', $request->selectedRowIds[$i])->delete();
+            $result = MarketExcptions::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
