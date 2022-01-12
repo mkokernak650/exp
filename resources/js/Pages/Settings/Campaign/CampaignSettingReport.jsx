@@ -24,7 +24,7 @@ import "ka-table/style.scss";
 import search from "../../../../images/search.svg";
 import eyeIcon from "../../../../images/eyeIcon.svg";
 import closeNav from "../../../../images/closeNav.svg";
-import Cancel from "../../../../images/Cancel.svg";
+import Cancel from "../../../../images/cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";

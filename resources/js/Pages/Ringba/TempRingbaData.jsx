@@ -32,7 +32,7 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
-import CustomFilter from "../../components/CustomFilter"
+import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from "../../Helpers/Filter";
 import { SearchedFields } from "../../Helpers/SearchedFields";

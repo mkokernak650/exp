@@ -41,7 +41,7 @@ import emptyCheckbox from "../../Helpers/EmptyCheckbox";
 import { stateStore } from "../../Helpers/StateStore";
 import ColumnSettings from "../../components/ColumnSettings"
 import { deleteHandler } from "../../Helpers/HandleRequests"
-import CustomFilter from "../../components/CustomFilter"
+import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from "../../Helpers/Filter";
 import { SearchedFields } from "../../Helpers/SearchedFields";

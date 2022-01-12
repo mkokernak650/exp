@@ -28,7 +28,7 @@ import closeNav from "../../../images/closeNav.svg";
 // import ThreeDots from "../../../images/three-dots.svg";
 import Edit from "../../../images/edit1.svg";
 
-import Cancel from "../../../images/Cancel.svg";
+import Cancel from "../../../images/cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -133,7 +133,7 @@ const BroadcastWeekReport = () => {
   const [open, setOpen] = useState(false);
   const showColumnRef = useRef();
 
- 
+
 
   const dataArray = BroadCastWeeks.map((item, index) => ({
     edit: item.id,
