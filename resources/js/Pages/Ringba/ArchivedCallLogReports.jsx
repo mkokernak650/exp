@@ -22,7 +22,7 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
+import Cancel from "../../../images/cancel.svg";
 import Edit from "../../../images/three-dots.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
@@ -35,7 +35,7 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
-import CustomFilter from "../../components/CustomFilter"
+import CustomFilter from "../../Components/CustomFilter";
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from "../../Helpers/Filter";
 import { SearchedFields } from "../../Helpers/SearchedFields";

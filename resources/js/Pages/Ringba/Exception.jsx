@@ -40,7 +40,7 @@ import { Helmet } from "react-helmet";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import PulseLoader from "react-spinners/PulseLoader";
 import SnackBar from "../../Shared/SnackBar";
-import CustomFilter from "../../components/CustomFilter"
+import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from "../../Helpers/Filter";
 import { SearchedFields } from "../../Helpers/SearchedFields";

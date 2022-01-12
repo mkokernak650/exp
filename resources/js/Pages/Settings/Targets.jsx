@@ -27,7 +27,7 @@ import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import Edit from "../../../images/edit1.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/Cancel.svg";
+import Cancel from "../../../images/cancel.svg";
 
 import {
   hideColumn,

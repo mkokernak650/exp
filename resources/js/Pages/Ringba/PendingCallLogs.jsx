@@ -37,7 +37,7 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import SnackBar from "../../Shared/SnackBar";
-import CustomFilter from "../../components/CustomFilter"
+import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from "../../Helpers/Filter";
 import { SearchedFields } from "../../Helpers/SearchedFields";
