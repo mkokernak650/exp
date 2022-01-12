@@ -39,7 +39,7 @@ import SnackBar from "../../Shared/SnackBar";
 import PulseLoader from "react-spinners/PulseLoader";
 import emptyCheckbox from "../../Helpers/EmptyCheckbox";
 import { stateStore } from "../../Helpers/StateStore";
-import ColumnSettings from "../../components/ColumnSettings"
+import ColumnSettings from "../../Components/ColumnSettings"
 import { deleteHandler } from "../../Helpers/HandleRequests"
 import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData';
