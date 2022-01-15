@@ -6,7 +6,7 @@ import "react-multiple-select-dropdown-lite/dist/index.css";
 import { groups } from "../Helpers/SearchingGroups";
 import Trash from "../../images/trash.svg";
 
-export default CustomFilter = (props) => {
+const CustomFilter = (props) => {
   const {
     mainData,
     fields,
@@ -253,3 +253,5 @@ export default CustomFilter = (props) => {
     </>
   );
 };
+
+export default CustomFilter;

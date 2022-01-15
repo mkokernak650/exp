@@ -252,11 +252,11 @@ export default function PersistentDrawerLeft(props) {
           href: "get.ringbadata",
           Icon: <UserIcon />,
         },
-        {
-          title: "Temp Ringba Data",
-          href: "tempringbadata",
-          Icon: <UserIcon />,
-        },
+        // {
+        //   title: "Temp Ringba Data",
+        //   href: "tempringbadata",
+        //   Icon: <UserIcon />,
+        // },
         {
           title: "Call Logs Report",
           href: "call-logs-report",
