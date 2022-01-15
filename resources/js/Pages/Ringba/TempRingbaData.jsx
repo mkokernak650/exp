@@ -32,7 +32,6 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
-import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from "../../Helpers/Filter";
 import { SearchedFields } from "../../Helpers/SearchedFields";
@@ -382,7 +381,6 @@ const TempRingbaData = () => {
                 </div>
 
                 <div className="top-element">
-                {/* <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} /> */}
 
                 </div>
               </div>
