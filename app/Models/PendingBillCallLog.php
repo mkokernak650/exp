@@ -14,4 +14,9 @@ class PendingBillCallLog extends Model
     {
        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
+
+    public function annotation()
+    {
+        return $this->belongsTo(Annotation::class);
+    }
 }

@@ -18,7 +18,7 @@ class ReportGeneratorController extends Controller
 
     public function destinationReport(Request $request)
     {
-        $campaign = Campaign::findOrFail($request->input('campaign_id'));
+        $campaign = Campaign::find($request->input('campaign_id'));
 
         $broadCastMonths = [];
         if ($request->input('broad_cast_month')) {
@@ -91,14 +91,15 @@ class ReportGeneratorController extends Controller
 
     public function affiliateReport(Request $request)
     {
-        $campaign = Campaign::findOrFail($request->input('campaign'));
+        $campaign = Campaign::find($request->input('campaign'));
+
         $newData = [];
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
-        $campaign = $campaign->campaign_name;
+        $campaign = $campaign->campaign_name ?? null;
 
         // summary of calls
         $archived = [];
@@ -163,10 +164,12 @@ class ReportGeneratorController extends Controller
         foreach ($billed as $bill) {
             $TargetDescription = $bill->$target_description;
             $call_summary['Targets'] = $TargetDescription;
-            $annotationTag = $bill->$annotation_tag;
+            $annotationTag = $bill->annotation_name;
+            $bill->$annotation_tag = $bill->annotation_name;
+            unset($bill->annotation_name);
             unset($bill->$target_description);
             if ($annotation !== 'yes') {
-                unset($bill->$annotation_tag);
+                unset($bill->annotation_name);
                 unset($bill->$has_annotation);
             } else {
                 unset($bill->$has_annotation);
@@ -192,10 +195,12 @@ class ReportGeneratorController extends Controller
         if (!empty($callLogs)) {
             foreach ($callLogs as $callLog) {
                 $TargetDescription = $callLog->$target_description;
-                $annotationTag = $callLog->$annotation_tag;
+                $annotationTag = $callLog->annotation_name;
+                $callLog->$annotation_tag = $callLog->annotation_name;
+                unset($callLog->annotation_name);
                 unset($callLog->$target_description);
                 if ($annotation !== 'yes') {
-                    unset($callLog->$annotation_tag);
+                    unset($callLog->annotation_name);
                     unset($callLog->$has_annotation);
                 } else {
                     unset($callLog->$has_annotation);
@@ -226,10 +231,12 @@ class ReportGeneratorController extends Controller
         // for archived
         if (!empty($archived)) {
             foreach ($archived as $archive) {
-                $annotationTag = $archive->$annotation_tag;
+                $annotationTag = $archive->annotation_name;
+                $archive->$annotation_tag = $archive->annotation_name;
+                unset($archive->annotation_name);
                 unset($archive->$target_description);
                 if ($annotation !== 'yes') {
-                    unset($archive->$annotation_tag);
+                    unset($archive->annotation_name);
                     unset($archive->$has_annotation);
                 } else {
                     unset($archive->$has_annotation);
@@ -260,10 +267,12 @@ class ReportGeneratorController extends Controller
         // return 0;
         if (!empty($exceptions)) {
             foreach ($exceptions as $exception) {
-                $annotationTag = $exception->$annotation_tag;
+                $annotationTag = $exception->annotation_name;
+                $exception->$annotation_tag = $exception->annotation_name;
+                unset($exception->annotation_name);
                 unset($exception->$target_description);
                 if ($annotation !== 'yes') {
-                    unset($exception->$annotation_tag);
+                    unset($exception->annotation_name);
                     unset($exception->$has_annotation);
                 } else {
                     unset($exception->$has_annotation);
@@ -322,13 +331,16 @@ class ReportGeneratorController extends Controller
             }
         }
         $con = rtrim($con, " AND ");
-        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status',Annotation_Tag AS 'Call Type',Has_Annotation AS 'Has Annotation' FROM {$tablename}  WHERE {$con}";
+        $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)', Call_Date_Time AS 'Call Time', Campaign, Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID', Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status', Annotation_Tag AS 'Call Type', Has_Annotation AS 'Has Annotation'
+        FROM {$tablename}
+        LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
+        WHERE {$con}";
         return DB::select($sql);
     }
 
     public function targetReport(Request $request)
     {
-        $campaign = Campaign::findOrFail($request->input('campaign'));
+        $campaign = Campaign::find($request->input('campaign'));
 
         $newData = [];
         $report_type = $request->type; // billed or general
@@ -336,7 +348,7 @@ class ReportGeneratorController extends Controller
         $affiliate_ids = $request->affiliate_id; // array
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
-        $campaign = $campaign->campaign_name;
+        $campaign = $campaign->campaign_name ?? null;
 
         // summary of calls
         $archived = [];
@@ -398,10 +410,12 @@ class ReportGeneratorController extends Controller
         foreach ($billed as $bill) {
             $TargetDescription = $bill->$target_description;
             // $call_summary['Targets'] = $TargetDescription;
-            $annotationTag = $bill->$annotation_tag;
+            $annotationTag = $bill->annotation_name;
+            $bill->$annotation_tag = $bill->annotation_name;
+            unset($bill->annotation_name);
             unset($bill->$target_description);
             if ($annotation !== 'yes') {
-                // unset($bill->$annotation_tag);
+                // unset($bill->annotation_name);
                 unset($bill->$has_annotation);
             } else {
                 unset($bill->$has_annotation);
@@ -427,10 +441,12 @@ class ReportGeneratorController extends Controller
         if (!empty($callLogs)) {
             foreach ($callLogs as $callLog) {
                 $TargetDescription = $callLog->$target_description;
-                $annotationTag = $callLog->$annotation_tag;
+                $annotationTag = $callLog->annotation_name;
+                $callLog->$annotation_tag = $callLog->annotation_name;
+                unset($callLog->annotation_name);
                 unset($callLog->$target_description);
                 if ($annotation !== 'yes') {
-                    // unset($callLog->$annotation_tag);
+                    // unset($callLog->annotation_name);
                     unset($callLog->$has_annotation);
                 } else {
                     unset($callLog->$has_annotation);
@@ -460,10 +476,12 @@ class ReportGeneratorController extends Controller
         // for archived
         if (!empty($archived)) {
             foreach ($archived as $archive) {
-                $annotationTag = $archive->$annotation_tag;
+                $annotationTag = $archive->annotation_name;
+                $archive->$annotation_tag = $archive->annotation_name;
+                unset($archive->annotation_name);
                 unset($archive->$target_description);
                 if ($annotation !== 'yes') {
-                    // unset($archive->$annotation_tag);
+                    // unset($archive->annotation_name);
                     unset($archive->$has_annotation);
                 } else {
                     unset($archive->$has_annotation);
@@ -492,10 +510,12 @@ class ReportGeneratorController extends Controller
         // for exceptions
         if (!empty($exceptions)) {
             foreach ($exceptions as $exception) {
-                $annotationTag = $exception->$annotation_tag;
+                $annotationTag = $exception->annotation_name;
+                $exception->$annotation_tag = $exception->annotation_name;
+                unset($exception->annotation_name);
                 unset($exception->$target_description);
                 if ($annotation !== 'yes') {
-                    // unset($exception->$annotation_tag);
+                    // unset($exception->annotation_name);
                     unset($exception->$has_annotation);
                 } else {
                     unset($exception->$has_annotation);
@@ -551,14 +571,17 @@ class ReportGeneratorController extends Controller
         }
         $con = rtrim($con, " AND ");
 
-        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation'  FROM {$tablename}  WHERE {$con}";
+        $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation'
+        FROM {$tablename}
+        LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
+        WHERE {$con}";
 
         return DB::select($sql);
     }
 
     public function marketExceptionReport(Request $request)
     {
-        $campaign = Campaign::findOrFail($request->input('campaign'));
+        $campaign = Campaign::find($request->input('campaign'));
 
         $newData = [];
         $market_name = $request->market;
@@ -566,7 +589,7 @@ class ReportGeneratorController extends Controller
         $affiliate_ids = $request->affiliate_id; // array
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
-        $campaign = $campaign->campaign_name;
+        $campaign = $campaign->campaign_name ?? null;
         $broad_cast_month = $request->input('broad_cast_month');
 
         // summary of calls
@@ -638,8 +661,10 @@ class ReportGeneratorController extends Controller
         // for exceptions
         if (!empty($exceptions)) {
             foreach ($exceptions as $exception) {
-                $annotationTag = $exception->$annotation_tag;
-                unset($exception->$annotation_tag);
+                $annotationTag = $exception->annotation_name;
+                $exception->$annotation_tag = $exception->annotation_name;
+                unset($exception->annotation_name);
+                unset($exception->annotation_name);
                 array_push($newData, $exception);
 
                 if (empty($annotationTag)) {
@@ -694,27 +719,11 @@ class ReportGeneratorController extends Controller
             }
         }
         $con = rtrim($con, " AND ");
-        $sql = "SELECT Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation'  FROM {$tablename}  WHERE {$con}";
+        $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation'
+        FROM {$tablename}
+        LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
+        WHERE {$con}";
 
         return DB::select($sql);
     }
-
-    /*private function destinationReportData($tablename, $condition, $whereIn = [])
-    {
-        $con = '';
-        foreach ($condition as $v) {
-            $con .= $v . " AND ";
-        }
-        if (count($whereIn) > 0) {
-            foreach ($whereIn as $value) {
-                $con .= $value . " AND ";
-            }
-        }
-        $con = rtrim($con, " AND ");
-        $sql = "SELECT destination_number As 'Destination Number', Affiliate, COUNT(id) AS 'Billable Calls', payoutAmount AS 'Per Call Rate'
-                FROM {$tablename}
-                Group BY destination_number
-                WHERE {$con}";
-        return DB::select($sql);
-    }*/
 }
