@@ -92,7 +92,6 @@ class ReportGeneratorController extends Controller
     public function affiliateReport(Request $request)
     {
         $campaign = Campaign::findOrFail($request->input('campaign'));
-
         $newData = [];
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
