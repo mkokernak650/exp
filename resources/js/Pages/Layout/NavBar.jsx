@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
+import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -32,6 +33,7 @@ import { InertiaLink } from "@inertiajs/inertia-react";
 import { useState } from "react";
 import Logo from "../../../images/webform/logo.png";
 import MoreIcon from "@material-ui/icons/MoreVert";
+import ConfirmModal from "../../Shared/ConfirmModal";
 
 const drawerWidth = 280;
 
@@ -149,6 +151,7 @@ export default function PersistentDrawerLeft(props) {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const [showlStaorageModal, setShowlStaorageModal] = useState({ open: false });
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -183,6 +186,19 @@ export default function PersistentDrawerLeft(props) {
     }));
   };
 
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true });
+  };
+
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false });
+  };
+
+  const clearLocalStorage = () => {
+    window.localStorage.clear();
+    setShowlStaorageModal({ open: false });
+  }
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -201,9 +217,12 @@ export default function PersistentDrawerLeft(props) {
         className={classes.link}
         as="div"
       >
+
         <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
       </InertiaLink>
+
     </Menu>
+
   );
 
   const mobileMenuId = "primary-search-account-menu-mobile";
@@ -465,6 +484,15 @@ export default function PersistentDrawerLeft(props) {
         })}
       >
         <Toolbar>
+          <Button
+            variant="contained"
+            type="submit"
+            color="primary"
+            onClick={() => handleOpenModal(setShowlStaorageModal)}
+          // className={classes.button}
+          >
+            Clear LocalStorage
+          </Button>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -505,8 +533,13 @@ export default function PersistentDrawerLeft(props) {
               <MoreIcon />
             </IconButton>
           </div>
+
+
+
+
         </Toolbar>
       </AppBar>
+
       {renderMobileMenu}
       {renderMenu}
       <Drawer
@@ -578,8 +611,8 @@ export default function PersistentDrawerLeft(props) {
                   timeout="auto"
                   unmountOnExit
                   className={`${menu.active
-                      ? "sidebar-menu-active"
-                      : "sidebar-menu-inactive"
+                    ? "sidebar-menu-active"
+                    : "sidebar-menu-inactive"
                     }`}
                 >
                   <List component="div" disablePadding>
@@ -663,6 +696,15 @@ export default function PersistentDrawerLeft(props) {
           </form>
         </div>
       </NormalModal>
+
+      <ConfirmModal
+        open={showlStaorageModal.open}
+        setOpen={setShowlStaorageModal}
+        btnAction={clearLocalStorage}
+        closeAction={() => handleCloseModal(setShowlStaorageModal)}
+        width={"400px"}
+        title={"Do you want to clear LocalStorage"}
+      ></ConfirmModal>
     </div>
   );
 }
