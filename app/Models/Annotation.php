@@ -19,4 +19,19 @@ class Annotation extends Model
     {
         return $this->belongsTo(Campaign::class);
     }
+
+    public function callLogs()
+    {
+        return $this->hasMany(RingbaCallLog::class);
+    }
+
+    public function pendingCallLogs()
+    {
+        return $this->hasMany(PendingBillCallLog::class);
+    }
+
+    public function billedCallLogs()
+    {
+        return $this->hasMany(BilledCallLog::class);
+    }
 }
