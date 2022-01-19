@@ -199,7 +199,8 @@ const Exceptions = () => {
         key: "Recording_Url",
         title: "Recording_Url",
         dataType: DataType.String,
-        style: { width: 190 },
+        style: { width: 360 },
+
       },
       {
         key: "Inbound_Id",
