@@ -62,6 +62,7 @@ const GenerateReportAffiliate = () => {
   const [targetByCustomer, setTargetByCustomer] = useState([]);
   const [affiliate, setAffiliate] = useState();
   const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
   const [week, setWeek] = useState("");
   const [startDate, setStartDate] = useState({ start_date: "" });
   const [endDate, setEndDate] = useState({ end_date: "" });
@@ -119,6 +120,10 @@ const GenerateReportAffiliate = () => {
       }
     });
   };
+  const yearHandleChange = (e) => {
+    const { name, value } = e.target;
+    setYear({ [name]: value });
+  };
   const weekHandleChange = (e) => {
     const { name, value } = e.target;
     setWeek({ [name]: value });
@@ -160,6 +165,7 @@ const GenerateReportAffiliate = () => {
     ...customer,
     ...target,
     ...month,
+    ...year,
     ...week,
     ...startDate,
     ...endDate,
@@ -191,6 +197,7 @@ const GenerateReportAffiliate = () => {
   const fileName = `${values.type}_Report_For_(${affiliatesName.toString()})_From_${dateFormat(values.start_date)
     }_To_${dateFormat(values.end_date)}_Created@${currentDate()}`;
 
+    console.log(values)
   const handleSubmit = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
@@ -335,7 +342,26 @@ const GenerateReportAffiliate = () => {
                 placeholder="Select Affiliates"
               />
             </Grid>
+            {/* <Grid item xs={12}>
+              <TextField
+                id="standard-select-currency-native"
+                select
+                name="year"
+                onChange={yearHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              // required={true}
+              >
+                <option value="">Select Year</option>
+                <option value='2022'>
+                  2022
+                </option>
+              </TextField>
+              </Grid> */}
             <Grid item xs={12}>
+
               <TextField
                 id="standard-select-currency-native"
                 select

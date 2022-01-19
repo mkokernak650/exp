@@ -100,7 +100,7 @@ class ReportGeneratorController extends Controller
         $target_name = $request->target_name; // array
         $annotation = $request->annotation;
         $campaign = $campaign->campaign_name ?? null;
-
+        $year= $request->year;
         // summary of calls
         $archived = [];
         $call_summary = [];
@@ -115,6 +115,11 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date >='$start_date'";
             $condition[] = "Call_Date <= '$end_date'";
         }
+        if ($year !==null) {
+            $condition[]="Call_Date Like '%{$year}%'";
+        }
+
+
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
         }
@@ -132,7 +137,6 @@ class ReportGeneratorController extends Controller
             $ids = implode("','", $target_name);
             $whereIn[] = "Target IN ('$ids')";
         }
-
 
         $total_call = 0;
         $total_seconds = 0;
@@ -300,8 +304,6 @@ class ReportGeneratorController extends Controller
         }
 
         $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
-
-
         $call_summary['Total number of calls'] = $total_call;
         $call_summary['Total Minutes'] = secondToMinutes($total_seconds);
 
@@ -571,7 +573,7 @@ class ReportGeneratorController extends Controller
         }
         $con = rtrim($con, " AND ");
 
-        $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation'
+        $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Recording_Url as 'Recording Url',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation'
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
         WHERE {$con}";

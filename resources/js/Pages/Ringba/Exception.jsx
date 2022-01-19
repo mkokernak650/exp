@@ -355,9 +355,10 @@ const Exceptions = () => {
     format: ({ column, value }) => {
       if (column.key === "Recording_Url") {
         return (
-          <a target="_blank" href={value}>
-            Recording URL
-          </a>
+          <audio className="audio-data" controls style={{ width: '100%' }}>
+            <source src={value} type="audio/mp3" />
+            Your browser does not support the <code>audio</code> element.
+          </audio>
         );
       }
       if (column.key === "edit") {

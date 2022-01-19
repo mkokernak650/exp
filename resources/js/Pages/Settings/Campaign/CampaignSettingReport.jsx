@@ -367,7 +367,7 @@ const CampaignSettingReport = () => {
     columnReordering: true,
     format: ({ column, value }) => {
       if (column.key === "status") {
-        return value == 1 ? "Active" : "Pushed";
+        return value == 1 ? "Active" : "Paused";
       }
       if (column.key === "actions") {
         return (
