@@ -288,4 +288,9 @@ class RingbaApiHelpers
         $result = json_decode($this->getRequest('targets'));
         return $result->targets;
     }
+    public function getCustomers()
+    {
+        $result = json_decode($this->getRequest('Buyers'));
+        return $result->buyers;
+    }
 }

@@ -484,15 +484,7 @@ export default function PersistentDrawerLeft(props) {
         })}
       >
         <Toolbar>
-          <Button
-            variant="contained"
-            type="submit"
-            color="primary"
-            onClick={() => handleOpenModal(setShowlStaorageModal)}
-          // className={classes.button}
-          >
-            Clear LocalStorage
-          </Button>
+
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -509,6 +501,15 @@ export default function PersistentDrawerLeft(props) {
           ) : (
             ""
           )}
+          <Button
+            variant="contained"
+            type="submit"
+            color="primary"
+            onClick={() => handleOpenModal(setShowlStaorageModal)}
+          // className={classes.button}
+          >
+            Clear LocalStorage
+          </Button>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton

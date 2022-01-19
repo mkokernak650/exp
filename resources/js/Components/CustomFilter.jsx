@@ -76,6 +76,7 @@ const CustomFilter = (props) => {
         }
       }
     } else if (e === "date-range") {
+      console.log(dateRange)
       setStartDate(dateRange[0]);
       setEndDate(dateRange[1]);
       newValue.items[key].value = dateRange;

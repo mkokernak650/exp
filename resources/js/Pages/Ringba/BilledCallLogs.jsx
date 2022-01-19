@@ -81,7 +81,7 @@ const BilledCallLogs = () => {
     e.preventDefault();
     console.log(tableIndex);
     axios
-      .post(route("change.annotation", "billedCallLog"), {indexId: tableIndex, annotation_id: e.target.value})
+      .post(route("change.annotation", "billedCallLog"), { indexId: tableIndex, annotation_id: e.target.value })
       .then((res) => {
         if (res.status === 200) {
           setResponse(res.data.msg);
@@ -96,7 +96,7 @@ const BilledCallLogs = () => {
           });
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   }
 
   const dataArray = filteredData.map((item, index) => ({
@@ -358,6 +358,17 @@ const BilledCallLogs = () => {
         let yyyy = format_date.getFullYear();
         format_date = dd + "-" + shortMonth + "-" + yyyy;
         return format_date;
+      }
+      if (column.key === "Added_Time") {
+        var d = new Date(value);
+        var hours = d.getHours();
+        var minutes = d.getMinutes();
+        var ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour "0" should be "12"
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        var strTime = hours + ":" + minutes + " " + ampm;
+        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" +d.getFullYear().toString().substr(-2) + " " + strTime;
       }
       if (column.key === "Annotation_Tag") {
         let arrayValue = value.split(',')

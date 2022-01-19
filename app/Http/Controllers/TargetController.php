@@ -14,6 +14,7 @@ class TargetController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        // $this->getAllTarget();
     }
 
     public function index()
@@ -94,13 +95,32 @@ class TargetController extends Controller
         foreach ($targets as $target) {
             array_push($all_target_name, $target->target_name);
         }
-
 //        dd('from db', $all_target_name, 'from api', $results);
         foreach ($results as $row) {
             $target = new TargetNames();
             if (!in_array($row->name, $all_target_name)) {
                 $target->target_name = $row->name;
                 $target->save();
+            }
+        }
+    }
+    public static function getAllCustomers()
+    {
+        $api = new RingbaApiHelpers();
+        $results = $api->getCustomers();
+
+        $customers = Customer::all();
+        $all_customer_name = [];
+        foreach ($customers as $customer) {
+            array_push($all_customer_name, $customer->customer_name);
+        }
+
+//        dd('from db', $all_target_name, 'from api', $results);
+        foreach ($results as $row) {
+            $customer = new Customer();
+            if (!in_array($row->name, $all_customer_name)) {
+                $customer->customer_name = $row->name;
+                $customer->save();
             }
         }
     }
