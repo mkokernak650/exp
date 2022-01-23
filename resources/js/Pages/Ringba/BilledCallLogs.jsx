@@ -644,7 +644,7 @@ const BilledCallLogs = () => {
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)
     axios
-      .post(route("calllogs.revenue.update"), { inboundIds })
+      .post(route("bill.calllogs.revenue.update"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
           setRevenueLoading(false)

@@ -393,6 +393,9 @@ Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'update
 Route::post('/exception-revenue-update', [ExceptionController::class, 'updateRevenue'])
     ->name('exception.revenue.update');
 
+    Route::post('/bill-Calllogs-revenue-update', [BilledCallLogController::class, 'updateRevenue'])
+    ->name('bill.calllogs.revenue.update');
+
 
 Route::get('/get-call-logs-secheduler', [RingbaCallLogController::class, 'getCallLogsScheduler'])->name('get.call.log.secheduler');
 Route::post('/add-table-details', [TableDetailsController::class, 'store'])

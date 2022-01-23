@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
-use App\Models\{BilledCallLog, Campaign, PendingBillCallLog};
+use App\Models\BilledCallLog;
+use App\Models\Campaign;
+use App\Models\PendingBillCallLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,7 +15,7 @@ class BilledCallLogController extends Controller
     private static $billedCallLog;
     private static $RingbaApiHelpers;
 
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
         self::$billedCallLog = new BilledCallLog();
@@ -210,5 +212,10 @@ class BilledCallLogController extends Controller
         } else {
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
+    }
+
+    public function updateRevenue(Request $request)
+    {
+        BilledCallLog::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue' => '', 'payoutAmount' => '']);
     }
 }

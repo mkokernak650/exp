@@ -759,18 +759,7 @@ const CallLogsReport = () => {
       });
   };
 
-  const handleOpenModal = (setOpenModal, tableData) => {
-    setOpenModal({ open: true })
-    if (tableData) {
-      let filteredData = tableProps;
-      filteredData.data.filter((item) => {
-        if (item.Inbound_Id === editData[0]) {
-          setSn(item.SN);
-        }
-      });
-      setShowRevenueClearModal({ open: true });
-    }
-  }
+
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setOpenRowFunctionalities(false);
