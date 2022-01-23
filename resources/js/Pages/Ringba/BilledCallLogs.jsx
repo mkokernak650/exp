@@ -195,7 +195,7 @@ const BilledCallLogs = () => {
         key: "Recording_Url",
         title: "Recording_Url",
         dataType: DataType.String,
-        style: { width: 190 },
+        style: { width: 360 },
       },
       {
         key: "Inbound_Id",
@@ -345,9 +345,10 @@ const BilledCallLogs = () => {
     format: ({ column, value }) => {
       if (column.key === "Recording_Url") {
         return (
-          <a target="_blank" href={value}>
-            Recording URL
-          </a>
+          <audio className="audio-data" controls style={{ width: '100%' }}>
+            <source src={value} type="audio/mp3" />
+            Your browser does not support the <code>audio</code> element.
+          </audio>
         );
       }
 
@@ -368,7 +369,7 @@ const BilledCallLogs = () => {
         hours = hours ? hours : 12; // the hour "0" should be "12"
         minutes = minutes < 10 ? "0" + minutes : minutes;
         var strTime = hours + ":" + minutes + " " + ampm;
-        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" +d.getFullYear().toString().substr(-2) + " " + strTime;
+        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime;
       }
       if (column.key === "Annotation_Tag") {
         let arrayValue = value.split(',')
@@ -391,6 +392,8 @@ const BilledCallLogs = () => {
           </TextField>
         );
       }
+
+
     },
   };
   const fields = SearchedFields(tablePropsInit.columns)
