@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout";
-import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
@@ -25,6 +24,7 @@ import closeNav from "../../../images/closeNav.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
+import Edit from "../../../images/three-dots.svg";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -63,19 +63,29 @@ const BilledCallLogs = () => {
   const [inboundIds, setInbounIds] = useState([]);
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const [showRevenueClearModal, setShowRevenueClearModal] = useState({ open: false });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
+  const [revenueLoading, setRevenueLoading] = useState(false);
   const [annotationLoading, setAnnotationLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
   const showColumnRef = useRef();
   const [count, setCount] = useState(0)
   const [editData, setEditData] = useState([]);
   const [filterValue, setFilterValue] = useState(defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, ''));
-
+  const [sn, setSn] = useState("");
+  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
+  const rowFunctionalitiesRef = useRef();
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [drawerWidth, setDrawerWidth] = useState(350)
   const [filteredData, setFilteredData] = useState(
     filterData(billedCallLogs, filterValue)
   );
+
+
+  const style = {
+    top: position.y < 650 ? position.y - 79 : position.y - 275,
+    left: drawerWidth
+  };
 
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault();
@@ -99,7 +109,13 @@ const BilledCallLogs = () => {
       .catch((err) => { });
   }
 
+  const rowFunctionalitiesPosition = (e) => {
+    if (!openRowFunctionalities) {
+      setPosition({ x: e.screenX, y: e.screenY });
+    }
+  };
   const dataArray = filteredData.map((item, index) => ({
+    edit: item.id,
     sl: index + 1,
     SN: item.SN,
     Recording_Url: item.Recording_Url,
@@ -137,7 +153,12 @@ const BilledCallLogs = () => {
   }));
 
   const tablePropsInit = {
+
     columns: [
+      {
+        key: "edit",
+        style: { width: 10 },
+      },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -343,6 +364,16 @@ const BilledCallLogs = () => {
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div
+            className="edit-icon"
+            onClick={() => handleRowFunctionalities(value)}
+          >
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
       if (column.key === "Recording_Url") {
         return (
           <audio className="audio-data" controls style={{ width: '100%' }}>
@@ -610,6 +641,59 @@ const BilledCallLogs = () => {
       });
   }
 
+  const handleClear = (inboundIds) => {
+    setRevenueLoading(true)
+    axios
+      .post(route("calllogs.revenue.update"), { inboundIds })
+      .then((res) => {
+        if (res.status === 200) {
+          setRevenueLoading(false)
+          setResponse("Successfully Updated");
+          setOpen(true);
+          let columnsData = produce(tableProps, draft => {
+            draft.data.filter((item) => {
+              if (item.Inbound_Id === editData[0]) {
+                item.Revenue = "";
+                item.payoutAmount = "";
+              }
+            })
+          })
+          changeTableProps(columnsData)
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
+        } else {
+          setRevenueLoading(false)
+          setResponse(res.data.msg);
+          setOpen(true);
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
+        }
+      })
+      .catch((err) => {
+        setRevenueLoading(false)
+        setShowRevenueClearModal({ open: false });
+        setOpenRowFunctionalities(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
+      });
+  };
+
+  const handleOpenModal = (setOpenModal, tableData) => {
+    setOpenModal({ open: true })
+    if (tableData) {
+      let filteredData = tableProps;
+      filteredData.data.filter((item) => {
+        if (item.Inbound_Id === editData[0]) {
+          setSn(item.SN);
+        }
+      });
+      setShowRevenueClearModal({ open: true });
+    }
+  }
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
@@ -676,7 +760,65 @@ const BilledCallLogs = () => {
     };
   }, [showColumns]);
 
-  // useEffect(() => M.AutoInit());
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        openRowFunctionalities &&
+        rowFunctionalitiesRef.current &&
+        !rowFunctionalitiesRef.current.contains(e.target)
+      ) {
+        setOpenRowFunctionalities(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [openRowFunctionalities]);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
+
+  const RowFunctionalities = () => {
+
+    return (
+      <div
+        className="row-functionalities"
+        ref={rowFunctionalitiesRef}
+        style={style}
+      >
+        <div>
+          <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
+        </div >
+      </div >
+    );
+  };
+
+  const handleRowFunctionalities = (id) => {
+    setOpenRowFunctionalities(true);
+    setShowColumns(false);
+    if (editData.length > 0) {
+      const itemIndx = editData.indexOf(id);
+      editData.splice(itemIndx, 1);
+    }
+    const tempData = tableProps.data.filter((item) => item.id == id);
+    editData.push(tempData[0].Inbound_Id);
+  };
+
 
   const TableToolbar = () => {
     return (
@@ -765,7 +907,7 @@ const BilledCallLogs = () => {
     <>
       <Helmet title="Billed Call Logs Report" />
 
-      <div className="selection-demo">
+      <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
         {openRowFunctionalities ? <RowFunctionalities /> : ""}
         {tableToolbar ? (
           <TableToolbar />
@@ -857,7 +999,21 @@ const BilledCallLogs = () => {
         />
 
         <SnackBar open={open} setOpen={setOpen} response={response} />
-
+        <ConfirmModal
+          open={showRevenueClearModal.open}
+          setOpen={setShowRevenueClearModal}
+          btnAction={handleClear}
+          closeAction={() => handleCloseModal(setShowRevenueClearModal)}
+          editData={editData}
+          width={"450px"}
+          title={
+            <>
+              Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
+            </>
+          }
+          loading={revenueLoading}
+          setLoading={setRevenueLoading}
+        ></ConfirmModal>
 
         <ConfirmModal
           open={showDeleteModal.open}
