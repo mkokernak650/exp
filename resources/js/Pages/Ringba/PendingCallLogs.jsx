@@ -106,6 +106,7 @@ const PendingCallLogsReport = () => {
     sl: index + 1,
     SN: item.SN,
     Call_Date: item.Call_Date,
+    Call_complete_dt:item.Call_Date_Time,
     Call_Date_Time: item.Call_Date_Time,
     Duplicate_Call: item.Duplicate_Call,
     Call_Status: item.call_Logs_status,
@@ -153,11 +154,17 @@ const PendingCallLogsReport = () => {
         style: { width: 130 },
       },
       {
-        key: "Call_Date",
-        title: "Call Date",
-        dataType: DataType.Date,
-        style: { width: 200 },
+        key: "Call_complete_dt",
+        title: "Call Time (EST)",
+        dataType: DataType.string,
+        style: { width: 230 },
       },
+      // {
+      //   key: "Call_Date",
+      //   title: "Call Date",
+      //   dataType: DataType.Date,
+      //   style: { width: 200 },
+      // },
       {
         key: "Has_Annotation",
         title: "Has Annotation",
@@ -319,6 +326,18 @@ const PendingCallLogsReport = () => {
         let yyyy = format_date.getFullYear();
         format_date = dd + "-" + shortMonth + "-" + yyyy;
         return format_date;
+      }
+      if (column.key === "Call_complete_dt") {
+        let d = new Date(value);
+        let hours = d.getHours();
+        let minutes = d.getMinutes();
+        let ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour "0" should be "12"
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        let strTime = hours + ":" + minutes + " " + ampm;
+        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime;
+
       }
       if (column.key === "Annotation_Tag") {
         let arrayValue = value.split(',')

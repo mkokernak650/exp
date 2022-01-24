@@ -96,7 +96,7 @@ const CallLogsReport = () => {
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault();
     axios
-      .post(route("change.annotation", "ringbaCallLog"), {indexId: tableIndex, annotation_id: e.target.value})
+      .post(route("change.annotation", "ringbaCallLog"), { indexId: tableIndex, annotation_id: e.target.value })
       .then((res) => {
         if (res.status === 200) {
           setResponse(res.data.msg);
@@ -111,7 +111,7 @@ const CallLogsReport = () => {
           });
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   }
 
   const rowFunctionalitiesPosition = (e) => {
@@ -125,6 +125,7 @@ const CallLogsReport = () => {
       sl: index + 1,
       SN: item.SN,
       Call_Date: item.Call_Date,
+      Call_complete_dt: item.Call_Date_Time,
       Has_Annotation: item.Has_Annotation,
       Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
       call_Logs_status: item.call_Logs_status,
@@ -181,11 +182,17 @@ const CallLogsReport = () => {
         style: { width: 130 },
       },
       {
-        key: "Call_Date",
-        title: "Call Date Time",
+        key: "Call_complete_dt",
+        title: "Call Time (EST)",
         dataType: DataType.Date,
-        style: { width: 200 },
+        style: { width: 230 },
       },
+      // {
+      //   key: "Call_Date",
+      //   title: "Call Date Time",
+      //   dataType: DataType.Date,
+      //   style: { width: 200 },
+      // },
       {
         key: "Has_Annotation",
         title: "Has Annotation",
@@ -375,21 +382,21 @@ const CallLogsReport = () => {
         let arrayValue = value.split(',')
         return (
           <TextField
-                id="annotation_id"
-                select
-                name="annotation_id"
-                onChange={(e) => updateAnnotation(e, arrayValue[2])}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                defaultValue={arrayValue[0]}
-              >
-                <option value="">Select Annotation</option>
-                {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0]?.annotations.map((annotation, index) => (
-                  <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
-                ))}
-              </TextField>
+            id="annotation_id"
+            select
+            name="annotation_id"
+            onChange={(e) => updateAnnotation(e, arrayValue[2])}
+            SelectProps={{
+              native: true,
+            }}
+            fullWidth
+            defaultValue={arrayValue[0]}
+          >
+            <option value="">Select Annotation</option>
+            {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0]?.annotations.map((annotation, index) => (
+              <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
+            ))}
+          </TextField>
         );
       }
       if (column.key === "Recording_Url") {
@@ -399,6 +406,19 @@ const CallLogsReport = () => {
             Your browser does not support the <code>audio</code> element.
           </audio>
         );
+      }
+
+      if (column.key === "Call_complete_dt") {
+        let d = new Date(value);
+        let hours = d.getHours();
+        let minutes = d.getMinutes();
+        let ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour "0" should be "12"
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        let strTime = hours + ":" + minutes + " " + ampm;
+        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime;
+
       }
       if (column.key === "Call_Date") {
         let shortMonth = value.toLocaleString('en-us', { month: 'short' });
@@ -759,7 +779,18 @@ const CallLogsReport = () => {
       });
   };
 
-
+  const handleOpenModal = (setOpenModal, tableData) => {
+    setOpenModal({ open: true })
+    if (tableData) {
+      let filteredData = tableProps;
+      filteredData.data.filter((item) => {
+        if (item.Inbound_Id === editData[0]) {
+          setSn(item.SN);
+        }
+      });
+      setShowRevenueClearModal({ open: true });
+    }
+  }
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setOpenRowFunctionalities(false);
@@ -1074,7 +1105,7 @@ const CallLogsReport = () => {
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
-        btnAction={() => deleteHandler("call.logs.delete", selectedRowIds,setselectedRowIds, tableProps, changeTableProps, setDeleteLoading, setInbounIds,
+        btnAction={() => deleteHandler("call.logs.delete", selectedRowIds, setselectedRowIds, tableProps, changeTableProps, setDeleteLoading, setInbounIds,
           setTableToolbar, setOpen, setResponse, setShowDeleteModal, OPTION_KEY)}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}

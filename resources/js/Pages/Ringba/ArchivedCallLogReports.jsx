@@ -92,6 +92,7 @@ const ArchivedCallLogReports = () => {
     SN: item.SN,
     Campaign: item.Campaign,
     Call_Date: item.Call_Date,
+    Call_complete_dt: item.Call_Date_Time,
     Call_Date_Time: item.Call_Date_Time,
     Conn_Duration: item.Conn_Duration,
     Call_Length_In_Seconds: item.call_Length_In_Seconds,
@@ -140,11 +141,17 @@ const ArchivedCallLogReports = () => {
         style: { width: 130 },
       },
       {
-        key: "Call_Date",
-        title: "Call Date",
-        dataType: DataType.Date,
-        style: { width: 200 },
+        key: "Call_complete_dt",
+        title: "Call Time (EST)",
+        dataType: DataType.string,
+        style: { width: 230 },
       },
+      // {
+      //   key: "Call_Date",
+      //   title: "Call Date",
+      //   dataType: DataType.Date,
+      //   style: { width: 200 },
+      // },
 
       {
         key: "Inbound_Id",
@@ -303,6 +310,18 @@ const ArchivedCallLogReports = () => {
         let yyyy = format_date.getFullYear();
         format_date = dd + "-" + shortMonth + "-" + yyyy;
         return format_date;
+      }
+      if (column.key === "Call_complete_dt") {
+        let d = new Date(value);
+        let hours = d.getHours();
+        let minutes = d.getMinutes();
+        let ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour "0" should be "12"
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        let strTime = hours + ":" + minutes + " " + ampm;
+        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime;
+
       }
     },
   };
@@ -708,7 +727,7 @@ const ArchivedCallLogReports = () => {
                 </div>
 
                 <div className="top-element">
-                <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} />
+                  <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} />
 
                 </div>
               </div>

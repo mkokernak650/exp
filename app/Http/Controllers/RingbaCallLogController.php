@@ -422,12 +422,12 @@ class RingbaCallLogController extends Controller
      */
     private function ringbaDataObject($instance)
     {
-        $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
+        $instance->Call_Date_Time         = date('Y-m-d h:i:s', $this->get_callCompletedDt / 1000);
+        // $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
         $instance->Call_Date              = dateFormat($this->get_dtStamp / 1000);
         $instance->Campaign               = $this->get_campaignName;
         $instance->Campaign_Id            = $this->get_campaignId;
         $instance->Affiliate              = $this->get_affiliateName;
-        // $instance->Affiliate              = 'test';
         $instance->Affiliate_Id           = $this->get_affiliateId;
         $instance->Inbound                = $this->get_inboundPhoneNumber;
         $instance->Inbound_Id             = $this->get_inboundCallId;
@@ -664,13 +664,13 @@ class RingbaCallLogController extends Controller
 
     public function changeAnnotation(Request $request, $tableName)
     {
-        if($tableName == 'ringbaCallLog') {
+        if ($tableName == 'ringbaCallLog') {
             $callLog = RingbaCallLog::findOrFail($request->input('indexId'));
-        } else if($tableName == 'pendingBillCallLog') {
+        } elseif ($tableName == 'pendingBillCallLog') {
             $callLog = PendingBillCallLog::findOrFail($request->input('indexId'));
-        } else if($tableName == 'billedCallLog') {
+        } elseif ($tableName == 'billedCallLog') {
             $callLog = BilledCallLog::findOrFail($request->input('indexId'));
-        } else{
+        } else {
             return response()->json([
                 'msg' => 'Please, reload and try again.'
             ], 404);

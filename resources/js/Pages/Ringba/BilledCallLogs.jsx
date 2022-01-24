@@ -119,8 +119,9 @@ const BilledCallLogs = () => {
     sl: index + 1,
     SN: item.SN,
     Recording_Url: item.Recording_Url,
-    Added_Time: item.created_at,
-    Call_Date_Time: item.Call_Date_Time,
+    // Added_Time: item.created_at,
+    Call_complete_dt: item.Call_Date_Time,
+    // Call_Date_Time: item.Call_Date_Time,
     Call_Date: item.Call_Date,
     Duplicate_Call: item.Duplicate_Call,
     Customer: item.Customer,
@@ -175,19 +176,26 @@ const BilledCallLogs = () => {
         dataType: DataType.String,
         style: { width: 130 },
       },
-      {
-        key: "Added_Time",
-        title: "Added Time",
-        dataType: DataType.String,
-        style: { width: 290 },
-      },
+      // {
+      //   key: "Added_Time",
+      //   title: "Added Time",
+      //   dataType: DataType.String,
+      //   style: { width: 290 },
+      // },
 
       {
-        key: "Call_Date",
-        title: "Call Date",
-        dataType: DataType.Date,
-        style: { width: 200 },
+        key: "Call_complete_dt",
+        title: "Call Time (EST)",
+        dataType: DataType.string,
+        style: { width: 230 },
       },
+
+      // {
+      //   key: "Call_Date",
+      //   title: "Call Date",
+      //   dataType: DataType.Date,
+      //   style: { width: 200 },
+      // },
       {
         key: "Has_Annotation",
         title: "Has Annotation",
@@ -391,16 +399,17 @@ const BilledCallLogs = () => {
         format_date = dd + "-" + shortMonth + "-" + yyyy;
         return format_date;
       }
-      if (column.key === "Added_Time") {
-        var d = new Date(value);
-        var hours = d.getHours();
-        var minutes = d.getMinutes();
-        var ampm = hours >= 12 ? "PM" : "AM";
+      if (column.key === "Call_complete_dt") {
+        let d = new Date(value);
+        let hours = d.getHours();
+        let minutes = d.getMinutes();
+        let ampm = hours >= 12 ? "PM" : "AM";
         hours = hours % 12;
         hours = hours ? hours : 12; // the hour "0" should be "12"
         minutes = minutes < 10 ? "0" + minutes : minutes;
-        var strTime = hours + ":" + minutes + " " + ampm;
+        let strTime = hours + ":" + minutes + " " + ampm;
         return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime;
+
       }
       if (column.key === "Annotation_Tag") {
         let arrayValue = value.split(',')
