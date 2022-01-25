@@ -198,9 +198,31 @@ const GenerateReportTarget = () => {
     ...campaign,
     ...annotation,
   };
+  const dateFormat = (dataParam) => {
+    let newDate = new Date(dataParam)
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
+    let format_date = newDate
+    let dd = String(format_date.getDate()).padStart(2, "0");
+    let yyyy = format_date.getFullYear();
+    format_date = dd + "-" + shortMonth + "-" + yyyy;
+    return format_date;
+  }
 
-  const fileName = `${values.type}_Report_For_${values.customer_name}_From_${values.start_date
-    }_To_${values.end_date}_Created@${currentDate()}`;
+
+
+  let fileName = ''
+  if (year?.year && !month) {
+    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${customer_name.toString()})` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  }
+  else if (year?.year && month) {
+    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${customer_name.toString()})` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  }
+  else {
+    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${customer_name.toString()})` : ""}_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  }
+
 
   const handleSubmit = () => {
     axios.post(route("target.report.generator"), values).then((r) => {
@@ -269,7 +291,6 @@ const GenerateReportTarget = () => {
                 />
               </RadioGroup>
             </Grid>
-
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
@@ -460,3 +481,4 @@ GenerateReportTarget.layout = (page) => (
   <Layout title="Generate Report Target">{page}</Layout>
 );
 export default GenerateReportTarget;
+

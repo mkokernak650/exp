@@ -146,7 +146,7 @@ const GenerateReportAffiliate = () => {
       setMonthByYear(filteredData)
     }
   };
-  
+
 
 
 
@@ -221,9 +221,21 @@ const GenerateReportAffiliate = () => {
     format_date = dd + "-" + shortMonth + "-" + yyyy;
     return format_date;
   }
+  console.log(affiliatesName)
 
-  const fileName = `${values.type}_Report_For_(${affiliatesName.toString()})_From_${dateFormat(values.start_date)
-    }_To_${dateFormat(values.end_date)}_Created@${currentDate()}`;
+  let fileName = ''
+  if (year?.year && !month) {
+    fileName = `${values?.type}_Report${affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  }
+  else if (year?.year && month) {
+    fileName = `${values?.type}_Report${affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  }
+  else {
+    fileName = `${values?.type}_Report${affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""}_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  }
+
 
   console.log(values)
   const handleSubmit = () => {

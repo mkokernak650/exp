@@ -29,6 +29,7 @@ class TargetController extends Controller
 
     public function TargetsReport()
     {
+        $this->getAllTarget();
         $allTargets = Target::all();
         return Inertia::render('Settings/Targets', [
             'allTargets' => $allTargets

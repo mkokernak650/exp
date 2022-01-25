@@ -123,6 +123,11 @@ const GenerateReportMarketException = () => {
     ...year,
     ...month,
   };
+  let campaignName = []
+  if (values.campaign_id) {
+    campaignName = campaigns.filter(item => item.id == values.campaign_id)
+  }
+  const fileName = `Destination_Report${values.customer_name ? `_For_(${values.customer_name})` : ""}${campaignName.length > 0 ? `_For_(${campaignName[0].campaign_name})` : ""}${values.broad_cast_month ? `_For_(${values.broad_cast_month.toString()})` : ""}_Created@${currentDate()}`;
 
 
   const handleSubmit = () => {
@@ -131,9 +136,13 @@ const GenerateReportMarketException = () => {
         setOpen(true);
         setResponse(r.data.msg);
       }
-      exportToCSV(r.data, "Destination_Report");
+      exportToCSV(r.data, fileName);
     });
   };
+
+
+
+
 
   const fileType =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
