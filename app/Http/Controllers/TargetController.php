@@ -14,7 +14,6 @@ class TargetController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        // $this->getAllTarget();
     }
 
     public function index()
@@ -29,7 +28,7 @@ class TargetController extends Controller
 
     public function TargetsReport()
     {
-        $this->getAllTarget();
+        // $this->getAllTarget();//testing
         $allTargets = Target::all();
         return Inertia::render('Settings/Targets', [
             'allTargets' => $allTargets
@@ -86,25 +85,56 @@ class TargetController extends Controller
     }
 
     // fetch data by secdule
+//     public static function getAllTarget()
+//     {
+//         $api = new RingbaApiHelpers();
+//         $results = $api->getTargets();
+
+//         $targets = TargetNames::all();
+//         $all_target_name = [];
+//         foreach ($targets as $target) {
+//             array_push($all_target_name, $target->target_name);
+//         }
+    // //        dd('from db', $all_target_name, 'from api', $results);
+//         foreach ($results as $row) {
+//             $target = new TargetNames();
+//             if (!in_array($row->name, $all_target_name)) {
+//                 $target->target_name = $row->name;
+//                 $target->save();
+//             }
+//         }
+//     }
     public static function getAllTarget()
     {
         $api = new RingbaApiHelpers();
         $results = $api->getTargets();
-
-        $targets = TargetNames::all();
-        $all_target_name = [];
-        foreach ($targets as $target) {
-            array_push($all_target_name, $target->target_name);
+        $targetNames = TargetNames::all();
+        $allTargetNames = [];
+        foreach ($targetNames as $targetName) {
+            array_push($allTargetNames, $targetName->target_name);
         }
-//        dd('from db', $all_target_name, 'from api', $results);
         foreach ($results as $row) {
-            $target = new TargetNames();
-            if (!in_array($row->name, $all_target_name)) {
-                $target->target_name = $row->name;
-                $target->save();
+            $targetName = new TargetNames();
+            if (!in_array($row->name, $allTargetNames)) {
+                $targetName->target_name = $row->name;
+                $targetName->save();
+            }
+
+            $existData= Target::where('Customer', $row->owner->name)->where('Ringba_Targets_Name', $row->name)->count();
+            
+            if ($existData > 0) {
+                continue;
+            } else {
+                Target::create([
+                    'Customer' => $row->owner->name,
+                    'Ringba_Targets_Name' => $row->name,
+                ]);
             }
         }
     }
+
+
+
     public static function getAllCustomers()
     {
         $api = new RingbaApiHelpers();

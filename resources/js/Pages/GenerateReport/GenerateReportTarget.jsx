@@ -84,6 +84,9 @@ const GenerateReportTarget = () => {
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
+    if (value === '') {
+      setTargetByCustomer([]);
+    }
     setCustomer({ [name]: value });
     targets.filter((item) => {
       if (item.Customer === value) {
@@ -212,14 +215,14 @@ const GenerateReportTarget = () => {
 
   let fileName = ''
   if (year?.year && !month) {
-    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${customer_name.toString()})` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${values.customer_name.toString()})` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
   }
   else if (year?.year && month) {
-    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${customer_name.toString()})` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${values.customer_name.toString()})` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
       }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
   }
   else {
-    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${customer_name.toString()})` : ""}_From_${dateFormat(values?.start_date)
+    fileName = `${values?.type}_Report${values.customer_name ? `_For_(${values.customer_name.toString()})` : ""}_From_${dateFormat(values?.start_date)
       }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
   }
 
