@@ -872,7 +872,7 @@ const MarketExceptionReport = () => {
                     native: true,
                   }}
                   fullWidth
-                  value={editData?.market}
+                  value={editData?.market_id}
 
                 // required={true}
 
