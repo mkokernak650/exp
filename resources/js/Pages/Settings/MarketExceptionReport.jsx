@@ -24,6 +24,7 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
+import Edit from "../../../images/edit1.svg";
 import Cancel from "../../../images/cancel.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
@@ -41,6 +42,7 @@ import {
   Radio,
   RadioGroup,
 } from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
@@ -141,6 +143,44 @@ export const fields = [
     ],
   },
   {
+    caption: "state",
+    name: "state",
+    operators: [
+      {
+        caption: "Contains",
+        name: "contains",
+      },
+      {
+        caption: "Not Contains",
+        name: "doesNotContain",
+      },
+      {
+        caption: "Is Empty",
+        name: "isEmpty",
+      },
+      {
+        caption: "Is Not Empty",
+        name: "isNotEmpty",
+      },
+      {
+        caption: "Starts With",
+        name: "startswith",
+      },
+      {
+        caption: "Ends With",
+        name: "endsWith",
+      },
+      {
+        caption: "Is",
+        name: "is",
+      },
+      {
+        caption: "Is Not",
+        name: "isnot",
+      },
+    ],
+  },
+  {
     caption: "call_type",
     name: "call_type",
     operators: [
@@ -202,7 +242,7 @@ export const filter = {
 
 const MarketExceptionReport = () => {
   const classes = useStyles();
-  const { marketExceptions, campaignId } = usePage().props;
+  const { marketExceptions, campaignId, allCampaigns, allStates, allMarkets } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -220,6 +260,7 @@ const MarketExceptionReport = () => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
   const handleEditSubmit = () => {
+
     axios
       .post(route("market.exception.edit"), editData)
       .then((res) => {
@@ -236,7 +277,9 @@ const MarketExceptionReport = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err)
+        setEditData();
+        setShowEditModal({ open: false });
       });
   };
 
@@ -245,11 +288,16 @@ const MarketExceptionReport = () => {
     sl: index + 1,
     campaign: item.campaign.campaign_name,
     market: item.market_id,
+    state: item.state,
     call_type: item.call_type,
     start_date: item.start_date,
+    ranks: item.ranks,
+    nielsen_households: item.nielsen_households,
     id: item.id,
     key: index,
+    campaign_id: item.campaign_id
   }));
+
 
   const SelectionCell = ({
     rowKeyValue,
@@ -317,10 +365,10 @@ const MarketExceptionReport = () => {
 
   const tablePropsInit = {
     columns: [
-      // {
-      //   key: "edit",
-      //   style: { width: 20 },
-      // },
+      {
+        key: "edit",
+        style: { width: 20 },
+      },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -344,17 +392,30 @@ const MarketExceptionReport = () => {
         style: { width: 350 },
       },
       {
+        key: "state",
+        title: "State",
+        dataType: DataType.String,
+        style: { width: 200 },
+      },
+      {
         key: "call_type",
         title: "Call Type",
         dataType: DataType.String,
         style: { width: 160 },
       },
-      // {
-      //   key: "id",
-      //   title: "id",
-      //   dataType: DataType.String,
-      //   style: { width: 230 },
-      // },
+      {
+        key: "ranks",
+        title: "Rank",
+        dataType: DataType.String,
+        style: { width: 100 },
+      },
+      {
+        key: "nielsen_households",
+        title: "Nielsen Households",
+        dataType: DataType.String,
+        style: { width: 240 },
+      },
+
       {
         key: "start_date",
         title: "Start Date",
@@ -374,15 +435,15 @@ const MarketExceptionReport = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // format: ({ column, value }) => {
-    //   if (column.key === "edit") {
-    //     return (
-    //       <div className="edit-icon" onClick={() => handleEdit(value)}>
-    //         <img src={Edit} alt="edit-icon"></img>
-    //       </div>
-    //     );
-    //   }
-    // },
+    format: ({ column, value }) => {
+      if (column.key === "edit") {
+        return (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <img src={Edit} alt="edit-icon"></img>
+          </div>
+        );
+      }
+    },
   };
 
   const OPTION_KEY = "market-exception-report";
@@ -447,6 +508,16 @@ const MarketExceptionReport = () => {
         emptyCheckbox();
       });
   };
+
+  const handleEdit = (itemId) => {
+    tableProps.data.filter((item) => {
+      if (item.id === itemId) {
+        setEditData(item);
+      }
+    });
+    setShowEditModal({ open: true });
+  };
+  console.log('editData', editData)
 
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
@@ -610,10 +681,11 @@ const MarketExceptionReport = () => {
     );
   };
 
+
+
   return (
     <>
       <Helmet title="Market Exception Report" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -699,7 +771,7 @@ const MarketExceptionReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -733,44 +805,144 @@ const MarketExceptionReport = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Campaign:</span>
-            <TextField
-              value={editData ? editData.campaign_id : ""}
-              fullWidth
-              margin="normal"
-              name="campaign_id"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Market:</span>
-            <TextField
-              value={editData ? editData.market_id : ""}
-              fullWidth
-              margin="normal"
-              name="market_id"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Start Date:</span>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  id="campaign_id"
+                  select
+                  name="campaign_id"
+                  onChange={handleEditChange}
+                  SelectProps={{
+                    native: true,
+                  }}
+                  fullWidth
+                  value={editData?.campaign_id ? editData.campaign_id : ""}
+                // required={true}
+                >
+                  <option value="">Select Campaign</option>
+                  {allCampaigns.map((option, indx) => (
+                    <option key={indx} value={option.id}>
+                      {option.campaign_name}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  id="state"
+                  select
+                  name="state"
+                  onChange={handleEditChange}
+                  SelectProps={{
+                    native: true,
+                  }}
+                  fullWidth
+                  value={editData?.state ? editData.state : ""}
 
-            <TextField
-              type="date"
-              name="start_date"
-              onChange={handleEditChange}
-              defaultValue={editData ? editData.start_date : ""}
-              margin="normal"
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleEditSubmit}
-              className={classes.editButton}
-            >
-              Edit
-            </Button>
+                // required={true}
+
+                >
+                  <option value="">Select State</option>
+                  {allStates.map((option, indx) => (
+                    <option key={indx} value={option.state}>
+                      {option.state}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  id="market_id"
+                  select
+                  name="market_id"
+                  onChange={handleEditChange}
+                  SelectProps={{
+                    native: true,
+                  }}
+                  fullWidth
+                  value={editData?.market}
+
+                // required={true}
+
+                >
+                  <option value="">Select Market</option>
+                  {allMarkets.map((option, indx) => (
+                    <option key={indx} value={option.market}>
+                      {option.market}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  id="call_type"
+                  select
+                  name="call_type"
+                  onChange={handleEditChange}
+                  SelectProps={{
+                    native: true,
+                  }}
+                  fullWidth
+                  value={editData?.call_type ? editData.call_type : ""}
+
+                // required={true}
+                >
+                  <option value="">Call Type</option>
+                  <option value="L">Landline (L)</option>
+                  <option value="W">Wireless (W)</option>
+                  <option value="B">Both L & W</option>
+                </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  type="date"
+                  name="start_date"
+                  onChange={handleEditChange}
+                  defaultValue={editData?.start_date ? editData.start_date : ""}
+                  // defaultValue='2022-02-10'  
+                  margin="normal"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <span>Rank:</span>
+                <TextField
+                  value={editData?.ranks ? editData.ranks : ""}
+                  fullWidth
+                  margin="normal"
+                  name="ranks"
+                  type="text"
+                  variant="outlined"
+                  onChange={handleEditChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <span>Nielsen Households:</span>
+
+                <TextField
+                  value={editData?.nielsen_households ? editData.nielsen_households : ""}
+                  fullWidth
+                  margin="normal"
+                  name="nielsen_households"
+                  type="text"
+                  variant="outlined"
+                  onChange={handleEditChange}
+                />
+
+                
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEditSubmit}
+                  className={classes.editButton}
+                >
+                  Edit
+                </Button>
+              </Grid>
+            </Grid>
           </form>
 
           <div
@@ -789,11 +961,10 @@ const MarketExceptionReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${
-          selectedRowIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
       ></ConfirmModal>
 
       <NormalModal

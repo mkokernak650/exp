@@ -44,7 +44,7 @@ const MarketExceptionForm = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
-  const { allMarkets, allCampaigns, success } = usePage().props;
+  const { allMarkets, allCampaigns, allStates } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
@@ -61,7 +61,7 @@ const MarketExceptionForm = () => {
       [name]: value,
     }));
   };
-
+console.log(values)
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -74,7 +74,7 @@ const MarketExceptionForm = () => {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   return (
@@ -96,12 +96,34 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                required={true}
+                // required={true}
               >
                 <option value="">Select Campaign</option>
                 {allCampaigns.map((option, indx) => (
                   <option key={indx} value={option.id}>
                     {option.campaign_name}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                id="state"
+                select
+                name="state"
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                // required={true}
+
+              >
+                <option value="">Select State</option>
+                {allStates.map((option, indx) => (
+                  <option key={indx} value={option.state}>
+                    {option.state}
                   </option>
                 ))}
               </TextField>
@@ -117,7 +139,7 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                required={true}
+                // required={true}
 
               >
                 <option value="">Select Market</option>
@@ -139,7 +161,7 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                required={true}
+                // required={true}
               >
                 <option value="">Call Type</option>
                 <option value="L">Landline (L)</option>

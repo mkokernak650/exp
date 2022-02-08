@@ -1,10 +1,11 @@
 export const isEmpty = value => value == null || value.length === 0;
 
 const contains = (data, item) => {
+  console.log('item',item.value)
   if (!item.value) {
     return true;
   }
-  return data[item.field].toLowerCase().includes(item.value.toLowerCase());
+  return data[item.field]?.toLowerCase().includes(item.value.toLowerCase());
 };
 
 const isEmptyCheck = (data, item) => {
@@ -23,9 +24,9 @@ const startWith = (data, item) => {
     return true;
   }
   const valueLength = item.value.length;
-  const subStr = data[item.field].substring(0, valueLength);
+  const subStr = data[item.field]?.substring(0, valueLength);
   if (data[item.field] !== '') {
-    if (subStr.toLowerCase() === item.value.toLowerCase()) {
+    if (subStr?.toLowerCase() === item.value?.toLowerCase()) {
       return data;
     }
   }
@@ -35,13 +36,13 @@ const endsWith = (data, item) => {
     return true;
   }
   const valueLength = item.value.length;
-  const fieldLength = data[item.field].length;
-  const subStr = data[item.field].substring(
+  const fieldLength = data[item.field]?.length;
+  const subStr = data[item.field]?.substring(
     fieldLength - valueLength,
     fieldLength
   );
   if (data[item.field] !== '') {
-    if (subStr.toLowerCase() === item.value.toLowerCase()) {
+    if (subStr?.toLowerCase() === item.value?.toLowerCase()) {
       return data;
     }
   }
@@ -52,7 +53,7 @@ const isCheck = (data, item) => {
     return true;
   }
   if (data[item.field] !== '') {
-    if (data[item.field].toLowerCase() === item.value.toLowerCase()) {
+    if (data[item.field]?.toLowerCase() === item.value?.toLowerCase()) {
       return data;
     }
   }
@@ -62,7 +63,7 @@ const isNotCheck = (data, item) => {
     return true;
   }
   if (data[item.field] !== '') {
-    if (data[item.field].toLowerCase() !== item.value.toLowerCase()) {
+    if (data[item.field]?.toLowerCase() !== item.value?.toLowerCase()) {
       return data;
     }
   }
@@ -72,7 +73,7 @@ const doesNotContain = (data, item) => {
   if (!item.value) {
     return true;
   }
-  return !data[item.field].toLowerCase().includes(item.value.toLowerCase());
+  return !data[item.field]?.toLowerCase().includes(item.value?.toLowerCase());
 };
 const equals = (data, item) => {
   let value
@@ -85,8 +86,8 @@ const equals = (data, item) => {
     return true;
   }
   return (
-    value.toString().toLowerCase() ===
-    item.value.toString().toLowerCase()
+    value?.toString().toLowerCase() ===
+    item.value?.toString().toLowerCase()
   );
 };
 const isNotEqual = (data, item) => {
@@ -100,8 +101,8 @@ const isNotEqual = (data, item) => {
     return true;
   }
   return (
-    value.toString().toLowerCase() !==
-    item.value.toString().toLowerCase()
+    value?.toString().toLowerCase() !==
+    item.value?.toString().toLowerCase()
   )
 };
 const more = (data, item) => data[item.field] > item.value;

@@ -43,6 +43,7 @@
         "sass": "^1.45.2",
         "sass-loader": "^12.4.0",
         "uuid": "^8.3.0",
+        "webpack-dev-server": "^4.7.3",
         "yup": "^0.32.11"
     },
     "dependencies": {
