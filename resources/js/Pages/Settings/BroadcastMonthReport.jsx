@@ -394,9 +394,9 @@ const BroadcastMonthReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("broadcast-month-report"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("broadcast-month-report", JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };

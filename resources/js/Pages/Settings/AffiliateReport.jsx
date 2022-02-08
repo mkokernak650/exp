@@ -601,10 +601,10 @@ const AffiliateReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("affiliate-report"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("affiliate-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 

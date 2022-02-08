@@ -576,10 +576,10 @@ const ArchivedAffiliates = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("archived-affiliate"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("archived-affiliate", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 

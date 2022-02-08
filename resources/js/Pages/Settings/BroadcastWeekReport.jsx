@@ -381,10 +381,10 @@ const BroadcastWeekReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("broadcast-week-report"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("broadcast-week-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 

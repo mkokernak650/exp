@@ -265,6 +265,18 @@ const MarketExceptionReport = () => {
       .post(route("market.exception.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
+          let filteredData = { ...tableProps };
+          filteredData.data.filter((item, indx) => {
+            if (item.id === editData.id) {
+              filteredData.data[indx].campaign = editData.campaign;
+              filteredData.data[indx].market_id = editData.market_id;
+              filteredData.data[indx].state = editData.state;
+              filteredData.data[indx].ranks = editData.ranks;
+              filteredData.data[indx].nielsen_households = editData.nielsen_households;
+              filteredData.data[indx].call_type = editData.call_type;
+              filteredData.data[indx].start_date = editData.start_date;
+            }
+          });
           setEditData();
           setShowEditModal({ open: false });
           setOpen(true);
@@ -287,7 +299,7 @@ const MarketExceptionReport = () => {
     edit: item.id,
     sl: index + 1,
     campaign: item.campaign.campaign_name,
-    market: item.market_id,
+    market_id: item.market_id,
     state: item.state,
     call_type: item.call_type,
     start_date: item.start_date,
@@ -386,7 +398,7 @@ const MarketExceptionReport = () => {
         style: { width: 240 },
       },
       {
-        key: "market",
+        key: "market_id",
         title: "Market",
         dataType: DataType.String,
         style: { width: 350 },
@@ -552,10 +564,10 @@ const MarketExceptionReport = () => {
     const storedData = JSON.parse(
       localStorage.getItem("market-exception-report")
     );
-    storedData.selectedRows = [];
+    if (storedData?.selectedRows) storedData.selectedRows = [];
     localStorage.setItem("market-exception-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if (filteredData.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 
@@ -805,7 +817,7 @@ const MarketExceptionReport = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <Grid container spacing={3}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   id="campaign_id"
@@ -867,7 +879,7 @@ const MarketExceptionReport = () => {
                 >
                   <option value="">Select Market</option>
                   {allMarkets.map((option, indx) => (
-                    <option key={indx} value={option.market}>
+                    <option key={indx} value={option.market_id}>
                       {option.market}
                     </option>
                   ))}
@@ -930,7 +942,7 @@ const MarketExceptionReport = () => {
                   onChange={handleEditChange}
                 />
 
-                
+
               </Grid>
               <Grid item xs={12}>
                 <Button

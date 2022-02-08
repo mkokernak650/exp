@@ -540,10 +540,10 @@ const ArchivedCallLogReports = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("archived-call-logs"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("archived-call-logs", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 

@@ -460,10 +460,10 @@ const ArchivedCustomers = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("archived-customers"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("archived-customers", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 

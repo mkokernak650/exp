@@ -516,10 +516,10 @@ const CustomerReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("customer-report"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows)  storedData.selectedRows= [];
     localStorage.setItem("customer-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
+    if(filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 
