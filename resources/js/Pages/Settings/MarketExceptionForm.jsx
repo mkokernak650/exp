@@ -61,7 +61,7 @@ const MarketExceptionForm = () => {
       [name]: value,
     }));
   };
-console.log(values)
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -84,7 +84,7 @@ console.log(values)
         <Typography variant="h5" className={classes.title}>
           Add Market Exception
         </Typography>
-        <form validate='true' onSubmit={handleSubmit}>
+        <form validate='true' onSubmit={handleSubmit} className={classes.form}>
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField

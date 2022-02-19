@@ -331,6 +331,11 @@ export default function PersistentDrawerLeft(props) {
           href: "generate.report.destination",
           Icon: <UserIcon />,
         },
+        {
+          title: "Call Length Report",
+          href: "generate.report.call.length",
+          Icon: <UserIcon />,
+        },
 
       ],
     },

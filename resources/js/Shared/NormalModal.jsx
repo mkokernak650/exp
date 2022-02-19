@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
 export default function NormalModal({ open, setOpen, children, width, title }) {
   const classes = useStyles();
 
+
   const handleClose = () => {
     setOpen({ open: false });
   };
@@ -38,7 +39,6 @@ export default function NormalModal({ open, setOpen, children, width, title }) {
         {title}
       </Typography>
       {children}
-      {/* <NormalModal /> */}
     </div>
   );
   return (
@@ -56,3 +56,4 @@ export default function NormalModal({ open, setOpen, children, width, title }) {
     </div>
   );
 }
+

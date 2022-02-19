@@ -809,7 +809,6 @@ const CallLogsReport = () => {
     };
   }, []);
 
-  // useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (
@@ -899,8 +898,8 @@ const CallLogsReport = () => {
     };
   }, [showColumns]);
 
+ 
   const RowFunctionalities = () => {
-
     return (
       <div
         className="row-functionalities"

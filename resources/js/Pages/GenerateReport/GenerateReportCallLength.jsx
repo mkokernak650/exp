@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import Layout from "../Layout/Layout";
 import {
   CircularProgress,
@@ -6,7 +6,10 @@ import {
   Typography,
   TextField,
   Button,
-  Snackbar
+  Snackbar,
+  Radio,
+  FormControlLabel,
+  RadioGroup,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
@@ -16,7 +19,6 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
-import { currentDate } from "../../Helpers/CurrentDate";
 import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
 
@@ -39,30 +41,30 @@ const useStyles = makeStyles((theme) => ({
   },
   snackbar: {
     maxWidth: "500px",
-  },
+  }
 }));
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const GenerateReportMarketException = () => {
+const GenerateReportAffiliate = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, targets, markets, campaigns } =
+  const { affiliates, targets, campaigns } =
     usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
+  const [type, setType] = useState({ type: "billed" });
   const [customer, setCustomer] = useState();
-  const [target, setTarget] = useState("");
   const [targetByCustomer, setTargetByCustomer] = useState([]);
-  const [monthByYear, setMonthByYear] = useState(broadCastMonths);
   const [affiliate, setAffiliate] = useState();
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState([]);
+  const [startDate, setStartDate] = useState({ start_date: "" });
+  const [endDate, setEndDate] = useState({ end_date: "" });
   const [campaign, setCampaign] = useState("");
   const [annotation, setAnnotation] = useState("");
-  const [market, setMarket] = useState();
+  const [destinationNumber, setDestinationNumber] = useState("");
+
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -71,12 +73,10 @@ const GenerateReportMarketException = () => {
     setOpen(false);
   };
 
-  const marketHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1);
-    const marketsName = val.split(",,");
-    setMarket({ [key]: marketsName });
+  const typeHandleChange = (e) => {
+    const { name, value } = e.target;
+    setType({ [name]: value });
   };
-
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
     setCustomer({ [name]: value });
@@ -87,35 +87,13 @@ const GenerateReportMarketException = () => {
       }
     });
   };
-  const targetOptions = targetByCustomer.map((item) => ({
-    label: item,
-    value: item,
-  }));
+
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.affiliate_id,
   }));
 
-  const annotationOptions = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' },
-  ]
-
-  const marketOptions = markets.map((item) => ({
-    label: item.market,
-    value: item.market + ',',
-  }));
-
-  const broadCastMonthOptions = monthByYear.map((item) => ({
-    label: item.broad_cast_month,
-    value: item.broad_cast_month + ',',
-  }));
-
-  const targetHandleChange = (val, key) => {
-    const targetNames = val.split(",");
-    setTarget({ [key]: targetNames });
-  };
 
   const affiliateHandleChange = (val, key) => {
     const affiliate_ids = val.split(",");
@@ -123,72 +101,62 @@ const GenerateReportMarketException = () => {
   };
 
 
-  const monthHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1);
-    const monthsName = val.split(",,");
-    setMonth({ [key]: monthsName });
+
+  const startDateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setStartDate({ [name]: value });
   };
-
-  let yearsArray = []
-  for (let i = 0; i < 5; i++) {
-    let years = new Date().getFullYear()
-    let months = new Date().getMonth()
-    let day = new Date().getDate()
-    let date = new Date(years + i, months, day).getFullYear()
-    if (!yearsArray.includes(new Date(years - 1, months, day).getFullYear())) {
-      yearsArray.push(new Date(years - 1, months, day).getFullYear())
-    }
-    yearsArray.push(date)
-  }
-
-  const yearHandleChange = (val, key) => {
-    const years = val.split(",")
-    setYear({ [key]: years })
-    for (let i = 0; i < years.length; i++) {
-      const filteredData = broadCastMonths.filter(item => {
-        if (new Date(item.start_date).getFullYear().toString() === years[i]) {
-          return item
-        }
-      })
-      setMonthByYear(filteredData)
-    }
+  const endDateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setEndDate({ [name]: value });
   };
-
-  const yearOptions = yearsArray.map(year => ({
-    label: year,
-    value: year
-  }))
-
-
   const campaignHandleChange = (e) => {
     const { name, value } = e.target;
     setCampaign({ [name]: value });
   };
-
-  const annotationHandleChange = (val, key) => {
-    const annotationsName = val.split(",");
-    setAnnotation({ [key]: annotationsName });
+  const annotationHandleChange = (e) => {
+    const { name, value } = e.target;
+    setAnnotation({ [name]: value });
   };
-
+  const handleDestinationNumberChange = (e) => {
+    const { name, value } = e.target;
+    setDestinationNumber({ [name]: value });
+  };
   const values = {
-    ...market,
+    ...type,
     ...affiliate,
     ...customer,
-    ...target,
-    ...month,
-    ...year,
+    ...startDate,
+    ...endDate,
     ...campaign,
+    ...destinationNumber,
     ...annotation,
   };
 
+  let affiliatesName = [];
+  if (values?.affiliate_id) {
+    affiliates.filter(item => {
+      let i = 0
+      for (i; i < values.affiliate_id.length; i++) {
+        if (item.affiliate_id === values.affiliate_id[i]) {
+          affiliatesName.push(item.affiliate_name)
+        }
+      }
+    })
+  }
 
+
+  let fileName = 'Generate Report Call Length'
+
+
+  console.log(values)
   const handleSubmit = () => {
-    axios.post(route("market.exception.report.generator"), values).then((r) => {
+    axios.post(route("call.length.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
         setOpen(true);
         setResponse(r.data.msg);
       }
-      exportToCSV(r.data, "Market_Exception_Report");
+      exportToCSV(r.data, fileName);
     });
   };
 
@@ -197,22 +165,23 @@ const GenerateReportMarketException = () => {
   const fileExtension = ".xlsx";
 
   const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    const secondData = apiData.data.length + 5;
-    const call_summary = [];
-    call_summary.push(["Summary of Calls", ""]);
-    Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]]);
-    });
-    const thirdData = apiData.data.length + call_summary.length + 6;
+    console.log(Object.values(apiData.data))
+    const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName);
+    // const secondData = apiData.data.length + 5;
+    // const call_summary = [];
+    // call_summary.push(["Summary of Calls", ""]);
+    // Object.keys(apiData.call_summary).forEach((cf) => {
+    //   call_summary.push([cf, apiData.call_summary[cf]]);
+    // });
+    // const thirdData = apiData.data.length + call_summary.length + 6;
     // const category = [];
     // category.push(["Category", "Total Calls", "Total Revenue"]);
-    Object.keys(apiData.tag_count).forEach((cat) => {
-      category.push(Object.values(apiData.tag_count[cat]));
-    });
+    // Object.keys(apiData.tag_count).forEach((cat) => {
+    //   category.push(Object.values(apiData.tag_count[cat]));
+    // });
 
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    // XLSX.utils.sheet_add_aoa(ws, category, { origin: `C${thirdData}` });
+    // XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
+    // XLSX.utils.sheet_add_aoa(ws, { origin: `C${thirdData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -223,23 +192,33 @@ const GenerateReportMarketException = () => {
 
   return (
     <>
-      <Helmet title="Market Exception" />
+      <Helmet title="Generate Report Call Length" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Generate Report Market Exception
+          Generate Report Call Length
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-            <Grid item xs={12}>
-
-              <MultiSelect
-                name="market"
-                onChange={(val) => marketHandleChange(val, "market")}
-                options={marketOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Market"
-              />
+          <Grid item xs={12}>
+              <RadioGroup
+                aria-label="type"
+                name="type"
+                value={type.type}
+                onChange={typeHandleChange}
+              >
+                <FormControlLabel
+                  value="general"
+                  control={<Radio color="primary" />}
+                  label="General"
+                />
+                <FormControlLabel
+                  value="billed"
+                  control={<Radio color="primary" />}
+                  label="Billed"
+                />
+              </RadioGroup>
             </Grid>
+
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
@@ -281,25 +260,33 @@ const GenerateReportMarketException = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12}>
-              <MultiSelect
-                name="target_name"
-                onChange={(val) => targetHandleChange(val, "target_name")}
-                options={targetOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Targets"
+            <Grid item xs={12} classes={classes.MuiGridItem}>
+              <TextField
+                fullWidth
+                label="Destination Number"
+                name="destination_number"
+                onChange={handleDestinationNumberChange}
+                type="text"
+                variant="outlined"
+              // required={true}
               />
             </Grid>
 
             <Grid item xs={12}>
-
-              <MultiSelect
+              <TextField
+                id="standard-select-currency-native"
+                select
                 name="annotation"
-                onChange={(val) => annotationHandleChange(val, "annotation")}
-                options={annotationOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Annotation"
-              />
+                onChange={annotationHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              >
+                <option value="">Select Annotation</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </TextField>
             </Grid>
             <Grid item xs={12}>
               <MultiSelect
@@ -311,27 +298,40 @@ const GenerateReportMarketException = () => {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <MultiSelect
-                name="year"
-                onChange={(val) => yearHandleChange(val, 'year')}
-                options={yearOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Years"
-              />
-            </Grid>
+
 
             <Grid item xs={12}>
-              <MultiSelect
-                name="broad_cast_month"
-                onChange={(val) => monthHandleChange(val, "broad_cast_month")}
-                options={broadCastMonthOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Broadcast Month"
+              <TextField
+                id="date"
+                label="Start Date"
+                type="date"
+                name="start_date"
+                onChange={startDateHandleChange}
+                value={startDate.start_date}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                fullWidth
+              // required={true}
               />
             </Grid>
-
-
+            <Grid item xs={12}>
+              <TextField
+                id="date"
+                label="End Date"
+                type="date"
+                name="end_date"
+                onChange={endDateHandleChange}
+                value={endDate.end_date}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                fullWidth
+              // required={true}
+              />
+            </Grid>
             <Grid item xs={12}>
               <Button
                 variant="contained"
@@ -359,57 +359,7 @@ const GenerateReportMarketException = () => {
   );
 };
 
-GenerateReportMarketException.layout = (page) => (
-  <Layout title="Generate Report Market Exception">{page}</Layout>
+GenerateReportAffiliate.layout = (page) => (
+  <Layout title="Generate Report Affiliate">{page}</Layout>
 );
-export default GenerateReportMarketException;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default GenerateReportAffiliate;

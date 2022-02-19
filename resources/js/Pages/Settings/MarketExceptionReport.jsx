@@ -616,6 +616,8 @@ const MarketExceptionReport = () => {
       });
   };
 
+
+
   useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
@@ -635,6 +637,7 @@ const MarketExceptionReport = () => {
       </div>
     );
   };
+
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -809,6 +812,7 @@ const MarketExceptionReport = () => {
         />
       </div>
 
+
       <NormalModal
         open={showEditModal.open}
         setOpen={setShowEditModal}
@@ -816,7 +820,7 @@ const MarketExceptionReport = () => {
         title={"Edit Market Exception"}
       >
         <div className="edit_target">
-          <form className={classes.form}>
+          <form>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField

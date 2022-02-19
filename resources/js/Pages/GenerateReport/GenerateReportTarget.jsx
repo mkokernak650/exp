@@ -273,7 +273,7 @@ const GenerateReportTarget = () => {
         <Typography variant="h5" className={classes.title}>
           Generate Report Target
         </Typography>
-        <form validate="true" className="generate-report-target">
+        <form validate="true" className="generate-report">
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <RadioGroup

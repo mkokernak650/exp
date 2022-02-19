@@ -173,7 +173,7 @@ const GenerateReportMarketException = () => {
         <Typography variant="h5" className={classes.title}>
           Generate Report Destination
         </Typography>
-        <form validate="true" className="generate-report-target">
+        <form validate="true" className="generate-report">
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
@@ -216,15 +216,6 @@ const GenerateReportMarketException = () => {
                   ))}
               </TextField>
             </Grid>
-            {/* <Grid item xs={12}>
-              <MultiSelect
-                name="year"
-                onChange={(val) => yearHandleChange(val, 'year')}
-                options={yearOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Years"
-              />
-            </Grid> */}
 
             <Grid item xs={12}>
               <MultiSelect

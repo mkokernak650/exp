@@ -287,7 +287,7 @@ const GenerateReportAffiliate = () => {
         <Typography variant="h5" className={classes.title}>
           Generate Report Affiliate
         </Typography>
-        <form validate="true" className="generate-report-affiliate">
+        <form validate="true" className="generate-report">
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <RadioGroup

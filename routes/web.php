@@ -15,6 +15,7 @@ use App\Http\Controllers\GenerateReportAffiliateController;
 use App\Http\Controllers\GenerateReportDestinationController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\GenerateReportTargetController;
+use App\Http\Controllers\GenerateReportCallLengthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\MarketExceptionController;
@@ -355,6 +356,8 @@ Route::get('/generate-report-market-exception', [GenerateReportMarketExceptionCo
 
 Route::get('/generate-report-destination', [GenerateReportDestinationController::class, 'GenerateReportDestination'])
     ->name('generate.report.destination');
+Route::get('/generate-report-call-length', [GenerateReportCallLengthController::class, 'GenerateReportCallLengthForm'])
+    ->name('generate.report.call.length');
 
 //Generate-Report
 Route::get('/ka-table', [MarketExceptionController::class, 'test'])
@@ -386,6 +389,9 @@ Route::post('market-exception-report-generator', [ReportGeneratorController::cla
 
 Route::post('destination-report-generator', [ReportGeneratorController::class, 'destinationReport'])
     ->name('destination.report.generator');
+
+    Route::post('/call-length-report-generator', [ReportGeneratorController::class, 'callLengthReport'])
+    ->name('call.length.report.generator');
 
 Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'updateRevenue'])
     ->name('calllogs.revenue.update');
