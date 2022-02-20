@@ -256,6 +256,7 @@ const MarketExceptionReport = () => {
   const [type, setType] = useState("xlsx");
   const [loading, setLoading] = useState(false);
 
+  console.log(marketExceptions)
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };

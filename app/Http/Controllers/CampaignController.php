@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class CampaignController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -84,7 +84,10 @@ class CampaignController extends Controller
         $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')
             ->where('campaign_id', $campaignId)
             ->get();
-        return Inertia::render('Settings/MarketExceptionReport', compact('marketExceptions', 'campaignId'));
+        $allCampaigns=[];
+        $allStates=[];
+        $allMarkets=[];
+        return Inertia::render('Settings/MarketExceptionReport', compact('marketExceptions', 'campaignId', 'allCampaigns', 'allStates', 'allMarkets'));
     }
 
     public function edit(Request $request)

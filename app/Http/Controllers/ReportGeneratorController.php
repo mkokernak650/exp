@@ -150,6 +150,7 @@ class ReportGeneratorController extends Controller
             $exceptions = $this->callLengthReportData('exceptions', $condition, $whereIn);
             $total_call_records= array_merge($total_call_records, $callLogs, $billed, $archived, $exceptions);
         }
+      
         $call_length_array=[
             [
                 'minLength' =>30,
@@ -213,9 +214,11 @@ class ReportGeneratorController extends Controller
             ],
             [
                 'minLength' =>841,
-                'maxLength' =>'',
-            ],
+                'maxLength' =>900,
+            ]
         ];
+        $sum_of_total_calls=0;
+
         $finalArray=[];
         foreach ($call_length_array as $item) {
             $finalArray[$item['minLength'].'_'.$item['maxLength']] = (object)[
@@ -231,18 +234,19 @@ class ReportGeneratorController extends Controller
             $percent_of_calls='% of all calls';
             $total_seconds='Total seconds';
             $total_payouts='Total Payout';
-
             foreach ($total_call_records as $record) {
                 if ($record->call_Length_In_Seconds >= $item['minLength'] && $record->call_Length_In_Seconds <= $item['maxLength']) {
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls++;
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_seconds+=$record->call_Length_In_Seconds;
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_payouts+=$record->payoutAmount;
+                    $sum_of_total_calls +=1;
                 }
-                $finalArray[$item['minLength'].'_'.$item['maxLength']]->$percent_of_calls= round(($finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls*100)/
-                count($total_call_records), 1).'%';
             }
         }
-        // dd($finalArray);
+        foreach ($call_length_array as $item) {
+            $finalArray[$item['minLength'].'_'.$item['maxLength']]->$percent_of_calls= round(($finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls*100)/
+            $sum_of_total_calls, 1).'%';
+        }
         return ['data'=>$finalArray];
     }
 
