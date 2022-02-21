@@ -99,12 +99,18 @@ class ReportGeneratorController extends Controller
         $annotation = $request->annotation;
         $campaign = $campaign->campaign_name ?? null;
         $dNumber=$request->destination_number;
-  
+        $year=[];
+        if ($request->start_date !== null || $request->end_date !== null) {
+            $year=[];
+        } else {
+            $year= $request->year;
+        }
         // summary of calls
         $archived = [];
         $call_summary = [];
         $condition = [];
         $whereIn = [];
+        $whereInOr = [];
         $call_summary['Customer Name'] = $customer_name;
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
@@ -114,7 +120,11 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date >='$start_date'";
             $condition[] = "Call_Date <= '$end_date'";
         }
-     
+        if (!empty($year) && count($year) > 0 && $year[0] !== null) {
+            for ($i=0; $i< count($year);$i++) {
+                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
+            }
+        }
 
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
@@ -136,18 +146,17 @@ class ReportGeneratorController extends Controller
         if ($dNumber !== null) {
             $condition[] = "Target_Number='{$dNumber}'";
         }
-
         // category of calls
         $total_call_records=[];
 
         if ($report_type === 'billed') {
-            $billed = $this->callLengthReportData('billed_call_logs', $condition, $whereIn);
+            $billed = $this->callLengthReportData('billed_call_logs', $condition, $whereIn, $whereInOr);
             $total_call_records=$billed;
         } else {
-            $callLogs = $this->callLengthReportData('ringba_call_logs', $condition, $whereIn);
-            $billed = $this->callLengthReportData('billed_call_logs', $condition, $whereIn);
-            $archived = $this->callLengthReportData('archived_call_logs', $condition, $whereIn);
-            $exceptions = $this->callLengthReportData('exceptions', $condition, $whereIn);
+            $callLogs = $this->callLengthReportData('ringba_call_logs', $condition, $whereIn, $whereInOr);
+            $billed = $this->callLengthReportData('billed_call_logs', $condition, $whereIn, $whereInOr);
+            $archived = $this->callLengthReportData('archived_call_logs', $condition, $whereIn, $whereInOr);
+            $exceptions = $this->callLengthReportData('exceptions', $condition, $whereIn, $whereInOr);
             $total_call_records= array_merge($total_call_records, $callLogs, $billed, $archived, $exceptions);
         }
       
@@ -243,6 +252,9 @@ class ReportGeneratorController extends Controller
                 }
             }
         }
+        if (empty($sum_of_total_calls)) {
+            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
         foreach ($call_length_array as $item) {
             $finalArray[$item['minLength'].'_'.$item['maxLength']]->$percent_of_calls= round(($finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls*100)/
             $sum_of_total_calls, 1).'%';
@@ -250,7 +262,7 @@ class ReportGeneratorController extends Controller
         return ['data'=>$finalArray];
     }
 
-    private function callLengthReportData($tablename, $condition, $whereIn = [])
+    private function callLengthReportData($tablename, $condition, $whereIn = [], $whereInOr=[])
     {
         $con = '';
         foreach ($condition as $v) {
@@ -261,9 +273,15 @@ class ReportGeneratorController extends Controller
                 $con .= $value . " AND ";
             }
         }
-
+        if (count($whereInOr) > 0) {
+            foreach ($whereInOr as $value) {
+                $con .= $value . " OR ";
+            }
+        }
         
         $con = rtrim($con, " AND ");
+        $con = rtrim($con, " OR ");
+
         $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)', Call_Date_Time AS 'Call Time', Campaign, Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID', Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status', Annotation_Tag AS 'Call Type', Has_Annotation AS 'Has Annotation',Target_Number,call_Length_In_Seconds,payoutAmount
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
@@ -330,7 +348,6 @@ class ReportGeneratorController extends Controller
         $total_call = 0;
         $total_seconds = 0;
         $total_revenue = 0;
-        $target = '';
         $archive_call = ['name' => '', 'qty' => 0, 'revenue' => (float)0.00];
 
         // category of calls

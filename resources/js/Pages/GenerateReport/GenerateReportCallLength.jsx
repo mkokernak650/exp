@@ -51,14 +51,17 @@ const GenerateReportAffiliate = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { affiliates, targets, campaigns } =
+  const { affiliates, targets, broadCastMonths, broadCastWeeks, campaigns } =
     usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [type, setType] = useState({ type: "billed" });
   const [customer, setCustomer] = useState();
-  const [targetByCustomer, setTargetByCustomer] = useState([]);
+  const [monthByYear, setMonthByYear] = useState(broadCastMonths);
   const [affiliate, setAffiliate] = useState();
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState([]);
+  const [week, setWeek] = useState("");
   const [startDate, setStartDate] = useState({ start_date: "" });
   const [endDate, setEndDate] = useState({ end_date: "" });
   const [campaign, setCampaign] = useState("");
@@ -83,7 +86,6 @@ const GenerateReportAffiliate = () => {
     targets.filter((item) => {
       if (item.Customer === value) {
         const targetNames = item.Ringba_Targets_Name.split(",");
-        setTargetByCustomer(targetNames);
       }
     });
   };
@@ -100,7 +102,65 @@ const GenerateReportAffiliate = () => {
     setAffiliate({ [key]: affiliate_ids });
   };
 
+  const monthHandleChange = (e) => {
+    const { name, value } = e.target;
+    setMonth({ [name]: value });
+    broadCastMonths.filter((item) => {
+      if (item.broad_cast_month === value) {
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
+      }
+    });
+  };
 
+  let yearsArray = []
+  for (let i = 0; i < 5; i++) {
+    let years = new Date().getFullYear()
+    let months = new Date().getMonth()
+    let day = new Date().getDate()
+    let date = new Date(years + i, months, day).getFullYear()
+    if (!yearsArray.includes(new Date(years - 1, months, day).getFullYear())) {
+      yearsArray.push(new Date(years - 1, months, day).getFullYear())
+    }
+    yearsArray.push(date)
+  }
+
+  const yearHandleChange = (val, key) => {
+    const years = val.split(",")
+    setYear({ [key]: years })
+    for (let i = 0; i < years.length; i++) {
+      const filteredData = broadCastMonths.filter(item => {
+        if (new Date(item.start_date).getFullYear().toString() === years[i]) {
+          return item
+        }
+      })
+      setMonthByYear(filteredData)
+    }
+  };
+
+
+
+
+
+  const yearOptions = yearsArray.map(year => ({
+    label: year,
+    value: year
+  }))
+
+  const weekHandleChange = (e) => {
+    const { name, value } = e.target;
+    setWeek({ [name]: value });
+    broadCastWeeks.filter((item) => {
+      if (item.broad_cast_week === value) {
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
+      }
+    });
+    if (value === "") {
+      setStartDate({ ...startDate, start_date: "" });
+      setEndDate({ ...endDate, end_date: "" });
+    }
+  };
 
   const startDateHandleChange = (e) => {
     const { name, value } = e.target;
@@ -126,6 +186,9 @@ const GenerateReportAffiliate = () => {
     ...type,
     ...affiliate,
     ...customer,
+    ...month,
+    ...year,
+    ...week,
     ...startDate,
     ...endDate,
     ...campaign,
@@ -199,7 +262,7 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-          <Grid item xs={12}>
+            <Grid item xs={12}>
               <RadioGroup
                 aria-label="type"
                 name="type"
@@ -298,7 +361,56 @@ const GenerateReportAffiliate = () => {
               />
             </Grid>
 
+            <Grid item xs={12}>
+              <MultiSelect
+                name="year"
+                onChange={(val) => yearHandleChange(val, 'year')}
+                options={yearOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Years"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                id="standard-select-currency-native"
+                select
+                name="broad_cast_month"
+                onChange={monthHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              // required={true}
+              >
+                <option value="">Select Broadcast Month</option>
+                {monthByYear.map((option, indx) => (
+                  <option key={indx} value={option.broad_cast_month}>
+                    {option.broad_cast_month}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
 
+            <Grid item xs={12}>
+              <TextField
+                id="standard-select-currency-native"
+                select
+                name="broad_cast_week"
+                onChange={weekHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              // required={true}
+              >
+                <option value="">Select Broadcast Week</option>
+                {broadCastWeeks.map((option, indx) => (
+                  <option key={indx} value={option.broad_cast_week}>
+                    {option.broad_cast_week}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
 
             <Grid item xs={12}>
               <TextField
