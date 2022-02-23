@@ -21,6 +21,7 @@ import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
+import { currentDate } from "../../Helpers/CurrentDate";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -207,12 +208,32 @@ const GenerateReportAffiliate = () => {
       }
     })
   }
+  const dateFormat = (dataParam) => {
+    let newDate = new Date(dataParam)
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
+    let format_date = newDate
+    let dd = String(format_date.getDate()).padStart(2, "0");
+    let yyyy = format_date.getFullYear();
+    format_date = dd + "-" + shortMonth + "-" + yyyy;
+    return format_date;
+  }
 
 
-  let fileName = 'Generate Report Call Length'
+  const selectedCampaign = campaigns.filter(item => item.id == values.campaign)
 
+  let fileName = ''
+  if (year?.year && !month) {
+    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  }
+  else if (year?.year && month) {
+    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  }
+  else {
+    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  }
 
-  console.log(values)
   const handleSubmit = () => {
     axios.post(route("call.length.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
@@ -228,23 +249,7 @@ const GenerateReportAffiliate = () => {
   const fileExtension = ".xlsx";
 
   const exportToCSV = (apiData, fileName) => {
-    console.log(Object.values(apiData.data))
     const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName);
-    // const secondData = apiData.data.length + 5;
-    // const call_summary = [];
-    // call_summary.push(["Summary of Calls", ""]);
-    // Object.keys(apiData.call_summary).forEach((cf) => {
-    //   call_summary.push([cf, apiData.call_summary[cf]]);
-    // });
-    // const thirdData = apiData.data.length + call_summary.length + 6;
-    // const category = [];
-    // category.push(["Category", "Total Calls", "Total Revenue"]);
-    // Object.keys(apiData.tag_count).forEach((cat) => {
-    //   category.push(Object.values(apiData.tag_count[cat]));
-    // });
-
-    // XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    // XLSX.utils.sheet_add_aoa(ws, { origin: `C${thirdData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
