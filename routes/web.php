@@ -16,6 +16,7 @@ use App\Http\Controllers\GenerateReportDestinationController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\GenerateReportTargetController;
 use App\Http\Controllers\GenerateReportCallLengthController;
+use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\MarketExceptionController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\TestTableController;
 use App\Http\Controllers\WebFormController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\ZipcodeDataController;
+use App\Http\Controllers\TVHouseholdsController;
 use App\Http\Helpers\RingbaApiHelpers;
 use Illuminate\Support\Facades\Route;
 use inertia\inertia;
@@ -344,6 +346,21 @@ Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'
 Route::post('/broadcast-week-edit', [BroadCastWeeksController::class, 'edit'])
     ->name('broadcast.week.edit');
 
+Route::get('/add-tv-households', [TVHouseholdsController::class, 'AddTvHouseholds'])
+    ->name('add.tv.households');
+Route::post('/store-tv-households', [TVHouseholdsController::class, 'storeTVHouseholds'])
+    ->name('store.tv.households');
+
+Route::get('/tv-households-report', [TVHouseholdsController::class, 'TVHouseholdsReport'])
+    ->name('tv.households.report');
+
+Route::post('/tv-households-edit', [TVHouseholdsController::class, 'edit'])
+    ->name('tv.households.edit');
+Route::post('/tv-households-delete', [TVHouseholdsController::class, 'delete'])
+    ->name('tv.households.delete');
+Route::post('/tv-households-import', [TVHouseholdsController::class, 'import'])
+    ->name('tv.households.import');
+
 
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])
     ->name('generate.report.affiliate');
@@ -353,6 +370,8 @@ Route::get('/generate-report-target', [GenerateReportTargetController::class, 'G
 
 Route::get('/generate-report-market-exception', [GenerateReportMarketExceptionController::class, 'GenerateReportMArketExceptionForm'])
     ->name('generate.report.market.exception');
+Route::get('/generate-report-market-target', [GenerateReportMarketTargetController::class, 'GenerateReportMarketTargetForm'])
+    ->name('generate.report.market.target');
 
 Route::get('/generate-report-destination', [GenerateReportDestinationController::class, 'GenerateReportDestination'])
     ->name('generate.report.destination');
@@ -392,6 +411,9 @@ Route::post('destination-report-generator', [ReportGeneratorController::class, '
 
     Route::post('/call-length-report-generator', [ReportGeneratorController::class, 'callLengthReport'])
     ->name('call.length.report.generator');
+
+    Route::post('/market-target-report-generator', [ReportGeneratorController::class, 'marketTargetReport'])
+    ->name('market.target.report.generator');
 
 Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'updateRevenue'])
     ->name('calllogs.revenue.update');

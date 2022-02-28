@@ -336,6 +336,11 @@ export default function PersistentDrawerLeft(props) {
           href: "generate.report.call.length",
           Icon: <UserIcon />,
         },
+        {
+          title: "Market Target",
+          href: "generate.report.market.target",
+          Icon: <UserIcon />,
+        },
 
       ],
     },
@@ -452,6 +457,16 @@ export default function PersistentDrawerLeft(props) {
         {
           title: "Broadcast Week Report",
           href: "broadcast.week.report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Add TV Households",
+          href: "add.tv.households",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "TV Households Report",
+          href: "tv.households.report",
           Icon: <UserIcon />,
         },
       ],
