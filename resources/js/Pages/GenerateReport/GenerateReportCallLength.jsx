@@ -197,6 +197,7 @@ const GenerateReportAffiliate = () => {
     ...annotation,
   };
 
+
   let affiliatesName = [];
   if (values?.affiliate_id) {
     affiliates.filter(item => {
@@ -217,6 +218,8 @@ const GenerateReportAffiliate = () => {
     format_date = dd + "-" + shortMonth + "-" + yyyy;
     return format_date;
   }
+
+
 
 
   const selectedCampaign = campaigns.filter(item => item.id == values.campaign)
@@ -257,6 +260,8 @@ const GenerateReportAffiliate = () => {
     setOpen(true);
     setResponse("Report Generated Successfully");
   };
+
+
 
   return (
     <>

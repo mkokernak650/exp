@@ -204,15 +204,11 @@ const GenerateReportMarketException = () => {
     Object.keys(apiData.call_summary).forEach((cf) => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
-    const thirdData = apiData.data.length + call_summary.length + 6;
-    // const category = [];
-    // category.push(["Category", "Total Calls", "Total Revenue"]);
     Object.keys(apiData.tag_count).forEach((cat) => {
       category.push(Object.values(apiData.tag_count[cat]));
     });
 
     XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    // XLSX.utils.sheet_add_aoa(ws, category, { origin: `C${thirdData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
