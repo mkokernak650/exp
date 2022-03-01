@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     use HasFactory;
+
     protected $guarded = array();
 
-    public function getTableColumn()
+    public function getTableColumn(): array
     {
-       return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
 }

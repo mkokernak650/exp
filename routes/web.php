@@ -10,12 +10,13 @@ use App\Http\Controllers\BroadCastMonthController;
 use App\Http\Controllers\BroadCastWeeksController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EcommerceAffiliateController;
 use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\GenerateReportAffiliateController;
+use App\Http\Controllers\GenerateReportCallLengthController;
 use App\Http\Controllers\GenerateReportDestinationController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\GenerateReportTargetController;
-use App\Http\Controllers\GenerateReportCallLengthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\MarketExceptionController;
@@ -88,7 +89,6 @@ Route::post('/market-delete', [MarketController::class, 'delete']);
 Route::get('/get-ringba-data', [RingbaCallLogController::class, 'getRingbaDataForm'])
     ->name('get.ringbadata');
 
-// TODO market exception controllet
 Route::post('/add-market-exception', [MarketExceptionController::class, 'addMarketException'])
     ->name('add.market.exception');
 
@@ -103,6 +103,9 @@ Route::post('/campaign-setting-form', [CampaignController::class, 'campaignSetti
 Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])->name('campaign.setting.report');
 Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campaignAnnotations'])->name('campaign.annotations');
 Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campaignExceptions'])->name('campaign.exceptions');
+
+Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
+Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
 
 Route::post('/campaign-delete', [CampaignController::class, 'delete'])
     ->name('campaign.delete');
@@ -390,7 +393,7 @@ Route::post('market-exception-report-generator', [ReportGeneratorController::cla
 Route::post('destination-report-generator', [ReportGeneratorController::class, 'destinationReport'])
     ->name('destination.report.generator');
 
-    Route::post('/call-length-report-generator', [ReportGeneratorController::class, 'callLengthReport'])
+Route::post('/call-length-report-generator', [ReportGeneratorController::class, 'callLengthReport'])
     ->name('call.length.report.generator');
 
 Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'updateRevenue'])
@@ -399,7 +402,7 @@ Route::post('/calllogs-revenue-update', [RingbaCallLogController::class, 'update
 Route::post('/exception-revenue-update', [ExceptionController::class, 'updateRevenue'])
     ->name('exception.revenue.update');
 
-    Route::post('/bill-Calllogs-revenue-update', [BilledCallLogController::class, 'updateRevenue'])
+Route::post('/bill-Calllogs-revenue-update', [BilledCallLogController::class, 'updateRevenue'])
     ->name('bill.calllogs.revenue.update');
 
 
