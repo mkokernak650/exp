@@ -6,14 +6,13 @@ import {
   Typography,
   TextField,
   Button,
-  Snackbar,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import SnackBar from "../../Shared/SnackBar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,23 +36,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 const AffiliateCreate = () => {
+  const defaultState = {
+    affiliate_id: "",
+    coupon_code: "",
+    percentage: "",
+  };
   const classes = useStyles();
-  const [values, setValues] = useState();
+  const [values, setValues] = useState(defaultState);
   const [loading, setLoading] = useState(false);
   const { affiliates } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [responseType, setResponseType] = useState();
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,9 +60,9 @@ const AffiliateCreate = () => {
 
   const headers = {
     headers: {
-      'Accept': 'application/json',
-    }
-  }
+      Accept: "application/json",
+    },
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -76,20 +71,19 @@ const AffiliateCreate = () => {
       .post(route("ecommerce-affiliates.store"), values, headers)
       .then((res) => {
         setLoading(false);
-        if (res.status === 200) {
-          setResponse(res.data.msg);
-          setResponseType('success');
-          setOpen(true);
-        }
+        setResponse(res.data.msg);
+        setResponseType("success");
+        setOpen(true);
+        setValues(defaultState);
       })
       .catch((err) => {
-        let errors = '';
+        let errors = "";
         setLoading(false);
-        Object.values(err.response.data?.errors).map(error => {
-          errors += error[0] + '\n';
-        })
+        Object.values(err.response.data?.errors).map((error) => {
+          errors += error[0] + "\n";
+        });
         setResponse(errors);
-        setResponseType('error');
+        setResponseType("error");
         setOpen(true);
       });
   };
@@ -105,6 +99,7 @@ const AffiliateCreate = () => {
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
+                value={values?.affiliate_id}
                 id="affiliate_id"
                 select
                 name="affiliate_id"
@@ -126,11 +121,12 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
+                value={values?.coupon_code}
                 id="coupon_code"
                 label="Coupon Code"
                 type="text"
                 name="coupon_code"
-                placeholder="Exp: #123456"
+                placeholder="Exp: #CX12345"
                 onChange={handleChange}
                 className={classes.textField}
                 fullWidth
@@ -140,6 +136,7 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
+                value={values?.percentage}
                 id="percentage"
                 label="Percentage %"
                 type="text"
@@ -160,22 +157,18 @@ const AffiliateCreate = () => {
           </Grid>
         </form>
       </Paper>
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity={responseType}>{response}</Alert>
-        </Snackbar>
-      </>
+
+      <SnackBar
+        open={open}
+        setOpen={setOpen}
+        severity={responseType}
+        response={response}
+      />
     </>
   );
 };
 
 AffiliateCreate.layout = (page) => (
-  <Layout title="Market Exception">{page}</Layout>
+  <Layout title="E-commerce Affiliate Create">{page}</Layout>
 );
 export default AffiliateCreate;

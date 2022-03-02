@@ -385,6 +385,11 @@ export default function PersistentDrawerLeft(props) {
           href: "ecommerce-affiliates.create",
           Icon: <UserIcon />,
         },
+        {
+          title: "Import Sales Report",
+          href: "ecommerce-sales.import",
+          Icon: <UserIcon />,
+        },
       ],
     },
     {

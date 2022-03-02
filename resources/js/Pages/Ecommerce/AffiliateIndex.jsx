@@ -143,6 +143,7 @@ const AffiliateIndex = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
+  const [responseType, setResponseType] = useState("success");
   const [showEditModal, setShowEditModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
@@ -152,9 +153,15 @@ const AffiliateIndex = () => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
 
+  const headers = {
+    headers: {
+      Accept: "application/json",
+    },
+  };
+
   const handleEditSubmit = () => {
     axios
-      .put(route("ecommerce-affiliates.update", editData.id), editData)
+      .put(route("ecommerce-affiliates.update", editData.id), editData, headers)
       .then((res) => {
         let filteredData = tableProps;
         filteredData.data[editData.sl - 1].percentage = editData.percentage;
@@ -162,14 +169,20 @@ const AffiliateIndex = () => {
 
         setEditData();
         setShowEditModal({ open: false });
-        setOpen(true);
         setResponse(res.data.msg);
+        setResponseType("success");
+        setOpen(true);
       })
       .catch((err) => {
         setEditData();
         setShowEditModal({ open: false });
+        let errors = "";
+        Object.values(err.response.data?.errors).map((error) => {
+          errors += error[0] + "\n";
+        });
+        setResponse(errors);
+        setResponseType("error");
         setOpen(true);
-        setResponse(err.response.data.msg);
       });
   };
 
@@ -372,13 +385,14 @@ const AffiliateIndex = () => {
           changeTableProps(filteredData);
           setSelectedRowIds([]);
           setTableToolbar(false);
+          setResponseType("success");
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
-          console.log(res.data.msg);
           setOpen(true);
+          setResponseType("error");
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
@@ -667,7 +681,12 @@ const AffiliateIndex = () => {
         </div>
       </NormalModal>
 
-      <SnackBar open={open} setOpen={setOpen} response={response} />
+      <SnackBar
+        open={open}
+        setOpen={setOpen}
+        severity={responseType}
+        response={response}
+      />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
@@ -685,6 +704,6 @@ const AffiliateIndex = () => {
 };
 
 AffiliateIndex.layout = (page) => (
-  <Layout title="AffiliateIndex">{page}</Layout>
+  <Layout title="E-commerce Affiliate Index">{page}</Layout>
 );
 export default AffiliateIndex;

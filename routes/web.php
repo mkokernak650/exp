@@ -1,37 +1,37 @@
 <?php
 
-
-use App\Http\Controllers\AffiliateController;
-use App\Http\Controllers\AnnotationController;
-use App\Http\Controllers\ArchivedCallLogController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\BilledCallLogController;
-use App\Http\Controllers\BroadCastMonthController;
-use App\Http\Controllers\BroadCastWeeksController;
+use inertia\inertia;
+use Illuminate\Support\Facades\Route;
+use App\Http\Helpers\RingbaApiHelpers;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MarketController;
+use App\Http\Controllers\TargetController;
+use App\Http\Controllers\WebFormController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\EcommerceAffiliateController;
+use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\ExceptionController;
+use App\Http\Controllers\TestTableController;
+use App\Http\Controllers\AnnotationController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ZipcodeDataController;
+use App\Http\Controllers\TableDetailsController;
+use App\Http\Controllers\BilledCallLogController;
+use App\Http\Controllers\EcommerceSaleController;
+use App\Http\Controllers\RingbaCallLogController;
+use App\Http\Controllers\BroadCastMonthController;
+use App\Http\Controllers\BroadCastWeeksController;
+use App\Http\Controllers\ArchivedCallLogController;
+use App\Http\Controllers\MarketExceptionController;
+use App\Http\Controllers\ReportGeneratorController;
+use App\Http\Controllers\EcommerceAffiliateController;
+use App\Http\Controllers\PendingBillCallLogController;
+use App\Http\Controllers\GenerateReportTargetController;
 use App\Http\Controllers\GenerateReportAffiliateController;
 use App\Http\Controllers\GenerateReportCallLengthController;
 use App\Http\Controllers\GenerateReportDestinationController;
-use App\Http\Controllers\GenerateReportMarketExceptionController;
-use App\Http\Controllers\GenerateReportTargetController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MarketController;
-use App\Http\Controllers\MarketExceptionController;
-use App\Http\Controllers\PendingBillCallLogController;
-use App\Http\Controllers\ReportGeneratorController;
-use App\Http\Controllers\RingbaCallLogController;
-use App\Http\Controllers\TableDetailsController;
-use App\Http\Controllers\TargetController;
-use App\Http\Controllers\TestTableController;
-use App\Http\Controllers\WebFormController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
-use App\Http\Controllers\ZipcodeDataController;
-use App\Http\Helpers\RingbaApiHelpers;
-use Illuminate\Support\Facades\Route;
-use inertia\inertia;
+use App\Http\Controllers\GenerateReportMarketExceptionController;
 
 Route::get('/', [LoginController::class, 'showLoginform'])
     ->name('login')
@@ -106,6 +106,8 @@ Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campai
 
 Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
 Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
+Route::get('ecommerce-sales/import', [EcommerceSaleController::class, 'import'])->name('ecommerce-sales.import');
+Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
 
 Route::post('/campaign-delete', [CampaignController::class, 'delete'])
     ->name('campaign.delete');
