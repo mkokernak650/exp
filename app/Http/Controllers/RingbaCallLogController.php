@@ -655,7 +655,10 @@ class RingbaCallLogController extends Controller
 
     public function callLogsReport()
     {
-        $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
+        // $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
+        $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query){
+            $query->orderBy('annotations.order');
+        }])->active()->get();
         return Inertia::render('Ringba/callLogsReport', [
             'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
             'campaignsWithAnnotations' => $campaignsWithAnnotations

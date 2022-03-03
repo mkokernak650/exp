@@ -14,14 +14,5 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
     .react()
     .sass('resources/sass/app.scss', 'public/css')
-    .browserSync('consumerexp-ringba.test');
+    .browserSync('http://consumerexp-ringba.test');
 
-mix.override(config => {
-    // Apply a workaround caused by Laravel Mix using the `webpack-dev-server@v4.0.0-beta`:
-    // https://github.com/webpack/webpack-dev-server/releases/tag/v4.0.0-beta.3.
-    // Basically the `dev` property has been deprecated in favor of `devMiddleware`.
-    if (config.devServer) {
-        config.devServer.devMiddleware = config.devServer.dev;
-        delete config.devServer.dev;
-    }
-});

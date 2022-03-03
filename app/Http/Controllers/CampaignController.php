@@ -7,6 +7,7 @@ use App\Models\ArchivedCallLog;
 use App\Models\Campaign;
 use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
+use App\Models\Annotation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -75,8 +76,24 @@ class CampaignController extends Controller
 
     public function campaignAnnotations(Campaign $campaign): Response
     {
-        $campaign->load('annotations');
-        return Inertia::render('Settings/Campaign/CampaignAnnotations', compact('campaign'));
+        $campaign = $campaign->load('annotations');
+        $annotation= [...$campaign->annotations->sortBy('order')];
+        // dd($annotation);
+        return Inertia::render('Settings/Campaign/CampaignAnnotations', compact('annotation'));
+    }
+
+    public function storeAnnotationsRowOrder(Request $request)
+    {
+        $reqData=$request->all();
+        if (!empty($reqData)) {
+            foreach ($reqData as $row) {
+                $Annotation=Annotation::find($row['id']);
+                $Annotation->order=$row['order'];
+                $Annotation->save();
+            }
+        }
+
+        // dd($result);
     }
 
     public function campaignExceptions($campaignId): Response
