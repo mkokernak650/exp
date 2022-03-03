@@ -6,7 +6,10 @@ import {
   Typography,
   TextField,
   Button,
-  Snackbar
+  Snackbar,
+  Radio,
+  FormControlLabel,
+  RadioGroup,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
@@ -39,20 +42,21 @@ const useStyles = makeStyles((theme) => ({
   },
   snackbar: {
     maxWidth: "500px",
-  },
+  }
 }));
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const GenerateReportMarketException = () => {
+const GenerateReportAffiliate = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, targets, markets, campaigns } =
+  const { affiliates, broadCastMonths, broadCastWeeks, markets, targets, campaigns } =
     usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
+  const [type, setType] = useState({ type: "billed" });
   const [customer, setCustomer] = useState();
   const [target, setTarget] = useState("");
   const [targetByCustomer, setTargetByCustomer] = useState([]);
@@ -60,9 +64,13 @@ const GenerateReportMarketException = () => {
   const [affiliate, setAffiliate] = useState();
   const [month, setMonth] = useState("");
   const [year, setYear] = useState([]);
+  const [week, setWeek] = useState("");
+  const [startDate, setStartDate] = useState({ start_date: "" });
+  const [endDate, setEndDate] = useState({ end_date: "" });
   const [campaign, setCampaign] = useState("");
   const [annotation, setAnnotation] = useState("");
   const [market, setMarket] = useState();
+
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -71,11 +79,6 @@ const GenerateReportMarketException = () => {
     setOpen(false);
   };
 
-  const marketHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1);
-    const marketsName = val.split(",,");
-    setMarket({ [key]: marketsName });
-  };
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target;
@@ -87,6 +90,10 @@ const GenerateReportMarketException = () => {
       }
     });
   };
+  const marketHandleChange = (e) => {
+    const { name, value } = e.target;
+    setMarket({ [name]: value });
+  };
   const targetOptions = targetByCustomer.map((item) => ({
     label: item,
     value: item,
@@ -97,36 +104,25 @@ const GenerateReportMarketException = () => {
     value: item.affiliate_id,
   }));
 
-  const annotationOptions = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' },
-  ]
-
-  const marketOptions = markets.map((item) => ({
-    label: item.market,
-    value: item.market + ',',
-  }));
-
-  const broadCastMonthOptions = monthByYear.map((item) => ({
-    label: item.broad_cast_month,
-    value: item.broad_cast_month + ',',
-  }));
 
   const targetHandleChange = (val, key) => {
     const targetNames = val.split(",");
     setTarget({ [key]: targetNames });
   };
-
   const affiliateHandleChange = (val, key) => {
     const affiliate_ids = val.split(",");
     setAffiliate({ [key]: affiliate_ids });
   };
 
-
-  const monthHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1);
-    const monthsName = val.split(",,");
-    setMonth({ [key]: monthsName });
+  const monthHandleChange = (e) => {
+    const { name, value } = e.target;
+    setMonth({ [name]: value });
+    broadCastMonths.filter((item) => {
+      if (item.broad_cast_month === value) {
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
+      }
+    });
   };
 
   let yearsArray = []
@@ -154,42 +150,109 @@ const GenerateReportMarketException = () => {
     }
   };
 
+
+console.log(market)
+
+
   const yearOptions = yearsArray.map(year => ({
     label: year,
     value: year
   }))
 
+  const weekHandleChange = (e) => {
+    const { name, value } = e.target;
+    setWeek({ [name]: value });
+    broadCastWeeks.filter((item) => {
+      if (item.broad_cast_week === value) {
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
+      }
+    });
+    if (value === "") {
+      setStartDate({ ...startDate, start_date: "" });
+      setEndDate({ ...endDate, end_date: "" });
+    }
+  };
 
+  const startDateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setStartDate({ [name]: value });
+  };
+  const endDateHandleChange = (e) => {
+    const { name, value } = e.target;
+    setEndDate({ [name]: value });
+  };
   const campaignHandleChange = (e) => {
     const { name, value } = e.target;
     setCampaign({ [name]: value });
   };
-
-  const annotationHandleChange = (val, key) => {
-    const annotationsName = val.split(",");
-    setAnnotation({ [key]: annotationsName });
+  const annotationHandleChange = (e) => {
+    const { name, value } = e.target;
+    setAnnotation({ [name]: value });
   };
-
   const values = {
-    ...market,
     ...affiliate,
+    ...market,
     ...customer,
     ...target,
     ...month,
     ...year,
+    ...week,
+    ...startDate,
+    ...endDate,
     ...campaign,
     ...annotation,
   };
 
+  let affiliatesName = [];
+  if (values?.affiliate_id) {
+    affiliates.filter(item => {
+      let i = 0
+      for (i; i < values.affiliate_id.length; i++) {
+        if (item.affiliate_id === values.affiliate_id[i]) {
+          affiliatesName.push(item.affiliate_name)
+        }
+      }
+    })
+  }
+  const dateFormat = (dataParam) => {
+    let newDate = new Date(dataParam)
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
+    let format_date = newDate
+    let dd = String(format_date.getDate()).padStart(2, "0");
+    let yyyy = format_date.getFullYear();
+    format_date = dd + "-" + shortMonth + "-" + yyyy;
+    return format_date;
+  }
+
+  let fileName = 'Generate Report Market Target'
+  // if (year?.year && !month) {
+  //   fileName = `${values?.type}_Report${affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  // }
+  // else if (year?.year && month) {
+  //   fileName = `${values?.type}_Report${affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+  //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  // }
+  // else {
+  //   fileName = `${values?.type}_Report${affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""}_From_${dateFormat(values?.start_date)
+  //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  // }
+
 
   const handleSubmit = () => {
-    axios.post(route("market.exception.report.generator"), values).then((r) => {
-      if (r.data.status == 500) {
-        setOpen(true);
-        setResponse(r.data.msg);
-      }
-      exportToCSV(r.data, "Market_Exception_Report");
-    });
+    if (!market || market?.market==='') {
+      setOpen(true);
+      setResponse("Please select a market from the list");
+    }
+    else {
+      axios.post(route("market.target.report.generator"), values).then((r) => {
+        if (r.data.status == 500) {
+          setOpen(true);
+          setResponse(r.data.msg);
+        }
+        exportToCSV(r.data, fileName);
+      });
+    }
   };
 
   const fileType =
@@ -198,17 +261,6 @@ const GenerateReportMarketException = () => {
 
   const exportToCSV = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    const secondData = apiData.data.length + 5;
-    const call_summary = [];
-    call_summary.push(["Summary of Calls", ""]);
-    Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]]);
-    });
-    Object.keys(apiData.tag_count).forEach((cat) => {
-      category.push(Object.values(apiData.tag_count[cat]));
-    });
-
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -217,25 +269,39 @@ const GenerateReportMarketException = () => {
     setResponse("Report Generated Successfully");
   };
 
+console.log(market)
+console.log(affiliatesName)
+
   return (
     <>
-      <Helmet title="Market Exception" />
+      <Helmet title="Generate Report Market Target" />
       <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
-          Generate Report Market Exception
+        <Typography variant="h5" className={classes.title} >
+          Generate Report Market Target
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
             <Grid item xs={12}>
-
-              <MultiSelect
+              <TextField
+                id="standard-select-currency-native"
+                select
                 name="market"
-                onChange={(val) => marketHandleChange(val, "market")}
-                options={marketOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Market"
-              />
+                onChange={marketHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              >
+                <option value="">Select Market</option>
+                {markets.map((item, key) => (
+                  <option key={key} value={item.market}>
+                    {item.market}
+                  </option>
+                ))}
+              </TextField>
             </Grid>
+
+
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
@@ -288,14 +354,20 @@ const GenerateReportMarketException = () => {
             </Grid>
 
             <Grid item xs={12}>
-
-              <MultiSelect
+              <TextField
+                id="standard-select-currency-native"
+                select
                 name="annotation"
-                onChange={(val) => annotationHandleChange(val, "annotation")}
-                options={annotationOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Annotation"
-              />
+                onChange={annotationHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              >
+                <option value="">Select Annotation</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </TextField>
             </Grid>
             <Grid item xs={12}>
               <MultiSelect
@@ -307,6 +379,7 @@ const GenerateReportMarketException = () => {
               />
             </Grid>
 
+
             <Grid item xs={12}>
               <MultiSelect
                 name="year"
@@ -316,18 +389,80 @@ const GenerateReportMarketException = () => {
                 placeholder="Select Years"
               />
             </Grid>
-
             <Grid item xs={12}>
-              <MultiSelect
+              <TextField
+                id="standard-select-currency-native"
+                select
                 name="broad_cast_month"
-                onChange={(val) => monthHandleChange(val, "broad_cast_month")}
-                options={broadCastMonthOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Broadcast Month"
-              />
+                onChange={monthHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              // required={true}
+              >
+                <option value="">Select Broadcast Month</option>
+                {monthByYear.map((option, indx) => (
+                  <option key={indx} value={option.broad_cast_month}>
+                    {option.broad_cast_month}
+                  </option>
+                ))}
+              </TextField>
             </Grid>
 
+            <Grid item xs={12}>
+              <TextField
+                id="standard-select-currency-native"
+                select
+                name="broad_cast_week"
+                onChange={weekHandleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+              // required={true}
+              >
+                <option value="">Select Broadcast Week</option>
+                {broadCastWeeks.map((option, indx) => (
+                  <option key={indx} value={option.broad_cast_week}>
+                    {option.broad_cast_week}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
 
+            <Grid item xs={12}>
+              <TextField
+                id="date"
+                label="Start Date"
+                type="date"
+                name="start_date"
+                onChange={startDateHandleChange}
+                value={startDate.start_date}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                fullWidth
+              // required={true}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                id="date"
+                label="End Date"
+                type="date"
+                name="end_date"
+                onChange={endDateHandleChange}
+                value={endDate.end_date}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                fullWidth
+              // required={true}
+              />
+            </Grid>
             <Grid item xs={12}>
               <Button
                 variant="contained"
@@ -355,57 +490,7 @@ const GenerateReportMarketException = () => {
   );
 };
 
-GenerateReportMarketException.layout = (page) => (
-  <Layout title="Generate Report Market Exception">{page}</Layout>
+GenerateReportAffiliate.layout = (page) => (
+  <Layout title="Generate Report Affiliate">{page}</Layout>
 );
-export default GenerateReportMarketException;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default GenerateReportAffiliate;

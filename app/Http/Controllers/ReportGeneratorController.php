@@ -92,7 +92,6 @@ class ReportGeneratorController extends Controller
     {
         $campaign = Campaign::find($request->input('campaign'));
 
-        $newData = [];
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
@@ -288,10 +287,145 @@ class ReportGeneratorController extends Controller
         WHERE {$con}";
         return DB::select($sql);
     }
+
+    public function marketTargetReport(Request $request)
+    {
+        $campaign = Campaign::find($request->input('campaign'));
+        $market_name = $request->market;
+        $newData = [];
+        $customer_name = $request->customer_name;
+        $affiliate_ids = $request->affiliate_id; // array
+        $target_name = $request->target_name; // array
+        $annotation = $request->annotation;
+        $campaign = $campaign->campaign_name ?? null;
+        $year=[];
+        if ($request->start_date !== null || $request->end_date !== null) {
+            $year=[];
+        } else {
+            $year= $request->year;
+        }
+        $call_summary = [];
+        $condition = [];
+        $whereIn = [];
+        $whereInOr = [];
+        $call_summary['Customer Name'] = $customer_name;
+        if ($request->start_date !== null && $request->end_date !== null) {
+            $start_date = date('Y-m-d', strtotime($request->start_date));
+            $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
+            $date_range = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $call_summary['Date Range'] = $date_range;
+            $condition[] = "Call_Date >='$start_date'";
+            $condition[] = "Call_Date <= '$end_date'";
+        }
+     
+        if (!empty($year) && count($year) > 0 && $year[0] !== null) {
+            for ($i=0; $i< count($year);$i++) {
+                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
+            }
+        }
+
+        if ($campaign !== null) {
+            $condition[] = "Campaign='{$campaign}'";
+        }
+
+        if ($market_name !== null) {
+            $condition[] = "billed_call_logs.Market='$market_name'";
+        }
+        if ($annotation !== null) {
+            $condition[] = "Has_Annotation='$annotation'";
+        }
+        if ($customer_name !== null) {
+            $condition[] = "Customer='{$customer_name}'";
+        }
+        if (!empty($affiliate_ids) && count($affiliate_ids) > 0 && $affiliate_ids[0] !== null) {
+            $ids = implode("','", $affiliate_ids);
+            $whereIn[] = "Affiliate_Id IN ('$ids')";
+        }
+        if (!empty($target_name) && count($target_name) > 0 && $target_name[0] !== null) {
+            $ids = implode("','", $target_name);
+            $whereIn[] = "Target IN ('$ids')";
+        }
+
+        $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr);
+        foreach ($billed as $bill) {
+            if ($request->start_date !== null) {
+                $newData [] = (object)[
+                'Date Range'=> $request->start_date.' - '. $request->end_date,
+                'Market'=>$bill->Market,
+                'Nielsen TV Households'=>$bill->tv_households,
+                'Billed'=>$bill->Billed,
+                'Total Revenue'=>$bill->Billed * $bill->Revenue,
+                'Revenue'=>$bill->Revenue,
+                'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+
+            ];
+            } else if ($request->year !== null) {
+                $newData [] = (object)[
+                    'Date Range'=>'years('. implode(",",$request->year).')',
+                    'Market'=>$bill->Market,
+                    'Nielsen TV Households'=>$bill->tv_households,
+                    'Billed'=>$bill->Billed,
+                    'Total Revenue'=>$bill->Billed * $bill->Revenue,
+                    'Revenue'=>$bill->Revenue,
+                    'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                ];
+            }else{
+                $newData [] = (object)[
+                    'Date Range'=>'all',
+                    'Market'=>$bill->Market,
+                    'Nielsen TV Households'=>$bill->tv_households,
+                    'Billed'=>$bill->Billed,
+                    'Total Revenue'=>$bill->Billed * $bill->Revenue,
+                    'Revenue'=>$bill->Revenue,
+                    'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                ];
+
+            }
+        }
+    
+        
+        if (empty($billed)) {
+            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
+        
+     
+        return [
+            'data'=> $newData
+        ];
+    }
+
+
+    private function marketTargetReportData($tablename, $condition, $whereIn = [], $whereInOr=[])
+    {
+        $con = '';
+        foreach ($condition as $v) {
+            $con .= $v . " AND ";
+        }
+        if (count($whereIn) > 0) {
+            foreach ($whereIn as $value) {
+                $con .= $value . " AND ";
+            }
+        }
+        if (count($whereInOr) > 0) {
+            foreach ($whereInOr as $value) {
+                $con .= $value . " OR ";
+            }
+        }
+        $con = rtrim($con, " AND ");
+        $con = rtrim($con, " OR ");
+        $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.Market,{$tablename}.State, Revenue,Count({$tablename}.Market) AS 'Billed'
+        FROM {$tablename}
+        LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
+        LEFT JOIN t_v_households ON {$tablename}.Market = t_v_households.market
+        WHERE {$con} GROUP BY {$tablename}.Market"  ;
+        return DB::select($sql);
+    }
+
+
+
     public function affiliateReport(Request $request)
     {
         $campaign = Campaign::find($request->input('campaign'));
-
         $newData = [];
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
