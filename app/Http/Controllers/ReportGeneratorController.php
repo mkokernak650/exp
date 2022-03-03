@@ -290,6 +290,7 @@ class ReportGeneratorController extends Controller
 
     public function marketTargetReport(Request $request)
     {
+        // dd($request);
         $campaign = Campaign::find($request->input('campaign'));
         $market_name = $request->market;
         $newData = [];
@@ -327,10 +328,14 @@ class ReportGeneratorController extends Controller
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
         }
-
-        if ($market_name !== null) {
-            $condition[] = "billed_call_logs.Market='$market_name'";
+        if (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
+            $market_name_inputs = implode("','", $market_name);
+            $whereIn[] = "billed_call_logs.Market IN ('$market_name_inputs')";
         }
+
+        // if ($market_name !== null) {
+        //     $condition[] = "billed_call_logs.Market='$market_name'";
+        // }
         if ($annotation !== null) {
             $condition[] = "Has_Annotation='$annotation'";
         }
@@ -347,6 +352,8 @@ class ReportGeneratorController extends Controller
         }
 
         $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr);
+        $t_revenue='Total Revenue';
+        // dd($billed);
         foreach ($billed as $bill) {
             if ($request->start_date !== null) {
                 $newData [] = (object)[
@@ -354,32 +361,28 @@ class ReportGeneratorController extends Controller
                 'Market'=>$bill->Market,
                 'Nielsen TV Households'=>$bill->tv_households,
                 'Billed'=>$bill->Billed,
-                'Total Revenue'=>$bill->Billed * $bill->Revenue,
-                'Revenue'=>$bill->Revenue,
+                'Total Revenue'=> $bill->$t_revenue,
                 'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
 
             ];
-            } else if ($request->year !== null) {
+            } elseif ($request->year !== null) {
                 $newData [] = (object)[
-                    'Date Range'=>'years('. implode(",",$request->year).')',
+                    'Date Range'=>'years('. implode(",", $request->year).')',
                     'Market'=>$bill->Market,
                     'Nielsen TV Households'=>$bill->tv_households,
                     'Billed'=>$bill->Billed,
-                    'Total Revenue'=>$bill->Billed * $bill->Revenue,
-                    'Revenue'=>$bill->Revenue,
+                    'Total Revenue'=> $bill->$t_revenue,
                     'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
                 ];
-            }else{
+            } else {
                 $newData [] = (object)[
                     'Date Range'=>'all',
                     'Market'=>$bill->Market,
                     'Nielsen TV Households'=>$bill->tv_households,
                     'Billed'=>$bill->Billed,
-                    'Total Revenue'=>$bill->Billed * $bill->Revenue,
-                    'Revenue'=>$bill->Revenue,
+                    'Total Revenue'=> $bill->$t_revenue,
                     'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
                 ];
-
             }
         }
     
@@ -413,7 +416,7 @@ class ReportGeneratorController extends Controller
         }
         $con = rtrim($con, " AND ");
         $con = rtrim($con, " OR ");
-        $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.Market,{$tablename}.State, Revenue,Count({$tablename}.Market) AS 'Billed'
+        $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.Market,{$tablename}.State, Revenue,SUM(Revenue) AS 'Total Revenue', Count({$tablename}.Market) AS 'Billed'
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
         LEFT JOIN t_v_households ON {$tablename}.Market = t_v_households.market
@@ -973,9 +976,7 @@ class ReportGeneratorController extends Controller
         $whereInOr = [];
 
 
-        /*if ($market_name !== null) {
-          $condition[] = "Market='{$market_name}'";
-        }*/
+    
         if (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
             $market_name_inputs = implode("','", $market_name);
             $whereIn[] = "Market IN ('$market_name_inputs')";
