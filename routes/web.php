@@ -108,8 +108,11 @@ Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campai
 
 Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
 Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
+
+Route::get('ecommerce-sales', [EcommerceSaleController::class, 'index'])->name('ecommerce-sales.index');
 Route::get('ecommerce-sales/import', [EcommerceSaleController::class, 'import'])->name('ecommerce-sales.import');
 Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
+Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');
 
 Route::post('/campaign-delete', [CampaignController::class, 'delete'])
     ->name('campaign.delete');

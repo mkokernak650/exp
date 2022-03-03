@@ -93,25 +93,65 @@ const operators = [
 
 export const fields = [
   {
-    caption: "Affiliate",
-    name: "affiliate",
+    caption: "order_no",
+    name: "order_no",
     operators,
   },
   {
-    caption: "Coupon Code",
+    caption: "coupon_code",
     name: "coupon_code",
     operators,
   },
   {
-    caption: "Percentage",
-    name: "percentage",
+    caption: "user_ip",
+    name: "user_ip",
     operators,
   },
-  // {
-  //   caption: "status",
-  //   name: "status",
-  //   operators,
-  // },
+  {
+    caption: "shipping_city",
+    name: "shipping_city",
+    operators,
+  },
+  {
+    caption: "shipping_state",
+    name: "shipping_state",
+    operators,
+  },
+  {
+    caption: "shipping_zip",
+    name: "shipping_zip",
+    operators,
+  },
+  {
+    caption: "billing_zip",
+    name: "billing_zip",
+    operators,
+  },
+  {
+    caption: "quantity",
+    name: "quantity",
+    operators,
+  },
+  {
+    caption: "subtotal",
+    name: "subtotal",
+    operators,
+  },
+  {
+    caption: "shipping_cost",
+    name: "shipping_cost",
+    operators,
+  },
+  {
+    caption: "total",
+    name: "total",
+    operators,
+  },
+  {
+    caption: "order_at",
+    name: "order_at",
+    operators,
+  },
 ];
 
 export const groups = [
@@ -135,9 +175,9 @@ export const filter = {
   ],
 };
 
-const AffiliateIndex = () => {
+const SalesIndex = () => {
   const classes = useStyles();
-  const { ecommerceAffiliates } = usePage().props;
+  const { sales } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -184,13 +224,29 @@ const AffiliateIndex = () => {
       });
   };
 
-  const dataArray = ecommerceAffiliates.map((item, index) => ({
+  const dateFormat = (dataParam) => {
+    let newDate = new Date(dataParam);
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
+    let dd = String(newDate.getDate()).padStart(2, '0');
+    let yyyy = newDate.getFullYear();
+    return dd + ' ' + shortMonth + ', ' + yyyy + ' ' + newDate.toLocaleTimeString();
+  };
+
+  const dataArray = sales.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    affiliate: item.affiliate.affiliate_name,
+    order_no: item.order_no,
     coupon_code: item.coupon_code,
-    percentage: item.percentage,
-    // status: item.status,
+    user_ip: item.user_ip,
+    shipping_city: item.shipping_city,
+    shipping_state: item.shipping_state,
+    shipping_zip: item.shipping_zip,
+    billing_zip: item.billing_zip,
+    quantity: item.quantity,
+    subtotal: item.subtotal,
+    shipping_cost: item.shipping_cost,
+    total: item.total,
+    order_at: dateFormat(item.order_at),
     id: item.id,
     key: index,
   }));
@@ -270,44 +326,92 @@ const AffiliateIndex = () => {
 
   const tablePropsInit = {
     columns: [
-      {
-        key: "edit",
-        style: { width: 20 },
-      },
+      // {
+      //   key: "edit",
+      //   style: { width: 20 },
+      // },
       {
         key: "selection-cell",
-        style: { width: 40 },
+        style: { width: 80 },
       },
       {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
-        style: { width: 40 },
+        style: { width: 60 },
       },
       {
-        key: "affiliate",
-        title: "Affiliate",
+        key: "order_at",
+        title: "Order AT",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 160 },
+      },
+      {
+        key: "order_no",
+        title: "Order No",
+        dataType: DataType.String,
+        style: { width: 160 },
       },
       {
         key: "coupon_code",
         title: "Coupon Code",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 160 },
       },
       {
-        key: "percentage",
-        title: "Percentage",
+        key: "user_ip",
+        title: "User IP",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 160 },
       },
-      // {
-      //   key: "status",
-      //   title: "Status",
-      //   dataType: DataType.String,
-      //   style: { width: 100 },
-      // },
+      {
+        key: "shipping_city",
+        title: "Shipping City",
+        dataType: DataType.String,
+        style: { width: 160 },
+      },
+      {
+        key: "shipping_state",
+        title: "Shipping State",
+        dataType: DataType.String,
+        style: { width: 140 },
+      },
+      {
+        key: "shipping_zip",
+        title: "Shipping Zip",
+        dataType: DataType.String,
+        style: { width: 140 },
+      },
+      {
+        key: "billing_zip",
+        title: "Billing Zip",
+        dataType: DataType.String,
+        style: { width: 120 },
+      },
+      {
+        key: "quantity",
+        title: "Quantity",
+        dataType: DataType.String,
+        style: { width: 120 },
+      },
+      {
+        key: "subtotal",
+        title: "Subtotal",
+        dataType: DataType.String,
+        style: { width: 140 },
+      },
+      {
+        key: "shipping_cost",
+        title: "Shipping Cost",
+        dataType: DataType.String,
+        style: { width: 140 },
+      },
+      {
+        key: "total",
+        title: "Total",
+        dataType: DataType.String,
+        style: { width: 140 },
+      },
     ],
     paging: {
       enabled: true,
@@ -329,16 +433,10 @@ const AffiliateIndex = () => {
           </div>
         );
       }
-      if (column.key === "status") {
-        return value == 1 ? "Active" : "Inactive";
-      }
-      if (column.key === "percentage") {
-        return value == value ? value + "%" : "0%";
-      }
     },
   };
 
-  const OPTION_KEY = "affiliate-index";
+  const OPTION_KEY = "sales-index";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
@@ -372,7 +470,7 @@ const AffiliateIndex = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route("ecommerce-affiliates.deleteSelected"), { selectedRowIds })
+      .post(route("ecommerce-sales.deleteSelected"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
@@ -433,9 +531,9 @@ const AffiliateIndex = () => {
   }, [showColumns]);
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("affiliate-index"));
+    const storedData = JSON.parse(localStorage.getItem("sales-index"));
     storedData.selectedRows = [];
-    localStorage.setItem("affiliate-index", JSON.stringify(storedData));
+    localStorage.setItem("sales-index", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
@@ -443,7 +541,7 @@ const AffiliateIndex = () => {
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("affiliate-index"));
+      const storedData = JSON.parse(localStorage.getItem("sales-index"));
       if (storedData != null) {
         emptyCheckbox();
       }
@@ -529,7 +627,7 @@ const AffiliateIndex = () => {
 
   return (
     <>
-      <Helmet title="E-commerce Affiliate Index" />
+      <Helmet title="Sales Index" />
 
       <div className="selection-demo">
         {tableToolbar ? (
@@ -701,7 +799,7 @@ const AffiliateIndex = () => {
   );
 };
 
-AffiliateIndex.layout = (page) => (
-  <Layout title="E-commerce Affiliate Index">{page}</Layout>
+SalesIndex.layout = (page) => (
+  <Layout title="Sales Index">{page}</Layout>
 );
-export default AffiliateIndex;
+export default SalesIndex;
