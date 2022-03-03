@@ -22,7 +22,7 @@ class EcommerceSale extends Model
         'subtotal',
         'shipping_cost',
         'total',
-        'order_created_at',
+        'order_date',
     ];
 
     public function ecommerceAffiliate(): BelongsTo
