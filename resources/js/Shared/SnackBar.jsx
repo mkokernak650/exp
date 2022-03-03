@@ -8,7 +8,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const SnackBar = ({ open, setOpen, response }) => {
+const SnackBar = ({ open, setOpen, severity, response }) => {
   const classes = useStyles();
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -26,7 +26,7 @@ const SnackBar = ({ open, setOpen, response }) => {
         className={classes.snackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert severity="success">{response}</Alert>
+        <Alert severity={severity}>{response}</Alert>
       </Snackbar>
     </div>
   );

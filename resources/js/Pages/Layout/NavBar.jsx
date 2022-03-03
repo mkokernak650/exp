@@ -131,7 +131,7 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
   },
   nested: {
-    marginLeft: "25px",
+    paddingLeft: "25px",
   },
   item: {
     color: "rgb(107, 119, 140)",
@@ -376,6 +376,30 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 5,
       Icon: <SettingsIcon size="20" />,
+      title: "E-commerce",
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: "All Ecommerce Affiliate",
+          href: "ecommerce-affiliates.index",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Create Ecommerce Affiliate",
+          href: "ecommerce-affiliates.create",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Import Sales Report",
+          href: "ecommerce-sales.import",
+          Icon: <UserIcon />,
+        },
+      ],
+    },
+    {
+      id: 6,
+      Icon: <SettingsIcon size="20" />,
       title: "Settings",
       active: false,
       collapse: true,
@@ -472,7 +496,7 @@ export default function PersistentDrawerLeft(props) {
       ],
     },
     {
-      id: 6,
+      id: 7,
       href: "webform.reports",
       Icon: <BarChartIcon size="20" />,
       title: "Webform Reports",
