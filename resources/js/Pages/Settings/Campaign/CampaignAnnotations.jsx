@@ -10,7 +10,7 @@ import {
   ActionType,
 } from "ka-table/enums";
 import { kaPropsUtils } from "ka-table/utils";
-import { InertiaLink, usePage } from "@inertiajs/inertia-react";
+import { usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
@@ -160,7 +160,7 @@ export const filter = {
 
 const CampaignAnnotations = () => {
   const classes = useStyles();
-  const { campaign } = usePage().props;
+  const { annotation } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -194,10 +194,11 @@ const CampaignAnnotations = () => {
         console.log(err);
       });
   };
-
-  const dataArray = campaign.annotations.map((item, index) => ({
+console.log(annotation)
+  const dataArray =  annotation.map((item, index) => ({
     edit: item.id,
-    sl: index + 1,
+    order:item.order,
+    // sl: index + 1,
     annotation: item.annotation_name,
     status: item.status,
     id: item.id,
@@ -278,12 +279,12 @@ const CampaignAnnotations = () => {
         key: "selection-cell",
         style: { width: 40 },
       },
-      {
-        key: "sl",
-        title: "SL",
-        dataType: DataType.Number,
-        style: { width: 40 },
-      },
+      // {
+      //   key: "sl",
+      //   title: "SL",
+      //   dataType: DataType.Number,
+      //   style: { width: 40 },
+      // },
       {
         key: "annotation",
         title: "Annotation",
@@ -330,13 +331,23 @@ const CampaignAnnotations = () => {
     },
   };
 
+  const [columnChooserProps, changeColumnChooserProps] = useState(tablePropsInit);
+  // const dispatch = (action) => {
+  //   changeColumnChooserProps((prevState) => kaReducer(prevState, action));
+  // };
+
+
+  console.log('columnChooserProps', columnChooserProps)
+
   const OPTION_KEY = "campaign-annotation-report";
   const stateStore = {
-    ...tablePropsInit,
+    ...columnChooserProps,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
   const dispatch = (action) => {
+    changeColumnChooserProps((prevState) => kaReducer(prevState, action));
+
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action);
       const { data, ...settingsWithoutData } = newState;
@@ -344,6 +355,20 @@ const CampaignAnnotations = () => {
       return newState;
     });
   };
+
+  const ordering = []
+  useEffect(() => {
+    
+    for (const [indx, item] of columnChooserProps.data.entries()) {
+      ordering.push({ 'order': indx, 'id': item.id })
+    }
+    if (ordering.length > 0) {
+      axios.post(route('store.annotations.row.order'), ordering)
+        .then(res => console.log(res))
+        .catch(err => console.log(err))
+    }
+  }, [columnChooserProps])
+
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
@@ -600,7 +625,7 @@ const CampaignAnnotations = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -690,11 +715,10 @@ const CampaignAnnotations = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${
-          selectedRowIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
       ></ConfirmModal>
     </>
   );

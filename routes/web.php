@@ -105,6 +105,8 @@ Route::post('/campaign-setting-form', [CampaignController::class, 'campaignSetti
 Route::get('/campaign-setting-report', [CampaignController::class, 'campaignSettingReport'])->name('campaign.setting.report');
 Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campaignAnnotations'])->name('campaign.annotations');
 Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campaignExceptions'])->name('campaign.exceptions');
+Route::post('/store-annotations-row-order', [CampaignController::class, 'storeAnnotationsRowOrder'])->name('store.annotations.row.order');
+
 
 Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
 Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');

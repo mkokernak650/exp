@@ -24,7 +24,9 @@ class PendingBillCallLogController extends Controller
      */
     public function index()
     {
-        $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
+        $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query){
+            $query->orderBy('annotations.order');
+        }])->active()->get();
         $results = PendingBillCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/PendingCallLogs', [
             'results' => $results,

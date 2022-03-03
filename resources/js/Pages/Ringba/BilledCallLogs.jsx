@@ -915,7 +915,6 @@ const BilledCallLogs = () => {
   return (
     <>
       <Helmet title="Billed Call Logs Report" />
-
       <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
         {openRowFunctionalities ? <RowFunctionalities /> : ""}
         {tableToolbar ? (

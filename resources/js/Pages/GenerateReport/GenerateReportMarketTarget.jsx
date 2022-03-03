@@ -90,13 +90,22 @@ const GenerateReportAffiliate = () => {
       }
     });
   };
-  const marketHandleChange = (e) => {
-    const { name, value } = e.target;
-    setMarket({ [name]: value });
+
+
+  const marketHandleChange = (val, key) => {
+    val = val.substring(0, val.length - 1);
+    const marketsName = val.split(",,");
+    setMarket({ [key]: marketsName });
   };
+
   const targetOptions = targetByCustomer.map((item) => ({
     label: item,
     value: item,
+  }));
+
+  const marketOptions = markets.map((item) => ({
+    label: item.market,
+    value: item.market + ',',
   }));
 
   const affiliateOptions = affiliates.map((item) => ({
@@ -151,7 +160,7 @@ const GenerateReportAffiliate = () => {
   };
 
 
-console.log(market)
+  console.log(market)
 
 
   const yearOptions = yearsArray.map(year => ({
@@ -240,7 +249,7 @@ console.log(market)
 
 
   const handleSubmit = () => {
-    if (!market || market?.market==='') {
+    if (!market || market?.market === '') {
       setOpen(true);
       setResponse("Please select a market from the list");
     }
@@ -269,8 +278,8 @@ console.log(market)
     setResponse("Report Generated Successfully");
   };
 
-console.log(market)
-console.log(affiliatesName)
+  console.log(market)
+  console.log(affiliatesName)
 
   return (
     <>
@@ -282,23 +291,13 @@ console.log(affiliatesName)
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
             <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
+              <MultiSelect
                 name="market"
-                onChange={marketHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              >
-                <option value="">Select Market</option>
-                {markets.map((item, key) => (
-                  <option key={key} value={item.market}>
-                    {item.market}
-                  </option>
-                ))}
-              </TextField>
+                onChange={(val) => marketHandleChange(val, "market")}
+                options={marketOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Market"
+              />
             </Grid>
 
 
