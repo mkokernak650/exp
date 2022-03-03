@@ -37,7 +37,7 @@ class EcommerceSaleImport implements ToModel, WithHeadingRow, WithChunkReading
             'subtotal' => $this->getValue($row, 'subtotal'),
             'shipping_cost' => $this->getValue($row, 'shipping_cost'),
             'total' => $this->getValue($row, 'total'),
-            'order_date' => $this->getValue($row, 'order_date'),
+            'order_at' => $this->getValue($row, 'order_at'),
         ]);
     }
 

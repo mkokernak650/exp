@@ -26,7 +26,7 @@ class CreateEcommerceSalesTable extends Migration
             $table->string('subtotal')->nullable();
             $table->string('shipping_cost')->nullable();
             $table->string('total')->nullable();
-            $table->string('order_date')->nullable();
+            $table->timestamp('order_at')->nullable();
             $table->timestamps();
         });
     }

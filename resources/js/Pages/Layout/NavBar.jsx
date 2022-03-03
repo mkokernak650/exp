@@ -381,12 +381,12 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "All Affiliate",
+          title: "All Ecommerce Affiliate",
           href: "ecommerce-affiliates.index",
           Icon: <UserIcon />,
         },
         {
-          title: "Create Affiliate",
+          title: "Create Ecommerce Affiliate",
           href: "ecommerce-affiliates.create",
           Icon: <UserIcon />,
         },
