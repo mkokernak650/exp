@@ -31,6 +31,6 @@ class EcommerceSale extends Model
 
     public function ecommerceAffiliate(): BelongsTo
     {
-        return $this->belongsTo(EcommerceAffiliate::class, 'coupon_code');
+        return $this->belongsTo(EcommerceAffiliate::class);
     }
 }

@@ -30,6 +30,6 @@ class EcommerceAffiliate extends Model
 
     public function sales(): HasMany
     {
-        return $this->hasMany(EcommerceSale::class, 'coupon_code');
+        return $this->hasMany(EcommerceSale::class);
     }
 }
