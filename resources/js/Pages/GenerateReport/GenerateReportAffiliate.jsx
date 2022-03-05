@@ -289,6 +289,7 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+     
             <Grid item xs={12}>
               <RadioGroup
                 aria-label="type"

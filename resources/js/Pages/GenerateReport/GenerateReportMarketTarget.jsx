@@ -10,6 +10,8 @@ import {
   Radio,
   FormControlLabel,
   RadioGroup,
+  FormGroup,
+  Checkbox
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
@@ -70,6 +72,7 @@ const GenerateReportAffiliate = () => {
   const [campaign, setCampaign] = useState("");
   const [annotation, setAnnotation] = useState("");
   const [market, setMarket] = useState();
+  const [selectAllmarkets, setSelectAllmarkets] = useState(false)
 
 
   const handleClose = (event, reason) => {
@@ -160,7 +163,6 @@ const GenerateReportAffiliate = () => {
   };
 
 
-  console.log(market)
 
 
   const yearOptions = yearsArray.map(year => ({
@@ -247,11 +249,10 @@ const GenerateReportAffiliate = () => {
   //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
   // }
 
-
   const handleSubmit = () => {
     if (!market || market?.market === '') {
       setOpen(true);
-      setResponse("Please select a market from the list");
+      setResponse("Market field is required");
     }
     else {
       axios.post(route("market.target.report.generator"), values).then((r) => {
@@ -277,9 +278,21 @@ const GenerateReportAffiliate = () => {
     setOpen(true);
     setResponse("Report Generated Successfully");
   };
+  const marketSelectAll = (e) => {
+    setSelectAllmarkets(prevState => !prevState)
+    if (e.target.checked) {
+      let newData = []
+      for (let i = 0; i < markets.length; i++) {
+        newData.push(markets[i].market)
+      }
+      setMarket({ 'market': newData })
+    } else {
+      setMarket("")
+    }
+  }
 
-  console.log(market)
-  console.log(affiliatesName)
+
+
 
   return (
     <>
@@ -290,15 +303,20 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <MultiSelect
-                name="market"
-                onChange={(val) => marketHandleChange(val, "market")}
-                options={marketOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Market"
-              />
-            </Grid>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox onChange={marketSelectAll} checked={selectAllmarkets} color="primary" />} label="All markets" />
+            </FormGroup>
+            {!selectAllmarkets &&
+              <Grid item xs={12}>
+                <MultiSelect
+                  name="market"
+                  onChange={(val) => marketHandleChange(val, "market")}
+                  options={marketOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select Market"
+                />
+              </Grid>
+            }
 
 
             <Grid item xs={12}>

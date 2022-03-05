@@ -295,7 +295,7 @@ const MarketExceptionReport = () => {
         setShowEditModal({ open: false });
       });
   };
-
+console.log(marketExceptions)
   const dataArray = marketExceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,

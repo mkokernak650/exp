@@ -61,7 +61,6 @@ class MarketExceptionController extends Controller
         $allStates = DB::table('zipcode_by_television_markets')->select('state')->distinct()->get();
         $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
         $allCampaigns = Campaign::active()->get();
-
         return Inertia::render('Settings/MarketExceptionReport', [
             'marketExceptions' => $marketExceptions,
             'campaignId'       => null,

@@ -290,7 +290,6 @@ class ReportGeneratorController extends Controller
 
     public function marketTargetReport(Request $request)
     {
-        // dd($request);
         $campaign = Campaign::find($request->input('campaign'));
         $market_name = $request->market;
         $newData = [];
@@ -359,29 +358,31 @@ class ReportGeneratorController extends Controller
                 $newData [] = (object)[
                 'Date Range'=> $request->start_date.' - '. $request->end_date,
                 'Market'=>$bill->Market,
-                'Nielsen TV Households'=>$bill->tv_households,
+                'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
                 'Billed'=>$bill->Billed,
                 'Total Revenue'=> $bill->$t_revenue,
-                'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
 
             ];
             } elseif ($request->year !== null) {
                 $newData [] = (object)[
                     'Date Range'=>'years('. implode(",", $request->year).')',
                     'Market'=>$bill->Market,
-                    'Nielsen TV Households'=>$bill->tv_households,
+                    'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
                     'Billed'=>$bill->Billed,
                     'Total Revenue'=> $bill->$t_revenue,
-                    'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                    'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
+
                 ];
             } else {
                 $newData [] = (object)[
                     'Date Range'=>'all',
                     'Market'=>$bill->Market,
-                    'Nielsen TV Households'=>$bill->tv_households,
+                    'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
                     'Billed'=>$bill->Billed,
                     'Total Revenue'=> $bill->$t_revenue,
-                    'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                    'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
+
                 ];
             }
         }
