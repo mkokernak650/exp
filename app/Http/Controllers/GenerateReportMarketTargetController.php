@@ -20,6 +20,7 @@ class GenerateReportMarketTargetController extends Controller
     public function GenerateReportMarketTargetForm()
     {
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+        $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $allTargets = Target::all();
         $affiliates = Affiliate::all();
         $broadCastMonths = BroadCastMonth::all();
@@ -28,6 +29,7 @@ class GenerateReportMarketTargetController extends Controller
 
         return Inertia::render('GenerateReport/GenerateReportMarketTarget', [
             'markets'         => $markets,
+            'states'         => $states,
             'targets'         => $allTargets,
             'affiliates'      => $affiliates,
             'broadCastMonths' => $broadCastMonths,

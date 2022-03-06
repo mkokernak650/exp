@@ -54,7 +54,7 @@ const GenerateReportAffiliate = () => {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, broadCastWeeks, markets, targets, campaigns } =
+  const { affiliates, broadCastMonths, broadCastWeeks, markets, states, targets, campaigns } =
     usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
@@ -72,7 +72,11 @@ const GenerateReportAffiliate = () => {
   const [campaign, setCampaign] = useState("");
   const [annotation, setAnnotation] = useState("");
   const [market, setMarket] = useState();
+  const [state, setState] = useState();
   const [selectAllmarkets, setSelectAllmarkets] = useState(false)
+  const [selectAllStates, setSelectAllStates] = useState(false)
+  const [disableStateCheckbox, setDisableStateCheckbox] = useState(false)
+  const [disableMarketCheckbox, setDisableMarketCheckbox] = useState(false)
 
 
   const handleClose = (event, reason) => {
@@ -98,7 +102,28 @@ const GenerateReportAffiliate = () => {
   const marketHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1);
     const marketsName = val.split(",,");
-    setMarket({ [key]: marketsName });
+    console.log(val)
+    if (val) {
+      setMarket({ [key]: marketsName });
+      setDisableMarketCheckbox(true)
+    }else{
+      setMarket('')
+      setDisableMarketCheckbox(false)
+    }
+  };
+  const stateHandleChange = (val, key) => {
+    val = val.substring(0, val.length - 1);
+    const statesName = val.split(",,");
+    if (val) {
+      setState({ [key]: statesName });
+      setDisableStateCheckbox(true)
+    }
+    else{
+      setState('')
+      setDisableStateCheckbox(false)
+
+    }
+
   };
 
   const targetOptions = targetByCustomer.map((item) => ({
@@ -109,6 +134,10 @@ const GenerateReportAffiliate = () => {
   const marketOptions = markets.map((item) => ({
     label: item.market,
     value: item.market + ',',
+  }));
+  const stateOptions = states.map((item) => ({
+    label: item.state,
+    value: item.state + ',',
   }));
 
   const affiliateOptions = affiliates.map((item) => ({
@@ -204,6 +233,7 @@ const GenerateReportAffiliate = () => {
   const values = {
     ...affiliate,
     ...market,
+    ...state,
     ...customer,
     ...target,
     ...month,
@@ -250,11 +280,7 @@ const GenerateReportAffiliate = () => {
   // }
 
   const handleSubmit = () => {
-    if (!market || market?.market === '') {
-      setOpen(true);
-      setResponse("Market field is required");
-    }
-    else {
+    if (market || state) {
       axios.post(route("market.target.report.generator"), values).then((r) => {
         if (r.data.status == 500) {
           setOpen(true);
@@ -262,6 +288,10 @@ const GenerateReportAffiliate = () => {
         }
         exportToCSV(r.data, fileName);
       });
+    }
+    else {
+      setOpen(true);
+      setResponse("The market or the state must be the one to choose");
     }
   };
 
@@ -278,6 +308,18 @@ const GenerateReportAffiliate = () => {
     setOpen(true);
     setResponse("Report Generated Successfully");
   };
+  const stateSelectAll = (e) => {
+    setSelectAllStates(prevState => !prevState)
+    if (e.target.checked) {
+      let newData = []
+      for (let i = 0; i < states.length; i++) {
+        newData.push(states[i].state)
+      }
+      setState({ 'state': newData })
+    } else {
+      setState("")
+    }
+  }
   const marketSelectAll = (e) => {
     setSelectAllmarkets(prevState => !prevState)
     if (e.target.checked) {
@@ -291,7 +333,8 @@ const GenerateReportAffiliate = () => {
     }
   }
 
-
+  console.log('market', market)
+  console.log('state', state)
 
 
   return (
@@ -303,19 +346,46 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox onChange={marketSelectAll} checked={selectAllmarkets} color="primary" />} label="All markets" />
-            </FormGroup>
-            {!selectAllmarkets &&
-              <Grid item xs={12}>
-                <MultiSelect
-                  name="market"
-                  onChange={(val) => marketHandleChange(val, "market")}
-                  options={marketOptions}
-                  style={{ width: "100%" }}
-                  placeholder="Select Market"
-                />
-              </Grid>
+            {!market &&
+              <>
+                {!disableStateCheckbox && 
+                  <FormGroup>
+                    <FormControlLabel control={<Checkbox onChange={stateSelectAll} checked={selectAllStates} color="primary" />} label="All States" />
+                  </FormGroup>
+                }
+                {!selectAllStates &&
+                  <Grid item xs={12}>
+                    <MultiSelect
+                      name="state"
+                      onChange={(val) => stateHandleChange(val, "state")}
+                      options={stateOptions}
+                      style={{ width: "100%" }}
+                      placeholder="Select State"
+                    />
+                  </Grid>
+                }
+              </>
+            }
+            {!state &&
+              <>
+                {!disableMarketCheckbox &&
+                  <FormGroup>
+                    <FormControlLabel control={<Checkbox onChange={marketSelectAll} checked={selectAllmarkets} color="primary" />} label="All Markets" />
+                  </FormGroup>
+                }
+                {!selectAllmarkets &&
+                  <Grid item xs={12}>
+                    <MultiSelect
+                      name="market"
+                      onChange={(val) => marketHandleChange(val, "market")}
+                      options={marketOptions}
+                      style={{ width: "100%" }}
+                      placeholder="Select Market"
+                    />
+                  </Grid>
+
+                }
+              </>
             }
 
 
