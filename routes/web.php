@@ -107,7 +107,7 @@ Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campa
 Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campaignExceptions'])->name('campaign.exceptions');
 Route::post('/store-annotations-row-order', [CampaignController::class, 'storeAnnotationsRowOrder'])->name('store.annotations.row.order');
 
-
+// E-commerce routes
 Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
 Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
 
@@ -115,6 +115,10 @@ Route::get('ecommerce-sales', [EcommerceSaleController::class, 'index'])->name('
 Route::get('ecommerce-sales/import', [EcommerceSaleController::class, 'import'])->name('ecommerce-sales.import');
 Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
 Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');
+
+Route::get('reports/ecommerce-sales', [EcommerceSaleController::class, 'ecommerceSalesReport'])->name('ecommerce.sales.report');
+Route::post('reports/ecommerce-sales/generate', [EcommerceSaleController::class, 'ecommerceSalesReportGenerate'])->name('ecommerce.sales.report.generate');
+// E-commerce routes
 
 Route::post('/campaign-delete', [CampaignController::class, 'delete'])
     ->name('campaign.delete');

@@ -322,6 +322,11 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
+          title: "E-commerce Affiliate",
+          href: "ecommerce.sales.report",
+          Icon: <UserIcon />,
+        },
+        {
           title: "Target",
           href: "generate.report.target",
           Icon: <UserIcon />,
