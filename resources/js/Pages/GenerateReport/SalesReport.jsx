@@ -97,14 +97,14 @@ const SalesReport = () => {
     if (val) {
       const years = val.split(",");
       setYear({ [key]: years });
-      for (let i = 0; i < years.length; i++) {
-        const filteredData = broadCastMonths.filter((item) => {
-          if (new Date(item.start_date).getFullYear().toString() === years[i]) {
-            return item;
-          }
-        });
-        setMonthByYear(filteredData);
-      }
+      // for (let i = 0; i < years.length; i++) {
+      //   const filteredData = broadCastMonths.filter((item) => {
+      //     if (new Date(item.start_date).getFullYear().toString() === years[i]) {
+      //       return item;
+      //     }
+      //   });
+      //   setMonthByYear(filteredData);
+      // }
     } else {
       delete setYear();
     }
@@ -183,17 +183,17 @@ const SalesReport = () => {
 
   let fileName = "";
   if (year?.year && !month) {
-    fileName = `${values?.type}_Report${
+    fileName = `E-commerce_sales_Report${
       affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""
     }_For_(${year.year.toString()})_Created@${currentDate()}`;
   } else if (year?.year && month) {
-    fileName = `${values?.type}_Report${
+    fileName = `E-commerce_sales_Report${
       affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""
     }_For_(${year.year.toString()})_From_${dateFormat(
       values?.start_date
     )}_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
   } else {
-    fileName = `${values?.type}_Report${
+    fileName = `E-commerce_sales_Report${
       affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""
     }_From_${dateFormat(values?.start_date)}_To_${dateFormat(
       values?.end_date
@@ -206,7 +206,6 @@ const SalesReport = () => {
         setOpen(true);
         setResponse(r.data.msg);
       }
-      // console.log(r.data);
       exportToCSV(r.data, fileName);
     });
   };
@@ -219,20 +218,13 @@ const SalesReport = () => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
     // ws['A2'].v = "https://docs.sheetjs.com/#hyperlinks";
     const secondData = apiData.data.length + 5;
-    const call_summary = [];
-    call_summary.push(["Summary of Calls", ""]);
-    Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]]);
-    });
-    const thirdData = apiData.data.length + call_summary.length + 6;
-    const category = [];
-    category.push(["Category", "Total Calls", "Total Revenue"]);
-    Object.keys(apiData.tag_count).forEach((cat) => {
-      category.push(Object.values(apiData.tag_count[cat]));
+    const summary = [];
+    summary.push(["Summary of Sales", ""]);
+    Object.keys(apiData.summary).forEach((cf) => {
+      summary.push([cf, apiData.summary[cf]]);
     });
 
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    XLSX.utils.sheet_add_aoa(ws, category, { origin: `C${thirdData}` });
+    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `C${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -278,76 +270,81 @@ const SalesReport = () => {
                 placeholder="Select Years"
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="broad_cast_month"
-                onChange={monthHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              >
-                <option value="">Select Broadcast Month</option>
-                {monthByYear.map((option, indx) => (
-                  <option key={indx} value={option.broad_cast_month}>
-                    {option.broad_cast_month}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
+            {
+              ((Array.isArray(year) && year.length < 1) || !year) && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="standard-select-currency-native"
+                      select
+                      name="broad_cast_month"
+                      onChange={monthHandleChange}
+                      SelectProps={{
+                        native: true,
+                      }}
+                      fullWidth
+                    >
+                      <option value="">Select Broadcast Month</option>
+                      {monthByYear.map((option, indx) => (
+                        <option key={indx} value={option.broad_cast_month}>
+                          {option.broad_cast_month}
+                        </option>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="standard-select-currency-native"
+                      select
+                      name="broad_cast_week"
+                      onChange={weekHandleChange}
+                      SelectProps={{
+                        native: true,
+                      }}
+                      fullWidth
+                    >
+                      <option value="">Select Broadcast Week</option>
+                      {broadCastWeeks.map((option, indx) => (
+                        <option key={indx} value={option.broad_cast_week}>
+                          {option.broad_cast_week}
+                        </option>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="date"
+                      label="Start Date"
+                      type="date"
+                      name="start_date"
+                      onChange={startDateHandleChange}
+                      value={startDate.start_date}
+                      className={classes.textField}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="date"
+                      label="End Date"
+                      type="date"
+                      name="end_date"
+                      onChange={endDateHandleChange}
+                      value={endDate.end_date}
+                      className={classes.textField}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                    />
+                  </Grid>
+                </>
+              )
+            }
 
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="broad_cast_week"
-                onChange={weekHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              >
-                <option value="">Select Broadcast Week</option>
-                {broadCastWeeks.map((option, indx) => (
-                  <option key={indx} value={option.broad_cast_week}>
-                    {option.broad_cast_week}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                id="date"
-                label="Start Date"
-                type="date"
-                name="start_date"
-                onChange={startDateHandleChange}
-                value={startDate.start_date}
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="date"
-                label="End Date"
-                type="date"
-                name="end_date"
-                onChange={endDateHandleChange}
-                value={endDate.end_date}
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-              />
-            </Grid>
             <Grid item xs={12}>
               <Button
                 variant="contained"
