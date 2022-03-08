@@ -21,10 +21,10 @@ class GenerateReportMarketTargetController extends Controller
     {
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
-        $allTargets = Target::all();
-        $affiliates = Affiliate::all();
-        $broadCastMonths = BroadCastMonth::all();
-        $broadCastWeeks = BroadCastWeeks::all();
+        $allTargets = Target::where('status','=','1')->get();
+        $affiliates = Affiliate::where('status','=','1')->get();
+        $broadCastMonths = BroadCastMonth::where('status','=','1')->get();
+        $broadCastWeeks = BroadCastWeeks::where('status','=','1')->get();
         $campaigns = Campaign::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportMarketTarget', [

@@ -20,10 +20,10 @@ class GenerateReportAffiliateController extends Controller
 
     public function GenerateReportAffiliateForm()
     {
-        $allTargets = Target::all();
-        $affiliates = Affiliate::all();
-        $broadCastMonths = BroadCastMonth::all();
-        $broadCastWeeks = BroadCastWeeks::all();
+        $allTargets = Target::where('status','=','1')->get();
+        $affiliates = Affiliate::where('status','=','1')->get();
+        $broadCastMonths = BroadCastMonth::where('status','=','1')->get();
+        $broadCastWeeks = BroadCastWeeks::where('status','=','1')->get();
         $campaigns      = Campaign::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportAffiliate', [

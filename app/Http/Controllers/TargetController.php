@@ -84,26 +84,7 @@ class TargetController extends Controller
         }
     }
 
-    // fetch data by secdule
-//     public static function getAllTarget()
-//     {
-//         $api = new RingbaApiHelpers();
-//         $results = $api->getTargets();
 
-//         $targets = TargetNames::all();
-//         $all_target_name = [];
-//         foreach ($targets as $target) {
-//             array_push($all_target_name, $target->target_name);
-//         }
-    // //        dd('from db', $all_target_name, 'from api', $results);
-//         foreach ($results as $row) {
-//             $target = new TargetNames();
-//             if (!in_array($row->name, $all_target_name)) {
-//                 $target->target_name = $row->name;
-//                 $target->save();
-//             }
-//         }
-//     }
     public static function getAllTarget()
     {
         $api = new RingbaApiHelpers();
@@ -154,5 +135,16 @@ class TargetController extends Controller
                 $customer->save();
             }
         }
+    }
+
+    public function statusUpdate(Request $request)
+    {
+        $data = Target::find($request->rowId);
+        if ($request->value ==1) {
+            $data->status =0;
+        } else {
+            $data->status =1;
+        }
+        $result = $data->save();
     }
 }

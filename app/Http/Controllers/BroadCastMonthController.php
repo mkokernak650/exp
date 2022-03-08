@@ -8,7 +8,7 @@ use App\Models\BroadCastMonth;
 
 class BroadCastMonthController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -79,5 +79,17 @@ class BroadCastMonthController extends Controller
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
+    }
+
+    
+    public function statusUpdate(Request $request)
+    {
+        $data = BroadCastMonth::find($request->rowId);
+        if ($request->value ==1) {
+            $data->status =0;
+        } else {
+            $data->status =1;
+        }
+        $result = $data->save();
     }
 }
