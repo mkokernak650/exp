@@ -28,11 +28,10 @@ import eyeIcon from "../../../images/eyeIcon.svg";
 import Edit from "../../../images/edit1.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Cancel from "../../../images/cancel.svg";
-
+import Switch from "@material-ui/core/Switch";
 import {
   hideColumn,
   showColumn,
-  closeRowEditors,
 } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -220,6 +219,7 @@ const Targets = () => {
     customer: item.Customer,
     Ringba_Target_Name: item.Ringba_Targets_Name,
     Description: item.Description,
+    status: [item.status, item.id],
     id: item.id,
     key: index,
   }));
@@ -287,6 +287,7 @@ const Targets = () => {
     );
   };
 
+
   const tablePropsInit = {
     columns: [
       {
@@ -322,6 +323,11 @@ const Targets = () => {
         dataType: DataType.String,
         style: { width: 360 },
       },
+      {
+        key: "status",
+        title: "Status",
+        style: { width: 240 },
+      },
     ],
     paging: {
       enabled: true,
@@ -344,9 +350,22 @@ const Targets = () => {
           </div>
         );
       }
+      if (column.key === "status") {
+        return (
+          <Switch
+            checked={value[0] === 1 && true}
+            color="primary"
+            onChange={() => handleStatus(event, value[0], value[1])}
+          />
+        );
+      }
+
+
+
     },
-    // rowReordering: true,
   };
+
+
 
   // console.table(tablePropsInit.columns)
 
@@ -356,6 +375,27 @@ const Targets = () => {
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
+
+  const handleStatus = (e, value, rowId) => {
+    axios.post(route('target.status.update'), { value: value, rowId: rowId })
+      .then((res) => {
+        let tmpData = { ...tableProps }
+        tmpData.data.filter((item, indx) => {
+          if (item.id === rowId) {
+            if (tmpData.data[indx].status[0] == 1) {
+              tmpData.data[indx].status = [0, rowId];
+            } else {
+              tmpData.data[indx].status = [1, rowId];
+            }
+          }
+        });
+        changeTableProps(tmpData)
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
+
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action);
@@ -489,10 +529,10 @@ const Targets = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("target-report"));
-    if(storedData?.selectedRows)  storedData.selectedRows= [];
+    if (storedData?.selectedRows) storedData.selectedRows = [];
     localStorage.setItem("target-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    if(filteredData?.selectedRows) filteredData.selectedRows = [];
+    if (filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 
@@ -588,7 +628,7 @@ const Targets = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-          <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -622,7 +662,7 @@ const Targets = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

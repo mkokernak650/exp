@@ -37,6 +37,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
 import { Button, makeStyles } from "@material-ui/core";
+import Switch from "@material-ui/core/Switch";
+
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
@@ -141,6 +143,8 @@ const BroadcastWeekReport = () => {
     broad_cast_week: item.broad_cast_week,
     start_date: item.start_date,
     end_date: item.end_date,
+    status: [item.status, item.id],
+
     id: item.id,
     key: index,
   }));
@@ -242,6 +246,11 @@ const BroadcastWeekReport = () => {
         dataType: DataType.String,
         style: { minWidth: 100 },
       },
+      {
+        key: "status",
+        title: "Status",
+        style: { width: 240 },
+      },
     ],
     paging: {
       enabled: true,
@@ -263,6 +272,15 @@ const BroadcastWeekReport = () => {
           </div>
         );
       }
+      if (column.key === "status") {
+        return (
+          <Switch
+            checked={value[0] === 1 && true}
+            color="primary"
+            onChange={() => handleStatus(event, value[0], value[1])}
+          />
+        );
+      }
     },
   };
 
@@ -272,6 +290,25 @@ const BroadcastWeekReport = () => {
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
+  const handleStatus = (e, value, rowId) => {
+    axios.post(route('broadcast.week.status.update'), { value: value, rowId: rowId })
+      .then((res) => {
+        let tmpData = { ...tableProps }
+        tmpData.data.filter((item, indx) => {
+          if (item.id === rowId) {
+            if (tmpData.data[indx].status[0] == 1) {
+              tmpData.data[indx].status = [0, rowId];
+            } else {
+              tmpData.data[indx].status = [1, rowId];
+            }
+          }
+        });
+        changeTableProps(tmpData)
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action);

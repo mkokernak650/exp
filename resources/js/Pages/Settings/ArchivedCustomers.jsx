@@ -1,6 +1,6 @@
 import Layout from "../Layout/Layout";
 import M from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef} from "react";
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -206,6 +206,7 @@ const ArchivedCustomers = () => {
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
+  const showColumnRef = useRef();
 
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
@@ -456,7 +457,23 @@ const ArchivedCustomers = () => {
     setOpenModal({ open: true });
   };
 
-  useEffect(() => M.AutoInit());
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (
+        showColumns &&
+        showColumnRef.current &&
+        !showColumnRef.current.contains(e.target)
+      ) {
+        setShowColumns(false);
+      }
+    };
+
+    document.addEventListener("mousedown", checkIfClickedOutside);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("archived-customers"));
