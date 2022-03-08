@@ -8,6 +8,7 @@ use App\Models\BroadCastMonth;
 use App\Models\Campaign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Affiliate;
 
 class ReportGeneratorController extends Controller
 {
@@ -91,7 +92,6 @@ class ReportGeneratorController extends Controller
     public function callLengthReport(Request $request)
     {
         $campaign = Campaign::find($request->input('campaign'));
-
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
@@ -226,6 +226,7 @@ class ReportGeneratorController extends Controller
             ]
         ];
         $sum_of_total_calls=0;
+        $summary_total_payouts=0;
 
         $finalArray=[];
         foreach ($call_length_array as $item) {
@@ -247,6 +248,7 @@ class ReportGeneratorController extends Controller
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls++;
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_seconds+=$record->call_Length_In_Seconds;
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_payouts+=$record->payoutAmount;
+                    $summary_total_payouts+=$record->payoutAmount;
                     $sum_of_total_calls +=1;
                 }
             }
@@ -258,7 +260,32 @@ class ReportGeneratorController extends Controller
             $finalArray[$item['minLength'].'_'.$item['maxLength']]->$percent_of_calls= round(($finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls*100)/
             $sum_of_total_calls, 1).'%';
         }
-        return ['data'=>$finalArray];
+       
+        $call_summary_affiliates=[];
+        $affiliates= Affiliate::all();
+        if (!empty($affiliate_ids)) {
+            foreach ($affiliate_ids as $id) {
+                foreach ($affiliates as $affiliate) {
+                    if ($affiliate->affiliate_id == $id) {
+                        array_push($call_summary_affiliates, $affiliate->affiliate_name);
+                    }
+                }
+            }
+        }
+
+
+        $call_summary['Campaign Name'] = $request->campaign_name;
+        $call_summary['Date Range'] = $request->campaign_name;
+        $call_summary['Total Calls'] = count($total_call_records);
+        $call_summary['Total Payout'] =$summary_total_payouts;
+        $call_summary['Destination Number'] = $request->destination_number;
+        $call_summary['Affiliates'] = implode(",", $call_summary_affiliates);
+
+        return [
+            'data'=>$finalArray,
+            'call_summary'=>$call_summary,
+
+        ];
     }
 
     private function callLengthReportData($tablename, $condition, $whereIn = [], $whereInOr=[])
