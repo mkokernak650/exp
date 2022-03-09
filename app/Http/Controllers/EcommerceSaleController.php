@@ -11,6 +11,7 @@ use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceSale;
+use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -65,25 +66,37 @@ class EcommerceSaleController extends Controller
         $affiliates = Affiliate::all();
         $broadCastMonths = BroadCastMonth::all();
         $broadCastWeeks = BroadCastWeeks::all();
-        return Inertia::render('GenerateReport/SalesReport', compact('affiliates', 'broadCastMonths', 'broadCastWeeks'));
+        $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
+        $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+        return Inertia::render('GenerateReport/SalesReport', compact('affiliates', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets'));
     }
 
     public function ecommerceSalesReportGenerate(Request $request)
     {
+        $states = $request->input('states');
+        $markets = $request->input('markets');
         $affiliateIds = $request->input('affiliate_id');
         $couponCode = $request->input('coupon_code');
         $year = $request->input('year');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // $affiliateArray = [];
-        // EcommerceAffiliate::select('id', 'coupon_code', 'percentage')->get()->each(function ($item) use (&$affiliateArray) {
-        //     $affiliateArray[$item->coupon_code] = $item->percentage;
-        // })->toArray();
+        $zipCodes = [];
+        if(!empty($states) || !empty($markets)) {
+            $zipCodes = ZipcodeByTelevisionMarket::
+            when(!empty($states), function($q) use ($states) {
+                $q->whereIn('state', $states);
+            })->when(!empty($markets), function($q) use ($markets) {
+                $q->whereIn('market', $markets);
+            })->get('zip_code')->pluck('zip_code');
+        }
 
         $salesData = DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
+            ->when(!empty($states) || !empty($markets), function ($q) use ($zipCodes) {
+                $q->whereIn('shipping_zip', $zipCodes);
+            })
             ->when(isset($affiliateIds) && is_array($affiliateIds), function ($q) use ($affiliateIds) {
                 $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds);
             })
@@ -109,18 +122,17 @@ class EcommerceSaleController extends Controller
                 'ecommerce_sales.coupon_code',
                 // DB::raw('YEAR(ecommerce_sales.order_at)'),
                 // DB::raw('MONTH(ecommerce_sales.order_at)'),
-                // DB::raw('DAY(ecommerce_sales.order_at)'),
             )
             ->select(
                 // DB::raw("DATE_FORMAT(ecommerce_sales.order_at, '%M, %Y') as `Order Date`"),
                 'affiliates.affiliate_name AS Affiliate',
                 'ecommerce_sales.coupon_code AS Coupon Code',
-                'ecommerce_affiliates.percentage AS Percentage %',
-                DB::raw('ROUND(SUM(ecommerce_sales.shipping_cost), 2) AS `Shipping Cost`'),
+                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+                'ecommerce_affiliates.percentage AS Percentage %',
                 DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100, 2) AS `Commission`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100), 2) AS `Net Amount`'),
-                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.shipping_cost), 2) AS `Shipping Cost`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.percentage / 100, 2) AS `Avg. Commission`'),
                 DB::raw('ROUND((SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100)) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value After Commission`'),
@@ -142,7 +154,7 @@ class EcommerceSaleController extends Controller
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         return [
-            'data'         => $salesData,
+            'data' => $salesData,
             'summary' => $summary,
         ];
     }
