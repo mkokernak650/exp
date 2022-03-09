@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 const SalesReport = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, broadCastWeeks } = usePage().props;
+  const { affiliates, broadCastMonths, broadCastWeeks, states, markets } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [monthByYear, setMonthByYear] = useState(broadCastMonths);
@@ -55,6 +55,8 @@ const SalesReport = () => {
   const [startDate, setStartDate] = useState({ start_date: "" });
   const [endDate, setEndDate] = useState({ end_date: "" });
   const [couponCode, setCouponCode] = useState("");
+  const [state, setState] = useState([]);
+  const [market, setMarket] = useState([]);
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
@@ -97,16 +99,38 @@ const SalesReport = () => {
     if (val) {
       const years = val.split(",");
       setYear({ [key]: years });
-      // for (let i = 0; i < years.length; i++) {
-      //   const filteredData = broadCastMonths.filter((item) => {
-      //     if (new Date(item.start_date).getFullYear().toString() === years[i]) {
-      //       return item;
-      //     }
-      //   });
-      //   setMonthByYear(filteredData);
-      // }
     } else {
       delete setYear();
+    }
+  };
+
+  const stateOptions = states.map((item) => ({
+    label: item.state,
+    value: item.state + ",",
+  }));
+
+  const marketOptions = markets.map((item) => ({
+    label: item.market,
+    value: item.market + ",",
+  }));
+
+  const stateHandleChange = (val, key) => {
+    if (val) {
+      val = val.substring(0, val.length - 1);
+      const states = val.split(",,");
+      setState({ [key]: states });
+    } else {
+      setState([]);
+    }
+  };
+
+  const marketHandleChange = (val, key) => {
+    if (val) {
+      val = val.substring(0, val.length - 1);
+      const markets = val.split(",,");
+      setMarket({ [key]: markets });
+    } else {
+      setMarket([]);
     }
   };
 
@@ -150,6 +174,8 @@ const SalesReport = () => {
   };
 
   const values = {
+    ...state,
+    ...market,
     ...affiliate,
     ...couponCode,
     ...year,
@@ -206,6 +232,7 @@ const SalesReport = () => {
         setOpen(true);
         setResponse(r.data.msg);
       }
+      // console.log(r.data);
       exportToCSV(r.data, fileName);
     });
   };
@@ -224,7 +251,7 @@ const SalesReport = () => {
       summary.push([cf, apiData.summary[cf]]);
     });
 
-    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `C${secondData}` });
+    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `E${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -242,6 +269,28 @@ const SalesReport = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+            {market.length < 1 && (
+              <Grid item xs={12}>
+                <MultiSelect
+                  name="states"
+                  onChange={(val) => stateHandleChange(val, "states")}
+                  options={stateOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select States"
+                />
+              </Grid>
+            )}
+            {state.length < 1 && (
+              <Grid item xs={12}>
+                <MultiSelect
+                  name="markets"
+                  onChange={(val) => marketHandleChange(val, "markets")}
+                  options={marketOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select Markets"
+                />
+              </Grid>
+            )}
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
@@ -270,80 +319,78 @@ const SalesReport = () => {
                 placeholder="Select Years"
               />
             </Grid>
-            {
-              ((Array.isArray(year) && year.length < 1) || !year) && (
-                <>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="standard-select-currency-native"
-                      select
-                      name="broad_cast_month"
-                      onChange={monthHandleChange}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      fullWidth
-                    >
-                      <option value="">Select Broadcast Month</option>
-                      {monthByYear.map((option, indx) => (
-                        <option key={indx} value={option.broad_cast_month}>
-                          {option.broad_cast_month}
-                        </option>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="standard-select-currency-native"
-                      select
-                      name="broad_cast_week"
-                      onChange={weekHandleChange}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      fullWidth
-                    >
-                      <option value="">Select Broadcast Week</option>
-                      {broadCastWeeks.map((option, indx) => (
-                        <option key={indx} value={option.broad_cast_week}>
-                          {option.broad_cast_week}
-                        </option>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="date"
-                      label="Start Date"
-                      type="date"
-                      name="start_date"
-                      onChange={startDateHandleChange}
-                      value={startDate.start_date}
-                      className={classes.textField}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="date"
-                      label="End Date"
-                      type="date"
-                      name="end_date"
-                      onChange={endDateHandleChange}
-                      value={endDate.end_date}
-                      className={classes.textField}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      fullWidth
-                    />
-                  </Grid>
-                </>
-              )
-            }
+            {((Array.isArray(year) && year.length < 1) || !year) && (
+              <>
+                <Grid item xs={12}>
+                  <TextField
+                    id="standard-select-currency-native"
+                    select
+                    name="broad_cast_month"
+                    onChange={monthHandleChange}
+                    SelectProps={{
+                      native: true,
+                    }}
+                    fullWidth
+                  >
+                    <option value="">Select Broadcast Month</option>
+                    {monthByYear.map((option, indx) => (
+                      <option key={indx} value={option.broad_cast_month}>
+                        {option.broad_cast_month}
+                      </option>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    id="standard-select-currency-native"
+                    select
+                    name="broad_cast_week"
+                    onChange={weekHandleChange}
+                    SelectProps={{
+                      native: true,
+                    }}
+                    fullWidth
+                  >
+                    <option value="">Select Broadcast Week</option>
+                    {broadCastWeeks.map((option, indx) => (
+                      <option key={indx} value={option.broad_cast_week}>
+                        {option.broad_cast_week}
+                      </option>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    id="date"
+                    label="Start Date"
+                    type="date"
+                    name="start_date"
+                    onChange={startDateHandleChange}
+                    value={startDate.start_date}
+                    className={classes.textField}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    id="date"
+                    label="End Date"
+                    type="date"
+                    name="end_date"
+                    onChange={endDateHandleChange}
+                    value={endDate.end_date}
+                    className={classes.textField}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+              </>
+            )}
 
             <Grid item xs={12}>
               <Button
