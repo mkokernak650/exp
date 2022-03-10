@@ -11,7 +11,7 @@ import {
   ActionType,
 } from "ka-table/enums";
 import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+import {  usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
@@ -325,6 +325,7 @@ const CustomerReport = () => {
         dataType: DataType.String,
         style: { width: 240 },
       },
+  
     ],
     paging: {
       enabled: true,
@@ -346,6 +347,7 @@ const CustomerReport = () => {
           </div>
         );
       }
+     
     },
   };
 
@@ -516,10 +518,10 @@ const CustomerReport = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("customer-report"));
-    if(storedData?.selectedRows)  storedData.selectedRows= [];
+    if (storedData?.selectedRows) storedData.selectedRows = [];
     localStorage.setItem("customer-report", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    if(filteredData?.selectedRows) filteredData.selectedRows = [];
+    if (filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 
@@ -624,7 +626,7 @@ const CustomerReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-       <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search"></img>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -658,7 +660,7 @@ const CustomerReport = () => {
               ""
             )}
             {showColumns ? (
-                <div className="column-settings" ref={showColumnRef}>
+              <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (

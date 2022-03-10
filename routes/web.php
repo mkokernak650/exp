@@ -187,6 +187,7 @@ Route::get('/archived-customers', [CustomerController::class, 'archivedCustomers
 Route::get('customer-export/{type}', [CustomerController::class, 'export'])
     ->name('customer.export');
 
+
 Route::get('/add-affiliate', [AffiliateController::class, 'addAffiliateForm'])
     ->name('add.affiliate');
 
@@ -290,6 +291,9 @@ Route::post('/target-delete', [TargetController::class, 'delete'])
 Route::post('/target-edit', [TargetController::class, 'edit'])
     ->name('target.edit');
 
+    Route::post('/target-status-update', [TargetController::class, 'statusUpdate'])
+    ->name('target.status.update');
+
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])
     ->name('update.annotation');
 
@@ -344,6 +348,8 @@ Route::post('/broadcast-month-delete', [BroadCastMonthController::class, 'delete
 
 Route::post('/broadcast-month-edit', [BroadCastMonthController::class, 'edit'])
     ->name('broadcast.month.edit');
+    Route::post('/broadcast-month-status-update', [BroadCastMonthController::class, 'statusUpdate'])
+    ->name('broadcast.month.status.update');
 
 Route::get('/add-broadcast-week', [BroadCastWeeksController::class, 'index'])
     ->name('add.broadcast.week');
@@ -359,6 +365,9 @@ Route::post('/broadcast-week-delete', [BroadCastWeeksController::class, 'delete'
 
 Route::post('/broadcast-week-edit', [BroadCastWeeksController::class, 'edit'])
     ->name('broadcast.week.edit');
+
+    Route::post('/broadcast-week-status-update', [BroadCastWeeksController::class, 'statusUpdate'])
+    ->name('broadcast.week.status.update');
 
 Route::get('/add-tv-households', [TVHouseholdsController::class, 'AddTvHouseholds'])
     ->name('add.tv.households');

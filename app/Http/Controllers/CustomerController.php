@@ -139,4 +139,5 @@ class CustomerController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
+ 
 }

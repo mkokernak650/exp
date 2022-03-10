@@ -242,6 +242,7 @@ const GenerateReportAffiliate = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
         setOpen(true);
+        console.log(r.data)
         setResponse(r.data.msg);
       }
       exportToCSV(r.data, fileName);
@@ -254,9 +255,6 @@ const GenerateReportAffiliate = () => {
 
   const exportToCSV = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    // ws['A2'].v = "https://docs.sheetjs.com/#hyperlinks";
-    // console.log(apiData)
-    // console.log(ws)
     const secondData = apiData.data.length + 5;
     const call_summary = [];
     call_summary.push(["Summary of Calls", ""]);
@@ -289,6 +287,7 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+     
             <Grid item xs={12}>
               <RadioGroup
                 aria-label="type"

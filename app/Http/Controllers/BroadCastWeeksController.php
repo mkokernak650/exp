@@ -81,4 +81,16 @@ class BroadCastWeeksController extends Controller
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
     }
+
+    
+    public function statusUpdate(Request $request)
+    {
+        $data = BroadCastWeeks::find($request->rowId);
+        if ($request->value ==1) {
+            $data->status =0;
+        } else {
+            $data->status =1;
+        }
+        $result = $data->save();
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\BroadCastMonth;
 use App\Models\Campaign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Affiliate;
 
 class ReportGeneratorController extends Controller
 {
@@ -91,7 +92,6 @@ class ReportGeneratorController extends Controller
     public function callLengthReport(Request $request)
     {
         $campaign = Campaign::find($request->input('campaign'));
-
         $report_type = $request->type; // billed or general
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
@@ -226,6 +226,7 @@ class ReportGeneratorController extends Controller
             ]
         ];
         $sum_of_total_calls=0;
+        $summary_total_payouts=0;
 
         $finalArray=[];
         foreach ($call_length_array as $item) {
@@ -247,6 +248,7 @@ class ReportGeneratorController extends Controller
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls++;
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_seconds+=$record->call_Length_In_Seconds;
                     $finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_payouts+=$record->payoutAmount;
+                    $summary_total_payouts+=$record->payoutAmount;
                     $sum_of_total_calls +=1;
                 }
             }
@@ -258,7 +260,32 @@ class ReportGeneratorController extends Controller
             $finalArray[$item['minLength'].'_'.$item['maxLength']]->$percent_of_calls= round(($finalArray[$item['minLength'].'_'.$item['maxLength']]->$total_calls*100)/
             $sum_of_total_calls, 1).'%';
         }
-        return ['data'=>$finalArray];
+       
+        $call_summary_affiliates=[];
+        $affiliates= Affiliate::all();
+        if (!empty($affiliate_ids)) {
+            foreach ($affiliate_ids as $id) {
+                foreach ($affiliates as $affiliate) {
+                    if ($affiliate->affiliate_id == $id) {
+                        array_push($call_summary_affiliates, $affiliate->affiliate_name);
+                    }
+                }
+            }
+        }
+
+
+        $call_summary['Campaign Name'] = $request->campaign_name;
+        $call_summary['Date Range'] = $request->campaign_name;
+        $call_summary['Total Calls'] = count($total_call_records);
+        $call_summary['Total Payout'] =$summary_total_payouts;
+        $call_summary['Destination Number'] = $request->destination_number;
+        $call_summary['Affiliates'] = implode(",", $call_summary_affiliates);
+
+        return [
+            'data'=>$finalArray,
+            'call_summary'=>$call_summary,
+
+        ];
     }
 
     private function callLengthReportData($tablename, $condition, $whereIn = [], $whereInOr=[])
@@ -290,9 +317,10 @@ class ReportGeneratorController extends Controller
 
     public function marketTargetReport(Request $request)
     {
-        // dd($request);
+        //     dd($request);
         $campaign = Campaign::find($request->input('campaign'));
         $market_name = $request->market;
+        $state_name = $request->state;
         $newData = [];
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
@@ -332,6 +360,10 @@ class ReportGeneratorController extends Controller
             $market_name_inputs = implode("','", $market_name);
             $whereIn[] = "billed_call_logs.Market IN ('$market_name_inputs')";
         }
+        if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
+            $state_name_inputs = implode("','", $state_name);
+            $whereIn[] = "billed_call_logs.State IN ('$state_name_inputs')";
+        }
 
         // if ($market_name !== null) {
         //     $condition[] = "billed_call_logs.Market='$market_name'";
@@ -350,38 +382,41 @@ class ReportGeneratorController extends Controller
             $ids = implode("','", $target_name);
             $whereIn[] = "Target IN ('$ids')";
         }
+        if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
+            $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, 'state');
+        } elseif (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
+            $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, 'market');
+        }
 
-        $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr);
         $t_revenue='Total Revenue';
         // dd($billed);
         foreach ($billed as $bill) {
             if ($request->start_date !== null) {
                 $newData [] = (object)[
                 'Date Range'=> $request->start_date.' - '. $request->end_date,
-                'Market'=>$bill->Market,
-                'Nielsen TV Households'=>$bill->tv_households,
+                !empty($market_name)? 'Market':"state"=> !empty($market_name)?$bill->Market:$bill->State,
+                'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
                 'Billed'=>$bill->Billed,
                 'Total Revenue'=> $bill->$t_revenue,
-                'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
-
+                'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
             ];
             } elseif ($request->year !== null) {
                 $newData [] = (object)[
                     'Date Range'=>'years('. implode(",", $request->year).')',
-                    'Market'=>$bill->Market,
-                    'Nielsen TV Households'=>$bill->tv_households,
+                    !empty($market_name)? 'Market':"state"=> !empty($market_name)?$bill->Market:$bill->State,
+                    'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
                     'Billed'=>$bill->Billed,
                     'Total Revenue'=> $bill->$t_revenue,
-                    'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                    'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
                 ];
             } else {
                 $newData [] = (object)[
                     'Date Range'=>'all',
-                    'Market'=>$bill->Market,
-                    'Nielsen TV Households'=>$bill->tv_households,
+                    !empty($market_name)? 'Market':"state"=> !empty($market_name)?$bill->Market:$bill->State,
+                    'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
                     'Billed'=>$bill->Billed,
                     'Total Revenue'=> $bill->$t_revenue,
-                    'Average Homes Per Call'=>$bill->tv_households/$bill->Billed,
+                    'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
                 ];
             }
         }
@@ -390,15 +425,16 @@ class ReportGeneratorController extends Controller
         if (empty($billed)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
-        
+        // dd($newData);
+        $collection=collect($newData)->sortBy('Average Homes Per Call');
      
         return [
-            'data'=> $newData
+            'data'=>$collection->values()->all()
         ];
     }
 
 
-    private function marketTargetReportData($tablename, $condition, $whereIn = [], $whereInOr=[])
+    private function marketTargetReportData($tablename, $condition, $whereIn = [], $whereInOr=[], $type)
     {
         $con = '';
         foreach ($condition as $v) {
@@ -416,11 +452,20 @@ class ReportGeneratorController extends Controller
         }
         $con = rtrim($con, " AND ");
         $con = rtrim($con, " OR ");
-        $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.Market,{$tablename}.State, Revenue,SUM(Revenue) AS 'Total Revenue', Count({$tablename}.Market) AS 'Billed'
-        FROM {$tablename}
-        LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
-        LEFT JOIN t_v_households ON {$tablename}.Market = t_v_households.market
-        WHERE {$con} GROUP BY {$tablename}.Market"  ;
+        if ($type==='state') {
+            $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.State, Revenue,SUM(Revenue) AS 'Total Revenue', Count({$tablename}.State) AS 'Billed'
+            FROM {$tablename}
+            LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
+            LEFT JOIN t_v_households ON {$tablename}.State = t_v_households.state
+            WHERE {$con} GROUP BY {$tablename}.State";
+        } else {
+            $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.Market,{$tablename}.State, Revenue,SUM(Revenue) AS 'Total Revenue', Count({$tablename}.Market) AS 'Billed'
+            FROM {$tablename}
+            LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
+            LEFT JOIN t_v_households ON {$tablename}.Market = t_v_households.market
+            WHERE {$con} GROUP BY {$tablename}.Market"  ;
+        }
+
         return DB::select($sql);
     }
 

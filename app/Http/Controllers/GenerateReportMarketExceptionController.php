@@ -12,7 +12,7 @@ use Inertia\Inertia;
 
 class GenerateReportMarketExceptionController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -21,9 +21,9 @@ class GenerateReportMarketExceptionController extends Controller
     {
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
         $allTargets = Target::all();
-        $affiliates = Affiliate::all();
-        $broadCastMonths = BroadCastMonth::all();
-        $broadCastWeeks = BroadCastWeeks::all();
+        $affiliates = Affiliate::where('status', '=', '1')->get();
+        $broadCastMonths = BroadCastMonth::where('status', '=', '1')->get();
+        $broadCastWeeks = BroadCastWeeks::where('status', '=', '1')->get();
         $campaigns = Campaign::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportMarketException', [

@@ -233,8 +233,8 @@ const GenerateReportAffiliate = () => {
       }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
   }
   else {
-    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_From_${dateFormat(values?.start_date)
-      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}${startDate?.start_date ? `_From_${dateFormat(values?.start_date)
+      }_To_${dateFormat(values?.end_date)}` : ""}_Created@${currentDate()}`;
   }
 
   const handleSubmit = () => {
@@ -253,6 +253,16 @@ const GenerateReportAffiliate = () => {
 
   const exportToCSV = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName);
+    const secondData = Object.keys(apiData.data).length + 5;
+    const call_summary = [];
+    Object.keys(apiData.call_summary).forEach((cf) => {
+      call_summary.push([cf, apiData.call_summary[cf]]);
+    });
+
+    console.log(secondData);
+
+
+    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });

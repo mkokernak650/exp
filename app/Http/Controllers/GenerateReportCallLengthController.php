@@ -20,11 +20,11 @@ class GenerateReportCallLengthController extends Controller
 
     public function GenerateReportCallLengthForm()
     {
-        $allTargets = Target::all();
-        $affiliates = Affiliate::all();
+        $allTargets = Target::where('status','=','1')->get();
+        $affiliates = Affiliate::where('status','=','1')->get();
         $campaigns      = Campaign::active()->get();
-        $broadCastMonths = BroadCastMonth::all();
-        $broadCastWeeks = BroadCastWeeks::all();
+        $broadCastMonths = BroadCastMonth::where('status','=','1')->get();
+        $broadCastWeeks = BroadCastWeeks::where('status','=','1')->get();
 
         return Inertia::render('GenerateReport/GenerateReportCallLength', [
             'targets'=>$allTargets,
