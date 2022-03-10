@@ -32,8 +32,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Edit from "../../../images/edit1.svg";
 import Checkbox from "@material-ui/core/Checkbox";
-import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
+import { Button, TextField, makeStyles } from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
@@ -93,6 +93,16 @@ const operators = [
 
 export const fields = [
   {
+    caption: "Campaign",
+    name: "campaign",
+    operators,
+  },
+  {
+    caption: "Customer",
+    name: "customer",
+    operators,
+  },
+  {
     caption: "Affiliate",
     name: "affiliate",
     operators,
@@ -103,7 +113,12 @@ export const fields = [
     operators,
   },
   {
-    caption: "Percentage",
+    caption: "Affiliate Fee",
+    name: "affiliate_fee",
+    operators,
+  },
+  {
+    caption: "Commission",
     name: "percentage",
     operators,
   },
@@ -137,7 +152,8 @@ export const filter = {
 
 const AffiliateIndex = () => {
   const classes = useStyles();
-  const { ecommerceAffiliates } = usePage().props;
+  const { ecommerceAffiliates, affiliates, campaigns, customers } =
+    usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -150,6 +166,7 @@ const AffiliateIndex = () => {
   const showColumnRef = useRef();
 
   const handleEditChange = (e) => {
+    // console.log(e.target.value);
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
 
@@ -159,13 +176,30 @@ const AffiliateIndex = () => {
     },
   };
 
+  const getCustomerNameById = (id) => {
+    const customer = customers.find((customer) => customer.id == id);
+    return customer ? customer.customer_name : "";
+  };
+
+  const getCampaignNameById = (id) => {
+    const campaign = campaigns.find((campaign) => campaign.id == id);
+    return campaign ? campaign.campaign_name : "";
+  };
+
+  const getAffiliateNameById = (id) => {
+    const affiliate = affiliates.find((affiliate) => affiliate.id == id);
+    return affiliate ? affiliate.affiliate_name : "";
+  };
+
   const handleEditSubmit = () => {
     axios
       .put(route("ecommerce-affiliates.update", editData.id), editData, headers)
       .then((res) => {
+        let campaignName = getCampaignNameById(editData.campaign_id);
+        let customerName = getCustomerNameById(editData.customer_id);
+        let affiliateName = getAffiliateNameById(editData.affiliate_id);
         let filteredData = tableProps;
-        filteredData.data[editData.sl - 1].percentage = editData.percentage;
-        filteredData.data[editData.sl - 1].coupon_code = editData.coupon_code;
+        filteredData.data[editData.sl - 1] = { ...editData, campaign: campaignName, customer: customerName, affiliate: affiliateName };
 
         setEditData();
         setShowEditModal({ open: false });
@@ -187,8 +221,14 @@ const AffiliateIndex = () => {
   const dataArray = ecommerceAffiliates.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
+    campaign_id: item.campaign_id,
+    customer_id: item.customer_id,
+    affiliate_id: item.affiliate_id,
+    campaign: item.campaign.campaign_name,
+    customer: item.customer.customer_name,
     affiliate: item.affiliate.affiliate_name,
     coupon_code: item.coupon_code,
+    affiliate_fee: item.affiliate_fee,
     percentage: item.percentage,
     // status: item.status,
     id: item.id,
@@ -276,13 +316,25 @@ const AffiliateIndex = () => {
       },
       {
         key: "selection-cell",
-        style: { width: 40 },
+        style: { width: 60 },
       },
       {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
         style: { width: 40 },
+      },
+      {
+        key: "campaign",
+        title: "Campaign",
+        dataType: DataType.String,
+        style: { width: 100 },
+      },
+      {
+        key: "customer",
+        title: "Customer",
+        dataType: DataType.String,
+        style: { width: 100 },
       },
       {
         key: "affiliate",
@@ -297,10 +349,16 @@ const AffiliateIndex = () => {
         style: { width: 100 },
       },
       {
-        key: "percentage",
-        title: "Percentage",
+        key: "affiliate_fee",
+        title: "Affiliate Fee",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 80 },
+      },
+      {
+        key: "percentage",
+        title: "Commission",
+        dataType: DataType.String,
+        style: { width: 80 },
       },
       // {
       //   key: "status",
@@ -640,34 +698,111 @@ const AffiliateIndex = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Coupon Code:</span>
-            <TextField
-              value={editData ? editData.coupon_code : ""}
-              fullWidth
-              margin="normal"
-              name="coupon_code"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Percentage:</span>
-            <TextField
-              value={editData ? editData.percentage : ""}
-              fullWidth
-              margin="normal"
-              name="percentage"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleEditSubmit}
-              className={classes.editButton}
-            >
-              Update
-            </Button>
+            <Grid container spacing={4}>
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData.campaign_id : ""}
+                  select
+                  name="campaign_id"
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={false}
+                >
+                  <option value="">Select Campaign</option>
+                  {campaigns.map((option, indx) => (
+                    <option key={indx + `-1`} value={option.id}>
+                      {option.campaign_name}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData.customer_id : ""}
+                  select
+                  name="customer_id"
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={true}
+                >
+                  <option value="">Select Customer</option>
+                  {customers.map((option, indx) => (
+                    <option key={indx + `-2`} value={option.id}>
+                      {option.customer_name}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData.affiliate_id : ""}
+                  select
+                  name="affiliate_id"
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={true}
+                >
+                  <option value="">Select Affiliate</option>
+                  {affiliates.map((option, indx) => (
+                    <option key={indx + `-3`} value={option.id}>
+                      {option.affiliate_name}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData.coupon_code : ""}
+                  label="Coupon Code"
+                  type="text"
+                  name="coupon_code"
+                  placeholder="Exp: #CX12345"
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={true}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData.affiliate_fee : ""}
+                  label="Affiliate Fee %"
+                  type="text"
+                  name="affiliate_fee"
+                  placeholder="Exp: 0.5"
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={true}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData.percentage : ""}
+                  label="Commission %"
+                  type="text"
+                  name="percentage"
+                  placeholder="Exp: 0.5"
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={true}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEditSubmit}
+                  className={classes.editButton}
+                >
+                  Update
+                </Button>
+              </Grid>
+            </Grid>
           </form>
 
           <div

@@ -12,16 +12,24 @@ class EcommerceAffiliate extends Model
     use HasFactory;
 
     protected $fillable = [
+        'campaign_id',
+        'customer_id',
         'affiliate_id',
         'coupon_code',
+        'affiliate_fee',
         'percentage',
-        'field_map',
         'status',
     ];
 
-    protected $casts = [
-        'field_map' => 'array'
-    ];
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     public function affiliate(): BelongsTo
     {

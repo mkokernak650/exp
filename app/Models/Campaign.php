@@ -16,6 +16,11 @@ class Campaign extends Model
         'status',
     ];
 
+    public function ecommerceAffiliates(): HasMany
+    {
+        return $this->hasMany(EcommerceAffiliate::class);
+    }
+
     public function marketExceptions(): HasMany
     {
         return $this->hasMany(MarketExcptions::class);

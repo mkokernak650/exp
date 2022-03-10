@@ -48,17 +48,8 @@ class EcommerceSaleController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result =  EcommerceSale::where('id', $request->selectedRowIds[$i])->delete();
-            $i++;
-        }
-        if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
-        }
+        EcommerceSale::whereIn('id', $request->selectedRowIds)->delete();
+        return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
     }
 
     public function ecommerceSalesReport()
