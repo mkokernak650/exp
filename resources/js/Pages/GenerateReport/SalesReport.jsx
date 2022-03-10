@@ -44,7 +44,14 @@ const useStyles = makeStyles((theme) => ({
 const SalesReport = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, broadCastWeeks, states, markets } = usePage().props;
+  const {
+    affiliates,
+    broadCastMonths,
+    broadCastWeeks,
+    couponCodes,
+    states,
+    markets,
+  } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [monthByYear, setMonthByYear] = useState(broadCastMonths);
@@ -54,13 +61,45 @@ const SalesReport = () => {
   const [week, setWeek] = useState("");
   const [startDate, setStartDate] = useState({ start_date: "" });
   const [endDate, setEndDate] = useState({ end_date: "" });
-  const [couponCode, setCouponCode] = useState("");
+  const [couponCode, setCouponCode] = useState([]);
   const [state, setState] = useState([]);
   const [market, setMarket] = useState([]);
+
+  let yearsArray = [];
+  for (let i = 0; i < 5; i++) {
+    let years = new Date().getFullYear();
+    let months = new Date().getMonth();
+    let day = new Date().getDate();
+    let date = new Date(years + i, months, day).getFullYear();
+    if (!yearsArray.includes(new Date(years - 1, months, day).getFullYear())) {
+      yearsArray.push(new Date(years - 1, months, day).getFullYear());
+    }
+    yearsArray.push(date);
+  }
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.id,
+  }));
+
+  const yearOptions = yearsArray.map((year) => ({
+    label: year,
+    value: year,
+  }));
+
+  const stateOptions = states.map((item) => ({
+    label: item.state,
+    value: item.state + ",",
+  }));
+
+  const marketOptions = markets.map((item) => ({
+    label: item.market,
+    value: item.market + ",",
+  }));
+
+  const couponCodeOptions = couponCodes.map((item) => ({
+    label: item.coupon_code,
+    value: item.coupon_code,
   }));
 
   const affiliateHandleChange = (val, key) => {
@@ -83,18 +122,6 @@ const SalesReport = () => {
     });
   };
 
-  let yearsArray = [];
-  for (let i = 0; i < 5; i++) {
-    let years = new Date().getFullYear();
-    let months = new Date().getMonth();
-    let day = new Date().getDate();
-    let date = new Date(years + i, months, day).getFullYear();
-    if (!yearsArray.includes(new Date(years - 1, months, day).getFullYear())) {
-      yearsArray.push(new Date(years - 1, months, day).getFullYear());
-    }
-    yearsArray.push(date);
-  }
-
   const yearHandleChange = (val, key) => {
     if (val) {
       const years = val.split(",");
@@ -104,21 +131,11 @@ const SalesReport = () => {
     }
   };
 
-  const stateOptions = states.map((item) => ({
-    label: item.state,
-    value: item.state + ",",
-  }));
-
-  const marketOptions = markets.map((item) => ({
-    label: item.market,
-    value: item.market + ",",
-  }));
-
   const stateHandleChange = (val, key) => {
     if (val) {
       val = val.substring(0, val.length - 1);
-      const states = val.split(",,");
-      setState({ [key]: states });
+      const statesValue = val.split(",,");
+      setState({ [key]: statesValue });
     } else {
       setState([]);
     }
@@ -127,17 +144,21 @@ const SalesReport = () => {
   const marketHandleChange = (val, key) => {
     if (val) {
       val = val.substring(0, val.length - 1);
-      const markets = val.split(",,");
-      setMarket({ [key]: markets });
+      const marketsValue = val.split(",,");
+      setMarket({ [key]: marketsValue });
     } else {
       setMarket([]);
     }
   };
 
-  const yearOptions = yearsArray.map((year) => ({
-    label: year,
-    value: year,
-  }));
+  const couponCodeHandleChange = (val, key) => {
+    if (val) {
+      const couponCodesValue = val.split(",");
+      setCouponCode({ [key]: couponCodesValue });
+    } else {
+      setCouponCode([]);
+    }
+  };
 
   const weekHandleChange = (e) => {
     const { name, value } = e.target;
@@ -162,15 +183,6 @@ const SalesReport = () => {
   const endDateHandleChange = (e) => {
     const { name, value } = e.target;
     setEndDate({ [name]: value });
-  };
-
-  const couponCodeHandleChange = (e) => {
-    const { name, value } = e.target;
-    if (value === "") {
-      setCouponCode();
-    } else {
-      setCouponCode({ [name]: value });
-    }
   };
 
   const values = {
@@ -227,14 +239,20 @@ const SalesReport = () => {
   }
 
   const handleSubmit = () => {
-    axios.post(route("ecommerce.sales.report.generate"), values).then((r) => {
-      if (r.data.status == 500) {
+    axios
+      .post(route("ecommerce.sales.report.generate"), values)
+      .then((r) => {
+        if (r?.status === 204) {
+          setOpen(true);
+          setResponse("No data found for the selected criteria");
+        } else {
+          exportToCSV(r.data, fileName);
+        }
+      })
+      .catch((e) => {
         setOpen(true);
-        setResponse(r.data.msg);
-      }
-      // console.log(r.data);
-      exportToCSV(r.data, fileName);
-    });
+        setResponse("Error while generating report");
+      });
   };
 
   const fileType =
@@ -301,13 +319,12 @@ const SalesReport = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                id="coupon_code"
-                name="coupon_code"
-                type="text"
-                onChange={couponCodeHandleChange}
-                fullWidth
-                placeholder="Coupon Code"
+              <MultiSelect
+                name="couponCodes"
+                onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
+                options={couponCodeOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Coupon Codes"
               />
             </Grid>
             <Grid item xs={12}>

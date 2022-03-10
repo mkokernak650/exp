@@ -322,7 +322,7 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
-          title: "E-commerce Affiliate",
+          title: "E-commerce Sales",
           href: "ecommerce.sales.report",
           Icon: <UserIcon />,
         },

@@ -66,42 +66,63 @@ class EcommerceSaleController extends Controller
         $affiliates = Affiliate::all();
         $broadCastMonths = BroadCastMonth::all();
         $broadCastWeeks = BroadCastWeeks::all();
+        $couponCodes = EcommerceAffiliate::get('coupon_code');
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
-        return Inertia::render('GenerateReport/SalesReport', compact('affiliates', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets'));
+        return Inertia::render('GenerateReport/SalesReport', compact('affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'states', 'markets'));
     }
 
     public function ecommerceSalesReportGenerate(Request $request)
     {
-        $states = $request->input('states');
-        $markets = $request->input('markets');
+        $zipCodes = $this->getZipCodesByStateOrMarkets($request->input('states'), $request->input('markets'));
+        $salesData = $this->querySalesReport($request, $zipCodes);
+
+        if ($salesData->count() < 1) {
+            return response()->json([], 204);
+        }
+
+        $summary = ['Total Amount' => 0, 'Total Commission' => 0, 'Net Amount' => 0, 'Total Order' => 0];
+        $salesData->each(function ($item) use (&$summary) {
+            $summary['Total Amount'] += $item->{'Total Amount'};
+            $summary['Total Commission'] += $item->Commission;
+            $summary['Net Amount'] += $item->{'Net Amount'};
+            $summary['Total Order'] += $item->{'No. of Orders'};
+        });
+
+        return response()->json(['data' => $salesData,'summary' => $summary], 200);
+    }
+
+    protected function getZipCodesByStateOrMarkets($states, $markets)
+    {
+        if (!empty($states) || !empty($markets)) {
+            return ZipcodeByTelevisionMarket::when(!empty($states), function ($q) use ($states) {
+                $q->whereIn('state', $states);
+            })->when(!empty($markets), function ($q) use ($markets) {
+                $q->whereIn('market', $markets);
+            })->get('zip_code')->pluck('zip_code');
+        }
+        return [];
+    }
+
+    protected function querySalesReport($request, $zipCodes)
+    {
         $affiliateIds = $request->input('affiliate_id');
-        $couponCode = $request->input('coupon_code');
+        $couponCodes = $request->input('couponCodes');
         $year = $request->input('year');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $zipCodes = [];
-        if(!empty($states) || !empty($markets)) {
-            $zipCodes = ZipcodeByTelevisionMarket::
-            when(!empty($states), function($q) use ($states) {
-                $q->whereIn('state', $states);
-            })->when(!empty($markets), function($q) use ($markets) {
-                $q->whereIn('market', $markets);
-            })->get('zip_code')->pluck('zip_code');
-        }
-
-        $salesData = DB::table('ecommerce_sales')
+        return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
-            ->when(!empty($states) || !empty($markets), function ($q) use ($zipCodes) {
+            ->when(!empty($zipCodes), function ($q) use ($zipCodes) {
                 $q->whereIn('shipping_zip', $zipCodes);
             })
-            ->when(isset($affiliateIds) && is_array($affiliateIds), function ($q) use ($affiliateIds) {
+            ->when(!empty($affiliateIds), function ($q) use ($affiliateIds) {
                 $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds);
             })
-            ->when(!empty($couponCode), function ($q) use ($couponCode) {
-                $q->where('ecommerce_sales.coupon_code', $couponCode);
+            ->when(!empty($couponCodes), function ($q) use ($couponCodes) {
+                $q->whereIn('ecommerce_sales.coupon_code', $couponCodes);
             })
             ->when(!empty($year), function ($q) use ($year) {
                 if (is_array($year)) {
@@ -140,22 +161,5 @@ class EcommerceSaleController extends Controller
             ->orderBy('ecommerce_sales.coupon_code')
             ->orderBy('ecommerce_sales.order_at')
             ->get();
-
-        $summary = ['Total Amount' => 0, 'Total Commission' => 0, 'Net Amount' => 0, 'Total Order' => 0];
-
-        $salesData->each(function ($item) use (&$summary) {
-            $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Commission'] += $item->Commission;
-            $summary['Net Amount'] += $item->{'Net Amount'};
-            $summary['Total Order'] += $item->{'No. of Orders'};
-        });
-
-        if ($salesData->count() < 1) {
-            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
-        }
-        return [
-            'data' => $salesData,
-            'summary' => $summary,
-        ];
     }
 }
