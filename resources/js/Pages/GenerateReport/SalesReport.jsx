@@ -6,6 +6,9 @@ import {
   Typography,
   TextField,
   Button,
+  Radio,
+  FormControlLabel,
+  RadioGroup,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -68,6 +71,7 @@ const SalesReport = () => {
   const [market, setMarket] = useState([]);
   const [campaign, setCampaign] = useState([]);
   const [customer, setCustomer] = useState([]);
+  const [reportType, setReportType] = useState({ type: "customer" });
 
   let yearsArray = [];
   for (let i = 0; i < 5; i++) {
@@ -217,6 +221,11 @@ const SalesReport = () => {
     setEndDate({ [name]: value });
   };
 
+  const reportTypeHandleChange = (e) => {
+    const { name, value } = e.target;
+    setReportType({ [name]: value });
+  };
+
   const values = {
     ...campaign,
     ...customer,
@@ -229,6 +238,7 @@ const SalesReport = () => {
     ...week,
     ...startDate,
     ...endDate,
+    ...reportType,
   };
 
   let affiliatesName = [];
@@ -303,7 +313,7 @@ const SalesReport = () => {
       summary.push([cf, apiData.summary[cf]]);
     });
 
-    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `E${secondData}` });
+    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `D${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -321,6 +331,25 @@ const SalesReport = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <RadioGroup
+                aria-label="type"
+                name="type"
+                value={reportType.type}
+                onChange={reportTypeHandleChange}
+              >
+                <FormControlLabel
+                  value="customer"
+                  control={<Radio color="primary" />}
+                  label="Customer"
+                />
+                <FormControlLabel
+                  value="affiliate"
+                  control={<Radio color="primary" />}
+                  label="Affiliate"
+                />
+              </RadioGroup>
+            </Grid>
             <Grid item xs={12}>
               <MultiSelect
                 name="campaign_id"

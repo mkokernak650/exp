@@ -14,6 +14,7 @@ use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceSale;
 use App\Models\ZipcodeByTelevisionMarket;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -77,15 +78,10 @@ class EcommerceSaleController extends Controller
             return response()->json([], 204);
         }
 
-        $summary = ['Total Amount' => 0, 'Total Commission' => 0, 'Net Amount' => 0, 'Total Order' => 0];
-        $salesData->each(function ($item) use (&$summary) {
-            $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Commission'] += $item->Commission;
-            $summary['Net Amount'] += $item->{'Net Amount'};
-            $summary['Total Order'] += $item->{'No. of Orders'};
-        });
-
-        return response()->json(['data' => $salesData, 'summary' => $summary], 200);
+        return response()->json([
+            'data' => $salesData,
+            'summary' => $this->getReportSummary($request->input('type'), $salesData)
+        ], 200);
     }
 
     protected function getZipCodesByStateOrMarkets($states, $markets)
@@ -150,22 +146,61 @@ class EcommerceSaleController extends Controller
                 // DB::raw('YEAR(ecommerce_sales.order_at)'),
                 // DB::raw('MONTH(ecommerce_sales.order_at)'),
             )
-            ->select(
-                // DB::raw("DATE_FORMAT(ecommerce_sales.order_at, '%M, %Y') as `Order Date`"),
+            ->select($this->selectColumnByType($request->input('type')))
+            ->orderBy('ecommerce_sales.coupon_code')
+            ->orderBy('ecommerce_sales.order_at')
+            ->get();
+    }
+
+    protected function selectColumnByType($type)
+    {
+        if ($type === "customer") {
+            return [
                 'affiliates.affiliate_name AS Affiliate',
                 'ecommerce_sales.coupon_code AS Coupon Code',
                 DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-                'ecommerce_affiliates.percentage AS Percentage %',
-                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100, 2) AS `Commission`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100), 2) AS `Net Amount`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.shipping_cost), 2) AS `Shipping Cost`'),
+                'ecommerce_affiliates.affiliate_fee AS Affiliate %',
+                'ecommerce_affiliates.percentage AS Commission %',
+                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100, 2) AS `Commission Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) - ((SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100) + (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100)), 2) AS `Net Amount`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.percentage / 100, 2) AS `Avg. Commission`'),
-                DB::raw('ROUND((SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100)) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value After Commission`'),
-            )
-            ->orderBy('ecommerce_sales.coupon_code')
-            ->orderBy('ecommerce_sales.order_at')
-            ->get();
+                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Avg. Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.percentage / 100, 2) AS `Avg. Commission Fee`'),
+                DB::raw('ROUND((SUM(ecommerce_sales.total) - ((SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100) + (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100))) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value After Commission`'),
+            ];
+        } elseif ($type === "affiliate") {
+            return [
+                'affiliates.affiliate_name AS Affiliate',
+                'ecommerce_sales.coupon_code AS Coupon Code',
+                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+                'ecommerce_affiliates.affiliate_fee AS Affiliate Fee %',
+                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100), 2) AS `Net Amount`'),
+            ];
+        }
+
+        return [];
+    }
+
+    protected function getReportSummary($type, $salesData)
+    {
+        if ($type === "affiliate") {
+            $commisionText = 'Affiliate Fee';
+        } else {
+            $commisionText = 'Commission Fee';
+        }
+
+        $summary = ['Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0, 'Total Order' => 0];
+        $salesData->each(function ($item) use (&$summary, $commisionText) {
+            $summary['Total Amount'] += $item->{'Total Amount'};
+            $summary['Total Fee'] += $item->$commisionText;
+            $summary['Net Amount'] += $item->{'Net Amount'};
+            $summary['Total Order'] += $item->{'No. of Orders'};
+        });
+
+        return $summary;
     }
 }
