@@ -197,7 +197,7 @@ export default function PersistentDrawerLeft(props) {
   const clearLocalStorage = () => {
     window.localStorage.clear();
     setShowlStaorageModal({ open: false });
-  }
+  };
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
@@ -217,12 +217,9 @@ export default function PersistentDrawerLeft(props) {
         className={classes.link}
         as="div"
       >
-
         <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
       </InertiaLink>
-
     </Menu>
-
   );
 
   const mobileMenuId = "primary-search-account-menu-mobile";
@@ -346,7 +343,6 @@ export default function PersistentDrawerLeft(props) {
           href: "generate.report.market.target",
           Icon: <UserIcon />,
         },
-
       ],
     },
     {
@@ -515,17 +511,19 @@ export default function PersistentDrawerLeft(props) {
     },
   ];
 
-  const [active, inActive] = useState({
+  const [active, setActive] = useState({
     id: "",
     active: false,
   });
+
   const handleClick = (id) => {
-    for (let i = 0; i < items.length; i++) {
-      if (id === items[i].id) {
-        // inActive(items[i].id);
-        inActive({ ...active, id: items[i].id, active: !active.active });
+    items.forEach((item) => {
+      if (item.id === id && active.id === id && active.active === true) {
+        setActive({ id: item.id, active: false });
+      } else if (item.id === id) {
+        setActive({ id: item.id, active: true });
       }
-    }
+    });
   };
 
   return (
@@ -538,7 +536,6 @@ export default function PersistentDrawerLeft(props) {
         })}
       >
         <Toolbar>
-
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -560,7 +557,7 @@ export default function PersistentDrawerLeft(props) {
             type="submit"
             color="primary"
             onClick={() => handleOpenModal(setShowlStaorageModal)}
-          // className={classes.button}
+            // className={classes.button}
           >
             Clear LocalStorage
           </Button>
@@ -588,10 +585,6 @@ export default function PersistentDrawerLeft(props) {
               <MoreIcon />
             </IconButton>
           </div>
-
-
-
-
         </Toolbar>
       </AppBar>
 
@@ -665,10 +658,11 @@ export default function PersistentDrawerLeft(props) {
                   in={active.id === menu.id && active.active}
                   timeout="auto"
                   unmountOnExit
-                  className={`${menu.active
-                    ? "sidebar-menu-active"
-                    : "sidebar-menu-inactive"
-                    }`}
+                  className={`${
+                    menu.active
+                      ? "sidebar-menu-active"
+                      : "sidebar-menu-inactive"
+                  }`}
                 >
                   <List component="div" disablePadding>
                     {menu.submenu.map((submenu) => (
