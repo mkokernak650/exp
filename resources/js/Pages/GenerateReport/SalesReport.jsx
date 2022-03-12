@@ -45,6 +45,8 @@ const SalesReport = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const {
+    campaigns,
+    customers,
     affiliates,
     broadCastMonths,
     broadCastWeeks,
@@ -64,6 +66,8 @@ const SalesReport = () => {
   const [couponCode, setCouponCode] = useState([]);
   const [state, setState] = useState([]);
   const [market, setMarket] = useState([]);
+  const [campaign, setCampaign] = useState([]);
+  const [customer, setCustomer] = useState([]);
 
   let yearsArray = [];
   for (let i = 0; i < 5; i++) {
@@ -76,6 +80,16 @@ const SalesReport = () => {
     }
     yearsArray.push(date);
   }
+
+  const campaignOptions = campaigns.map((item) => ({
+    label: item.campaign_name,
+    value: item.id,
+  }));
+
+  const customerOptions = customers.map((item) => ({
+    label: item.customer_name,
+    value: item.id,
+  }));
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
@@ -101,6 +115,24 @@ const SalesReport = () => {
     label: item.coupon_code,
     value: item.coupon_code,
   }));
+
+  const campaignHandleChange = (val, key) => {
+    if (val) {
+      const campaign_ids = val.split(",");
+      setCampaign({ [key]: campaign_ids });
+    } else {
+      setCampaign();
+    }
+  };
+
+  const customerHandleChange = (val, key) => {
+    if (val) {
+      const customer_ids = val.split(",");
+      setCustomer({ [key]: customer_ids });
+    } else {
+      setCustomer();
+    }
+  };
 
   const affiliateHandleChange = (val, key) => {
     if (val) {
@@ -186,6 +218,8 @@ const SalesReport = () => {
   };
 
   const values = {
+    ...campaign,
+    ...customer,
     ...state,
     ...market,
     ...affiliate,
@@ -287,6 +321,24 @@ const SalesReport = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <MultiSelect
+                name="campaign_id"
+                onChange={(val) => campaignHandleChange(val, "campaign_id")}
+                options={campaignOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Campaign"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <MultiSelect
+                name="customer_id"
+                onChange={(val) => customerHandleChange(val, "customer_id")}
+                options={customerOptions}
+                style={{ width: "100%" }}
+                placeholder="Select Customer"
+              />
+            </Grid>
             {market.length < 1 && (
               <Grid item xs={12}>
                 <MultiSelect

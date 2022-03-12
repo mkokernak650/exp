@@ -9,6 +9,8 @@ use App\Imports\EcommerceSaleImport;
 use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
+use App\Models\Campaign;
+use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceSale;
 use App\Models\ZipcodeByTelevisionMarket;
@@ -54,13 +56,16 @@ class EcommerceSaleController extends Controller
 
     public function ecommerceSalesReport()
     {
-        $affiliates = Affiliate::all();
-        $broadCastMonths = BroadCastMonth::all();
-        $broadCastWeeks = BroadCastWeeks::all();
-        $couponCodes = EcommerceAffiliate::get('coupon_code');
+        $campaigns = Campaign::active()->get();
+        $customers = Customer::active()->get();
+        $affiliates = Affiliate::active()->get();
+        $broadCastMonths = BroadCastMonth::active()->get();
+        $broadCastWeeks = BroadCastWeeks::active()->get();
+        $couponCodes = EcommerceAffiliate::active()->get('coupon_code');
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
-        return Inertia::render('GenerateReport/SalesReport', compact('affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'states', 'markets'));
+
+        return Inertia::render('GenerateReport/SalesReport', compact('campaigns', 'customers', 'affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'states', 'markets'));
     }
 
     public function ecommerceSalesReportGenerate(Request $request)
@@ -80,7 +85,7 @@ class EcommerceSaleController extends Controller
             $summary['Total Order'] += $item->{'No. of Orders'};
         });
 
-        return response()->json(['data' => $salesData,'summary' => $summary], 200);
+        return response()->json(['data' => $salesData, 'summary' => $summary], 200);
     }
 
     protected function getZipCodesByStateOrMarkets($states, $markets)
@@ -97,6 +102,8 @@ class EcommerceSaleController extends Controller
 
     protected function querySalesReport($request, $zipCodes)
     {
+        $campaignIds = $request->input('campaign_id');
+        $customerIds = $request->input('customer_id');
         $affiliateIds = $request->input('affiliate_id');
         $couponCodes = $request->input('couponCodes');
         $year = $request->input('year');
@@ -106,11 +113,19 @@ class EcommerceSaleController extends Controller
         return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
-            ->when(!empty($zipCodes), function ($q) use ($zipCodes) {
-                $q->whereIn('shipping_zip', $zipCodes);
+            ->join('campaigns', 'campaigns.id', '=', 'ecommerce_affiliates.campaign_id')
+            ->join('customers', 'customers.id', '=', 'ecommerce_affiliates.customer_id')
+            ->when(!empty($campaignIds), function ($q) use ($campaignIds) {
+                $q->whereIn('ecommerce_affiliates.campaign_id', $campaignIds);
+            })
+            ->when(!empty($customerIds), function ($q) use ($customerIds) {
+                $q->whereIn('ecommerce_affiliates.customer_id', $customerIds);
             })
             ->when(!empty($affiliateIds), function ($q) use ($affiliateIds) {
                 $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds);
+            })
+            ->when(!empty($zipCodes), function ($q) use ($zipCodes) {
+                $q->whereIn('shipping_zip', $zipCodes);
             })
             ->when(!empty($couponCodes), function ($q) use ($couponCodes) {
                 $q->whereIn('ecommerce_sales.coupon_code', $couponCodes);

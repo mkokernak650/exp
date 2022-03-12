@@ -38,8 +38,11 @@ const useStyles = makeStyles((theme) => ({
 
 const AffiliateCreate = () => {
   const defaultState = {
+    campaign_id: "",
+    customer_id: "",
     affiliate_id: "",
     coupon_code: "",
+    affiliate_fee: "",
     percentage: "",
   };
   const classes = useStyles();

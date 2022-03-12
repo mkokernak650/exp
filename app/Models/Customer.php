@@ -12,6 +12,11 @@ class Customer extends Model
 
     protected $guarded = array();
 
+    public function scopeActive($query)
+    {
+        return $query->whereStatus(1);
+    }
+
     public function getTableColumn(): array
     {
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());

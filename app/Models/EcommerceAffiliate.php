@@ -21,6 +21,11 @@ class EcommerceAffiliate extends Model
         'status',
     ];
 
+    public function scopeActive($query)
+    {
+        return $query->whereStatus(1);
+    }
+
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);

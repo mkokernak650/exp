@@ -14,4 +14,9 @@ class Target extends Model
     {
        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
+
+    public function scopeActive($query)
+    {
+        return $query->whereStatus(1);
+    }
 }
