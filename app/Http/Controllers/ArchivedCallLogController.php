@@ -64,7 +64,6 @@ class ArchivedCallLogController extends Controller
     public function getcolumn()
     {
         $arch = new ArchivedCallLog();
-        dd($arch->getTableColumn());
     }
 
     public function moveToCallLog(Request $request)

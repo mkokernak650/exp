@@ -11,7 +11,7 @@ use App\Models\BroadCastWeeks;
 
 class GenerateReportAffiliateController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -20,10 +20,10 @@ class GenerateReportAffiliateController extends Controller
 
     public function GenerateReportAffiliateForm()
     {
-        $allTargets = Target::where('status','=','1')->get();
-        $affiliates = Affiliate::where('status','=','1')->get();
-        $broadCastMonths = BroadCastMonth::where('status','=','1')->get();
-        $broadCastWeeks = BroadCastWeeks::where('status','=','1')->get();
+        $allTargets = Target::where('status', '=', '1')->get();
+        $affiliates = Affiliate::where('status', '=', '1')->get();
+        $broadCastMonths = BroadCastMonth::where('status', '=', '1')->get();
+        $broadCastWeeks = BroadCastWeeks::where('status', '=', '1')->get();
         $campaigns      = Campaign::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportAffiliate', [
