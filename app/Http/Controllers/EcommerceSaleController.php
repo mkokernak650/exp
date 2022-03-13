@@ -9,8 +9,12 @@ use App\Imports\EcommerceSaleImport;
 use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
+use App\Models\Campaign;
+use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceSale;
+use App\Models\ZipcodeByTelevisionMarket;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -47,48 +51,80 @@ class EcommerceSaleController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result =  EcommerceSale::where('id', $request->selectedRowIds[$i])->delete();
-            $i++;
-        }
-        if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
-        }
+        EcommerceSale::whereIn('id', $request->selectedRowIds)->delete();
+        return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
     }
 
     public function ecommerceSalesReport()
     {
-        $affiliates = Affiliate::all();
-        $broadCastMonths = BroadCastMonth::all();
-        $broadCastWeeks = BroadCastWeeks::all();
-        return Inertia::render('GenerateReport/SalesReport', compact('affiliates', 'broadCastMonths', 'broadCastWeeks'));
+        $campaigns = Campaign::active()->get();
+        $customers = Customer::active()->get();
+        $affiliates = Affiliate::active()->get();
+        $broadCastMonths = BroadCastMonth::active()->get();
+        $broadCastWeeks = BroadCastWeeks::active()->get();
+        $couponCodes = EcommerceAffiliate::active()->get('coupon_code');
+        $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
+        $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+
+        return Inertia::render('GenerateReport/SalesReport', compact('campaigns', 'customers', 'affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'states', 'markets'));
     }
 
     public function ecommerceSalesReportGenerate(Request $request)
     {
+        $zipCodes = $this->getZipCodesByStateOrMarkets($request->input('states'), $request->input('markets'));
+        $salesData = $this->querySalesReport($request, $zipCodes);
+
+        if ($salesData->count() < 1) {
+            return response()->json([], 204);
+        }
+
+        return response()->json([
+            'data' => $salesData,
+            'summary' => $this->getReportSummary($request->input('type'), $salesData)
+        ], 200);
+    }
+
+    protected function getZipCodesByStateOrMarkets($states, $markets)
+    {
+        if (!empty($states) || !empty($markets)) {
+            return ZipcodeByTelevisionMarket::when(!empty($states), function ($q) use ($states) {
+                $q->whereIn('state', $states);
+            })->when(!empty($markets), function ($q) use ($markets) {
+                $q->whereIn('market', $markets);
+            })->get('zip_code')->pluck('zip_code');
+        }
+        return [];
+    }
+
+    protected function querySalesReport($request, $zipCodes)
+    {
+        $campaignIds = $request->input('campaign_id');
+        $customerIds = $request->input('customer_id');
         $affiliateIds = $request->input('affiliate_id');
-        $couponCode = $request->input('coupon_code');
+        $couponCodes = $request->input('couponCodes');
         $year = $request->input('year');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // $affiliateArray = [];
-        // EcommerceAffiliate::select('id', 'coupon_code', 'percentage')->get()->each(function ($item) use (&$affiliateArray) {
-        //     $affiliateArray[$item->coupon_code] = $item->percentage;
-        // })->toArray();
-
-        $salesData = DB::table('ecommerce_sales')
+        return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
-            ->when(isset($affiliateIds) && is_array($affiliateIds), function ($q) use ($affiliateIds) {
+            ->join('campaigns', 'campaigns.id', '=', 'ecommerce_affiliates.campaign_id')
+            ->join('customers', 'customers.id', '=', 'ecommerce_affiliates.customer_id')
+            ->when(!empty($campaignIds), function ($q) use ($campaignIds) {
+                $q->whereIn('ecommerce_affiliates.campaign_id', $campaignIds);
+            })
+            ->when(!empty($customerIds), function ($q) use ($customerIds) {
+                $q->whereIn('ecommerce_affiliates.customer_id', $customerIds);
+            })
+            ->when(!empty($affiliateIds), function ($q) use ($affiliateIds) {
                 $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds);
             })
-            ->when(!empty($couponCode), function ($q) use ($couponCode) {
-                $q->where('ecommerce_sales.coupon_code', $couponCode);
+            ->when(!empty($zipCodes), function ($q) use ($zipCodes) {
+                $q->whereIn('shipping_zip', $zipCodes);
+            })
+            ->when(!empty($couponCodes), function ($q) use ($couponCodes) {
+                $q->whereIn('ecommerce_sales.coupon_code', $couponCodes);
             })
             ->when(!empty($year), function ($q) use ($year) {
                 if (is_array($year)) {
@@ -109,41 +145,62 @@ class EcommerceSaleController extends Controller
                 'ecommerce_sales.coupon_code',
                 // DB::raw('YEAR(ecommerce_sales.order_at)'),
                 // DB::raw('MONTH(ecommerce_sales.order_at)'),
-                // DB::raw('DAY(ecommerce_sales.order_at)'),
             )
-            ->select(
-                // DB::raw("DATE_FORMAT(ecommerce_sales.order_at, '%M, %Y') as `Order Date`"),
-                'affiliates.affiliate_name AS Affiliate',
-                'ecommerce_sales.coupon_code AS Coupon Code',
-                'ecommerce_affiliates.percentage AS Percentage %',
-                DB::raw('ROUND(SUM(ecommerce_sales.shipping_cost), 2) AS `Shipping Cost`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100, 2) AS `Commission`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100), 2) AS `Net Amount`'),
-                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.percentage / 100, 2) AS `Avg. Commission`'),
-                DB::raw('ROUND((SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100)) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value After Commission`'),
-            )
+            ->select($this->selectColumnByType($request->input('type')))
             ->orderBy('ecommerce_sales.coupon_code')
             ->orderBy('ecommerce_sales.order_at')
             ->get();
+    }
 
-        $summary = ['Total Amount' => 0, 'Total Commission' => 0, 'Net Amount' => 0, 'Total Order' => 0];
+    protected function selectColumnByType($type)
+    {
+        if ($type === "customer") {
+            return [
+                'affiliates.affiliate_name AS Affiliate',
+                'ecommerce_sales.coupon_code AS Coupon Code',
+                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+                'ecommerce_affiliates.affiliate_fee AS Affiliate %',
+                'ecommerce_affiliates.percentage AS Commission %',
+                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100, 2) AS `Commission Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) - ((SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100) + (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100)), 2) AS `Net Amount`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Avg. Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.percentage / 100, 2) AS `Avg. Commission Fee`'),
+                DB::raw('ROUND((SUM(ecommerce_sales.total) - ((SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100) + (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100))) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value After Commission`'),
+            ];
+        } elseif ($type === "affiliate") {
+            return [
+                'affiliates.affiliate_name AS Affiliate',
+                'ecommerce_sales.coupon_code AS Coupon Code',
+                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+                'ecommerce_affiliates.affiliate_fee AS Affiliate Fee %',
+                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100), 2) AS `Net Amount`'),
+            ];
+        }
 
-        $salesData->each(function ($item) use (&$summary) {
+        return [];
+    }
+
+    protected function getReportSummary($type, $salesData)
+    {
+        if ($type === "affiliate") {
+            $commisionText = 'Affiliate Fee';
+        } else {
+            $commisionText = 'Commission Fee';
+        }
+
+        $summary = ['Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0, 'Total Order' => 0];
+        $salesData->each(function ($item) use (&$summary, $commisionText) {
             $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Commission'] += $item->Commission;
+            $summary['Total Fee'] += $item->$commisionText;
             $summary['Net Amount'] += $item->{'Net Amount'};
             $summary['Total Order'] += $item->{'No. of Orders'};
         });
 
-        if ($salesData->count() < 1) {
-            return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
-        }
-        return [
-            'data'         => $salesData,
-            'summary' => $summary,
-        ];
+        return $summary;
     }
 }

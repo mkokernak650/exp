@@ -12,6 +12,11 @@ class Affiliate extends Model
 
     protected $guarded = array();
 
+    public function scopeActive($query)
+    {
+        return $query->whereStatus(1);
+    }
+
     public function ecommerceAffiliates(): HasMany
     {
         return $this->hasMany(EcommerceAffiliate::class);

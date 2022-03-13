@@ -18,7 +18,6 @@ class CreateEcommerceAffiliatesTable extends Migration
             $table->foreignId('affiliate_id')->constrained()->cascadeOnDelete();
             $table->string('coupon_code')->unique();
             $table->string('percentage');
-            $table->json('field_map')->nullable();
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

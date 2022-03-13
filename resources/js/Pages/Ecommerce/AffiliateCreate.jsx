@@ -38,14 +38,17 @@ const useStyles = makeStyles((theme) => ({
 
 const AffiliateCreate = () => {
   const defaultState = {
+    campaign_id: "",
+    customer_id: "",
     affiliate_id: "",
     coupon_code: "",
+    affiliate_fee: "",
     percentage: "",
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
   const [loading, setLoading] = useState(false);
-  const { affiliates } = usePage().props;
+  const { affiliates, campaigns, customers } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [responseType, setResponseType] = useState();
@@ -99,6 +102,48 @@ const AffiliateCreate = () => {
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
+                value={values?.campaign_id}
+                id="campaign_id"
+                select
+                name="campaign_id"
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                required={false}
+              >
+                <option value="">Select Campaign</option>
+                {campaigns.map((option, indx) => (
+                  <option key={indx + `-1`} value={option.id}>
+                    {option.campaign_name}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                value={values?.customer_id}
+                id="customer_id"
+                select
+                name="customer_id"
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                required={true}
+              >
+                <option value="">Select Customer</option>
+                {customers.map((option, indx) => (
+                  <option key={indx + `-2`} value={option.id}>
+                    {option.customer_name}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
                 value={values?.affiliate_id}
                 id="affiliate_id"
                 select
@@ -112,7 +157,7 @@ const AffiliateCreate = () => {
               >
                 <option value="">Select Affiliate</option>
                 {affiliates.map((option, indx) => (
-                  <option key={indx} value={option.id}>
+                  <option key={indx + `-3`} value={option.id}>
                     {option.affiliate_name}
                   </option>
                 ))}
@@ -136,6 +181,21 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
+                value={values?.affiliate_fee}
+                id="affiliate_fee"
+                label="Affiliate Fee %"
+                type="text"
+                name="affiliate_fee"
+                placeholder="Exp: 0.5"
+                onChange={handleChange}
+                className={classes.textField}
+                fullWidth
+                required={true}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
                 value={values?.percentage}
                 id="percentage"
                 label="Percentage %"
@@ -146,7 +206,6 @@ const AffiliateCreate = () => {
                 className={classes.textField}
                 fullWidth
                 required={true}
-                step="0.01"
               />
             </Grid>
             <Grid item xs={12}>

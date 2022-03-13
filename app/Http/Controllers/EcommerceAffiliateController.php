@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Affiliate;
+use App\Models\Campaign;
+use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use Illuminate\Http\jsonResponse;
 use Illuminate\Http\Request;
@@ -19,8 +21,16 @@ class EcommerceAffiliateController extends Controller
      */
     public function index()
     {
-        $ecommerceAffiliates = EcommerceAffiliate::with('affiliate:id,affiliate_name')->get();
-        return Inertia::render('Ecommerce/AffiliateIndex', compact('ecommerceAffiliates'));
+        $affiliates = Affiliate::all();
+        $campaigns = Campaign::all();
+        $customers = Customer::all();
+
+        $ecommerceAffiliates = EcommerceAffiliate::
+        with('affiliate:id,affiliate_name')
+        ->with('campaign:id,campaign_name')
+        ->with('customer:id,customer_name')
+        ->get();
+        return Inertia::render('Ecommerce/AffiliateIndex', compact('ecommerceAffiliates', 'affiliates', 'campaigns', 'customers'));
     }
 
     /**
@@ -31,7 +41,9 @@ class EcommerceAffiliateController extends Controller
     public function create()
     {
         $affiliates = Affiliate::all();
-        return Inertia::render('Ecommerce/AffiliateCreate', compact('affiliates'));
+        $campaigns = Campaign::all();
+        $customers = Customer::all();
+        return Inertia::render('Ecommerce/AffiliateCreate', compact('affiliates', 'campaigns', 'customers'));
     }
 
     /**
@@ -43,12 +55,15 @@ class EcommerceAffiliateController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
+            'customer_id' => ['required', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
-            'percentage' => ['required', 'numeric']
+            'affiliate_fee' => ['required', 'numeric'],
+            'percentage' => ['required', 'numeric'],
         ]);
         EcommerceAffiliate::create($validated);
-        return response()->json(['msg' => 'Created Successfully.']);
+        return response()->json(['msg' => 'Created Successfully.'], 201);
     }
 
     /**
@@ -61,8 +76,12 @@ class EcommerceAffiliateController extends Controller
     public function update(Request $request, EcommerceAffiliate $ecommerceAffiliate)
     {
         $validated = $request->validate([
+            'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
+            'customer_id' => ['required', Rule::exists('customers', 'id')],
+            'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')->ignore($ecommerceAffiliate->id)],
-            'percentage' => ['required', 'numeric']
+            'affiliate_fee' => ['required', 'numeric'],
+            'percentage' => ['required', 'numeric'],
         ]);
         $ecommerceAffiliate->update($validated);
         return response()->json(['msg' => 'Updated Successfully.']);
@@ -82,16 +101,7 @@ class EcommerceAffiliateController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result =  EcommerceAffiliate::where('id', $request->selectedRowIds[$i])->delete();
-            $i++;
-        }
-        if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
-        } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
-        }
+        EcommerceAffiliate::whereIn('id', $request->selectedRowIds)->delete();
+        return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
     }
 }
