@@ -221,15 +221,15 @@ const AffiliateIndex = () => {
   const dataArray = ecommerceAffiliates.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    campaign_id: item.campaign_id,
-    customer_id: item.customer_id,
-    affiliate_id: item.affiliate_id,
-    campaign: item.campaign.campaign_name,
-    customer: item.customer.customer_name,
-    affiliate: item.affiliate.affiliate_name,
-    coupon_code: item.coupon_code,
-    affiliate_fee: item.affiliate_fee,
-    percentage: item.percentage,
+    campaign_id: item?.campaign_id,
+    customer_id: item?.customer_id,
+    affiliate_id: item?.affiliate_id,
+    campaign: item?.campaign?.campaign_name,
+    customer: item?.customer?.customer_name,
+    affiliate: item?.affiliate?.affiliate_name,
+    coupon_code: item?.coupon_code,
+    affiliate_fee: item?.affiliate_fee,
+    percentage: item?.percentage,
     // status: item.status,
     id: item.id,
     key: index,
@@ -701,7 +701,7 @@ const AffiliateIndex = () => {
             <Grid container spacing={4}>
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.campaign_id : ""}
+                  value={editData ? editData?.campaign_id : ""}
                   select
                   name="campaign_id"
                   onChange={handleEditChange}
@@ -719,7 +719,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.customer_id : ""}
+                  value={editData ? editData?.customer_id : ""}
                   select
                   name="customer_id"
                   onChange={handleEditChange}
@@ -737,7 +737,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.affiliate_id : ""}
+                  value={editData ? editData?.affiliate_id : ""}
                   select
                   name="affiliate_id"
                   onChange={handleEditChange}
@@ -755,7 +755,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.coupon_code : ""}
+                  value={editData ? editData?.coupon_code : ""}
                   label="Coupon Code"
                   type="text"
                   name="coupon_code"
@@ -768,7 +768,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.affiliate_fee : ""}
+                  value={editData ? editData?.affiliate_fee : ""}
                   label="Affiliate Fee %"
                   type="text"
                   name="affiliate_fee"
@@ -781,7 +781,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.percentage : ""}
+                  value={editData ? editData?.percentage : ""}
                   label="Commission %"
                   type="text"
                   name="percentage"
