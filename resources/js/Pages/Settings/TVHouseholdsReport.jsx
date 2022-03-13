@@ -318,7 +318,7 @@ const CustomerReport = () => {
       {
         key: "tv_households",
         title: "TV Households",
-        dataType: DataType.String,
+        dataType: DataType.Number,
         style: { width: 150 },
       },
 

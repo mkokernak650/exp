@@ -358,16 +358,14 @@ class ReportGeneratorController extends Controller
         }
         if (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
             $market_name_inputs = implode("','", $market_name);
-            $whereIn[] = "billed_call_logs.Market IN ('$market_name_inputs')";
+            $whereIn[] = "t_v_households.Market IN ('$market_name_inputs')";
         }
         if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
             $state_name_inputs = implode("','", $state_name);
-            $whereIn[] = "billed_call_logs.State IN ('$state_name_inputs')";
+            $whereIn[] = "t_v_households.State IN ('$state_name_inputs')";
         }
 
-        // if ($market_name !== null) {
-        //     $condition[] = "billed_call_logs.Market='$market_name'";
-        // }
+       
         if ($annotation !== null) {
             $condition[] = "Has_Annotation='$annotation'";
         }
@@ -388,44 +386,41 @@ class ReportGeneratorController extends Controller
             $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, 'market');
         }
 
-        $t_revenue='Total Revenue';
-        // dd($billed);
+
         foreach ($billed as $bill) {
             if ($request->start_date !== null) {
                 $newData [] = (object)[
                 'Date Range'=> $request->start_date.' - '. $request->end_date,
-                !empty($market_name)? 'Market':"state"=> !empty($market_name)?$bill->Market:$bill->State,
-                'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
+                !empty($market_name)? 'Market':"State"=> !empty($market_name)?$bill->Market:$bill->State,
+                'Nielsen TV Households'=>number_format($bill->households, 0, '.', ','),
                 'Billed'=>$bill->Billed,
-                'Total Revenue'=> $bill->$t_revenue,
-                'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
+                'Total Revenue'=> $bill->Revenue,
+                'Average Homes Per Call'=> number_format(ceil($bill->households/$bill->Billed), 0, '.', ','),
             ];
             } elseif ($request->year !== null) {
                 $newData [] = (object)[
                     'Date Range'=>'years('. implode(",", $request->year).')',
-                    !empty($market_name)? 'Market':"state"=> !empty($market_name)?$bill->Market:$bill->State,
-                    'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
+                    !empty($market_name)? 'Market':"State"=> !empty($market_name)?$bill->Market:$bill->State,
+                    'Nielsen TV Households'=>number_format($bill->households, 0, '.', ','),
                     'Billed'=>$bill->Billed,
-                    'Total Revenue'=> $bill->$t_revenue,
-                    'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
+                    'Total Revenue'=> $bill->Revenue,
+                    'Average Homes Per Call'=> number_format(ceil($bill->households/$bill->Billed), 0, '.', ','),
                 ];
             } else {
                 $newData [] = (object)[
                     'Date Range'=>'all',
-                    !empty($market_name)? 'Market':"state"=> !empty($market_name)?$bill->Market:$bill->State,
-                    'Nielsen TV Households'=>number_format($bill->tv_households, 0, '.', ','),
+                    !empty($market_name)? 'Market':"State"=> !empty($market_name)?$bill->Market:$bill->State,
+                    'Nielsen TV Households'=>number_format($bill->households, 0, '.', ','),
                     'Billed'=>$bill->Billed,
-                    'Total Revenue'=> $bill->$t_revenue,
-                    'Average Homes Per Call'=> number_format(ceil($bill->tv_households/$bill->Billed), 0, '.', ','),
+                    'Total Revenue'=> $bill->Revenue,
+                    'Average Homes Per Call'=> number_format(ceil($bill->households/$bill->Billed), 0, '.', ','),
                 ];
             }
         }
     
-        
         if (empty($billed)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
-        // dd($newData);
         $collection=collect($newData)->sortBy('Average Homes Per Call');
      
         return [
@@ -450,23 +445,35 @@ class ReportGeneratorController extends Controller
                 $con .= $value . " OR ";
             }
         }
+
         $con = rtrim($con, " AND ");
         $con = rtrim($con, " OR ");
         if ($type==='state') {
-            $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.State, Revenue,SUM(Revenue) AS 'Total Revenue', Count({$tablename}.State) AS 'Billed'
-            FROM {$tablename}
-            LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
-            LEFT JOIN t_v_households ON {$tablename}.State = t_v_households.state
-            WHERE {$con} GROUP BY {$tablename}.State";
+            $query1="SELECT State, COUNT(State) AS Billed,SUM(Revenue) AS Revenue FROM billed_call_logs LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
+            GROUP BY State";
+            $query2="SELECT state AS State, SUM(tv_households) as tv_households FROM `t_v_households` WHERE {$con}  GROUP BY State ";
+            $query1Result = DB::select($query1);
+            $query2Result = DB::select($query2);
+            $a=[];
+            $finalArray=[];
+            foreach ($query2Result as $key=>$households) {
+                $a[$households->State]=$households->tv_households;
+            }
+            foreach ($query1Result as $key=>$bill) {
+                if (array_key_exists($bill->State, $a)) {
+                    $bill->households=$a[$bill->State];
+                    array_push($finalArray, $bill);
+                }
+            }
+            return $finalArray;
         } else {
-            $sql = "SELECT t_v_households.tv_households, Call_Date AS 'Call Date(EST)',{$tablename}.Market,{$tablename}.State, Revenue,SUM(Revenue) AS 'Total Revenue', Count({$tablename}.Market) AS 'Billed'
+            $sql = "SELECT t_v_households.tv_households as households, Call_Date AS 'Call Date(EST)',{$tablename}.Market, {$tablename}.State, Revenue,SUM(Revenue) AS Revenue, Count({$tablename}.Market) AS 'Billed'
             FROM {$tablename}
             LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
             LEFT JOIN t_v_households ON {$tablename}.Market = t_v_households.market
-            WHERE {$con} GROUP BY {$tablename}.Market"  ;
+            WHERE {$con} GROUP BY {$tablename}.Market";
+            return DB::select($sql);
         }
-
-        return DB::select($sql);
     }
 
 
