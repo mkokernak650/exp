@@ -317,7 +317,6 @@ class ReportGeneratorController extends Controller
 
     public function marketTargetReport(Request $request)
     {
-        //     dd($request);
         $campaign = Campaign::find($request->input('campaign'));
         $market_name = $request->market;
         $state_name = $request->state;
@@ -337,7 +336,8 @@ class ReportGeneratorController extends Controller
         $condition = [];
         $whereIn = [];
         $whereInOr = [];
-        $call_summary['Customer Name'] = $customer_name;
+        $whereInHouseholds=[];
+        $call_summary['Campaign Name:'] = $campaign;
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
@@ -358,11 +358,11 @@ class ReportGeneratorController extends Controller
         }
         if (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
             $market_name_inputs = implode("','", $market_name);
-            $whereIn[] = "t_v_households.Market IN ('$market_name_inputs')";
+            $whereInHouseholds[] = "t_v_households.Market IN ('$market_name_inputs')";
         }
         if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
             $state_name_inputs = implode("','", $state_name);
-            $whereIn[] = "t_v_households.State IN ('$state_name_inputs')";
+            $whereInHouseholds[] = "t_v_households.State IN ('$state_name_inputs')";
         }
 
        
@@ -381,11 +381,13 @@ class ReportGeneratorController extends Controller
             $whereIn[] = "Target IN ('$ids')";
         }
         if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
-            $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, 'state');
+            $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, $whereInHouseholds, 'state');
         } elseif (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
-            $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, 'market');
+            $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, $whereInHouseholds, 'market');
         }
-
+        $totalNielsenTVHouseholds=0;
+        $totalBilledCalls=0;
+        $totalRevenue=0;
 
         foreach ($billed as $bill) {
             if ($request->start_date !== null) {
@@ -397,6 +399,9 @@ class ReportGeneratorController extends Controller
                 'Total Revenue'=> $bill->Revenue,
                 'Average Homes Per Call'=> number_format(ceil($bill->households/$bill->Billed), 0, '.', ','),
             ];
+                $totalNielsenTVHouseholds+=$bill->households;
+                $totalBilledCalls+=$bill->Billed;
+                $totalRevenue +=$bill->Revenue;
             } elseif ($request->year !== null) {
                 $newData [] = (object)[
                     'Date Range'=>'years('. implode(",", $request->year).')',
@@ -406,6 +411,9 @@ class ReportGeneratorController extends Controller
                     'Total Revenue'=> $bill->Revenue,
                     'Average Homes Per Call'=> number_format(ceil($bill->households/$bill->Billed), 0, '.', ','),
                 ];
+                $totalNielsenTVHouseholds+=$bill->households;
+                $totalBilledCalls+=$bill->Billed;
+                $totalRevenue +=$bill->Revenue;
             } else {
                 $newData [] = (object)[
                     'Date Range'=>'all',
@@ -415,21 +423,29 @@ class ReportGeneratorController extends Controller
                     'Total Revenue'=> $bill->Revenue,
                     'Average Homes Per Call'=> number_format(ceil($bill->households/$bill->Billed), 0, '.', ','),
                 ];
+                $totalNielsenTVHouseholds+=$bill->households;
+                $totalBilledCalls+=$bill->Billed;
+                $totalRevenue +=$bill->Revenue;
             }
         }
-    
+        
         if (empty($billed)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
+        $call_summary['Total Nielsen TV Homes:']=number_format($totalNielsenTVHouseholds, 0, '.', ',');
+        $call_summary['Total Billed Calls:']=$totalBilledCalls;
+        $call_summary['Average Homes Per call:']=number_format(ceil($totalNielsenTVHouseholds/$totalBilledCalls), 0, '.', ',');
+        $call_summary['Total Revenue:']=$totalRevenue;
         $collection=collect($newData)->sortBy('Average Homes Per Call');
      
         return [
-            'data'=>$collection->values()->all()
+            'data'=>$collection->values()->all(),
+            'call_summary' =>$call_summary
         ];
     }
 
 
-    private function marketTargetReportData($tablename, $condition, $whereIn = [], $whereInOr=[], $type)
+    private function marketTargetReportData($tablename, $condition, $whereIn = [], $whereInOr=[], $whereInHouseholds=[], $type)
     {
         $con = '';
         foreach ($condition as $v) {
@@ -445,13 +461,20 @@ class ReportGeneratorController extends Controller
                 $con .= $value . " OR ";
             }
         }
+        $householdsCon='';
+        if (count($whereInHouseholds) > 0) {
+            foreach ($whereInHouseholds as $value) {
+                $householdsCon .= $value . " AND ";
+            }
+        }
 
         $con = rtrim($con, " AND ");
         $con = rtrim($con, " OR ");
+        $householdsCon =rtrim($householdsCon, " AND ");
         if ($type==='state') {
-            $query1="SELECT State, COUNT(State) AS Billed,SUM(Revenue) AS Revenue FROM billed_call_logs LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
+            $query1="SELECT State, COUNT(State) AS Billed,SUM(Revenue) AS Revenue FROM billed_call_logs LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id Where {$con}
             GROUP BY State";
-            $query2="SELECT state AS State, SUM(tv_households) as tv_households FROM `t_v_households` WHERE {$con}  GROUP BY State ";
+            $query2="SELECT state AS State, SUM(tv_households) as tv_households FROM `t_v_households` WHERE {$householdsCon}  GROUP BY State ";
             $query1Result = DB::select($query1);
             $query2Result = DB::select($query2);
             $a=[];
