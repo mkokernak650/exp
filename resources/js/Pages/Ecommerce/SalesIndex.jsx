@@ -201,11 +201,10 @@ const SalesIndex = () => {
 
   const handleEditSubmit = () => {
     axios
-      .put(route("ecommerce-affiliates.update", editData.id), editData, headers)
+      .put(route("ecommerce-sales.update", editData.id), editData, headers)
       .then((res) => {
         let filteredData = tableProps;
-        filteredData.data[editData.sl - 1].percentage = editData.percentage;
-        filteredData.data[editData.sl - 1].coupon_code = editData.coupon_code;
+        filteredData.data[editData.sl - 1] = {...editData};
 
         setEditData();
         setShowEditModal({ open: false });
@@ -224,14 +223,6 @@ const SalesIndex = () => {
       });
   };
 
-  const dateFormat = (dataParam) => {
-    let newDate = new Date(dataParam);
-    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
-    let dd = String(newDate.getDate()).padStart(2, '0');
-    let yyyy = newDate.getFullYear();
-    return dd + ' ' + shortMonth + ', ' + yyyy + ' ' + newDate.toLocaleTimeString();
-  };
-
   const dataArray = sales.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -246,7 +237,7 @@ const SalesIndex = () => {
     subtotal: item.subtotal,
     shipping_cost: item.shipping_cost,
     total: item.total,
-    order_at: dateFormat(item.order_at),
+    order_at: item.formatted_order_at,
     id: item.id,
     key: index,
   }));
@@ -326,10 +317,10 @@ const SalesIndex = () => {
 
   const tablePropsInit = {
     columns: [
-      // {
-      //   key: "edit",
-      //   style: { width: 20 },
-      // },
+      {
+        key: "edit",
+        style: { width: 40 },
+      },
       {
         key: "selection-cell",
         style: { width: 80 },
@@ -738,24 +729,94 @@ const SalesIndex = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Coupon Code:</span>
+            <TextField
+              value={editData ? editData.order_no : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="order_no"
+              label="Order No"
+              onChange={handleEditChange}
+            />
             <TextField
               value={editData ? editData.coupon_code : ""}
               fullWidth
+              type="text"
               margin="normal"
               name="coupon_code"
-              type="text"
-              variant="outlined"
+              label="Coupon Code"
               onChange={handleEditChange}
             />
-            <span>Percentage:</span>
             <TextField
-              value={editData ? editData.percentage : ""}
+              value={editData ? editData.quantity : ""}
               fullWidth
-              margin="normal"
-              name="percentage"
               type="text"
-              variant="outlined"
+              margin="normal"
+              name="quantity"
+              label="Quantity"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.subtotal : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="subtotal"
+              label="Subtotal"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.shipping_cost : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="shipping_cost"
+              label="Shipping Cost"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.total : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="total"
+              label="Total"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.shipping_state : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="shipping_state"
+              label="Shipping State"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.shipping_city : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="shipping_city"
+              label="Shipping City"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.shipping_zip : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="shipping_zip"
+              label="Shipping Zip"
+              onChange={handleEditChange}
+            />
+            <TextField
+              value={editData ? editData.billing_zip : ""}
+              fullWidth
+              type="text"
+              margin="normal"
+              name="billing_zip"
+              label="Billing Zip"
               onChange={handleEditChange}
             />
             <Button

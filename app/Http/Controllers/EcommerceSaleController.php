@@ -22,8 +22,28 @@ class EcommerceSaleController extends Controller
 {
     public function index()
     {
-        $sales = EcommerceSale::all();
+        $sales = EcommerceSale::select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))->get();
+
         return Inertia::render('Ecommerce/SalesIndex', compact('sales'));
+    }
+
+    public function update(Request $request, EcommerceSale $ecommerceSale)
+    {
+        $validated = $request->validate([
+            'order_no' => ['require', 'string', 'max:255'],
+            'coupon_code' => ['require', 'string', 'max:255'],
+            'shipping_city' => ['nullable', 'string', 'max:255'],
+            'shipping_state' => ['nullable', 'string', 'max:255'],
+            'shipping_zip' => ['nullable', 'string', 'max:255'],
+            'billing_zip' => ['nullable', 'string', 'max:255'],
+            'quantity' => ['nullable', 'string', 'max:255'],
+            'subtotal' => ['nullable', 'string', 'max:255'],
+            'shipping_cost' => ['nullable', 'string', 'max:255'],
+            'total' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $ecommerceSale->update($validated);
+        return response()->json(['msg' => 'Updated Successfully.']);
     }
 
     public function import()
