@@ -68,9 +68,7 @@ class EcommerceSaleController extends Controller
 
         $data = EcommerceSale::select('order_no', 'coupon_code', 'shipping_zip', 'total')->get();
 
-        $import = Excel::import(new EcommerceSaleImport($filterFields, $data), $request->file('file'));
-
-        dd($import);
+        Excel::import(new EcommerceSaleImport($filterFields, $data), $request->file('file'));
 
         return response()->json(['msg' => 'Imported Successfully.'], 201);
     }
