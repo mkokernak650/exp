@@ -204,7 +204,7 @@ const SalesIndex = () => {
       .put(route("ecommerce-sales.update", editData.id), editData, headers)
       .then((res) => {
         let filteredData = tableProps;
-        filteredData.data[editData.sl - 1] = {...editData};
+        filteredData.data[editData.sl - 1] = { ...editData };
 
         setEditData();
         setShowEditModal({ open: false });
@@ -463,30 +463,24 @@ const SalesIndex = () => {
     axios
       .post(route("ecommerce-sales.deleteSelected"), { selectedRowIds })
       .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          changeTableProps(filteredData);
-          setSelectedRowIds([]);
-          setTableToolbar(false);
-          setResponseType("success");
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
-        } else {
-          setOpen(true);
-          setResponseType("error");
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
-        }
+        let filteredData = tableProps;
+        const newData = filteredData.data.filter(
+          (item) => !selectedRowIds.includes(item.id)
+        );
+        filteredData.data = newData;
+        changeTableProps(filteredData);
+        setSelectedRowIds([]);
+        setTableToolbar(false);
+        setResponseType("success");
+        setOpen(true);
+        setResponse(res.data.msg);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
       })
       .catch((err) => {
-        console.log(err);
+        setOpen(true);
+        setResponseType("error");
+        setResponse(err.response.data.msg);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
       });
@@ -860,7 +854,5 @@ const SalesIndex = () => {
   );
 };
 
-SalesIndex.layout = (page) => (
-  <Layout title="Sales Index">{page}</Layout>
-);
+SalesIndex.layout = (page) => <Layout title="Sales Index">{page}</Layout>;
 export default SalesIndex;

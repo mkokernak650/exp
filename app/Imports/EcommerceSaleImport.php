@@ -4,16 +4,28 @@ namespace App\Imports;
 
 use App\Models\EcommerceSale;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class EcommerceSaleImport implements ToModel, WithHeadingRow, WithChunkReading
+class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, WithChunkReading
 {
-    protected $fieldMap;
+    use SkipsErrors;
 
-    public function __construct(array $fieldMap)
+    protected $fieldMap;
+    protected $orderNo;
+    protected $couponCodes;
+    protected $shippingZip;
+    protected $total;
+
+    public function __construct(array $fieldMap, $data)
     {
         $this->fieldMap = $fieldMap;
+        $this->orderNo = $data->pluck('order_no')->toArray();
+        $this->couponCodes = $data->pluck('coupon_code')->toArray();
+        $this->shippingZip = $data->pluck('shipping_zip')->toArray();
+        $this->total = $data->pluck('total')->toArray();
     }
 
     /**
@@ -23,7 +35,18 @@ class EcommerceSaleImport implements ToModel, WithHeadingRow, WithChunkReading
      */
     public function model(array $row)
     {
-        if (empty($row[$this->fieldMap['coupon_code']])) return;
+        if (empty($this->getValue($row, 'coupon_code'))) return;
+
+        $key = array_search($this->getValue($row, 'order_no'), $this->orderNo);
+        if ($key !== false) {
+            if (
+                $this->getValue($row, 'coupon_code') == $this->couponCodes[$key]
+                && $this->getValue($row, 'shipping_zip') == $this->shippingZip[$key]
+                && $this->getValue($row, 'total') == $this->total[$key]
+            ) {
+                return;
+            }
+        }
 
         return new EcommerceSale([
             'order_no' => $this->getValue($row, 'order_no'),

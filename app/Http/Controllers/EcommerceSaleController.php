@@ -65,7 +65,12 @@ class EcommerceSaleController extends Controller
                 $filterFields[$value->applicationField] = Str::slug($value->reportField, '_');
             }
         }
-        Excel::import(new EcommerceSaleImport($filterFields), $request->file('file'));
+
+        $data = EcommerceSale::select('order_no', 'coupon_code', 'shipping_zip', 'total')->get();
+
+        $import = Excel::import(new EcommerceSaleImport($filterFields, $data), $request->file('file'));
+
+        dd($import);
 
         return response()->json(['msg' => 'Imported Successfully.'], 201);
     }
