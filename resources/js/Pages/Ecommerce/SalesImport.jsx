@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     width: "600px",
     margin: "auto",
-    marginTop: "5rem",
+    marginTop: "2rem",
     padding: "40px",
     flexGrow: 1,
   },

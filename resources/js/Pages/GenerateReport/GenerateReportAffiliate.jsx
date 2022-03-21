@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     width: "500px",
     margin: "auto",
-    marginTop: "5rem",
+    marginTop: "2rem",
     padding: "40px",
     flexGrow: 1,
   },
@@ -287,7 +287,7 @@ const GenerateReportAffiliate = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-     
+
             <Grid item xs={12}>
               <RadioGroup
                 aria-label="type"

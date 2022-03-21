@@ -16,6 +16,7 @@ class EcommerceAffiliate extends Model
         'customer_id',
         'affiliate_id',
         'coupon_code',
+        'revenue',
         'affiliate_fee',
         'percentage',
         'status',

@@ -14,7 +14,6 @@ use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceSale;
 use App\Models\ZipcodeByTelevisionMarket;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -30,8 +29,8 @@ class EcommerceSaleController extends Controller
     public function update(Request $request, EcommerceSale $ecommerceSale)
     {
         $validated = $request->validate([
-            'order_no' => ['require', 'string', 'max:255'],
-            'coupon_code' => ['require', 'string', 'max:255'],
+            'order_no' => ['required', 'string', 'max:255'],
+            'coupon_code' => ['required', 'string', 'max:255'],
             'shipping_city' => ['nullable', 'string', 'max:255'],
             'shipping_state' => ['nullable', 'string', 'max:255'],
             'shipping_zip' => ['nullable', 'string', 'max:255'],
@@ -42,8 +41,10 @@ class EcommerceSaleController extends Controller
             'total' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $ecommerceSale->update($validated);
-        return response()->json(['msg' => 'Updated Successfully.']);
+        if($ecommerceSale->update($validated)) {
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
+        return response()->json(['msg' => 'Try Again!'], 422);
     }
 
     public function import()
@@ -66,13 +67,13 @@ class EcommerceSaleController extends Controller
         }
         Excel::import(new EcommerceSaleImport($filterFields), $request->file('file'));
 
-        return response()->json(['msg' => 'Imported Successfully.']);
+        return response()->json(['msg' => 'Imported Successfully.'], 201);
     }
 
     public function deleteSelected(Request $request)
     {
         EcommerceSale::whereIn('id', $request->selectedRowIds)->delete();
-        return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        return response()->json(["msg" => "Successfully Deleted", "status_code" => 204]);
     }
 
     public function ecommerceSalesReport()
@@ -179,26 +180,22 @@ class EcommerceSaleController extends Controller
                 'affiliates.affiliate_name AS Affiliate',
                 'ecommerce_sales.coupon_code AS Coupon Code',
                 DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+                DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-                'ecommerce_affiliates.affiliate_fee AS Affiliate %',
-                'ecommerce_affiliates.percentage AS Commission %',
-                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Affiliate Fee`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100, 2) AS `Commission Fee`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) - ((SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100) + (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100)), 2) AS `Net Amount`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Avg. Affiliate Fee`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) / COUNT(ecommerce_sales.id) * ecommerce_affiliates.percentage / 100, 2) AS `Avg. Commission Fee`'),
-                DB::raw('ROUND((SUM(ecommerce_sales.total) - ((SUM(ecommerce_sales.total) * ecommerce_affiliates.percentage / 100) + (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100))) / COUNT(ecommerce_sales.id), 2) AS `Avg. Order Value After Commission`'),
+                'ecommerce_affiliates.revenue AS Fee Per Order',
+                DB::raw('ROUND(SUM(ecommerce_sales.quantity) * ecommerce_affiliates.revenue, 2) AS `Total Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.quantity) * ecommerce_affiliates.revenue), 2) AS `Net Amount`'),
             ];
         } elseif ($type === "affiliate") {
             return [
                 'affiliates.affiliate_name AS Affiliate',
                 'ecommerce_sales.coupon_code AS Coupon Code',
                 DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+                DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-                'ecommerce_affiliates.affiliate_fee AS Affiliate Fee %',
-                DB::raw('ROUND(SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100, 2) AS `Affiliate Fee`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.total) * ecommerce_affiliates.affiliate_fee / 100), 2) AS `Net Amount`'),
+                'ecommerce_affiliates.affiliate_fee AS Affiliate Fee Per Order',
+                DB::raw('ROUND(SUM(ecommerce_sales.quantity) * ecommerce_affiliates.affiliate_fee, 2) AS `Affiliate Fee`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.quantity) * ecommerce_affiliates.affiliate_fee), 2) AS `Net Amount`'),
             ];
         }
 
@@ -207,18 +204,20 @@ class EcommerceSaleController extends Controller
 
     protected function getReportSummary($type, $salesData)
     {
-        if ($type === "affiliate") {
-            $commisionText = 'Affiliate Fee';
-        } else {
-            $commisionText = 'Commission Fee';
-        }
-
-        $summary = ['Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0, 'Total Order' => 0];
-        $salesData->each(function ($item) use (&$summary, $commisionText) {
+        $summary = ['Total Amount' => 0, 'Total Order' => 0, 'Total Quantity' => 0, 'Affiliate Fee' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
+        $salesData->each(function ($item) use (&$summary, $type) {
             $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Fee'] += $item->$commisionText;
-            $summary['Net Amount'] += $item->{'Net Amount'};
             $summary['Total Order'] += $item->{'No. of Orders'};
+            $summary['Total Quantity'] += $item->{'Total Quantity'};
+            $summary['Net Amount'] += $item->{'Net Amount'};
+
+            if ($type === "customer") {
+                $summary['Total Fee'] += $item->{'Total Fee'};
+                unset($summary['Affiliate Fee']);
+            } else {
+                $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
+                unset($summary['Total Fee']);
+            }
         });
 
         return $summary;

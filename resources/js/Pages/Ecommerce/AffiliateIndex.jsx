@@ -166,14 +166,11 @@ const AffiliateIndex = () => {
   const showColumnRef = useRef();
 
   const handleEditChange = (e) => {
-    // console.log(e.target.value);
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
 
   const headers = {
-    headers: {
-      Accept: "application/json",
-    },
+    headers: { Accept: "application/json" },
   };
 
   const getCustomerNameById = (id) => {
@@ -199,7 +196,13 @@ const AffiliateIndex = () => {
         let customerName = getCustomerNameById(editData.customer_id);
         let affiliateName = getAffiliateNameById(editData.affiliate_id);
         let filteredData = tableProps;
-        filteredData.data[editData.sl - 1] = { ...editData, campaign: campaignName, customer: customerName, affiliate: affiliateName };
+        filteredData.data[editData.sl - 1] = {
+          ...editData,
+          campaign: campaignName,
+          customer: customerName,
+          affiliate: affiliateName,
+          percentage: editData.revenue - editData.affiliate_fee,
+        };
 
         setEditData();
         setShowEditModal({ open: false });
@@ -228,6 +231,7 @@ const AffiliateIndex = () => {
     customer: item.customer.customer_name,
     affiliate: item.affiliate.affiliate_name,
     coupon_code: item.coupon_code,
+    revenue: item.revenue,
     affiliate_fee: item.affiliate_fee,
     percentage: item.percentage,
     // status: item.status,
@@ -349,6 +353,12 @@ const AffiliateIndex = () => {
         style: { width: 100 },
       },
       {
+        key: "revenue",
+        title: "Revenue",
+        dataType: DataType.String,
+        style: { width: 80 },
+      },
+      {
         key: "affiliate_fee",
         title: "Affiliate Fee",
         dataType: DataType.String,
@@ -389,9 +399,6 @@ const AffiliateIndex = () => {
       }
       if (column.key === "status") {
         return value == 1 ? "Active" : "Inactive";
-      }
-      if (column.key === "percentage") {
-        return value == value ? value + "%" : "0%";
       }
     },
   };
@@ -768,11 +775,11 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.affiliate_fee : ""}
-                  label="Affiliate Fee %"
+                  value={editData ? editData.revenue : ""}
+                  label="Revenue"
                   type="text"
-                  name="affiliate_fee"
-                  placeholder="Exp: 0.5"
+                  name="revenue"
+                  placeholder="Exp: 100"
                   onChange={handleEditChange}
                   fullWidth
                   required={true}
@@ -781,11 +788,11 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.percentage : ""}
-                  label="Commission %"
+                  value={editData ? editData.affiliate_fee : ""}
+                  label="Affiliate Fee"
                   type="text"
-                  name="percentage"
-                  placeholder="Exp: 0.5"
+                  name="affiliate_fee"
+                  placeholder="Exp: 100"
                   onChange={handleEditChange}
                   fullWidth
                   required={true}

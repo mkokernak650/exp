@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     width: "500px",
     margin: "auto",
-    marginTop: "5rem",
+    marginTop: "2rem",
     padding: "40px",
     flexGrow: 1,
   },
@@ -42,8 +42,8 @@ const AffiliateCreate = () => {
     customer_id: "",
     affiliate_id: "",
     coupon_code: "",
+    revenue: "",
     affiliate_fee: "",
-    percentage: "",
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
@@ -55,16 +55,11 @@ const AffiliateCreate = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setValues((oldValues) => ({
-      ...oldValues,
-      [name]: value,
-    }));
+    setValues((oldValues) => ({ ...oldValues, [name]: value }));
   };
 
   const headers = {
-    headers: {
-      Accept: "application/json",
-    },
+    headers: { Accept: "application/json" },
   };
 
   const handleSubmit = (e) => {
@@ -181,12 +176,12 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
-                value={values?.affiliate_fee}
-                id="affiliate_fee"
-                label="Affiliate Fee %"
+                value={values?.revenue}
+                id="revenue"
+                label="Revenue"
                 type="text"
-                name="affiliate_fee"
-                placeholder="Exp: 0.5"
+                name="revenue"
+                placeholder="Exp: 100"
                 onChange={handleChange}
                 className={classes.textField}
                 fullWidth
@@ -196,18 +191,19 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
-                value={values?.percentage}
-                id="percentage"
-                label="Percentage %"
+                value={values?.affiliate_fee}
+                id="affiliate_fee"
+                label="Affiliate Fee"
                 type="text"
-                name="percentage"
-                placeholder="Exp: 0.5"
+                name="affiliate_fee"
+                placeholder="Exp: 100"
                 onChange={handleChange}
                 className={classes.textField}
                 fullWidth
                 required={true}
               />
             </Grid>
+
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
                 {loading ? <CircularProgress color="secondary" /> : "Save"}

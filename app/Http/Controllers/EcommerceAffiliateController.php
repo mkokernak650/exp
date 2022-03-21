@@ -25,11 +25,11 @@ class EcommerceAffiliateController extends Controller
         $campaigns = Campaign::all();
         $customers = Customer::all();
 
-        $ecommerceAffiliates = EcommerceAffiliate::
-        with('affiliate:id,affiliate_name')
-        ->with('campaign:id,campaign_name')
-        ->with('customer:id,customer_name')
-        ->get();
+        $ecommerceAffiliates = EcommerceAffiliate::query()
+            ->with('affiliate:id,affiliate_name')
+            ->with('campaign:id,campaign_name')
+            ->with('customer:id,customer_name')
+            ->get();
         return Inertia::render('Ecommerce/AffiliateIndex', compact('ecommerceAffiliates', 'affiliates', 'campaigns', 'customers'));
     }
 
@@ -59,11 +59,13 @@ class EcommerceAffiliateController extends Controller
             'customer_id' => ['required', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
+            'revenue' => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
-            'percentage' => ['required', 'numeric'],
         ]);
-        EcommerceAffiliate::create($validated);
-        return response()->json(['msg' => 'Created Successfully.'], 201);
+        if (EcommerceAffiliate::create($validated + ['percentage' => ($request->revenue - $request->affiliate_fee)])) {
+            return response()->json(['msg' => 'Created Successfully.'], 201);
+        }
+        return response()->json(['msg' => 'Try Again!'], 422);
     }
 
     /**
@@ -80,11 +82,13 @@ class EcommerceAffiliateController extends Controller
             'customer_id' => ['required', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')->ignore($ecommerceAffiliate->id)],
+            'revenue' => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
-            'percentage' => ['required', 'numeric'],
         ]);
-        $ecommerceAffiliate->update($validated);
-        return response()->json(['msg' => 'Updated Successfully.']);
+        if ($ecommerceAffiliate->update($validated + ['percentage' => ($request->revenue - $request->affiliate_fee)])) {
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
+        return response()->json(['msg' => 'Try Again!'], 422);
     }
 
     /**

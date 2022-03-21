@@ -112,7 +112,7 @@ Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->ex
 Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
 
 Route::get('ecommerce-sales', [EcommerceSaleController::class, 'index'])->name('ecommerce-sales.index');
-Route::put('ecommerce-sales/update', [EcommerceSaleController::class, 'update'])->name('ecommerce-sales.update');
+Route::put('ecommerce-sales/update/{ecommerceSale}', [EcommerceSaleController::class, 'update'])->name('ecommerce-sales.update');
 Route::get('ecommerce-sales/import', [EcommerceSaleController::class, 'import'])->name('ecommerce-sales.import');
 Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
 Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');

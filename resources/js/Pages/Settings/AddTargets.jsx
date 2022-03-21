@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     width: "500px",
     margin: "auto",
-    marginTop: "5rem",
+    marginTop: "2rem",
     padding: "40px",
     flexGrow: 1,
   },
@@ -53,7 +53,7 @@ const AddTargets = () => {
   const { allCustomers, allTargetNames } = usePage().props;
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
-  
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;

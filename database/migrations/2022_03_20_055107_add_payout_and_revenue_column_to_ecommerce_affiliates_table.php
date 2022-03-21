@@ -14,11 +14,7 @@ class AddPayoutAndRevenueColumnToEcommerceAffiliatesTable extends Migration
     public function up()
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
-            $table->after('customer_id', function ($table) {
-                $table->boolean('based_on_percentage')->default(0);
-                $table->string('payout')->nullable();
-                $table->string('revenue')->nullable();
-            });
+            $table->string('revenue')->nullable()->after('coupon_code');
         });
     }
 
@@ -30,8 +26,6 @@ class AddPayoutAndRevenueColumnToEcommerceAffiliatesTable extends Migration
     public function down()
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
-            $table->dropColumn('based_on_percentage');
-            $table->dropColumn('payout');
             $table->dropColumn('revenue');
         });
     }
