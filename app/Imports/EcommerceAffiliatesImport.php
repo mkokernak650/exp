@@ -31,10 +31,10 @@ class EcommerceAffiliatesImport implements ToModel, WithHeadingRow, SkipsOnError
             return;
         }
 
-        $affiliateId = array_search('test', $this->affiliates);
+        $affiliateId = array_search($row['affiliate_name'], $this->affiliates);
         if (!$affiliateId) {
             $affiliate = Affiliate::create([
-                'affiliate_name' => 'test',
+                'affiliate_name' => $row['affiliate_name'],
             ]);
             $affiliateId = $affiliate->id;
         }

@@ -58,7 +58,7 @@ class EcommerceAffiliateController extends Controller
     {
         $validated = $request->validate([
             'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
-            'customer_id' => ['required', Rule::exists('customers', 'id')],
+            'customer_id' => ['nullable', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
             'revenue' => ['required', 'numeric'],
@@ -81,7 +81,7 @@ class EcommerceAffiliateController extends Controller
     {
         $validated = $request->validate([
             'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
-            'customer_id' => ['required', Rule::exists('customers', 'id')],
+            'customer_id' => ['nullable', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')->ignore($ecommerceAffiliate->id)],
             'revenue' => ['required', 'numeric'],
