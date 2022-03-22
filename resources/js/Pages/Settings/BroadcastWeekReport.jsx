@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout";
-// import "./Demo.scss";
 import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
@@ -25,7 +24,6 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-// import ThreeDots from "../../../images/three-dots.svg";
 import Edit from "../../../images/edit1.svg";
 
 import Cancel from "../../../images/cancel.svg";

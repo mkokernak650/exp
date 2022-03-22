@@ -11,7 +11,7 @@ use App\Models\BroadCastWeeks;
 
 class GenerateReportAffiliateController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }

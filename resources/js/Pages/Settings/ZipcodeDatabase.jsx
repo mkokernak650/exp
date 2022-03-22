@@ -1,37 +1,33 @@
-import Layout from "../Layout/Layout";
-import M from "materialize-css";
-import React, { useEffect, useState,useRef } from "react";
-import { kaReducer, Table } from "ka-table";
+import Layout from "../Layout/Layout"
+import M from "materialize-css"
+import React, { useEffect, useState, useRef } from "react"
+import { kaReducer, Table } from "ka-table"
 import {
   DataType,
   SortingMode,
   PagingPosition,
   EditingMode,
   ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+} from "ka-table/enums"
+import { kaPropsUtils } from "ka-table/utils"
+import { usePage } from "@inertiajs/inertia-react"
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
+} from "ka-table/actionCreators"
+import FilterControl from "react-filter-control"
+import { filterData } from "../filterData"
+import "ka-table/style.scss"
+import search from "../../../images/search.svg"
+import eyeIcon from "../../../images/eyeIcon.svg"
+import closeNav from "../../../images/closeNav.svg"
+import { hideColumn, showColumn } from "ka-table/actionCreators"
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
+import Checkbox from "@material-ui/core/Checkbox"
 import {
-  CssBaseline,
   makeStyles,
   Button,
   Snackbar,
@@ -40,11 +36,11 @@ import {
   Radio,
   FormControlLabel,
   FormLabel,
-} from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
-import NormalModal from "../../Shared/NormalModal";
-import axios from "axios";
-import { Helmet } from "react-helmet";
+} from "@material-ui/core"
+import MuiAlert from "@material-ui/lab/Alert"
+import NormalModal from "../../Shared/NormalModal"
+import axios from "axios"
+import { Helmet } from "react-helmet"
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -52,11 +48,12 @@ const useStyles = makeStyles(() => ({
     textTransform: "capitalize",
     fontSize: "14px",
   },
-}));
+}))
 
 function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+  return <MuiAlert elevation={6} variant="filled" {...props} />
 }
+
 export const fields = [
   {
     caption: "NPA",
@@ -1236,7 +1233,7 @@ export const fields = [
       },
     ],
   },
-];
+]
 
 export const groups = [
   {
@@ -1247,7 +1244,7 @@ export const groups = [
     caption: "Or",
     name: "or",
   },
-];
+]
 export const filter = {
   groupName: "and",
   items: [
@@ -1256,29 +1253,29 @@ export const filter = {
       operator: "isNotEmpty",
     },
   ],
-};
+}
 
 const ZipcodeDatabase = () => {
-  const classes = useStyles();
-  const { allZipcodes } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [importModal, setImportModal] = useState({ open: false });
-  const [exportModal, setExportModal] = useState({ open: false });
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [type, setType] = useState("xlsx");
-  const showColumnRef = useRef();
+  const classes = useStyles()
+  const { allZipcodes } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [response, setResponse] = useState()
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [importModal, setImportModal] = useState({ open: false })
+  const [exportModal, setExportModal] = useState({ open: false })
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [type, setType] = useState("xlsx")
+  const showColumnRef = useRef()
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
-      return;
+      return
     }
-    setOpen(false);
-  };
+    setOpen(false)
+  }
   const dataArray = allZipcodes.map((item, index) => ({
     sl: index + 1,
     NPA: item.NPA,
@@ -1314,7 +1311,7 @@ const ZipcodeDatabase = () => {
     WeightedLon: item.WeightedLon,
     id: item.id,
     key: index,
-  }));
+  }))
 
   const tablePropsInit = {
     columns: [
@@ -1507,6 +1504,7 @@ const ZipcodeDatabase = () => {
       enabled: true,
       pageIndex: 0,
       pageSize: 10,
+
       pageSizes: [10, 20, 50, 100],
       position: PagingPosition.Bottom,
     },
@@ -1515,15 +1513,15 @@ const ZipcodeDatabase = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
-  };
+  }
 
-  const OPTION_KEY = "zipcode-database";
+
+  const OPTION_KEY = "zipcode-database"
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  }
+  const [tableProps, changeTableProps] = useState(stateStore)
 
   const SelectionCell = ({
     rowKeyValue,
@@ -1537,27 +1535,27 @@ const ZipcodeDatabase = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -1565,150 +1563,122 @@ const ZipcodeDatabase = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
+            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true)
+            let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                continue;
+                selectedRowIds.push(tableProps.data[i].id)
+                continue
               }
-              i++;
+              i++
             }
           } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
             // if (selectedRowIds) {
-            selectedRowIds.splice(0, selectedRowIds.length);
+            selectedRowIds.splice(0, selectedRowIds.length)
             // }
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
-  const [filterValue, changeFilter] = useState(filter);
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      return newState
+    })
+  }
+  const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue);
-  };
+    changeFilter(newFilterValue)
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const hideCoumnSettings = () => {
-    console.log("hiding");
-    setShowColumns(false);
-  };
+    setShowColumns(false)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
 
   const openImportModal = () => {
-    setImportModal({ open: true });
-  };
+    setImportModal({ open: true })
+  }
   const openExportModal = () => {
-    setExportModal({ open: true });
-  };
-  // const deleteHandler = () => {
-  //   axios
-  //     .post(route("zipcode-data-delete"), { selectedRowIds })
-  //     .then((res) => {
-  //       if (res.data.status_code === 200) {
-  //         let filteredData = tableProps;
-  //         const newData = filteredData.data.filter(
-  //           (item) => !selectedRowIds.includes(item.id)
-  //         );
-  //         filteredData.data = newData;
-  //         changeTableProps(filteredData);
-  //         setselectedRowIds([]);
-  //         setTableToolbar(false);
-  //         setOpen(true);
-  //         setResponse(res.data.msg);
-  //       } else {
-  //         setOpen(true);
-  //         setResponse(res.data.msg);
-  //         setselectedRowIds([]);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       setTableToolbar(false);
-  //       setselectedRowIds([]);
-  //     });
-  // };
+    setExportModal({ open: true })
+  }
 
   const handleImportChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
+    setSelectedFile(e.target.files[0])
+  }
 
   const handleExportChange = (e) => {
-    setType(e.target.value);
-  };
+    setType(e.target.value)
+  }
 
   const importHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("importfile", selectedFile);
+    e.preventDefault()
+    setLoading(true)
+    const formData = new FormData()
+    formData.append("importfile", selectedFile)
     axios
       .post(route("zipcode.data.import"), formData)
       .then((res) => {
-        setSelectedFile(null);
-        setLoading(false);
+        setSelectedFile(null)
+        setLoading(false)
         if (res.status === 200) {
-          setMainData(res.data);
-          setImportModal({ open: false });
-          setResponse("Imported Successfully");
-          setOpen(true);
+          setMainData(res.data)
+          setImportModal({ open: false })
+          setResponse("Imported Successfully")
+          setOpen(true)
         } else {
-          setResponse("Import failed");
+          setResponse("Import failed")
         }
       })
-      .catch((err) => { });
-  };
+      .catch((err) => { })
+  }
 
   const triggerExportLink = (link) => {
-    return window.open(link);
-  };
+    return window.open(link)
+  }
 
-  const baseUrl = window.location.origin;
+  const baseUrl = window.location.origin
   const exportHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
       .get(`${baseUrl}/zipcode-data-export/${type}`)
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          setExportModal({ open: false });
-          triggerExportLink(res.request.responseURL);
-          setResponse("Exported Successfully");
-          setOpen(true);
+          setExportModal({ open: false })
+          triggerExportLink(res.request.responseURL)
+          setResponse("Exported Successfully")
+          setOpen(true)
         } else {
-          setResponse("Exporting failed");
+          setResponse("Exporting failed")
         }
       })
       .catch((err) => {
-        setLoading(false);
-      });
-  };
+        setLoading(false)
+      })
+  }
 
-  useEffect(() => M.AutoInit());
+  useEffect(() => M.AutoInit())
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -1716,15 +1686,15 @@ const ZipcodeDatabase = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener("mousedown", checkIfClickedOutside)
     return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showColumns]);
+      document.removeEventListener("mousedown", checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   // const TableToolbar = () => {
   //   return (
@@ -1765,16 +1735,16 @@ const ZipcodeDatabase = () => {
         },
       ],
       editingMode: EditingMode.None,
-    };
+    }
     const dispatchSettings = (action) => {
       if (action.type === ActionType.UpdateCellValue) {
         tableProps.dispatch(
           action.value
             ? showColumn(action.rowKeyValue)
             : hideColumn(action.rowKeyValue)
-        );
+        )
       }
-    };
+    }
     return (
       <Table
         {...columnsSettingsProps}
@@ -1788,15 +1758,15 @@ const ZipcodeDatabase = () => {
             content: (props) => {
               switch (props.column.key) {
                 case "visible":
-                  return <CellEditorBoolean {...props} />;
+                  return <CellEditorBoolean {...props} />
               }
             },
           },
         }}
         dispatch={dispatchSettings}
       />
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -1804,74 +1774,74 @@ const ZipcodeDatabase = () => {
 
       <div className="selection-demo">
 
-          <div className="table-top">
-            <div className="top-left">
+        <div className="table-top">
+          <div className="top-left">
             <div className="columns-show-hide" onClick={handleColumns}>
-                <img
-                  src={eyeIcon}
-                  alt="search"
-                  onBlur={hideCoumnSettings}
-                ></img>
-              </div>
-              <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
-                onClick={openImportModal}
-              >
-                Import
-              </Button>
-              <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
-                onClick={openExportModal}
-                disabled={allZipcodes == ""}
-              >
-                Export
-              </Button>
+              <img
+                src={eyeIcon}
+                alt="search"
+                onBlur={hideCoumnSettings}
+              ></img>
             </div>
-
-            <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <img src={search} alt="search"></img>
-            </div>
-
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              ""
-            )}
-            {showColumns ? (
-                 <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
-              </div>
-            ) : (
-              ""
-            )}
+            <Button
+              variant="contained"
+              type="submit"
+              color="primary"
+              className={classes.button}
+              onClick={openImportModal}
+            >
+              Import
+            </Button>
+            <Button
+              variant="contained"
+              type="submit"
+              color="primary"
+              className={classes.button}
+              onClick={openExportModal}
+              disabled={allZipcodes == ""}
+            >
+              Export
+            </Button>
           </div>
+
+          <div className="search-icon" onClick={handleSearch}>
+            <span>Search Here</span>
+            <img src={search} alt="search"></img>
+          </div>
+
+          {serachSidebar ? (
+            <div className="search-sidebar">
+              <div className="search-top">
+                <div className="title">
+                  <span>Search</span>
+                </div>
+                <a className="close-nav" onClick={closeSidebar}>
+                  <img src={closeNav} alt="file not found"></img>
+                </a>
+              </div>
+
+              <div className="top-element">
+                <FilterControl
+                  {...{
+                    fields,
+                    groups,
+                    filterValue,
+                    onFilterValueChanged: onFilterChanged,
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
+          {showColumns ? (
+            <div className="column-settings" ref={showColumnRef}>
+              <ColumnSettings {...tableProps} dispatch={dispatch} />
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
 
         <Table
           {...tableProps}
@@ -1879,14 +1849,14 @@ const ZipcodeDatabase = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -1901,7 +1871,7 @@ const ZipcodeDatabase = () => {
                       )}
                     // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
-                  );
+                  )
                 }
               },
             },
@@ -1915,7 +1885,7 @@ const ZipcodeDatabase = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
             },
@@ -1992,10 +1962,10 @@ const ZipcodeDatabase = () => {
         </NormalModal>
       </div>
     </>
-  );
-};
+  )
+}
 
 ZipcodeDatabase.layout = (page) => (
   <Layout title="Zipcode Database">{page}</Layout>
-);
-export default ZipcodeDatabase;
+)
+export default ZipcodeDatabase

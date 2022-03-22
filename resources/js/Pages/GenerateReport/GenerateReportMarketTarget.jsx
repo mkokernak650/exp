@@ -100,7 +100,6 @@ const GenerateReportAffiliate = () => {
   const marketHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1);
     const marketsName = val.split(",,");
-    console.log(val)
     if (val) {
       setMarket({ [key]: marketsName });
       setDisableMarketCheckbox(true)
@@ -284,6 +283,7 @@ const GenerateReportAffiliate = () => {
           setOpen(true);
           setResponse(r.data.msg);
         }
+        console.log(r.data)
         exportToCSV(r.data, fileName);
       });
     }
@@ -298,7 +298,16 @@ const GenerateReportAffiliate = () => {
   const fileExtension = ".xlsx";
 
   const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
+    const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName);
+    const secondData = Object.keys(apiData.data).length + 5;
+    const call_summary = [];
+    Object.keys(apiData.call_summary).forEach((cf) => {
+      call_summary.push([cf, apiData.call_summary[cf]]);
+    });
+  
+    
+
+    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -331,8 +340,6 @@ const GenerateReportAffiliate = () => {
     }
   }
 
-  console.log('market', market)
-  console.log('state', state)
 
 
   return (
