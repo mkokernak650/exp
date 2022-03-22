@@ -22,6 +22,17 @@ class EcommerceAffiliate extends Model
         'status',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($item) {
+            $item->percentage = $item->revenue - $item->affiliate_fee;
+        });
+
+        static::updating(function ($item) {
+            $item->percentage = $item->revenue - $item->affiliate_fee;
+        });
+    }
+
     public function scopeActive($query)
     {
         return $query->whereStatus(1);

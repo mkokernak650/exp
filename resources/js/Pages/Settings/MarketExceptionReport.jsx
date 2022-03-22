@@ -917,7 +917,7 @@ console.log(marketExceptions)
                   name="start_date"
                   onChange={handleEditChange}
                   defaultValue={editData?.start_date ? editData.start_date : ""}
-                  // defaultValue='2022-02-10'  
+                  // defaultValue='2022-02-10'
                   margin="normal"
                   fullWidth
                 />
@@ -1005,7 +1005,7 @@ console.log(marketExceptions)
           </RadioGroup>
           <Button variant="contained" color="primary" onClick={exportHandler}>
             {loading ? (
-              <CircularProgress color="secondary" thickness="3" size="2rem" />
+              <CircularProgress color="inherit" thickness="3" size="1.5rem" />
             ) : (
               "Next"
             )}

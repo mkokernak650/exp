@@ -492,7 +492,7 @@ const GenerateReportAffiliate = () => {
                 color="primary"
                 onClick={(e) => handleSubmit()}
               >
-                {loading ? <CircularProgress color="secondary" /> : "Generate"}
+                {loading ? <CircularProgress color="inherit" thickness="3" size="1.5rem" /> : "Generate"}
               </Button>
             </Grid>
           </Grid>

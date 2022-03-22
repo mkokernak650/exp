@@ -1803,7 +1803,7 @@ const ZipcodeDatabase = () => {
       <Helmet title="ZipCode Database" />
 
       <div className="selection-demo">
-      
+
           <div className="table-top">
             <div className="top-left">
             <div className="columns-show-hide" onClick={handleColumns}>
@@ -1872,7 +1872,7 @@ const ZipcodeDatabase = () => {
               ""
             )}
           </div>
-      
+
         <Table
           {...tableProps}
           childComponents={{
@@ -1954,7 +1954,7 @@ const ZipcodeDatabase = () => {
               disabled={!selectedFile}
             >
               {loading ? (
-                <CircularProgress color="secondary" thickness="3" size="2rem" />
+                <CircularProgress color="inherit" thickness="3" size="1.5rem" />
               ) : (
                 "Next"
               )}
@@ -1983,7 +1983,7 @@ const ZipcodeDatabase = () => {
             </RadioGroup>
             <Button variant="contained" color="primary" onClick={exportHandler}>
               {loading ? (
-                <CircularProgress color="secondary" thickness="3" size="2rem" />
+                <CircularProgress color="inherit" thickness="3" size="1.5rem" />
               ) : (
                 "Next"
               )}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\EcommerceAffiliatesImport;
 use App\Models\Affiliate;
 use App\Models\Campaign;
 use App\Models\Customer;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EcommerceAffiliateController extends Controller
 {
@@ -62,7 +64,7 @@ class EcommerceAffiliateController extends Controller
             'revenue' => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
         ]);
-        if (EcommerceAffiliate::create($validated + ['percentage' => ($request->revenue - $request->affiliate_fee)])) {
+        if (EcommerceAffiliate::create($validated)) {
             return response()->json(['msg' => 'Created Successfully.'], 201);
         }
         return response()->json(['msg' => 'Try Again!'], 422);
@@ -85,7 +87,7 @@ class EcommerceAffiliateController extends Controller
             'revenue' => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
         ]);
-        if ($ecommerceAffiliate->update($validated + ['percentage' => ($request->revenue - $request->affiliate_fee)])) {
+        if ($ecommerceAffiliate->update($validated)) {
             return response()->json(['msg' => 'Updated Successfully.'], 201);
         }
         return response()->json(['msg' => 'Try Again!'], 422);
@@ -107,5 +109,12 @@ class EcommerceAffiliateController extends Controller
     {
         EcommerceAffiliate::whereIn('id', $request->selectedRowIds)->delete();
         return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+    }
+
+    public function import(Request $request)
+    {
+        $affiliates = Affiliate::pluck('affiliate_name', 'id')->toArray();
+        Excel::import(new EcommerceAffiliatesImport($affiliates), $request->importFile);
+        return response()->json(['msg' => 'Successfully import!'], 201);
     }
 }

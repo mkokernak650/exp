@@ -109,6 +109,7 @@ Route::post('/store-annotations-row-order', [CampaignController::class, 'storeAn
 
 // E-commerce routes
 Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
+Route::post('ecommerce-affiliates/import', [EcommerceAffiliateController::class, 'import'])->name('ecommerce-affiliates.import');
 Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
 
 Route::get('ecommerce-sales', [EcommerceSaleController::class, 'index'])->name('ecommerce-sales.index');

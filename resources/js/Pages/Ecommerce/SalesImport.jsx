@@ -193,7 +193,7 @@ const SalesImport = () => {
 
             <Grid item xs={12}>
               <Button disabled={!checkMappedFields()} variant="contained" color="primary" type="submit">
-                {loading ? <CircularProgress color="secondary" /> : "Import"}
+                {loading ? <CircularProgress color="inherit" thickness="3" size="1.5rem" /> : "Import"}
               </Button>
             </Grid>
           </Grid>

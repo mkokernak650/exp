@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPayoutAndRevenueColumnToEcommerceAffiliatesTable extends Migration
+class AddRevenueToEcommerceAffiliatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,6 +15,8 @@ class AddPayoutAndRevenueColumnToEcommerceAffiliatesTable extends Migration
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
             $table->string('revenue')->nullable()->after('coupon_code');
+            $table->dropUnique(['coupon_code']);
+            $table->string('percentage')->nullable()->change();
         });
     }
 
@@ -27,6 +29,8 @@ class AddPayoutAndRevenueColumnToEcommerceAffiliatesTable extends Migration
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
             $table->dropColumn('revenue');
+            $table->unique(['coupon_code']);
+            $table->string('percentage')->nullable(false)->change();
         });
     }
 }

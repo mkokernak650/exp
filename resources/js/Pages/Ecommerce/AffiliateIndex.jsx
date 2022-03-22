@@ -32,7 +32,12 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Edit from "../../../images/edit1.svg";
 import Checkbox from "@material-ui/core/Checkbox";
-import { Button, TextField, makeStyles } from "@material-ui/core";
+import {
+  Button,
+  TextField,
+  makeStyles,
+  CircularProgress,
+} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
@@ -53,6 +58,17 @@ const useStyles = makeStyles(() => ({
   },
   editButton: {
     marginTop: "15px",
+  },
+  import: {
+    display: "flex",
+    alignItems: "center",
+  },
+  importFile: {
+    flex: "1",
+    background: "#eee",
+    padding: "7px",
+    borderRadius: "5px",
+    marginRight: "6px",
   },
 }));
 
@@ -164,6 +180,9 @@ const AffiliateIndex = () => {
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
+  const [importModal, setImportModal] = useState({ open: false });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
@@ -217,6 +236,37 @@ const AffiliateIndex = () => {
         });
         setResponse(errors);
         setResponseType("error");
+        setOpen(true);
+      });
+  };
+
+  const handleImportChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const openImportModal = () => {
+    setImportModal({ open: true });
+  };
+
+  const importHandler = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("importFile", selectedFile);
+    axios
+      .post(route("ecommerce-affiliates.import"), formData)
+      .then((res) => {
+        setSelectedFile(null);
+        setImportModal({ open: false });
+        setLoading(false);
+        setResponseType("success");
+        setResponse(res.data.msg);
+        setOpen(true);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setResponseType("error");
+        setResponse("Import failed");
         setOpen(true);
       });
   };
@@ -605,6 +655,15 @@ const AffiliateIndex = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <img src={eyeIcon} alt="search"></img>
               </div>
+              <Button
+                variant="contained"
+                type="submit"
+                color="primary"
+                className={classes.button}
+                onClick={openImportModal}
+              >
+                Import
+              </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -819,6 +878,37 @@ const AffiliateIndex = () => {
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
+      </NormalModal>
+
+      <NormalModal
+        open={importModal.open}
+        setOpen={setImportModal}
+        width={"500px"}
+        title={""}
+      >
+        <form onSubmit={importHandler}>
+          <div className={classes.import}>
+            <input
+              id="importFile"
+              type="file"
+              name="importFile"
+              onChange={handleImportChange}
+              className={classes.importFile}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={!selectedFile}
+            >
+              {loading ? (
+                <CircularProgress color="inherit" thickness="3" size="1.5rem" />
+              ) : (
+                "Next"
+              )}
+            </Button>
+          </div>
+        </form>
       </NormalModal>
 
       <SnackBar
