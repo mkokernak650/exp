@@ -14,18 +14,18 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
     use SkipsErrors;
 
     protected $fieldMap;
+    protected $total;
     protected $orderNo;
     protected $couponCodes;
     protected $shippingZip;
-    protected $total;
 
     public function __construct(array $fieldMap, $data)
     {
         $this->fieldMap = $fieldMap;
-        $this->orderNo = $data->pluck('order_no')->toArray();
-        $this->couponCodes = $data->pluck('coupon_code')->toArray();
-        $this->shippingZip = $data->pluck('shipping_zip')->toArray();
-        $this->total = $data->pluck('total')->toArray();
+        $this->total = $data->pluck('total', 'id')->toArray();
+        $this->orderNo = $data->pluck('order_no', 'id')->toArray();
+        $this->couponCodes = $data->pluck('coupon_code', 'id')->toArray();
+        $this->shippingZip = $data->pluck('shipping_zip', 'id')->toArray();
     }
 
     /**
@@ -37,14 +37,14 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
     {
         if (empty($this->getValue($row, 'coupon_code'))) return;
 
-        $key = array_search($this->getValue($row, 'order_no'), $this->orderNo);
-        if ($key !== false) {
-            if (
-                $this->getValue($row, 'coupon_code') == $this->couponCodes[$key]
-                && $this->getValue($row, 'shipping_zip') == $this->shippingZip[$key]
-                && $this->getValue($row, 'total') == $this->total[$key]
-            ) {
-                return;
+        $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
+        if (!empty($keys)) {
+            foreach ($keys as $key) {
+                if (
+                    $this->getValue($row, 'coupon_code') == $this->couponCodes[$key]
+                    && $this->getValue($row, 'shipping_zip') == $this->shippingZip[$key]
+                    && $this->getValue($row, 'total') == $this->total[$key]
+                ) return;
             }
         }
 
