@@ -83,7 +83,7 @@ class EcommerceAffiliateController extends Controller
             'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
             'customer_id' => ['nullable', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
-            'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')->ignore($ecommerceAffiliate->id)],
+            'coupon_code' => ['required', 'string'],
             'revenue' => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
         ]);

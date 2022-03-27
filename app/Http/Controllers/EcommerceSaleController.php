@@ -133,8 +133,6 @@ class EcommerceSaleController extends Controller
         return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
-            ->join('campaigns', 'campaigns.id', '=', 'ecommerce_affiliates.campaign_id')
-            ->join('customers', 'customers.id', '=', 'ecommerce_affiliates.customer_id')
             ->when(!empty($campaignIds), function ($q) use ($campaignIds) {
                 $q->whereIn('ecommerce_affiliates.campaign_id', $campaignIds);
             })
