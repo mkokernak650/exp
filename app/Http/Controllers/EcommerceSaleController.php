@@ -41,7 +41,7 @@ class EcommerceSaleController extends Controller
             'total' => ['nullable', 'string', 'max:255'],
         ]);
 
-        if($ecommerceSale->update($validated)) {
+        if ($ecommerceSale->update($validated)) {
             return response()->json(['msg' => 'Updated Successfully.'], 201);
         }
         return response()->json(['msg' => 'Try Again!'], 422);

@@ -382,6 +382,16 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
+          title: "Create Ecommerce Campaign",
+          href: "ecommerce-campaigns.create",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "All Ecommerce Campaign",
+          href: "ecommerce-campaigns.index",
+          Icon: <UserIcon />,
+        },
+        {
           title: "Create Ecommerce Affiliate",
           href: "ecommerce-affiliates.create",
           Icon: <UserIcon />,

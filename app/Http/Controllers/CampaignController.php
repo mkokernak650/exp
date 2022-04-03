@@ -15,11 +15,6 @@ use Inertia\Response;
 
 class CampaignController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public static function getNewCampaigns()
     {
         $ringbaCampaigns = (new RingbaApiHelpers())->getCampaigns();
@@ -77,23 +72,20 @@ class CampaignController extends Controller
     public function campaignAnnotations(Campaign $campaign): Response
     {
         $campaign = $campaign->load('annotations');
-        $annotation= [...$campaign->annotations->sortBy('order')];
-        // dd($annotation);
+        $annotation = [...$campaign->annotations->sortBy('order')];
         return Inertia::render('Settings/Campaign/CampaignAnnotations', compact('annotation'));
     }
 
     public function storeAnnotationsRowOrder(Request $request)
     {
-        $reqData=$request->all();
+        $reqData = $request->all();
         if (!empty($reqData)) {
             foreach ($reqData as $row) {
-                $Annotation=Annotation::find($row['id']);
-                $Annotation->order=$row['order'];
+                $Annotation = Annotation::find($row['id']);
+                $Annotation->order = $row['order'];
                 $Annotation->save();
             }
         }
-
-        // dd($result);
     }
 
     public function campaignExceptions($campaignId): Response
@@ -101,9 +93,9 @@ class CampaignController extends Controller
         $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')
             ->where('campaign_id', $campaignId)
             ->get();
-        $allCampaigns=[];
-        $allStates=[];
-        $allMarkets=[];
+        $allCampaigns = [];
+        $allStates = [];
+        $allMarkets = [];
         return Inertia::render('Settings/MarketExceptionReport', compact('marketExceptions', 'campaignId', 'allCampaigns', 'allStates', 'allMarkets'));
     }
 
