@@ -37,9 +37,10 @@ import { Button, TextField, makeStyles } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
+import toast from "react-hot-toast";
+import produce from "immer";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -143,45 +144,13 @@ const CampaignIndex = () => {
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
-  const [responseType, setResponseType] = useState("success");
   const [showEditModal, setShowEditModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
-  const [loading, setLoading] = useState(false);
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-
-  const headers = {
-    headers: { Accept: "application/json" },
-  };
-
-  const handleEditSubmit = () => {
-    axios
-      .put(route("ecommerce-campaigns.update", editData.id), editData, headers)
-      .then((res) => {
-        let filteredData = tableProps;
-        filteredData.data[editData.sl - 1] = { ...editData };
-
-        setEditData();
-        setShowEditModal({ open: false });
-        setResponse(res.data.msg);
-        setResponseType("success");
-        setOpen(true);
-      })
-      .catch((err) => {
-        let errors = "";
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
-        setResponse(errors);
-        setResponseType("error");
-        setOpen(true);
-      });
   };
 
   const dataArray = campaigns.map((item, index) => ({
@@ -323,36 +292,11 @@ const CampaignIndex = () => {
           <Switch
             checked={parseInt(value[0]) === 1 && true}
             color="primary"
-            onChange={() => handleStatus(event, value[0], value[1], value[2])}
+            onChange={() => handleStatus(value[0], value[1], value[2])}
           />
         );
       }
     },
-  };
-
-  const handleStatus = (e, value, rowId, index) => {
-    let status = parseInt(value) === 1 ? 0 : 1;
-    axios
-      .post(route("ecommerce-campaigns.status.update", rowId), { status }, headers)
-      .then((res) => {
-        let tmpData = { ...tableProps };
-        tmpData.data[index].status = [status, rowId, index];
-        changeTableProps(tmpData);
-
-        setShowEditModal({ open: false });
-        setResponse(res.data.msg);
-        setResponseType("success");
-        setOpen(true);
-      })
-      .catch((err) => {
-        let errors = "";
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
-        setResponse(errors);
-        setResponseType("error");
-        setOpen(true);
-      });
   };
 
   const OPTION_KEY = "affiliate-index";
@@ -387,30 +331,72 @@ const CampaignIndex = () => {
     setSearchSidebar(false);
   };
 
+  const headers = {
+    headers: { Accept: "application/json" },
+  };
+
+  const handleStatus = (value, rowId, index) => {
+    let status = parseInt(value) === 1 ? 0 : 1;
+    axios
+      .post(
+        route("ecommerce-campaigns.status.update", rowId),
+        { status },
+        headers
+      )
+      .then((res) => {
+        let tmpData = { ...tableProps };
+        tmpData.data[index].status = [status, rowId, index];
+        changeTableProps({ ...tmpData });
+        toast.success(res.data.msg);
+      })
+      .catch((err) => {
+        Object.values(err.response.data?.errors).map((error) => {
+          toast.error(error[0]);
+        });
+      });
+  };
+
   const deleteHandler = () => {
     axios
       .post(route("ecommerce-campaigns.deleteSelected"), { selectedRowIds })
       .then((res) => {
-        let filteredData = tableProps;
-        const newData = filteredData.data.filter(
+        let tmpData = tableProps;
+        const newData = tmpData.data.filter(
           (item) => !selectedRowIds.includes(item.id)
         );
-        filteredData.data = newData;
-        changeTableProps(filteredData);
+        tmpData.data = newData;
+        console.log(tmpData);
+        changeTableProps({ ...tmpData });
+
         setSelectedRowIds([]);
         setTableToolbar(false);
-        setResponseType("success");
-        setOpen(true);
-        setResponse(res.data.msg);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
+        toast.success(res.data.msg);
       })
       .catch((err) => {
-        setOpen(true);
-        setResponseType("error");
-        setResponse("Something went wrong, please try again");
         setShowDeleteModal({ open: false });
         emptyCheckbox();
+        toast.error("Something went wrong, please try again");
+      });
+  };
+
+  const handleEditSubmit = () => {
+    axios
+      .put(route("ecommerce-campaigns.update", editData.id), editData, headers)
+      .then((res) => {
+        let tmpData = { ...tableProps };
+        tmpData.data[editData.sl - 1] = { ...editData };
+        changeTableProps({ ...tmpData });
+
+        setEditData();
+        setShowEditModal({ open: false });
+        toast.success(res.data.msg);
+      })
+      .catch((err) => {
+        Object.values(err.response.data?.errors).map((error) => {
+          toast.error(error[0]);
+        });
       });
   };
 
@@ -687,12 +673,6 @@ const CampaignIndex = () => {
         </div>
       </NormalModal>
 
-      <SnackBar
-        open={open}
-        setOpen={setOpen}
-        severity={responseType}
-        response={response}
-      />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
