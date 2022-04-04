@@ -40,7 +40,7 @@ class EcommerceAffiliate extends Model
 
     public function campaign(): BelongsTo
     {
-        return $this->belongsTo(Campaign::class);
+        return $this->belongsTo(EcommerceCampaign::class);
     }
 
     public function customer(): BelongsTo

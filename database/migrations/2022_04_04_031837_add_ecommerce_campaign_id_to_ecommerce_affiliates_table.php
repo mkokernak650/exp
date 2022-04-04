@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnToEcommerceAffiliatesTable extends Migration
+class AddEcommerceCampaignIdToEcommerceAffiliatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,7 @@ class AddColumnToEcommerceAffiliatesTable extends Migration
     public function up()
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
-            $table->foreignId('campaign_id')->nullable()->after('id')->constrained()->nullOnDelete();
-            $table->foreignId('customer_id')->nullable()->after('affiliate_id')->constrained()->nullOnDelete();
-            $table->string('affiliate_fee')->nullable()->after('coupon_code');
+            $table->foreignId('campaign_id')->nullable()->after('id')->constrained('ecommerce_campaigns')->nullOnDelete();
         });
     }
 
@@ -29,10 +27,7 @@ class AddColumnToEcommerceAffiliatesTable extends Migration
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
             $table->dropForeign(['campaign_id']);
-            $table->dropForeign(['customer_id']);
             $table->dropColumn('campaign_id');
-            $table->dropColumn('customer_id');
-            $table->dropColumn('affiliate_fee');
         });
     }
 }
