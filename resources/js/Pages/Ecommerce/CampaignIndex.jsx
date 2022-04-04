@@ -299,7 +299,7 @@ const CampaignIndex = () => {
     },
   };
 
-  const OPTION_KEY = "affiliate-index";
+  const OPTION_KEY = "campaign-index";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
@@ -430,9 +430,9 @@ const CampaignIndex = () => {
   }, [showColumns]);
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("affiliate-index"));
+    const storedData = JSON.parse(localStorage.getItem("campaign-index"));
     storedData.selectedRows = [];
-    localStorage.setItem("affiliate-index", JSON.stringify(storedData));
+    localStorage.setItem("campaign-index", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
@@ -440,7 +440,7 @@ const CampaignIndex = () => {
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("affiliate-index"));
+      const storedData = JSON.parse(localStorage.getItem("campaign-index"));
       if (storedData != null) {
         emptyCheckbox();
       }
