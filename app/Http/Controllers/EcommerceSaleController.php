@@ -9,9 +9,9 @@ use App\Imports\EcommerceSaleImport;
 use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
-use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
+use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +41,7 @@ class EcommerceSaleController extends Controller
             'total' => ['nullable', 'string', 'max:255'],
         ]);
 
-        if($ecommerceSale->update($validated)) {
+        if ($ecommerceSale->update($validated)) {
             return response()->json(['msg' => 'Updated Successfully.'], 201);
         }
         return response()->json(['msg' => 'Try Again!'], 422);
@@ -81,7 +81,7 @@ class EcommerceSaleController extends Controller
 
     public function ecommerceSalesReport()
     {
-        $campaigns = Campaign::active()->get();
+        $campaigns = EcommerceCampaign::active()->get();
         $customers = Customer::active()->get();
         $affiliates = Affiliate::active()->get();
         $broadCastMonths = BroadCastMonth::active()->get();

@@ -1,8 +1,6 @@
 import Layout from "../Layout/Layout";
-// import "./Demo.scss";
 import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
-
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -25,26 +23,24 @@ import { filterData } from "../filterData";
 import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
-import Edit from "../../../images/edit1.svg";
 import closeNav from "../../../images/closeNav.svg";
 import Cancel from "../../../images/cancel.svg";
-import Switch from "@material-ui/core/Switch";
-import {
-  hideColumn,
-  showColumn,
-} from "ka-table/actionCreators";
+import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
+import Edit from "../../../images/edit1.svg";
 import Checkbox from "@material-ui/core/Checkbox";
-import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
+import Switch from "@material-ui/core/Switch";
+import { Button, TextField, makeStyles } from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
-import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
+import NormalModal from "../../Shared/NormalModal";
+import toast from "react-hot-toast";
+import produce from "immer";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -53,130 +49,71 @@ const useStyles = makeStyles(() => ({
     marginLeft: "10px",
   },
   button: {
-    width: "130",
+    width: 130,
     textTransform: "capitalize",
     fontSize: "14px",
   },
   editButton: {
     marginTop: "15px",
   },
+  import: {
+    display: "flex",
+    alignItems: "center",
+  },
+  importFile: {
+    flex: "1",
+    background: "#eee",
+    padding: "7px",
+    borderRadius: "5px",
+    marginRight: "6px",
+  },
 }));
 
+const operators = [
+  {
+    caption: "Contains",
+    name: "contains",
+  },
+  {
+    caption: "Not Contains",
+    name: "doesNotContain",
+  },
+  {
+    caption: "Is Empty",
+    name: "isEmpty",
+  },
+  {
+    caption: "Is Not Empty",
+    name: "isNotEmpty",
+  },
+  {
+    caption: "Starts With",
+    name: "startswith",
+  },
+  {
+    caption: "Ends With",
+    name: "endsWith",
+  },
+  {
+    caption: "Is",
+    name: "is",
+  },
+  {
+    caption: "Is Not",
+    name: "isnot",
+  },
+];
 
 export const fields = [
   {
-    caption: "customer",
-    name: "customer",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
+    caption: "Campaign",
+    name: "campaign_name",
+    operators,
   },
   {
-    caption: "Ringba Target Name",
-    name: "Ringba_Target_Name",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
-  {
-    caption: "Description",
-    name: "Description",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
+    caption: "status",
+    name: "status",
+    operators,
   },
 ];
 
@@ -190,39 +127,41 @@ export const groups = [
     name: "or",
   },
 ];
+
 export const filter = {
   groupName: "and",
   items: [
     {
-      field: "customer",
+      field: "campaign_name",
       operator: "isNotEmpty",
     },
   ],
 };
 
-const Targets = () => {
+const CampaignIndex = () => {
   const classes = useStyles();
-  const { allTargets } = usePage().props;
+  const { campaigns } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [editData, setEditData] = useState();
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [showEditModal, setShowEditModal] = useState({ open: false });
+  const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
 
-  const dataArray = allTargets.map((item, index) => ({
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+
+  const dataArray = campaigns.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    customer: item.Customer,
-    Ringba_Target_Name: item.Ringba_Targets_Name,
-    Description: item.Description,
-    status: [item.status, item.id],
+    campaign_name: item?.campaign_name,
+    status: [item.status, item.id, index],
     id: item.id,
     key: index,
   }));
+
   const SelectionCell = ({
     rowKeyValue,
     dispatch,
@@ -263,7 +202,7 @@ const Targets = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows());
+            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
             setTableToolbar(true);
             let i = 0;
             while (i < tableProps.data.length) {
@@ -274,7 +213,7 @@ const Targets = () => {
               i++;
             }
           } else {
-            dispatch(deselectAllFilteredRows());
+            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
             if (selectedRowIds) {
               selectedRowIds.splice(0, selectedRowIds.length);
             }
@@ -287,6 +226,14 @@ const Targets = () => {
     );
   };
 
+  const handleEdit = (itemId) => {
+    tableProps.data.filter((item) => {
+      if (item.id == itemId) {
+        setEditData(item);
+      }
+    });
+    setShowEditModal({ open: true });
+  };
 
   const tablePropsInit = {
     columns: [
@@ -296,37 +243,25 @@ const Targets = () => {
       },
       {
         key: "selection-cell",
-        style: { width: 80 },
+        style: { width: 60 },
       },
       {
         key: "sl",
         title: "SL",
         dataType: DataType.Number,
-        style: { width: 100 },
+        style: { width: 40 },
       },
       {
-        key: "customer",
-        title: "Customer",
-        dataType: DataType.String,
-        style: { width: 360 },
-      },
-
-      {
-        key: "Description",
-        title: "Description",
+        key: "campaign_name",
+        title: "Campaign",
         dataType: DataType.String,
         style: { width: 400 },
       },
       {
-        key: "Ringba_Target_Name",
-        title: "Ringba Target Name",
-        dataType: DataType.String,
-        style: { width: 360 },
-      },
-      {
         key: "status",
         title: "Status",
-        style: { width: 240 },
+        dataType: DataType.String,
+        style: { width: 100 },
       },
     ],
     paging: {
@@ -341,7 +276,6 @@ const Targets = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-
     format: ({ column, value }) => {
       if (column.key === "edit") {
         return (
@@ -351,53 +285,26 @@ const Targets = () => {
         );
       }
       if (column.key === "status") {
-        console.log(value[0])
-        console.log(value[1])
+        if (typeof value === "string") {
+          value = value.split(",");
+        }
         return (
           <Switch
-            checked={value[0] === 1 && true}
+            checked={parseInt(value[0]) === 1 && true}
             color="primary"
-            onChange={() => handleStatus(event, value[0], value[1])}
+            onChange={() => handleStatus(value[0], value[1], value[2])}
           />
         );
       }
-
-
-
     },
   };
 
-
-
-  // console.table(tablePropsInit.columns)
-
-  const OPTION_KEY = "target-report";
+  const OPTION_KEY = "campaign-index";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
-
-  const handleStatus = (e, value, rowId) => {
-    axios.post(route('target.status.update'), { value: value, rowId: rowId })
-      .then((res) => {
-        let tmpData = { ...tableProps }
-        tmpData.data.filter((item, indx) => {
-          if (item.id === rowId) {
-            if (tmpData.data[indx].status[0] == 1) {
-              tmpData.data[indx].status = [0, rowId];
-            } else {
-              tmpData.data[indx].status = [1, rowId];
-            }
-          }
-        });
-        changeTableProps(tmpData)
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-  }
-
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action);
@@ -406,13 +313,13 @@ const Targets = () => {
       return newState;
     });
   };
-
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);
   };
 
   const [serachSidebar, setSearchSidebar] = useState(false);
+
   const handleSearch = () => {
     setSearchSidebar((prevState) => !prevState);
   };
@@ -423,90 +330,82 @@ const Targets = () => {
   const closeSidebar = () => {
     setSearchSidebar(false);
   };
-  const deleteHandler = () => {
+
+  const headers = {
+    headers: { Accept: "application/json" },
+  };
+
+  const handleStatus = (value, rowId, index) => {
+    let status = parseInt(value) === 1 ? 0 : 1;
     axios
-      .post(route("target.delete"), { selectedRowIds })
+      .post(
+        route("ecommerce-campaigns.status.update", rowId),
+        { status },
+        headers
+      )
       .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          setselectedRowIds([]);
-          changeTableProps(filteredData);
-          setTableToolbar(false);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
-          setOpen(true);
-          setResponse(res.data.msg);
-        } else {
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
-          setOpen(true);
-          setResponse(res.data.msg);
-        }
+        let tmpData = { ...tableProps };
+        tmpData.data[index].status = [status, rowId, index];
+        changeTableProps({ ...tmpData });
+        toast.success(res.data.msg);
       })
       .catch((err) => {
-        setselectedRowIds([]);
-        setTableToolbar(false);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
-        console.log(err);
+        Object.values(err.response.data?.errors).map((error) => {
+          toast.error(error[0]);
+        });
       });
   };
 
-  const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
-      if (item.id == itemId) {
-        setEditData(item);
-      }
-    });
-    setShowEditModal({ open: true });
-  };
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-  const handleEditSubmit = () => {
+  const deleteHandler = () => {
     axios
-      .post(route("target.edit"), editData)
+      .post(route("ecommerce-campaigns.deleteSelected"), { selectedRowIds })
       .then((res) => {
-        if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          filteredData.data.filter((item, indx) => {
-            if (item.id === editData.id) {
-              filteredData.data[indx].customer = editData.customer;
-              filteredData.data[indx].Ringba_Target_Name =
-                editData.Ringba_Target_Name;
-              filteredData.data[indx].Description = editData.Description;
-            }
-          });
-          setEditData();
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
-          setselectedRowIds([])
-        } else {
-          setEditData();
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
-          setselectedRowIds([])
-        }
+        let tmpData = tableProps;
+        const newData = tmpData.data.filter(
+          (item) => !selectedRowIds.includes(item.id)
+        );
+        tmpData.data = newData;
+        console.log(tmpData);
+        changeTableProps({ ...tmpData });
+
+        setSelectedRowIds([]);
+        setTableToolbar(false);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
+        toast.success(res.data.msg);
       })
       .catch((err) => {
-        console.log(err);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox();
+        toast.error("Something went wrong, please try again");
+      });
+  };
+
+  const handleEditSubmit = () => {
+    axios
+      .put(route("ecommerce-campaigns.update", editData.id), editData, headers)
+      .then((res) => {
+        let tmpData = { ...tableProps };
+        tmpData.data[editData.sl - 1] = { ...editData };
+        changeTableProps({ ...tmpData });
+
+        setEditData();
+        setShowEditModal({ open: false });
+        toast.success(res.data.msg);
+      })
+      .catch((err) => {
+        Object.values(err.response.data?.errors).map((error) => {
+          toast.error(error[0]);
+        });
       });
   };
 
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
-  }
+  };
 
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true });
@@ -525,22 +424,23 @@ const Targets = () => {
 
     document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
+      // Cleanup the event listener
       document.removeEventListener("mousedown", checkIfClickedOutside);
     };
   }, [showColumns]);
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("target-report"));
-    if (storedData?.selectedRows) storedData.selectedRows = [];
-    localStorage.setItem("target-report", JSON.stringify(storedData));
+    const storedData = JSON.parse(localStorage.getItem("campaign-index"));
+    storedData.selectedRows = [];
+    localStorage.setItem("campaign-index", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
-    if (filteredData?.selectedRows) filteredData.selectedRows = [];
+    filteredData.selectedRows = [];
     changeTableProps(filteredData);
   };
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("target-report"));
+      const storedData = JSON.parse(localStorage.getItem("campaign-index"));
       if (storedData != null) {
         emptyCheckbox();
       }
@@ -553,7 +453,10 @@ const Targets = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
+          <IconButton
+            aria-label="delete"
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          >
             <DeleteIcon style={{ color: "#031b4e" }} />
           </IconButton>
         </Tooltip>
@@ -563,7 +466,6 @@ const Targets = () => {
       </div>
     );
   };
-  console.log(selectedRowIds);
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -624,14 +526,17 @@ const Targets = () => {
 
   return (
     <>
-      <Helmet title="Targets Report" />
+      <Helmet title="E-commerce Campaign Index" />
+
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search"></img>
+            <div className="top-left">
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <img src={eyeIcon} alt="search"></img>
+              </div>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -698,7 +603,7 @@ const Targets = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -724,76 +629,67 @@ const Targets = () => {
         />
       </div>
 
-
       <NormalModal
         open={showEditModal.open}
         setOpen={setShowEditModal}
         width={"600px"}
-        title={"Edit Targets"}
+        title={"Edit E-commerce Campaign"}
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Customer:</span>
-            <TextField
-              value={editData ? editData.customer : ""}
-              fullWidth
-              margin="normal"
-              name="customer"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Description:</span>
-            <TextField
-              value={editData ? editData.Description : ""}
-              fullWidth
-              margin="normal"
-              name="Description"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Ringba Target Name:</span>
-            <TextField
-              value={editData ? editData.Ringba_Target_Name : ""}
-              fullWidth
-              margin="normal"
-              name="Ringba_Target_Name"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleEditSubmit}
-              className={classes.editButton}
-            >
-              Edit
-            </Button>
+            <Grid container spacing={4}>
+              <Grid item xs={12}>
+                <TextField
+                  value={editData ? editData?.campaign_name : ""}
+                  label="Campaign Name"
+                  type="text"
+                  name="campaign_name"
+                  placeholder=""
+                  onChange={handleEditChange}
+                  fullWidth
+                  required={true}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEditSubmit}
+                  className={classes.editButton}
+                >
+                  Update
+                </Button>
+              </Grid>
+            </Grid>
           </form>
 
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
+          <div
+            onClick={() => handleCloseModal(setShowEditModal)}
+            className="close-modal-icon"
+          >
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
       </NormalModal>
 
-      <SnackBar open={open} setOpen={setOpen} response={response} />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${selectedRowIds.length > 1
-          ? "Do you want to delete these records?"
-          : "Do you want to delete this record?"
-          }`}
+        title={`${
+          selectedRowIds.length > 1
+            ? "Do you want to delete these records?"
+            : "Do you want to delete this record?"
+        }`}
       ></ConfirmModal>
     </>
   );
 };
 
-Targets.layout = (page) => <Layout title="Targets">{page}</Layout>;
-export default Targets;
+CampaignIndex.layout = (page) => (
+  <Layout title="E-commerce Campaign Index">{page}</Layout>
+);
+export default CampaignIndex;

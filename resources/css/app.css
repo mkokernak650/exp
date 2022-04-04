@@ -33,9 +33,9 @@ div::-webkit-scrollbar-thumb {
   overflow: inherit !important;
 }
 /* commented for date-picker */
-.MuiIconButton-root {
+/* .MuiIconButton-root {
   margin-left: 10px !important;
-}
+} */
 
 .MuiTableCell-head {
   min-width: 200px;

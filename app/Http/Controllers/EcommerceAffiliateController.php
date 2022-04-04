@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Imports\EcommerceAffiliatesImport;
 use App\Models\Affiliate;
-use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
+use App\Models\EcommerceCampaign;
 use Illuminate\Http\jsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -24,7 +24,7 @@ class EcommerceAffiliateController extends Controller
     public function index()
     {
         $affiliates = Affiliate::all();
-        $campaigns = Campaign::all();
+        $campaigns = EcommerceCampaign::all();
         $customers = Customer::all();
 
         $ecommerceAffiliates = EcommerceAffiliate::query()
@@ -43,7 +43,7 @@ class EcommerceAffiliateController extends Controller
     public function create()
     {
         $affiliates = Affiliate::all();
-        $campaigns = Campaign::all();
+        $campaigns = EcommerceCampaign::all();
         $customers = Customer::all();
         return Inertia::render('Ecommerce/AffiliateCreate', compact('affiliates', 'campaigns', 'customers'));
     }
@@ -57,7 +57,7 @@ class EcommerceAffiliateController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
+            'campaign_id' => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
             'customer_id' => ['nullable', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
@@ -80,7 +80,7 @@ class EcommerceAffiliateController extends Controller
     public function update(Request $request, EcommerceAffiliate $ecommerceAffiliate)
     {
         $validated = $request->validate([
-            'campaign_id' => ['nullable', Rule::exists('campaigns', 'id')],
+            'campaign_id' => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
             'customer_id' => ['nullable', Rule::exists('customers', 'id')],
             'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
             'coupon_code' => ['required', 'string'],
