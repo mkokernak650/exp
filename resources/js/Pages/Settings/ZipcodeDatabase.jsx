@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout"
-import M from "materialize-css"
 import React, { useEffect, useState, useRef } from "react"
 import { kaReducer, Table } from "ka-table"
 import {
@@ -41,6 +40,8 @@ import MuiAlert from "@material-ui/lab/Alert"
 import NormalModal from "../../Shared/NormalModal"
 import axios from "axios"
 import { Helmet } from "react-helmet"
+import { Pagination } from 'react-laravel-paginex'
+import produce from "immer"
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -1269,6 +1270,7 @@ const ZipcodeDatabase = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [type, setType] = useState("xlsx")
   const showColumnRef = useRef()
+  const [test, testData] = useState(allZipcodes)
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1276,7 +1278,11 @@ const ZipcodeDatabase = () => {
     }
     setOpen(false)
   }
-  const dataArray = allZipcodes.map((item, index) => ({
+
+
+  console.log('test.data', test.data)
+
+  const dataArray = test.data.map((item, index) => ({
     sl: index + 1,
     NPA: item.NPA,
     NXX: item.NXX,
@@ -1500,14 +1506,14 @@ const ZipcodeDatabase = () => {
         style: { width: 180 },
       },
     ],
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
+    // paging: {
+    //   enabled: true,
+    //   pageIndex: 0,
+    //   pageSize: 10,
 
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
+    //   pageSizes: [10, 20, 50, 100],
+    //   position: PagingPosition.Bottom,
+    // },
     data: dataArray,
     rowKeyField: "id",
     sortingMode: SortingMode.Single,
@@ -1515,6 +1521,17 @@ const ZipcodeDatabase = () => {
     columnReordering: true,
   }
 
+  const getData = (data) => {
+    console.log('data.page', data.page)
+    axios.get('zipcode-data?page=' + data.page).then(response => {
+      testData(response.data)
+      const newData = produce(tableProps, draft => {
+        draft.data = dataArray
+      })
+      console.log('newData', newData)
+      changeTableProps(newData)
+    })
+  }
 
   const OPTION_KEY = "zipcode-database"
   const stateStore = {
@@ -1678,7 +1695,7 @@ const ZipcodeDatabase = () => {
       })
   }
 
-  useEffect(() => M.AutoInit())
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -1696,20 +1713,7 @@ const ZipcodeDatabase = () => {
     }
   }, [showColumns])
 
-  // const TableToolbar = () => {
-  //   return (
-  //     <div className="table-toolbar">
-  //       {/* <Tooltip title="Delete">
-  //         <IconButton aria-label="delete" onClick={deleteHandler}>
-  //           <DeleteIcon style={{ color: "#031b4e" }} />
-  //         </IconButton>
-  //       </Tooltip> */}
-  //       <div className="selection-rows">
-  //         {selectedRowIds.length} Row Selected
-  //       </div>
-  //     </div>
-  //   );
-  // };
+
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -1893,7 +1897,7 @@ const ZipcodeDatabase = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
+        <Pagination changePage={getData} data={allZipcodes} activeClass='active' />
         <Snackbar
           open={open}
           autoHideDuration={3000}

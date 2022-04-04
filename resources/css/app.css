@@ -300,6 +300,20 @@ div::-webkit-scrollbar-thumb {
   background-color: #ededed !important;
 }
 
+.selection-demo .pagination{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 15px;
+  font-size: 18px;
+}
+.selection-demo .pagination .page-item{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
 /*conditon-style*/
 .top-element {
   padding: 0 15px;

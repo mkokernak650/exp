@@ -1,6 +1,5 @@
-import { React, useState } from "react";
-import Layout from "../Layout/Layout";
-import { Inertia } from "@inertiajs/inertia";
+import { React, useState } from "react"
+import Layout from "../Layout/Layout"
 import {
   CircularProgress,
   Typography,
@@ -8,12 +7,12 @@ import {
   Button,
   makeStyles,
   Paper,
-} from "@material-ui/core";
-import { Helmet } from "react-helmet";
-import { currentDate } from "../../Helpers/CurrentDate";
-import { usePage } from "@inertiajs/inertia-react";
-import axios from "axios";
-import SnackBar from "../../Shared/SnackBar";
+} from "@material-ui/core"
+import { Helmet } from "react-helmet"
+import { currentDate } from "../../Helpers/CurrentDate"
+import { usePage } from "@inertiajs/inertia-react"
+import axios from "axios"
+import SnackBar from "../../Shared/SnackBar"
 
 
 const useStyles = makeStyles((theme) => ({
@@ -44,49 +43,53 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     marginBottom: "35px",
   },
-}));
+}))
 
 const GetRingbaData = () => {
-  const classes = useStyles();
-  const { lastDataFetchedDate } = usePage().props;
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
+  const classes = useStyles()
+  const { lastDataFetchedDate } = usePage().props
+  const [response, setResponse] = useState()
+  const [open, setOpen] = useState(false)
   const [values, setValues] = useState({
     start_date:
       lastDataFetchedDate.length > 0
         ? lastDataFetchedDate[0].end_date
         : currentDate(),
     end_date: currentDate(),
-  });
-  const [loading, setLoading] = useState(false);
+  })
+  const [loading, setLoading] = useState(false)
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setValues((oldValues) => ({
       ...oldValues,
       [name]: value,
-    }));
-  };
+    }))
+  }
+
+
+
+
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios.post(route("temp-ringba-data"), values)
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          setOpen(true);
-          setResponse("Data Fetched Successfully");
+          setOpen(true)
+          setResponse("Data Fetched Successfully")
         } else {
-          setOpen(true);
-          setResponse("Data Fetching Failed");
+          setOpen(true)
+          setResponse("Data Fetching Failed")
         }
         console.log(res)
       })
       .catch((err) => {
-        setLoading(false);
-        setOpen(true);
-        setResponse("Data Fetching Failed");
+        setLoading(false)
+        setOpen(true)
+        setResponse("Data Fetching Failed")
       })
-  };
+  }
   return (
     <div>
       <Helmet title="Get Ringba Data" />
@@ -136,10 +139,10 @@ const GetRingbaData = () => {
       </Paper>
       <SnackBar open={open} setOpen={setOpen} response={response} />
     </div>
-  );
-};
+  )
+}
 
 GetRingbaData.layout = (page) => (
   <Layout title="Get Ringba Data">{page}</Layout>
-);
-export default GetRingbaData;
+)
+export default GetRingbaData

@@ -20,7 +20,13 @@ class ZipcodeDataController extends Controller
 
     public function index()
     {
-        $allZipcodes = ZipCodeData::take(1000)->get();
+        // $allZipcodes = ZipCodeData::take(1000)->get();
+        $allZipcodes = ZipCodeData::paginate(15);
+
+
+        if(request('page')){
+            return $allZipcodes;
+        }
         return Inertia::render('Settings/ZipcodeDatabase', [
             'allZipcodes' => $allZipcodes
         ]);
