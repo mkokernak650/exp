@@ -25,7 +25,7 @@
         "install": "^0.13.0",
         "laravel-mix": "^6.0.39",
         "lodash": "^4.17.19",
-        "moment": "^2.27.0",
+        "moment": "^2.29.2",
         "npm": "^7.24.2",
         "nprogress": "^0.2.0",
         "prop-types": "^15.8.0",
