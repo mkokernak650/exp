@@ -4,7 +4,6 @@ import { kaReducer, Table } from "ka-table"
 import {
   DataType,
   SortingMode,
-  PagingPosition,
   EditingMode,
   ActionType,
 } from "ka-table/enums"
@@ -18,12 +17,11 @@ import {
   selectRowsRange,
 } from "ka-table/actionCreators"
 import FilterControl from "react-filter-control"
-import { filterData } from "../filterData"
 import "ka-table/style.scss"
 import search from "../../../images/search.svg"
 import eyeIcon from "../../../images/eyeIcon.svg"
 import closeNav from "../../../images/closeNav.svg"
-import { hideColumn, showColumn } from "ka-table/actionCreators"
+import { hideColumn, showColumn, hideLoading, showLoading } from "ka-table/actionCreators"
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
 import Checkbox from "@material-ui/core/Checkbox"
 import {
@@ -41,8 +39,6 @@ import NormalModal from "../../Shared/NormalModal"
 import axios from "axios"
 import { Helmet } from "react-helmet"
 import { Pagination } from 'react-laravel-paginex'
-import produce from "immer"
-
 const useStyles = makeStyles(() => ({
   button: {
     width: "auto",
@@ -1247,20 +1243,21 @@ export const groups = [
   },
 ]
 export const filter = {
-  groupName: "and",
+  groupName: "or",
   items: [
     {
-      field: "NPA",
-      operator: "isNotEmpty",
-    },
-  ],
+      field: "City",
+      operator: "contains",
+      value: "NEWARK"
+    }
+  ]
 }
+
 
 const ZipcodeDatabase = () => {
   const classes = useStyles()
   const { allZipcodes } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
-  const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setselectedRowIds] = useState([])
   const [response, setResponse] = useState()
   const [open, setOpen] = useState(false)
@@ -1270,7 +1267,11 @@ const ZipcodeDatabase = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [type, setType] = useState("xlsx")
   const showColumnRef = useRef()
-  const [test, testData] = useState(allZipcodes)
+  const [zipCodeData, setZipcodeData] = useState(allZipcodes)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [curerentPage, setCurerentPage] = useState(1)
+  const [searchedData, setSearchData] = useState([])
+
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1279,45 +1280,46 @@ const ZipcodeDatabase = () => {
     setOpen(false)
   }
 
+  const mapDataArr = data => {
+    return data.data.map((item, index) => ({
+      sl: index + 1,
+      NPA: item.NPA,
+      NXX: item.NXX,
+      NPANXX: item.NPANXX,
+      ZipCode: item.ZipCode,
+      State: item.State,
+      City: item.City,
+      County: item.County,
+      CountyPop: item.CountyPop,
+      ZipCodeCount: item.ZipCodeCount,
+      ZipCodeFreq: item.ZipCodeFreq,
+      Latitude: item.Latitude,
+      Longitude: item.Longitude,
+      TimeZone: item.TimeZone,
+      ObservesDST: item.ObservesDST,
+      NXXUseType: item.NXXUseType,
+      NXXIntroVersion: item.NXXIntroVersion,
+      NPANew: item.NPANew,
+      FIPS: item.FIPS,
+      Status: item.Status,
+      LATA: item.LATA,
+      Overlay: item.Overlay,
+      RateCenter: item.RateCenter,
+      SwitchCLLI: item.SwitchCLLI,
+      MSA_CBSA: item.MSA_CBSA,
+      MSA_CBSA_CODE: item.MSA_CBSA_CODE,
+      OCN: item.OCN,
+      Company: item.Company,
+      CoverageAreaName: item.CoverageAreaName,
+      Flags: item.Flags,
+      WeightedLat: item.WeightedLat,
+      WeightedLon: item.WeightedLon,
+      id: item.id,
+      key: index,
+    }))
+  }
 
-  console.log('test.data', test.data)
-
-  const dataArray = test.data.map((item, index) => ({
-    sl: index + 1,
-    NPA: item.NPA,
-    NXX: item.NXX,
-    NPANXX: item.NPANXX,
-    ZipCode: item.ZipCode,
-    State: item.State,
-    City: item.City,
-    County: item.County,
-    CountyPop: item.CountyPop,
-    ZipCodeCount: item.ZipCodeCount,
-    ZipCodeFreq: item.ZipCodeFreq,
-    Latitude: item.Latitude,
-    Longitude: item.Longitude,
-    TimeZone: item.TimeZone,
-    ObservesDST: item.ObservesDST,
-    NXXUseType: item.NXXUseType,
-    NXXIntroVersion: item.NXXIntroVersion,
-    NPANew: item.NPANew,
-    FIPS: item.FIPS,
-    Status: item.Status,
-    LATA: item.LATA,
-    Overlay: item.Overlay,
-    RateCenter: item.RateCenter,
-    SwitchCLLI: item.SwitchCLLI,
-    MSA_CBSA: item.MSA_CBSA,
-    MSA_CBSA_CODE: item.MSA_CBSA_CODE,
-    OCN: item.OCN,
-    Company: item.Company,
-    CoverageAreaName: item.CoverageAreaName,
-    Flags: item.Flags,
-    WeightedLat: item.WeightedLat,
-    WeightedLon: item.WeightedLon,
-    id: item.id,
-    key: index,
-  }))
+  const dataArray = mapDataArr(allZipcodes)
 
   const tablePropsInit = {
     columns: [
@@ -1506,14 +1508,10 @@ const ZipcodeDatabase = () => {
         style: { width: 180 },
       },
     ],
-    // paging: {
-    //   enabled: true,
-    //   pageIndex: 0,
-    //   pageSize: 10,
-
-    //   pageSizes: [10, 20, 50, 100],
-    //   position: PagingPosition.Bottom,
-    // },
+    loading: {
+      enabled: false,
+      text: 'Loading...'
+    },
     data: dataArray,
     rowKeyField: "id",
     sortingMode: SortingMode.Single,
@@ -1521,17 +1519,9 @@ const ZipcodeDatabase = () => {
     columnReordering: true,
   }
 
-  const getData = (data) => {
-    console.log('data.page', data.page)
-    axios.get('zipcode-data?page=' + data.page).then(response => {
-      testData(response.data)
-      const newData = produce(tableProps, draft => {
-        draft.data = dataArray
-      })
-      console.log('newData', newData)
-      changeTableProps(newData)
-    })
-  }
+
+
+
 
   const OPTION_KEY = "zipcode-database"
   const stateStore = {
@@ -1555,7 +1545,6 @@ const ZipcodeDatabase = () => {
             dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
             dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
             const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
               selectedRowIds.push(id)
@@ -1566,7 +1555,6 @@ const ZipcodeDatabase = () => {
             const itemIndx = selectedRowIds.indexOf(id)
             selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
             }
           }
         }}
@@ -1581,7 +1569,6 @@ const ZipcodeDatabase = () => {
         onChange={(event) => {
           if (event.currentTarget.checked) {
             dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true)
             let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
@@ -1596,7 +1583,6 @@ const ZipcodeDatabase = () => {
             selectedRowIds.splice(0, selectedRowIds.length)
             // }
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
             }
           }
         }}
@@ -1612,9 +1598,6 @@ const ZipcodeDatabase = () => {
     })
   }
   const [filterValue, changeFilter] = useState(filter)
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 
@@ -1632,12 +1615,12 @@ const ZipcodeDatabase = () => {
     setSearchSidebar(false)
   }
 
-  const openImportModal = () => {
-    setImportModal({ open: true })
-  }
-  const openExportModal = () => {
-    setExportModal({ open: true })
-  }
+  // const openImportModal = () => {
+  //   setImportModal({ open: true })
+  // }
+  // const openExportModal = () => {
+  //   setExportModal({ open: true })
+  // }
 
   const handleImportChange = (e) => {
     setSelectedFile(e.target.files[0])
@@ -1772,12 +1755,45 @@ const ZipcodeDatabase = () => {
     )
   }
 
+
+  console.log('filterValue', filterValue)
+
+  const getSearchingData = async (data) => {
+    setCurerentPage(data)
+    dispatch(showLoading())
+    await axios.get('zipcode-data?page=' + data.page + '&itemPerPage=' + itemPerPage + '&filteredValue=' + JSON.stringify(filterValue)).then(res => {
+      setZipcodeData(res.data)
+      console.log('res', res)
+      dispatch(hideLoading())
+      setSearchData(res.data.data)
+    })
+  }
+
+  const onFilterChanged = (newFilterValue) => {
+    console.log('newFilterValue', newFilterValue)
+    changeFilter(newFilterValue)
+  }
+
+
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(curerentPage)
+
+  }, [itemPerPage])
+
+  useEffect(() => {
+    getSearchingData(curerentPage)
+
+  }, [filterValue])
+
+
   return (
     <>
       <Helmet title="ZipCode Database" />
-
       <div className="selection-demo">
-
         <div className="table-top">
           <div className="top-left">
             <div className="columns-show-hide" onClick={handleColumns}>
@@ -1787,7 +1803,7 @@ const ZipcodeDatabase = () => {
                 onBlur={hideCoumnSettings}
               ></img>
             </div>
-            <Button
+            {/* <Button
               variant="contained"
               type="submit"
               color="primary"
@@ -1805,7 +1821,7 @@ const ZipcodeDatabase = () => {
               disabled={allZipcodes == ""}
             >
               Export
-            </Button>
+            </Button> */}
           </div>
 
           <div className="search-icon" onClick={handleSearch}>
@@ -1846,7 +1862,6 @@ const ZipcodeDatabase = () => {
             ""
           )}
         </div>
-
         <Table
           {...tableProps}
           childComponents={{
@@ -1873,7 +1888,6 @@ const ZipcodeDatabase = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
                 }
@@ -1893,11 +1907,27 @@ const ZipcodeDatabase = () => {
                 }
               },
             },
+            noDataRow: {
+              content: () => 'No Data Found'
+            }
           }}
           dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          extendedFilter={(data) => searchedData}
         />
-        <Pagination changePage={getData} data={allZipcodes} activeClass='active' />
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10" selected="">10</option>
+            <option value="20" selected="">20</option>
+            <option value="50" selected="">50</option>
+            <option value="100" selected="">100</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={zipCodeData} />
+        </div>
+
         <Snackbar
           open={open}
           autoHideDuration={3000}

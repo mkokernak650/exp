@@ -1,7 +1,6 @@
 export const isEmpty = value => value == null || value.length === 0;
 
 const contains = (data, item) => {
-  console.log('item',item.value)
   if (!item.value) {
     return true;
   }
@@ -168,5 +167,6 @@ export const filterGroupAnd = (data, items) => {
 };
 
 export const filterData = (data, filterValue) => {
+  console.log('data', data)
   return filterGroup(data, filterValue.groupName, filterValue.items);
 };
