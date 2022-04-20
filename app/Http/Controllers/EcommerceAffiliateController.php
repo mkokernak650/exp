@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Imports\EcommerceAffiliatesImport;
@@ -57,11 +56,11 @@ class EcommerceAffiliateController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'campaign_id' => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
-            'customer_id' => ['nullable', Rule::exists('customers', 'id')],
-            'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
-            'coupon_code' => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
-            'revenue' => ['required', 'numeric'],
+            'campaign_id'   => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
+            'customer_id'   => ['nullable', Rule::exists('customers', 'id')],
+            'affiliate_id'  => ['required', Rule::exists('affiliates', 'id')],
+            'coupon_code'   => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
+            'revenue'       => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
         ]);
         if (EcommerceAffiliate::create($validated)) {
@@ -80,11 +79,11 @@ class EcommerceAffiliateController extends Controller
     public function update(Request $request, EcommerceAffiliate $ecommerceAffiliate)
     {
         $validated = $request->validate([
-            'campaign_id' => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
-            'customer_id' => ['nullable', Rule::exists('customers', 'id')],
-            'affiliate_id' => ['required', Rule::exists('affiliates', 'id')],
-            'coupon_code' => ['required', 'string'],
-            'revenue' => ['required', 'numeric'],
+            'campaign_id'   => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
+            'customer_id'   => ['nullable', Rule::exists('customers', 'id')],
+            'affiliate_id'  => ['required', Rule::exists('affiliates', 'id')],
+            'coupon_code'   => ['required', 'string'],
+            'revenue'       => ['required', 'numeric'],
             'affiliate_fee' => ['required', 'numeric'],
         ]);
         if ($ecommerceAffiliate->update($validated)) {
@@ -108,7 +107,7 @@ class EcommerceAffiliateController extends Controller
     public function deleteSelected(Request $request)
     {
         EcommerceAffiliate::whereIn('id', $request->selectedRowIds)->delete();
-        return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
     }
 
     public function import(Request $request)

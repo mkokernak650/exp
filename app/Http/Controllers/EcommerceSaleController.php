@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
@@ -29,16 +28,16 @@ class EcommerceSaleController extends Controller
     public function update(Request $request, EcommerceSale $ecommerceSale)
     {
         $validated = $request->validate([
-            'order_no' => ['required', 'string', 'max:255'],
-            'coupon_code' => ['required', 'string', 'max:255'],
-            'shipping_city' => ['nullable', 'string', 'max:255'],
+            'order_no'       => ['required', 'string', 'max:255'],
+            'coupon_code'    => ['required', 'string', 'max:255'],
+            'shipping_city'  => ['nullable', 'string', 'max:255'],
             'shipping_state' => ['nullable', 'string', 'max:255'],
-            'shipping_zip' => ['nullable', 'string', 'max:255'],
-            'billing_zip' => ['nullable', 'string', 'max:255'],
-            'quantity' => ['nullable', 'string', 'max:255'],
-            'subtotal' => ['nullable', 'string', 'max:255'],
-            'shipping_cost' => ['nullable', 'string', 'max:255'],
-            'total' => ['nullable', 'string', 'max:255'],
+            'shipping_zip'   => ['nullable', 'string', 'max:255'],
+            'billing_zip'    => ['nullable', 'string', 'max:255'],
+            'quantity'       => ['nullable', 'string', 'max:255'],
+            'subtotal'       => ['nullable', 'string', 'max:255'],
+            'shipping_cost'  => ['nullable', 'string', 'max:255'],
+            'total'          => ['nullable', 'string', 'max:255'],
         ]);
 
         if ($ecommerceSale->update($validated)) {
@@ -55,7 +54,7 @@ class EcommerceSaleController extends Controller
     public function importStore(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file'],
+            'file'     => ['required', 'file'],
             'fieldMap' => ['required', 'string'],
         ]);
 
@@ -76,7 +75,7 @@ class EcommerceSaleController extends Controller
     public function deleteSelected(Request $request)
     {
         EcommerceSale::whereIn('id', $request->selectedRowIds)->delete();
-        return response()->json(["msg" => "Successfully Deleted", "status_code" => 204]);
+        return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 204]);
     }
 
     public function ecommerceSalesReport()
@@ -103,8 +102,8 @@ class EcommerceSaleController extends Controller
         }
 
         return response()->json([
-            'data' => $salesData,
-            'summary' => $this->getReportSummary($request->input('type'), $salesData)
+            'data'    => $salesData,
+            'summary' => $this->getReportSummary($request->input('type'), $request->input('detailed'), $salesData)
         ], 200);
     }
 
@@ -129,9 +128,14 @@ class EcommerceSaleController extends Controller
         $year = $request->input('year');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $type = $request->input('type');
+        $isDetailed = $request->input('detailed');
 
         return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
+            ->when($isDetailed, function ($q) {
+                $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_affiliates.campaign_id');
+            })
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
             ->when(!empty($campaignIds), function ($q) use ($campaignIds) {
                 $q->whereIn('ecommerce_affiliates.campaign_id', $campaignIds);
@@ -163,56 +167,88 @@ class EcommerceSaleController extends Controller
                 $q->whereDate('ecommerce_sales.order_at', '>=', $startDate)
                     ->whereDate('ecommerce_sales.order_at', '<=', $endDate);
             })
-            ->groupBy(
-                'ecommerce_sales.coupon_code',
-                // DB::raw('YEAR(ecommerce_sales.order_at)'),
-                // DB::raw('MONTH(ecommerce_sales.order_at)'),
-            )
-            ->select($this->selectColumnByType($request->input('type')))
+            ->when(!$isDetailed, function ($q) {
+                $q->groupBy(
+                    'ecommerce_sales.coupon_code',
+                    // DB::raw('YEAR(ecommerce_sales.order_at)'),
+                    // DB::raw('MONTH(ecommerce_sales.order_at)'),
+                );
+            })
+            ->select($isDetailed ? $this->selectColumnByTypeDetailed($type) : $this->selectColumnByType($type))
             ->orderBy('ecommerce_sales.coupon_code')
             ->orderBy('ecommerce_sales.order_at')
             ->get();
     }
 
+    protected function selectColumnByTypeDetailed($type)
+    {
+        if ($type === 'customer') {
+            $fee = 'revenue';
+            $text = 'Total Fee';
+        } elseif ($type === 'affiliate') {
+            $fee = 'affiliate_fee';
+            $text = 'Affiliate Fee';
+        }
+
+        return [
+            DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Order Date Time`'),
+            'ecommerce_campaigns.campaign_name AS Campaign',
+            'affiliates.affiliate_name AS Affiliate',
+            'ecommerce_sales.coupon_code AS Coupon Code',
+            'ecommerce_sales.shipping_city AS Shipping City',
+            'ecommerce_sales.shipping_state AS Shipping State',
+            'ecommerce_sales.shipping_zip AS Zip Code',
+            'ecommerce_sales.quantity AS Quantity',
+            'ecommerce_sales.total AS Total Amount',
+            DB::raw('ROUND(ecommerce_affiliates.' . $fee . ' * ecommerce_sales.quantity) AS `' . $text . '`'),
+        ];
+    }
+
     protected function selectColumnByType($type)
     {
-        if ($type === "customer") {
-            return [
-                'affiliates.affiliate_name AS Affiliate',
-                'ecommerce_sales.coupon_code AS Coupon Code',
-                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
-                DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+        $selectRows = [
+            'affiliates.affiliate_name AS Affiliate',
+            'ecommerce_sales.coupon_code AS Coupon Code',
+            DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
+            DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+            DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+        ];
+
+        if ($type === 'customer') {
+            return array_merge($selectRows, [
                 'ecommerce_affiliates.revenue AS Fee Per Order',
                 DB::raw('ROUND(SUM(ecommerce_sales.quantity) * ecommerce_affiliates.revenue, 2) AS `Total Fee`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.quantity) * ecommerce_affiliates.revenue), 2) AS `Net Amount`'),
-            ];
-        } elseif ($type === "affiliate") {
-            return [
-                'affiliates.affiliate_name AS Affiliate',
-                'ecommerce_sales.coupon_code AS Coupon Code',
-                DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
-                DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+            ]);
+        } elseif ($type === 'affiliate') {
+            return array_merge($selectRows, [
                 'ecommerce_affiliates.affiliate_fee AS Affiliate Fee Per Order',
                 DB::raw('ROUND(SUM(ecommerce_sales.quantity) * ecommerce_affiliates.affiliate_fee, 2) AS `Affiliate Fee`'),
                 DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.quantity) * ecommerce_affiliates.affiliate_fee), 2) AS `Net Amount`'),
-            ];
+            ]);
         }
 
-        return [];
+        return $selectRows;
     }
 
-    protected function getReportSummary($type, $salesData)
+    protected function getReportSummary($type, $isDetailed, $salesData)
     {
+        $totalOrder = $salesData->count();
         $summary = ['Total Amount' => 0, 'Total Order' => 0, 'Total Quantity' => 0, 'Affiliate Fee' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
-        $salesData->each(function ($item) use (&$summary, $type) {
+        $salesData->each(function ($item) use (&$summary, $type, $totalOrder, $isDetailed) {
             $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Order'] += $item->{'No. of Orders'};
-            $summary['Total Quantity'] += $item->{'Total Quantity'};
-            $summary['Net Amount'] += $item->{'Net Amount'};
 
-            if ($type === "customer") {
+            if ($isDetailed) {
+                $summary['Total Quantity'] += $item->{'Quantity'};
+                $summary['Total Order'] = $totalOrder;
+                unset($summary['Net Amount']);
+            } else {
+                $summary['Total Quantity'] += $item->{'Total Quantity'};
+                $summary['Total Order'] += $item->{'No. of Orders'};
+                $summary['Net Amount'] += $item->{'Net Amount'};
+            }
+
+            if ($type === 'customer') {
                 $summary['Total Fee'] += $item->{'Total Fee'};
                 unset($summary['Affiliate Fee']);
             } else {
