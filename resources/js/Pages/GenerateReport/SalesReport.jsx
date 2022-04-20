@@ -9,6 +9,8 @@ import {
   Radio,
   FormControlLabel,
   RadioGroup,
+  FormGroup,
+  Checkbox,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -72,6 +74,7 @@ const SalesReport = () => {
   const [campaign, setCampaign] = useState([]);
   const [customer, setCustomer] = useState([]);
   const [reportType, setReportType] = useState({ type: "customer" });
+  const [isDetailed, setIsDetailed] = useState({ detailed: true });
 
   let yearsArray = [];
   for (let i = 0; i < 5; i++) {
@@ -226,6 +229,12 @@ const SalesReport = () => {
     setReportType({ [name]: value });
   };
 
+  const detailedHandleChange = (e) => {
+    console.log('checkbox value ', e.target.checked);
+    const { name, checked } = e.target;
+    setIsDetailed({ [name]: checked });
+  };
+
   const values = {
     ...campaign,
     ...customer,
@@ -239,6 +248,7 @@ const SalesReport = () => {
     ...startDate,
     ...endDate,
     ...reportType,
+    ...isDetailed,
   };
 
   let affiliatesName = [];
@@ -489,6 +499,12 @@ const SalesReport = () => {
                 </Grid>
               </>
             )}
+
+            <Grid item xs={12}>
+              <FormGroup>
+                <FormControlLabel control={<Checkbox name="detailed" onChange={detailedHandleChange} checked={isDetailed.detailed} color="primary" />} label="Detailed Report For Customer & Affiliate" />
+              </FormGroup>
+            </Grid>
 
             <Grid item xs={12}>
               <Button

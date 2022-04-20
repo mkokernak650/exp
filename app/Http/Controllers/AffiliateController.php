@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
@@ -9,8 +8,7 @@ use Inertia\Inertia;
 
 class AffiliateController extends Controller
 {
-
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -47,6 +45,7 @@ class AffiliateController extends Controller
             }
         }
     }
+
     public function update(Request $request)
     {
         $id = $request->id;
@@ -77,18 +76,17 @@ class AffiliateController extends Controller
             ['address', '=', $request->address]
         ])->count();
         if ($existData > 0) {
-            return response()->json(["msg" => "Cutomer already exists"]);
+            return response()->json(['msg' => 'Cutomer already exists']);
         }
         Affiliate::create([
-            'affiliate_id' => $request->affiliate_id,
+            'affiliate_id'   => $request->affiliate_id,
             'affiliate_name' => $request->affiliate_name,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'address' => $request->address,
+            'email'          => $request->email,
+            'telephone'      => $request->telephone,
+            'address'        => $request->address,
         ]);
-        return response()->json(["msg" => "Successfully Added"]);
+        return response()->json(['msg' => 'Successfully Added']);
     }
-
 
     public function affiliateReport()
     {
@@ -109,17 +107,17 @@ class AffiliateController extends Controller
     public function edit(Request $request)
     {
         $data = Affiliate::find($request->id);
-        $data->affiliate_id  = $request->affiliate_id;
-        $data->affiliate_name  = $request->affiliate_name;
-        $data->email  = $request->email;
-        $data->telephone  = $request->telephone;
+        $data->affiliate_id = $request->affiliate_id;
+        $data->affiliate_name = $request->affiliate_name;
+        $data->email = $request->email;
+        $data->telephone = $request->telephone;
         $data->address = $request->address;
         $result = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, ]);
         } else {
-            return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Editing Failed', 'status_code' => 500]);
         }
     }
 
@@ -132,17 +130,18 @@ class AffiliateController extends Controller
             $i = 0;
             while ($i < count($ids)) {
                 $dataById = Affiliate::find($ids[$i]);
-                $dataById->status = "0";
+                $dataById->status = '0';
                 $result = $dataById->save();
                 $i++;
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Archive successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to Archive successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
         }
     }
+
     public function activeAffiliate(Request $request)
     {
         $result = true;
@@ -152,15 +151,15 @@ class AffiliateController extends Controller
             $i = 0;
             while ($i < count($ids)) {
                 $dataById = Affiliate::find($ids[$i]);
-                $dataById->status = "1";
+                $dataById->status = '1';
                 $result = $dataById->save();
                 $i++;
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Affiliate active successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Affiliate active successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "active failed", "status_code" => 500]);
+            return response()->json(['msg' => 'active failed', 'status_code' => 500]);
         }
     }
 
@@ -169,14 +168,13 @@ class AffiliateController extends Controller
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  Affiliate::where('id', $request->selectedRowIds[$i])->delete();
+            $result = Affiliate::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
-
 }
