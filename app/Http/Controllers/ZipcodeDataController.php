@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ZipcodeDataController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -20,15 +20,108 @@ class ZipcodeDataController extends Controller
 
     public function index()
     {
-        $allZipcodes = ZipCodeData::take(1000)->get();
+        $conditions=json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $condTypes = [
+            'and' => 'Where',
+            'or' => 'orWhere',
+            'where' => 'where'
+         ];
+
+            function getSearchOperator($operator)
+            {
+                switch ($operator) {
+             case 'contains':
+              return 'like';
+             case 'doesNotContain':
+            return 'NOT like';
+            case 'isEmpty':
+           return 'IS NULL';
+         case 'isNotEmpty':
+           return 'IS NOT NULL';
+         case 'startswith':
+           return 'like';
+         case 'endsWith':
+           return 'like';
+         case 'is':
+           return '=';
+         case 'isnot':
+           return '<>';
+         case '=':
+           return '=';
+         case '<>':
+           return '<>';
+         case '>':
+           return '>';
+         case '<':
+           return '<';
+         default:
+           return 'unknown operator';
+       }
+            }
+
+            function findValue($optr, $val)
+            {
+                switch ($optr) {
+                case 'contains':
+                  return '%' . $val . '%';
+                case 'doesNotContain':
+                  return '%' . $val . '%';
+            case 'startswith':
+              return $val . '%';
+              case 'endsWith':
+                return '%' . $val;
+            case 'is':
+              return $val;
+            case 'isnot':
+              return $val;
+            case '=':
+              return $val;
+            case '<>':
+              return $val;
+            case '>':
+              return $val;
+            case '<':
+              return $val;
+            default:
+              return 'unknown operator';
+          }
+            }
+
+            $zipDataQuery = ZipCodeData::query();
+            function makeConditionQuery($dataQuery, $condType, $field, $operator, $val)
+            {
+                if ($operator==='isEmpty' || $operator==='isNotEmpty') {
+                    return  $dataQuery->{$condType}($field, getSearchOperator($operator));
+                }
+                return  $dataQuery->{$condType}($field, getSearchOperator($operator), findValue($operator, $val));
+            }
+
+  
+            $firstCond = $conditions->items[0];
+           
+            makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+            for ($i = 1; $i < count($conditions->items); $i++) {
+                $cond = $conditions->items[$i];
+                makeConditionQuery($zipDataQuery, $condTypes[$conditions->groupName], $cond->field, $cond->operator, $cond->value);
+            }
+            $allZipcodes = $zipDataQuery->paginate(request('itemPerPage') ?? 15);
+            return $allZipcodes;
+        }
+        $allZipcodes = ZipCodeData::paginate(request('itemPerPage') ?? 15);
+        if (request('page')) {
+            return $allZipcodes;
+        }
         return Inertia::render('Settings/ZipcodeDatabase', [
             'allZipcodes' => $allZipcodes
         ]);
     }
 
+    
+
     public function export(Request $request)
     {
-        Excel::download(new ZipcodeDataExport,  'Zipcode_database.' . $request->type);
+        Excel::download(new ZipcodeDataExport, 'Zipcode_database.' . $request->type);
         return back();
         // return Excel::download(new MarketExport,  'mark.'. \Maatwebsite\Excel\Excel::XLSX);
         // return (new MarketExport)->download('invoices.xlsx', \Maatwebsite\Excel\Excel::XLSX);
@@ -43,13 +136,11 @@ class ZipcodeDataController extends Controller
 
     /**
      * @method post
-     * @param mixed array($page, $take) 
+     * @param mixed array($page, $take)
      * @param \Illuminate\Http\Request $request
      */
     public function pagination($page = 1)
     {
-        // DB::enableQueryLog();
-        // varDump(DB::getQueryLog());
         $take = 50;
         $skip = ($page === 0 || $page === 1) ? 0 : $take * ($page - 1);
         $results = ZipCodeData::skip($skip)->take($take)->get();

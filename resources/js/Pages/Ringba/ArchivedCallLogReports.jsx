@@ -22,7 +22,6 @@ import "ka-table/style.scss";
 import search from "../../../images/search.svg";
 import eyeIcon from "../../../images/eyeIcon.svg";
 import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/cancel.svg";
 import Edit from "../../../images/three-dots.svg";
 import { hideColumn, showColumn } from "ka-table/actionCreators";
 import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";

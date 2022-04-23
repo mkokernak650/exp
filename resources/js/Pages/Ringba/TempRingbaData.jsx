@@ -1,64 +1,61 @@
-import Layout from "../Layout/Layout";
-import React, { useEffect, useState, useRef } from "react";
-import { kaReducer, Table } from "ka-table";
+import Layout from "../Layout/Layout"
+import React, { useEffect, useState, useRef } from "react"
+import { kaReducer, Table } from "ka-table"
 import {
   DataType,
   SortingMode,
   PagingPosition,
   EditingMode,
   ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+} from "ka-table/enums"
+import { kaPropsUtils } from "ka-table/utils"
+import { usePage } from "@inertiajs/inertia-react"
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
-import { makeStyles, Button } from "@material-ui/core";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
-import ConfirmModal from "../../Shared/ConfirmModal";
-import { filterData } from '../../Helpers/filterData';
-import { defaultFilter } from "../../Helpers/Filter";
-import { SearchedFields } from "../../Helpers/SearchedFields";
+} from "ka-table/actionCreators"
+import "ka-table/style.scss"
+import eyeIcon from "../../../images/eyeIcon.svg"
+import closeNav from "../../../images/closeNav.svg"
+import { hideColumn, showColumn } from "ka-table/actionCreators"
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
+import Tooltip from "@material-ui/core/Tooltip"
+import DeleteIcon from "@material-ui/icons/Delete"
+import IconButton from "@material-ui/core/IconButton"
+import Checkbox from "@material-ui/core/Checkbox"
+import { makeStyles, Button } from "@material-ui/core"
+import axios from "axios"
+import { Helmet } from "react-helmet"
+import SnackBar from "../../Shared/SnackBar"
+import ConfirmModal from "../../Shared/ConfirmModal"
+import { filterData } from '../../Helpers/filterData'
+import { defaultFilter } from "../../Helpers/Filter"
 
 const useStyles = makeStyles(() => ({
   button: {
     width: "auto",
   },
-}));
+}))
 
 
 
 const TempRingbaData = () => {
-  const classes = useStyles();
-  const { ringbaData } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const showColumnRef = useRef();
-  const [filterValue, setFilterValue] = useState(defaultFilter('and', 'CallLog_Columns', 'isNotEmpty', 'string', 0, ''));
+  const { ringbaData } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [response, setResponse] = useState()
+  const [open, setOpen] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const showColumnRef = useRef()
+  const [filterValue, setFilterValue] = useState(defaultFilter('and', 'CallLog_Columns', 'isNotEmpty', 'string', 0, ''))
 
   const [filteredData, setFilteredData] = useState(
     filterData(ringbaData, filterValue)
-  );
+  )
   const dataArray = filteredData.map((item, index) => ({
     sl: index + 1,
     CallLog_Columns: JSON.stringify(item.columns).substr(0, 100),
@@ -66,7 +63,7 @@ const TempRingbaData = () => {
     CallLog_Tags: JSON.stringify(item.tags).substr(0, 100),
     id: item.id,
     key: index,
-  }));
+  }))
 
   const tablePropsInit = {
     columns: [
@@ -111,16 +108,15 @@ const TempRingbaData = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-  };
+  }
 
-  const fields = SearchedFields(tablePropsInit.columns)
 
-  const OPTION_KEY = "temp-rigba-data";
+  const OPTION_KEY = "temp-rigba-data"
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  }
+  const [tableProps, changeTableProps] = useState(stateStore)
 
   const SelectionCell = ({
     rowKeyValue,
@@ -134,27 +130,27 @@ const TempRingbaData = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -162,55 +158,55 @@ const TempRingbaData = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
+            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true)
+            let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                continue;
+                selectedRowIds.push(tableProps.data[i].id)
+                continue
               }
-              i++;
+              i++
             }
           } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            selectedRowIds.splice(0, selectedRowIds.length);
+            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
+            selectedRowIds.splice(0, selectedRowIds.length)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      return newState
+    })
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
 
 
   useEffect(() => {
     window.onload = function () {
-      emptyCheckbox();
-    };
-  }, []);
+      emptyCheckbox()
+    }
+  }, [])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -219,66 +215,66 @@ const TempRingbaData = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener("mousedown", checkIfClickedOutside)
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showColumns]);
+      document.removeEventListener("mousedown", checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true });
-  };
+    setShowDeleteModal({ open: true })
+  }
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setselectedRowIds([])
+    emptyCheckbox()
   }
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("temp-rigba-data"));
-    storedData.selectedRows = [];
-    localStorage.setItem("temp-rigba-data", JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
-    changeTableProps(filteredData);
-  };
+    const storedData = JSON.parse(localStorage.getItem("temp-rigba-data"))
+    storedData.selectedRows = []
+    localStorage.setItem("temp-rigba-data", JSON.stringify(storedData))
+    let filteredData = { ...tableProps }
+    filteredData.selectedRows = []
+    changeTableProps(filteredData)
+  }
   const deleteHandler = () => {
     axios
       .post("temp-ringba-data-delete", { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
+          let filteredData = tableProps
           const newData = filteredData.data.filter(
             (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          )
+          filteredData.data = newData
+          changeTableProps(filteredData)
+          setselectedRowIds([])
+          setTableToolbar(false)
+          setOpen(true)
+          setResponse(res.data.msg)
+          setShowDeleteModal({ open: false })
+          emptyCheckbox()
         } else {
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          setOpen(true)
+          setResponse(res.data.msg)
+          setShowDeleteModal({ open: false })
+          emptyCheckbox()
         }
       })
       .catch((err) => {
-        console.log(err);
-        setTableToolbar(false);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
-      });
-  };
+        console.log(err)
+        setTableToolbar(false)
+        setShowDeleteModal({ open: false })
+        emptyCheckbox()
+      })
+  }
 
 
   const TableToolbar = () => {
@@ -293,8 +289,8 @@ const TempRingbaData = () => {
           {selectedRowIds.length} Row Selected
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -320,16 +316,16 @@ const TempRingbaData = () => {
         },
       ],
       editingMode: EditingMode.None,
-    };
+    }
     const dispatchSettings = (action) => {
       if (action.type === ActionType.UpdateCellValue) {
         tableProps.dispatch(
           action.value
             ? showColumn(action.rowKeyValue)
             : hideColumn(action.rowKeyValue)
-        );
+        )
       }
-    };
+    }
     return (
       <Table
         {...columnsSettingsProps}
@@ -343,15 +339,15 @@ const TempRingbaData = () => {
             content: (props) => {
               switch (props.column.key) {
                 case "visible":
-                  return <CellEditorBoolean {...props} />;
+                  return <CellEditorBoolean {...props} />
               }
             },
           },
         }}
         dispatch={dispatchSettings}
       />
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -402,14 +398,14 @@ const TempRingbaData = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -423,7 +419,7 @@ const TempRingbaData = () => {
                         tableProps
                       )}
                     />
-                  );
+                  )
                 }
               },
             },
@@ -437,7 +433,7 @@ const TempRingbaData = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
             },
@@ -462,10 +458,10 @@ const TempRingbaData = () => {
           }`}
       ></ConfirmModal>
     </>
-  );
-};
+  )
+}
 
 TempRingbaData.layout = (page) => (
   <Layout title="TempRingbaData">{page}</Layout>
-);
-export default TempRingbaData;
+)
+export default TempRingbaData
