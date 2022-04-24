@@ -94,8 +94,7 @@ class EcommerceSaleController extends Controller
 
     public function ecommerceSalesReportGenerate(Request $request)
     {
-        $zipCodes = $this->getZipCodesByStateOrMarkets($request->input('states'), $request->input('markets'));
-        $salesData = $this->querySalesReport($request, $zipCodes);
+        $salesData = $this->querySalesReport($request);
 
         if ($salesData->count() < 1) {
             return response()->json([], 204);
@@ -107,19 +106,7 @@ class EcommerceSaleController extends Controller
         ], 200);
     }
 
-    protected function getZipCodesByStateOrMarkets($states, $markets)
-    {
-        if (!empty($states) || !empty($markets)) {
-            return ZipcodeByTelevisionMarket::when(!empty($states), function ($q) use ($states) {
-                $q->whereIn('state', $states);
-            })->when(!empty($markets), function ($q) use ($markets) {
-                $q->whereIn('market', $markets);
-            })->get('zip_code')->pluck('zip_code');
-        }
-        return [];
-    }
-
-    protected function querySalesReport($request, $zipCodes)
+    protected function querySalesReport($request)
     {
         $campaignIds = $request->input('campaign_id');
         $customerIds = $request->input('customer_id');
@@ -130,13 +117,14 @@ class EcommerceSaleController extends Controller
         $endDate = $request->input('end_date');
         $type = $request->input('type');
         $isDetailed = $request->input('detailed');
+        $states = $request->input('states');
+        $markets = $request->input('markets');
 
         return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
-            // ->when($isDetailed, function ($q) {
-            //     $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_affiliates.campaign_id');
-            // })
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
+            ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
+            ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
             ->when(!empty($campaignIds), function ($q) use ($campaignIds) {
                 $q->whereIn('ecommerce_affiliates.campaign_id', $campaignIds);
             })
@@ -146,8 +134,11 @@ class EcommerceSaleController extends Controller
             ->when(!empty($affiliateIds), function ($q) use ($affiliateIds) {
                 $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds);
             })
-            ->when(!empty($zipCodes), function ($q) use ($zipCodes) {
-                $q->whereIn('shipping_zip', $zipCodes);
+            ->when(!empty($states), function ($q) use ($states) {
+                $q->whereIn('zipcode_by_television_markets.state', $states);
+            })
+            ->when(!empty($markets), function ($q) use ($markets) {
+                $q->whereIn('zipcode_by_television_markets.market', $markets);
             })
             ->when(!empty($couponCodes), function ($q) use ($couponCodes) {
                 $q->whereIn('ecommerce_sales.coupon_code', $couponCodes);
@@ -168,11 +159,7 @@ class EcommerceSaleController extends Controller
                     ->whereDate('ecommerce_sales.order_at', '<=', $endDate);
             })
             ->when(!$isDetailed, function ($q) {
-                $q->groupBy(
-                    'ecommerce_sales.coupon_code',
-                    // DB::raw('YEAR(ecommerce_sales.order_at)'),
-                    // DB::raw('MONTH(ecommerce_sales.order_at)'),
-                );
+                $q->groupBy('ecommerce_sales.coupon_code');
             })
             ->select($isDetailed ? $this->selectColumnByTypeDetailed($type) : $this->selectColumnByType($type))
             ->orderBy('ecommerce_sales.coupon_code')
@@ -183,29 +170,30 @@ class EcommerceSaleController extends Controller
     protected function selectColumnByTypeDetailed($type)
     {
         if ($type === 'customer') {
-            $fee = 'revenue';
-            $text = 'Total Fee';
+            $column = 'revenue';
+            $alias = 'Total Fee';
         } else {
-            $fee = 'affiliate_fee';
-            $text = 'Affiliate Fee';
+            $column = 'affiliate_fee';
+            $alias = 'Affiliate Fee';
         }
 
         $selectRows = [
             DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
             'affiliates.affiliate_name AS Affiliate Name',
             'ecommerce_sales.coupon_code AS Coupon Code',
-            // 'ecommerce_campaigns.campaign_name AS Campaign',
             'ecommerce_sales.shipping_state AS State',
             'ecommerce_sales.shipping_city AS City',
             'ecommerce_sales.shipping_zip AS Zip Code',
+            'zipcode_by_television_markets.market AS Market',
+            't_v_households.tv_households AS TV Market Households',
             'ecommerce_sales.quantity AS Total Quantity',
             'ecommerce_sales.total AS Total Amount',
-            DB::raw('ROUND(ecommerce_affiliates.' . $fee . ' * ecommerce_sales.quantity) AS `' . $text . '`'),
+            DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity) AS `' . $alias . '`'),
         ];
 
         if ($type === 'customer') {
             return array_merge($selectRows, [
-                DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.' . $fee . ' * ecommerce_sales.quantity)) AS `Net Amount`'),
+                DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity)) AS `Net Amount`'),
             ]);
         }
         return $selectRows;

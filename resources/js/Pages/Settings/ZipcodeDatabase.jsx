@@ -1243,12 +1243,12 @@ export const groups = [
   },
 ]
 export const filter = {
-  groupName: "or",
+  groupName: "and",
   items: [
     {
-      field: "City",
+      field: "ZipCode",
       operator: "contains",
-      value: "NEWARK"
+      value: ""
     }
   ]
 }
