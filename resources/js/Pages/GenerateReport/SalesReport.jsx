@@ -11,6 +11,7 @@ import {
   RadioGroup,
   FormGroup,
   Checkbox,
+  Divider,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -23,6 +24,7 @@ import { currentDate } from "../../Helpers/CurrentDate";
 import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
 import SnackBar from "../../Shared/SnackBar";
+import toast from "react-hot-toast";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,6 +76,7 @@ const SalesReport = () => {
   const [campaign, setCampaign] = useState([]);
   const [customer, setCustomer] = useState([]);
   const [reportType, setReportType] = useState({ type: "customer" });
+  const [reportFor, setReportFor] = useState({ reportFor: "sales" });
   const [isDetailed, setIsDetailed] = useState({ detailed: true });
 
   let yearsArray = [];
@@ -229,8 +232,12 @@ const SalesReport = () => {
     setReportType({ [name]: value });
   };
 
+  const reportForHandleChange = (e) => {
+    const { name, value } = e.target;
+    setReportFor({ [name]: value });
+  };
+
   const detailedHandleChange = (e) => {
-    console.log('checkbox value ', e.target.checked);
     const { name, checked } = e.target;
     setIsDetailed({ [name]: checked });
   };
@@ -248,6 +255,7 @@ const SalesReport = () => {
     ...startDate,
     ...endDate,
     ...reportType,
+    ...reportFor,
     ...isDetailed,
   };
 
@@ -293,8 +301,17 @@ const SalesReport = () => {
   }
 
   const handleSubmit = () => {
+    if (
+      reportFor.reportFor === "marketTarget" &&
+      state.length < 1 &&
+      market.length < 1
+    ) {
+      toast.error("Please select state or market");
+      return;
+    }
+
     axios
-      .post(route("ecommerce.sales.report.generate"), values)
+      .post(route("ecommerce.report.generate"), values)
       .then((r) => {
         if (r?.status === 204) {
           setOpen(true);
@@ -323,7 +340,10 @@ const SalesReport = () => {
       summary.push([cf, apiData.summary[cf]]);
     });
 
-    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `D${secondData}` });
+    XLSX.utils.sheet_add_aoa(ws, summary, {
+      origin:
+        reportFor.reportFor === "sales" ? `E${secondData}` : `B${secondData}`,
+    });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -334,32 +354,62 @@ const SalesReport = () => {
 
   return (
     <>
-      <Helmet title="E-commerce Sales Report" />
+      <Helmet title="E-commerce Report" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          E-commerce Sales Report
+          E-commerce Report
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
             <Grid item xs={12}>
+              <h4 style={{ margin: 0 }}>Report For</h4>
               <RadioGroup
-                aria-label="type"
-                name="type"
-                value={reportType.type}
-                onChange={reportTypeHandleChange}
+                aria-label="reportFor"
+                name="reportFor"
+                value={reportFor.reportFor}
+                onChange={reportForHandleChange}
               >
                 <FormControlLabel
-                  value="customer"
+                  value="sales"
                   control={<Radio color="primary" />}
-                  label="Customer"
+                  label="Sales"
                 />
                 <FormControlLabel
-                  value="affiliate"
+                  value="marketTarget"
                   control={<Radio color="primary" />}
-                  label="Affiliate"
+                  label="Market Target"
                 />
               </RadioGroup>
             </Grid>
+            <Grid item xs={12} style={{ paddingTop: 0 }}>
+              <Divider />
+            </Grid>
+            {market.length < 1 && (
+              <Grid item xs={12}>
+                <MultiSelect
+                  name="states"
+                  onChange={(val) => stateHandleChange(val, "states")}
+                  options={[
+                    { label: "All States", value: "allStates," },
+                  ].concat(stateOptions)}
+                  style={{ width: "100%" }}
+                  placeholder="Select States"
+                />
+              </Grid>
+            )}
+            {state.length < 1 && (
+              <Grid item xs={12}>
+                <MultiSelect
+                  name="markets"
+                  onChange={(val) => marketHandleChange(val, "markets")}
+                  options={[
+                    { label: "All Markets", value: "allMarkets," },
+                  ].concat(marketOptions)}
+                  style={{ width: "100%" }}
+                  placeholder="Select Markets"
+                />
+              </Grid>
+            )}
             <Grid item xs={12}>
               <MultiSelect
                 name="campaign_id"
@@ -378,28 +428,6 @@ const SalesReport = () => {
                 placeholder="Select Customer"
               />
             </Grid>
-            {market.length < 1 && (
-              <Grid item xs={12}>
-                <MultiSelect
-                  name="states"
-                  onChange={(val) => stateHandleChange(val, "states")}
-                  options={stateOptions}
-                  style={{ width: "100%" }}
-                  placeholder="Select States"
-                />
-              </Grid>
-            )}
-            {state.length < 1 && (
-              <Grid item xs={12}>
-                <MultiSelect
-                  name="markets"
-                  onChange={(val) => marketHandleChange(val, "markets")}
-                  options={marketOptions}
-                  style={{ width: "100%" }}
-                  placeholder="Select Markets"
-                />
-              </Grid>
-            )}
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
@@ -500,11 +528,42 @@ const SalesReport = () => {
               </>
             )}
 
-            <Grid item xs={12}>
-              <FormGroup>
-                <FormControlLabel control={<Checkbox name="detailed" onChange={detailedHandleChange} checked={isDetailed.detailed} color="primary" />} label="Detailed Report For Customer & Affiliate" />
-              </FormGroup>
-            </Grid>
+            {reportFor.reportFor === "sales" && (
+              <Grid item xs={12}>
+                <Grid item xs={12}>
+                  <RadioGroup
+                    aria-label="type"
+                    name="type"
+                    value={reportType.type}
+                    onChange={reportTypeHandleChange}
+                  >
+                    <FormControlLabel
+                      value="customer"
+                      control={<Radio color="primary" />}
+                      label="For Customer"
+                    />
+                    <FormControlLabel
+                      value="affiliate"
+                      control={<Radio color="primary" />}
+                      label="For Affiliate"
+                    />
+                  </RadioGroup>
+                </Grid>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        name="detailed"
+                        onChange={detailedHandleChange}
+                        checked={isDetailed.detailed}
+                        color="primary"
+                      />
+                    }
+                    label="Detailed Report"
+                  />
+                </FormGroup>
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <Button
@@ -512,7 +571,15 @@ const SalesReport = () => {
                 color="primary"
                 onClick={(e) => handleSubmit()}
               >
-                {loading ? <CircularProgress color="inherit" thickness="3" size="1.5rem" /> : "Generate"}
+                {loading ? (
+                  <CircularProgress
+                    color="inherit"
+                    thickness="3"
+                    size="1.5rem"
+                  />
+                ) : (
+                  "Generate"
+                )}
               </Button>
             </Grid>
           </Grid>
@@ -524,6 +591,6 @@ const SalesReport = () => {
 };
 
 SalesReport.layout = (page) => (
-  <Layout title="E-commerce Sales Report">{page}</Layout>
+  <Layout title="E-commerce Report">{page}</Layout>
 );
 export default SalesReport;
