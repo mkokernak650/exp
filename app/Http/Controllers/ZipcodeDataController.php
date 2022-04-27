@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Exports\ZipcodeDataExport;
@@ -17,97 +16,22 @@ class ZipcodeDataController extends Controller
         $this->middleware('auth');
     }
 
-
     public function index()
     {
-        $conditions=json_decode(request('filteredValue'));
+        $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
-            $condTypes = [
-            'and' => 'Where',
-            'or' => 'orWhere',
-            'where' => 'where'
-         ];
-
-            function getSearchOperator($operator)
-            {
-                switch ($operator) {
-             case 'contains':
-              return 'like';
-             case 'doesNotContain':
-            return 'NOT like';
-            case 'isEmpty':
-           return 'IS NULL';
-         case 'isNotEmpty':
-           return 'IS NOT NULL';
-         case 'startswith':
-           return 'like';
-         case 'endsWith':
-           return 'like';
-         case 'is':
-           return '=';
-         case 'isnot':
-           return '<>';
-         case '=':
-           return '=';
-         case '<>':
-           return '<>';
-         case '>':
-           return '>';
-         case '<':
-           return '<';
-         default:
-           return 'unknown operator';
-       }
-            }
-
-            function findValue($optr, $val)
-            {
-                switch ($optr) {
-                case 'contains':
-                  return '%' . $val . '%';
-                case 'doesNotContain':
-                  return '%' . $val . '%';
-            case 'startswith':
-              return $val . '%';
-              case 'endsWith':
-                return '%' . $val;
-            case 'is':
-              return $val;
-            case 'isnot':
-              return $val;
-            case '=':
-              return $val;
-            case '<>':
-              return $val;
-            case '>':
-              return $val;
-            case '<':
-              return $val;
-            default:
-              return 'unknown operator';
-          }
-            }
-
             $zipDataQuery = ZipCodeData::query();
-            function makeConditionQuery($dataQuery, $condType, $field, $operator, $val)
-            {
-                if ($operator==='isEmpty' || $operator==='isNotEmpty') {
-                    return  $dataQuery->{$condType}($field, getSearchOperator($operator));
-                }
-                return  $dataQuery->{$condType}($field, getSearchOperator($operator), findValue($operator, $val));
-            }
 
-  
             $firstCond = $conditions->items[0];
-           
-            makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+            $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+
             for ($i = 1; $i < count($conditions->items); $i++) {
                 $cond = $conditions->items[$i];
-                makeConditionQuery($zipDataQuery, $condTypes[$conditions->groupName], $cond->field, $cond->operator, $cond->value);
+                $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
-            $allZipcodes = $zipDataQuery->paginate(request('itemPerPage') ?? 15);
-            return $allZipcodes;
+            return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
         }
+
         $allZipcodes = ZipCodeData::paginate(request('itemPerPage') ?? 15);
         if (request('page')) {
             return $allZipcodes;
@@ -117,14 +41,10 @@ class ZipcodeDataController extends Controller
         ]);
     }
 
-    
-
     public function export(Request $request)
     {
         Excel::download(new ZipcodeDataExport, 'Zipcode_database.' . $request->type);
         return back();
-        // return Excel::download(new MarketExport,  'mark.'. \Maatwebsite\Excel\Excel::XLSX);
-        // return (new MarketExport)->download('invoices.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
     public function import(Request $request)
@@ -152,14 +72,14 @@ class ZipcodeDataController extends Controller
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('zip_code_data')->where('id', $request->selectedRowIds[$i])->delete();
+            $result = DB::table('zip_code_data')->where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         }
         if ($result) {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 }
