@@ -351,8 +351,6 @@ const Targets = () => {
         );
       }
       if (column.key === "status") {
-        console.log(value[0])
-        console.log(value[1])
         return (
           <Switch
             checked={value[0] === 1 && true}
@@ -454,7 +452,6 @@ const Targets = () => {
         setTableToolbar(false);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
-        console.log(err);
       });
   };
 
@@ -563,7 +560,6 @@ const Targets = () => {
       </div>
     );
   };
-  console.log(selectedRowIds);
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {

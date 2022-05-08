@@ -784,7 +784,6 @@ const WebFormReport = () => {
       return newState;
     });
   };
-  console.log(tableProps)
   const [filterValue, changeFilter] = useState(filter);
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue);

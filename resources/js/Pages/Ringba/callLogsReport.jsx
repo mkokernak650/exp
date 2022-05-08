@@ -105,7 +105,6 @@ const CallLogsReport = () => {
           let filteredData = tableProps;
           filteredData.data.filter((item, indx) => {
             if (item.id == tableIndex) {
-              console.log(filteredData.data[indx].Has_Annotation + ' ' + res.data.has_annotation);
               filteredData.data[indx].Has_Annotation = res.data.has_annotation;
             }
           });

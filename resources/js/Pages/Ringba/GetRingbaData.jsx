@@ -82,7 +82,6 @@ const GetRingbaData = () => {
           setOpen(true)
           setResponse("Data Fetching Failed")
         }
-        console.log(res)
       })
       .catch((err) => {
         setLoading(false)

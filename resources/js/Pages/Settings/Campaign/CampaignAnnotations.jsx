@@ -194,7 +194,6 @@ const CampaignAnnotations = () => {
         console.log(err);
       });
   };
-console.log(annotation)
   const dataArray =  annotation.map((item, index) => ({
     edit: item.id,
     order:item.order,
@@ -337,8 +336,6 @@ console.log(annotation)
   // };
 
 
-  console.log('columnChooserProps', columnChooserProps)
-
   const OPTION_KEY = "campaign-annotation-report";
   const stateStore = {
     ...columnChooserProps,
@@ -358,7 +355,7 @@ console.log(annotation)
 
   const ordering = []
   useEffect(() => {
-    
+
     for (const [indx, item] of columnChooserProps.data.entries()) {
       ordering.push({ 'order': indx, 'id': item.id })
     }
@@ -404,7 +401,6 @@ console.log(annotation)
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
-          console.log(res.data.msg);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
@@ -412,7 +408,6 @@ console.log(annotation)
         }
       })
       .catch((err) => {
-        console.log(err);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
       });

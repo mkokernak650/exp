@@ -486,11 +486,9 @@ const AffiliateReport = () => {
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
-          console.log(res.data.msg);
         }
       })
       .catch((err) => {
-        console.log(err);
         setselectedRowIds([]);
         setTableToolbar(false);
         setShowDeleteModal({ open: false });

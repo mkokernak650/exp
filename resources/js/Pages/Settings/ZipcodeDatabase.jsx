@@ -1755,22 +1755,17 @@ const ZipcodeDatabase = () => {
     )
   }
 
-
-  console.log('filterValue', filterValue)
-
   const getSearchingData = async (data) => {
     setCurerentPage(data)
     dispatch(showLoading())
     await axios.get('zipcode-data?page=' + data.page + '&itemPerPage=' + itemPerPage + '&filteredValue=' + JSON.stringify(filterValue)).then(res => {
       setZipcodeData(res.data)
-      console.log('res', res)
       dispatch(hideLoading())
       setSearchData(res.data.data)
     })
   }
 
   const onFilterChanged = (newFilterValue) => {
-    console.log('newFilterValue', newFilterValue)
     changeFilter(newFilterValue)
   }
 

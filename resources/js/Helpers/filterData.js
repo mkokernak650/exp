@@ -146,7 +146,6 @@ const between = (data, item) => {
     return true;
   }
 
-  // console.log('value',data[item.field]);
 };
 
 const dateFormat = (dataParam) => {
@@ -226,5 +225,5 @@ export const filterGroupAnd = (data, items) => {
 
 export const filterData = (data, filterValue) => {
   return filterGroup(data, filterValue.groupName, filterValue.items);
-  
+
 };

@@ -438,7 +438,6 @@ const CampaignSettingReport = () => {
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
-          console.log(res.data.msg);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
@@ -446,7 +445,6 @@ const CampaignSettingReport = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
       });

@@ -402,7 +402,6 @@ const CustomerReport = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
       });

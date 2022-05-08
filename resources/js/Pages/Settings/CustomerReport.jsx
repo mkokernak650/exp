@@ -325,7 +325,7 @@ const CustomerReport = () => {
         dataType: DataType.String,
         style: { width: 240 },
       },
-  
+
     ],
     paging: {
       enabled: true,
@@ -347,7 +347,7 @@ const CustomerReport = () => {
           </div>
         );
       }
-     
+
     },
   };
 
@@ -407,7 +407,6 @@ const CustomerReport = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
       });

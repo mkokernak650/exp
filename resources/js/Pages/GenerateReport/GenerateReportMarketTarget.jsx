@@ -283,7 +283,6 @@ const GenerateReportAffiliate = () => {
           setOpen(true);
           setResponse(r.data.msg);
         }
-        console.log(r.data)
         exportToCSV(r.data, fileName);
       });
     }
@@ -304,8 +303,8 @@ const GenerateReportAffiliate = () => {
     Object.keys(apiData.call_summary).forEach((cf) => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
-  
-    
+
+
 
     XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };

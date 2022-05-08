@@ -287,7 +287,7 @@ const BroadcastMonthReport = () => {
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
-  
+
   const handleStatus = (e, value, rowId) => {
     axios.post(route('target.status.update'), { value: value, rowId: rowId })
       .then((res) => {
@@ -344,14 +344,12 @@ const BroadcastMonthReport = () => {
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
-  console.log(editData)
   const handleEditSubmit = () => {
     axios
       .post(route("broadcast.month.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
           // let filteredData = tableProps;
-          // console.log(editData);
           // let columnsData = produce(tableProps, draft => {
           //   draft.data.filter((item) => {
           //     if (item.id === editData.id) {
@@ -361,7 +359,6 @@ const BroadcastMonthReport = () => {
           //     }
           //   });
           // })
-          // console.log(columnsData)
           // changeTableProps(columnsData)
 
           let filteredData = tableProps;

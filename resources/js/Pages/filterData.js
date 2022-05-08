@@ -167,6 +167,5 @@ export const filterGroupAnd = (data, items) => {
 };
 
 export const filterData = (data, filterValue) => {
-  console.log('data', data)
   return filterGroup(data, filterValue.groupName, filterValue.items);
 };
