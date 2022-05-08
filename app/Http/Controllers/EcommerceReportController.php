@@ -14,7 +14,7 @@ use Inertia\Inertia;
 
 class EcommerceReportController extends Controller
 {
-    public function ecommerceSalesReport()
+    public function ecommerceReport()
     {
         $campaigns = EcommerceCampaign::active()->get();
         $customers = Customer::active()->get();
@@ -25,24 +25,30 @@ class EcommerceReportController extends Controller
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
 
-        return Inertia::render('GenerateReport/SalesReport', compact('campaigns', 'customers', 'affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'states', 'markets'));
+        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'states', 'markets'));
     }
 
-    public function ecommerceSalesReportGenerate(Request $request)
+    public function ecommerceReportGenerate(Request $request)
     {
-        $salesData = $this->querySalesReport($request);
+        $salesData = $this->queryReport($request);
 
         if ($salesData->count() < 1) {
             return response()->json([], 204);
         }
 
+        $salesData->transform(function ($item) {
+            $item->{'TV Households'} = $item->{'TV Households'} ? number_format($item->{'TV Households'}, 0, '.', ',') : null;
+            $item->{'Homes Per Sales'} = $item->{'Homes Per Sales'} ? number_format($item->{'Homes Per Sales'}, 0, '.', ',') : null;
+            return $item;
+        });
+
         return response()->json([
-            'data' => $salesData,
+            'data'    => $salesData,
             'summary' => $this->getReportSummary($request->input('reportFor'), $request->input('type'), $request->input('detailed'), $salesData)
         ], 200);
     }
 
-    protected function querySalesReport($request)
+    protected function queryReport($request)
     {
         $campaignIds = $request->input('campaign_id');
         $customerIds = $request->input('customer_id');
@@ -81,53 +87,37 @@ class EcommerceReportController extends Controller
             })->when(
                 empty($year) && !empty($startDate) && !empty($endDate),
                 fn ($q) => $q
-                ->whereDate('ecommerce_sales.order_at', '>=', $startDate)
-                ->whereDate('ecommerce_sales.order_at', '<=', $endDate)
+                    ->whereDate('ecommerce_sales.order_at', '>=', $startDate)
+                    ->whereDate('ecommerce_sales.order_at', '<=', $endDate)
             )->when(
                 // For Sales Report
                 $reportFor === 'sales',
                 fn ($q) => $q
-                ->when(!$isDetailed, fn ($q) => $q->groupBy('ecommerce_sales.coupon_code'))
-                ->select($isDetailed ? $this->selectColumnByTypeDetailed($type) : $this->selectColumnByType($type))
-                ->orderBy('ecommerce_sales.coupon_code')
-                ->orderBy('ecommerce_sales.order_at')
+                    ->when(!$isDetailed, fn ($q) => $q->groupBy('ecommerce_sales.coupon_code'))
+                    ->select($isDetailed ? $this->selectColumnByTypeDetailed($type) : $this->selectColumnByType($type))
+                    ->orderBy('ecommerce_sales.coupon_code')
+                    ->orderBy('ecommerce_sales.order_at')
             )->when(
                 // For Market Target Report
                 $reportFor === 'marketTarget',
-                function ($q) use ($states, $markets) {
-                    if (!empty($states)) {
-                        if (in_array('allStates', $states)) {
-                            $q->whereNotNull('zipcode_by_television_markets.state');
-                        }
-                        $q->groupBy('zipcode_by_television_markets.state')
-                        ->select($this->selectColumnMarketTarget($states, $markets))
-                        ->orderBy('zipcode_by_television_markets.state');
-                    } elseif (!empty($markets)) {
-                        if (in_array('allMarkets', $markets)) {
-                            $q->whereNotNull('zipcode_by_television_markets.market');
-                        }
-                        $q->groupBy('zipcode_by_television_markets.market')
-                        ->select($this->selectColumnMarketTarget($states, $markets))
+                function ($q) {
+                    $q->whereNotNull('zipcode_by_television_markets.market')
+                        ->groupBy('zipcode_by_television_markets.market')
+                        ->select($this->selectColumnMarketTarget())
                         ->orderBy('zipcode_by_television_markets.market');
-                    }
                 }
             )->get();
     }
 
-    protected function selectColumnMarketTarget($states, $markets)
+    protected function selectColumnMarketTarget()
     {
-        $selectRows = [];
-        if (!empty($states)) {
-            $selectRows = ['zipcode_by_television_markets.state AS State'];
-        } elseif (!empty($markets)) {
-            $selectRows = ['zipcode_by_television_markets.market AS Market'];
-        }
-
-        return array_merge($selectRows, [
-            DB::raw('SUM(t_v_households.tv_households) AS `TV Households`'),
+        return [
+            'zipcode_by_television_markets.market AS Market',
+            't_v_households.tv_households AS TV Households',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+            DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity)) AS `Homes Per Sales`'),
             DB::raw('ROUND(SUM(ecommerce_sales.total)) AS `Total Revenue`'),
-        ]);
+        ];
     }
 
     protected function selectColumnByTypeDetailed($type)
@@ -190,6 +180,7 @@ class EcommerceReportController extends Controller
     {
         $totalOrder = $salesData->count();
         $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Affiliate Fee' => 0, 'Net Amount' => 0];
+
         $salesData->each(function ($item) use (&$summary, $type, $totalOrder, $isDetailed, $reportFor) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
 

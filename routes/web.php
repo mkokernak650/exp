@@ -59,8 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
     Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');
 
-    Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceSalesReport'])->name('ecommerce.report');
-    Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceSalesReportGenerate'])->name('ecommerce.report.generate');
+    Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceReport'])->name('ecommerce.report');
+    Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceReportGenerate'])->name('ecommerce.report.generate');
 
     // E-commerce campaign
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');

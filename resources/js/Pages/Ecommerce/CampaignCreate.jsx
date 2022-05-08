@@ -81,10 +81,10 @@ const CampaignCreate = () => {
 
   return (
     <>
-      <Helmet title="Add E-commerce Campaign" />
+      <Helmet title="Create Campaign" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add E-commerce Campaign
+          Create Campaign
         </Typography>
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={4}>

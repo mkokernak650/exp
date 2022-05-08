@@ -309,13 +309,33 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "Market Exception",
+          title: "Calls-Affiliate",
+          href: "generate.report.affiliate",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Calls-Customer",
+          href: "generate.report.target",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Calls-Exception",
           href: "generate.report.market.exception",
           Icon: <UserIcon />,
         },
         {
-          title: "Affiliate",
-          href: "generate.report.affiliate",
+          title: "Calls-Destination",
+          href: "generate.report.destination",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Calls-Length",
+          href: "generate.report.call.length",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Calls-Homes Per Call",
+          href: "generate.report.market.target",
           Icon: <UserIcon />,
         },
         {
@@ -323,32 +343,12 @@ export default function PersistentDrawerLeft(props) {
           href: "ecommerce.report",
           Icon: <UserIcon />,
         },
-        {
-          title: "Target",
-          href: "generate.report.target",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "Destination",
-          href: "generate.report.destination",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "Call Length Report",
-          href: "generate.report.call.length",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "Market Target",
-          href: "generate.report.market.target",
-          Icon: <UserIcon />,
-        },
       ],
     },
     {
       id: 4,
       Icon: <SettingsIcon size="20" />,
-      title: "Campaign",
+      title: "Call Campaigns",
       active: false,
       collapse: true,
       submenu: [
@@ -358,17 +358,17 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
-          title: "Campaign Setting",
+          title: "Set Duration",
           href: "campaign.setting.form",
           Icon: <UserIcon />,
         },
         {
-          title: "Add Annotation",
+          title: "Create Annotations",
           href: "annotation.create",
           Icon: <UserIcon />,
         },
         {
-          title: "Add Market Exception",
+          title: "Add Exceptions",
           href: "market.exception.form",
           Icon: <UserIcon />,
         },
@@ -382,22 +382,22 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "Create Ecommerce Campaign",
+          title: "Create Campaign",
           href: "ecommerce-campaigns.create",
           Icon: <UserIcon />,
         },
         {
-          title: "All Ecommerce Campaign",
+          title: "All Campaigns",
           href: "ecommerce-campaigns.index",
           Icon: <UserIcon />,
         },
         {
-          title: "Create Ecommerce Affiliate",
+          title: "Create Coupon Code",
           href: "ecommerce-affiliates.create",
           Icon: <UserIcon />,
         },
         {
-          title: "All Ecommerce Affiliate",
+          title: "All Coupon Codes",
           href: "ecommerce-affiliates.index",
           Icon: <UserIcon />,
         },
@@ -407,7 +407,7 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
-          title: "All Sales Report",
+          title: "Historical sales",
           href: "ecommerce-sales.index",
           Icon: <UserIcon />,
         },

@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SalesReport = () => {
+const EcommerceReport = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const {
@@ -281,24 +281,7 @@ const SalesReport = () => {
     return format_date;
   };
 
-  let fileName = "";
-  if (year?.year && !month) {
-    fileName = `E-commerce_sales_Report${
-      affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""
-    }_For_(${year.year.toString()})_Created@${currentDate()}`;
-  } else if (year?.year && month) {
-    fileName = `E-commerce_sales_Report${
-      affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""
-    }_For_(${year.year.toString()})_From_${dateFormat(
-      values?.start_date
-    )}_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
-  } else {
-    fileName = `E-commerce_sales_Report${
-      affiliatesName.length > 0 ? `_For_(${affiliatesName.toString()})` : ""
-    }_From_${dateFormat(values?.start_date)}_To_${dateFormat(
-      values?.end_date
-    )}_Created@${currentDate()}`;
-  }
+  let fileName = `E-Commerce ${reportFor.reportFor === "sales" ? 'Sales' : 'Market Target'} Report`;
 
   const handleSubmit = () => {
     if (
@@ -335,7 +318,7 @@ const SalesReport = () => {
     // ws['A2'].v = "https://docs.sheetjs.com/#hyperlinks";
     const secondData = apiData.data.length + 5;
     const summary = [];
-    summary.push(["Summary of Sales", ""]);
+    summary.push(["Summary", ""]);
     Object.keys(apiData.summary).forEach((cf) => {
       summary.push([cf, apiData.summary[cf]]);
     });
@@ -590,7 +573,7 @@ const SalesReport = () => {
   );
 };
 
-SalesReport.layout = (page) => (
+EcommerceReport.layout = (page) => (
   <Layout title="E-commerce Report">{page}</Layout>
 );
-export default SalesReport;
+export default EcommerceReport;

@@ -79,10 +79,10 @@ const AnnotationCreate = () => {
 
   return (
     <>
-      <Helmet title="Add Annotation" />
+      <Helmet title="Create Annotations" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Annotation
+          Create Annotations
         </Typography>
         <form validate='true' onSubmit={handleSubmit}>
           <Grid container spacing={4}>

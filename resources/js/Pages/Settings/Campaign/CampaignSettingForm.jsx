@@ -79,10 +79,10 @@ const CampaignSettingForm = () => {
 
   return (
     <>
-      <Helmet title="Campaign Settings" />
+      <Helmet title="Set Duration" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Campaign Settings
+          Set Duration
         </Typography>
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={4}>
