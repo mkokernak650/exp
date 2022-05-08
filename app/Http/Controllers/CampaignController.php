@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
@@ -60,7 +59,7 @@ class CampaignController extends Controller
             dataMoveHelper($instance, $ringbaCallLog);
         }
 
-        return response()->json(['msg' => 'Campaign Settings Updated.']);
+        return response()->json(['msg' => 'Duration Updated.']);
     }
 
     public function campaignSettingReport(): Response
@@ -108,9 +107,9 @@ class CampaignController extends Controller
         $result = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "campaignData" => Campaign::all()]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, 'campaignData' => Campaign::all()]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 
@@ -123,9 +122,9 @@ class CampaignController extends Controller
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 }

@@ -88,10 +88,10 @@ const AffiliateCreate = () => {
 
   return (
     <>
-      <Helmet title="Add E-commerce Affiliate" />
+      <Helmet title="Create Coupon Code" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add E-commerce Affiliate
+          Create Coupon Code
         </Typography>
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={4}>

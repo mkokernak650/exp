@@ -27,7 +27,6 @@ render(
                 },
             }}
         />
-        ,
         <InertiaApp
             initialPage={JSON.parse(app.dataset.page)}
             resolveComponent={(name) =>

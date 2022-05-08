@@ -79,10 +79,10 @@ const MarketExceptionForm = () => {
 
   return (
     <>
-      <Helmet title="Market Exception Form" />
+      <Helmet title="Add Exceptions" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Add Market Exception
+          Add Exceptions
         </Typography>
         <form validate='true' onSubmit={handleSubmit} className={classes.form}>
           <Grid container spacing={4}>

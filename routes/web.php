@@ -26,6 +26,7 @@ use App\Http\Controllers\MarketExceptionController;
 use App\Http\Controllers\ReportGeneratorController;
 use App\Http\Controllers\EcommerceCampaignController;
 use App\Http\Controllers\EcommerceAffiliateController;
+use App\Http\Controllers\EcommerceReportController;
 use App\Http\Controllers\PendingBillCallLogController;
 use App\Http\Controllers\GenerateReportTargetController;
 use App\Http\Controllers\GenerateReportAffiliateController;
@@ -57,8 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::get('ecommerce-sales/import', [EcommerceSaleController::class, 'import'])->name('ecommerce-sales.import');
     Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
     Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');
-    Route::get('reports/ecommerce-sales', [EcommerceSaleController::class, 'ecommerceSalesReport'])->name('ecommerce.sales.report');
-    Route::post('reports/ecommerce-sales/generate', [EcommerceSaleController::class, 'ecommerceSalesReportGenerate'])->name('ecommerce.sales.report.generate');
+
+    Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceReport'])->name('ecommerce.report');
+    Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceReportGenerate'])->name('ecommerce.report.generate');
 
     // E-commerce campaign
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');
