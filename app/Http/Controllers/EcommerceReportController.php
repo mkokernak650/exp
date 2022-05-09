@@ -36,32 +36,34 @@ class EcommerceReportController extends Controller
             return response()->json([], 204);
         }
 
-        $salesData->transform(function ($item) {
-            $item->{'TV Households'} = $item->{'TV Households'} ? number_format($item->{'TV Households'}, 0, '.', ',') : null;
-            $item->{'Homes Per Sales'} = $item->{'Homes Per Sales'} ? number_format($item->{'Homes Per Sales'}, 0, '.', ',') : null;
-            return $item;
-        });
+        if ($request->reportFor === 'marketTarget') {
+            $salesData->transform(function ($item) {
+                $item->{'TV Households'} = $item->{'TV Households'} ? number_format($item->{'TV Households'}, 0, '.', ',') : null;
+                $item->{'Homes Per Sales'} = $item->{'Homes Per Sales'} ? number_format($item->{'Homes Per Sales'}, 0, '.', ',') : null;
+                return $item;
+            });
+        }
 
         return response()->json([
             'data'    => $salesData,
-            'summary' => $this->getReportSummary($request->input('reportFor'), $request->input('type'), $request->input('detailed'), $salesData)
+            'summary' => $this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData)
         ], 200);
     }
 
     protected function queryReport($request)
     {
-        $campaignIds = $request->input('campaign_id');
-        $customerIds = $request->input('customer_id');
-        $affiliateIds = $request->input('affiliate_id');
-        $couponCodes = $request->input('couponCodes');
-        $year = $request->input('year');
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $type = $request->input('type');
-        $isDetailed = $request->input('detailed');
-        $states = $request->input('states');
-        $markets = $request->input('markets');
-        $reportFor = $request->input('reportFor');
+        $campaignIds = $request->campaign_id;
+        $customerIds = $request->customer_id;
+        $affiliateIds = $request->affiliate_id;
+        $couponCodes = $request->couponCodes;
+        $year = $request->year;
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        $type = $request->type;
+        $isDetailed = $request->detailed;
+        $states = $request->states;
+        $markets = $request->markets;
+        $reportFor = $request->reportFor;
 
         return DB::table('ecommerce_sales')
             ->join('ecommerce_affiliates', 'ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code')
