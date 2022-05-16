@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Imports;
 
 use App\Models\EcommerceSale;
@@ -7,25 +6,40 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, WithChunkReading
+// use Maatwebsite\Excel\Concerns\WithChunkReading;
+
+class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
 {
     use SkipsErrors;
 
     protected $fieldMap;
-    protected $total;
+    protected $dialed;
     protected $orderNo;
     protected $couponCodes;
     protected $shippingZip;
+    protected $campaignIds;
+    protected $customerIds;
+    protected $orderTypes;
 
-    public function __construct(array $fieldMap, $data)
+    protected $reqCampaignId;
+    protected $reqCustomerId;
+    protected $reqOrderType;
+
+    public function __construct(array $fieldMap, $salesData, $reqCampaignId, $reqCustomerId, $reqOrderType)
     {
         $this->fieldMap = $fieldMap;
-        $this->total = $data->pluck('total', 'id')->toArray();
-        $this->orderNo = $data->pluck('order_no', 'id')->toArray();
-        $this->couponCodes = $data->pluck('coupon_code', 'id')->toArray();
-        $this->shippingZip = $data->pluck('shipping_zip', 'id')->toArray();
+        $this->dialed = $salesData->pluck('dialed', 'id')->toArray();
+        $this->orderNo = $salesData->pluck('order_no', 'id')->toArray();
+        $this->couponCodes = $salesData->pluck('coupon_code', 'id')->toArray();
+        $this->shippingZip = $salesData->pluck('shipping_zip', 'id')->toArray();
+        $this->campaignIds = $salesData->pluck('campaign_id', 'id')->toArray();
+        $this->customerIds = $salesData->pluck('customer_id', 'id')->toArray();
+        $this->orderTypes = $salesData->pluck('order_type', 'id')->toArray();
+
+        $this->reqCampaignId = $reqCampaignId;
+        $this->reqCustomerId = $reqCustomerId;
+        $this->reqOrderType = $reqOrderType;
     }
 
     /**
@@ -35,32 +49,51 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
      */
     public function model(array $row)
     {
-        if (empty($this->getValue($row, 'coupon_code'))) return;
+        if (empty($this->getValue($row, 'coupon_code')) && empty($this->getValue($row, 'dialed'))) {
+            return;
+        }
 
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
         if (!empty($keys)) {
             foreach ($keys as $key) {
                 if (
-                    $this->getValue($row, 'coupon_code') == $this->couponCodes[$key]
-                    && $this->getValue($row, 'shipping_zip') == $this->shippingZip[$key]
-                    && $this->getValue($row, 'total') == $this->total[$key]
-                ) return;
+                    $this->reqOrderType == $this->orderTypes[$key] &&
+                    $this->reqCampaignId == $this->campaignIds[$key] &&
+                    $this->reqCustomerId == $this->customerIds[$key] &&
+                    $this->getValue($row, 'shipping_zip') == $this->shippingZip[$key] &&
+                    (
+                        (
+                            $this->reqOrderType == EcommerceSale::ORDER_TYPE['phone'] &&
+                            $this->getValue($row, 'dialed') == $this->dialed[$key]
+                        ) || (
+                            $this->reqOrderType == EcommerceSale::ORDER_TYPE['e-commerce'] &&
+                            $this->getValue($row, 'coupon_code') == $this->couponCodes[$key]
+                        )
+                    )
+                ) {
+                    return;
+                }
             }
         }
 
         return new EcommerceSale([
-            'order_no' => $this->getValue($row, 'order_no'),
-            'coupon_code' => $this->getValue($row, 'coupon_code'),
-            'user_ip' => $this->getValue($row, 'user_ip'),
-            'shipping_city' => $this->getValue($row, 'shipping_city'),
+            'campaign_id'    => $this->reqCampaignId,
+            'customer_id'    => $this->reqCustomerId,
+            'order_type'     => $this->reqOrderType,
+            'order_no'       => $this->getValue($row, 'order_no'),
+            'coupon_code'    => $this->getValue($row, 'coupon_code'),
+            'user_ip'        => $this->getValue($row, 'user_ip'),
+            'dialed'         => $this->getValue($row, 'dialed'),
+            'inbound'        => $this->getValue($row, 'inbound'),
+            'shipping_city'  => $this->getValue($row, 'shipping_city'),
             'shipping_state' => $this->getValue($row, 'shipping_state'),
-            'shipping_zip' => $this->getValue($row, 'shipping_zip'),
-            'billing_zip' => $this->getValue($row, 'billing_zip'),
-            'quantity' => $this->getValue($row, 'quantity'),
-            'subtotal' => $this->getValue($row, 'subtotal'),
-            'shipping_cost' => $this->getValue($row, 'shipping_cost'),
-            'total' => $this->getValue($row, 'total'),
-            'order_at' => $this->getValue($row, 'order_at'),
+            'shipping_zip'   => $this->getValue($row, 'shipping_zip'),
+            'billing_zip'    => $this->getValue($row, 'billing_zip'),
+            'quantity'       => $this->getValue($row, 'quantity'),
+            'subtotal'       => $this->getValue($row, 'subtotal'),
+            'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
+            'total'          => $this->getValue($row, 'total'),
+            'order_at'       => $this->getValue($row, 'order_at'),
         ]);
     }
 
@@ -72,8 +105,9 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
         return null;
     }
 
-    public function chunkSize(): int
-    {
-        return 1000;
-    }
+    // TODO problem with chunking
+    // public function chunkSize(): int
+    // {
+    //     return 1000;
+    // }
 }

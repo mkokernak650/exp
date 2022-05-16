@@ -22,9 +22,9 @@ class EcommerceAffiliateController extends Controller
      */
     public function index()
     {
-        $affiliates = Affiliate::all();
-        $campaigns = EcommerceCampaign::all();
-        $customers = Customer::all();
+        $affiliates = Affiliate::active()->get();
+        $campaigns = EcommerceCampaign::active()->get();
+        $customers = Customer::active()->get();
 
         $ecommerceAffiliates = EcommerceAffiliate::query()
             ->with('affiliate:id,affiliate_name')

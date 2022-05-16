@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,10 +9,20 @@ class EcommerceSale extends Model
 {
     use HasFactory;
 
+    const ORDER_TYPE = [
+        'e-commerce' => 1,
+        'phone'      => 2,
+    ];
+
     protected $fillable = [
+        'campaign_id',
+        'customer_id',
+        'order_type',
         'order_no',
         'coupon_code',
         'user_ip',
+        'dialed',
+        'inbound',
         'shipping_city',
         'shipping_state',
         'shipping_zip',
