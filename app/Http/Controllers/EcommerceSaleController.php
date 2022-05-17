@@ -5,8 +5,11 @@ use Inertia\Inertia;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Imports\EcommerceSaleImport;
+use App\Models\Customer;
+use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EcommerceSaleController extends Controller
@@ -21,16 +24,16 @@ class EcommerceSaleController extends Controller
     public function update(Request $request, EcommerceSale $ecommerceSale)
     {
         $validated = $request->validate([
-            'order_no' => ['required', 'string', 'max:255'],
-            'coupon_code' => ['required', 'string', 'max:255'],
-            'shipping_city' => ['nullable', 'string', 'max:255'],
+            'order_no'       => ['required', 'string', 'max:255'],
+            'coupon_code'    => ['required', 'string', 'max:255'],
+            'shipping_city'  => ['nullable', 'string', 'max:255'],
             'shipping_state' => ['nullable', 'string', 'max:255'],
-            'shipping_zip' => ['nullable', 'string', 'max:255'],
-            'billing_zip' => ['nullable', 'string', 'max:255'],
-            'quantity' => ['nullable', 'string', 'max:255'],
-            'subtotal' => ['nullable', 'string', 'max:255'],
-            'shipping_cost' => ['nullable', 'string', 'max:255'],
-            'total' => ['nullable', 'string', 'max:255'],
+            'shipping_zip'   => ['nullable', 'string', 'max:255'],
+            'billing_zip'    => ['nullable', 'string', 'max:255'],
+            'quantity'       => ['nullable', 'string', 'max:255'],
+            'subtotal'       => ['nullable', 'string', 'max:255'],
+            'shipping_cost'  => ['nullable', 'string', 'max:255'],
+            'total'          => ['nullable', 'string', 'max:255'],
         ]);
 
         if ($ecommerceSale->update($validated)) {
@@ -41,14 +44,19 @@ class EcommerceSaleController extends Controller
 
     public function import()
     {
-        return Inertia::render('Ecommerce/SalesImport');
+        $campaigns = EcommerceCampaign::active()->get();
+        $customers = Customer::active()->get();
+        return Inertia::render('Ecommerce/SalesImport', compact('campaigns', 'customers'));
     }
 
     public function importStore(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file'],
-            'fieldMap' => ['required', 'string'],
+            'file'        => ['required', 'file'],
+            'fieldMap'    => ['required', 'string'],
+            'campaign_id' => ['required', Rule::exists('ecommerce_campaigns', 'id')],
+            'customer_id' => ['required', Rule::exists('customers', 'id')],
+            'order_type'  => ['required', Rule::in(EcommerceSale::ORDER_TYPE)],
         ]);
 
         $filterFields = [];
@@ -58,9 +66,27 @@ class EcommerceSaleController extends Controller
             }
         }
 
-        $salesData = EcommerceSale::select('id', 'order_no', 'coupon_code', 'shipping_zip', 'total')->get();
+        $salesData = EcommerceSale::select(
+            'id',
+            'campaign_id',
+            'customer_id',
+            'order_type',
+            'order_no',
+            'coupon_code',
+            'dialed',
+            'shipping_zip'
+        )->get();
 
-        Excel::import(new EcommerceSaleImport($filterFields, $salesData), $request->file('file'));
+        Excel::import(
+            new EcommerceSaleImport(
+                $filterFields,
+                $salesData,
+                $request->input('campaign_id'),
+                $request->input('customer_id'),
+                $request->input('order_type')
+            ),
+            $request->file('file')
+        );
 
         return response()->json(['msg' => 'Imported Successfully.'], 201);
     }

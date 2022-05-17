@@ -259,9 +259,6 @@ const GenerateReportAffiliate = () => {
       call_summary.push([cf, apiData.call_summary[cf]]);
     });
 
-    console.log(secondData);
-
-
     XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });

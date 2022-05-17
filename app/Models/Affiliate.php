@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +9,7 @@ class Affiliate extends Model
 {
     use HasFactory;
 
-    protected $guarded = array();
+    protected $guarded = [];
 
     public function scopeActive($query)
     {

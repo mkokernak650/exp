@@ -269,7 +269,6 @@ const TempRingbaData = () => {
         }
       })
       .catch((err) => {
-        console.log(err)
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
         emptyCheckbox()

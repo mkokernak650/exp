@@ -221,7 +221,6 @@ const GenerateReportAffiliate = () => {
     format_date = dd + "-" + shortMonth + "-" + yyyy;
     return format_date;
   }
-  console.log(affiliatesName)
 
   let fileName = ''
   if (year?.year && !month) {
@@ -237,12 +236,10 @@ const GenerateReportAffiliate = () => {
   }
 
 
-  console.log(values)
   const handleSubmit = () => {
     axios.post(route("affiliate.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
         setOpen(true);
-        console.log(r.data)
         setResponse(r.data.msg);
       }
       exportToCSV(r.data, fileName);

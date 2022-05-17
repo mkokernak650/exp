@@ -64,7 +64,6 @@ export default function WebForm() {
           setResponse(res.data.msg);
           setOpen(true);
         }
-        console.log(res);
       })
       .catch((err) => {});
   };

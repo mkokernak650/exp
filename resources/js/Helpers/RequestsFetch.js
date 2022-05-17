@@ -15,9 +15,7 @@ export default async function RequestsFetch(method, uri, params) {
     //     },
     //     body: JSON.stringify(params)
     // }
-    // console.log({ bodyOptions })
     // const response = await fetch(route(url), bodyOptions)
     //     .then(res => res)
-    // console.log(response)
     // return response;
 }

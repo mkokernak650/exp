@@ -256,7 +256,6 @@ const MarketExceptionReport = () => {
   const [type, setType] = useState("xlsx");
   const [loading, setLoading] = useState(false);
 
-  console.log(marketExceptions)
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
@@ -290,12 +289,10 @@ const MarketExceptionReport = () => {
         }
       })
       .catch((err) => {
-        console.log(err)
         setEditData();
         setShowEditModal({ open: false });
       });
   };
-console.log(marketExceptions)
   const dataArray = marketExceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -508,7 +505,6 @@ console.log(marketExceptions)
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
-          console.log(res.data.msg);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
@@ -516,7 +512,6 @@ console.log(marketExceptions)
         }
       })
       .catch((err) => {
-        console.log(err);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
       });
@@ -530,7 +525,6 @@ console.log(marketExceptions)
     });
     setShowEditModal({ open: true });
   };
-  console.log('editData', editData)
 
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });

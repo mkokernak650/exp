@@ -84,7 +84,6 @@ const BilledCallLogs = () => {
 
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
-    console.log(tableIndex)
     axios
       .post(route("change.annotation", "billedCallLog"), { indexId: tableIndex, annotation_id: e.target.value })
       .then((res) => {
@@ -95,7 +94,6 @@ const BilledCallLogs = () => {
           let filteredData = tableProps
           filteredData.data.filter((item, indx) => {
             if (item.id == tableIndex) {
-              console.log(filteredData.data[indx].Has_Annotation + ' ' + res.data.has_annotation)
               filteredData.data[indx].Has_Annotation = res.data.has_annotation
             }
           })
@@ -580,7 +578,7 @@ const BilledCallLogs = () => {
       .then((res) => {
         if (res.status === 200) {
           let updateState
-   
+
           response.push(res.data)
           if (updateState < inboundIdsParam.length) {
             setResponse(`${updateState}  Record Updated`)

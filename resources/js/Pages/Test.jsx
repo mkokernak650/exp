@@ -246,12 +246,10 @@ const Test = () => {
     const handleOpenModal = (setOpenModal) => {
         setOpenModal({ open: true });
     };
-    // console.log(tableProps)
 
     return (
         <>
             <Helmet title="Test Table Report" />
-            {console.log("%cTable", "background:black ; color: white;font-size:15px;border-radius:5px;padding:5px 15px")}
             <MainTable
                 TableToolbar={TableToolbar}
                 openTableToolbar={openTableToolbar}

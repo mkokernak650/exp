@@ -903,7 +903,6 @@ const ZipcodeByTelevisionMarketNew = () => {
     setShowColumns(true);
   };
   const hideCoumnSettings = () => {
-    console.log("hiding");
     setShowColumns(false);
   };
   const closeSidebar = () => {
@@ -938,7 +937,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   //       }
   //     })
   //     .catch((err) => {
-  //       console.log(err);
   //       setTableToolbar(false);
   //       setselectedRowIds([]);
   //     });

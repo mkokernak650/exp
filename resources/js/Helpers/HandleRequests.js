@@ -2,7 +2,6 @@ import axios from 'axios'
 import emptyCheckbox from "./EmptyCheckbox";
 export function deleteHandler(uri, selectedRowIds,setselectedRowIds, tableProps, changeTableProps, setDeleteLoading, setInbounIds,
     setTableToolbar, setOpen, setResponse, setShowDeleteModal, optionKey) {
-console.log(tableProps)
 
     setDeleteLoading(true)
     axios.post(route(uri), { selectedRowIds: selectedRowIds })
@@ -33,7 +32,6 @@ console.log(tableProps)
             }
         })
         .catch((err) => {
-            console.log(err);
             setDeleteLoading(false)
             setTableToolbar(false);
             setselectedRowIds([])
@@ -46,7 +44,6 @@ console.log(tableProps)
 
 // export function handlePending(uri, inboundIds, setselectedRowIds, tableProps, changeTableProps, setPendingLoading, setInbounIds,
 //     setTableToolbar, setOpen, setResponse, setShowPendingModal, optionKey, setOpenRowFunctionalities) {
-//     console.log(inboundIds)
 //     setPendingLoading(true)
 //     axios
 //         .post(route(uri), { inboundIds })
@@ -89,4 +86,4 @@ console.log(tableProps)
 //             emptyCheckbox(optionKey, tableProps, changeTableProps);
 
 //         });
-// }; 
+// };

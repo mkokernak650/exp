@@ -79,7 +79,6 @@ const ZipcodeByTelevionMarkter = () => {
         e.preventDefault();
         const form = new FormData(e.target)
 
-        // console.log(form.entries)
 
         // post(route('zipcode.television.market'), form)
         Inertia.post(route('zipcode.television.market.import'), form)
@@ -87,7 +86,7 @@ const ZipcodeByTelevionMarkter = () => {
 
     return (
         <div>
-           
+
            <form method='post' encType='multipart/form-data' onSubmit={importHendler}>
                 <input id='importfile' type="file" name='importfile' />
                 <button type='submit'>Import</button>

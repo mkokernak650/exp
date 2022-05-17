@@ -365,7 +365,6 @@ const CampaignIndex = () => {
           (item) => !selectedRowIds.includes(item.id)
         );
         tmpData.data = newData;
-        console.log(tmpData);
         changeTableProps({ ...tmpData });
 
         setSelectedRowIds([]);

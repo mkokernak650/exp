@@ -1,3 +1,5 @@
+import ClearIcon from '@material-ui/icons/Clear';
+
 export default function FileImportMap({ index, reminderField, fieldMap, setFieldMap, reportFields }) {
   const handleReminderFieldMapping = (e) => {
     const newFieldMap = [...fieldMap]
@@ -14,13 +16,15 @@ export default function FileImportMap({ index, reminderField, fieldMap, setField
   }
 
   return (
-    <div className="flx mt-2">
+    <div className="flx mt-2 align-center">
       <select className="custom-input mr-2" name="applicationField" value={reminderField.applicationField || ''} onChange={(e) => handleReminderFieldMapping(e)}>
         <option value="">Select Application Field</option>
         <option value="order_at">Order date</option>
         <option value="order_no">Order no</option>
         <option value="coupon_code">Coupon code</option>
         <option value="user_ip">User ip</option>
+        <option value="dialed">Dialed</option>
+        <option value="inbound">Inbound</option>
         <option value="shipping_city">Shipping city</option>
         <option value="shipping_state">Shipping state</option>
         <option value="shipping_zip">Shipping zip</option>
@@ -41,7 +45,7 @@ export default function FileImportMap({ index, reminderField, fieldMap, setField
         }
       </select>
       <button onClick={() => delReminderFieldMap()} className="icn-btn sh-sm ml-1" type="button" aria-label="btn">
-        x
+        <ClearIcon  style={{ fontSize: '1rem' }} />
       </button>
     </div>
   )
