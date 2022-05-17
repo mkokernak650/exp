@@ -81,9 +81,9 @@ class EcommerceSaleController extends Controller
             new EcommerceSaleImport(
                 $filterFields,
                 $salesData,
-                $request->input('campaign_id'),
-                $request->input('customer_id'),
-                $request->input('order_type')
+                $request->campaign_id,
+                $request->customer_id,
+                $request->order_type
             ),
             $request->file('file')
         );

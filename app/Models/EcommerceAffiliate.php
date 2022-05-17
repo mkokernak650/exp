@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +14,9 @@ class EcommerceAffiliate extends Model
         'campaign_id',
         'customer_id',
         'affiliate_id',
+        'order_type',
         'coupon_code',
+        'dialed',
         'revenue',
         'affiliate_fee',
         'percentage',

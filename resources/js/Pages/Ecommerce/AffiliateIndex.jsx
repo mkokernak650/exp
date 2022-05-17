@@ -10,7 +10,7 @@ import {
   ActionType,
 } from "ka-table/enums";
 import { kaPropsUtils } from "ka-table/utils";
-import { InertiaLink, usePage } from "@inertiajs/inertia-react";
+import { usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
@@ -44,6 +44,7 @@ import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
+import toast from "react-hot-toast";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -124,8 +125,18 @@ export const fields = [
     operators,
   },
   {
+    caption: "Order Type",
+    name: "order_type",
+    operators,
+  },
+  {
     caption: "Coupon Code",
     name: "coupon_code",
+    operators,
+  },
+  {
+    caption: "Dialed Phone",
+    name: "dialed",
     operators,
   },
   {
@@ -167,6 +178,17 @@ export const filter = {
 };
 
 const AffiliateIndex = () => {
+  const defaultState = {
+    revenue: "",
+    order_type: "",
+    coupon_code: "",
+    dialed: "",
+    campaign_id: "",
+    customer_id: "",
+    affiliate_id: "",
+    affiliate_fee: "",
+    consumerExp_fee: "",
+  };
   const classes = useStyles();
   const { ecommerceAffiliates, affiliates, campaigns, customers } =
     usePage().props;
@@ -177,7 +199,7 @@ const AffiliateIndex = () => {
   const [response, setResponse] = useState();
   const [responseType, setResponseType] = useState("success");
   const [showEditModal, setShowEditModal] = useState({ open: false });
-  const [editData, setEditData] = useState();
+  const [editData, setEditData] = useState(defaultState);
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
   const [importModal, setImportModal] = useState({ open: false });
@@ -185,7 +207,10 @@ const AffiliateIndex = () => {
   const [loading, setLoading] = useState(false);
 
   const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+    setEditData((oldEditData) => ({
+      ...oldEditData,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const headers = {
@@ -221,22 +246,20 @@ const AffiliateIndex = () => {
           customer: customerName,
           affiliate: affiliateName,
           percentage: editData.revenue - editData.affiliate_fee,
+          coupon_code: res.data.data.coupon_code,
+          dialed: res.data.data.dialed,
         };
 
         setEditData();
         setShowEditModal({ open: false });
-        setResponse(res.data.msg);
-        setResponseType("success");
-        setOpen(true);
+        toast.success(res.data.msg);
       })
       .catch((err) => {
         let errors = "";
         Object.values(err.response.data?.errors).map((error) => {
           errors += error[0] + "\n";
         });
-        setResponse(errors);
-        setResponseType("error");
-        setOpen(true);
+        toast.error(errors);
       });
   };
 
@@ -280,7 +303,9 @@ const AffiliateIndex = () => {
     campaign: item?.campaign?.campaign_name,
     customer: item?.customer?.customer_name,
     affiliate: item?.affiliate?.affiliate_name,
+    order_type: item?.order_type,
     coupon_code: item?.coupon_code,
+    dialed: item?.dialed,
     revenue: item?.revenue,
     affiliate_fee: item?.affiliate_fee,
     percentage: item?.percentage,
@@ -382,43 +407,55 @@ const AffiliateIndex = () => {
         key: "campaign",
         title: "Campaign",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 150 },
       },
       {
         key: "customer",
         title: "Customer",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 150 },
       },
       {
         key: "affiliate",
         title: "Affiliate",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 150 },
+      },
+      {
+        key: "order_type",
+        title: "Order Type",
+        dataType: DataType.String,
+        style: { width: 150 },
       },
       {
         key: "coupon_code",
         title: "Coupon Code",
         dataType: DataType.String,
-        style: { width: 100 },
+        style: { width: 150 },
+      },
+      {
+        key: "dialed",
+        title: "Dialed",
+        dataType: DataType.String,
+        style: { width: 150 },
       },
       {
         key: "revenue",
-        title: "Revenue",
+        title: "Payout",
         dataType: DataType.String,
-        style: { width: 80 },
+        style: { width: 100 },
       },
       {
         key: "affiliate_fee",
         title: "Affiliate Fee",
         dataType: DataType.String,
-        style: { width: 80 },
+        style: { width: 100 },
       },
       {
         key: "percentage",
         title: "Commission",
         dataType: DataType.String,
-        style: { width: 80 },
+        style: { width: 100 },
       },
       // {
       //   key: "status",
@@ -449,6 +486,9 @@ const AffiliateIndex = () => {
       }
       if (column.key === "status") {
         return value == 1 ? "Active" : "Inactive";
+      }
+      if (column.key === "order_type") {
+        return value == 1 ? "E-commerce" : "Phone";
       }
     },
   };
@@ -766,7 +806,7 @@ const AffiliateIndex = () => {
             <Grid container spacing={4}>
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData?.campaign_id : ""}
+                  value={editData?.campaign_id}
                   select
                   name="campaign_id"
                   onChange={handleEditChange}
@@ -784,7 +824,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData?.customer_id : ""}
+                  value={editData?.customer_id}
                   select
                   name="customer_id"
                   onChange={handleEditChange}
@@ -802,7 +842,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData?.affiliate_id : ""}
+                  value={editData?.affiliate_id}
                   select
                   name="affiliate_id"
                   onChange={handleEditChange}
@@ -820,20 +860,52 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData?.coupon_code : ""}
-                  label="Coupon Code"
-                  type="text"
-                  name="coupon_code"
-                  placeholder="Exp: #CX12345"
-                  onChange={handleEditChange}
+                  select
                   fullWidth
                   required={true}
-                />
+                  name="order_type"
+                  onChange={handleEditChange}
+                  value={editData?.order_type}
+                >
+                  <option value="">Select Order Type</option>
+                  <option value="1">E-commerce</option>
+                  <option value="2">Phone</option>
+                </TextField>
               </Grid>
+
+              {editData?.order_type && editData.order_type == 1 && (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    type="text"
+                    required={true}
+                    name="coupon_code"
+                    label="Coupon Code"
+                    onChange={handleEditChange}
+                    placeholder="Exp: #CX12345"
+                    value={editData?.coupon_code}
+                  />
+                </Grid>
+              )}
+
+              {editData?.order_type && editData.order_type == 2 && (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="dialed"
+                    required={true}
+                    label="Dialed Phone"
+                    placeholder="123123123"
+                    onChange={handleEditChange}
+                    value={editData?.dialed}
+                  />
+                </Grid>
+              )}
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.revenue : ""}
+                  value={editData?.revenue}
                   label="Revenue"
                   type="text"
                   name="revenue"
@@ -846,7 +918,7 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData ? editData.affiliate_fee : ""}
+                  value={editData?.affiliate_fee}
                   label="Affiliate Fee"
                   type="text"
                   name="affiliate_fee"

@@ -11,7 +11,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
 import FileImportMap from "./FileImportMap";
 import XLSX from "xlsx";
 import { useEffect } from "react";
@@ -141,10 +140,10 @@ const SalesImport = () => {
       })
       .catch((err) => {
         let errors = "";
-        setLoading(false);
         Object.values(err.response.data?.errors).map((error) => {
           errors += error[0] + "\n";
         });
+        setLoading(false);
         toast.error(errors);
       });
   };
