@@ -283,6 +283,20 @@ const EcommerceReport = () => {
 
   let fileName = `E-Commerce ${reportFor.reportFor === "sales" ? 'Sales' : 'Market Target'} Report`;
 
+  
+  // let fileName = ''
+  // if (year?.year && !month) {
+  //   fileName = `E-Commerce ${reportFor.reportFor === "sales" ? 'Sales' : 'Market Target'} Report${values.customer_name ? `_For_(${values.customer_name.toString()})` : ""}_${values.state ? `_For_(${values.state.toString()})` : ""}_${values.market ? `_For_(${values.market.toString()})` : ""}_${values.campaign ? `_For_(${values.campaign.toString()})` : ""}_${values.affiliate ? `_For_(${values.affiliate.toString()})` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  // }
+  // else if (year?.year && month) {
+  //   fileName = `E-Commerce ${reportFor.reportFor === "sales" ? 'Sales' : 'Market Target'} Report${values.customer_name ? `_For_(${values.customer_name.toString()})` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+  //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  // }
+  // else {
+  //   fileName = `E-Commerce ${reportFor.reportFor === "sales" ? 'Sales' : 'Market Target'} Report${values.customer_name ? `_For_(${values.customer_name.toString()})` : ""}_From_${dateFormat(values?.start_date)
+  //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  // }
+
   const handleSubmit = () => {
     if (
       reportFor.reportFor === "marketTarget" &&
@@ -315,7 +329,6 @@ const EcommerceReport = () => {
 
   const exportToCSV = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    // ws['A2'].v = "https://docs.sheetjs.com/#hyperlinks";
     const secondData = apiData.data.length + 5;
     const summary = [];
     summary.push(["Summary", ""]);

@@ -422,7 +422,7 @@ class RingbaCallLogController extends Controller
      */
     private function ringbaDataObject($instance)
     {
-        $instance->Call_Date_Time         = date('Y-m-d h:i:s', $this->get_callCompletedDt / 1000);
+        $instance->Call_Date_Time         = $this->get_callCompletedDt ? date('Y-m-d h:i:s', $this->get_callCompletedDt / 1000) : dateFormat($this->get_dtStamp / 1000);
         // $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
         $instance->Call_Date              = dateFormat($this->get_dtStamp / 1000);
         $instance->Campaign               = $this->get_campaignName;
@@ -656,7 +656,7 @@ class RingbaCallLogController extends Controller
     public function callLogsReport()
     {
         // $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
-        $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query){
+        $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
         }])->active()->get();
         return Inertia::render('Ringba/callLogsReport', [

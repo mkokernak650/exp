@@ -76,6 +76,7 @@ class EcommerceSaleController extends Controller
             'dialed',
             'shipping_zip'
         )->get();
+        dd($salesData);
 
         Excel::import(
             new EcommerceSaleImport(
@@ -87,6 +88,7 @@ class EcommerceSaleController extends Controller
             ),
             $request->file('file')
         );
+        
 
         return response()->json(['msg' => 'Imported Successfully.'], 201);
     }
