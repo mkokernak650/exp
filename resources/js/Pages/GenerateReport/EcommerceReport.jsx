@@ -58,6 +58,7 @@ const EcommerceReport = () => {
     broadCastMonths,
     broadCastWeeks,
     couponCodes,
+    dialedPhones,
     states,
     markets,
   } = usePage().props;
@@ -71,9 +72,11 @@ const EcommerceReport = () => {
   const [startDate, setStartDate] = useState({ start_date: "" });
   const [endDate, setEndDate] = useState({ end_date: "" });
   const [couponCode, setCouponCode] = useState([]);
+  const [dialed, setDialed] = useState([]);
   const [state, setState] = useState([]);
   const [market, setMarket] = useState([]);
   const [campaign, setCampaign] = useState([]);
+  const [orderType, setOrderType] = useState({ orderType: "both" });
   const [customer, setCustomer] = useState([]);
   const [reportType, setReportType] = useState({ type: "customer" });
   const [reportFor, setReportFor] = useState({ reportFor: "sales" });
@@ -121,9 +124,14 @@ const EcommerceReport = () => {
     value: item.market + ",",
   }));
 
-  const couponCodeOptions = couponCodes.map((item) => ({
-    label: item.coupon_code,
-    value: item.coupon_code,
+  const couponCodeOptions = Object.values(couponCodes).map((item) => ({
+    label: item,
+    value: item,
+  }));
+
+  const dialedOptions = Object.values(dialedPhones).map((item) => ({
+    label: item,
+    value: item,
   }));
 
   const campaignHandleChange = (val, key) => {
@@ -202,6 +210,15 @@ const EcommerceReport = () => {
     }
   };
 
+  const dialedHandleChange = (val, key) => {
+    if (val) {
+      const dialedValue = val.split(",");
+      setDialed({ [key]: dialedValue });
+    } else {
+      setDialed([]);
+    }
+  };
+
   const weekHandleChange = (e) => {
     const { name, value } = e.target;
     setWeek({ [name]: value });
@@ -242,13 +259,25 @@ const EcommerceReport = () => {
     setIsDetailed({ [name]: checked });
   };
 
+  const orderTypeHandleChange = (val) => {
+    setOrderType({ orderType: val })
+
+    if(val == 1) {
+      setDialed([])
+    } else if (val == 2) {
+      setCouponCode([])
+    }
+  };
+
   const values = {
+    ...orderType,
     ...campaign,
     ...customer,
     ...state,
     ...market,
     ...affiliate,
     ...couponCode,
+    ...dialed,
     ...year,
     ...month,
     ...week,
@@ -281,9 +310,15 @@ const EcommerceReport = () => {
     return format_date;
   };
 
-  let fileName = `E-Commerce ${reportFor.reportFor === "sales" ? 'Sales' : 'Market Target'} Report`;
+  let fileName = `E-Commerce ${
+    reportFor.reportFor === "sales" ? "Sales" : "Market Target"
+  } Report`;
 
   const handleSubmit = () => {
+    if (orderType.orderType === "") {
+      toast.error("Please select order type");
+      return;
+    }
     if (
       reportFor.reportFor === "marketTarget" &&
       state.length < 1 &&
@@ -367,8 +402,23 @@ const EcommerceReport = () => {
             <Grid item xs={12} style={{ paddingTop: 0 }}>
               <Divider />
             </Grid>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <MultiSelect
+                singleSelect
+                name="order_type"
+                defaultValue={orderType.orderType}
+                onChange={(val) => orderTypeHandleChange(val)}
+                options={[
+                  { label: "E-commerce & Phone", value: "both" },
+                  { label: "E-commerce", value: "1" },
+                  { label: "Phone", value: "2" },
+                ]}
+                style={{ width: "100%" }}
+                placeholder="Select Order Type"
+              />
+            </Grid>
             {market.length < 1 && (
-              <Grid item xs={12}>
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="states"
                   onChange={(val) => stateHandleChange(val, "states")}
@@ -381,7 +431,7 @@ const EcommerceReport = () => {
               </Grid>
             )}
             {state.length < 1 && (
-              <Grid item xs={12}>
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="markets"
                   onChange={(val) => marketHandleChange(val, "markets")}
@@ -393,7 +443,7 @@ const EcommerceReport = () => {
                 />
               </Grid>
             )}
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="campaign_id"
                 onChange={(val) => campaignHandleChange(val, "campaign_id")}
@@ -402,7 +452,7 @@ const EcommerceReport = () => {
                 placeholder="Select Campaign"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="customer_id"
                 onChange={(val) => customerHandleChange(val, "customer_id")}
@@ -411,7 +461,7 @@ const EcommerceReport = () => {
                 placeholder="Select Customer"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
@@ -420,16 +470,30 @@ const EcommerceReport = () => {
                 placeholder="Select Affiliates"
               />
             </Grid>
-            <Grid item xs={12}>
-              <MultiSelect
-                name="couponCodes"
-                onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
-                options={couponCodeOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Coupon Codes"
-              />
-            </Grid>
-            <Grid item xs={12}>
+            {(orderType.orderType === "both" || orderType.orderType == 1) && (
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                <MultiSelect
+                  name="couponCodes"
+                  onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
+                  options={couponCodeOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select Coupon Codes"
+                />
+              </Grid>
+            )}
+            {(orderType.orderType === "both" || orderType.orderType == 2) && (
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                <MultiSelect
+                  name="dialed"
+                  onChange={(val) => dialedHandleChange(val, "dialed")}
+                  options={dialedOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select Dialed Phone"
+                />
+              </Grid>
+            )}
+
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val, "year")}
@@ -442,7 +506,6 @@ const EcommerceReport = () => {
               <>
                 <Grid item xs={12}>
                   <TextField
-                    id="standard-select-currency-native"
                     select
                     name="broad_cast_month"
                     onChange={monthHandleChange}
@@ -461,7 +524,6 @@ const EcommerceReport = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    id="standard-select-currency-native"
                     select
                     name="broad_cast_week"
                     onChange={weekHandleChange}
