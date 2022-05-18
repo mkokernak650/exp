@@ -180,7 +180,28 @@ const GenerateReportMarketException = () => {
     ...campaign,
     ...annotation,
   };
+  const getCampaignNames = (id) => {
+    const campaignNames = []
+    if (values?.campaign) {
+      const campaign = campaigns.find((campaign) => campaign.id == id)
+      campaignNames.push(campaign ? campaign.campaign_name : "")
+    }
+    return campaignNames
+  }
+  const getAffiliateNames = () => {
+    const affiliateNames = []
+    if (values?.affiliate_id) {
+      for (let i = 0; i < values.affiliate_id.length; i++) {
+        const affiliate = affiliates.find((affiliate) => affiliate.affiliate_id == values.affiliate_id[i])
+        affiliateNames.push(affiliate ? affiliate.affiliate_name : "")
+      }
+    }
+    return affiliateNames
+  }
 
+
+  const fileName = `MarketException_Report${values?.market ? `_For_Markets(${values.market})` : ""}${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
+console.log('fileName', fileName)
 
   const handleSubmit = () => {
     axios.post(route("market.exception.report.generator"), values).then((r) => {
@@ -188,9 +209,11 @@ const GenerateReportMarketException = () => {
         setOpen(true);
         setResponse(r.data.msg);
       }
-      exportToCSV(r.data, "Market_Exception_Report");
+      exportToCSV(r.data, fileName);
     });
   };
+
+  console.log(values)
 
   const fileType =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";

@@ -120,7 +120,6 @@ const SalesImport = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-
     const formData = new FormData();
     formData.append("file", values.file);
     formData.append("campaign_id", values.campaign_id);
