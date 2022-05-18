@@ -78,9 +78,13 @@ const AffiliateCreate = () => {
       })
       .catch((err) => {
         let errors = "";
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
+        if (err.response.data?.errors) {
+          Object.values(err.response.data?.errors).map((error) => {
+            errors += error[0] + "\n";
+          });
+        } else if (err.response.data?.msg) {
+          errors = err.response.data.msg;
+        }
         setLoading(false);
         toast.error(errors);
       });

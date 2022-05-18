@@ -12,6 +12,7 @@ import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
+import toast from "react-hot-toast";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,20 +63,20 @@ const CampaignCreate = () => {
       .post(route("ecommerce-campaigns.store"), values, headers)
       .then((res) => {
         setLoading(false);
-        setResponse(res.data.msg);
-        setResponseType("success");
-        setOpen(true);
         setValues(defaultState);
+        toast.success(res.data.msg);
       })
       .catch((err) => {
         let errors = "";
+        if (err.response.data?.errors) {
+          Object.values(err.response.data?.errors).map((error) => {
+            errors += error[0] + "\n";
+          });
+        } else if (err.response.data?.msg) {
+          errors = err.response.data.msg;
+        }
         setLoading(false);
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
-        setResponse(errors);
-        setResponseType("error");
-        setOpen(true);
+        toast.error(errors);
       });
   };
 

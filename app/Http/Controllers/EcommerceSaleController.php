@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EcommerceSaleRequest;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -16,30 +17,57 @@ class EcommerceSaleController extends Controller
 {
     public function index()
     {
-        $sales = EcommerceSale::select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))->get();
+        $campaigns = EcommerceCampaign::active()->get();
+        $customers = Customer::active()->get();
+        $sales = EcommerceSale::query()
+            ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
+            ->with('campaign:id,campaign_name')
+            ->with('customer:id,customer_name')
+            ->get();
 
-        return Inertia::render('Ecommerce/SalesIndex', compact('sales'));
+        return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers'));
     }
 
-    public function update(Request $request, EcommerceSale $ecommerceSale)
+    public function update(EcommerceSaleRequest $request, EcommerceSale $ecommerceSale)
     {
-        $validated = $request->validate([
-            'order_no'       => ['required', 'string', 'max:255'],
-            'coupon_code'    => ['required', 'string', 'max:255'],
-            'shipping_city'  => ['nullable', 'string', 'max:255'],
-            'shipping_state' => ['nullable', 'string', 'max:255'],
-            'shipping_zip'   => ['nullable', 'string', 'max:255'],
-            'billing_zip'    => ['nullable', 'string', 'max:255'],
-            'quantity'       => ['nullable', 'string', 'max:255'],
-            'subtotal'       => ['nullable', 'string', 'max:255'],
-            'shipping_cost'  => ['nullable', 'string', 'max:255'],
-            'total'          => ['nullable', 'string', 'max:255'],
-        ]);
+        $validated = $request->validated();
+        $eCommerceAffiliate = EcommerceSale::query()
+            ->where('id', '!=', $ecommerceSale->id)
+            ->where('customer_id', $request->customer_id)
+            ->where('campaign_id', $request->campaign_id)
+            ->where('order_type', $request->order_type)
+            ->where('order_no', $request->order_no)
+            ->where('shipping_zip', $request->shipping_zip)
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['e-commerce'],
+                fn ($q) => $q
+                    ->where('coupon_code', $request->coupon_code)
+            )
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['phone'],
+                fn ($q) => $q
+                    ->where('dialed', $request->dialed)
+            )
+            ->first();
 
-        if ($ecommerceSale->update($validated)) {
-            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        if ($eCommerceAffiliate) {
+            return response()->json(['msg' => 'Already Exists!'], 422);
         }
-        return response()->json(['msg' => 'Try Again!'], 422);
+
+        if ($request->order_type == EcommerceSale::ORDER_TYPE['e-commerce']) {
+            $validated['dialed'] = null;
+            $validated['inbound'] = null;
+        } else {
+            $validated['coupon_code'] = null;
+            $validated['user_ip'] = null;
+        }
+
+        try {
+            $ecommerceSale->update($validated);
+            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated], 201);
+        } catch (\Throwable $th) {
+            return response()->json(['msg' => 'Try Again!'], 422);
+        }
     }
 
     public function import()

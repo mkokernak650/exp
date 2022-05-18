@@ -206,11 +206,8 @@ const AffiliateIndex = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleEditChange = (e) => {
-    setEditData((oldEditData) => ({
-      ...oldEditData,
-      [e.target.name]: e.target.value,
-    }));
+  const handleEditChange = ({ target: { name, value } }) => {
+    setEditData((oldEditData) => ({ ...oldEditData, [name]: value }));
   };
 
   const headers = {
@@ -256,9 +253,13 @@ const AffiliateIndex = () => {
       })
       .catch((err) => {
         let errors = "";
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
+        if (err.response.data?.errors) {
+          Object.values(err.response.data?.errors).map((error) => {
+            errors += error[0] + "\n";
+          });
+        } else if (err.response.data?.msg) {
+          errors = err.response.data.msg;
+        }
         toast.error(errors);
       });
   };
