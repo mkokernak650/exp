@@ -127,7 +127,9 @@ const GenerateReportMarketException = () => {
   if (values.campaign_id) {
     campaignName = campaigns.filter(item => item.id == values.campaign_id)
   }
-  const fileName = `Destination_Report${values.customer_name ? `_For_(${values.customer_name})` : ""}${campaignName.length > 0 ? `_For_(${campaignName[0].campaign_name})` : ""}${values.broad_cast_month ? `_For_(${values.broad_cast_month.toString()})` : ""}_Created@${currentDate()}`;
+  const fileName = `Destination_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${campaignName.length > 0 ? `_For_Campaigns(${campaignName[0]?.campaign_name})` : ""}${values?.broad_cast_month ? `_For_BroadCastMonths(${values.broad_cast_month.toString()})` : ""}_Created@${currentDate()}`;
+console.log(fileName)
+
 
 
   const handleSubmit = () => {

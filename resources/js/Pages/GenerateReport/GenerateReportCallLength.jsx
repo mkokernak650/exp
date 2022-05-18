@@ -1,5 +1,5 @@
-import { useState } from "react";
-import Layout from "../Layout/Layout";
+import { useState } from "react"
+import Layout from "../Layout/Layout"
 import {
   CircularProgress,
   Paper,
@@ -10,18 +10,18 @@ import {
   Radio,
   FormControlLabel,
   RadioGroup,
-} from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import { usePage } from "@inertiajs/inertia-react";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import * as FileSaver from "file-saver";
-import * as XLSX from "xlsx";
-import MultiSelect from "react-multiple-select-dropdown-lite";
-import "react-multiple-select-dropdown-lite/dist/index.css";
-import { currentDate } from "../../Helpers/CurrentDate";
+} from "@material-ui/core"
+import MuiAlert from "@material-ui/lab/Alert"
+import { makeStyles } from "@material-ui/core/styles"
+import Grid from "@material-ui/core/Grid"
+import { usePage } from "@inertiajs/inertia-react"
+import axios from "axios"
+import { Helmet } from "react-helmet"
+import * as FileSaver from "file-saver"
+import * as XLSX from "xlsx"
+import MultiSelect from "react-multiple-select-dropdown-lite"
+import "react-multiple-select-dropdown-lite/dist/index.css"
+import { currentDate } from "../../Helpers/CurrentDate"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,76 +43,76 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   }
-}));
+}))
 
 function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+  return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 const GenerateReportAffiliate = () => {
-  const classes = useStyles();
+  const classes = useStyles()
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
   const { affiliates, targets, broadCastMonths, broadCastWeeks, campaigns } =
-    usePage().props;
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
-  const [type, setType] = useState({ type: "billed" });
-  const [customer, setCustomer] = useState();
-  const [monthByYear, setMonthByYear] = useState(broadCastMonths);
-  const [affiliate, setAffiliate] = useState();
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState([]);
-  const [week, setWeek] = useState("");
-  const [startDate, setStartDate] = useState({ start_date: "" });
-  const [endDate, setEndDate] = useState({ end_date: "" });
-  const [campaign, setCampaign] = useState("");
-  const [annotation, setAnnotation] = useState("");
-  const [destinationNumber, setDestinationNumber] = useState("");
+    usePage().props
+  const [open, setOpen] = useState(false)
+  const [response, setResponse] = useState()
+  const [type, setType] = useState({ type: "billed" })
+  const [customer, setCustomer] = useState()
+  const [monthByYear, setMonthByYear] = useState(broadCastMonths)
+  const [affiliate, setAffiliate] = useState()
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState([])
+  const [week, setWeek] = useState("")
+  const [startDate, setStartDate] = useState({ start_date: "" })
+  const [endDate, setEndDate] = useState({ end_date: "" })
+  const [campaign, setCampaign] = useState("")
+  const [annotation, setAnnotation] = useState("")
+  const [destinationNumber, setDestinationNumber] = useState("")
 
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
-      return;
+      return
     }
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const typeHandleChange = (e) => {
-    const { name, value } = e.target;
-    setType({ [name]: value });
-  };
+    const { name, value } = e.target
+    setType({ [name]: value })
+  }
   const customerHandleChange = (e) => {
-    const { name, value } = e.target;
-    setCustomer({ [name]: value });
+    const { name, value } = e.target
+    setCustomer({ [name]: value })
     targets.filter((item) => {
       if (item.Customer === value) {
-        const targetNames = item.Ringba_Targets_Name.split(",");
+        const targetNames = item.Ringba_Targets_Name.split(",")
       }
-    });
-  };
+    })
+  }
 
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.affiliate_id,
-  }));
+  }))
 
 
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(",");
-    setAffiliate({ [key]: affiliate_ids });
-  };
+    const affiliate_ids = val.split(",")
+    setAffiliate({ [key]: affiliate_ids })
+  }
 
   const monthHandleChange = (e) => {
-    const { name, value } = e.target;
-    setMonth({ [name]: value });
+    const { name, value } = e.target
+    setMonth({ [name]: value })
     broadCastMonths.filter((item) => {
       if (item.broad_cast_month === value) {
-        setStartDate({ ...startDate, start_date: item.start_date });
-        setEndDate({ ...endDate, end_date: item.end_date });
+        setStartDate({ ...startDate, start_date: item.start_date })
+        setEndDate({ ...endDate, end_date: item.end_date })
       }
-    });
-  };
+    })
+  }
 
   let yearsArray = []
   for (let i = 0; i < 5; i++) {
@@ -137,7 +137,7 @@ const GenerateReportAffiliate = () => {
       })
       setMonthByYear(filteredData)
     }
-  };
+  }
 
 
 
@@ -149,40 +149,40 @@ const GenerateReportAffiliate = () => {
   }))
 
   const weekHandleChange = (e) => {
-    const { name, value } = e.target;
-    setWeek({ [name]: value });
+    const { name, value } = e.target
+    setWeek({ [name]: value })
     broadCastWeeks.filter((item) => {
       if (item.broad_cast_week === value) {
-        setStartDate({ ...startDate, start_date: item.start_date });
-        setEndDate({ ...endDate, end_date: item.end_date });
+        setStartDate({ ...startDate, start_date: item.start_date })
+        setEndDate({ ...endDate, end_date: item.end_date })
       }
-    });
+    })
     if (value === "") {
-      setStartDate({ ...startDate, start_date: "" });
-      setEndDate({ ...endDate, end_date: "" });
+      setStartDate({ ...startDate, start_date: "" })
+      setEndDate({ ...endDate, end_date: "" })
     }
-  };
+  }
 
   const startDateHandleChange = (e) => {
-    const { name, value } = e.target;
-    setStartDate({ [name]: value });
-  };
+    const { name, value } = e.target
+    setStartDate({ [name]: value })
+  }
   const endDateHandleChange = (e) => {
-    const { name, value } = e.target;
-    setEndDate({ [name]: value });
-  };
+    const { name, value } = e.target
+    setEndDate({ [name]: value })
+  }
   const campaignHandleChange = (e) => {
-    const { name, value } = e.target;
-    setCampaign({ [name]: value });
-  };
+    const { name, value } = e.target
+    setCampaign({ [name]: value })
+  }
   const annotationHandleChange = (e) => {
-    const { name, value } = e.target;
-    setAnnotation({ [name]: value });
-  };
+    const { name, value } = e.target
+    setAnnotation({ [name]: value })
+  }
   const handleDestinationNumberChange = (e) => {
-    const { name, value } = e.target;
-    setDestinationNumber({ [name]: value });
-  };
+    const { name, value } = e.target
+    setDestinationNumber({ [name]: value })
+  }
   const values = {
     ...type,
     ...affiliate,
@@ -195,10 +195,10 @@ const GenerateReportAffiliate = () => {
     ...campaign,
     ...destinationNumber,
     ...annotation,
-  };
+  }
 
 
-  let affiliatesName = [];
+  let affiliatesName = []
   if (values?.affiliate_id) {
     affiliates.filter(item => {
       let i = 0
@@ -211,12 +211,12 @@ const GenerateReportAffiliate = () => {
   }
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
-    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
     let format_date = newDate
-    let dd = String(format_date.getDate()).padStart(2, "0");
-    let yyyy = format_date.getFullYear();
-    format_date = dd + "-" + shortMonth + "-" + yyyy;
-    return format_date;
+    let dd = String(format_date.getDate()).padStart(2, "0")
+    let yyyy = format_date.getFullYear()
+    format_date = dd + "-" + shortMonth + "-" + yyyy
+    return format_date
   }
 
 
@@ -224,49 +224,72 @@ const GenerateReportAffiliate = () => {
 
   const selectedCampaign = campaigns.filter(item => item.id == values.campaign)
 
-  let fileName = ''
-  if (year?.year && !month) {
-    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  // let fileName = ''
+  // if (year?.year && !month) {
+  //   fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
+  // }
+  // else if (year?.year && month) {
+  //   fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
+  //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  // }
+  // else {
+  //   fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}${startDate?.start_date ? `_From_${dateFormat(values?.start_date)
+  //     }_To_${dateFormat(values?.end_date)}` : ""}_Created@${currentDate()}`;
+  // }
+
+  console.log(values)
+  const getCampaignNames = (id) => {
+    const campaignNames = []
+    if (values?.campaign) {
+      const campaign = campaigns.find((campaign) => campaign.id == id)
+      campaignNames.push(campaign ? campaign.campaign_name : "")
+    }
+    return campaignNames
   }
-  else if (year?.year && month) {
-    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
-      }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
+  const getAffiliateNames = () => {
+    const affiliateNames = []
+    if (values?.affiliate_id) {
+      for (let i = 0; i < values.affiliate_id.length; i++) {
+        const affiliate = affiliates.find((affiliate) => affiliate.affiliate_id == values.affiliate_id[i])
+        affiliateNames.push(affiliate ? affiliate.affiliate_name : "")
+      }
+    }
+    return affiliateNames
   }
-  else {
-    fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}${startDate?.start_date ? `_From_${dateFormat(values?.start_date)
-      }_To_${dateFormat(values?.end_date)}` : ""}_Created@${currentDate()}`;
-  }
+
+
+  const fileName = `${values?.type ? values.type : ""}_CallLength_Report${values?.market ? `_For_Markets(${values.market})` : ""}${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
 
   const handleSubmit = () => {
     axios.post(route("call.length.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
-        setOpen(true);
-        setResponse(r.data.msg);
+        setOpen(true)
+        setResponse(r.data.msg)
       }
-      exportToCSV(r.data, fileName);
-    });
-  };
+      exportToCSV(r.data, fileName)
+    })
+  }
 
   const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-  const fileExtension = ".xlsx";
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
+  const fileExtension = ".xlsx"
 
   const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName);
-    const secondData = Object.keys(apiData.data).length + 5;
-    const call_summary = [];
+    const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName)
+    const secondData = Object.keys(apiData.data).length + 5
+    const call_summary = []
     Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]]);
-    });
+      call_summary.push([cf, apiData.call_summary[cf]])
+    })
 
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
-    setOpen(true);
-    setResponse("Report Generated Successfully");
-  };
+    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` })
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
+    const data = new Blob([excelBuffer], { type: fileType })
+    FileSaver.saveAs(data, fileName + fileExtension)
+    setOpen(true)
+    setResponse("Report Generated Successfully")
+  }
 
 
 
@@ -485,10 +508,10 @@ const GenerateReportAffiliate = () => {
         </Snackbar>
       </>
     </>
-  );
-};
+  )
+}
 
 GenerateReportAffiliate.layout = (page) => (
   <Layout title="Generate Report Affiliate">{page}</Layout>
-);
-export default GenerateReportAffiliate;
+)
+export default GenerateReportAffiliate

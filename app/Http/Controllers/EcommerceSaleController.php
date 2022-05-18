@@ -76,7 +76,6 @@ class EcommerceSaleController extends Controller
             'dialed',
             'shipping_zip'
         )->get();
-        dd($salesData);
 
         Excel::import(
             new EcommerceSaleImport(
