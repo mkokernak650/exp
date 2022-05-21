@@ -109,30 +109,30 @@ class EcommerceReportController extends Controller
                 } else {
                     $q->whereYear('ecommerce_sales.order_at', $year);
                 }
-            })->when(
+            })
+            ->when(
                 empty($year) && !empty($startDate) && !empty($endDate),
                 fn ($q) => $q
                     ->whereDate('ecommerce_sales.order_at', '>=', $startDate)
                     ->whereDate('ecommerce_sales.order_at', '<=', $endDate)
-            )->when(
+            )
+            ->groupBy('ecommerce_sales.id')
+            ->when(
                 $reportFor === 'sales',
                 fn ($q) => $q
                     ->when(!$isDetailed, fn ($q) => $q->groupBy('ecommerce_sales.coupon_code'))
-                    ->select(
-                        $isDetailed ? $this->selectColumnDetailedSalesReport($type, $orderType) : $this->selectColumnSalesReport($type, $orderType)
-                    )
+                    ->select($isDetailed ? $this->selectColumnDetailedSalesReport($type, $orderType) : $this->selectColumnSalesReport($type, $orderType))
                     ->orderBy('ecommerce_sales.coupon_code')
                     ->orderBy('ecommerce_sales.order_at')
-            )->when(
-                $reportFor === 'marketTarget',
-                function ($q) {
-                    $q->whereNotNull('zipcode_by_television_markets.market')
-                        ->groupBy('zipcode_by_television_markets.market')
-                        ->select($this->selectColumnMarketTargetReport())
-                        ->orderBy('zipcode_by_television_markets.market');
-                }
             )
-            ->groupBy('ecommerce_sales.order_no')
+            ->when(
+                $reportFor === 'marketTarget',
+                fn ($q) => $q
+                    ->whereNotNull('zipcode_by_television_markets.market')
+                    ->groupBy('zipcode_by_television_markets.market')
+                    ->select($this->selectColumnMarketTargetReport())
+                    ->orderBy('zipcode_by_television_markets.market')
+            )
             ->get();
     }
 
