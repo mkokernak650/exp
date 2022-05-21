@@ -466,7 +466,7 @@ const GenerateReportTarget = () => {
                 color="primary"
                 onClick={(e) => handleSubmit()}
               >
-                {loading ? <CircularProgress color="inherit" thickness="3" size="1.5rem" /> : "Generate"}
+                {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : "Generate"}
               </Button>
             </Grid>
           </Grid>

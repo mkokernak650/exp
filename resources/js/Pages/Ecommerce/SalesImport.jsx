@@ -298,7 +298,7 @@ const SalesImport = () => {
                 {loading ? (
                   <CircularProgress
                     color="inherit"
-                    thickness="3"
+                    thickness={3}
                     size="1.5rem"
                   />
                 ) : (
