@@ -85,7 +85,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'inbound'        => $this->getValue($row, 'inbound'),
             'shipping_city'  => $this->getValue($row, 'shipping_city'),
             'shipping_state' => $this->getValue($row, 'shipping_state'),
-            'shipping_zip'   => $this->getValue($row, 'shipping_zip'),
+            'shipping_zip'   => substr($this->getValue($row, 'shipping_zip'), 0, 5),
             'billing_zip'    => $this->getValue($row, 'billing_zip'),
             'quantity'       => $this->getValue($row, 'quantity'),
             'subtotal'       => $this->getValue($row, 'subtotal'),

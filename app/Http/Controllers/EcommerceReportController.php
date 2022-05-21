@@ -116,7 +116,6 @@ class EcommerceReportController extends Controller
                     ->whereDate('ecommerce_sales.order_at', '>=', $startDate)
                     ->whereDate('ecommerce_sales.order_at', '<=', $endDate)
             )
-            ->groupBy('ecommerce_sales.id')
             ->when(
                 $reportFor === 'sales',
                 fn ($q) => $q
@@ -133,6 +132,7 @@ class EcommerceReportController extends Controller
                     ->select($this->selectColumnMarketTargetReport())
                     ->orderBy('zipcode_by_television_markets.market')
             )
+            ->groupBy('ecommerce_sales.id')
             ->get();
     }
 
