@@ -385,12 +385,14 @@ const EcommerceReport = () => {
       .post(route("ecommerce.report.generate"), values)
       .then((r) => {
         if (r?.status === 204) {
+          setLoading(false);
           toast.error("No data found for the selected criteria");
         } else {
           exportToCSV(r.data, fileName);
         }
       })
       .catch((e) => {
+        setLoading(false);
         toast.error("Error while generating report");
       });
   };
@@ -665,6 +667,7 @@ const EcommerceReport = () => {
                 variant="contained"
                 color="primary"
                 onClick={(e) => handleSubmit()}
+                disabled={loading}
               >
                 Generate &nbsp;
                 {loading && (
