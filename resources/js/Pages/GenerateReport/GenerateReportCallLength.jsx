@@ -222,22 +222,7 @@ const GenerateReportAffiliate = () => {
 
 
 
-  const selectedCampaign = campaigns.filter(item => item.id == values.campaign)
 
-  // let fileName = ''
-  // if (year?.year && !month) {
-  //   fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_Created@${currentDate()}`;
-  // }
-  // else if (year?.year && month) {
-  //   fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}_For_(${year.year.toString()})_From_${dateFormat(values?.start_date)
-  //     }_To_${dateFormat(values?.end_date)}_Created@${currentDate()}`;
-  // }
-  // else {
-  //   fileName = `Call_Length_Report_${selectedCampaign.length ? `_${selectedCampaign[0].campaign_name}` : ""}${startDate?.start_date ? `_From_${dateFormat(values?.start_date)
-  //     }_To_${dateFormat(values?.end_date)}` : ""}_Created@${currentDate()}`;
-  // }
-
-  console.log(values)
   const getCampaignNames = (id) => {
     const campaignNames = []
     if (values?.campaign) {
