@@ -1,17 +1,19 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Imports\EcommerceAffiliatesImport;
-use App\Models\Affiliate;
-use App\Models\Customer;
-use App\Models\EcommerceAffiliate;
-use App\Models\EcommerceCampaign;
-use Illuminate\Http\jsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Customer;
+use App\Models\Affiliate;
+use Illuminate\Http\Request;
+use App\Models\EcommerceSale;
+use Illuminate\Validation\Rule;
+use App\Models\EcommerceCampaign;
+use Illuminate\Http\jsonResponse;
+use App\Models\EcommerceAffiliate;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\EcommerceAffiliatesImport;
+use App\Http\Requests\EcommerceAffiliateRequest;
 
 class EcommerceAffiliateController extends Controller
 {
@@ -53,20 +55,40 @@ class EcommerceAffiliateController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(EcommerceAffiliateRequest $request)
     {
-        $validated = $request->validate([
-            'campaign_id'   => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
-            'customer_id'   => ['nullable', Rule::exists('customers', 'id')],
-            'affiliate_id'  => ['required', Rule::exists('affiliates', 'id')],
-            'coupon_code'   => ['required', Rule::unique('ecommerce_affiliates', 'coupon_code')],
-            'revenue'       => ['required', 'numeric'],
-            'affiliate_fee' => ['required', 'numeric'],
-        ]);
-        if (EcommerceAffiliate::create($validated)) {
-            return response()->json(['msg' => 'Created Successfully.'], 201);
+        $validated = $request->validated();
+        $eCommerceAffiliate = EcommerceAffiliate::query()
+            ->where('affiliate_id', $request->affiliate_id)
+            ->where('customer_id', $request->customer_id)
+            ->where('campaign_id', $request->campaign_id)
+            ->where('order_type', $request->order_type)
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['e-commerce'],
+                fn ($q) => $q->where('coupon_code', $request->coupon_code)
+            )
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['phone'],
+                fn ($q) => $q->where('dialed', $request->dialed)
+            )
+            ->first();
+
+        if ($eCommerceAffiliate) {
+            return response()->json(['msg' => 'Already Exists!'], 422);
         }
-        return response()->json(['msg' => 'Try Again!'], 422);
+
+        if ($request->order_type == EcommerceSale::ORDER_TYPE['e-commerce']) {
+            unset($validated['dialed']);
+        } else {
+            unset($validated['coupon_code']);
+        }
+
+        try {
+            EcommerceAffiliate::create($request->validated());
+            return response()->json(['msg' => 'Created Successfully.'], 201);
+        } catch (\Throwable $th) {
+            return response()->json(['msg' => 'Try Again!'], 422);
+        }
     }
 
     /**
@@ -76,20 +98,41 @@ class EcommerceAffiliateController extends Controller
      * @param EcommerceAffiliate $ecommerceAffiliate
      * @return jsonResponse
      */
-    public function update(Request $request, EcommerceAffiliate $ecommerceAffiliate)
+    public function update(EcommerceAffiliateRequest $request, EcommerceAffiliate $ecommerceAffiliate)
     {
-        $validated = $request->validate([
-            'campaign_id'   => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
-            'customer_id'   => ['nullable', Rule::exists('customers', 'id')],
-            'affiliate_id'  => ['required', Rule::exists('affiliates', 'id')],
-            'coupon_code'   => ['required', 'string'],
-            'revenue'       => ['required', 'numeric'],
-            'affiliate_fee' => ['required', 'numeric'],
-        ]);
-        if ($ecommerceAffiliate->update($validated)) {
-            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        $validated = $request->validated();
+        $eCommerceAffiliate = EcommerceAffiliate::query()
+            ->where('id', '!=', $ecommerceAffiliate->id)
+            ->where('affiliate_id', $request->affiliate_id)
+            ->where('customer_id', $request->customer_id)
+            ->where('campaign_id', $request->campaign_id)
+            ->where('order_type', $request->order_type)
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['e-commerce'],
+                fn ($q) => $q->where('coupon_code', $request->coupon_code)
+            )
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['phone'],
+                fn ($q) => $q->where('dialed', $request->dialed)
+            )
+            ->first();
+
+        if ($eCommerceAffiliate) {
+            return response()->json(['msg' => 'Already Exists!'], 422);
         }
-        return response()->json(['msg' => 'Try Again!'], 422);
+
+        if ($request->order_type == EcommerceSale::ORDER_TYPE['e-commerce']) {
+            $validated['dialed'] = null;
+        } else {
+            $validated['coupon_code'] = null;
+        }
+
+        try {
+            $ecommerceAffiliate->update($validated);
+            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated], 201);
+        } catch (\Throwable $th) {
+            return response()->json(['msg' => 'Try Again!'], 422);
+        }
     }
 
     /**

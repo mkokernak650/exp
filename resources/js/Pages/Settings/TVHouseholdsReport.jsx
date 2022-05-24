@@ -794,7 +794,7 @@ const CustomerReport = () => {
             disabled={!selectedFile}
           >
             {loading ? (
-              <CircularProgress color="inherit" thickness="3" size="1.5rem" />
+              <CircularProgress color="inherit" thickness={3} size="1.5rem" />
             ) : (
               "Next"
             )}

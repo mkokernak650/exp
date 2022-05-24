@@ -1953,7 +1953,7 @@ const ZipcodeDatabase = () => {
               disabled={!selectedFile}
             >
               {loading ? (
-                <CircularProgress color="inherit" thickness="3" size="1.5rem" />
+                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
               ) : (
                 "Next"
               )}
@@ -1982,7 +1982,7 @@ const ZipcodeDatabase = () => {
             </RadioGroup>
             <Button variant="contained" color="primary" onClick={exportHandler}>
               {loading ? (
-                <CircularProgress color="inherit" thickness="3" size="1.5rem" />
+                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
               ) : (
                 "Next"
               )}

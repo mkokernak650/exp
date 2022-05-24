@@ -10,7 +10,7 @@ import {
   ActionType,
 } from "ka-table/enums";
 import { kaPropsUtils } from "ka-table/utils";
-import { InertiaLink, usePage } from "@inertiajs/inertia-react";
+import { usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
@@ -39,6 +39,7 @@ import { Helmet } from "react-helmet";
 import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
+import toast from "react-hot-toast";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -93,6 +94,11 @@ const operators = [
 
 export const fields = [
   {
+    caption: "order_type",
+    name: "order_type",
+    operators,
+  },
+  {
     caption: "order_no",
     name: "order_no",
     operators,
@@ -103,8 +109,18 @@ export const fields = [
     operators,
   },
   {
+    caption: "dialed",
+    name: "dialed",
+    operators,
+  },
+  {
     caption: "user_ip",
     name: "user_ip",
+    operators,
+  },
+  {
+    caption: "inbound",
+    name: "inbound",
     operators,
   },
   {
@@ -177,7 +193,7 @@ export const filter = {
 
 const SalesIndex = () => {
   const classes = useStyles();
-  const { sales } = usePage().props;
+  const { sales, campaigns, customers } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -189,43 +205,69 @@ const SalesIndex = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
 
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+  const handleEditChange = ({ target: { name, value } }) => {
+    setEditData((oldEditData) => ({ ...oldEditData, [name]: value }));
   };
 
   const headers = {
-    headers: {
-      Accept: "application/json",
-    },
+    headers: { Accept: "application/json" },
+  };
+
+  const getCustomerNameById = (id) => {
+    const customer = customers.find((customer) => customer.id == id);
+    return customer ? customer.customer_name : "";
+  };
+
+  const getCampaignNameById = (id) => {
+    const campaign = campaigns.find((campaign) => campaign.id == id);
+    return campaign ? campaign.campaign_name : "";
   };
 
   const handleEditSubmit = () => {
     axios
-      .put(route("ecommerce-sales.update", editData.id), editData, headers)
+      .put(route("ecommerce-sales.update", editData?.id), editData, headers)
       .then((res) => {
+        let campaignName = getCampaignNameById(editData?.campaign_id);
+        let customerName = getCustomerNameById(editData?.customer_id);
         let filteredData = tableProps;
-        filteredData.data[editData.sl - 1] = { ...editData };
+        filteredData.data[editData?.sl - 1] = {
+          ...editData,
+          campaign: campaignName,
+          customer: customerName,
+          coupon_code: res.data.data.coupon_code,
+          user_ip: res.data.data.user_ip,
+          dialed: res.data.data.dialed,
+          inbound: res.data.data.inbound,
+        };
 
         setEditData();
         setShowEditModal({ open: false });
-        setResponse(res.data.msg);
-        setResponseType("success");
-        setOpen(true);
+        toast.success(res.data.msg);
       })
       .catch((err) => {
         let errors = "";
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
-        setResponse(errors);
-        setResponseType("error");
-        setOpen(true);
+        if (err.response.data?.errors) {
+          Object.values(err.response.data?.errors).map((error) => {
+            errors += error[0] + "\n";
+          });
+        } else if (err.response.data?.msg) {
+          errors = err.response.data.msg;
+        }
+        toast.error(errors);
       });
   };
 
   const dataArray = sales.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
+    campaign_id: item?.campaign_id,
+    customer_id: item?.customer_id,
+    campaign: item?.campaign?.campaign_name,
+    customer: item?.customer?.customer_name,
+    order_type: item?.order_type,
+    dialed: item?.dialed,
+    inbound: item?.inbound,
+    revenue: item?.revenue,
     order_no: item.order_no,
     coupon_code: item.coupon_code,
     user_ip: item.user_ip,
@@ -332,8 +374,26 @@ const SalesIndex = () => {
         style: { width: 60 },
       },
       {
+        key: "campaign",
+        title: "Campaign",
+        dataType: DataType.String,
+        style: { width: 160 },
+      },
+      {
+        key: "customer",
+        title: "Customer",
+        dataType: DataType.String,
+        style: { width: 160 },
+      },
+      {
         key: "order_at",
         title: "Order AT",
+        dataType: DataType.String,
+        style: { width: 160 },
+      },
+      {
+        key: "order_type",
+        title: "Order Type",
         dataType: DataType.String,
         style: { width: 160 },
       },
@@ -350,8 +410,20 @@ const SalesIndex = () => {
         style: { width: 160 },
       },
       {
+        key: "dialed",
+        title: "Dialed",
+        dataType: DataType.String,
+        style: { width: 160 },
+      },
+      {
         key: "user_ip",
         title: "User IP",
+        dataType: DataType.String,
+        style: { width: 160 },
+      },
+      {
+        key: "inbound",
+        title: "Inbound",
         dataType: DataType.String,
         style: { width: 160 },
       },
@@ -423,6 +495,9 @@ const SalesIndex = () => {
             <img src={Edit} alt="edit-icon"></img>
           </div>
         );
+      }
+      if (column.key === "order_type") {
+        return value == 1 ? "E-commerce" : "Phone";
       }
     },
   };
@@ -724,7 +799,52 @@ const SalesIndex = () => {
         <div className="edit_target">
           <form className={classes.form}>
             <TextField
-              value={editData ? editData.order_no : ""}
+              value={editData ? editData?.campaign_id : ""}
+              select
+              name="campaign_id"
+              margin="normal"
+              onChange={handleEditChange}
+              fullWidth
+              required={false}
+            >
+              <option value="">Select Campaign</option>
+              {campaigns.map((option, indx) => (
+                <option key={indx + `-1`} value={option.id}>
+                  {option.campaign_name}
+                </option>
+              ))}
+            </TextField>
+            <TextField
+              value={editData ? editData?.customer_id : ""}
+              select
+              name="customer_id"
+              margin="normal"
+              onChange={handleEditChange}
+              fullWidth
+              required={true}
+            >
+              <option value="">Select Customer</option>
+              {customers.map((option, indx) => (
+                <option key={indx + `-2`} value={option.id}>
+                  {option.customer_name}
+                </option>
+              ))}
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              required={true}
+              name="order_type"
+              margin="normal"
+              onChange={handleEditChange}
+              value={editData ? editData?.order_type : ""}
+            >
+              <option value="">Select Order Type</option>
+              <option value="1">E-commerce</option>
+              <option value="2">Phone</option>
+            </TextField>
+            <TextField
+              value={editData ? editData?.order_no : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -732,17 +852,57 @@ const SalesIndex = () => {
               label="Order No"
               onChange={handleEditChange}
             />
+
+            {editData?.order_type && editData.order_type == 1 && (
+              <>
+                <TextField
+                  value={editData ? editData?.coupon_code : ""}
+                  fullWidth
+                  type="text"
+                  margin="normal"
+                  required={true}
+                  name="coupon_code"
+                  label="Coupon Code"
+                  onChange={handleEditChange}
+                />
+                <TextField
+                  value={editData ? editData?.user_ip : ""}
+                  fullWidth
+                  type="text"
+                  margin="normal"
+                  name="user_ip"
+                  label="User IP"
+                  onChange={handleEditChange}
+                />
+              </>
+            )}
+
+            {editData?.order_type && editData.order_type == 2 && (
+              <>
+                <TextField
+                  value={editData ? editData?.dialed : ""}
+                  fullWidth
+                  type="text"
+                  margin="normal"
+                  required={true}
+                  name="dialed"
+                  label="Dialed"
+                  onChange={handleEditChange}
+                />
+                <TextField
+                  value={editData ? editData?.inbound : ""}
+                  fullWidth
+                  type="text"
+                  margin="normal"
+                  name="inbound"
+                  label="Inbound"
+                  onChange={handleEditChange}
+                />
+              </>
+            )}
+
             <TextField
-              value={editData ? editData.coupon_code : ""}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="coupon_code"
-              label="Coupon Code"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData.quantity : ""}
+              value={editData ? editData?.quantity : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -751,7 +911,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.subtotal : ""}
+              value={editData ? editData?.subtotal : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -760,7 +920,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.shipping_cost : ""}
+              value={editData ? editData?.shipping_cost : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -769,7 +929,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.total : ""}
+              value={editData ? editData?.total : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -778,7 +938,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.shipping_state : ""}
+              value={editData ? editData?.shipping_state : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -787,7 +947,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.shipping_city : ""}
+              value={editData ? editData?.shipping_city : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -796,7 +956,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.shipping_zip : ""}
+              value={editData ? editData?.shipping_zip : ""}
               fullWidth
               type="text"
               margin="normal"
@@ -805,7 +965,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData.billing_zip : ""}
+              value={editData ? editData?.billing_zip : ""}
               fullWidth
               type="text"
               margin="normal"

@@ -124,7 +124,7 @@ const AnnotationCreate = () => {
             </Grid>
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
-                {loading ? <CircularProgress color="inherit" thickness="3" size="1.5rem" /> : "Submit"}
+                {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : "Submit"}
               </Button>
             </Grid>
           </Grid>

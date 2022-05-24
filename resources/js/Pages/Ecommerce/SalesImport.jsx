@@ -11,7 +11,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
 import FileImportMap from "./FileImportMap";
 import XLSX from "xlsx";
 import { useEffect } from "react";
@@ -140,10 +139,14 @@ const SalesImport = () => {
       })
       .catch((err) => {
         let errors = "";
+        if (err.response.data?.errors) {
+          Object.values(err.response.data?.errors).map((error) => {
+            errors += error[0] + "\n";
+          });
+        } else if (err.response.data?.msg) {
+          errors = err.response.data.msg;
+        }
         setLoading(false);
-        Object.values(err.response.data?.errors).map((error) => {
-          errors += error[0] + "\n";
-        });
         toast.error(errors);
       });
   };
@@ -295,7 +298,7 @@ const SalesImport = () => {
                 {loading ? (
                   <CircularProgress
                     color="inherit"
-                    thickness="3"
+                    thickness={3}
                     size="1.5rem"
                   />
                 ) : (

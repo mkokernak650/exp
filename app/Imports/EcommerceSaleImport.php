@@ -14,6 +14,9 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     use SkipsErrors;
 
     protected $fieldMap;
+    protected $reqOrderType;
+    protected $reqCampaignId;
+    protected $reqCustomerId;
     protected $dialed;
     protected $orderNo;
     protected $couponCodes;
@@ -22,24 +25,19 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     protected $customerIds;
     protected $orderTypes;
 
-    protected $reqCampaignId;
-    protected $reqCustomerId;
-    protected $reqOrderType;
-
     public function __construct(array $fieldMap, $salesData, $reqCampaignId, $reqCustomerId, $reqOrderType)
     {
         $this->fieldMap = $fieldMap;
+        $this->reqOrderType = $reqOrderType;
+        $this->reqCampaignId = $reqCampaignId;
+        $this->reqCustomerId = $reqCustomerId;
         $this->dialed = $salesData->pluck('dialed', 'id')->toArray();
         $this->orderNo = $salesData->pluck('order_no', 'id')->toArray();
+        $this->orderTypes = $salesData->pluck('order_type', 'id')->toArray();
         $this->couponCodes = $salesData->pluck('coupon_code', 'id')->toArray();
         $this->shippingZip = $salesData->pluck('shipping_zip', 'id')->toArray();
         $this->campaignIds = $salesData->pluck('campaign_id', 'id')->toArray();
         $this->customerIds = $salesData->pluck('customer_id', 'id')->toArray();
-        $this->orderTypes = $salesData->pluck('order_type', 'id')->toArray();
-
-        $this->reqCampaignId = $reqCampaignId;
-        $this->reqCustomerId = $reqCustomerId;
-        $this->reqOrderType = $reqOrderType;
     }
 
     /**
@@ -87,7 +85,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'inbound'        => $this->getValue($row, 'inbound'),
             'shipping_city'  => $this->getValue($row, 'shipping_city'),
             'shipping_state' => $this->getValue($row, 'shipping_state'),
-            'shipping_zip'   => $this->getValue($row, 'shipping_zip'),
+            'shipping_zip'   => substr($this->getValue($row, 'shipping_zip'), 0, 5),
             'billing_zip'    => $this->getValue($row, 'billing_zip'),
             'quantity'       => $this->getValue($row, 'quantity'),
             'subtotal'       => $this->getValue($row, 'subtotal'),

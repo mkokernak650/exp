@@ -100,7 +100,7 @@ const AddMarket = () => {
                 {loading ? (
                   <CircularProgress
                     color="secondary"
-                    thickness="3"
+                    thickness={3}
                     size="2rem"
                   />
                 ) : (

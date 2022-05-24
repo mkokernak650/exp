@@ -37,7 +37,13 @@ class AddPhoneOrderColumnsToEcommerceSalesTable extends Migration
         Schema::table('ecommerce_sales', function (Blueprint $table) {
             $table->dropForeign(['campaign_id']);
             $table->dropForeign(['customer_id']);
-            $table->dropColumn(['campaign_id', 'customer_id', 'order_type', 'dialed', 'inbound']);
+            $table->dropColumn([
+                'campaign_id',
+                'customer_id',
+                'order_type',
+                'dialed',
+                'inbound'
+            ]);
         });
     }
 }

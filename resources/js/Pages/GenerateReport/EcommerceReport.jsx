@@ -1,5 +1,5 @@
-import { React, useState } from "react"
-import Layout from "../Layout/Layout"
+import { React, useState } from "react";
+import Layout from "../Layout/Layout";
 import {
   CircularProgress,
   Paper,
@@ -12,19 +12,18 @@ import {
   FormGroup,
   Checkbox,
   Divider,
-} from "@material-ui/core"
-import { makeStyles } from "@material-ui/core/styles"
-import Grid from "@material-ui/core/Grid"
-import { usePage } from "@inertiajs/inertia-react"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import * as FileSaver from "file-saver"
-import * as XLSX from "xlsx"
-import { currentDate } from "../../Helpers/CurrentDate"
-import MultiSelect from "react-multiple-select-dropdown-lite"
-import "react-multiple-select-dropdown-lite/dist/index.css"
-import SnackBar from "../../Shared/SnackBar"
-import toast from "react-hot-toast"
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
+import { usePage } from "@inertiajs/inertia-react";
+import axios from "axios";
+import { Helmet } from "react-helmet";
+import * as FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { currentDate } from "../../Helpers/CurrentDate";
+import MultiSelect from "react-multiple-select-dropdown-lite";
+import "react-multiple-select-dropdown-lite/dist/index.css";
+import toast from "react-hot-toast";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,11 +45,11 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
-}))
+}));
 
 const EcommerceReport = () => {
-  const classes = useStyles()
-  const [loading, setLoading] = useState(false)
+  const classes = useStyles();
+  const [loading, setLoading] = useState(false);
   const {
     campaigns,
     customers,
@@ -58,228 +57,261 @@ const EcommerceReport = () => {
     broadCastMonths,
     broadCastWeeks,
     couponCodes,
+    dialedPhones,
     states,
     markets,
-  } = usePage().props
-  const [open, setOpen] = useState(false)
-  const [response, setResponse] = useState()
-  const [monthByYear, setMonthByYear] = useState(broadCastMonths)
-  const [affiliate, setAffiliate] = useState()
-  const [month, setMonth] = useState("")
-  const [year, setYear] = useState([])
-  const [week, setWeek] = useState("")
-  const [startDate, setStartDate] = useState({ start_date: "" })
-  const [endDate, setEndDate] = useState({ end_date: "" })
-  const [couponCode, setCouponCode] = useState([])
-  const [state, setState] = useState([])
-  const [market, setMarket] = useState([])
-  const [campaign, setCampaign] = useState([])
-  const [customer, setCustomer] = useState([])
-  const [reportType, setReportType] = useState({ type: "customer" })
-  const [reportFor, setReportFor] = useState({ reportFor: "sales" })
-  const [isDetailed, setIsDetailed] = useState({ detailed: true })
+  } = usePage().props;
+  const [monthByYear, setMonthByYear] = useState(broadCastMonths);
+  const [affiliate, setAffiliate] = useState();
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState([]);
+  const [week, setWeek] = useState("");
+  const [startDate, setStartDate] = useState({ start_date: "" });
+  const [endDate, setEndDate] = useState({ end_date: "" });
+  const [couponCode, setCouponCode] = useState([]);
+  const [dialed, setDialed] = useState([]);
+  const [state, setState] = useState([]);
+  const [market, setMarket] = useState([]);
+  const [campaign, setCampaign] = useState([]);
+  const [orderType, setOrderType] = useState({ orderType: "both" });
+  const [customer, setCustomer] = useState([]);
+  const [reportType, setReportType] = useState({ type: "customer" });
+  const [reportFor, setReportFor] = useState({ reportFor: "sales" });
+  const [isDetailed, setIsDetailed] = useState({ detailed: true });
 
-  let yearsArray = []
+  let yearsArray = [];
   for (let i = 0; i < 5; i++) {
-    let years = new Date().getFullYear()
-    let months = new Date().getMonth()
-    let day = new Date().getDate()
-    let date = new Date(years + i, months, day).getFullYear()
+    let years = new Date().getFullYear();
+    let months = new Date().getMonth();
+    let day = new Date().getDate();
+    let date = new Date(years + i, months, day).getFullYear();
     if (!yearsArray.includes(new Date(years - 1, months, day).getFullYear())) {
-      yearsArray.push(new Date(years - 1, months, day).getFullYear())
+      yearsArray.push(new Date(years - 1, months, day).getFullYear());
     }
-    yearsArray.push(date)
+    yearsArray.push(date);
   }
 
   const campaignOptions = campaigns.map((item) => ({
     label: item.campaign_name,
     value: item.id,
-  }))
+  }));
 
   const customerOptions = customers.map((item) => ({
     label: item.customer_name,
     value: item.id,
-  }))
+  }));
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.id,
-  }))
+  }));
 
   const yearOptions = yearsArray.map((year) => ({
     label: year,
     value: year,
-  }))
+  }));
 
   const stateOptions = states.map((item) => ({
     label: item.state,
     value: item.state + ",",
-  }))
+  }));
 
   const marketOptions = markets.map((item) => ({
     label: item.market,
     value: item.market + ",",
-  }))
+  }));
 
-  const couponCodeOptions = couponCodes.map((item) => ({
-    label: item.coupon_code,
-    value: item.coupon_code,
-  }))
+  const couponCodeOptions = Object.values(couponCodes).map((item) => ({
+    label: item,
+    value: item,
+  }));
+
+  const dialedOptions = Object.values(dialedPhones).map((item) => ({
+    label: item,
+    value: item,
+  }));
 
   const getCampaignNames = () => {
-    const campaignNames = []
+    const campaignNames = [];
     if (values?.campaign_id.length) {
       for (let i = 0; i < values.campaign_id.length; i++) {
-        const campaign = campaigns.find((campaign) => campaign.id == values.campaign_id[i])
-        campaignNames.push(campaign ? campaign.campaign_name : "")
+        const campaign = campaigns.find(
+          (campaign) => campaign.id == values.campaign_id[i]
+        );
+        campaignNames.push(campaign ? campaign.campaign_name : "");
       }
     }
-    return campaignNames
-  }
+    return campaignNames;
+  };
   const getAffiliateNames = () => {
-    const affiliateNames = []
+    const affiliateNames = [];
     if (values?.affiliate_id.length) {
       for (let i = 0; i < values.affiliate_id.length; i++) {
-        const affiliate = affiliates.find((affiliate) => affiliate.id == values.affiliate_id[i])
-        affiliateNames.push(affiliate ? affiliate.affiliate_name : "")
+        const affiliate = affiliates.find(
+          (affiliate) => affiliate.id == values.affiliate_id[i]
+        );
+        affiliateNames.push(affiliate ? affiliate.affiliate_name : "");
       }
     }
-    return affiliateNames
-  }
+    return affiliateNames;
+  };
   const getCustomerNames = () => {
-    const customerNames = []
+    const customerNames = [];
     if (values?.customer_id.length) {
       for (let i = 0; i < values.customer_id.length; i++) {
-        const customer = customers.find((customer) => customer.id == values.customer_id[i])
-        customerNames.push(customer ? customer.customer_name : "")
+        const customer = customers.find(
+          (customer) => customer.id == values.customer_id[i]
+        );
+        customerNames.push(customer ? customer.customer_name : "");
       }
     }
-    return customerNames
-  }
+    return customerNames;
+  };
 
   const campaignHandleChange = (val, key) => {
     if (val) {
-      const campaign_ids = val.split(",")
-      setCampaign({ [key]: campaign_ids })
+      const campaign_ids = val.split(",");
+      setCampaign({ [key]: campaign_ids });
     } else {
-      setCampaign()
+      setCampaign();
     }
-  }
+  };
 
   const customerHandleChange = (val, key) => {
     if (val) {
-      const customer_ids = val.split(",")
-      setCustomer({ [key]: customer_ids })
+      const customer_ids = val.split(",");
+      setCustomer({ [key]: customer_ids });
     } else {
-      setCustomer()
+      setCustomer();
     }
-  }
+  };
 
   const affiliateHandleChange = (val, key) => {
     if (val) {
-      const affiliate_ids = val.split(",")
-      setAffiliate({ [key]: affiliate_ids })
+      const affiliate_ids = val.split(",");
+      setAffiliate({ [key]: affiliate_ids });
     } else {
-      setAffiliate()
+      setAffiliate();
     }
-  }
+  };
 
   const monthHandleChange = (e) => {
-    const { name, value } = e.target
-    setMonth({ [name]: value })
+    const { name, value } = e.target;
+    setMonth({ [name]: value });
     broadCastMonths.filter((item) => {
       if (item.broad_cast_month === value) {
-        setStartDate({ ...startDate, start_date: item.start_date })
-        setEndDate({ ...endDate, end_date: item.end_date })
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
       }
-    })
-  }
+    });
+  };
 
   const yearHandleChange = (val, key) => {
     if (val) {
-      const years = val.split(",")
-      setYear({ [key]: years })
+      const years = val.split(",");
+      setYear({ [key]: years });
     } else {
-      delete setYear()
+      delete setYear();
     }
-  }
+  };
 
   const stateHandleChange = (val, key) => {
     if (val) {
-      val = val.substring(0, val.length - 1)
-      const statesValue = val.split(",,")
-      setState({ [key]: statesValue })
+      val = val.substring(0, val.length - 1);
+      const statesValue = val.split(",,");
+      setState({ [key]: statesValue });
     } else {
-      setState([])
+      setState([]);
     }
-  }
+  };
 
   const marketHandleChange = (val, key) => {
     if (val) {
-      val = val.substring(0, val.length - 1)
-      const marketsValue = val.split(",,")
-      setMarket({ [key]: marketsValue })
+      val = val.substring(0, val.length - 1);
+      const marketsValue = val.split(",,");
+      setMarket({ [key]: marketsValue });
     } else {
-      setMarket([])
+      setMarket([]);
     }
-  }
+  };
 
   const couponCodeHandleChange = (val, key) => {
     if (val) {
-      const couponCodesValue = val.split(",")
-      setCouponCode({ [key]: couponCodesValue })
+      const couponCodesValue = val.split(",");
+      setCouponCode({ [key]: couponCodesValue });
     } else {
-      setCouponCode([])
+      setCouponCode([]);
     }
-  }
+  };
+
+  const dialedHandleChange = (val, key) => {
+    if (val) {
+      const dialedValue = val.split(",");
+      setDialed({ [key]: dialedValue });
+    } else {
+      setDialed([]);
+    }
+  };
 
   const weekHandleChange = (e) => {
-    const { name, value } = e.target
-    setWeek({ [name]: value })
+    const { name, value } = e.target;
+    setWeek({ [name]: value });
     broadCastWeeks.filter((item) => {
       if (item.broad_cast_week === value) {
-        setStartDate({ ...startDate, start_date: item.start_date })
-        setEndDate({ ...endDate, end_date: item.end_date })
+        setStartDate({ ...startDate, start_date: item.start_date });
+        setEndDate({ ...endDate, end_date: item.end_date });
       }
-    })
+    });
     if (value === "") {
-      setStartDate({ ...startDate, start_date: "" })
-      setEndDate({ ...endDate, end_date: "" })
+      setStartDate({ ...startDate, start_date: "" });
+      setEndDate({ ...endDate, end_date: "" });
     }
-  }
+  };
 
   const startDateHandleChange = (e) => {
-    const { name, value } = e.target
-    setStartDate({ [name]: value })
-  }
+    const { name, value } = e.target;
+    setStartDate({ [name]: value });
+  };
 
   const endDateHandleChange = (e) => {
-    const { name, value } = e.target
-    setEndDate({ [name]: value })
-  }
+    const { name, value } = e.target;
+    setEndDate({ [name]: value });
+  };
 
   const reportTypeHandleChange = (e) => {
-    const { name, value } = e.target
-    setReportType({ [name]: value })
-  }
+    const { name, value } = e.target;
+    setReportType({ [name]: value });
+  };
 
   const reportForHandleChange = (e) => {
-    const { name, value } = e.target
-    setReportFor({ [name]: value })
-  }
+    const { name, value } = e.target;
+    setReportFor({ [name]: value });
+  };
 
   const detailedHandleChange = (e) => {
-    const { name, checked } = e.target
-    setIsDetailed({ [name]: checked })
-  }
+    const { name, checked } = e.target;
+    setIsDetailed({ [name]: checked });
+  };
+
+  const orderTypeHandleChange = (val) => {
+    setOrderType({ orderType: val });
+
+    if (val == 1) {
+      setDialed([]);
+    } else if (val == 2) {
+      setCouponCode([]);
+    }
+  };
 
   const values = {
+    ...orderType,
     ...campaign,
     ...customer,
     ...state,
     ...market,
     ...affiliate,
     ...couponCode,
+    ...dialed,
     ...year,
     ...month,
     ...week,
@@ -288,84 +320,107 @@ const EcommerceReport = () => {
     ...reportType,
     ...reportFor,
     ...isDetailed,
-  }
+  };
 
-  let affiliatesName = []
+  let affiliatesName = [];
   if (values?.affiliate_id) {
     affiliates.filter((item) => {
-      let i = 0
+      let i = 0;
       for (i; i < values.affiliate_id.length; i++) {
         if (item.affiliate_id === values.affiliate_id[i]) {
-          affiliatesName.push(item.affiliate_name)
+          affiliatesName.push(item.affiliate_name);
         }
       }
-    })
+    });
   }
 
   const dateFormat = (dataParam) => {
-    let newDate = new Date(dataParam)
-    let shortMonth = newDate.toLocaleString("en-us", { month: "short" })
-    let format_date = newDate
-    let dd = String(format_date.getDate()).padStart(2, "0")
-    let yyyy = format_date.getFullYear()
-    format_date = dd + "-" + shortMonth + "-" + yyyy
-    return format_date
-  }
+    let newDate = new Date(dataParam);
+    let shortMonth = newDate.toLocaleString("en-us", { month: "short" });
+    let format_date = newDate;
+    let dd = String(format_date.getDate()).padStart(2, "0");
+    let yyyy = format_date.getFullYear();
+    format_date = dd + "-" + shortMonth + "-" + yyyy;
+    return format_date;
+  };
 
-
-  const fileName = `E-Commerce_${reportFor.reportFor === "sales" ? 'Sales' : 'Market_Target'}_Report${values.customer_id ? `_For_Customers(${getCustomerNames().toString()})` : ""}${values?.states ? `_For_States(${values.states.toString()})` : ""}${values?.markets ? `_For_Markets(${values.markets.toString()})` : ""}${values?.campaign_id ? `_For_Campaigns(${getCampaignNames().toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
-
+  const fileName = `E-Commerce_${
+    reportFor.reportFor === "sales" ? "Sales" : "Market_Target"
+  }_Report${
+    values.customer_id ? `_For_Customers(${getCustomerNames().toString()})` : ""
+  }${values?.states ? `_For_States(${values.states.toString()})` : ""}${
+    values?.markets ? `_For_Markets(${values.markets.toString()})` : ""
+  }${
+    values?.campaign_id
+      ? `_For_Campaigns(${getCampaignNames().toString()})`
+      : ""
+  }${
+    values?.affiliate_id
+      ? `_For_Affiliates(${getAffiliateNames().toString()})`
+      : ""
+  }${year?.year ? `_For_Years(${year.year.toString()})` : ""}${
+    values?.start_date
+      ? `_For_(${values.start_date.toString()}_To_${dateFormat(
+          values?.end_date
+        )})`
+      : ""
+  }_Created@${currentDate()}`;
 
   const handleSubmit = () => {
+    if (orderType.orderType === "") {
+      toast.error("Please select order type");
+      return;
+    }
     if (
       reportFor.reportFor === "marketTarget" &&
       state.length < 1 &&
       market.length < 1
     ) {
-      toast.error("Please select state or market")
-      return
+      toast.error("Please select state or market");
+      return;
     }
 
+    setLoading(true);
     axios
       .post(route("ecommerce.report.generate"), values)
       .then((r) => {
         if (r?.status === 204) {
-          setOpen(true)
-          setResponse("No data found for the selected criteria")
+          setLoading(false);
+          toast.error("No data found for the selected criteria");
         } else {
-          exportToCSV(r.data, fileName)
+          exportToCSV(r.data, fileName);
         }
       })
       .catch((e) => {
-        setOpen(true)
-        setResponse("Error while generating report")
-      })
-  }
+        setLoading(false);
+        toast.error("Error while generating report");
+      });
+  };
 
   const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
-  const fileExtension = ".xlsx"
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  const fileExtension = ".xlsx";
 
   const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(apiData.data, fileName)
-    const secondData = apiData.data.length + 5
-    const summary = []
-    summary.push(["Summary", ""])
+    const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
+    const secondData = apiData.data.length + 5;
+    const summary = [];
+    summary.push(["Summary", ""]);
     Object.keys(apiData.summary).forEach((cf) => {
-      summary.push([cf, apiData.summary[cf]])
-    })
+      summary.push([cf, apiData.summary[cf]]);
+    });
 
     XLSX.utils.sheet_add_aoa(ws, summary, {
       origin:
         reportFor.reportFor === "sales" ? `E${secondData}` : `B${secondData}`,
-    })
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
-    const data = new Blob([excelBuffer], { type: fileType })
-    FileSaver.saveAs(data, fileName + fileExtension)
-    setOpen(true)
-    setResponse("Report Generated Successfully")
-  }
+    });
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
+    setLoading(false);
+    toast.success("Report generated successfully");
+  };
 
   return (
     <>
@@ -399,8 +454,23 @@ const EcommerceReport = () => {
             <Grid item xs={12} style={{ paddingTop: 0 }}>
               <Divider />
             </Grid>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <MultiSelect
+                singleSelect
+                name="order_type"
+                defaultValue={orderType.orderType}
+                onChange={(val) => orderTypeHandleChange(val)}
+                options={[
+                  { label: "E-commerce & Phone", value: "both" },
+                  { label: "E-commerce", value: "1" },
+                  { label: "Phone", value: "2" },
+                ]}
+                style={{ width: "100%" }}
+                placeholder="Select Order Type"
+              />
+            </Grid>
             {market.length < 1 && (
-              <Grid item xs={12}>
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="states"
                   onChange={(val) => stateHandleChange(val, "states")}
@@ -413,7 +483,7 @@ const EcommerceReport = () => {
               </Grid>
             )}
             {state.length < 1 && (
-              <Grid item xs={12}>
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="markets"
                   onChange={(val) => marketHandleChange(val, "markets")}
@@ -425,7 +495,7 @@ const EcommerceReport = () => {
                 />
               </Grid>
             )}
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="campaign_id"
                 onChange={(val) => campaignHandleChange(val, "campaign_id")}
@@ -434,7 +504,7 @@ const EcommerceReport = () => {
                 placeholder="Select Campaign"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="customer_id"
                 onChange={(val) => customerHandleChange(val, "customer_id")}
@@ -443,7 +513,7 @@ const EcommerceReport = () => {
                 placeholder="Select Customer"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
@@ -452,16 +522,30 @@ const EcommerceReport = () => {
                 placeholder="Select Affiliates"
               />
             </Grid>
-            <Grid item xs={12}>
-              <MultiSelect
-                name="couponCodes"
-                onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
-                options={couponCodeOptions}
-                style={{ width: "100%" }}
-                placeholder="Select Coupon Codes"
-              />
-            </Grid>
-            <Grid item xs={12}>
+            {(orderType.orderType === "both" || orderType.orderType == 1) && (
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                <MultiSelect
+                  name="couponCodes"
+                  onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
+                  options={couponCodeOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select Coupon Codes"
+                />
+              </Grid>
+            )}
+            {(orderType.orderType === "both" || orderType.orderType == 2) && (
+              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                <MultiSelect
+                  name="dialed"
+                  onChange={(val) => dialedHandleChange(val, "dialed")}
+                  options={dialedOptions}
+                  style={{ width: "100%" }}
+                  placeholder="Select Dialed Phone"
+                />
+              </Grid>
+            )}
+
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val, "year")}
@@ -474,7 +558,6 @@ const EcommerceReport = () => {
               <>
                 <Grid item xs={12}>
                   <TextField
-                    id="standard-select-currency-native"
                     select
                     name="broad_cast_month"
                     onChange={monthHandleChange}
@@ -493,7 +576,6 @@ const EcommerceReport = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    id="standard-select-currency-native"
                     select
                     name="broad_cast_week"
                     onChange={weekHandleChange}
@@ -585,27 +667,26 @@ const EcommerceReport = () => {
                 variant="contained"
                 color="primary"
                 onClick={(e) => handleSubmit()}
+                disabled={loading}
               >
-                {loading ? (
+                Generate &nbsp;
+                {loading && (
                   <CircularProgress
                     color="inherit"
-                    thickness="3"
+                    thickness={3}
                     size="1.5rem"
                   />
-                ) : (
-                  "Generate"
                 )}
               </Button>
             </Grid>
           </Grid>
         </form>
       </Paper>
-      <SnackBar open={open} setOpen={setOpen} response={response} />
     </>
-  )
-}
+  );
+};
 
 EcommerceReport.layout = (page) => (
   <Layout title="E-commerce Report">{page}</Layout>
-)
-export default EcommerceReport
+);
+export default EcommerceReport;

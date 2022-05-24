@@ -42,4 +42,14 @@ class EcommerceSale extends Model
     {
         return $this->belongsTo(EcommerceAffiliate::class);
     }
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(EcommerceCampaign::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }
