@@ -1,11 +1,14 @@
 <?php
+
 namespace App\Imports;
 
+use Carbon\Carbon;
 use App\Models\EcommerceSale;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 // use Maatwebsite\Excel\Concerns\WithChunkReading;
 
@@ -91,7 +94,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
-            'order_at'       => $this->getValue($row, 'order_at'),
+            'order_at'       => $this->mergeDateTime($row, ['order_date', 'order_time']),
         ]);
     }
 
@@ -99,6 +102,19 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     {
         if (isset($this->fieldMap[$key])) {
             return $row[$this->fieldMap[$key]];
+        }
+        return null;
+    }
+
+    protected function mergeDateTime($row, $dateTime)
+    {
+        $date = $this->getValue($row, $dateTime[0]);
+        $time = $this->getValue($row, $dateTime[1]);
+        if (!empty($date)) {
+            $newDate = Date::excelToTimestamp($date, env('Time_Zone'));
+            $newTime = Date::excelToTimestamp($time, env('Time_Zone'));
+            $order_at=  !empty($time) ?   Carbon::parse(date('d-m-Y', $newDate))->toDateString() . ' ' . Carbon::parse(date('H:i:s', $newTime))->toTimeString() :  Carbon::parse(date('d-m-Y', $newDate))->toDateString();
+            return $order_at;
         }
         return null;
     }

@@ -19,7 +19,8 @@ export default function FileImportMap({ index, reminderField, fieldMap, setField
     <div className="flx mt-2 align-center">
       <select className="custom-input mr-2" name="applicationField" value={reminderField.applicationField || ''} onChange={(e) => handleReminderFieldMapping(e)}>
         <option value="">Select Application Field</option>
-        <option value="order_at">Order date</option>
+        <option value="order_date">Order date</option>
+        <option value="order_time">Order time</option>
         <option value="order_no">Order no</option>
         <option value="coupon_code">Coupon code</option>
         <option value="user_ip">User ip</option>

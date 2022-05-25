@@ -12,6 +12,7 @@ use App\Models\EcommerceSale;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\Console\Input\Input;
 
 class EcommerceSaleController extends Controller
 {
@@ -86,13 +87,15 @@ class EcommerceSaleController extends Controller
             'customer_id' => ['required', Rule::exists('customers', 'id')],
             'order_type'  => ['required', Rule::in(EcommerceSale::ORDER_TYPE)],
         ]);
-
+    
         $filterFields = [];
         foreach (json_decode($request->input('fieldMap')) as $value) {
             if (!empty($value->applicationField) && !empty($value->reportField)) {
                 $filterFields[$value->applicationField] = Str::slug($value->reportField, '_');
             }
         }
+
+ 
 
         $salesData = EcommerceSale::select(
             'id',
