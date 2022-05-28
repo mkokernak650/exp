@@ -128,11 +128,11 @@ class EcommerceReportController extends Controller
                 $reportFor === 'marketTarget',
                 fn ($q) => $q
                     ->whereNotNull('zipcode_by_television_markets.market')
-                    ->groupBy('zipcode_by_television_markets.market')
+                    ->groupBy(['zipcode_by_television_markets.market','ecommerce_sales.id'])
                     ->select($this->selectColumnMarketTargetReport())
                     ->orderBy('zipcode_by_television_markets.market')
             )
-            ->groupBy('ecommerce_sales.id')
+            // ->groupBy('ecommerce_sales.id')
             ->get();
     }
 

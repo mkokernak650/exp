@@ -54,6 +54,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             return;
         }
 
+
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
         if (!empty($keys)) {
             foreach ($keys as $key) {
@@ -76,6 +77,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                 }
             }
         }
+      
 
         return new EcommerceSale([
             'campaign_id'    => $this->reqCampaignId,
@@ -94,7 +96,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
-            'order_at'       => $this->mergeDateTime($row, ['order_date', 'order_time']),
+            'order_at'       =>array_key_exists('date_time', $row)?$this->getValue($row, 'date_time'): $this->mergeDateTime($row, ['order_date', 'order_time']),
         ]);
     }
 
