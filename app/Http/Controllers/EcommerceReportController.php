@@ -70,7 +70,7 @@ class EcommerceReportController extends Controller
         $reportFor = $request->reportFor;
         $orderType = $request->orderType;
 
-        return DB::table('ecommerce_sales')
+        $queryData= DB::table('ecommerce_sales')
             ->when(
                 $orderType,
                 fn ($q) => $q->join('ecommerce_affiliates', function ($join) use ($orderType) {
@@ -128,12 +128,57 @@ class EcommerceReportController extends Controller
                 $reportFor === 'marketTarget',
                 fn ($q) => $q
                     ->whereNotNull('zipcode_by_television_markets.market')
-                    ->groupBy('zipcode_by_television_markets.market', 'ecommerce_sales.id')
+                    ->groupBy('zipcode_by_television_markets.market')
                     ->select($this->selectColumnMarketTargetReport())
-                    ->orderBy('zipcode_by_television_markets.market')->distinct()
+                    ->orderBy('zipcode_by_television_markets.market')
             )
-            // ->groupBy('ecommerce_sales.id')
+            ->groupBy('ecommerce_sales.id')
             ->get();
+        if ($reportFor==='marketTarget') {
+            return $this->mergeDuplicateMarketData($queryData);
+        }
+        return $queryData;
+    }
+    public function mergeDuplicateMarketData($queryData)
+    {
+        $finalData=(array)[];
+        foreach ($queryData as $value) {
+            $indx= $this->findIndx($finalData, $value);
+            if ($indx===false) {
+                $object= (object)[
+                    'Market' => $value->Market,
+                    'TV Households'=>$value->{'TV Households'},
+                    'Total Quantity'=>$value->{'Total Quantity'},
+                    'Homes Per Sales'=>$value->{'Homes Per Sales'},
+                    'Total Revenue'=>$value->{'Total Revenue'},
+                 ];
+                array_push($finalData, $object);
+            } else {
+                $finalData[$indx]->{'Total Revenue'}+=$value->{'Total Revenue'};
+                $finalData[$indx]->{'Total Quantity'}+=$value->{'Total Quantity'};
+                $finalData[$indx]->{'TV Households'}+=$value->{'TV Households'};
+            }
+            $finalData[$indx]->{'Homes Per Sales'}=$finalData[$indx]->{'TV Households'}/ $finalData[$indx]->{'Total Quantity'};
+        }
+        return collect($finalData);
+    }
+
+    public function findIndx($array, $data)
+    {
+        $exist='';
+        if (count($array)) {
+            foreach ($array as $key=>$value) {
+                if ($value->Market===$data->Market) {
+                    $exist= $key;
+                    return $exist;
+                } else {
+                    $exist= false;
+                }
+            }
+        } else {
+            $exist= false;
+        }
+        return $exist;
     }
 
     protected function selectColumnMarketTargetReport()
