@@ -30,7 +30,7 @@ class BilledCallLogController extends Controller
     {
         $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
-        }])->active()->get();
+        }])->get();
 
         return Inertia::render('Ringba/BilledCallLogs', [
             'billedCallLogs'           => self::$billedCallLog::orderBy('id', 'asc')->get(),

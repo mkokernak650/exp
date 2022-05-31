@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
@@ -24,12 +23,13 @@ class PendingBillCallLogController extends Controller
      */
     public function index()
     {
-        $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query){
+        $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
-        }])->active()->get();
+        }])->get();
+
         $results = PendingBillCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/PendingCallLogs', [
-            'results' => $results,
+            'results'                  => $results,
             'campaignsWithAnnotations' => $campaignsWithAnnotations,
         ]);
     }
@@ -61,9 +61,9 @@ class PendingBillCallLogController extends Controller
             $result = dataMoveHelper($pendingBillCallLog, $data);
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to pending successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to pending successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
         }
     }
 
@@ -88,9 +88,9 @@ class PendingBillCallLogController extends Controller
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to Call Logs successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
         }
     }
 
@@ -99,14 +99,14 @@ class PendingBillCallLogController extends Controller
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('pending_bill_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+            $result = DB::table('pending_bill_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         }
         if ($result) {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 }
