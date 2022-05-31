@@ -390,6 +390,10 @@ const BilledCallLogs = () => {
           value = value.split(",");
         }
         return (
+          <>
+          {console.log('1', campaignsWithAnnotations)}
+          {console.log('2', campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1]))}
+          {console.log('3', campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1])[0]?.annotations)}
           <TextField
             select
             name="annotation_id"
@@ -402,9 +406,10 @@ const BilledCallLogs = () => {
           >
             <option value="">Select Annotation</option>
             {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1])[0]?.annotations.map((annotation, index) => (
-              <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
+              <option key={annotation.id} value={annotation.id} >{annotation.annotation_name}</option>
             ))}
           </TextField>
+        </>
         )
       }
 
