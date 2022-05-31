@@ -1,47 +1,48 @@
-import Layout from "../Layout/Layout"
-import React, { useEffect, useState, useRef } from "react"
-import { kaReducer, Table } from "ka-table"
+import Layout from "../Layout/Layout";
+import React, { useEffect, useState, useRef } from "react";
+import { kaReducer, Table } from "ka-table";
 import {
   DataType,
   SortingMode,
   PagingPosition,
   EditingMode,
   ActionType,
-} from "ka-table/enums"
-import { kaPropsUtils } from "ka-table/utils"
-import { usePage } from "@inertiajs/inertia-react"
+} from "ka-table/enums";
+import { kaPropsUtils } from "ka-table/utils";
+import { usePage } from "@inertiajs/inertia-react";
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators"
-import "ka-table/style.scss"
-import search from "../../../images/search.svg"
-import eyeIcon from "../../../images/eyeIcon.svg"
-import closeNav from "../../../images/closeNav.svg"
-import { hideColumn, showColumn } from "ka-table/actionCreators"
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
-import Tooltip from "@material-ui/core/Tooltip"
-import Edit from "../../../images/three-dots.svg"
-import DeleteIcon from "@material-ui/icons/Delete"
-import IconButton from "@material-ui/core/IconButton"
-import Checkbox from "@material-ui/core/Checkbox"
-import produce from "immer"
+} from "ka-table/actionCreators";
+import "ka-table/style.scss";
+import search from "../../../images/search.svg";
+import eyeIcon from "../../../images/eyeIcon.svg";
+import closeNav from "../../../images/closeNav.svg";
+import { hideColumn, showColumn } from "ka-table/actionCreators";
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
+import Tooltip from "@material-ui/core/Tooltip";
+import Edit from "../../../images/three-dots.svg";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import Checkbox from "@material-ui/core/Checkbox";
+import produce from "immer";
 import {
   Button,
   makeStyles,
-  CircularProgress, TextField,
-} from "@material-ui/core"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import SnackBar from "../../Shared/SnackBar"
-import ConfirmModal from "../../Shared/ConfirmModal"
-import CustomFilter from "../../Components/CustomFilter"
-import { filterData } from '../../Helpers/filterData'
-import { defaultFilter } from "../../Helpers/Filter"
-import { SearchedFields } from "../../Helpers/SearchedFields"
+  CircularProgress,
+  TextField,
+} from "@material-ui/core";
+import axios from "axios";
+import { Helmet } from "react-helmet";
+import SnackBar from "../../Shared/SnackBar";
+import ConfirmModal from "../../Shared/ConfirmModal";
+import CustomFilter from "../../Components/CustomFilter";
+import { filterData } from "../../Helpers/filterData";
+import { defaultFilter } from "../../Helpers/Filter";
+import { SearchedFields } from "../../Helpers/SearchedFields";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -49,60 +50,66 @@ const useStyles = makeStyles(() => ({
     textTransform: "capitalize",
     fontSize: "14px",
   },
-}))
+}));
 
 const BilledCallLogs = () => {
-  const classes = useStyles()
-  const { billedCallLogs, campaignsWithAnnotations } = usePage().props
-  const [showColumns, setShowColumns] = useState(false)
-  const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
-  const [inboundIds, setInbounIds] = useState([])
-  const [response, setResponse] = useState()
-  const [open, setOpen] = useState(false)
-  const [showRevenueClearModal, setShowRevenueClearModal] = useState({ open: false })
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
-  const [revenueLoading, setRevenueLoading] = useState(false)
-  const [annotationLoading, setAnnotationLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const showColumnRef = useRef()
-  const editData=[]
-  const [filterValue, setFilterValue] = useState(defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, ''))
-  const [sn, setSn] = useState("")
-  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
-  const rowFunctionalitiesRef = useRef()
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const classes = useStyles();
+  const { billedCallLogs, campaignsWithAnnotations } = usePage().props;
+  const [showColumns, setShowColumns] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false);
+  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [inboundIds, setInbounIds] = useState([]);
+  const [response, setResponse] = useState();
+  const [open, setOpen] = useState(false);
+  const [showRevenueClearModal, setShowRevenueClearModal] = useState({
+    open: false,
+  });
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [revenueLoading, setRevenueLoading] = useState(false);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const showColumnRef = useRef();
+  const editData = [];
+  const [filterValue, setFilterValue] = useState(
+    defaultFilter("and", "SN", "isNotEmpty", "string", 0, "")
+  );
+  const [sn, setSn] = useState("");
+  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
+  const rowFunctionalitiesRef = useRef();
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [filteredData, setFilteredData] = useState(
     filterData(billedCallLogs, filterValue)
-  )
-
+  );
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
-    left: 350
-  }
+    left: 350,
+  };
 
   const updateAnnotation = (e, tableIndex, index) => {
-    e.preventDefault()
+    e.preventDefault();
     axios
-      .post(route("change.annotation", "billedCallLog"), { indexId: tableIndex, annotation_id: e.target.value })
+      .post(route("change.annotation", "billedCallLog"), {
+        indexId: tableIndex,
+        annotation_id: e.target.value,
+      })
       .then((res) => {
         if (res.status === 200) {
-          setResponse(res.data.msg)
-          setOpen(true)
+          setResponse(res.data.msg);
+          setOpen(true);
 
-          let filteredData = tableProps
+          let filteredData = tableProps;
           filteredData.data[index].Has_Annotation = res.data.has_annotation;
         }
       })
-      .catch((err) => { })
-  }
+      .catch((err) => {});
+  };
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
-      setPosition({ x: e.screenX, y: e.screenY })
+      setPosition({ x: e.screenX, y: e.screenY });
     }
-  }
+  };
   const dataArray = filteredData.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
@@ -138,10 +145,9 @@ const BilledCallLogs = () => {
     Has_Annotation: item.Has_Annotation,
     id: item.id,
     key: index,
-  }))
+  }));
 
   const tablePropsInit = {
-
     columns: [
       {
         key: "edit",
@@ -354,46 +360,49 @@ const BilledCallLogs = () => {
           >
             <img src={Edit} alt="edit-icon"></img>
           </div>
-        )
+        );
       }
       if (column.key === "Recording_Url") {
         return (
-          <audio className="audio-data" controls style={{ width: '100%' }}>
+          <audio className="audio-data" controls style={{ width: "100%" }}>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
-        )
+        );
       }
 
       if (column.key === "Call_Date") {
-        let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-        let format_date = value
-        let dd = String(format_date.getDate()).padStart(2, "0")
-        let yyyy = format_date.getFullYear()
-        format_date = dd + "-" + shortMonth + "-" + yyyy
-        return format_date
+        let shortMonth = value.toLocaleString("en-us", { month: "short" });
+        let format_date = value;
+        let dd = String(format_date.getDate()).padStart(2, "0");
+        let yyyy = format_date.getFullYear();
+        format_date = dd + "-" + shortMonth + "-" + yyyy;
+        return format_date;
       }
       if (column.key === "Call_complete_dt") {
-        let d = new Date(value)
-        let hours = d.getHours()
-        let minutes = d.getMinutes()
-        let ampm = hours >= 12 ? "PM" : "AM"
-        hours = hours % 12
-        hours = hours ? hours : 12 // the hour "0" should be "12"
-        minutes = minutes < 10 ? "0" + minutes : minutes
-        let strTime = hours + ":" + minutes + " " + ampm
-        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
-
+        let d = new Date(value);
+        let hours = d.getHours();
+        let minutes = d.getMinutes();
+        let ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour "0" should be "12"
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        let strTime = hours + ":" + minutes + " " + ampm;
+        return (
+          d.getDate() +
+          "-" +
+          new Intl.DateTimeFormat("en", { month: "short" }).format(d) +
+          "-" +
+          d.getFullYear().toString().substr(-2) +
+          " " +
+          strTime
+        );
       }
       if (column.key === "Annotation_Tag") {
         if (typeof value == "string") {
           value = value.split(",");
         }
         return (
-          <>
-          {console.log('1', campaignsWithAnnotations)}
-          {console.log('2', campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1]))}
-          {console.log('3', campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1])[0]?.annotations)}
           <TextField
             select
             name="annotation_id"
@@ -405,25 +414,26 @@ const BilledCallLogs = () => {
             defaultValue={value[0]}
           >
             <option value="">Select Annotation</option>
-            {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1])[0]?.annotations.map((annotation, index) => (
-              <option key={annotation.id} value={annotation.id} >{annotation.annotation_name}</option>
-            ))}
+            {campaignsWithAnnotations
+              .filter((campaign) => campaign.campaign_name == value[1])[0]
+              ?.annotations.map((annotation, index) => (
+                <option key={annotation.id} value={annotation.id}>
+                  {annotation.annotation_name}
+                </option>
+              ))}
           </TextField>
-        </>
-        )
+        );
       }
-
-
     },
-  }
-  const fields = SearchedFields(tablePropsInit.columns)
+  };
+  const fields = SearchedFields(tablePropsInit.columns);
 
-  const OPTION_KEY = "billed-call-logs"
+  const OPTION_KEY = "billed-call-logs";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  }
-  const [tableProps, changeTableProps] = useState(stateStore)
+  };
+  const [tableProps, changeTableProps] = useState(stateStore);
 
   const SelectionCell = ({
     rowKeyValue,
@@ -437,38 +447,38 @@ const BilledCallLogs = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
+            dispatch(selectRow(rowKeyValue));
+            setTableToolbar(true);
+            const id = parseInt(rowKeyValue);
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
+              selectedRowIds.push(id);
             }
             const selectedRowData = tableProps.data.filter(
               (item) => item.id == id
-            )
-            inboundIds.push(selectedRowData[0].Inbound_Id)
+            );
+            inboundIds.push(selectedRowData[0].Inbound_Id);
           } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
+            dispatch(deselectRow(rowKeyValue));
+            const id = parseInt(rowKeyValue);
+            const itemIndx = selectedRowIds.indexOf(id);
+            selectedRowIds.splice(itemIndx, 1);
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
+              setTableToolbar(false);
             }
             const selectedRowData = tableProps.data.filter(
               (item) => item.id == id
-            )
+            );
             const inboundIndx = selectedRowData.indexOf(
               selectedRowData.Inbound_Id
-            )
-            inboundIds.splice(inboundIndx, 1)
+            );
+            inboundIds.splice(inboundIndx, 1);
           }
         }}
       />
-    )
-  }
+    );
+  };
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -476,219 +486,218 @@ const BilledCallLogs = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true)
-            let i = 0
+            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true);
+            let i = 0;
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id)
-                inboundIds.push(tableProps.data[i].Inbound_Id)
-                continue
+                selectedRowIds.push(tableProps.data[i].id);
+                inboundIds.push(tableProps.data[i].Inbound_Id);
+                continue;
               }
-              i++
+              i++;
             }
           } else {
-            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
+            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
             // if (selectedRowIds) {
-            selectedRowIds.splice(0, selectedRowIds.length)
-            inboundIds.splice(0, inboundIds.length)
+            selectedRowIds.splice(0, selectedRowIds.length);
+            inboundIds.splice(0, inboundIds.length);
 
             // }
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
+              setTableToolbar(false);
             }
           }
         }}
       />
-    )
-  }
+    );
+  };
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
-      return newState
-    })
-  }
+      const newState = kaReducer(prevState, action);
+      const { data, ...settingsWithoutData } = newState;
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
+      return newState;
+    });
+  };
 
-
-  const [serachSidebar, setSearchSidebar] = useState(false)
+  const [serachSidebar, setSearchSidebar] = useState(false);
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState)
-  }
+    setSearchSidebar((prevState) => !prevState);
+  };
   const handleColumns = () => {
-    setShowColumns(true)
-  }
+    setShowColumns(true);
+  };
 
   const closeSidebar = () => {
-    setSearchSidebar(false)
-  }
+    setSearchSidebar(false);
+  };
   const deleteHandler = () => {
-    setDeleteLoading(true)
+    setDeleteLoading(true);
     axios
       .post(route("billed.delete"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
+          let filteredData = tableProps;
           const newData = filteredData.data.filter(
             (item) => !selectedRowIds.includes(item.id)
-          )
-          filteredData.data = newData
-          setDeleteLoading(false)
-          changeTableProps(filteredData)
-          setInbounIds([])
-          setselectedRowIds([])
-          setTableToolbar(false)
-          setOpen(true)
-          setResponse(res.data.msg)
-          setShowDeleteModal({ open: false })
-          emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
+          );
+          filteredData.data = newData;
+          setDeleteLoading(false);
+          changeTableProps(filteredData);
+          setInbounIds([]);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         } else {
-          setDeleteLoading(false)
-          setInbounIds([])
-          setselectedRowIds([])
-          setTableToolbar(false)
-          setOpen(true)
-          setResponse(res.data.msg)
-          setShowDeleteModal({ open: false })
-          emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
+          setDeleteLoading(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
+          setTableToolbar(false);
+          setOpen(true);
+          setResponse(res.data.msg);
+          setShowDeleteModal({ open: false });
+          emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
-        setDeleteLoading(false)
-        setInbounIds([])
-        setselectedRowIds([])
-        setTableToolbar(false)
-        setShowDeleteModal({ open: false })
-        emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
-      })
-  }
+        setDeleteLoading(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
+        setTableToolbar(false);
+        setShowDeleteModal({ open: false });
+        emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
+      });
+  };
 
   const handleAnnotation = (inboundIds) => {
-    const response = []
-    let i = 0
+    const response = [];
+    let i = 0;
     while (i < inboundIds.length) {
-      annotationPostRequest(inboundIds, i, response)
-      i = i + 1
+      annotationPostRequest(inboundIds, i, response);
+      i = i + 1;
     }
-  }
+  };
   const annotationPostRequest = (inboundIdsParam, id, response) => {
-    setAnnotationLoading(true)
+    setAnnotationLoading(true);
     axios
       .post(route("billed.get.annotation"), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          let updateState
+          let updateState;
 
-          response.push(res.data)
+          response.push(res.data);
           if (updateState < inboundIdsParam.length) {
-            setResponse(`${updateState}  Record Updated`)
-            setOpen(true)
+            setResponse(`${updateState}  Record Updated`);
+            setOpen(true);
           }
           if (updateState == inboundIdsParam.length) {
-            let columnsData = produce(tableProps, draft => {
+            let columnsData = produce(tableProps, (draft) => {
               for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = ''
-                res.data[i].edit = res.data[i].id
-                if (!res.data[i].sl) res.data.sl = ''
-                res.data[i].sl = i + 1
+                if (!res.data[i].edit) res.data.edit = "";
+                res.data[i].edit = res.data[i].id;
+                if (!res.data[i].sl) res.data.sl = "";
+                res.data[i].sl = i + 1;
               }
-              draft.data = res.data
-            })
-            changeTableProps(columnsData)
-            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-            setOpen(true)
-            setAnnotationLoading(false)
-            setTableToolbar(false)
-            setInbounIds([])
-            setselectedRowIds([])
-            setOpenRowFunctionalities(false)
-            emptyCheckbox("billed-call-logs", columnsData, changeTableProps)
+              draft.data = res.data;
+            });
+            changeTableProps(columnsData);
+            setResponse(
+              `${inboundIdsParam.length} Record Updated and Updating Completed`
+            );
+            setOpen(true);
+            setAnnotationLoading(false);
+            setTableToolbar(false);
+            setInbounIds([]);
+            setselectedRowIds([]);
+            setOpenRowFunctionalities(false);
+            emptyCheckbox("billed-call-logs", columnsData, changeTableProps);
           }
         } else {
-          setAnnotationLoading(false)
-          setResponse(res.data.msg)
-          setOpen(true)
-          setInbounIds([])
-          setselectedRowIds([])
-          setOpenRowFunctionalities(false)
-          emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
-
+          setAnnotationLoading(false);
+          setResponse(res.data.msg);
+          setOpen(true);
+          setInbounIds([]);
+          setselectedRowIds([]);
+          setOpenRowFunctionalities(false);
+          emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
         }
       })
       .catch((err) => {
-        emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
-        setAnnotationLoading(false)
-        setInbounIds([])
-        setselectedRowIds([])
-      })
-  }
+        emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
+        setAnnotationLoading(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
+      });
+  };
 
   const handleClear = (inboundIds) => {
-    setRevenueLoading(true)
+    setRevenueLoading(true);
     axios
       .post(route("bill.calllogs.revenue.update"), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
-          setRevenueLoading(false)
-          setResponse("Successfully Updated")
-          setOpen(true)
-          let columnsData = produce(tableProps, draft => {
+          setRevenueLoading(false);
+          setResponse("Successfully Updated");
+          setOpen(true);
+          let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
               if (item.Inbound_Id === editData[0]) {
-                item.Revenue = ""
-                item.payoutAmount = ""
+                item.Revenue = "";
+                item.payoutAmount = "";
               }
-            })
-          })
-          changeTableProps(columnsData)
-          setShowRevenueClearModal({ open: false })
-          setOpenRowFunctionalities(false)
-          setInbounIds([])
-          setselectedRowIds([])
+            });
+          });
+          changeTableProps(columnsData);
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
         } else {
-          setRevenueLoading(false)
-          setResponse(res.data.msg)
-          setOpen(true)
-          setShowRevenueClearModal({ open: false })
-          setOpenRowFunctionalities(false)
-          setInbounIds([])
-          setselectedRowIds([])
+          setRevenueLoading(false);
+          setResponse(res.data.msg);
+          setOpen(true);
+          setShowRevenueClearModal({ open: false });
+          setOpenRowFunctionalities(false);
+          setInbounIds([]);
+          setselectedRowIds([]);
         }
       })
       .catch((err) => {
-        setRevenueLoading(false)
-        setShowRevenueClearModal({ open: false })
-        setOpenRowFunctionalities(false)
-        setInbounIds([])
-        setselectedRowIds([])
-      })
-  }
+        setRevenueLoading(false);
+        setShowRevenueClearModal({ open: false });
+        setOpenRowFunctionalities(false);
+        setInbounIds([]);
+        setselectedRowIds([]);
+      });
+  };
 
   const handleOpenModal = (setOpenModal, tableData) => {
-    setOpenModal({ open: true })
+    setOpenModal({ open: true });
     if (tableData) {
-      let filteredData = tableProps
+      let filteredData = tableProps;
       filteredData.data.filter((item) => {
         if (item.Inbound_Id === editData[0]) {
-          setSn(item.SN)
+          setSn(item.SN);
         }
-      })
-      setShowRevenueClearModal({ open: true })
+      });
+      setShowRevenueClearModal({ open: true });
     }
-  }
+  };
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false })
-    setTableToolbar(false)
-    setselectedRowIds([])
-    emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
-  }
-
+    setOpenModal({ open: false });
+    setTableToolbar(false);
+    setselectedRowIds([]);
+    emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
+  };
 
   const handleDeleteOpenModal = () => {
-    setShowDeleteModal({ open: true })
-  }
+    setShowDeleteModal({ open: true });
+  };
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -697,34 +706,34 @@ const BilledCallLogs = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false)
+        setShowColumns(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", checkIfClickedOutside)
+    document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside)
-    }
-  }, [showColumns])
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
 
   const emptyCheckbox = (storageName, tempData, changeTableProps) => {
-    const storedData = JSON.parse(localStorage.getItem(`${storageName}`))
-    storedData.selectedRows = []
-    localStorage.setItem("billed-call-logs", JSON.stringify(storedData))
-    let filteredData = { ...tempData }
-    filteredData.selectedRows = []
-    changeTableProps(filteredData)
-  }
+    const storedData = JSON.parse(localStorage.getItem(`${storageName}`));
+    storedData.selectedRows = [];
+    localStorage.setItem("billed-call-logs", JSON.stringify(storedData));
+    let filteredData = { ...tempData };
+    filteredData.selectedRows = [];
+    changeTableProps(filteredData);
+  };
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("billed-call-logs"))
+      const storedData = JSON.parse(localStorage.getItem("billed-call-logs"));
       if (storedData != null) {
-        emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
+        emptyCheckbox("billed-call-logs", tableProps, changeTableProps);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -733,16 +742,16 @@ const BilledCallLogs = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false)
+        setShowColumns(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", checkIfClickedOutside)
+    document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside)
-    }
-  }, [showColumns])
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -751,15 +760,15 @@ const BilledCallLogs = () => {
         rowFunctionalitiesRef.current &&
         !rowFunctionalitiesRef.current.contains(e.target)
       ) {
-        setOpenRowFunctionalities(false)
+        setOpenRowFunctionalities(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", checkIfClickedOutside)
+    document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside)
-    }
-  }, [openRowFunctionalities])
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [openRowFunctionalities]);
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -768,17 +777,16 @@ const BilledCallLogs = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false)
+        setShowColumns(false);
       }
-    }
-    document.addEventListener("mousedown", checkIfClickedOutside)
+    };
+    document.addEventListener("mousedown", checkIfClickedOutside);
     return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside)
-    }
-  }, [showColumns])
+      document.removeEventListener("mousedown", checkIfClickedOutside);
+    };
+  }, [showColumns]);
 
   const RowFunctionalities = () => {
-
     return (
       <div
         className="row-functionalities"
@@ -786,23 +794,28 @@ const BilledCallLogs = () => {
         style={style}
       >
         <div>
-          <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
-        </div >
-      </div >
-    )
-  }
+          <span
+            onClick={() =>
+              handleOpenModal(setShowRevenueClearModal, tableProps)
+            }
+          >
+            Clear
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   const handleRowFunctionalities = (id) => {
-    setOpenRowFunctionalities(true)
-    setShowColumns(false)
+    setOpenRowFunctionalities(true);
+    setShowColumns(false);
     if (editData.length > 0) {
-      const itemIndx = editData.indexOf(id)
-      editData.splice(itemIndx, 1)
+      const itemIndx = editData.indexOf(id);
+      editData.splice(itemIndx, 1);
     }
-    const tempData = tableProps.data.filter((item) => item.id == id)
-    editData.push(tempData[0].Inbound_Id)
-  }
-
+    const tempData = tableProps.data.filter((item) => item.id == id);
+    editData.push(tempData[0].Inbound_Id);
+  };
 
   const TableToolbar = () => {
     return (
@@ -821,14 +834,21 @@ const BilledCallLogs = () => {
           onClick={() => handleAnnotation(inboundIds)}
         >
           {"Get Annotation"}
-          {annotationLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {annotationLoading && (
+            <CircularProgress
+              color="inherit"
+              size="1rem"
+              thickness={2}
+              style={{ marginLeft: "5px" }}
+            />
+          )}
         </Button>
         <div className="selection-rows">
           {selectedRowIds.length} Row Selected
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -854,16 +874,16 @@ const BilledCallLogs = () => {
         },
       ],
       editingMode: EditingMode.None,
-    }
+    };
     const dispatchSettings = (action) => {
       if (action.type === ActionType.UpdateCellValue) {
         tableProps.dispatch(
           action.value
             ? showColumn(action.rowKeyValue)
             : hideColumn(action.rowKeyValue)
-        )
+        );
       }
-    }
+    };
     return (
       <Table
         {...columnsSettingsProps}
@@ -877,15 +897,15 @@ const BilledCallLogs = () => {
             content: (props) => {
               switch (props.column.key) {
                 case "visible":
-                  return <CellEditorBoolean {...props} />
+                  return <CellEditorBoolean {...props} />;
               }
             },
           },
         }}
         dispatch={dispatchSettings}
       />
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -916,7 +936,15 @@ const BilledCallLogs = () => {
                 </div>
 
                 <div className="top-element">
-                  <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} />
+                  <CustomFilter
+                    mainData={tableProps.data}
+                    fields={fields}
+                    filterValue={filterValue}
+                    setFilterValue={setFilterValue}
+                    filteredData={filteredData}
+                    setFilteredData={setFilteredData}
+                    filterData={filterData}
+                  />
                 </div>
               </div>
             ) : (
@@ -937,14 +965,14 @@ const BilledCallLogs = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props} />
+                  return <SelectionCell {...props} />;
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <></>
+                  return <></>;
                 }
               },
             },
@@ -958,7 +986,7 @@ const BilledCallLogs = () => {
                         tableProps
                       )}
                     />
-                  )
+                  );
                 }
               },
             },
@@ -972,7 +1000,7 @@ const BilledCallLogs = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    )
+                    );
                 }
               },
             },
@@ -991,7 +1019,8 @@ const BilledCallLogs = () => {
           width={"450px"}
           title={
             <>
-              Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
+              Do you want clear <b>revenue</b> and <b>payout</b> for -{" "}
+              <b>{sn}</b>
             </>
           }
           loading={revenueLoading}
@@ -1004,18 +1033,19 @@ const BilledCallLogs = () => {
           btnAction={deleteHandler}
           closeAction={() => handleCloseModal(setShowDeleteModal)}
           width={"400px"}
-          title={`${inboundIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
-            }`}
+          title={`${
+            inboundIds.length > 1
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"
+          }`}
           loading={deleteLoading}
         ></ConfirmModal>
       </div>
     </>
-  )
-}
+  );
+};
 
 BilledCallLogs.layout = (page) => (
   <Layout title="Billed Call Logs">{page}</Layout>
-)
-export default BilledCallLogs
+);
+export default BilledCallLogs;
