@@ -82,7 +82,7 @@ const BilledCallLogs = () => {
     left: 350
   }
 
-  const updateAnnotation = (e, tableIndex) => {
+  const updateAnnotation = (e, tableIndex, index) => {
     e.preventDefault()
     axios
       .post(route("change.annotation", "billedCallLog"), { indexId: tableIndex, annotation_id: e.target.value })
@@ -92,11 +92,7 @@ const BilledCallLogs = () => {
           setOpen(true)
 
           let filteredData = tableProps
-          filteredData.data.filter((item, indx) => {
-            if (item.id == tableIndex) {
-              filteredData.data[indx].Has_Annotation = res.data.has_annotation
-            }
-          })
+          filteredData.data[index].Has_Annotation = res.data.has_annotation;
         }
       })
       .catch((err) => { })
@@ -138,7 +134,7 @@ const BilledCallLogs = () => {
     City: item.City,
     State: item.State,
     Zipcode: item.Zipcode,
-    Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
+    Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id, index],
     Has_Annotation: item.Has_Annotation,
     id: item.id,
     key: index,
@@ -390,21 +386,22 @@ const BilledCallLogs = () => {
 
       }
       if (column.key === "Annotation_Tag") {
-        let arrayValue = value.split(',')
+        if (typeof value == "string") {
+          value = value.split(",");
+        }
         return (
           <TextField
-            id="annotation_id"
             select
             name="annotation_id"
-            onChange={(e) => updateAnnotation(e, arrayValue[2])}
+            onChange={(e) => updateAnnotation(e, value[2], value[3])}
             SelectProps={{
               native: true,
             }}
             fullWidth
-            defaultValue={arrayValue[0]}
+            defaultValue={value[0]}
           >
             <option value="">Select Annotation</option>
-            {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0]?.annotations.map((annotation, index) => (
+            {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == value[1])[0]?.annotations.map((annotation, index) => (
               <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
             ))}
           </TextField>
