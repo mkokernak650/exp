@@ -1,37 +1,30 @@
-import Layout from "../Layout/Layout";
-import M from "materialize-css";
-import React, { useEffect, useState,useRef } from "react";
-import { kaReducer, Table } from "ka-table";
+import Layout from "../Layout/Layout"
+import React, { useEffect, useState, useRef } from "react"
+import { kaReducer, Table } from "ka-table"
 import {
   DataType,
   SortingMode,
-  PagingPosition,
   EditingMode,
   ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+} from "ka-table/enums"
+import { kaPropsUtils } from "ka-table/utils"
+import { usePage } from "@inertiajs/inertia-react"
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
+} from "ka-table/actionCreators"
+import FilterControl from "react-filter-control"
+import "ka-table/style.scss"
+import search from "../../../images/search.svg"
+import eyeIcon from "../../../images/eyeIcon.svg"
+import closeNav from "../../../images/closeNav.svg"
+import { hideColumn, showColumn, hideLoading, showLoading } from "ka-table/actionCreators"
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
+import Checkbox from "@material-ui/core/Checkbox"
 import {
-  CssBaseline,
   makeStyles,
   Button,
   Snackbar,
@@ -40,11 +33,14 @@ import {
   Radio,
   FormControlLabel,
   FormLabel,
-} from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
-import NormalModal from "../../Shared/NormalModal";
-import axios from "axios";
-import { Helmet } from "react-helmet";
+} from "@material-ui/core"
+import MuiAlert from "@material-ui/lab/Alert"
+import NormalModal from "../../Shared/NormalModal"
+import axios from "axios"
+import { Helmet } from "react-helmet"
+import { Pagination } from 'react-laravel-paginex'
+
+
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -52,10 +48,10 @@ const useStyles = makeStyles(() => ({
     textTransform: "capitalize",
     fontSize: "14px",
   },
-}));
+}))
 
 function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+  return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 export const fields = [
   {
@@ -250,7 +246,7 @@ export const fields = [
   },
   {
     caption: "ZipCode",
-    name: "ZipCode",
+    name: "Zip_Code",
     operators: [
       {
         caption: "Contains",
@@ -628,7 +624,7 @@ export const fields = [
       },
     ],
   },
-];
+]
 
 export const groups = [
   {
@@ -639,58 +635,68 @@ export const groups = [
     caption: "Or",
     name: "or",
   },
-];
+]
 export const filter = {
   groupName: "and",
   items: [
     {
       field: "Market",
-      operator: "isNotEmpty",
+      operator: "contains",
+      value: ""
     },
   ],
-};
+}
 
 const ZipcodeByTelevisionMarketNew = () => {
-  const classes = useStyles();
-  const { allZipcodesByTelevisionMarket } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [importModal, setImportModal] = useState({ open: false });
-  const [exportModal, setExportModal] = useState({ open: false });
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [type, setType] = useState("xlsx");
-  const showColumnRef = useRef();
+  const classes = useStyles()
+  const { allZipcodesByTelevisionMarket } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [response, setResponse] = useState()
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [importModal, setImportModal] = useState({ open: false })
+  const [exportModal, setExportModal] = useState({ open: false })
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [type, setType] = useState("xlsx")
+  const showColumnRef = useRef()
+  const [zipcodeTelMarket, setZipcodeTelMarket] = useState(allZipcodesByTelevisionMarket)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [curerentPage, setCurerentPage] = useState(1)
+  const [searchedData, setSearchData] = useState([])
+
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
-      return;
+      return
     }
-    setOpen(false);
-  };
-  const dataArray = allZipcodesByTelevisionMarket.map((item, index) => ({
+    setOpen(false)
+  }
+  const mapDataArr = data => {
+    return data.data.map((item, index) => ({
     sl: index + 1,
-    Market: item.market,
-    State: item.state,
-    County: item.county,
-    City: item.city,
-    Population: item.population,
-    ZipCode: item.zip_code,
-    Fips: item.fips,
-    Median_household_income_2007_2011: item.median_household_income_2007_2011,
-    Race_americanindian: item.race_americanindian,
-    Race_asian: item.race_asian,
-    Race_white: item.race_white,
-    Race_black: item.race_black,
-    Race_hawaiian: item.race_hawaiian,
-    Race_hispanic: item.race_hispanic,
-    Race_other: item.race_other,
+    market: item.market,
+    state: item.state,
+    county: item.county,
+    city: item.city,
+    population: item.population,
+    zip_code: item.zip_code,
+    fips: item.fips,
+    median_household_income_2007_2011: item.median_household_income_2007_2011,
+    race_americanindian: item.race_americanindian,
+    race_asian: item.race_asian,
+    race_white: item.race_white,
+    race_black: item.race_black,
+    race_hawaiian: item.race_hawaiian,
+    race_hispanic: item.race_hispanic,
+    race_other: item.race_other,
     id: item.id,
     key: index,
-  }));
+  }))
+}
+const dataArray = mapDataArr(allZipcodesByTelevisionMarket)
+console.log('dataArray',dataArray)
 
   const tablePropsInit = {
     columns: [
@@ -705,117 +711,113 @@ const ZipcodeByTelevisionMarketNew = () => {
         style: { width: 100 },
       },
       {
-        key: "Market",
+        key: "market",
         title: "Market",
         dataType: DataType.String,
         style: { width: 250 },
       },
       {
-        key: "State",
+        key: "state",
         title: "State",
         dataType: DataType.String,
         style: { width: 130 },
       },
       {
-        key: "County",
+        key: "county",
         title: "County",
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "City",
+        key: "city",
         title: "City",
         dataType: DataType.String,
         style: { width: 230 },
       },
       {
-        key: "Population",
+        key: "population",
         title: "Population",
         dataType: DataType.String,
         style: { width: 130 },
       },
       {
-        key: "ZipCode",
+        key: "zip_code",
         title: "ZipCode",
         dataType: DataType.String,
         style: { width: 150 },
       },
       {
-        key: "Fips",
+        key: "fips",
         title: "Fips",
         dataType: DataType.String,
         style: { width: 190 },
       },
       {
-        key: "Median_household_income_2007_2011",
+        key: "median_household_income_2007_2011",
         title: "Median_household_income_2007_2011",
         dataType: DataType.String,
         style: { width: 310 },
       },
       {
-        key: "Race_americanindian",
+        key: "race_americanindian",
         title: "Race_americanindian",
         dataType: DataType.String,
         style: { width: 220 },
       },
       {
-        key: "Race_asian",
+        key: "race_asian",
         title: "Race_asian",
         dataType: DataType.String,
         style: { width: 170 },
       },
       {
-        key: "Race_white",
+        key: "race_white",
         title: "Race_white",
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "Race_black",
+        key: "race_black",
         title: "Race_black",
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "Race_hawaiian",
+        key: "race_hawaiian",
         title: "Race_hawaiian",
         dataType: DataType.String,
         style: { width: 180 },
       },
       {
-        key: "Race_hispanic",
+        key: "race_hispanic",
         title: "Race_hispanic",
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "Race_other",
+        key: "race_other",
         title: "Race_other",
         dataType: DataType.String,
         style: { width: 240 },
       },
     ],
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
+    loading: {
+      enabled: false,
+      text: 'Loading...'
     },
     data: dataArray,
     rowKeyField: "id",
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-    // rowReordering: true,
-  };
+  }
 
-  const OPTION_KEY = "zipcode-television-by-market";
+  const OPTION_KEY = "zipcode-television-by-market"
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  }
+  const [tableProps, changeTableProps] = useState(stateStore)
 
   const SelectionCell = ({
     rowKeyValue,
@@ -829,27 +831,27 @@ const ZipcodeByTelevisionMarketNew = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -857,148 +859,119 @@ const ZipcodeByTelevisionMarketNew = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
+            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true)
+            let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                continue;
+                selectedRowIds.push(tableProps.data[i].id)
+                continue
               }
-              i++;
+              i++
             }
           } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
             // if (selectedRowIds) {
-            selectedRowIds.splice(0, selectedRowIds.length);
+            selectedRowIds.splice(0, selectedRowIds.length)
             // }
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
-  const [filterValue, changeFilter] = useState(filter);
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue);
-  };
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      return newState
+    })
+  }
+  const [filterValue, changeFilter] = useState(filter)
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const hideCoumnSettings = () => {
-    setShowColumns(false);
-  };
+    setShowColumns(false)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
 
   const openImportModal = () => {
-    setImportModal({ open: true });
-  };
+    setImportModal({ open: true })
+  }
   const openExportModal = () => {
-    setExportModal({ open: true });
-  };
-  // const deleteHandler = () => {
-  //   axios
-  //     .post(route("zipcode.television.market.delete"), { selectedRowIds })
-  //     .then((res) => {
-  //       if (res.data.status_code === 200) {
-  //         let filteredData = tableProps;
-  //         const newData = filteredData.data.filter(
-  //           (item) => !selectedRowIds.includes(item.id)
-  //         );
-  //         filteredData.data = newData;
-  //         changeTableProps(filteredData);
-  //         setselectedRowIds([]);
-  //         setTableToolbar(false);
-  //         setOpen(true);
-  //         setResponse(res.data.msg);
-  //       } else {
-  //         setOpen(true);
-  //         setResponse(res.data.msg);
-  //         setselectedRowIds([]);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       setTableToolbar(false);
-  //       setselectedRowIds([]);
-  //     });
-  // };
+    setExportModal({ open: true })
+  }
 
   const handleImportChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
+    setSelectedFile(e.target.files[0])
+  }
 
   const handleExportChange = (e) => {
-    setType(e.target.value);
-  };
+    setType(e.target.value)
+  }
 
   const importHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("importfile", selectedFile);
+    e.preventDefault()
+    setLoading(true)
+    const formData = new FormData()
+    formData.append("importfile", selectedFile)
     axios
       .post(route("zipcode.television.market.import"), formData)
       .then((res) => {
-        setSelectedFile(null);
-        setLoading(false);
+        setSelectedFile(null)
+        setLoading(false)
         if (res.status === 200) {
-          setMainData(res.data);
-          setImportModal({ open: false });
-          setResponse("Imported Successfully");
-          setOpen(true);
+          setMainData(res.data)
+          setImportModal({ open: false })
+          setResponse("Imported Successfully")
+          setOpen(true)
         } else {
-          setResponse("Import failed");
+          setResponse("Import failed")
         }
       })
-      .catch((err) => { });
-  };
+      .catch((err) => { })
+  }
 
   const triggerExportLink = (link) => {
-    return window.open(link);
-  };
+    return window.open(link)
+  }
 
-  const baseUrl = window.location.origin;
+  const baseUrl = window.location.origin
   const exportHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
       .get(`${baseUrl}/zipcode-television-market/${type}`)
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          setExportModal({ open: false });
-          triggerExportLink(res.request.responseURL);
-          setResponse("Exported Successfully");
-          setOpen(true);
+          setExportModal({ open: false })
+          triggerExportLink(res.request.responseURL)
+          setResponse("Exported Successfully")
+          setOpen(true)
         } else {
-          setResponse("Export failed");
+          setResponse("Export failed")
         }
       })
       .catch((err) => {
-        setLoading(false);
-      });
-  };
+        setLoading(false)
+      })
+  }
 
-  useEffect(() => M.AutoInit());
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -1007,15 +980,15 @@ const ZipcodeByTelevisionMarketNew = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener("mousedown", checkIfClickedOutside)
     return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showColumns]);
+      document.removeEventListener("mousedown", checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   // const TableToolbar = () => {
   //   return (
@@ -1056,16 +1029,16 @@ const ZipcodeByTelevisionMarketNew = () => {
         },
       ],
       editingMode: EditingMode.None,
-    };
+    }
     const dispatchSettings = (action) => {
       if (action.type === ActionType.UpdateCellValue) {
         tableProps.dispatch(
           action.value
             ? showColumn(action.rowKeyValue)
             : hideColumn(action.rowKeyValue)
-        );
+        )
       }
-    };
+    }
     return (
       <Table
         {...columnsSettingsProps}
@@ -1079,28 +1052,56 @@ const ZipcodeByTelevisionMarketNew = () => {
             content: (props) => {
               switch (props.column.key) {
                 case "visible":
-                  return <CellEditorBoolean {...props} />;
+                  return <CellEditorBoolean {...props} />
               }
             },
           },
         }}
         dispatch={dispatchSettings}
       />
-    );
-  };
+    )
+  }
+
+  const getSearchingData = async (data) => {
+    setCurerentPage(data)
+    dispatch(showLoading())
+    await axios.get('zipcode-television-market?page=' + data.page + '&itemPerPage=' + itemPerPage + '&filteredValue=' + JSON.stringify(filterValue)).then(res => {
+      setZipcodeTelMarket(res.data)
+      dispatch(hideLoading())
+      setSearchData(res.data.data)
+    })
+  }
+
+  const onFilterChanged = (newFilterValue) => {
+    changeFilter(newFilterValue)
+  }
+
+
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(curerentPage)
+
+  }, [itemPerPage])
+
+  useEffect(() => {
+    getSearchingData(curerentPage)
+
+  }, [filterValue])
+
 
   return (
     <>
       <Helmet title="Zipcode By Television Market Report" />
-
       <div className="selection-demo">
-
         <div className="table-top">
           <div className="top-left">
-          <div className="columns-show-hide" onClick={handleColumns}>
+            <div className="columns-show-hide" onClick={handleColumns}>
               <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
             </div>
-            <Button
+            {/* <Button
               variant="contained"
               type="submit"
               color="primary"
@@ -1119,7 +1120,7 @@ const ZipcodeByTelevisionMarketNew = () => {
               disabled={allZipcodesByTelevisionMarket == ""}
             >
               Export
-            </Button>
+            </Button> */}
           </div>
 
           <div className="search-icon" onClick={handleSearch}>
@@ -1153,7 +1154,7 @@ const ZipcodeByTelevisionMarketNew = () => {
             ""
           )}
           {showColumns ? (
-              <div className="column-settings" ref={showColumnRef}>
+            <div className="column-settings" ref={showColumnRef}>
               <ColumnSettings {...tableProps} dispatch={dispatch} />
             </div>
           ) : (
@@ -1167,14 +1168,14 @@ const ZipcodeByTelevisionMarketNew = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -1187,9 +1188,8 @@ const ZipcodeByTelevisionMarketNew = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
-                  );
+                  )
                 }
               },
             },
@@ -1203,14 +1203,37 @@ const ZipcodeByTelevisionMarketNew = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
             },
+            noDataRow: {
+              content: () => 'No Data Found'
+            }
+            
           }}
+          
           dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          extendedFilter={(data) => searchedData}
+
         />
+
+        <div className="table-bottom">
+        {console.log('tableProps',tableProps)}
+        {console.log('zipcodeTelMarket',zipcodeTelMarket)}
+
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10" selected="">10</option>
+            <option value="20" selected="">20</option>
+            <option value="50" selected="">50</option>
+            <option value="100" selected="">100</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={zipcodeTelMarket} />
+        </div>
 
         <Snackbar
           open={open}
@@ -1280,10 +1303,10 @@ const ZipcodeByTelevisionMarketNew = () => {
         </NormalModal>
       </div>
     </>
-  );
-};
+  )
+}
 
 ZipcodeByTelevisionMarketNew.layout = (page) => (
   <Layout title="Zipcode Database">{page}</Layout>
-);
-export default ZipcodeByTelevisionMarketNew;
+)
+export default ZipcodeByTelevisionMarketNew

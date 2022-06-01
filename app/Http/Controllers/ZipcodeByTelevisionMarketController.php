@@ -18,7 +18,23 @@ class ZipcodeByTelevisionMarketController extends Controller
 
     public function index()
     {
-        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::orderBy('id', 'DESC')->take(1000)->get();
+        $conditions = json_decode(request('filteredValue'));
+
+        if (request('filteredValue') && count($conditions->items)) {
+            $zipDataQuery = ZipcodeByTelevisionMarket::query();
+
+            $firstCond = $conditions->items[0];
+            $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+            for ($i = 1; $i < count($conditions->items); $i++) {
+                $cond = $conditions->items[$i];
+                $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+            }
+            return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
+        }
+        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::paginate(request('itemPerPage') ?? 15);
+        if (request('page')) {
+            return $allZipcodesByTelevisionMarket;
+        }
         return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
             'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket
         ]);

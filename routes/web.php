@@ -140,7 +140,7 @@ Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])->name('zipc
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])->name('zipcode.data.delete');
-Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
+// Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
 
 Route::get('/target-form', [TargetController::class, 'index'])->name('target.form');
 Route::get('/target-report', [TargetController::class, 'TargetsReport'])->name('target.report');
@@ -149,6 +149,7 @@ Route::post('/target-delete', [TargetController::class, 'delete'])->name('target
 Route::post('/target-edit', [TargetController::class, 'edit'])->name('target.edit');
 Route::post('/target-status-update', [TargetController::class, 'statusUpdate'])->name('target.status.update');
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])->name('update.annotation');
+
 
 Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])->name('billed-call-log-report');
 Route::get('billed-store', [BilledCallLogController::class, 'store'])->name('billed.store');

@@ -1697,7 +1697,7 @@ const ZipcodeDatabase = () => {
   }, [showColumns])
 
 
-
+console.log(tableProps)
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
       data: tableProps.columns.map((c) => ({
@@ -1910,6 +1910,8 @@ const ZipcodeDatabase = () => {
           extendedFilter={(data) => searchedData}
         />
         <div className="table-bottom">
+        {console.log('tableProps',tableProps)}
+        {console.log('zipCodeData',zipCodeData)}
           <select
             name="item-per-page"
             id="item-per-page"
