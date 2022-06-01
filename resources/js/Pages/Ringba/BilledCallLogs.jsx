@@ -66,7 +66,7 @@ const BilledCallLogs = () => {
   const [annotationLoading, setAnnotationLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const showColumnRef = useRef()
-  const editData=[]
+  const editData = []
   const [filterValue, setFilterValue] = useState(defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, ''))
   const [sn, setSn] = useState("")
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
@@ -378,18 +378,20 @@ const BilledCallLogs = () => {
         return format_date
       }
       if (column.key === "Call_complete_dt") {
-        let d = new Date(value)
-        let hours = d.getHours()
-        let minutes = d.getMinutes()
-        let ampm = hours >= 12 ? "PM" : "AM"
-        hours = hours % 12
-        hours = hours ? hours : 12 // the hour "0" should be "12"
-        minutes = minutes < 10 ? "0" + minutes : minutes
-        let strTime = hours + ":" + minutes + " " + ampm
-        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
-
+        if (value !== undefined) {
+          let d = new Date(value)
+          let hours = d.getHours()
+          let minutes = d.getMinutes()
+          let ampm = hours >= 12 ? "PM" : "AM"
+          hours = hours % 12
+          hours = hours ? hours : 12 // the hour "0" should be "12"
+          minutes = minutes < 10 ? "0" + minutes : minutes
+          let strTime = hours + ":" + minutes + " " + ampm
+          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
+        }
       }
       if (column.key === "Annotation_Tag") {
+        console.log(value)
         let arrayValue = value.split(',')
         return (
           <TextField

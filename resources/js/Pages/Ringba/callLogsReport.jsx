@@ -92,7 +92,6 @@ const CallLogsReport = () => {
   const [filteredData, setFilteredData] = useState(
     filterData(allCallLogs, filterValue)
   )
-  console.log('')
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
     axios
@@ -379,6 +378,7 @@ const CallLogsReport = () => {
       }
       if (column.key === "Annotation_Tag") {
         let arrayValue = value.split(',')
+        console.log('arrayValue', arrayValue)
         return (
           <TextField
             id="annotation_id"
@@ -408,15 +408,18 @@ const CallLogsReport = () => {
       }
 
       if (column.key === "Call_complete_dt") {
-        let d = new Date(value)
-        let hours = d.getHours()
-        let minutes = d.getMinutes()
-        let ampm = hours >= 12 ? "PM" : "AM"
-        hours = hours % 12
-        hours = hours ? hours : 12 // the hour "0" should be "12"
-        minutes = minutes < 10 ? "0" + minutes : minutes
-        let strTime = hours + ":" + minutes + " " + ampm
-        return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
+        if(value!==undefined){
+          let d = new Date(value)
+          let hours = d.getHours()
+          let minutes = d.getMinutes()
+          let ampm = hours >= 12 ? "PM" : "AM"
+          hours = hours % 12
+          hours = hours ? hours : 12 // the hour "0" should be "12"
+          minutes = minutes < 10 ? "0" + minutes : minutes
+          let strTime = hours + ":" + minutes + " " + ampm
+          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
+        }
+
 
       }
       if (column.key === "Call_Date") {
