@@ -115,7 +115,7 @@ const BilledCallLogs = () => {
     sl: index + 1,
     SN: item.SN,
     Recording_Url: item.Recording_Url,
-    Call_complete_dt: item.Call_Date_Time,
+    Call_Date_Time: item.Call_Date_Time,
     Call_Date: item.Call_Date,
     Duplicate_Call: item.Duplicate_Call,
     Customer: item.Customer,
@@ -170,7 +170,7 @@ const BilledCallLogs = () => {
         style: { width: 130 },
       },
       {
-        key: "Call_complete_dt",
+        key: "Call_Date_Time",
         title: "Call Time (EST)",
         dataType: DataType.String,
         style: { width: 230 },
@@ -372,14 +372,17 @@ const BilledCallLogs = () => {
       }
 
       if (column.key === "Call_Date") {
+        if(value !==undefined){
+
         let shortMonth = value.toLocaleString("en-us", { month: "short" })
         let format_date = value
         let dd = String(format_date.getDate()).padStart(2, "0")
         let yyyy = format_date.getFullYear()
         format_date = dd + "-" + shortMonth + "-" + yyyy
         return format_date
+        }
       }
-      if (column.key === "Call_complete_dt") {
+      if (column.key === "Call_Date_Time") {
         if (value !== undefined) {
           let d = new Date(value)
           let hours = d.getHours()

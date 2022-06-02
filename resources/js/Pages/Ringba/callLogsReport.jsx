@@ -123,7 +123,7 @@ const CallLogsReport = () => {
       sl: index + 1,
       SN: item.SN,
       Call_Date: item.Call_Date,
-      Call_complete_dt: item.Call_Date_Time,
+      Call_Date_Time: item.Call_Date_Time,
       Has_Annotation: item.Has_Annotation,
       Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
       call_Logs_status: item.call_Logs_status,
@@ -180,7 +180,7 @@ const CallLogsReport = () => {
         style: { width: 130 },
       },
       {
-        key: "Call_complete_dt",
+        key: "Call_Date_Time",
         title: "Call Time (EST)",
         dataType: DataType.Date,
         style: { width: 230 },
@@ -407,7 +407,7 @@ const CallLogsReport = () => {
         )
       }
 
-      if (column.key === "Call_complete_dt") {
+      if (column.key === "Call_Date_Time") {
         if(value!==undefined){
           let d = new Date(value)
           let hours = d.getHours()
@@ -423,12 +423,14 @@ const CallLogsReport = () => {
 
       }
       if (column.key === "Call_Date") {
+        if(value !==undefined){
         let shortMonth = value.toLocaleString('en-us', { month: 'short' })
         let format_date = value
         let dd = String(format_date.getDate()).padStart(2, "0")
         let yyyy = format_date.getFullYear()
         format_date = dd + "-" + shortMonth + "-" + yyyy
         return format_date
+        }
       }
     }
   }

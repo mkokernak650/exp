@@ -91,7 +91,7 @@ const ArchivedCallLogReports = () => {
     SN: item.SN,
     Campaign: item.Campaign,
     Call_Date: item.Call_Date,
-    Call_complete_dt: item.Call_Date_Time,
+    Call_Date_Time: item.Call_Date_Time,
     Call_Date_Time: item.Call_Date_Time,
     Conn_Duration: item.Conn_Duration,
     Call_Length_In_Seconds: item.call_Length_In_Seconds,
@@ -140,7 +140,7 @@ const ArchivedCallLogReports = () => {
         style: { width: 130 },
       },
       {
-        key: "Call_complete_dt",
+        key: "Call_Date_Time",
         title: "Call Time (EST)",
         dataType: DataType.string,
         style: { width: 230 },
@@ -303,6 +303,7 @@ const ArchivedCallLogReports = () => {
         );
       }
       if (column.key === "Call_Date") {
+        if(value !==undefined){
         let shortMonth = value.toLocaleString('en-us', { month: 'short' });
         let format_date = value
         let dd = String(format_date.getDate()).padStart(2, "0");
@@ -310,7 +311,10 @@ const ArchivedCallLogReports = () => {
         format_date = dd + "-" + shortMonth + "-" + yyyy;
         return format_date;
       }
-      if (column.key === "Call_complete_dt") {
+    }
+      if (column.key === "Call_Date_Time") {
+        if(value !==undefined){
+
         let d = new Date(value);
         let hours = d.getHours();
         let minutes = d.getMinutes();
@@ -320,7 +324,7 @@ const ArchivedCallLogReports = () => {
         minutes = minutes < 10 ? "0" + minutes : minutes;
         let strTime = hours + ":" + minutes + " " + ampm;
         return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime;
-
+        }
       }
     },
   };
