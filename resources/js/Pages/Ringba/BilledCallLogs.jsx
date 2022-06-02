@@ -32,14 +32,15 @@ import produce from "immer"
 import {
   Button,
   makeStyles,
-  CircularProgress, TextField,
+  CircularProgress,
+  TextField,
 } from "@material-ui/core"
 import axios from "axios"
 import { Helmet } from "react-helmet"
 import SnackBar from "../../Shared/SnackBar"
 import ConfirmModal from "../../Shared/ConfirmModal"
 import CustomFilter from "../../Components/CustomFilter"
-import { filterData } from '../../Helpers/filterData'
+import { filterData } from "../../Helpers/filterData"
 import { defaultFilter } from "../../Helpers/Filter"
 import { SearchedFields } from "../../Helpers/SearchedFields"
 
@@ -60,14 +61,18 @@ const BilledCallLogs = () => {
   const [inboundIds, setInbounIds] = useState([])
   const [response, setResponse] = useState()
   const [open, setOpen] = useState(false)
-  const [showRevenueClearModal, setShowRevenueClearModal] = useState({ open: false })
+  const [showRevenueClearModal, setShowRevenueClearModal] = useState({
+    open: false,
+  })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [revenueLoading, setRevenueLoading] = useState(false)
   const [annotationLoading, setAnnotationLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const showColumnRef = useRef()
   const editData = []
-  const [filterValue, setFilterValue] = useState(defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, ''))
+  const [filterValue, setFilterValue] = useState(
+    defaultFilter("and", "SN", "isNotEmpty", "string", 0, "")
+  )
   const [sn, setSn] = useState("")
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
   const rowFunctionalitiesRef = useRef()
@@ -76,27 +81,25 @@ const BilledCallLogs = () => {
     filterData(billedCallLogs, filterValue)
   )
 
-
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
-    left: 350
+    left: 350,
   }
 
-  const updateAnnotation = (e, tableIndex) => {
+  const updateAnnotation = (e, tableIndex, index) => {
     e.preventDefault()
     axios
-      .post(route("change.annotation", "billedCallLog"), { indexId: tableIndex, annotation_id: e.target.value })
+      .post(route("change.annotation", "billedCallLog"), {
+        indexId: tableIndex,
+        annotation_id: e.target.value,
+      })
       .then((res) => {
         if (res.status === 200) {
           setResponse(res.data.msg)
           setOpen(true)
 
           let filteredData = tableProps
-          filteredData.data.filter((item, indx) => {
-            if (item.id == tableIndex) {
-              filteredData.data[indx].Has_Annotation = res.data.has_annotation
-            }
-          })
+          filteredData.data[index].Has_Annotation = res.data.has_annotation
         }
       })
       .catch((err) => { })
@@ -138,14 +141,13 @@ const BilledCallLogs = () => {
     City: item.City,
     State: item.State,
     Zipcode: item.Zipcode,
-    Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
+    Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id, index],
     Has_Annotation: item.Has_Annotation,
     id: item.id,
     key: index,
   }))
 
   const tablePropsInit = {
-
     columns: [
       {
         key: "edit",
@@ -362,7 +364,7 @@ const BilledCallLogs = () => {
       }
       if (column.key === "Recording_Url") {
         return (
-          <audio className="audio-data" controls style={{ width: '100%' }}>
+          <audio className="audio-data" controls style={{ width: "100%" }}>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
@@ -370,7 +372,7 @@ const BilledCallLogs = () => {
       }
 
       if (column.key === "Call_Date") {
-        let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+        let shortMonth = value.toLocaleString("en-us", { month: "short" })
         let format_date = value
         let dd = String(format_date.getDate()).padStart(2, "0")
         let yyyy = format_date.getFullYear()
@@ -387,33 +389,43 @@ const BilledCallLogs = () => {
           hours = hours ? hours : 12 // the hour "0" should be "12"
           minutes = minutes < 10 ? "0" + minutes : minutes
           let strTime = hours + ":" + minutes + " " + ampm
-          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
+          return (
+            d.getDate() +
+            "-" +
+            new Intl.DateTimeFormat("en", { month: "short" }).format(d) +
+            "-" +
+            d.getFullYear().toString().substr(-2) +
+            " " +
+            strTime
+          )
         }
       }
       if (column.key === "Annotation_Tag") {
-        console.log(value)
-        let arrayValue = value.split(',')
+        if (typeof value == "string") {
+          value = value.split(",")
+        }
         return (
           <TextField
-            id="annotation_id"
             select
             name="annotation_id"
-            onChange={(e) => updateAnnotation(e, arrayValue[2])}
+            onChange={(e) => updateAnnotation(e, value[2], value[3])}
             SelectProps={{
               native: true,
             }}
             fullWidth
-            defaultValue={arrayValue[0]}
+            defaultValue={value[0]}
           >
             <option value="">Select Annotation</option>
-            {campaignsWithAnnotations.filter((campaign) => campaign.campaign_name == arrayValue[1])[0]?.annotations.map((annotation, index) => (
-              <option key={index} value={annotation.id} >{annotation.annotation_name}</option>
-            ))}
+            {campaignsWithAnnotations
+              .filter((campaign) => campaign.campaign_name == value[1])[0]
+              ?.annotations.map((annotation, index) => (
+                <option key={annotation.id} value={annotation.id}>
+                  {annotation.annotation_name}
+                </option>
+              ))}
           </TextField>
         )
       }
-
-
     },
   }
   const fields = SearchedFields(tablePropsInit.columns)
@@ -511,7 +523,6 @@ const BilledCallLogs = () => {
     })
   }
 
-
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -587,17 +598,19 @@ const BilledCallLogs = () => {
             setOpen(true)
           }
           if (updateState == inboundIdsParam.length) {
-            let columnsData = produce(tableProps, draft => {
+            let columnsData = produce(tableProps, (draft) => {
               for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = ''
+                if (!res.data[i].edit) res.data.edit = ""
                 res.data[i].edit = res.data[i].id
-                if (!res.data[i].sl) res.data.sl = ''
+                if (!res.data[i].sl) res.data.sl = ""
                 res.data[i].sl = i + 1
               }
               draft.data = res.data
             })
             changeTableProps(columnsData)
-            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`)
+            setResponse(
+              `${inboundIdsParam.length} Record Updated and Updating Completed`
+            )
             setOpen(true)
             setAnnotationLoading(false)
             setTableToolbar(false)
@@ -614,7 +627,6 @@ const BilledCallLogs = () => {
           setselectedRowIds([])
           setOpenRowFunctionalities(false)
           emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
-
         }
       })
       .catch((err) => {
@@ -634,7 +646,7 @@ const BilledCallLogs = () => {
           setRevenueLoading(false)
           setResponse("Successfully Updated")
           setOpen(true)
-          let columnsData = produce(tableProps, draft => {
+          let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
               if (item.Inbound_Id === editData[0]) {
                 item.Revenue = ""
@@ -684,7 +696,6 @@ const BilledCallLogs = () => {
     setselectedRowIds([])
     emptyCheckbox("billed-call-logs", tableProps, changeTableProps)
   }
-
 
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true })
@@ -778,7 +789,6 @@ const BilledCallLogs = () => {
   }, [showColumns])
 
   const RowFunctionalities = () => {
-
     return (
       <div
         className="row-functionalities"
@@ -786,9 +796,15 @@ const BilledCallLogs = () => {
         style={style}
       >
         <div>
-          <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
-        </div >
-      </div >
+          <span
+            onClick={() =>
+              handleOpenModal(setShowRevenueClearModal, tableProps)
+            }
+          >
+            Clear
+          </span>
+        </div>
+      </div>
     )
   }
 
@@ -802,7 +818,6 @@ const BilledCallLogs = () => {
     const tempData = tableProps.data.filter((item) => item.id == id)
     editData.push(tempData[0].Inbound_Id)
   }
-
 
   const TableToolbar = () => {
     return (
@@ -821,7 +836,14 @@ const BilledCallLogs = () => {
           onClick={() => handleAnnotation(inboundIds)}
         >
           {"Get Annotation"}
-          {annotationLoading && <CircularProgress color="inherit" size="1rem" thickness={2} style={{ marginLeft: "5px" }} />}
+          {annotationLoading && (
+            <CircularProgress
+              color="inherit"
+              size="1rem"
+              thickness={2}
+              style={{ marginLeft: "5px" }}
+            />
+          )}
         </Button>
         <div className="selection-rows">
           {selectedRowIds.length} Row Selected
@@ -916,7 +938,15 @@ const BilledCallLogs = () => {
                 </div>
 
                 <div className="top-element">
-                  <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} />
+                  <CustomFilter
+                    mainData={tableProps.data}
+                    fields={fields}
+                    filterValue={filterValue}
+                    setFilterValue={setFilterValue}
+                    filteredData={filteredData}
+                    setFilteredData={setFilteredData}
+                    filterData={filterData}
+                  />
                 </div>
               </div>
             ) : (
@@ -991,7 +1021,8 @@ const BilledCallLogs = () => {
           width={"450px"}
           title={
             <>
-              Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
+              Do you want clear <b>revenue</b> and <b>payout</b> for -{" "}
+              <b>{sn}</b>
             </>
           }
           loading={revenueLoading}
@@ -1005,8 +1036,8 @@ const BilledCallLogs = () => {
           closeAction={() => handleCloseModal(setShowDeleteModal)}
           width={"400px"}
           title={`${inboundIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
+              ? "Do you want to delete these records?"
+              : "Do you want to delete this record?"
             }`}
           loading={deleteLoading}
         ></ConfirmModal>

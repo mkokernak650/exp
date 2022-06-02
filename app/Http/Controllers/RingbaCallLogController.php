@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
@@ -59,11 +58,11 @@ class RingbaCallLogController extends Controller
     protected $has_annotations = 'No';
     protected $get_call_log_status = 'Active';
     protected $get_call_qualification = 'Not Qualified';
-    protected $get_city = "";
-    protected $get_state = "";
-    protected $get_zipcode = "";
-    protected $get_market = "";
-    protected $get_type = "";
+    protected $get_city = '';
+    protected $get_state = '';
+    protected $get_zipcode = '';
+    protected $get_market = '';
+    protected $get_type = '';
     // protected $array = [];
     protected $payout = [];
 
@@ -77,10 +76,11 @@ class RingbaCallLogController extends Controller
     public function getRingbaDataForm()
     {
         $lastDataFetchedDate = RingbaDataFetchedLog::all();
-        return Inertia::render("Ringba/GetRingbaData", [
+        return Inertia::render('Ringba/GetRingbaData', [
             'lastDataFetchedDate' => $lastDataFetchedDate,
         ]);
     }
+
     /**
      * for move data from Ringba temporary table id
      * @param \Illuminate\Http\Request $request post
@@ -115,6 +115,7 @@ class RingbaCallLogController extends Controller
         self::$RingbaApiHelpers->getRingbaData();
         $this->ringbaCallLogs();
     }
+
     public function getCallLogsScheduler()
     {
         ignore_user_abort();
@@ -144,13 +145,13 @@ class RingbaCallLogController extends Controller
                 $this->tags($row->tags);
             }
 
-            $ringbaCallLogs             = new RingbaCallLog();
+            $ringbaCallLogs = new RingbaCallLog();
 
-            $checkRingbaCallLogs        = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
-            $checkArchiveCallLogs       = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
-            $checkPendingBillCallLog    = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
-            $checkBilledCallLag         = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
-            $checkExceptionCallLog         = findDataByInboundId(new Exception(), $this->get_inboundCallId);
+            $checkRingbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
+            $checkArchiveCallLogs = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
+            $checkPendingBillCallLog = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
+            $checkBilledCallLag = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
+            $checkExceptionCallLog = findDataByInboundId(new Exception(), $this->get_inboundCallId);
 
             if ($checkRingbaCallLogs !== null) {
                 // for existing data update
@@ -162,8 +163,8 @@ class RingbaCallLogController extends Controller
                     continue;
                 }
 
-                $ringbaCallLogs->SN                 = "Exp-{$sn_id}";
-                $ringbaCallLogs->call_Logs_status   = $this->get_call_log_status;
+                $ringbaCallLogs->SN = "Exp-{$sn_id}";
+                $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
 
                 $this->ringbaDataObject($ringbaCallLogs);
                 // $row->delete();
@@ -208,7 +209,7 @@ class RingbaCallLogController extends Controller
                 $this->get_state =
                 $this->get_zipcode =
                 $this->get_market =
-                $this->get_type = "";
+                $this->get_type = '';
 
             $this->get_callLengthInSeconds =
                 $this->get_payoutAmount =
@@ -319,10 +320,10 @@ class RingbaCallLogController extends Controller
 
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
-                $this->get_duplicated_status = "Yes";
+                $this->get_duplicated_status = 'Yes';
                 return;
             } else {
-                $this->get_duplicated_status = "No";
+                $this->get_duplicated_status = 'No';
             }
         }
     }
@@ -342,7 +343,7 @@ class RingbaCallLogController extends Controller
                 $this->get_annotations_tag = $item->tagName;
             } else {
                 $this->has_annotations = 'No';
-                $this->get_annotations_tag = "";
+                $this->get_annotations_tag = '';
             }
         }
     }
@@ -353,9 +354,9 @@ class RingbaCallLogController extends Controller
      */
     private function zipCodeInfo($inboundPhoneNumber)
     {
-        $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
+        $npanxx_number = substr($inboundPhoneNumber, 2, 6);
         // dd($npanxx_number);
-        $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
+        $result = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->orderBy('ZipCodeCount', 'DESC')
             ->first();
@@ -368,7 +369,7 @@ class RingbaCallLogController extends Controller
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
-            $this->get_market = $res->Market ?? "";
+            $this->get_market = $res->Market ?? '';
             $this->get_type = $result->NXXUseType;
         } else {
             $this->get_zipcode = '';
@@ -411,7 +412,7 @@ class RingbaCallLogController extends Controller
             $this->tags($row->tags);
         }
         $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
-        $ringbaCallLogs->call_Logs_status    = $this->get_call_log_status;
+        $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
         $this->ringbaDataObject($ringbaCallLogs);
     }
 
@@ -422,39 +423,39 @@ class RingbaCallLogController extends Controller
      */
     private function ringbaDataObject($instance)
     {
-        $instance->Call_Date_Time         = $this->get_callCompletedDt ? date('Y-m-d h:i:s', $this->get_callCompletedDt / 1000) : dateFormat($this->get_dtStamp / 1000);
+        $instance->Call_Date_Time = $this->get_callCompletedDt ? date('Y-m-d h:i:s', $this->get_callCompletedDt / 1000) : dateFormat($this->get_dtStamp / 1000);
         // $instance->Call_Date_Time         = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
-        $instance->Call_Date              = dateFormat($this->get_dtStamp / 1000);
-        $instance->Campaign               = $this->get_campaignName;
-        $instance->Campaign_Id            = $this->get_campaignId;
-        $instance->Affiliate              = $this->get_affiliateName;
-        $instance->Affiliate_Id           = $this->get_affiliateId;
-        $instance->Inbound                = $this->get_inboundPhoneNumber;
-        $instance->Inbound_Id             = $this->get_inboundCallId;
-        $instance->Dialed                 = $this->get_number;
-        $instance->Time_To_Call           = $this->get_timeToConnect;
-        $instance->Account_Id             = $this->get_accountId;
-        $instance->Total_Cost             = $this->get_totalAmount;
-        $instance->payoutAmount           = $this->get_payoutAmount;
-        $instance->Conn_Duration          = $this->get_callConnectionLength;
+        $instance->Call_Date = dateFormat($this->get_dtStamp / 1000);
+        $instance->Campaign = $this->get_campaignName;
+        $instance->Campaign_Id = $this->get_campaignId;
+        $instance->Affiliate = $this->get_affiliateName;
+        $instance->Affiliate_Id = $this->get_affiliateId;
+        $instance->Inbound = $this->get_inboundPhoneNumber;
+        $instance->Inbound_Id = $this->get_inboundCallId;
+        $instance->Dialed = $this->get_number;
+        $instance->Time_To_Call = $this->get_timeToConnect;
+        $instance->Account_Id = $this->get_accountId;
+        $instance->Total_Cost = $this->get_totalAmount;
+        $instance->payoutAmount = $this->get_payoutAmount;
+        $instance->Conn_Duration = $this->get_callConnectionLength;
         $instance->call_Length_In_Seconds = $this->get_callLengthInSeconds;
-        $instance->Profit                 = $this->get_profit;
-        $instance->Target                 = $this->get_targetName;
-        $instance->Target_Number          = $this->get_targetNumber;
-        $instance->Target_Description     = $this->get_Target_Description;
-        $instance->Revenue                = $this->get_revenue;
-        $instance->Duplicate_Call         = $this->get_duplicated_status;
-        $instance->Source_Hangup          = $this->get_source_hangup;
-        $instance->City                   = $this->get_city;
-        $instance->State                  = $this->get_state;
-        $instance->Zipcode                = $this->get_zipcode;
-        $instance->Market                 = $this->get_market;
-        $instance->Type                   = $this->get_type;
-        $instance->Call_Qualification     = $this->get_call_qualification;
-        $instance->Recording_Url          = $this->get_recordingUrl;
-        $instance->Customer               = $this->get_customer_name_id;
-        $instance->Has_Annotation         = $this->has_annotations;
-        $instance->Annotation_Tag         = $this->get_annotations_tag;
+        $instance->Profit = $this->get_profit;
+        $instance->Target = $this->get_targetName;
+        $instance->Target_Number = $this->get_targetNumber;
+        $instance->Target_Description = $this->get_Target_Description;
+        $instance->Revenue = $this->get_revenue;
+        $instance->Duplicate_Call = $this->get_duplicated_status;
+        $instance->Source_Hangup = $this->get_source_hangup;
+        $instance->City = $this->get_city;
+        $instance->State = $this->get_state;
+        $instance->Zipcode = $this->get_zipcode;
+        $instance->Market = $this->get_market;
+        $instance->Type = $this->get_type;
+        $instance->Call_Qualification = $this->get_call_qualification;
+        $instance->Recording_Url = $this->get_recordingUrl;
+        $instance->Customer = $this->get_customer_name_id;
+        $instance->Has_Annotation = $this->has_annotations;
+        $instance->Annotation_Tag = $this->get_annotations_tag;
         $test = $instance->save();
     }
 
@@ -497,7 +498,7 @@ class RingbaCallLogController extends Controller
         // $insertedData = RingbaCallLog::find($insertId);
         $insertedData = self::$RingbaCallLog::find($insertId);
         $instance = new Exception();
-        $instance->call_Logs_status     = 'Exceptions';
+        $instance->call_Logs_status = 'Exceptions';
         dataMoveHelper($instance, $insertedData);
     }
 
@@ -517,7 +518,7 @@ class RingbaCallLogController extends Controller
     // for get Affiliate
     private function getAffiliate()
     {
-        $get_affiliate =  RingbaCallLog::distinct()->get(['Affiliate', 'Affiliate_Id']);
+        $get_affiliate = RingbaCallLog::distinct()->get(['Affiliate', 'Affiliate_Id']);
         $results = Affiliate::all();
         $affiliate_api = self::$RingbaApiHelpers->getAffiliate();
 
@@ -550,7 +551,7 @@ class RingbaCallLogController extends Controller
     // for get Customer
     public function getCustomer()
     {
-        $get_customers =  RingbaCallLog::distinct()->get(['Customer']);
+        $get_customers = RingbaCallLog::distinct()->get(['Customer']);
         $all_customer = Customer::all();
         $customer_arr = [];
         foreach ($all_customer as $cus) {
@@ -581,13 +582,11 @@ class RingbaCallLogController extends Controller
         $end_date = date_create($request->end_date);
         $current_date = date_create(date('m/d/Y'));
 
-
         $start_current_diff = date_diff($start_date, $current_date);
-        $start_current_diff_result = $start_current_diff->format("%a");
-
+        $start_current_diff_result = $start_current_diff->format('%a');
 
         $start_end_diff = date_diff($start_date, $end_date);
-        $start_end_diff_result = $start_end_diff->format("%a");
+        $start_end_diff_result = $start_end_diff->format('%a');
 
         if ($start_current_diff_result > 0) {
             $get_past_days_range = $start_current_diff_result;
@@ -606,7 +605,7 @@ class RingbaCallLogController extends Controller
         RingbaDataFetchedLog::truncate();
         RingbaDataFetchedLog::create([
             'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
+            'end_date'   => $request->end_date,
         ]);
         $this->ringbaCallLogs();
         // if ($result) {
@@ -639,7 +638,7 @@ class RingbaCallLogController extends Controller
      */
     public function tempRingbaData()
     {
-        $ringbaData =  RingbaData::all();
+        $ringbaData = RingbaData::all();
         return Inertia::render('Ringba/TempRingbaData', [
             'ringbaData' => $ringbaData
         ]);
@@ -655,12 +654,12 @@ class RingbaCallLogController extends Controller
 
     public function callLogsReport()
     {
-        // $campaignsWithAnnotations = Campaign::with('annotations:id,campaign_id,annotation_name')->active()->get();
         $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
-        }])->active()->get();
+        }])->get();
+
         return Inertia::render('Ringba/callLogsReport', [
-            'allCallLogs' => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
+            'allCallLogs'              => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
             'campaignsWithAnnotations' => $campaignsWithAnnotations
         ]);
     }
@@ -691,7 +690,7 @@ class RingbaCallLogController extends Controller
 
         return response()->json([
             'has_annotation' => $callLog->Has_Annotation,
-            'msg' => 'Annotation Updated.'
+            'msg'            => 'Annotation Updated.'
         ]);
     }
 
@@ -715,9 +714,9 @@ class RingbaCallLogController extends Controller
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to Call Logs successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
         }
     }
 
@@ -731,13 +730,13 @@ class RingbaCallLogController extends Controller
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('ringba_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+            $result = DB::table('ringba_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 
@@ -746,13 +745,13 @@ class RingbaCallLogController extends Controller
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  DB::table('ringba_data')->where('id', $request->selectedRowIds[$i])->delete();
+            $result = DB::table('ringba_data')->where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 
