@@ -268,6 +268,7 @@ const GenerateReportTarget = () => {
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
     const data = new Blob([excelBuffer], { type: fileType })
+    console.log(data)
     FileSaver.saveAs(data, fileName + fileExtension)
     setOpen(true)
     setResponse("Report Generated Successfully")

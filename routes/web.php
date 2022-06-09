@@ -35,6 +35,7 @@ use App\Http\Controllers\GenerateReportDestinationController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
+use App\Http\Controllers\SendMailController;
 
 Route::middleware('auth')->group(function () {
     // Ringba Campaign
@@ -219,3 +220,5 @@ Route::get('/test-table-reports', [TestTableController::class, 'index'])->name('
 Route::get('custom-filter', function () {
     return Inertia::render('CustomFilter');
 });
+
+Route::get('send-mail', [SendMailController::class,'SendMail'])->name('send.mail');

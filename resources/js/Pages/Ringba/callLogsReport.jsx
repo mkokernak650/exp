@@ -145,7 +145,6 @@ const CallLogsReport = () => {
       call_Length_In_Seconds: item.call_Length_In_Seconds,
       Revenue: item.Revenue,
       Conn_Duration: item.Conn_Duration,
-      // Time: item.Call_Date_Time,
       payoutAmount: item.payoutAmount,
       Total_Cost: item.Total_Cost,
       Profit: item.Profit,
@@ -185,12 +184,6 @@ const CallLogsReport = () => {
         dataType: DataType.Date,
         style: { width: 230 },
       },
-      // {
-      //   key: "Call_Date",
-      //   title: "Call Date Time",
-      //   dataType: DataType.Date,
-      //   style: { width: 200 },
-      // },
       {
         key: "Has_Annotation",
         title: "Has Annotation",
@@ -419,8 +412,6 @@ const CallLogsReport = () => {
           let strTime = hours + ":" + minutes + " " + ampm
           return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString().substr(-2) + " " + strTime
         }
-
-
       }
       if (column.key === "Call_Date") {
         if(value !==undefined){

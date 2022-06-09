@@ -157,12 +157,6 @@ const PendingCallLogsReport = () => {
         dataType: DataType.string,
         style: { width: 230 },
       },
-      // {
-      //   key: "Call_Date",
-      //   title: "Call Date",
-      //   dataType: DataType.Date,
-      //   style: { width: 200 },
-      // },
       {
         key: "Has_Annotation",
         title: "Has Annotation",

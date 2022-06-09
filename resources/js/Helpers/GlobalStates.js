@@ -3,7 +3,6 @@ import { atom } from 'recoil';
 export let GlobalStates = atom({
     key: 'columnDetails',
     default: {
-        // TempRingbaColumnDetails: {},
         // CallLogsColumnDetails: {},
         // ArchivedColumnDetails: {},
         // PendingColumnDetails: {},
