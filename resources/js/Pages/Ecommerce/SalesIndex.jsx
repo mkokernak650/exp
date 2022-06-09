@@ -388,7 +388,7 @@ const SalesIndex = () => {
       {
         key: "order_at",
         title: "Order AT",
-        dataType: DataType.String,
+        dataType: DataType.Date,
         style: { width: 160 },
       },
       {
@@ -499,8 +499,21 @@ const SalesIndex = () => {
       if (column.key === "order_type") {
         return value == 1 ? "E-commerce" : "Phone";
       }
+      if (column.key === "order_at") {
+        if(value!==undefined){
+          let d = new Date(value)
+          let hours = d.getHours()
+          let minutes = d.getMinutes()
+          let ampm = hours >= 12 ? "PM" : "AM"
+          hours = hours % 12
+          hours = hours ? hours : 12 // the hour "0" should be "12"
+          minutes = minutes < 10 ? "0" + minutes : minutes
+          let strTime = hours + ":" + minutes + " " + ampm
+          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString() + " " + strTime
+        }
+      }
     },
-  };
+  };  
 
   const OPTION_KEY = "sales-index";
   const stateStore = {
