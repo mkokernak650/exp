@@ -9,7 +9,7 @@ import mail from "../../images/webform/mail.svg";
 import { useState } from "react";
 import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
-import { CircularProgress, Snackbar } from "@material-ui/core";
+import { Snackbar } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -65,8 +65,15 @@ export default function WebForm() {
           setOpen(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => {
+        setResponse(err.response.data.msg);
+        setOpen(true);
+      })
+
   };
+
+
+
 
 
   return (

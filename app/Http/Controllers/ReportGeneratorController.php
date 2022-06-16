@@ -6,9 +6,10 @@ use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
 use App\Models\BroadCastMonth;
 use App\Models\Campaign;
+use App\Models\Affiliate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Affiliate;
+use App\Http\Controllers\SendMailController;
 
 class ReportGeneratorController extends Controller
 {
@@ -51,6 +52,7 @@ class ReportGeneratorController extends Controller
             ->selectRaw("DATE_FORMAT(Call_Date, '%M-%Y') as Month, Target_Number as 'Destination_Number', Affiliate, count(Target_Number) as 'Billable_Calls', payoutAmount as 'Per_Call_Rate', count(Target_Number)*payoutAmount as 'Total_Charge'")
             ->get();
 
+        $call_summary = [];
         $call_summary['Billable Calls'] = 0;
         $call_summary['Total Charges'] = 0;
         $call_summary['Non-revenue Calls'] = ArchivedCallLog::query()
@@ -82,7 +84,19 @@ class ReportGeneratorController extends Controller
             $call_summary['Billable Calls'] += $destinationData->Billable_Calls;
             $call_summary['Total Charges'] += $destinationData->Total_Charge;
         }
-
+        $columns=['Month','Destination_Number','Affiliate','Billable_Calls','Per_Call_Rate','Total_Charge'];
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Summary of Calls']='   ';
+            $newSummary['Billable Calls']=$call_summary['Billable Calls'];
+            $newSummary['Total Charges']=$call_summary['Total Charges'];
+            $newSummary['Non-revenue Calls']=$call_summary['Non-revenue Calls'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $columns, $request->file_name, $request->emails);
+        }
         return [
             'data'         => $destinationReport,
             'call_summary' => $call_summary,
@@ -280,7 +294,22 @@ class ReportGeneratorController extends Controller
         $call_summary['Total Payout'] =$summary_total_payouts;
         $call_summary['Destination Number'] = $request->destination_number;
         $call_summary['Affiliates'] = implode(",", $call_summary_affiliates);
-
+        $columns=['Range - Call Length in Seconds','Min Length','Max Length','Total Calls','% of all calls','Total seconds','Total Payout'];
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Summary of Calls']='   ';
+            $newSummary['Customer Name']=$call_summary['Customer Name'];
+            $newSummary['Campaign Name']=$call_summary['Campaign Name'];
+            $newSummary['Total Calls']=$call_summary['Total Calls'];
+            $newSummary['Total Payout']=$call_summary['Total Payout'];
+            $newSummary['Destination Number']=$call_summary['Destination Number'];
+            $newSummary['Affiliates']=$call_summary['Affiliates'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $columns, $request->file_name, $request->emails);
+        }
         return [
             'data'=>$finalArray,
             'call_summary'=>$call_summary,
@@ -333,11 +362,16 @@ class ReportGeneratorController extends Controller
             $year= $request->year;
         }
         $call_summary = [];
+        $call_summary[' ']=' ';
+        $call_summary['  ']='  ';
+        $call_summary['   ']='   ';
         $condition = [];
         $whereIn = [];
         $whereInOr = [];
         $whereInHouseholds=[];
-        $call_summary['Campaign Name:'] = $campaign;
+        if ($campaign) {
+            $call_summary['Campaign Name:'] = $campaign;
+        }
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
@@ -432,12 +466,25 @@ class ReportGeneratorController extends Controller
         if (empty($billed)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
+       
         $call_summary['Total Nielsen TV Homes:']=number_format($totalNielsenTVHouseholds, 0, '.', ',');
         $call_summary['Total Billed Calls:']=$totalBilledCalls;
         $call_summary['Average Homes Per call:']=number_format(ceil($totalNielsenTVHouseholds/$totalBilledCalls), 0, '.', ',');
         $call_summary['Total Revenue:']=$totalRevenue;
         $collection=collect($newData)->sortBy('Average Homes Per Call');
-     
+        $columns=['Date Range',$market_name?'Market':'State','Nielsen TV Households','Billed','Total Revenue','Average Homes Per Call'];
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Total Nielsen TV Homes:']=$call_summary['Total Nielsen TV Homes:'];
+            $newSummary['Total Billed Calls:']=$call_summary['Total Billed Calls:'];
+            $newSummary['Average Homes Per call:']=$call_summary['Average Homes Per call:'];
+            $newSummary['Total Revenue:']=$call_summary['Total Revenue:'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail($collection, $newSummary, [], $columns, $request->file_name, $request->emails);
+        }
         return [
             'data'=>$collection->values()->all(),
             'call_summary' =>$call_summary
@@ -479,10 +526,10 @@ class ReportGeneratorController extends Controller
             $query2Result = DB::select($query2);
             $a=[];
             $finalArray=[];
-            foreach ($query2Result as $key=>$households) {
+            foreach ($query2Result as $households) {
                 $a[$households->State]=$households->tv_households;
             }
-            foreach ($query1Result as $key=>$bill) {
+            foreach ($query1Result as $bill) {
                 if (array_key_exists($bill->State, $a)) {
                     $bill->households=$a[$bill->State];
                     array_push($finalArray, $bill);
@@ -539,13 +586,13 @@ class ReportGeneratorController extends Controller
             }
         }
 
-        if ($campaign !== null) {
+        if ($campaign) {
             $condition[] = "Campaign='{$campaign}'";
         }
-        if ($annotation !== null) {
+        if ($annotation) {
             $condition[] = "Has_Annotation='$annotation'";
         }
-        if ($customer_name !== null) {
+        if ($customer_name) {
             $condition[] = "Customer='{$customer_name}'";
         }
         if (!empty($affiliate_ids) && count($affiliate_ids) > 0 && $affiliate_ids[0] !== null) {
@@ -724,11 +771,26 @@ class ReportGeneratorController extends Controller
         $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
         $call_summary['Total number of calls'] = $total_call;
         $call_summary['Total Minutes'] = secondToMinutes($total_seconds);
-
         $call_summary['Total payout amount'] = (float)number_format($total_revenue, 2, '.', '');
         $call_summary['Average payout per call'] = (float)number_format($avg_revenue_amount, 2, '.', '');
         if (empty($newData)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
+        $columns=['Call Date(EST)','Call Time','Campaign','Affiliate','Target','Target Description','City','Market','State','Zipcode','Caller ID','Type','Connection Duration','Duplicate Call','Hangup','Payout','Call Status','Call Type'];
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Summary of Calls']='';
+            $newSummary['Customer Name']=$call_summary['Customer Name'];
+            $newSummary['Targets']=$call_summary['Targets'];
+            $newSummary['Total number of calls']=$call_summary['Total number of calls'];
+            $newSummary['Total Minutes']=$call_summary['Total Minutes'];
+            $newSummary['Total payout amount']=$call_summary['Total payout amount'];
+            $newSummary['Average payout per call']=$call_summary['Average payout per call'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
         }
         return [
             'data'         => $newData,
@@ -755,7 +817,6 @@ class ReportGeneratorController extends Controller
                 $con .= $value . " OR ";
             }
         }
-        
         $con = rtrim($con, " AND ");
         $con = rtrim($con, " OR ");
         $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)', Call_Date_Time AS 'Call Time', Campaign, Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID', Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status', Annotation_Tag AS 'Call Type', Has_Annotation AS 'Has Annotation'
@@ -991,6 +1052,22 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
+        $columns=['Call Date(EST)','Call Time','Campaign','Affiliate','City','Market','State','Zipcode','Caller ID','Type','Connection Duration','Duplicate Call','Hangup','Revenue','Call Status','Annotation','Recording Url'];
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Summary of Calls']='';
+            $newSummary['Customer Name']=$call_summary['Customer Name'];
+            $newSummary['Total number of calls']=$call_summary['Total number of calls'];
+            $newSummary['Total Minutes']=$call_summary['Total Minutes'];
+            $newSummary['Total Revenue']=$call_summary['Total Revenue'];
+            $newSummary['Avg Revenue Amount']=$call_summary['Avg Revenue Amount'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
+        }
+        
         return [
             'data'         => $newData,
             'call_summary' => $call_summary,
@@ -1131,21 +1208,14 @@ class ReportGeneratorController extends Controller
                 if (!empty($annotationTag)) {
                     array_push($annotation_tags_array, $annotationTag);
                 }
-                // if (in_array($annotationTag, $annotation_tag)) {
-                //     $tag_count[$annotationTag]['name'] = $annotationTag;
-                //     $tag_count[$annotationTag]['qty'] = (isset($tag_count[$annotationTag]['qty']) ? $tag_count[$annotationTag]['qty'] : 0) + 1;
-                //     $tag_count[$annotationTag]['revenue']  = (isset($tag_count[$annotationTag]['revenue']) ? $tag_count[$annotationTag]['revenue'] : 0) + (int) $exception->Revenue;
-                // }
+
 
                 $total_call++;
                 $total_seconds += $exception->$conn_duration;
                 $total_revenue += (int)$exception->Revenue;
             }
-            // $tag_count['archive_call'] = $archive_call;
         }
-        // if ($total_revenue == 0 || $total_call == 0) {
-        //     return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
-        // }
+ 
         $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
 
 
@@ -1156,6 +1226,19 @@ class ReportGeneratorController extends Controller
 
         if (empty($newData)) {
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
+        }
+        $columns=['Call Date(EST)','Call Time','Campaign','Affiliate','Target','Target Description','City','Market','State','Zipcode','Caller ID','Type','Connection Duration','Duplicate Call','Hangup','Revenue','Call Status','Annotation'];
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Total Number of Calls']=$call_summary['Total Number of Calls'];
+            $newSummary['Total Minutes']=$call_summary['Total Minutes'];
+            $newSummary['Total Revenue']=$call_summary['Total Revenue'];
+            $newSummary['Avg Revenue Per Call']=$call_summary['Avg Revenue Per Call'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
         }
         return [
             'data'         => $newData,

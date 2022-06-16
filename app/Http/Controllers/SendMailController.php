@@ -2,33 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use Mail;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReportExport;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\SendMail;
 
 class SendMailController extends Controller
 {
-    public function SendMail()
+    public function SendMail($sheetData, $callSummary, $tagData, $columns, $fileName, $emails)
     {
-        $emails=["mdshakhawathosen122@gmail.com","hitmanagent800@gmail.com"];
-        if (count($emails)) {
-            foreach ($emails as $email) {
-                $data["email"] = $email;
-                $data["title"] = "Affiliate report";
-                $data["body"] = "This is test mail with attachment";
- 
-                $files = [
-            public_path('images/avatar_2.png'),
-        ];
-  
-                Mail::send('mail.test', $data, function ($message) use ($data, $files) {
-                    $message->to($data["email"])
-                    ->subject($data["title"]);
- 
-                    foreach ($files as $file) {
-                        $message->attach($file);
-                    }
-                });
-                echo "Mail send successfully !!";
+        $michaelEmail=['mkokernak@consumerexp.com','mkokernak@gmail.com','mdshakhawathosen122@gmail.com'];
+        Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $columns), $fileName.'.xlsx');
+        if (count($michaelEmail)) {
+            foreach ($michaelEmail as $email) {
+                Notification::route('mail', $email)
+                ->notify(new SendMail($fileName));
             }
         }
     }
 }
+
+
+
+
+       // $attachment=File::get(storage_path('framework')."\laravel-excel\\".pathinfo($allFiles[0])['filename'].'.xlsx');
+        // File::cleanDirectory(storage_path('framework')."\laravel-excel");
+
+          // Mail::send('mail.test', $data, function ($message) use ($data, $attachment, $fileName) {
+                //     $message->to($data["email"])
+                //     ->subject($data["title"]);
+                //     $message->attachData($attachment, $fileName.'.xlsx');
+                // });
+                // echo "Mail send successfully !!";

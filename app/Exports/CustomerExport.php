@@ -20,7 +20,8 @@ class CustomerExport implements FromCollection, WithHeadings, WithMapping
     public function headings() : array
     {
         return [
-            'Customer name'
+            'Customer name',
+            
         ];
     }
 

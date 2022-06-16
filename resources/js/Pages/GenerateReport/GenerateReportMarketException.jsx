@@ -1,5 +1,5 @@
-import { React, useState } from "react";
-import Layout from "../Layout/Layout";
+import { React, useState } from "react"
+import Layout from "../Layout/Layout"
 import {
   CircularProgress,
   Paper,
@@ -7,18 +7,18 @@ import {
   TextField,
   Button,
   Snackbar
-} from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import { usePage } from "@inertiajs/inertia-react";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import * as FileSaver from "file-saver";
-import * as XLSX from "xlsx";
-import { currentDate } from "../../Helpers/CurrentDate";
-import MultiSelect from "react-multiple-select-dropdown-lite";
-import "react-multiple-select-dropdown-lite/dist/index.css";
+} from "@material-ui/core"
+import MuiAlert from "@material-ui/lab/Alert"
+import { makeStyles } from "@material-ui/core/styles"
+import Grid from "@material-ui/core/Grid"
+import { usePage } from "@inertiajs/inertia-react"
+import axios from "axios"
+import { Helmet } from "react-helmet"
+import { currentDate } from "../../Helpers/CurrentDate"
+import MultiSelect from "react-multiple-select-dropdown-lite"
+import "react-multiple-select-dropdown-lite/dist/index.css"
+import { ExportReportWithoutTag } from "../../Helpers/ExportReport"
+import toast from "react-hot-toast"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,62 +40,71 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
-}));
+}))
 
 function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+  return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 const GenerateReportMarketException = () => {
-  const classes = useStyles();
+  const classes = useStyles()
 
-  const [loading, setLoading] = useState(false);
-  const { affiliates, broadCastMonths, targets, markets, campaigns } =
-    usePage().props;
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
-  const [customer, setCustomer] = useState();
-  const [target, setTarget] = useState("");
-  const [targetByCustomer, setTargetByCustomer] = useState([]);
-  const [monthByYear, setMonthByYear] = useState(broadCastMonths);
-  const [affiliate, setAffiliate] = useState();
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState([]);
-  const [campaign, setCampaign] = useState("");
-  const [annotation, setAnnotation] = useState("");
-  const [market, setMarket] = useState();
+  const [loading, setLoading] = useState(false)
+  const { affiliates, broadCastMonths, targets, markets, campaigns, customers } =
+    usePage().props
+  const [open, setOpen] = useState(false)
+  const [response, setResponse] = useState()
+  const [customer, setCustomer] = useState()
+  const [target, setTarget] = useState("")
+  const [targetByCustomer, setTargetByCustomer] = useState([])
+  const [monthByYear, setMonthByYear] = useState(broadCastMonths)
+  const [affiliate, setAffiliate] = useState()
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState([])
+  const [campaign, setCampaign] = useState("")
+  const [annotation, setAnnotation] = useState("")
+  const [market, setMarket] = useState()
+  const [customerEmails, setCustomerEmails] = useState([])
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
-      return;
+      return
     }
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const marketHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1);
-    const marketsName = val.split(",,");
-    setMarket({ [key]: marketsName });
-  };
+    val = val.substring(0, val.length - 1)
+    const marketsName = val.split(",,")
+    setMarket({ [key]: marketsName })
+  }
 
   const customerHandleChange = (e) => {
-    const { name, value } = e.target;
-    setCustomer({ [name]: value });
+    const { name, value } = e.target
+    setCustomer({ [name]: value })
     targets.filter((item) => {
       if (item.Customer === value) {
-        const targetNames = item.Ringba_Targets_Name.split(",");
-        setTargetByCustomer(targetNames);
+        const targetNames = item.Ringba_Targets_Name.split(",")
+        setTargetByCustomer(targetNames)
       }
-    });
-  };
+    })
+    if (value === "") {
+      setCustomerEmails([])
+    }
+    const customerData = customers.find(customer => customer.customer_name === value)
+    if (customerData !== undefined && customerData.email) {
+      const array = [customerData.email]
+      setCustomerEmails(array)
+    }
+  }
   const targetOptions = targetByCustomer.map((item) => ({
     label: item,
     value: item,
-  }));
+  }))
 
   const affiliateOptions = affiliates.map((item) => ({
     label: item.affiliate_name,
     value: item.affiliate_id,
-  }));
+  }))
 
   const annotationOptions = [
     { label: 'Yes', value: 'yes' },
@@ -105,29 +114,29 @@ const GenerateReportMarketException = () => {
   const marketOptions = markets.map((item) => ({
     label: item.market,
     value: item.market + ',',
-  }));
+  }))
 
   const broadCastMonthOptions = monthByYear.map((item) => ({
     label: item.broad_cast_month,
     value: item.broad_cast_month + ',',
-  }));
+  }))
 
   const targetHandleChange = (val, key) => {
-    const targetNames = val.split(",");
-    setTarget({ [key]: targetNames });
-  };
+    const targetNames = val.split(",")
+    setTarget({ [key]: targetNames })
+  }
 
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(",");
-    setAffiliate({ [key]: affiliate_ids });
-  };
+    const affiliate_ids = val.split(",")
+    setAffiliate({ [key]: affiliate_ids })
+  }
 
 
   const monthHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1);
-    const monthsName = val.split(",,");
-    setMonth({ [key]: monthsName });
-  };
+    val = val.substring(0, val.length - 1)
+    const monthsName = val.split(",,")
+    setMonth({ [key]: monthsName })
+  }
 
   let yearsArray = []
   for (let i = 0; i < 5; i++) {
@@ -152,7 +161,7 @@ const GenerateReportMarketException = () => {
       })
       setMonthByYear(filteredData)
     }
-  };
+  }
 
   const yearOptions = yearsArray.map(year => ({
     label: year,
@@ -161,14 +170,14 @@ const GenerateReportMarketException = () => {
 
 
   const campaignHandleChange = (e) => {
-    const { name, value } = e.target;
-    setCampaign({ [name]: value });
-  };
+    const { name, value } = e.target
+    setCampaign({ [name]: value })
+  }
 
   const annotationHandleChange = (val, key) => {
-    const annotationsName = val.split(",");
-    setAnnotation({ [key]: annotationsName });
-  };
+    const annotationsName = val.split(",")
+    setAnnotation({ [key]: annotationsName })
+  }
 
   const values = {
     ...market,
@@ -179,7 +188,27 @@ const GenerateReportMarketException = () => {
     ...year,
     ...campaign,
     ...annotation,
-  };
+  }
+
+  const affiliatesEmail = []
+  if (values?.affiliate_id) {
+    affiliates.filter(item => {
+      let i = 0
+      for (i; i < values.affiliate_id.length; i++) {
+        if (item.affiliate_id === values.affiliate_id[i]) {
+          if (item.email) {
+            affiliatesEmail.push(item.email)
+            }
+        }
+      }
+    })
+  }
+
+  const mergeEmail = [...customerEmails, ...affiliatesEmail]
+  if (mergeEmail.length) {
+    values.emails = mergeEmail
+  }
+
   const getCampaignNames = (id) => {
     const campaignNames = []
     if (values?.campaign) {
@@ -188,6 +217,7 @@ const GenerateReportMarketException = () => {
     }
     return campaignNames
   }
+
   const getAffiliateNames = () => {
     const affiliateNames = []
     if (values?.affiliate_id) {
@@ -201,44 +231,29 @@ const GenerateReportMarketException = () => {
 
 
   const fileName = `MarketException_Report${values?.market ? `_For_Markets(${values.market})` : ""}${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
-console.log('fileName', fileName)
-
+  values.file_name = fileName
   const handleSubmit = () => {
+    setLoading(true)
     axios.post(route("market.exception.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
-        setOpen(true);
-        setResponse(r.data.msg);
+        setLoading(false)
+        setOpen(true)
+        toast.error(r.data.msg)
       }
-      exportToCSV(r.data, fileName);
-    });
-  };
+      setLoading(false)
+      ExportReportWithoutTag(r.data, fileName, setOpen, setResponse)
+
+    })
+    .catch((e) => {
+      setLoading(false)
+      toast.error("Error while generating report")
+    })
+  }
 
   console.log(values)
 
-  const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-  const fileExtension = ".xlsx";
 
-  const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
-    const secondData = apiData.data.length + 5;
-    const call_summary = [];
-    call_summary.push(["Summary of Calls", ""]);
-    Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]]);
-    });
-    Object.keys(apiData.tag_count).forEach((cat) => {
-      category.push(Object.values(apiData.tag_count[cat]));
-    });
 
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` });
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
-    setOpen(true);
-    setResponse("Report Generated Successfully");
-  };
 
   return (
     <>
@@ -375,13 +390,13 @@ console.log('fileName', fileName)
         </Snackbar>
       </>
     </>
-  );
-};
+  )
+}
 
 GenerateReportMarketException.layout = (page) => (
   <Layout title="Generate Report Market Exception">{page}</Layout>
-);
-export default GenerateReportMarketException;
+)
+export default GenerateReportMarketException
 
 
 

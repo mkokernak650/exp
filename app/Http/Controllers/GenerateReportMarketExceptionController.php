@@ -9,6 +9,7 @@ use App\Models\Campaign;
 use App\Models\Target;
 use App\Models\ZipcodeByTelevisionMarket;
 use Inertia\Inertia;
+use App\Models\Customer;
 
 class GenerateReportMarketExceptionController extends Controller
 {
@@ -25,6 +26,8 @@ class GenerateReportMarketExceptionController extends Controller
         $broadCastMonths = BroadCastMonth::where('status', '=', '1')->get();
         $broadCastWeeks = BroadCastWeeks::where('status', '=', '1')->get();
         $campaigns = Campaign::active()->get();
+        $customers = Customer::where('status', '=', '1')->get();
+
 
         return Inertia::render('GenerateReport/GenerateReportMarketException', [
             'markets'         => $markets,
@@ -33,6 +36,8 @@ class GenerateReportMarketExceptionController extends Controller
             'broadCastMonths' => $broadCastMonths,
             'broadCastWeeks'  => $broadCastWeeks,
             'campaigns'       => $campaigns,
+            'customers'       => $customers,
+
         ]);
     }
 }

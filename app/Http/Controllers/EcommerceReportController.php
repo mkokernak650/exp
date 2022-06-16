@@ -46,10 +46,23 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
+        $columns=['Market', 'TV Households', 'Total Quantity', 'Homes Per Sales','Total Revenue'];
+        $summary=$this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData);
+        if ($request->emails && count($request->emails)) {
+            $newSummary=[];
+            $newSummary[' ']=' ';
+            $newSummary['  ']='  ';
+            $newSummary['   ']='   ';
+            $newSummary['Summary']='   ';
+            $newSummary['Total Quantity']=$summary['Total Quantity'];
+            $newSummary['Total Amount']=$summary['Total Amount'];
+            $sendMailCtrl=new sendMailController();
+            $sendMailCtrl->SendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
+        }
 
         return response()->json([
             'data'    => $salesData,
-            'summary' => $this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData)
+            'summary' => $summary
         ], 200);
     }
 

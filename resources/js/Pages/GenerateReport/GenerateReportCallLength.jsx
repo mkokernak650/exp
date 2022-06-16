@@ -22,6 +22,9 @@ import * as XLSX from "xlsx"
 import MultiSelect from "react-multiple-select-dropdown-lite"
 import "react-multiple-select-dropdown-lite/dist/index.css"
 import { currentDate } from "../../Helpers/CurrentDate"
+import { ExportReportWithoutTag } from "../../Helpers/ExportReport"
+import toast from "react-hot-toast"
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,7 +55,7 @@ const GenerateReportAffiliate = () => {
   const classes = useStyles()
 
   const [loading, setLoading] = useState(false)
-  const { affiliates, targets, broadCastMonths, broadCastWeeks, campaigns } =
+  const { affiliates, targets, broadCastMonths, broadCastWeeks, campaigns, customers } =
     usePage().props
   const [open, setOpen] = useState(false)
   const [response, setResponse] = useState()
@@ -68,6 +71,7 @@ const GenerateReportAffiliate = () => {
   const [campaign, setCampaign] = useState("")
   const [annotation, setAnnotation] = useState("")
   const [destinationNumber, setDestinationNumber] = useState("")
+  const [customerEmails, setCustomerEmails] = useState([])
 
 
   const handleClose = (event, reason) => {
@@ -89,6 +93,14 @@ const GenerateReportAffiliate = () => {
         const targetNames = item.Ringba_Targets_Name.split(",")
       }
     })
+    if (value === "") {
+      setCustomerEmails([])
+    }
+    const customerData = customers.find(customer => customer.customer_name === value)
+    if (customerData !== undefined && customerData.email) {
+      const array = [customerData.email]
+      setCustomerEmails(array)
+    }
   }
 
 
@@ -198,17 +210,25 @@ const GenerateReportAffiliate = () => {
   }
 
 
-  let affiliatesName = []
+  const affiliatesEmail = []
   if (values?.affiliate_id) {
     affiliates.filter(item => {
       let i = 0
       for (i; i < values.affiliate_id.length; i++) {
         if (item.affiliate_id === values.affiliate_id[i]) {
-          affiliatesName.push(item.affiliate_name)
+          if (item.email) {
+            affiliatesEmail.push(item.email)
+            }
         }
       }
     })
   }
+
+  const mergeEmail = [...customerEmails, ...affiliatesEmail]
+  if (mergeEmail.length) {
+    values.emails = mergeEmail
+  }
+
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
     let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
@@ -244,38 +264,24 @@ const GenerateReportAffiliate = () => {
 
 
   const fileName = `${values?.type ? values.type : ""}_CallLength_Report${values?.market ? `_For_Markets(${values.market})` : ""}${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
+  values.file_name = fileName
 
   const handleSubmit = () => {
+    setLoading(true)
     axios.post(route("call.length.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
+        setLoading(false)
         setOpen(true)
-        setResponse(r.data.msg)
+        toast.error(r.data.msg)
       }
-      exportToCSV(r.data, fileName)
+      setLoading(false)
+      ExportReportWithoutTag(r.data, fileName, setOpen, setResponse)
+    })
+    .catch((e) => {
+      setLoading(false)
+      toast.error("Error while generating report")
     })
   }
-
-  const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
-  const fileExtension = ".xlsx"
-
-  const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName)
-    const secondData = Object.keys(apiData.data).length + 5
-    const call_summary = []
-    Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]])
-    })
-
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` })
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
-    const data = new Blob([excelBuffer], { type: fileType })
-    FileSaver.saveAs(data, fileName + fileExtension)
-    setOpen(true)
-    setResponse("Report Generated Successfully")
-  }
-
 
 
   return (

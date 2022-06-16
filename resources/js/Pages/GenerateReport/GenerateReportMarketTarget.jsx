@@ -17,11 +17,11 @@ import Grid from "@material-ui/core/Grid"
 import { usePage } from "@inertiajs/inertia-react"
 import axios from "axios"
 import { Helmet } from "react-helmet"
-import * as FileSaver from "file-saver"
-import * as XLSX from "xlsx"
-import { currentDate } from "../../Helpers/CurrentDate"
+import {currentDate} from "../../Helpers/CurrentDate"
+import {ExportReportWithoutTag} from "../../Helpers/ExportReport"
 import MultiSelect from "react-multiple-select-dropdown-lite"
 import "react-multiple-select-dropdown-lite/dist/index.css"
+import toast from "react-hot-toast"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,15 +48,14 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
-const GenerateReportAffiliate = () => {
+const GenerateReportMarketTarget = () => {
   const classes = useStyles()
 
   const [loading, setLoading] = useState(false)
-  const { affiliates, broadCastMonths, broadCastWeeks, markets, states, targets, campaigns } =
+  const { affiliates, broadCastMonths, broadCastWeeks, markets, states, targets, campaigns, customers } =
     usePage().props
   const [open, setOpen] = useState(false)
   const [response, setResponse] = useState()
-  const [type, setType] = useState({ type: "billed" })
   const [customer, setCustomer] = useState()
   const [target, setTarget] = useState("")
   const [targetByCustomer, setTargetByCustomer] = useState([])
@@ -75,6 +74,7 @@ const GenerateReportAffiliate = () => {
   const [selectAllStates, setSelectAllStates] = useState(false)
   const [disableStateCheckbox, setDisableStateCheckbox] = useState(false)
   const [disableMarketCheckbox, setDisableMarketCheckbox] = useState(false)
+  const [customerEmails, setCustomerEmails] = useState([])
 
 
   const handleClose = (event, reason) => {
@@ -83,7 +83,6 @@ const GenerateReportAffiliate = () => {
     }
     setOpen(false)
   }
-
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target
@@ -94,8 +93,15 @@ const GenerateReportAffiliate = () => {
         setTargetByCustomer(targetNames)
       }
     })
+    if (value === "") {
+      setCustomerEmails([])
+    }
+    const customerData = customers.find(customer => customer.customer_name === value)
+    if (customerData !== undefined && customerData.email) {
+      const array = [customerData.email]
+      setCustomerEmails(array)
+    }
   }
-
 
   const marketHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1)
@@ -143,14 +149,17 @@ const GenerateReportAffiliate = () => {
   }))
 
 
+
   const targetHandleChange = (val, key) => {
     const targetNames = val.split(",")
     setTarget({ [key]: targetNames })
   }
+
   const affiliateHandleChange = (val, key) => {
     const affiliate_ids = val.split(",")
     setAffiliate({ [key]: affiliate_ids })
   }
+
 
   const monthHandleChange = (e) => {
     const { name, value } = e.target
@@ -242,17 +251,29 @@ const GenerateReportAffiliate = () => {
     ...annotation,
   }
 
-  let affiliatesName = []
+  const affiliatesEmail = []
   if (values?.affiliate_id) {
     affiliates.filter(item => {
       let i = 0
       for (i; i < values.affiliate_id.length; i++) {
         if (item.affiliate_id === values.affiliate_id[i]) {
-          affiliatesName.push(item.affiliate_name)
+          if (item.email) {
+            affiliatesEmail.push(item.email)
+            }
         }
       }
     })
   }
+
+
+  const mergeEmail = [...customerEmails, ...affiliatesEmail]
+  if (mergeEmail.length) {
+    values.emails = mergeEmail
+  }
+
+  console.log('values', values)
+
+
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
     let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
@@ -286,46 +307,34 @@ const GenerateReportAffiliate = () => {
 
 
   const fileName = `MarketTarget_Report${selectAllmarkets ? `_For_Markets(AllMarkets)` : ""}${(values?.market && !selectAllmarkets) ? `_For_Markets(${values.market})` : ""}${values.customer_name ? `_For_Customers(${values.customer_name})` : ""}${selectAllStates ? `_For_States(AllStates)` : ""}${(values?.state && !selectAllStates) ? `_For_States(${values.state})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
-
-
+  values.file_name = fileName
+  console.log(values)
   const handleSubmit = () => {
+    setLoading(true)
     if (market || state) {
       axios.post(route("market.target.report.generator"), values).then((r) => {
         if (r.data.status == 500) {
+          setLoading(false)
           setOpen(true)
-          setResponse(r.data.msg)
+          toast.error(r.data.msg)
+
         }
-        exportToCSV(r.data, fileName)
+        setLoading(false)
+        ExportReportWithoutTag(r.data, fileName, setOpen, setResponse)
+
+      })
+      .catch((e) => {
+        setLoading(false)
+        toast.error("Error while generating report")
       })
     }
     else {
       setOpen(true)
+      setLoading(false)
       setResponse("The market or the state must be the one to choose")
     }
   }
 
-  const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
-  const fileExtension = ".xlsx"
-
-  const exportToCSV = (apiData, fileName) => {
-    const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName)
-    const secondData = Object.keys(apiData.data).length + 5
-    const call_summary = []
-    Object.keys(apiData.call_summary).forEach((cf) => {
-      call_summary.push([cf, apiData.call_summary[cf]])
-    })
-
-
-
-    XLSX.utils.sheet_add_aoa(ws, call_summary, { origin: `C${secondData}` })
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
-    const data = new Blob([excelBuffer], { type: fileType })
-    FileSaver.saveAs(data, fileName + fileExtension)
-    setOpen(true)
-    setResponse("Report Generated Successfully")
-  }
   const stateSelectAll = (e) => {
     setSelectAllStates(prevState => !prevState)
     if (e.target.checked) {
@@ -404,7 +413,6 @@ const GenerateReportAffiliate = () => {
               </>
             }
 
-
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
@@ -420,9 +428,9 @@ const GenerateReportAffiliate = () => {
                 {targets
                   .map((option) => option.Customer)
                   .filter((item, i, arr) => arr.indexOf(item) === i)
-                  .map((test, key) => (
-                    <option key={key} value={test}>
-                      {test}
+                  .map((val, key) => (
+                    <option key={key} value={val}>
+                      {val}
                     </option>
                   ))}
               </TextField>
@@ -593,7 +601,7 @@ const GenerateReportAffiliate = () => {
   )
 }
 
-GenerateReportAffiliate.layout = (page) => (
+GenerateReportMarketTarget.layout = (page) => (
   <Layout title="Generate Report Affiliate">{page}</Layout>
 )
-export default GenerateReportAffiliate
+export default GenerateReportMarketTarget

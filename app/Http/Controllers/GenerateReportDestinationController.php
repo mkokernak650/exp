@@ -9,21 +9,23 @@ use App\Models\Campaign;
 use App\Models\Target;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Customer;
 
 class GenerateReportDestinationController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
 
     public function GenerateReportDestination(): Response
     {
-        $allTargets = Target::where('status','=','1')->get();
-        $affiliates = Affiliate::where('status','=','1')->get();
-        $broadCastMonths = BroadCastMonth::where('status','=','1')->get();
-        $broadCastWeeks = BroadCastWeeks::where('status','=','1')->get();
+        $allTargets = Target::where('status', '=', '1')->get();
+        $affiliates = Affiliate::where('status', '=', '1')->get();
+        $broadCastMonths = BroadCastMonth::where('status', '=', '1')->get();
+        $broadCastWeeks = BroadCastWeeks::where('status', '=', '1')->get();
         $campaigns = Campaign::active()->get();
+        $customers = Customer::where('status', '=', '1')->get();
 
         return Inertia::render('GenerateReport/GenerateReportDestination', [
             'targets'         => $allTargets,
@@ -31,6 +33,7 @@ class GenerateReportDestinationController extends Controller
             'broadCastMonths' => $broadCastMonths,
             'broadCastWeeks'  => $broadCastWeeks,
             'campaigns'       => $campaigns,
+            'customers'       => $customers,
         ]);
     }
 }
