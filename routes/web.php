@@ -221,5 +221,4 @@ Route::get('custom-filter', function () {
     return Inertia::render('CustomFilter');
 });
 
-// Route::get('send-mail', [SendMailController::class,'SendMail'])->name('send.mail');
-Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+Route::get('send-mail', [SendMailController::class,'SendMail'])->name('send.mail');
