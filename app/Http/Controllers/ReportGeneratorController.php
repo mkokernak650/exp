@@ -1053,20 +1053,20 @@ class ReportGeneratorController extends Controller
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         $columns=['Call Date(EST)','Call Time','Campaign','Affiliate','City','Market','State','Zipcode','Caller ID','Type','Connection Duration','Duplicate Call','Hangup','Revenue','Call Status','Annotation','Recording Url'];
-        if ($request->emails && count($request->emails)) {
-            $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Summary of Calls']='';
-            $newSummary['Customer Name']=$call_summary['Customer Name'];
-            $newSummary['Total number of calls']=$call_summary['Total number of calls'];
-            $newSummary['Total Minutes']=$call_summary['Total Minutes'];
-            $newSummary['Total Revenue']=$call_summary['Total Revenue'];
-            $newSummary['Avg Revenue Amount']=$call_summary['Avg Revenue Amount'];
-            $sendMailCtrl=new sendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
-        }
+        // if ($request->emails && count($request->emails)) {
+        //     $newSummary=[];
+        //     $newSummary[' ']=' ';
+        //     $newSummary['  ']='  ';
+        //     $newSummary['   ']='   ';
+        //     $newSummary['Summary of Calls']='';
+        //     $newSummary['Customer Name']=$call_summary['Customer Name'];
+        //     $newSummary['Total number of calls']=$call_summary['Total number of calls'];
+        //     $newSummary['Total Minutes']=$call_summary['Total Minutes'];
+        //     $newSummary['Total Revenue']=$call_summary['Total Revenue'];
+        //     $newSummary['Avg Revenue Amount']=$call_summary['Avg Revenue Amount'];
+        //     $sendMailCtrl=new sendMailController();
+        //     $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
+        // }
         
         return [
             'data'         => $newData,
