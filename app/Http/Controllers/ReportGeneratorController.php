@@ -85,18 +85,18 @@ class ReportGeneratorController extends Controller
             $call_summary['Total Charges'] += $destinationData->Total_Charge;
         }
         $columns=['Month','Destination_Number','Affiliate','Billable_Calls','Per_Call_Rate','Total_Charge'];
-        if ($request->emails && count($request->emails)) {
-            $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Summary of Calls']='   ';
-            $newSummary['Billable Calls']=$call_summary['Billable Calls'];
-            $newSummary['Total Charges']=$call_summary['Total Charges'];
-            $newSummary['Non-revenue Calls']=$call_summary['Non-revenue Calls'];
-            $sendMailCtrl=new sendMailController();
-            $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $columns, $request->file_name, $request->emails);
-        }
+        // if ($request->emails && count($request->emails)) {
+        //     $newSummary=[];
+        //     $newSummary[' ']=' ';
+        //     $newSummary['  ']='  ';
+        //     $newSummary['   ']='   ';
+        //     $newSummary['Summary of Calls']='   ';
+        //     $newSummary['Billable Calls']=$call_summary['Billable Calls'];
+        //     $newSummary['Total Charges']=$call_summary['Total Charges'];
+        //     $newSummary['Non-revenue Calls']=$call_summary['Non-revenue Calls'];
+        //     $sendMailCtrl=new sendMailController();
+        //     $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $columns, $request->file_name, $request->emails);
+        // }
         return [
             'data'         => $destinationReport,
             'call_summary' => $call_summary,
@@ -295,21 +295,21 @@ class ReportGeneratorController extends Controller
         $call_summary['Destination Number'] = $request->destination_number;
         $call_summary['Affiliates'] = implode(",", $call_summary_affiliates);
         $columns=['Range - Call Length in Seconds','Min Length','Max Length','Total Calls','% of all calls','Total seconds','Total Payout'];
-        if ($request->emails && count($request->emails)) {
-            $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Summary of Calls']='   ';
-            $newSummary['Customer Name']=$call_summary['Customer Name'];
-            $newSummary['Campaign Name']=$call_summary['Campaign Name'];
-            $newSummary['Total Calls']=$call_summary['Total Calls'];
-            $newSummary['Total Payout']=$call_summary['Total Payout'];
-            $newSummary['Destination Number']=$call_summary['Destination Number'];
-            $newSummary['Affiliates']=$call_summary['Affiliates'];
-            $sendMailCtrl=new sendMailController();
-            $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $columns, $request->file_name, $request->emails);
-        }
+        // if ($request->emails && count($request->emails)) {
+        //     $newSummary=[];
+        //     $newSummary[' ']=' ';
+        //     $newSummary['  ']='  ';
+        //     $newSummary['   ']='   ';
+        //     $newSummary['Summary of Calls']='   ';
+        //     $newSummary['Customer Name']=$call_summary['Customer Name'];
+        //     $newSummary['Campaign Name']=$call_summary['Campaign Name'];
+        //     $newSummary['Total Calls']=$call_summary['Total Calls'];
+        //     $newSummary['Total Payout']=$call_summary['Total Payout'];
+        //     $newSummary['Destination Number']=$call_summary['Destination Number'];
+        //     $newSummary['Affiliates']=$call_summary['Affiliates'];
+        //     $sendMailCtrl=new sendMailController();
+        //     $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $columns, $request->file_name, $request->emails);
+        // }
         return [
             'data'=>$finalArray,
             'call_summary'=>$call_summary,
@@ -473,18 +473,18 @@ class ReportGeneratorController extends Controller
         $call_summary['Total Revenue:']=$totalRevenue;
         $collection=collect($newData)->sortBy('Average Homes Per Call');
         $columns=['Date Range',$market_name?'Market':'State','Nielsen TV Households','Billed','Total Revenue','Average Homes Per Call'];
-        if ($request->emails && count($request->emails)) {
-            $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Total Nielsen TV Homes:']=$call_summary['Total Nielsen TV Homes:'];
-            $newSummary['Total Billed Calls:']=$call_summary['Total Billed Calls:'];
-            $newSummary['Average Homes Per call:']=$call_summary['Average Homes Per call:'];
-            $newSummary['Total Revenue:']=$call_summary['Total Revenue:'];
-            $sendMailCtrl=new sendMailController();
-            $sendMailCtrl->SendMail($collection, $newSummary, [], $columns, $request->file_name, $request->emails);
-        }
+        // if ($request->emails && count($request->emails)) {
+        //     $newSummary=[];
+        //     $newSummary[' ']=' ';
+        //     $newSummary['  ']='  ';
+        //     $newSummary['   ']='   ';
+        //     $newSummary['Total Nielsen TV Homes:']=$call_summary['Total Nielsen TV Homes:'];
+        //     $newSummary['Total Billed Calls:']=$call_summary['Total Billed Calls:'];
+        //     $newSummary['Average Homes Per call:']=$call_summary['Average Homes Per call:'];
+        //     $newSummary['Total Revenue:']=$call_summary['Total Revenue:'];
+        //     $sendMailCtrl=new sendMailController();
+        //     $sendMailCtrl->SendMail($collection, $newSummary, [], $columns, $request->file_name, $request->emails);
+        // }
         return [
             'data'=>$collection->values()->all(),
             'call_summary' =>$call_summary
@@ -779,16 +779,16 @@ class ReportGeneratorController extends Controller
         $columns=['Call Date(EST)','Call Time','Campaign','Affiliate','Target','Target Description','City','Market','State','Zipcode','Caller ID','Type','Connection Duration','Duplicate Call','Hangup','Payout','Call Status','Call Type'];
         if ($request->emails && count($request->emails)) {
             $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Summary of Calls']='';
-            $newSummary['Customer Name']=$call_summary['Customer Name'];
-            $newSummary['Targets']=$call_summary['Targets'];
-            $newSummary['Total number of calls']=$call_summary['Total number of calls'];
-            $newSummary['Total Minutes']=$call_summary['Total Minutes'];
-            $newSummary['Total payout amount']=$call_summary['Total payout amount'];
-            $newSummary['Average payout per call']=$call_summary['Average payout per call'];
+            // $newSummary[' ']=' ';
+            // $newSummary['  ']='  ';
+            // $newSummary['   ']='   ';
+            // $newSummary['Summary of Calls']='';
+            // $newSummary['Customer Name']=$call_summary['Customer Name'];
+            // $newSummary['Targets']=$call_summary['Targets'];
+            // $newSummary['Total number of calls']=$call_summary['Total number of calls'];
+            // $newSummary['Total Minutes']=$call_summary['Total Minutes'];
+            // $newSummary['Total payout amount']=$call_summary['Total payout amount'];
+            // $newSummary['Average payout per call']=$call_summary['Average payout per call'];
             $sendMailCtrl=new sendMailController();
             $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
         }
@@ -1228,18 +1228,18 @@ class ReportGeneratorController extends Controller
             return response()->json(["status" => 500, "msg" => "No data found for the selected criteria"]);
         }
         $columns=['Call Date(EST)','Call Time','Campaign','Affiliate','Target','Target Description','City','Market','State','Zipcode','Caller ID','Type','Connection Duration','Duplicate Call','Hangup','Revenue','Call Status','Annotation'];
-        if ($request->emails && count($request->emails)) {
-            $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Total Number of Calls']=$call_summary['Total Number of Calls'];
-            $newSummary['Total Minutes']=$call_summary['Total Minutes'];
-            $newSummary['Total Revenue']=$call_summary['Total Revenue'];
-            $newSummary['Avg Revenue Per Call']=$call_summary['Avg Revenue Per Call'];
-            $sendMailCtrl=new sendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
-        }
+        // if ($request->emails && count($request->emails)) {
+        //     $newSummary=[];
+        //     $newSummary[' ']=' ';
+        //     $newSummary['  ']='  ';
+        //     $newSummary['   ']='   ';
+        //     $newSummary['Total Number of Calls']=$call_summary['Total Number of Calls'];
+        //     $newSummary['Total Minutes']=$call_summary['Total Minutes'];
+        //     $newSummary['Total Revenue']=$call_summary['Total Revenue'];
+        //     $newSummary['Avg Revenue Per Call']=$call_summary['Avg Revenue Per Call'];
+        //     $sendMailCtrl=new sendMailController();
+        //     $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
+        // }
         return [
             'data'         => $newData,
             'call_summary' => $call_summary,
