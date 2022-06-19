@@ -11,9 +11,8 @@ class SendMailController extends Controller
 {
     public function SendMail($sheetData, $callSummary, $tagData, $columns, $fileName, $emails)
     {
-
-        // $michaelEmail=['mkokernak@consumerexp.com','mkokernak@gmail.com','mdshakhawathosen122@gmail.com'];
-        $michaelEmail=['mdshakhawathosen122@gmail.com'];
+        $michaelEmail=['mkokernak@consumerexp.com','mkokernak@gmail.com','mdshakhawathosen122@gmail.com'];
+        // $michaelEmail=['mdshakhawathosen122@gmail.com'];
         Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $columns), $fileName.'.xlsx');
         if (count($michaelEmail)) {
             foreach ($michaelEmail as $email) {
@@ -23,16 +22,3 @@ class SendMailController extends Controller
         }
     }
 }
-
-
-
-
-       // $attachment=File::get(storage_path('framework')."\laravel-excel\\".pathinfo($allFiles[0])['filename'].'.xlsx');
-        // File::cleanDirectory(storage_path('framework')."\laravel-excel");
-
-          // Mail::send('mail.test', $data, function ($message) use ($data, $attachment, $fileName) {
-                //     $message->to($data["email"])
-                //     ->subject($data["title"]);
-                //     $message->attachData($attachment, $fileName.'.xlsx');
-                // });
-                // echo "Mail send successfully !!";

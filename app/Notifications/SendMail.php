@@ -41,24 +41,24 @@ class SendMail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        if (file_exists(storage_path('framework')."\laravel-excel")) {
-            $allFiles= File::allFiles(storage_path('framework')."\laravel-excel");
-        }
-        $latest_ctime = 0;
-        $latest_filename = '';
-        foreach ($allFiles as $file) {
-            if (is_file($file) && filectime($file) > $latest_ctime) {
-                $latest_ctime = filectime($file);
-                $latest_filename = $file;
+        if (file_exists(storage_path('framework'). DIRECTORY_SEPARATOR . "laravel-excel")) {
+            $allFiles= File::allFiles(storage_path('framework'). DIRECTORY_SEPARATOR ."laravel-excel");
+            $latest_ctime = 0;
+            $latest_filename = '';
+            foreach ($allFiles as $file) {
+                if (is_file($file) && filectime($file) > $latest_ctime) {
+                    $latest_ctime = filectime($file);
+                    $latest_filename = $file;
+                }
             }
+            $filePath=$latest_filename->getPathname();
+            return (new MailMessage)
+                        ->subject('ConsumerEXP Results Report(testing purpose)')
+                        ->line('Please find the attached results report for the campaign.')
+                        ->line('Thank you')->attach($filePath, [
+                            'as' => $this->fileName.'.xlsx',
+                        ]);
         }
-        $filePath=$latest_filename->getPathname();
-        return (new MailMessage)
-                    ->subject('ConsumerEXP Results Report(testing purpose)')
-                    ->line('Please find the attached results report for the campaign.')
-                    ->line('Thank you')->attach($filePath, [
-                        'as' => $this->fileName.'.xlsx',
-                    ]);
     }
 
     /**
