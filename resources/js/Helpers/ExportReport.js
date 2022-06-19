@@ -5,7 +5,7 @@ import toast from "react-hot-toast"
 
 const fileType =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
-export const ExportReportWithoutTag = (apiData, fileName, setOpen, setResponse) => {
+export const ExportReportWithoutTag = (apiData, fileName) => {
     const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName)
     const secondData = Object.keys(apiData.data).length + 5
     const call_summary = []
@@ -17,11 +17,11 @@ export const ExportReportWithoutTag = (apiData, fileName, setOpen, setResponse) 
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
     const data = new Blob([excelBuffer], { type: fileType })
     FileSaver.saveAs(data, fileName + '.xlsx')
-    setOpen(true)
-    setResponse("Report Generated Successfully")
+    toast.success("Report Generated Successfully")
+
 }
 
-export const ExportReportWithTag=(apiData, fileName, setOpen, setResponse)=>{
+export const ExportReportWithTag=(apiData, fileName)=>{
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName)
     const secondData = apiData.data.length + 5
     const call_summary = []
@@ -42,8 +42,7 @@ export const ExportReportWithTag=(apiData, fileName, setOpen, setResponse)=>{
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
     const data = new Blob([excelBuffer], { type: fileType })
     FileSaver.saveAs(data,  fileName + '.xlsx')
-    setOpen(true)
-    setResponse("Report Generated Successfully")
+    toast.success("Report Generated Successfully")
 }
 
 export const exportReportEcommerce = (apiData, fileName,reportFor) => {

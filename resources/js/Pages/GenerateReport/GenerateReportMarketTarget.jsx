@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   Button,
-  Snackbar,
   FormControlLabel,
   FormGroup,
   Checkbox
@@ -39,23 +38,15 @@ const useStyles = makeStyles((theme) => ({
   title: {
     textAlign: "center",
     marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
   }
 }))
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+
 const GenerateReportMarketTarget = () => {
   const classes = useStyles()
-
   const [loading, setLoading] = useState(false)
   const { affiliates, broadCastMonths, broadCastWeeks, markets, states, targets, campaigns, customers } =
     usePage().props
-  const [open, setOpen] = useState(false)
-  const [response, setResponse] = useState()
   const [customer, setCustomer] = useState()
   const [target, setTarget] = useState("")
   const [targetByCustomer, setTargetByCustomer] = useState([])
@@ -77,12 +68,7 @@ const GenerateReportMarketTarget = () => {
   const [customerEmails, setCustomerEmails] = useState([])
 
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return
-    }
-    setOpen(false)
-  }
+
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target
@@ -308,19 +294,18 @@ const GenerateReportMarketTarget = () => {
 
   const fileName = `MarketTarget_Report${selectAllmarkets ? `_For_Markets(AllMarkets)` : ""}${(values?.market && !selectAllmarkets) ? `_For_Markets(${values.market})` : ""}${values.customer_name ? `_For_Customers(${values.customer_name})` : ""}${selectAllStates ? `_For_States(AllStates)` : ""}${(values?.state && !selectAllStates) ? `_For_States(${values.state})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
   values.file_name = fileName
-  console.log(values)
+
   const handleSubmit = () => {
     setLoading(true)
     if (market || state) {
       axios.post(route("market.target.report.generator"), values).then((r) => {
         if (r.data.status == 500) {
           setLoading(false)
-          setOpen(true)
           toast.error(r.data.msg)
 
         }
         setLoading(false)
-        ExportReportWithoutTag(r.data, fileName, setOpen, setResponse)
+        ExportReportWithoutTag(r.data, fileName)
 
       })
       .catch((e) => {
@@ -329,9 +314,8 @@ const GenerateReportMarketTarget = () => {
       })
     }
     else {
-      setOpen(true)
       setLoading(false)
-      setResponse("The market or the state must be the one to choose")
+      toast.error("The market or the state must be the one to choose")
     }
   }
 
@@ -586,17 +570,7 @@ const GenerateReportMarketTarget = () => {
           </Grid>
         </form>
       </Paper>
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
-      </>
+
     </>
   )
 }

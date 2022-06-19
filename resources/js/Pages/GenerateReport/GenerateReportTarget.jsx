@@ -6,12 +6,10 @@ import {
   Typography,
   TextField,
   Button,
-  Snackbar,
   Radio,
   FormControlLabel,
   RadioGroup,
 } from "@material-ui/core"
-import MuiAlert from "@material-ui/lab/Alert"
 import { makeStyles } from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import { usePage } from "@inertiajs/inertia-react"
@@ -40,23 +38,15 @@ const useStyles = makeStyles((theme) => ({
   title: {
     textAlign: "center",
     marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
-  },
+  }
 }))
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+
 const GenerateReportTarget = () => {
   const classes = useStyles()
-
   const [loading, setLoading] = useState(false)
   const { affiliates, broadCastMonths, broadCastWeeks, targets, campaigns, customers } =
     usePage().props
-  const [open, setOpen] = useState(false)
-  const [response, setResponse] = useState()
   const [type, setType] = useState({ type: "billed" })
   const [customer, setCustomer] = useState()
   const [target, setTarget] = useState("")
@@ -72,12 +62,6 @@ const GenerateReportTarget = () => {
   const [annotation, setAnnotation] = useState("")
   const [customerEmails, setCustomerEmails] = useState([])
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return
-    }
-    setOpen(false)
-  }
 
   const typeHandleChange = (e) => {
     const { name, value } = e.target
@@ -259,11 +243,10 @@ const GenerateReportTarget = () => {
     axios.post(route("target.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
         setLoading(false)
-        setOpen(true)
         toast.error(r.data.msg)
       }
       setLoading(false)
-      ExportReportWithTag(r.data, fileName, setOpen, setResponse)
+      ExportReportWithTag(r.data, fileName)
 
     })
     .catch((e) => {
@@ -398,7 +381,6 @@ const GenerateReportTarget = () => {
                   native: true,
                 }}
                 fullWidth
-              // required={true}
               >
                 <option value="">Select Broadcast Month</option>
                 {monthByYear.map((option, indx) => (
@@ -419,7 +401,6 @@ const GenerateReportTarget = () => {
                   native: true,
                 }}
                 fullWidth
-              // required={true}
               >
                 <option value="">Select Broadcast Week</option>
                 {broadCastWeeks.map((option, indx) => (
@@ -443,7 +424,6 @@ const GenerateReportTarget = () => {
                   shrink: true,
                 }}
                 fullWidth
-              // required={true}
               />
             </Grid>
             <Grid item xs={12}>
@@ -459,7 +439,6 @@ const GenerateReportTarget = () => {
                   shrink: true,
                 }}
                 fullWidth
-              // required={true}
               />
             </Grid>
             <Grid item xs={12}>
@@ -474,17 +453,6 @@ const GenerateReportTarget = () => {
           </Grid>
         </form>
       </Paper>
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
-      </>
     </>
   )
 }

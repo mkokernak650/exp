@@ -29,9 +29,9 @@ class ZipcodeByTelevisionMarketController extends Controller
                 $cond = $conditions->items[$i];
                 $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
-            return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
+            return $zipDataQuery->paginate(request('itemPerPage') ?? 10);
         }
-        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::paginate(request('itemPerPage') ?? 15);
+        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $allZipcodesByTelevisionMarket;
         }

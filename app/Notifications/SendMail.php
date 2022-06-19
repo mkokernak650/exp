@@ -53,7 +53,7 @@ class SendMail extends Notification implements ShouldQueue
             }
             $filePath=$latest_filename->getPathname();
             return (new MailMessage)
-                        ->subject('ConsumerEXP Results Report(testing purpose)')
+                        ->subject('ConsumerEXP Results Report')
                         ->line('Please find the attached results report for the campaign.')
                         ->line('Thank you')->attach($filePath, [
                             'as' => $this->fileName.'.xlsx',

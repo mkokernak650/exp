@@ -40,10 +40,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     textAlign: "center",
     marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
-  },
+  }
 }))
 
 const EcommerceReport = () => {
@@ -398,7 +395,6 @@ const EcommerceReport = () => {
     axios
       .post(route("ecommerce.report.generate"), values)
       .then((r) => {
-        console.log("r", r)
         setLoading(false)
         if (r?.status === 204) {
           setLoading(false)

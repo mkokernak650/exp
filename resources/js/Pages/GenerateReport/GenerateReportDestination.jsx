@@ -5,17 +5,13 @@ import {
   Paper,
   Typography,
   TextField,
-  Button,
-  Snackbar
+  Button
 } from "@material-ui/core"
-import MuiAlert from "@material-ui/lab/Alert"
 import { makeStyles } from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import { usePage } from "@inertiajs/inertia-react"
 import axios from "axios"
 import { Helmet } from "react-helmet"
-import * as FileSaver from "file-saver"
-import * as XLSX from "xlsx"
 import { currentDate } from "../../Helpers/CurrentDate"
 import MultiSelect from "react-multiple-select-dropdown-lite"
 import "react-multiple-select-dropdown-lite/dist/index.css"
@@ -39,22 +35,15 @@ const useStyles = makeStyles((theme) => ({
   title: {
     textAlign: "center",
     marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
-  },
+  }
 }))
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+
 const GenerateReportDestination = () => {
   const classes = useStyles()
 
   const [loading, setLoading] = useState(false)
   const { broadCastMonths, broadCastWeeks, targets, campaigns, customers } = usePage().props
-  const [open, setOpen] = useState(false)
-  const [response, setResponse] = useState()
   const [customer, setCustomer] = useState()
   const [year, setYear] = useState([])
   const [monthByYear, setMonthByYear] = useState(broadCastMonths)
@@ -62,12 +51,7 @@ const GenerateReportDestination = () => {
   const [campaign, setCampaign] = useState("")
   const [customerEmails, setCustomerEmails] = useState([])
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return
-    }
-    setOpen(false)
-  }
+
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target
@@ -139,11 +123,10 @@ const GenerateReportDestination = () => {
     axios.post(route("destination.report.generator"), values).then((r) => {
       if (r.data.status == 500) {
         setLoading(false)
-        setOpen(true)
         toast.error(r.data.msg)
       }
       setLoading(false)
-      ExportReportWithoutTag(r.data, fileName, setOpen, setResponse)
+      ExportReportWithoutTag(r.data, fileName)
 
     })
     .catch((e) => {
@@ -227,17 +210,6 @@ const GenerateReportDestination = () => {
           </Grid>
         </form>
       </Paper>
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
-      </>
     </>
   )
 }
