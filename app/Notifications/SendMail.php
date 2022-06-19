@@ -41,7 +41,9 @@ class SendMail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $allFiles= File::allFiles(storage_path('framework')."\laravel-excel");
+        if (file_exists(storage_path('framework')."\laravel-excel")) {
+            $allFiles= File::allFiles(storage_path('framework')."\laravel-excel");
+        }
         $latest_ctime = 0;
         $latest_filename = '';
         foreach ($allFiles as $file) {

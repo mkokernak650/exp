@@ -790,7 +790,7 @@ class ReportGeneratorController extends Controller
             // $newSummary['Total payout amount']=$call_summary['Total payout amount'];
             // $newSummary['Average payout per call']=$call_summary['Average payout per call'];
             $sendMailCtrl=new sendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $call_summary, $tag_count, $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
         }
         return [
             'data'         => $newData,
