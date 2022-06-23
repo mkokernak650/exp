@@ -9,7 +9,7 @@ class ZipcodeByTelevisionMarket extends Model
 {
     use HasFactory;
 
-    protected $tabla = 'zipcode_by_television_markets';
+    protected $table = 'zipcode_by_television_markets';
     
     protected $fillable = [
         'market',

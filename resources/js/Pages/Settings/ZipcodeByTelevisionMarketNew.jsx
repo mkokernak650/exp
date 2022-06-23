@@ -27,18 +27,17 @@ import Checkbox from "@material-ui/core/Checkbox"
 import {
   makeStyles,
   Button,
-  Snackbar,
   CircularProgress,
   RadioGroup,
   Radio,
   FormControlLabel,
   FormLabel,
 } from "@material-ui/core"
-import MuiAlert from "@material-ui/lab/Alert"
 import NormalModal from "../../Shared/NormalModal"
 import axios from "axios"
 import { Helmet } from "react-helmet"
 import { Pagination } from 'react-laravel-paginex'
+import toast from "react-hot-toast"
 
 
 
@@ -50,9 +49,7 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+
 export const fields = [
   {
     caption: "Market",
@@ -653,8 +650,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setselectedRowIds] = useState([])
-  const [response, setResponse] = useState()
-  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [importModal, setImportModal] = useState({ open: false })
   const [exportModal, setExportModal] = useState({ open: false })
@@ -667,36 +662,30 @@ const ZipcodeByTelevisionMarketNew = () => {
   const [searchedData, setSearchData] = useState([])
 
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return
-    }
-    setOpen(false)
-  }
+
   const mapDataArr = data => {
     return data.data.map((item, index) => ({
-    sl: index + 1,
-    market: item.market,
-    state: item.state,
-    county: item.county,
-    city: item.city,
-    population: item.population,
-    zip_code: item.zip_code,
-    fips: item.fips,
-    median_household_income_2007_2011: item.median_household_income_2007_2011,
-    race_americanindian: item.race_americanindian,
-    race_asian: item.race_asian,
-    race_white: item.race_white,
-    race_black: item.race_black,
-    race_hawaiian: item.race_hawaiian,
-    race_hispanic: item.race_hispanic,
-    race_other: item.race_other,
-    id: item.id,
-    key: index,
-  }))
-}
-const dataArray = mapDataArr(allZipcodesByTelevisionMarket)
-console.log('dataArray',dataArray)
+      sl: index + 1,
+      market: item.market,
+      state: item.state,
+      county: item.county,
+      city: item.city,
+      population: item.population,
+      zip_code: item.zip_code,
+      fips: item.fips,
+      median_household_income_2007_2011: item.median_household_income_2007_2011,
+      race_americanindian: item.race_americanindian,
+      race_asian: item.race_asian,
+      race_white: item.race_white,
+      race_black: item.race_black,
+      race_hawaiian: item.race_hawaiian,
+      race_hispanic: item.race_hispanic,
+      race_other: item.race_other,
+      id: item.id,
+      key: index,
+    }))
+  }
+  const dataArray = mapDataArr(allZipcodesByTelevisionMarket)
 
   const tablePropsInit = {
     columns: [
@@ -871,9 +860,7 @@ console.log('dataArray',dataArray)
             }
           } else {
             dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
             selectedRowIds.splice(0, selectedRowIds.length)
-            // }
             if (selectedRowIds.length < 1) {
               setTableToolbar(false)
             }
@@ -937,13 +924,17 @@ console.log('dataArray',dataArray)
         if (res.status === 200) {
           setMainData(res.data)
           setImportModal({ open: false })
-          setResponse("Imported Successfully")
-          setOpen(true)
+          toast.success("Imported Successfully")
         } else {
-          setResponse("Import failed")
+          toast.error("Import failed")
+
         }
       })
-      .catch((err) => { })
+      .catch((err) => {
+        setLoading(false)
+        toast.error("Error while importing file")
+
+      })
   }
 
   const triggerExportLink = (link) => {
@@ -961,14 +952,16 @@ console.log('dataArray',dataArray)
         if (res.status === 200) {
           setExportModal({ open: false })
           triggerExportLink(res.request.responseURL)
-          setResponse("Exported Successfully")
-          setOpen(true)
+          toast.success("Imported Successfully")
+
         } else {
-          setResponse("Export failed")
+          toast.error("Import failed")
         }
       })
       .catch((err) => {
         setLoading(false)
+        toast.error("Error while importing file")
+
       })
   }
 
@@ -1210,18 +1203,15 @@ console.log('dataArray',dataArray)
             noDataRow: {
               content: () => 'No Data Found'
             }
-            
+
           }}
-          
+
           dispatch={dispatch}
-          extendedFilter={(data) => searchedData}
+          extendedFilter={() => searchedData}
 
         />
 
         <div className="table-bottom">
-        {console.log('tableProps',tableProps)}
-        {console.log('zipcodeTelMarket',zipcodeTelMarket)}
-
           <select
             name="item-per-page"
             id="item-per-page"
@@ -1234,16 +1224,6 @@ console.log('dataArray',dataArray)
           </select>
           <Pagination changePage={getSearchingData} data={zipcodeTelMarket} />
         </div>
-
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
 
         <NormalModal
           open={importModal.open}
