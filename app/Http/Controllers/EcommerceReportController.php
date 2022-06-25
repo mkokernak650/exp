@@ -48,7 +48,7 @@ class EcommerceReportController extends Controller
         }
         $columns=['Market', 'TV Households', 'Total Quantity', 'Homes Per Sales','Total Revenue'];
         $summary=$this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData);
-        if ($request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary=[];
             $newSummary[' ']=' ';
             $newSummary['  ']='  ';
@@ -58,12 +58,12 @@ class EcommerceReportController extends Controller
             $newSummary['Total Amount']=$summary['Total Amount'];
             $sendMailCtrl=new sendMailController();
             $sendMailCtrl->SendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
+            return;
         }
-
         return response()->json([
-            'data'    => $salesData,
-            'summary' => $summary
-        ], 200);
+                'data'    => $salesData,
+                'summary' => $summary
+            ], 200);
     }
 
     protected function queryReport($request)

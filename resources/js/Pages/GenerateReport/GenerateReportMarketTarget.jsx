@@ -8,9 +8,10 @@ import {
   Button,
   FormControlLabel,
   FormGroup,
-  Checkbox
+  Checkbox,
+  Radio,
+  RadioGroup
 } from "@material-ui/core"
-import MuiAlert from "@material-ui/lab/Alert"
 import { makeStyles } from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import { usePage } from "@inertiajs/inertia-react"
@@ -65,10 +66,15 @@ const GenerateReportMarketTarget = () => {
   const [selectAllStates, setSelectAllStates] = useState(false)
   const [disableStateCheckbox, setDisableStateCheckbox] = useState(false)
   const [disableMarketCheckbox, setDisableMarketCheckbox] = useState(false)
+  const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
 
 
 
+  const reportTypeHandleChange = (e) => {
+    const { name, value } = e.target
+    setReportType({ [name]: value })
+  }
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target
@@ -235,6 +241,7 @@ const GenerateReportMarketTarget = () => {
     ...endDate,
     ...campaign,
     ...annotation,
+    ...reportType,
   }
 
   const affiliatesEmail = []
@@ -305,7 +312,11 @@ const GenerateReportMarketTarget = () => {
 
         }
         setLoading(false)
-        ExportReportWithoutTag(r.data, fileName)
+        if (reportType.report_type === "export-report") {
+          ExportReportWithoutTag(r.data, fileName)
+        } else {
+          toast.success("Email send successfully")
+        }
 
       })
       .catch((e) => {
@@ -355,6 +366,25 @@ const GenerateReportMarketTarget = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+          <Grid item xs={12}>
+              <RadioGroup
+                aria-label="report-type"
+                name="report_type"
+                value={reportType.report_type}
+                onChange={reportTypeHandleChange}
+              >
+                <FormControlLabel
+                  value="export-report"
+                  control={<Radio color="primary" />}
+                  label="Export Report"
+                />
+                <FormControlLabel
+                  value="email-report"
+                  control={<Radio color="primary" />}
+                  label="Email Report"
+                />
+              </RadioGroup>
+            </Grid>
             {!market &&
               <>
                 {!disableStateCheckbox &&

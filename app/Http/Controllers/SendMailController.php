@@ -11,8 +11,8 @@ class SendMailController extends Controller
 {
     public function SendMail($sheetData, $callSummary, $tagData, $columns, $fileName, $emails)
     {
-        $michaelEmail=['mkokernak@consumerexp.com','mkokernak@gmail.com','mdshakhawathosen122@gmail.com'];
-        // $michaelEmail=['mdshakhawathosen122@gmail.com'];
+        // $michaelEmail=['mkokernak@consumerexp.com','mkokernak@gmail.com','mdshakhawathosen122@gmail.com'];
+        $michaelEmail=['mdshakhawathosen122@gmail.com'];
         Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $columns), $fileName.'.xlsx');
         if (count($michaelEmail)) {
             foreach ($michaelEmail as $email) {

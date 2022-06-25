@@ -60,12 +60,19 @@ const GenerateReportTarget = () => {
   const [endDate, setEndDate] = useState({ end_date: "" })
   const [campaign, setCampaign] = useState("")
   const [annotation, setAnnotation] = useState("")
+  const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
 
 
   const typeHandleChange = (e) => {
     const { name, value } = e.target
     setType({ [name]: value })
+  }
+
+
+  const reportTypeHandleChange = (e) => {
+    const { name, value } = e.target
+    setReportType({ [name]: value })
   }
 
   const customerHandleChange = (e) => {
@@ -194,6 +201,7 @@ const GenerateReportTarget = () => {
     ...endDate,
     ...campaign,
     ...annotation,
+    ...reportType
   }
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
@@ -246,13 +254,17 @@ const GenerateReportTarget = () => {
         toast.error(r.data.msg)
       }
       setLoading(false)
-      ExportReportWithTag(r.data, fileName)
+      if (reportType.report_type === "export-report") {
+        ExportReportWithTag(r.data, fileName)
+      } else {
+        toast.success("Email send successfully")
+      }
 
     })
-    .catch((e) => {
-      setLoading(false)
-      toast.error("Error while generating report")
-    })
+      .catch((e) => {
+        setLoading(false)
+        toast.error("Error while generating report")
+      })
   }
 
 
@@ -283,6 +295,26 @@ const GenerateReportTarget = () => {
                   value="billed"
                   control={<Radio color="primary" />}
                   label="Billed"
+                />
+              </RadioGroup>
+            </Grid>
+
+            <Grid item xs={12}>
+              <RadioGroup
+                aria-label="report-type"
+                name="report_type"
+                value={reportType.report_type}
+                onChange={reportTypeHandleChange}
+              >
+                <FormControlLabel
+                  value="export-report"
+                  control={<Radio color="primary" />}
+                  label="Export Report"
+                />
+                <FormControlLabel
+                  value="email-report"
+                  control={<Radio color="primary" />}
+                  label="Email Report"
                 />
               </RadioGroup>
             </Grid>

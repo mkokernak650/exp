@@ -5,7 +5,10 @@ import {
   Paper,
   Typography,
   TextField,
-  Button
+  Button,
+  RadioGroup,
+  FormControlLabel,
+  Radio
 } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
@@ -53,8 +56,14 @@ const GenerateReportMarketException = () => {
   const [campaign, setCampaign] = useState("")
   const [annotation, setAnnotation] = useState("")
   const [market, setMarket] = useState()
+  const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
 
+
+  const reportTypeHandleChange = (e) => {
+    const { name, value } = e.target
+    setReportType({ [name]: value })
+  }
 
   const marketHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1)
@@ -172,6 +181,7 @@ const GenerateReportMarketException = () => {
     ...year,
     ...campaign,
     ...annotation,
+    ...reportType,
   }
 
   const affiliatesEmail = []
@@ -182,7 +192,7 @@ const GenerateReportMarketException = () => {
         if (item.affiliate_id === values.affiliate_id[i]) {
           if (item.email) {
             affiliatesEmail.push(item.email)
-            }
+          }
         }
       }
     })
@@ -224,13 +234,17 @@ const GenerateReportMarketException = () => {
         toast.error(r.data.msg)
       }
       setLoading(false)
-      ExportReportWithoutTag(r.data, fileName)
+      if (reportType.report_type === "export-report") {
+        ExportReportWithoutTag(r.data, fileName)
+      } else {
+        toast.success("Email send successfully")
+      }
 
     })
-    .catch((e) => {
-      setLoading(false)
-      toast.error("Error while generating report")
-    })
+      .catch((e) => {
+        setLoading(false)
+        toast.error("Error while generating report")
+      })
   }
 
 
@@ -246,6 +260,25 @@ const GenerateReportMarketException = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <RadioGroup
+                aria-label="report-type"
+                name="report_type"
+                value={reportType.report_type}
+                onChange={reportTypeHandleChange}
+              >
+                <FormControlLabel
+                  value="export-report"
+                  control={<Radio color="primary" />}
+                  label="Export Report"
+                />
+                <FormControlLabel
+                  value="email-report"
+                  control={<Radio color="primary" />}
+                  label="Email Report"
+                />
+              </RadioGroup>
+            </Grid>
             <Grid item xs={12}>
 
               <MultiSelect
