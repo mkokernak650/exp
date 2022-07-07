@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\TargetController;
 use Illuminate\Console\Command;

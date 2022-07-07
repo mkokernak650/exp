@@ -697,7 +697,6 @@ class ReportGeneratorController extends Controller
                 $total_seconds += $callLog->$conn_duration;
                 $total_revenue += (int)$callLog->$payout_amount;
             }
-            // $tag_count[''] = $archive_call;
         }
 
         // for archived
@@ -733,10 +732,8 @@ class ReportGeneratorController extends Controller
                 $total_seconds += $archive->$conn_duration;
                 $total_revenue += (int)$archive->$payout_amount;
             }
-            // $tag_count[''] = $archive_call;
         }
         // for exceptions
-        // return 0;
         if (!empty($exceptions)) {
             foreach ($exceptions as $exception) {
                 $annotationTag = $exception->annotation_name;
@@ -890,7 +887,6 @@ class ReportGeneratorController extends Controller
         $total_call = 0;
         $total_seconds = 0;
         $total_revenue = 0;
-        $target = '';
         $archive_call = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float)0.00];
 
         // category of calls
@@ -914,13 +910,11 @@ class ReportGeneratorController extends Controller
         // for billed
         foreach ($billed as $bill) {
             $TargetDescription = $bill->$target_description;
-            // $call_summary['Targets'] = $TargetDescription;
             $annotationTag = $bill->annotation_name;
             $bill->$annotation_tag = $bill->annotation_name;
             unset($bill->annotation_name);
             unset($bill->$target_description);
             if ($annotation !== 'yes') {
-                // unset($bill->annotation_name);
                 unset($bill->$has_annotation);
             } else {
                 unset($bill->$has_annotation);
@@ -951,7 +945,6 @@ class ReportGeneratorController extends Controller
                 unset($callLog->annotation_name);
                 unset($callLog->$target_description);
                 if ($annotation !== 'yes') {
-                    // unset($callLog->annotation_name);
                     unset($callLog->$has_annotation);
                 } else {
                     unset($callLog->$has_annotation);
@@ -986,7 +979,6 @@ class ReportGeneratorController extends Controller
                 unset($archive->annotation_name);
                 unset($archive->$target_description);
                 if ($annotation !== 'yes') {
-                    // unset($archive->annotation_name);
                     unset($archive->$has_annotation);
                 } else {
                     unset($archive->$has_annotation);
@@ -1020,7 +1012,6 @@ class ReportGeneratorController extends Controller
                 unset($exception->annotation_name);
                 unset($exception->$target_description);
                 if ($annotation !== 'yes') {
-                    // unset($exception->annotation_name);
                     unset($exception->$has_annotation);
                 } else {
                     unset($exception->$has_annotation);
@@ -1079,6 +1070,7 @@ class ReportGeneratorController extends Controller
             'tag_count'    => $tag_count
         ];
     }
+    
 
     private function targetReportData($tablename, $condition, $whereIn = [], $whereInOr=[])
     {
@@ -1165,9 +1157,7 @@ class ReportGeneratorController extends Controller
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
         }
-        /*if ($annotation !== null) {
-            $condition[] = "Has_Annotation='$annotation'";
-        }*/
+
         if (!empty($annotation) && count($annotation) > 0 && $annotation[0] !== null) {
             $annotation_inputs = implode("','", $annotation);
             $whereIn[] = "Has_Annotation IN ('$annotation_inputs')";
@@ -1222,8 +1212,6 @@ class ReportGeneratorController extends Controller
         }
  
         $avg_revenue_amount = $total_revenue > 0 ? $total_revenue / $total_call : 0;
-
-
         $call_summary['Total Number of Calls'] = $total_call;
         $call_summary['Total Minutes'] = secondToMinutes($total_seconds);
         $call_summary['Total Revenue'] = (float)number_format($total_revenue, 2, '.', '');
@@ -1279,7 +1267,6 @@ class ReportGeneratorController extends Controller
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
         WHERE {$con}";
-
         return DB::select($sql);
     }
 }
