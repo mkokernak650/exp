@@ -102,7 +102,7 @@ class RingbaCallLogController extends Controller
     public function deleteRingbaData(Request $request)
     {
         $ids = [1, 2];
-        $results = RingbaData::whereIn('id', $ids)->delete();
+        RingbaData::whereIn('id', $ids)->delete();
     }
 
     /**

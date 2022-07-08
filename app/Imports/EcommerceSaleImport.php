@@ -77,8 +77,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                 }
             }
         }
-      
-
+    
         return new EcommerceSale([
             'campaign_id'    => $this->reqCampaignId,
             'customer_id'    => $this->reqCustomerId,
@@ -96,7 +95,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
-            'order_at'       =>array_key_exists('date_time', $row)?$this->getValue($row, 'date_time'): $this->mergeDateTime($row, ['order_date', 'order_time']),
+            'order_at'       =>array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap)? $this->mergeDateTime($row, ['order_date', 'order_time']) :$this->getValue($row, 'order_date'),
         ]);
     }
 

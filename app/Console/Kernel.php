@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Http\Controllers\RingbaCallLogController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -25,12 +24,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
-        // $schedule->command('getdata:daily')->daily();
         $schedule->command('getdata:daily');
-        // $schedule->command('getcalllog:daily');
 
-        // get Rinba data 
+        // get Rinba data
         // $schedule->call( function (){
         //     $ringba = new RingbaCallLogController();
         //     $ringba->getRingbaDataByScheduler();
@@ -50,7 +46,6 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         $this->load(__DIR__.'/Commands');
-
         require base_path('routes/console.php');
     }
 }
