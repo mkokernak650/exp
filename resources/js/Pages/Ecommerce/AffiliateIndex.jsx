@@ -231,8 +231,10 @@ const AffiliateIndex = () => {
     const affiliate = affiliates.find((affiliate) => affiliate.id == id)
     return affiliate ? affiliate.affiliate_name : ""
   }
+  console.log(editData)
 
   const handleEditSubmit = () => {
+
     axios
       .put(route("ecommerce-affiliates.update", editData.id), editData, headers)
       .then((res) => {
@@ -299,7 +301,7 @@ const AffiliateIndex = () => {
       })
   }
 
-
+console.log('ecommerceAffiliates',ecommerceAffiliates)
 
   const dataArray = ecommerceAffiliates.map((item, index) => ({
     edit: item.id,
@@ -463,13 +465,7 @@ const AffiliateIndex = () => {
         title: "Commission",
         dataType: DataType.String,
         style: { width: 100 },
-      },
-      // {
-      //   key: "status",
-      //   title: "Status",
-      //   dataType: DataType.String,
-      //   style: { width: 100 },
-      // },
+      }
     ],
     paging: {
       enabled: true,
@@ -519,7 +515,6 @@ const AffiliateIndex = () => {
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
   }
-  console.log(filterData(tablePropsInit.data, filterValue))
 
   const exportHandler = () => {
     const apiData=filterData(tableProps.data,filterValue)
@@ -534,7 +529,6 @@ const AffiliateIndex = () => {
     item.order_type=item.order_type==1?"E-commerce":"Phone"
     return item
     })
-    console.log(filterdData)
     const fileType =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
       const ws = XLSX.utils.json_to_sheet(filterdData, 'Ecommerce Affiliates')
@@ -638,7 +632,6 @@ const AffiliateIndex = () => {
     }
   }, [])
 
-  useEffect(() => M.AutoInit())
 
   const TableToolbar = () => {
     return (

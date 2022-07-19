@@ -21,4 +21,6 @@ class SendMailController extends Controller
             }
         }
     }
+
+    
 }

@@ -62,7 +62,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                     $this->reqOrderType == $this->orderTypes[$key] &&
                     $this->reqCampaignId == $this->campaignIds[$key] &&
                     $this->reqCustomerId == $this->customerIds[$key] &&
-                    $this->getValue($row, 'shipping_zip') == $this->shippingZip[$key] &&
+                    substr($this->getValue($row, 'shipping_zip'), 0, 5) == $this->shippingZip[$key] &&
                     (
                         (
                             $this->reqOrderType == EcommerceSale::ORDER_TYPE['phone'] &&
@@ -77,7 +77,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                 }
             }
         }
-    
+
         return new EcommerceSale([
             'campaign_id'    => $this->reqCampaignId,
             'customer_id'    => $this->reqCustomerId,

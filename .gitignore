@@ -19,3 +19,4 @@ yarn-error.log
 *.tmp
 composer.lock
 query.sql
+*.example
