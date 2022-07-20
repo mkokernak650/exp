@@ -66,10 +66,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                     (
                         (
                             $this->reqOrderType == EcommerceSale::ORDER_TYPE['phone'] &&
-                            $this->getValue($row, 'dialed') == $this->dialed[$key]
+                            trim($this->getValue($row, 'dialed')) == $this->dialed[$key]
                         ) || (
                             $this->reqOrderType == EcommerceSale::ORDER_TYPE['e-commerce'] &&
-                            $this->getValue($row, 'coupon_code') == $this->couponCodes[$key]
+                            trim($this->getValue($row, 'coupon_code')) == $this->couponCodes[$key]
                         )
                     )
                 ) {
@@ -85,7 +85,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'order_no'       => $this->getValue($row, 'order_no'),
             'coupon_code'    => trim($this->getValue($row, 'coupon_code')),
             'user_ip'        => $this->getValue($row, 'user_ip'),
-            'dialed'         => $this->getValue($row, 'dialed'),
+            'dialed'         => trim($this->getValue($row, 'dialed')),
             'inbound'        => $this->getValue($row, 'inbound'),
             'shipping_city'  => $this->getValue($row, 'shipping_city'),
             'shipping_state' => $this->getValue($row, 'shipping_state'),
