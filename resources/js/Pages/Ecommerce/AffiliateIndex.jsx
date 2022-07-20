@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout"
-import M from "materialize-css"
 import React, { useEffect, useState, useRef } from "react"
 import { kaReducer, Table } from "ka-table"
 import {
@@ -301,7 +300,7 @@ const AffiliateIndex = () => {
       })
   }
 
-console.log('ecommerceAffiliates',ecommerceAffiliates)
+  console.log('ecommerceAffiliates', ecommerceAffiliates)
 
   const dataArray = ecommerceAffiliates.map((item, index) => ({
     edit: item.id,
@@ -517,28 +516,28 @@ console.log('ecommerceAffiliates',ecommerceAffiliates)
   }
 
   const exportHandler = () => {
-    const apiData=filterData(tableProps.data,filterValue)
-    const filterdData=apiData.map((item)=>{
-    delete item.affiliate_id
-    delete item.campaign_id
-    delete item.customer_id
-    delete item.edit
-    delete item.id
-    delete item.key
-    delete item.sl
-    item.order_type=item.order_type==1?"E-commerce":"Phone"
-    return item
+    const apiData = filterData(tableProps.data, filterValue)
+    const filterdData = apiData.map((item) => {
+      delete item.affiliate_id
+      delete item.campaign_id
+      delete item.customer_id
+      delete item.edit
+      delete item.id
+      delete item.key
+      delete item.sl
+      item.order_type = item.order_type == 1 ? "E-commerce" : "Phone"
+      return item
     })
     const fileType =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8"
-      const ws = XLSX.utils.json_to_sheet(filterdData, 'Ecommerce Affiliates')
-      const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
-      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
-      const data = new Blob([excelBuffer], { type: fileType })
-      FileSaver.saveAs(data, 'Ecommerce Affiliates' + '.xlsx')
-      toast.success("Report Generated Successfully")
+    const ws = XLSX.utils.json_to_sheet(filterdData, 'Ecommerce Affiliates')
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] }
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
+    const data = new Blob([excelBuffer], { type: fileType })
+    FileSaver.saveAs(data, 'Ecommerce Affiliates' + '.xlsx')
+    toast.success("Report Generated Successfully")
 
-    
+
   }
   const [serachSidebar, setSearchSidebar] = useState(false)
 
@@ -1031,8 +1030,8 @@ console.log('ecommerceAffiliates',ecommerceAffiliates)
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
         title={`${selectedRowIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
           }`}
       ></ConfirmModal>
     </>

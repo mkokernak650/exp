@@ -95,7 +95,6 @@ class EcommerceSaleController extends Controller
             }
         }
 
- 
 
         $salesData = EcommerceSale::select(
             'id',

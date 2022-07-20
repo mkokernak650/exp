@@ -93,11 +93,11 @@ const operators = [
 ];
 
 export const fields = [
-  {
-    caption: "order_type",
-    name: "order_type",
-    operators,
-  },
+  // {
+  //   caption: "order_type",
+  //   name: "order_type",
+  //   operators,
+  // },
   {
     caption: "order_no",
     name: "order_no",
@@ -190,6 +190,7 @@ export const filter = {
     },
   ],
 };
+
 
 const SalesIndex = () => {
   const classes = useStyles();
@@ -621,7 +622,7 @@ const SalesIndex = () => {
     };
   }, []);
 
-  useEffect(() => M.AutoInit());
+console.log(filterData(tableProps.data, filterValue))
 
   const TableToolbar = () => {
     return (

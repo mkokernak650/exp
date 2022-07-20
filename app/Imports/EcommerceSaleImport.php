@@ -83,7 +83,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'customer_id'    => $this->reqCustomerId,
             'order_type'     => $this->reqOrderType,
             'order_no'       => $this->getValue($row, 'order_no'),
-            'coupon_code'    => $this->getValue($row, 'coupon_code'),
+            'coupon_code'    => trim($this->getValue($row, 'coupon_code')),
             'user_ip'        => $this->getValue($row, 'user_ip'),
             'dialed'         => $this->getValue($row, 'dialed'),
             'inbound'        => $this->getValue($row, 'inbound'),
