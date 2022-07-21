@@ -460,6 +460,10 @@ export default function PersistentDrawerLeft(props) {
           title: "Targets",
           href: "target.report",
           Icon: <UserIcon />,
+        }, {
+          title: "Target Names",
+          href: "target_names.report",
+          Icon: <UserIcon />,
         },
 
         {
@@ -562,7 +566,7 @@ export default function PersistentDrawerLeft(props) {
             type="submit"
             color="primary"
             onClick={() => handleOpenModal(setShowlStaorageModal)}
-            // className={classes.button}
+          // className={classes.button}
           >
             Clear LocalStorage
           </Button>
@@ -663,11 +667,10 @@ export default function PersistentDrawerLeft(props) {
                   in={active.id === menu.id && active.active}
                   timeout="auto"
                   unmountOnExit
-                  className={`${
-                    menu.active
+                  className={`${menu.active
                       ? "sidebar-menu-active"
                       : "sidebar-menu-inactive"
-                  }`}
+                    }`}
                 >
                   <List component="div" disablePadding>
                     {menu.submenu.map((submenu) => (

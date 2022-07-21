@@ -1,6 +1,5 @@
 import Layout from "../Layout/Layout";
 import React, { useEffect, useState, useRef } from "react";
-
 import { kaReducer, Table } from "ka-table";
 import {
   DataType,
@@ -62,9 +61,10 @@ const useStyles = makeStyles(() => ({
 
 
 export const fields = [
+
   {
-    caption: "customer",
-    name: "customer",
+    caption: "Target Name",
+    name: "target_name",
     operators: [
       {
         caption: "Contains",
@@ -100,82 +100,7 @@ export const fields = [
       },
     ],
   },
-  {
-    caption: "Ringba Target Name",
-    name: "Ringba_Target_Name",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
-  {
-    caption: "Description",
-    name: "Description",
-    operators: [
-      {
-        caption: "Contains",
-        name: "contains",
-      },
-      {
-        caption: "Not Contains",
-        name: "doesNotContain",
-      },
-      {
-        caption: "Is Empty",
-        name: "isEmpty",
-      },
-      {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
-      },
-      {
-        caption: "Starts With",
-        name: "startswith",
-      },
-      {
-        caption: "Ends With",
-        name: "endsWith",
-      },
-      {
-        caption: "Is",
-        name: "is",
-      },
-      {
-        caption: "Is Not",
-        name: "isnot",
-      },
-    ],
-  },
+
 ];
 
 export const groups = [
@@ -192,7 +117,7 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "customer",
+      field: "target_name",
       operator: "isNotEmpty",
     },
   ],
@@ -200,7 +125,7 @@ export const filter = {
 
 const Targets = () => {
   const classes = useStyles();
-  const { allTargets } = usePage().props;
+  const { allTargetNames } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
@@ -211,12 +136,10 @@ const Targets = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const showColumnRef = useRef();
 
-  const dataArray = allTargets.map((item, index) => ({
+  const dataArray = allTargetNames.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    customer: item.Customer,
-    Ringba_Target_Name: item.Ringba_Targets_Name,
-    Description: item.Description,
+    target_name: item.target_name,
     status: [item.status, item.id],
     id: item.id,
     key: index,
@@ -303,24 +226,12 @@ const Targets = () => {
         style: { width: 100 },
       },
       {
-        key: "customer",
-        title: "Customer",
+        key: "target_name",
+        title: "Target Name",
         dataType: DataType.String,
         style: { width: 360 },
       },
 
-      {
-        key: "Description",
-        title: "Description",
-        dataType: DataType.String,
-        style: { width: 400 },
-      },
-      {
-        key: "Ringba_Target_Name",
-        title: "Ringba Target Name",
-        dataType: DataType.String,
-        style: { width: 360 },
-      },
       {
         key: "status",
         title: "Status",
@@ -365,9 +276,8 @@ const Targets = () => {
 
 
 
-  // console.table(tablePropsInit.columns)
 
-  const OPTION_KEY = "target-report";
+  const OPTION_KEY = "target-names-report";
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
@@ -375,7 +285,7 @@ const Targets = () => {
   const [tableProps, changeTableProps] = useState(stateStore);
 
   const handleStatus = (e, value, rowId) => {
-    axios.post(route('target.status.update'), { value: value, rowId: rowId })
+    axios.post(route('target_names.status.update'), { value: value, rowId: rowId })
       .then((res) => {
         let tmpData = { ...tableProps }
         tmpData.data.filter((item, indx) => {
@@ -421,7 +331,7 @@ const Targets = () => {
   };
   const deleteHandler = () => {
     axios
-      .post(route("target.delete"), { selectedRowIds })
+      .post(route("target_names.delete"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
@@ -466,16 +376,13 @@ const Targets = () => {
   };
   const handleEditSubmit = () => {
     axios
-      .post(route("target.edit"), editData)
+      .post(route("target_name.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
           filteredData.data.filter((item, indx) => {
             if (item.id === editData.id) {
-              filteredData.data[indx].customer = editData.customer;
-              filteredData.data[indx].Ringba_Target_Name =
-                editData.Ringba_Target_Name;
-              filteredData.data[indx].Description = editData.Description;
+              filteredData.data[indx].target_name = editData.target_name;
             }
           });
           setEditData();
@@ -617,7 +524,7 @@ const Targets = () => {
 
   return (
     <>
-      <Helmet title="Targets Report" />
+      <Helmet title="Target Names Report" />
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -722,36 +629,16 @@ const Targets = () => {
         open={showEditModal.open}
         setOpen={setShowEditModal}
         width={"600px"}
-        title={"Edit Targets"}
+        title={"Edit Target Names"}
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Customer:</span>
+            <span>Target Name:</span>
             <TextField
-              value={editData ? editData.customer : ""}
+              value={editData ? editData.target_name : ""}
               fullWidth
               margin="normal"
-              name="customer"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Description:</span>
-            <TextField
-              value={editData ? editData.Description : ""}
-              fullWidth
-              margin="normal"
-              name="Description"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
-            />
-            <span>Ringba Target Name:</span>
-            <TextField
-              value={editData ? editData.Ringba_Target_Name : ""}
-              fullWidth
-              margin="normal"
-              name="Ringba_Target_Name"
+              name="target_name"
               type="text"
               variant="outlined"
               onChange={handleEditChange}

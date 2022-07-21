@@ -272,10 +272,10 @@ const GenerateReportTarget = () => {
 
   return (
     <>
-      <Helmet title="Generate Report Target" />
+      <Helmet title="Generate Report Customer" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Generate Report Target
+          Generate Report Customer
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>

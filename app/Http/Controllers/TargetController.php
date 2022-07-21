@@ -18,8 +18,8 @@ class TargetController extends Controller
 
     public function index()
     {
-        $allCustomers = Customer::select('customer_name')->distinct()->get();
-        $allTargetNames = TargetNames::select('target_name')->distinct()->get();
+        $allCustomers = Customer::select('customer_name')->where('status', '=', '1')->distinct()->get();
+        $allTargetNames = TargetNames::select('target_name')->where('status', '=', '1')->distinct()->get();
         return Inertia::render('Settings/AddTargets', [
             'allCustomers' => $allCustomers,
             'allTargetNames' => $allTargetNames
@@ -28,10 +28,16 @@ class TargetController extends Controller
 
     public function TargetsReport()
     {
-        // $this->getAllTarget();//testing
         $allTargets = Target::all();
         return Inertia::render('Settings/Targets', [
             'allTargets' => $allTargets
+        ]);
+    }
+    public function TargetNamesReport()
+    {
+        $allTargetNames = TargetNames::all();
+        return Inertia::render('Settings/TargetNames', [
+            'allTargetNames' => $allTargetNames
         ]);
     }
 
@@ -54,7 +60,7 @@ class TargetController extends Controller
         }
     }
 
-    public function edit(Request $request)
+    public function targetEdit(Request $request)
     {
         $data = Target::find($request->id);
         $data->Customer  = $request->customer;
@@ -68,13 +74,39 @@ class TargetController extends Controller
             return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
         }
     }
+    public function targetNamesEdit(Request $request)
+    {
+        $data = TargetNames::find($request->id);
+        $data->target_name  = $request->target_name;
+        $result = $data->save();
 
-    public function delete(Request $request)
+        if ($result) {
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "targetData" => TargetNames::all()]);
+        } else {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
+
+    public function targetDelete(Request $request)
     {
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
             $result =  Target::where('id', $request->selectedRowIds[$i])->delete();
+            $i++;
+        }
+        if ($result) {
+            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+        } else {
+            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+        }
+    }
+    public function targetNamesDelete(Request $request)
+    {
+        $result = true;
+        $i = 0;
+        while ($i < count($request->selectedRowIds)) {
+            $result =  TargetNames::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
@@ -101,8 +133,8 @@ class TargetController extends Controller
                 $targetName->save();
             }
 
-            $existData= Target::where('Customer', $row->owner->name)->where('Ringba_Targets_Name', $row->name)->count();
-            
+            $existData = Target::where('Customer', $row->owner->name)->where('Ringba_Targets_Name', $row->name)->count();
+
             if ($existData > 0) {
                 continue;
             } else {
@@ -127,7 +159,6 @@ class TargetController extends Controller
             array_push($all_customer_name, $customer->customer_name);
         }
 
-//        dd('from db', $all_target_name, 'from api', $results);
         foreach ($results as $row) {
             $customer = new Customer();
             if (!in_array($row->name, $all_customer_name)) {
@@ -137,13 +168,23 @@ class TargetController extends Controller
         }
     }
 
-    public function statusUpdate(Request $request)
+    public function targetStatusUpdate(Request $request)
     {
         $data = Target::find($request->rowId);
-        if ($request->value ==1) {
-            $data->status =0;
+        if ($request->value == 1) {
+            $data->status = 0;
         } else {
-            $data->status =1;
+            $data->status = 1;
+        }
+        $result = $data->save();
+    }
+    public function targetNamesStatusUpdate(Request $request)
+    {
+        $data = TargetNames::find($request->rowId);
+        if ($request->value == 1) {
+            $data->status = 0;
+        } else {
+            $data->status = 1;
         }
         $result = $data->save();
     }

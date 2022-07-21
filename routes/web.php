@@ -145,10 +145,14 @@ Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])->n
 
 Route::get('/target-form', [TargetController::class, 'index'])->name('target.form');
 Route::get('/target-report', [TargetController::class, 'TargetsReport'])->name('target.report');
+Route::get('/target-names-report', [TargetController::class, 'TargetNamesReport'])->name('target_names.report');
 Route::post('/add-target', [TargetController::class, 'addTarget'])->name('add.target');
-Route::post('/target-delete', [TargetController::class, 'delete'])->name('target.delete');
-Route::post('/target-edit', [TargetController::class, 'edit'])->name('target.edit');
-Route::post('/target-status-update', [TargetController::class, 'statusUpdate'])->name('target.status.update');
+Route::post('/target-delete', [TargetController::class, 'targetDelete'])->name('target.delete');
+Route::post('/target-names-delete', [TargetController::class, 'targetNamesDelete'])->name('target_names.delete');
+Route::post('/target-edit', [TargetController::class, 'targetEdit'])->name('target.edit');
+Route::post('/target-name-edit', [TargetController::class, 'targetNamesEdit'])->name('target_name.edit');
+Route::post('/target-status-update', [TargetController::class, 'targetStatusUpdate'])->name('target.status.update');
+Route::post('/target-name-status-update', [TargetController::class, 'targetNamesStatusUpdate'])->name('target_names.status.update');
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])->name('update.annotation');
 
 

@@ -415,20 +415,20 @@ const EcommerceReport = () => {
         }
 
       })
-    .catch((e) => {
-      setLoading(false)
-      toast.error("Error while generating report")
-    })
+      .catch((e) => {
+        setLoading(false)
+        toast.error("Error while generating report")
+      })
   }
 
 
 
   return (
     <>
-      <Helmet title="E-commerce Report" />
+      <Helmet title="E-Commerce - Phone Report" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          E-commerce Report
+          E-Commerce - Phone Report
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>

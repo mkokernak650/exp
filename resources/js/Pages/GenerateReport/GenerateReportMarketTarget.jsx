@@ -17,8 +17,8 @@ import Grid from "@material-ui/core/Grid"
 import { usePage } from "@inertiajs/inertia-react"
 import axios from "axios"
 import { Helmet } from "react-helmet"
-import {currentDate} from "../../Helpers/CurrentDate"
-import {ExportReportWithoutTag} from "../../Helpers/ExportReport"
+import { currentDate } from "../../Helpers/CurrentDate"
+import { ExportReportWithoutTag } from "../../Helpers/ExportReport"
 import MultiSelect from "react-multiple-select-dropdown-lite"
 import "react-multiple-select-dropdown-lite/dist/index.css"
 import toast from "react-hot-toast"
@@ -252,7 +252,7 @@ const GenerateReportMarketTarget = () => {
         if (item.affiliate_id === values.affiliate_id[i]) {
           if (item.email) {
             affiliatesEmail.push(item.email)
-            }
+          }
         }
       }
     })
@@ -319,10 +319,10 @@ const GenerateReportMarketTarget = () => {
         }
 
       })
-      .catch((e) => {
-        setLoading(false)
-        toast.error("Error while generating report")
-      })
+        .catch((e) => {
+          setLoading(false)
+          toast.error("Error while generating report")
+        })
     }
     else {
       setLoading(false)
@@ -359,14 +359,14 @@ const GenerateReportMarketTarget = () => {
 
   return (
     <>
-      <Helmet title="Generate Report Market Target" />
+      <Helmet title="Generate Report Homes Per Call" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title} >
-          Generate Report Market Target
+          Generate Report Homes Per Call
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-          <Grid item xs={12}>
+            <Grid item xs={12}>
               <RadioGroup
                 aria-label="report-type"
                 name="report_type"
