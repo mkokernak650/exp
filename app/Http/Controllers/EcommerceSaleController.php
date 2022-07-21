@@ -123,7 +123,14 @@ class EcommerceSaleController extends Controller
         if ($importedCount < 1) {
             return response()->json(['msg' => 'All Sales Data Already Exist.'], 422);
         }
-        return response()->json(['msg' => $importedCount . " Rows Imported Successfully. \n" . count($existSales) . " Rows Already Exist.", 'alreadyExists' => (empty($existSales) ? false : $existSales)], 201);
+
+        $data = false;
+        $msg = $importedCount . ' Rows Imported.';
+        if (count($existSales) > 0) {
+            $msg .= "\n" . count($existSales) . ' Rows Already Exist.';
+            $data = $existSales;
+        }
+        return response()->json(['msg'=> $msg, 'alreadyExists' => $data], 201);
     }
 
     public function deleteSelected(Request $request)
