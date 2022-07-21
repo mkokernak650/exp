@@ -66,9 +66,13 @@ const GenerateReportMarketException = () => {
   }
 
   const marketHandleChange = (val, key) => {
-    val = val.substring(0, val.length - 1)
-    const marketsName = val.split(",,")
-    setMarket({ [key]: marketsName })
+    if (val) {
+      val = val.substring(0, val.length - 1)
+      const marketsName = val.split(",,")
+      setMarket({ [key]: marketsName })
+    } else {
+      setMarket([])
+    }
   }
 
   const customerHandleChange = (e) => {
@@ -284,7 +288,9 @@ const GenerateReportMarketException = () => {
               <MultiSelect
                 name="market"
                 onChange={(val) => marketHandleChange(val, "market")}
-                options={marketOptions}
+                options={[
+                  { label: "All Markets", value: "allMarkets," },
+                ].concat(marketOptions)}
                 style={{ width: "100%" }}
                 placeholder="Select Market"
               />
