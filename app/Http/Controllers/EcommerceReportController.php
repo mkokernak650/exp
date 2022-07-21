@@ -46,24 +46,26 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
-        $columns=['Market', 'TV Households', 'Total Quantity', 'Homes Per Sales','Total Revenue'];
-        $summary=$this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData);
+
+        $columns = ['Market', 'TV Households', 'Total Quantity', 'Homes Per Sales', 'Total Revenue'];
+        $summary = $this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData);
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary=[];
-            $newSummary[' ']=' ';
-            $newSummary['  ']='  ';
-            $newSummary['   ']='   ';
-            $newSummary['Summary']='   ';
-            $newSummary['Total Quantity']=$summary['Total Quantity'];
-            $newSummary['Total Amount']=$summary['Total Amount'];
-            $sendMailCtrl=new sendMailController();
+            $newSummary = [];
+            $newSummary[' '] = ' ';
+            $newSummary['  '] = '  ';
+            $newSummary['   '] = '   ';
+            $newSummary['Summary'] = '   ';
+            $newSummary['Total Quantity'] = $summary['Total Quantity'];
+            $newSummary['Total Amount'] = $summary['Total Amount'];
+            $sendMailCtrl = new sendMailController();
             $sendMailCtrl->SendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
+
         return response()->json([
-                'data'    => $salesData,
-                'summary' => $summary
-            ], 200);
+            'data'    => $salesData,
+            'summary' => $summary
+        ], 200);
     }
 
     protected function queryReport($request)
@@ -83,7 +85,7 @@ class EcommerceReportController extends Controller
         $reportFor = $request->reportFor;
         $orderType = $request->orderType;
 
-        $queryData= DB::table('ecommerce_sales')
+        $queryData = DB::table('ecommerce_sales')
             ->when(
                 $orderType,
                 fn ($q) => $q->join('ecommerce_affiliates', function ($join) use ($orderType) {
@@ -147,49 +149,52 @@ class EcommerceReportController extends Controller
             )
             ->groupBy('ecommerce_sales.id')
             ->get();
-        if ($reportFor==='marketTarget') {
+
+        if ($reportFor === 'marketTarget') {
             return $this->mergeDuplicateMarketData($queryData);
         }
+
         return $queryData;
     }
+
     public function mergeDuplicateMarketData($queryData)
     {
-        $finalData=(array)[];
+        $finalData = (array)[];
         foreach ($queryData as $value) {
-            $indx= $this->findIndx($finalData, $value);
-            if ($indx===false) {
-                $object= (object)[
-                    'Market' => $value->Market,
-                    'TV Households'=>$value->{'TV Households'},
-                    'Total Quantity'=>$value->{'Total Quantity'},
-                    'Homes Per Sales'=>$value->{'Homes Per Sales'},
-                    'Total Revenue'=>$value->{'Total Revenue'},
-                 ];
+            $indx = $this->findIndx($finalData, $value);
+            if ($indx === false) {
+                $object = (object)[
+                    'Market'         => $value->Market,
+                    'TV Households'  => $value->{'TV Households'},
+                    'Total Quantity' => $value->{'Total Quantity'},
+                    'Homes Per Sales'=> $value->{'Homes Per Sales'},
+                    'Total Revenue'  => $value->{'Total Revenue'},
+                ];
                 array_push($finalData, $object);
             } else {
-                $finalData[$indx]->{'Total Revenue'}+=$value->{'Total Revenue'};
-                $finalData[$indx]->{'Total Quantity'}+=$value->{'Total Quantity'};
-                $finalData[$indx]->{'TV Households'}+=$value->{'TV Households'};
+                $finalData[$indx]->{'Total Revenue'} += $value->{'Total Revenue'};
+                $finalData[$indx]->{'Total Quantity'} += $value->{'Total Quantity'};
+                $finalData[$indx]->{'TV Households'} += $value->{'TV Households'};
             }
-            $finalData[$indx]->{'Homes Per Sales'}=$finalData[$indx]->{'TV Households'}/ $finalData[$indx]->{'Total Quantity'};
+            $finalData[$indx]->{'Homes Per Sales'} = $finalData[$indx]->{'TV Households'} / $finalData[$indx]->{'Total Quantity'};
         }
         return collect($finalData);
     }
 
     public function findIndx($array, $data)
     {
-        $exist='';
+        $exist = '';
         if (count($array)) {
             foreach ($array as $key=>$value) {
-                if ($value->Market===$data->Market) {
-                    $exist= $key;
+                if ($value->Market === $data->Market) {
+                    $exist = $key;
                     return $exist;
                 } else {
-                    $exist= false;
+                    $exist = false;
                 }
             }
         } else {
-            $exist= false;
+            $exist = false;
         }
         return $exist;
     }

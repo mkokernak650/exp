@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Exports\AlreadyExistSalesExport;
 use App\Http\Requests\EcommerceSaleRequest;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -10,6 +11,7 @@ use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\Console\Input\Input;
@@ -87,14 +89,13 @@ class EcommerceSaleController extends Controller
             'customer_id' => ['required', Rule::exists('customers', 'id')],
             'order_type'  => ['required', Rule::in(EcommerceSale::ORDER_TYPE)],
         ]);
-    
+
         $filterFields = [];
         foreach (json_decode($request->input('fieldMap')) as $value) {
             if (!empty($value->applicationField) && !empty($value->reportField)) {
                 $filterFields[$value->applicationField] = Str::slug($value->reportField, '_');
             }
         }
-
 
         $salesData = EcommerceSale::select(
             'id',
@@ -107,19 +108,22 @@ class EcommerceSaleController extends Controller
             'shipping_zip'
         )->get();
 
-        Excel::import(
-            new EcommerceSaleImport(
-                $filterFields,
-                $salesData,
-                $request->campaign_id,
-                $request->customer_id,
-                $request->order_type
-            ),
-            $request->file('file')
+        $saleImport = new EcommerceSaleImport(
+            $filterFields,
+            $salesData,
+            $request->campaign_id,
+            $request->customer_id,
+            $request->order_type
         );
-        
+        Excel::import($saleImport, $request->file('file'));
 
-        return response()->json(['msg' => 'Imported Successfully.'], 201);
+        $existSales = $saleImport->getAlreadyExist();
+        $importedCount = $saleImport->getTotalSales() - count($existSales);
+
+        if ($importedCount < 1) {
+            return response()->json(['msg' => 'All Sales Data Already Exist.'], 422);
+        }
+        return response()->json(['msg' => $importedCount . " Rows Imported Successfully. \n" . count($existSales) . " Rows Already Exist.", 'alreadyExists' => (empty($existSales) ? false : $existSales)], 201);
     }
 
     public function deleteSelected(Request $request)
