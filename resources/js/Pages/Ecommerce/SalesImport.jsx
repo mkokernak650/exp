@@ -16,6 +16,7 @@ import XLSX from "xlsx";
 import { useEffect } from "react";
 import { usePage } from "@inertiajs/inertia-react";
 import toast from "react-hot-toast";
+import { exportReportAlreadyExist } from "../../Helpers/ExportReport";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -134,8 +135,12 @@ const SalesImport = () => {
         // setReportFields([]);
         // setValues(defaultState);
         // e.target.reset();
+
+        if (res.data?.alreadyExists) {
+          exportReportAlreadyExist(res.data.alreadyExists);
+        }
         setLoading(false);
-        toast.success(res.data.msg);
+        toast.success(res.data.msg, {duration: 10000});
       })
       .catch((err) => {
         let errors = "";
@@ -147,7 +152,7 @@ const SalesImport = () => {
           errors = err.response.data.msg;
         }
         setLoading(false);
-        toast.error(errors);
+        toast.error(errors, {duration: 5000});
       });
   };
 
@@ -166,7 +171,7 @@ const SalesImport = () => {
         </Typography>
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={4}>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
+            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
               <TextField
                 value={values?.campaign_id}
                 id="campaign_id"
@@ -190,7 +195,7 @@ const SalesImport = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
+            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
               <TextField
                 value={values?.customer_id}
                 id="customer_id"
@@ -214,7 +219,7 @@ const SalesImport = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
+            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
               <TextField
                 value={values?.order_type}
                 id="order_type"
@@ -235,7 +240,7 @@ const SalesImport = () => {
                 <option value="2">Phone</option>
               </TextField>
             </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
+            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
               <label htmlFor="file">Select Sales Report</label>
               <TextField
                 id="file"

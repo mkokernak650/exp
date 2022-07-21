@@ -27,9 +27,13 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     protected $campaignIds;
     protected $customerIds;
     protected $orderTypes;
+    protected $alreadyExist;
+    protected $salesCount;
 
     public function __construct(array $fieldMap, $salesData, $reqCampaignId, $reqCustomerId, $reqOrderType)
     {
+        $this->salesCount = 0;
+        $this->alreadyExist = [];
         $this->fieldMap = $fieldMap;
         $this->reqOrderType = $reqOrderType;
         $this->reqCampaignId = $reqCampaignId;
@@ -43,6 +47,16 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         $this->customerIds = $salesData->pluck('customer_id', 'id')->toArray();
     }
 
+    public function getAlreadyExist()
+    {
+        return $this->alreadyExist;
+    }
+
+    public function getTotalSales()
+    {
+        return $this->salesCount;
+    }
+
     /**
      * @param array $row
      *
@@ -50,10 +64,11 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
      */
     public function model(array $row)
     {
+        $this->salesCount += 1;
         if (empty($this->getValue($row, 'coupon_code')) && empty($this->getValue($row, 'dialed'))) {
+            array_push($this->alreadyExist, $row);
             return;
         }
-
 
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
         if (!empty($keys)) {
@@ -73,6 +88,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                         )
                     )
                 ) {
+                    array_push($this->alreadyExist, $row);
                     return;
                 }
             }
@@ -95,7 +111,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
-            'order_at'       =>array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap)? $this->mergeDateTime($row, ['order_date', 'order_time']) :$this->getValue($row, 'order_date'),
+            'order_at'       => array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date'),
         ]);
     }
 
@@ -114,7 +130,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         if (!empty($date)) {
             $newDate = Date::excelToTimestamp($date, env('Time_Zone'));
             $newTime = Date::excelToTimestamp($time, env('Time_Zone'));
-            $order_at=  !empty($time) ?   Carbon::parse(date('d-m-Y', $newDate))->toDateString() . ' ' . Carbon::parse(date('H:i:s', $newTime))->toTimeString() :  Carbon::parse(date('d-m-Y', $newDate))->toDateString();
+            $order_at = !empty($time) ? Carbon::parse(date('d-m-Y', $newDate))->toDateString() . ' ' . Carbon::parse(date('H:i:s', $newTime))->toTimeString() : Carbon::parse(date('d-m-Y', $newDate))->toDateString();
             return $order_at;
         }
         return null;

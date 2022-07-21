@@ -17,6 +17,3 @@ yarn-error.log
 /.vscode
 /storage/framework/laravel-excel/*.tmp
 *.tmp
-composer.lock
-query.sql
-*.example
