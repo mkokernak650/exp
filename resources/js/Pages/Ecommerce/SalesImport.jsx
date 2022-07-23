@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import { usePage } from "@inertiajs/inertia-react";
 import toast from "react-hot-toast";
 import { exportReportAlreadyExist } from "../../Helpers/ExportReport";
+import Note from "../../Components/Note";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -140,7 +141,7 @@ const SalesImport = () => {
           exportReportAlreadyExist(res.data.alreadyExists);
         }
         setLoading(false);
-        toast.success(res.data.msg, {duration: 10000});
+        toast.success(res.data.msg, { duration: 10000 });
       })
       .catch((err) => {
         let errors = "";
@@ -152,7 +153,7 @@ const SalesImport = () => {
           errors = err.response.data.msg;
         }
         setLoading(false);
-        toast.error(errors, {duration: 5000});
+        toast.error(errors, { duration: 5000 });
       });
   };
 
@@ -165,6 +166,9 @@ const SalesImport = () => {
   return (
     <>
       <Helmet title="Import Sales Report" />
+      <Note>
+        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong.
+      </Note>
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
           Import Sales Report
