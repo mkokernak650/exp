@@ -39,6 +39,7 @@ use App\Http\Controllers\SendMailController;
 
 Route::middleware('auth')->group(function () {
     // Ringba Campaign
+
     Route::post('campaign-edit', [CampaignController::class, 'edit'])->name('campaign.edit');
     Route::post('campaign-delete', [CampaignController::class, 'delete'])->name('campaign.delete');
     Route::get('campaign-setting-form', [CampaignController::class, 'campaignSettingForm'])->name('campaign.setting.form');
@@ -155,7 +156,6 @@ Route::post('/target-status-update', [TargetController::class, 'targetStatusUpda
 Route::post('/target-name-status-update', [TargetController::class, 'targetNamesStatusUpdate'])->name('target_names.status.update');
 Route::post('/update-annotation', [RingbaCallLogController::class, 'getAnnotation'])->name('update.annotation');
 
-
 Route::get('/billed-call-log-report', [BilledCallLogController::class, 'index'])->name('billed-call-log-report');
 Route::get('billed-store', [BilledCallLogController::class, 'store'])->name('billed.store');
 Route::get('/formPending', [BilledCallLogController::class, 'formPending']);
@@ -225,4 +225,4 @@ Route::get('custom-filter', function () {
     return Inertia::render('CustomFilter');
 });
 
-Route::get('send-mail', [SendMailController::class,'SendMail'])->name('send.mail');
+Route::get('send-mail', [SendMailController::class, 'SendMail'])->name('send.mail');

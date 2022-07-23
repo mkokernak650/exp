@@ -514,7 +514,7 @@ const SalesIndex = () => {
         }
       }
     },
-  };  
+  };
 
   const OPTION_KEY = "sales-index";
   const stateStore = {
@@ -621,8 +621,6 @@ const SalesIndex = () => {
       }
     };
   }, []);
-
-console.log(filterData(tableProps.data, filterValue))
 
   const TableToolbar = () => {
     return (

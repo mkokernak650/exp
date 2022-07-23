@@ -371,7 +371,6 @@ const CallLogsReport = () => {
       }
       if (column.key === "Annotation_Tag") {
         let arrayValue = value.split(',')
-        console.log('arrayValue', arrayValue)
         return (
           <TextField
             id="annotation_id"

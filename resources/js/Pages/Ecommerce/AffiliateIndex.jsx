@@ -230,7 +230,6 @@ const AffiliateIndex = () => {
     const affiliate = affiliates.find((affiliate) => affiliate.id == id)
     return affiliate ? affiliate.affiliate_name : ""
   }
-  console.log(editData)
 
   const handleEditSubmit = () => {
 
@@ -299,8 +298,6 @@ const AffiliateIndex = () => {
         setOpen(true)
       })
   }
-
-  console.log('ecommerceAffiliates', ecommerceAffiliates)
 
   const dataArray = ecommerceAffiliates.map((item, index) => ({
     edit: item.id,

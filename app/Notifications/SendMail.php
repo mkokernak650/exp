@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\File;
 class SendMail extends Notification implements ShouldQueue
 {
     use Queueable;
+
     protected $fileName;
+
     /**
      * Create a new notification instance.
      *
@@ -41,8 +43,8 @@ class SendMail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        if (file_exists(storage_path('framework'). DIRECTORY_SEPARATOR . "laravel-excel")) {
-            $allFiles= File::allFiles(storage_path('framework'). DIRECTORY_SEPARATOR ."laravel-excel");
+        if (file_exists(storage_path('framework') . DIRECTORY_SEPARATOR . 'laravel-excel')) {
+            $allFiles = File::allFiles(storage_path('framework') . DIRECTORY_SEPARATOR . 'laravel-excel');
             $latest_ctime = 0;
             $latest_filename = '';
             foreach ($allFiles as $file) {
@@ -51,12 +53,12 @@ class SendMail extends Notification implements ShouldQueue
                     $latest_filename = $file;
                 }
             }
-            $filePath=$latest_filename->getPathname();
+            $filePath = $latest_filename->getPathname();
             return (new MailMessage)
                         ->subject('ConsumerEXP Results Report')
                         ->line('Please find the attached results report for the campaign.')
                         ->line('Thank you')->attach($filePath, [
-                            'as' => $this->fileName.'.xlsx',
+                            'as' => $this->fileName . '.xlsx',
                         ]);
         }
     }

@@ -59,14 +59,12 @@ const AffiliateCreate = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(value)
     setValues((oldValues) => ({ ...oldValues, [name]: value }));
   };
 
   const headers = {
     headers: { Accept: "application/json" },
   };
-  console.log(values)
 
   const handleSubmit = (e) => {
     e.preventDefault();

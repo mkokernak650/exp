@@ -131,10 +131,10 @@ const SalesImport = () => {
     axios
       .post(route("ecommerce-sales.importStore"), formData, headers)
       .then((res) => {
-        // setFileSelected(false);
-        // setReportFields([]);
-        // setValues(defaultState);
-        // e.target.reset();
+        setFileSelected(false);
+        setReportFields([]);
+        setValues(defaultState);
+        e.target.reset();
 
         if (res.data?.alreadyExists) {
           exportReportAlreadyExist(res.data.alreadyExists);

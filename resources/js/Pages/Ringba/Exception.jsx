@@ -737,7 +737,6 @@ const Exceptions = () => {
               draft.data = res.data
             })
             setCount(0)
-            console.log('columnsData', columnsData)
 
             changeTableProps(columnsData)
             setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`)
@@ -767,7 +766,6 @@ const Exceptions = () => {
       })
   }
 
-  console.log('tableprops', tableProps)
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)
     axios

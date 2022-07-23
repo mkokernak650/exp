@@ -48,7 +48,7 @@ class EcommerceReportController extends Controller
         }
 
         $columns = ['Market', 'TV Households', 'Total Quantity', 'Homes Per Sales', 'Total Revenue'];
-        $summary = $this->getReportSummary($request->reportFor, $request->type, $request->detailed, $salesData);
+        $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary = [];
             $newSummary[' '] = ' ';
@@ -57,8 +57,8 @@ class EcommerceReportController extends Controller
             $newSummary['Summary'] = '   ';
             $newSummary['Total Quantity'] = $summary['Total Quantity'];
             $newSummary['Total Amount'] = $summary['Total Amount'];
-            $sendMailCtrl = new sendMailController();
-            $sendMailCtrl->SendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
+            $sendMailCtrl = new SendMailController();
+            $sendMailCtrl->sendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
 
@@ -79,7 +79,6 @@ class EcommerceReportController extends Controller
         $startDate = $request->start_date;
         $endDate = $request->end_date;
         $type = $request->type;
-        $isDetailed = $request->detailed;
         $states = $request->states;
         $markets = $request->markets;
         $reportFor = $request->reportFor;
@@ -134,8 +133,7 @@ class EcommerceReportController extends Controller
             ->when(
                 $reportFor === 'sales',
                 fn ($q) => $q
-                    ->when(!$isDetailed, fn ($q) => $q->groupBy('ecommerce_sales.coupon_code'))
-                    ->select($isDetailed ? $this->selectColumnDetailedSalesReport($type, $orderType) : $this->selectColumnSalesReport($type, $orderType))
+                    ->select($this->selectColumnSalesReport($type, $orderType))
                     ->orderBy('ecommerce_sales.coupon_code')
                     ->orderBy('ecommerce_sales.order_at')
             )
@@ -224,7 +222,7 @@ class EcommerceReportController extends Controller
         return $array;
     }
 
-    protected function selectColumnDetailedSalesReport($type, $orderType)
+    protected function selectColumnSalesReport($type, $orderType)
     {
         if ($type === 'customer') {
             $column = 'revenue';
@@ -257,46 +255,17 @@ class EcommerceReportController extends Controller
         return $selectRows;
     }
 
-    protected function selectColumnSalesReport($type, $orderType)
-    {
-        $selectRows = [
-            'affiliates.affiliate_name AS Affiliate',
-            DB::raw('COUNT(ecommerce_sales.id) AS `No. of Orders`'),
-            DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-            DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-        ];
-
-        $selectRows = $this->addColumnToArray($selectRows, $orderType, 1);
-
-        if ($type === 'customer') {
-            return array_merge($selectRows, [
-                'ecommerce_affiliates.revenue AS Fee Per Order',
-                DB::raw('ROUND(SUM(ecommerce_sales.quantity) * ecommerce_affiliates.revenue, 2) AS `Total Fee`'),
-                DB::raw('ROUND(SUM(ecommerce_sales.total) - (SUM(ecommerce_sales.quantity) * ecommerce_affiliates.revenue), 2) AS `Net Amount`'),
-            ]);
-        }
-
-        return array_merge($selectRows, [
-            'ecommerce_affiliates.affiliate_fee AS Affiliate Fee Per Order',
-            DB::raw('ROUND(SUM(ecommerce_sales.quantity) * ecommerce_affiliates.affiliate_fee, 2) AS `Affiliate Fee`'),
-        ]);
-    }
-
-    protected function getReportSummary($reportFor, $type, $isDetailed, $salesData)
+    protected function getReportSummary($reportFor, $type, $salesData)
     {
         $totalOrder = $salesData->count();
         $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Affiliate Fee' => 0, 'Net Amount' => 0];
 
-        $salesData->each(function ($item) use (&$summary, $type, $totalOrder, $isDetailed, $reportFor) {
+        $salesData->each(function ($item) use (&$summary, $type, $totalOrder, $reportFor) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
 
             if ($reportFor === 'sales') {
                 $summary['Total Amount'] += $item->{'Total Amount'};
-                if ($isDetailed) {
-                    $summary['Total Order'] = $totalOrder;
-                } else {
-                    $summary['Total Order'] += $item->{'No. of Orders'};
-                }
+                $summary['Total Order'] = $totalOrder;
 
                 if ($type === 'customer') {
                     $summary['Net Amount'] += $item->{'Net Amount'};

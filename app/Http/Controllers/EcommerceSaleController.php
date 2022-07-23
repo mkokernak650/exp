@@ -26,7 +26,7 @@ class EcommerceSaleController extends Controller
             ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
             ->with('campaign:id,campaign_name')
             ->with('customer:id,customer_name')
-            ->get();
+            ->lazy();
 
         return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers'));
     }
