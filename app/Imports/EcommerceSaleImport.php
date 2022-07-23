@@ -64,11 +64,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
      */
     public function model(array $row)
     {
-        $this->salesCount += 1;
         if (empty($this->getValue($row, 'coupon_code')) && empty($this->getValue($row, 'dialed'))) {
-            array_push($this->alreadyExist, $row);
             return;
         }
+        $this->salesCount += 1;
 
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
         if (!empty($keys)) {

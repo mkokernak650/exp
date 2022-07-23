@@ -365,7 +365,6 @@ const EcommerceReport = () => {
     format_date = dd + "-" + shortMonth + "-" + yyyy
     return format_date
   }
-  console.log('values', values)
 
   const fileName = `E-Commerce_${reportFor.reportFor === "sales" ? "Sales" : "Market_Target"
     }_Report${values.customer_id ? `_For_Customers(${getCustomerNames().toString()})` : ""

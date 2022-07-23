@@ -224,7 +224,6 @@ const GenerateReportAffiliate = () => {
     values.emails = mergeEmail
   }
 
-  console.log('values', values)
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
     let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })

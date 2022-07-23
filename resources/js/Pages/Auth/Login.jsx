@@ -7,10 +7,8 @@ import {
   Paper,
   makeStyles,
 } from "@material-ui/core";
-import { useState } from "react";
-import { Inertia } from "@inertiajs/inertia";
 import backgroundImage from "../../../images/background_image_compress.jpg";
-import { usePage } from "@inertiajs/inertia-react";
+import { useForm } from "@inertiajs/inertia-react";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -61,26 +59,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Login = () => {
-  const { errors } = usePage().props;
   const classes = useStyles();
-  const [values, setValues] = useState({
-    email: "",
-    password: "",
-  });
+  const { data, setData, post, processing, errors, reset } = useForm({
+    email: '',
+    password: '',
+});
 
-  function handleChange(e) {
-    const key = e.target.name;
-    const value = e.target.value;
-
-    setValues((oldValues) => ({
-      ...oldValues,
-      [key]: value,
-    }));
-  }
+  const onHandleChange = (event) => {
+    setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value);
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    Inertia.post(route("login.attempt"), values);
+
+    post(route("login.attempt"));
   };
 
   return (
@@ -112,9 +104,9 @@ const Login = () => {
                 label="Email Address"
                 margin="normal"
                 name="email"
-                onChange={handleChange}
+                onChange={onHandleChange}
                 type="email"
-                value={values.email}
+                value={data.email}
                 variant="outlined"
                 required={true}
               />
@@ -123,9 +115,9 @@ const Login = () => {
                 label="Password"
                 margin="normal"
                 name="password"
-                onChange={handleChange}
+                onChange={onHandleChange}
                 type="password"
-                value={values.password}
+                value={data.password}
                 variant="outlined"
                 required={true}
               />

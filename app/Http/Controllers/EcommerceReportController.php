@@ -57,8 +57,8 @@ class EcommerceReportController extends Controller
             $newSummary['Summary'] = '   ';
             $newSummary['Total Quantity'] = $summary['Total Quantity'];
             $newSummary['Total Amount'] = $summary['Total Amount'];
-            $sendMailCtrl = new sendMailController();
-            $sendMailCtrl->SendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
+            $sendMailCtrl = new SendMailController();
+            $sendMailCtrl->sendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
 
