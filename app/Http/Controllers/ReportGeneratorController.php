@@ -434,7 +434,7 @@ class ReportGeneratorController extends Controller
                     'Total Revenue'                          => $bill->Revenue,
                     'Average Homes Per Call'                 => number_format(ceil($bill->households / $bill->Billed), 0, '.', ','),
                 ];
-                $totalNielsenTVHouseholds += $bill->households;
+                $totalNielsenTVHouseholds = $bill->households;
                 $totalBilledCalls += $bill->Billed;
                 $totalRevenue += $bill->Revenue;
             } elseif ($request->year !== null) {
@@ -446,7 +446,7 @@ class ReportGeneratorController extends Controller
                     'Total Revenue'                          => $bill->Revenue,
                     'Average Homes Per Call'                 => number_format(ceil($bill->households / $bill->Billed), 0, '.', ','),
                 ];
-                $totalNielsenTVHouseholds += $bill->households;
+                $totalNielsenTVHouseholds = $bill->households;
                 $totalBilledCalls += $bill->Billed;
                 $totalRevenue += $bill->Revenue;
             } else {
@@ -458,7 +458,7 @@ class ReportGeneratorController extends Controller
                     'Total Revenue'                          => $bill->Revenue,
                     'Average Homes Per Call'                 => number_format(ceil($bill->households / $bill->Billed), 0, '.', ','),
                 ];
-                $totalNielsenTVHouseholds += $bill->households;
+                $totalNielsenTVHouseholds = $bill->households;
                 $totalBilledCalls += $bill->Billed;
                 $totalRevenue += $bill->Revenue;
             }
@@ -1092,7 +1092,7 @@ class ReportGeneratorController extends Controller
         $newData = [];
         if (in_array('allMarkets', $request->market)) {
             $all_markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
-            $market_name=$all_markets->pluck('market')->toArray();
+            $market_name = $all_markets->pluck('market')->toArray();
         } else {
             $market_name = $request->market;
         }

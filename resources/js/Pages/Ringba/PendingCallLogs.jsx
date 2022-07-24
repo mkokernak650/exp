@@ -105,7 +105,6 @@ const PendingCallLogsReport = () => {
     SN: item.SN,
     Call_Date: item.Call_Date,
     Call_Date_Time: item.Call_Date_Time,
-    Call_Date_Time: item.Call_Date_Time,
     Duplicate_Call: item.Duplicate_Call,
     Call_Status: item.call_Logs_status,
     Inbound_Id: item.Inbound_Id,
