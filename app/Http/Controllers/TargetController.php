@@ -18,10 +18,10 @@ class TargetController extends Controller
 
     public function index()
     {
-        $allCustomers = Customer::select('customer_name')->where('status', '=', '1')->distinct()->get();
-        $allTargetNames = TargetNames::select('target_name')->where('status', '=', '1')->distinct()->get();
+        $allCustomers = Customer::select('customer_name')->active()->distinct()->get();
+        $allTargetNames = TargetNames::select('target_name')->active()->distinct()->get();
         return Inertia::render('Settings/AddTargets', [
-            'allCustomers' => $allCustomers,
+            'allCustomers'   => $allCustomers,
             'allTargetNames' => $allTargetNames
         ]);
     }
@@ -33,6 +33,7 @@ class TargetController extends Controller
             'allTargets' => $allTargets
         ]);
     }
+
     public function TargetNamesReport()
     {
         $allTargetNames = TargetNames::all();
@@ -45,45 +46,46 @@ class TargetController extends Controller
     {
         $existData = Target::where('Customer', $request->Customer)->where('Ringba_Targets_Name', $request->Ringba_Targets_Name)->count();
         if ($existData > 0) {
-            return response()->json(["msg" => "Data already Exist"]);
+            return response()->json(['msg' => 'Data already Exist']);
         }
         $result = Target::create([
-            'Customer' => $request->Customer,
+            'Customer'            => $request->Customer,
             'Ringba_Targets_Name' => $request->Ringba_Targets_Name,
-            'Description' => $request->Description,
+            'Description'         => $request->Description,
         ]);
 
         if ($result) {
-            return response()->json(["msg" => "Successfully added"]);
+            return response()->json(['msg' => 'Successfully added']);
         } else {
-            return response()->json(["msg" => "An internal error occured"]);
+            return response()->json(['msg' => 'An internal error occured']);
         }
     }
 
     public function targetEdit(Request $request)
     {
         $data = Target::find($request->id);
-        $data->Customer  = $request->customer;
+        $data->Customer = $request->customer;
         $data->Description = $request->Description;
-        $data->Ringba_Targets_Name  = $request->Ringba_Targets_Name;
+        $data->Ringba_Targets_Name = $request->Ringba_Targets_Name;
         $result = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "targetData" => Target::all()]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, 'targetData' => Target::all()]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
+
     public function targetNamesEdit(Request $request)
     {
         $data = TargetNames::find($request->id);
-        $data->target_name  = $request->target_name;
+        $data->target_name = $request->target_name;
         $result = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "targetData" => TargetNames::all()]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, 'targetData' => TargetNames::all()]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 
@@ -92,30 +94,30 @@ class TargetController extends Controller
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  Target::where('id', $request->selectedRowIds[$i])->delete();
+            $result = Target::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
+
     public function targetNamesDelete(Request $request)
     {
         $result = true;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  TargetNames::where('id', $request->selectedRowIds[$i])->delete();
+            $result = TargetNames::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
-
 
     public static function getAllTarget()
     {
@@ -139,14 +141,12 @@ class TargetController extends Controller
                 continue;
             } else {
                 Target::create([
-                    'Customer' => $row->owner->name,
+                    'Customer'            => $row->owner->name,
                     'Ringba_Targets_Name' => $row->name,
                 ]);
             }
         }
     }
-
-
 
     public static function getAllCustomers()
     {
@@ -178,6 +178,7 @@ class TargetController extends Controller
         }
         $result = $data->save();
     }
+
     public function targetNamesStatusUpdate(Request $request)
     {
         $data = TargetNames::find($request->rowId);

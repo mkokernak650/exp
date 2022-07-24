@@ -95,7 +95,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Billable Calls'] = $call_summary['Billable Calls'];
             $newSummary['Total Charges'] = $call_summary['Total Charges'];
             $newSummary['Non-revenue Calls'] = $call_summary['Non-revenue Calls'];
-            $sendMailCtrl = new sendMailController();
+            $sendMailCtrl = new SendMailController();
             $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
@@ -308,7 +308,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Payout'] = $call_summary['Total Payout'];
             $newSummary['Destination Number'] = $call_summary['Destination Number'];
             $newSummary['Affiliates'] = $call_summary['Affiliates'];
-            $sendMailCtrl = new sendMailController();
+            $sendMailCtrl = new SendMailController();
             $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
@@ -483,7 +483,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Billed Calls:'] = $call_summary['Total Billed Calls:'];
             $newSummary['Average Homes Per call:'] = $call_summary['Average Homes Per call:'];
             $newSummary['Total Revenue:'] = $call_summary['Total Revenue:'];
-            $sendMailCtrl = new sendMailController();
+            $sendMailCtrl = new SendMailController();
             $sendMailCtrl->SendMail($collection, $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
@@ -540,7 +540,7 @@ class ReportGeneratorController extends Controller
         } else {
             $sql = "SELECT t_v_households.tv_households as households, Call_Date AS 'Call Date(EST)',{$tablename}.Market, {$tablename}.State, Revenue,SUM(Revenue) AS Revenue, Count({$tablename}.Market) AS 'Billed'
             FROM {$tablename}
-            LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id 
+            LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
             LEFT JOIN t_v_households ON {$tablename}.Market = t_v_households.market
             WHERE {$con} GROUP BY {$tablename}.Market";
             return DB::select($sql);
@@ -779,7 +779,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
             $newSummary['Total payout amount'] = $call_summary['Total payout amount'];
             $newSummary['Average payout per call'] = $call_summary['Average payout per call'];
-            $sendMailCtrl = new sendMailController();
+            $sendMailCtrl = new SendMailController();
             $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
             return;
         }
@@ -1047,7 +1047,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Amount'] = $call_summary['Avg Revenue Amount'];
-            $sendMailCtrl = new sendMailController();
+            $sendMailCtrl = new SendMailController();
             $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
             return;
         }
@@ -1218,7 +1218,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Per Call'] = $call_summary['Avg Revenue Per Call'];
-            $sendMailCtrl = new sendMailController();
+            $sendMailCtrl = new SendMailController();
             $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
             return;
         }

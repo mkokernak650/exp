@@ -70,9 +70,6 @@ class EcommerceReportController extends Controller
 
     protected function queryReport($request)
     {
-        $campaignIds = $request->campaign_id;
-        $customerIds = $request->customer_id;
-        $affiliateIds = $request->affiliate_id;
         $couponCodes = $request->couponCodes;
         $dialed = $request->dialed;
         $year = $request->year;
@@ -102,9 +99,9 @@ class EcommerceReportController extends Controller
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
-            ->when(!empty($campaignIds), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $campaignIds))
-            ->when(!empty($customerIds), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $customerIds))
-            ->when(!empty($affiliateIds), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds))
+            ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
+            ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
+            ->when(!empty($request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $request->affiliate_id))
             ->when(!empty($states) && !in_array('allStates', $states), fn ($q) => $q->whereIn('zipcode_by_television_markets.state', $states))
             ->when(!empty($markets) && !in_array('allMarkets', $markets), fn ($q) => $q->whereIn('zipcode_by_television_markets.market', $markets))
             ->when(!empty($couponCodes) && empty($dialed), fn ($q) => $q->whereIn('ecommerce_sales.coupon_code', $couponCodes))
@@ -133,6 +130,7 @@ class EcommerceReportController extends Controller
             ->when(
                 $reportFor === 'sales',
                 fn ($q) => $q
+                    ->groupBy('ecommerce_sales.id')
                     ->select($this->selectColumnSalesReport($type, $orderType))
                     ->orderBy('ecommerce_sales.coupon_code')
                     ->orderBy('ecommerce_sales.order_at')
@@ -145,56 +143,9 @@ class EcommerceReportController extends Controller
                     ->select($this->selectColumnMarketTargetReport())
                     ->orderBy('zipcode_by_television_markets.market')
             )
-            ->groupBy('ecommerce_sales.id')
             ->get();
 
-        if ($reportFor === 'marketTarget') {
-            return $this->mergeDuplicateMarketData($queryData);
-        }
-
         return $queryData;
-    }
-
-    public function mergeDuplicateMarketData($queryData)
-    {
-        $finalData = (array)[];
-        foreach ($queryData as $value) {
-            $indx = $this->findIndx($finalData, $value);
-            if ($indx === false) {
-                $object = (object)[
-                    'Market'         => $value->Market,
-                    'TV Households'  => $value->{'TV Households'},
-                    'Total Quantity' => $value->{'Total Quantity'},
-                    'Homes Per Sales'=> $value->{'Homes Per Sales'},
-                    'Total Revenue'  => $value->{'Total Revenue'},
-                ];
-                array_push($finalData, $object);
-            } else {
-                $finalData[$indx]->{'Total Revenue'} += $value->{'Total Revenue'};
-                $finalData[$indx]->{'Total Quantity'} += $value->{'Total Quantity'};
-                $finalData[$indx]->{'TV Households'} += $value->{'TV Households'};
-            }
-            $finalData[$indx]->{'Homes Per Sales'} = $finalData[$indx]->{'TV Households'} / $finalData[$indx]->{'Total Quantity'};
-        }
-        return collect($finalData);
-    }
-
-    public function findIndx($array, $data)
-    {
-        $exist = '';
-        if (count($array)) {
-            foreach ($array as $key=>$value) {
-                if ($value->Market === $data->Market) {
-                    $exist = $key;
-                    return $exist;
-                } else {
-                    $exist = false;
-                }
-            }
-        } else {
-            $exist = false;
-        }
-        return $exist;
     }
 
     protected function selectColumnMarketTargetReport()

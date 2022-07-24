@@ -8,5 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class TargetNames extends Model
 {
     use HasFactory;
-    protected $guarded = array();
+
+    protected $guarded = [];
+
+    public function scopeActive($query)
+    {
+        return $query->whereStatus(1);
+    }
 }
