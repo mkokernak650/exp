@@ -46,6 +46,8 @@ import NormalModal from "../../Shared/NormalModal"
 import toast from "react-hot-toast"
 import * as FileSaver from "file-saver"
 import * as XLSX from "xlsx"
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
+
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -232,10 +234,10 @@ const AffiliateIndex = () => {
   }
 
   const handleEditSubmit = () => {
-
     axios
       .put(route("ecommerce-affiliates.update", editData.id), editData, headers)
       .then((res) => {
+        console.log(res)
         let campaignName = getCampaignNameById(editData.campaign_id)
         let customerName = getCustomerNameById(editData.customer_id)
         let affiliateName = getAffiliateNameById(editData.affiliate_id)
@@ -248,6 +250,7 @@ const AffiliateIndex = () => {
           percentage: editData.revenue - editData.affiliate_fee,
           coupon_code: res.data.data.coupon_code,
           dialed: res.data.data.dialed,
+          updated_at : res.data.updated_at
         }
 
         setEditData()
@@ -314,7 +317,8 @@ const AffiliateIndex = () => {
     revenue: item?.revenue,
     affiliate_fee: item?.affiliate_fee,
     percentage: item?.percentage,
-    // status: item.status,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
     id: item.id,
     key: index,
   }))
@@ -461,7 +465,19 @@ const AffiliateIndex = () => {
         title: "Commission",
         dataType: DataType.String,
         style: { width: 100 },
-      }
+      },
+      {
+        key: "created_at",
+        title: "Created At",
+        dataType: DataType.String,
+        style: { width: 100 },
+      },
+       {
+        key: "updated_at",
+        title: "Updated At",
+        dataType: DataType.Date,
+        style: { width: 100 },
+      },
     ],
     paging: {
       enabled: true,
@@ -488,6 +504,9 @@ const AffiliateIndex = () => {
       }
       if (column.key === "order_type") {
         return value == 1 ? "E-commerce" : "Phone"
+      }
+      if (column.key === "created_at" || column.key === "updated_at") {
+        return DateTimeFormat(value)
       }
     },
   }

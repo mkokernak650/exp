@@ -42,6 +42,7 @@ import {
   CircularProgress
 } from "@material-ui/core";
 import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
+import { date } from "yup";
 
 
 
@@ -309,19 +310,19 @@ const CustomerReport = () => {
         key: "market",
         title: "Market",
         dataType: DataType.String,
-        style: { width: 180 },
+        style: { width: 150 },
       },
       {
         key: "state",
         title: "State",
         dataType: DataType.String,
-        style: { width: 120 },
+        style: { width: 100 },
       },
       {
         key: "tv_households",
         title: "TV Households",
         dataType: DataType.Number,
-        style: { width: 150 },
+        style: { width: 100 },
       },
     {
       key: "created_at",
@@ -448,6 +449,7 @@ const CustomerReport = () => {
               filteredData.data[indx].market = editData.market;
               filteredData.data[indx].state = editData.state;
               filteredData.data[indx].tv_households = editData.tv_households;
+              filteredData.data[indx].updated_at = new Date();
             }
           });
           setEditData();

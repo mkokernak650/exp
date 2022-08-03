@@ -265,12 +265,14 @@ const CampaignIndex = () => {
         title: "Status",
         dataType: DataType.String,
         style: { width: 100 },
-      }, {
+      }, 
+      {
         key: "created_at",
         title: "Created At",
         dataType: DataType.String,
         style: { width: 100 },
-      }, {
+      },
+       {
         key: "updated_at",
         title: "Updated At",
         dataType: DataType.Date,
@@ -315,9 +317,6 @@ const CampaignIndex = () => {
       }
     },
   };
-
-  console.log(tablePropsInit.data)
-
 
   const OPTION_KEY = "campaign-index";
   const stateStore = {
@@ -405,9 +404,10 @@ const CampaignIndex = () => {
       .put(route("ecommerce-campaigns.update", editData.id), editData, headers)
       .then((res) => {
         let tmpData = { ...tableProps };
-        tmpData.data[editData.sl - 1] = { ...editData };
+        let tmpEditData={ ...editData }
+        tmpEditData.updated_at=res.data.updated_at
+        tmpData.data[editData.sl - 1] = tmpEditData ;
         changeTableProps({ ...tmpData });
-
         setEditData();
         setShowEditModal({ open: false });
         toast.success(res.data.msg);
@@ -450,7 +450,7 @@ const CampaignIndex = () => {
 
   const emptyCheckbox = () => {
     const storedData = JSON.parse(localStorage.getItem("campaign-index"));
-    storedData.selectedRows = [];
+    if(storedData?.selectedRows ) storedData.selectedRows = [];
     localStorage.setItem("campaign-index", JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     filteredData.selectedRows = [];

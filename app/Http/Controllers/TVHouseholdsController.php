@@ -25,25 +25,22 @@ class TVHouseholdsController extends Controller
     {
         $allTVHouseholds = TVHouseholds::all();
         return Inertia::render('Settings/TVHouseholdsReport', [
-            'allTVHouseholds' =>  $allTVHouseholds,
+            'allTVHouseholds' => $allTVHouseholds,
         ]);
     }
-
-
-
 
     public function storeTVHouseholds(Request $request)
     {
         $existData = TVHouseholds::where('market', $request->market)->where('state', $request->state)->count();
         if ($existData > 0) {
-            return response()->json(["msg" => "Market already exists"]);
+            return response()->json(['msg' => 'Market already exists']);
         }
         TVHouseholds::create([
-            'market' => $request->market,
-            'state' => $request->state,
+            'market'        => $request->market,
+            'state'         => $request->state,
             'tv_households' => $request->tv_households,
         ]);
-        return response()->json(["msg" => "Successfully Added"]);
+        return response()->json(['msg' => 'Successfully Added']);
     }
 
     public function import(Request $request)
@@ -59,19 +56,19 @@ class TVHouseholdsController extends Controller
         return back()->with('Export successfully');
     }
 
-
     public function edit(Request $request)
     {
         $data = TVHouseholds::find($request->id);
-        $data->market  = $request->market;
-        $data->state  = $request->state;
-        $data->tv_households  = $request->tv_households;
+        $data->market = $request->market;
+        $data->state = $request->state;
+        $data->tv_households = $request->tv_households;
+        $data->updated_at = now();
         $result = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, ]);
         } else {
-            return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Editing Failed', 'status_code' => 500]);
         }
     }
 
@@ -80,13 +77,13 @@ class TVHouseholdsController extends Controller
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  TVHouseholds::where('id', $request->selectedRowIds[$i])->delete();
+            $result = TVHouseholds::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 }

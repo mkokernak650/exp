@@ -129,7 +129,7 @@ class EcommerceAffiliateController extends Controller
 
         try {
             $ecommerceAffiliate->update($validated);
-            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated], 201);
+            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated,'updated_at'=>$ecommerceAffiliate->updated_at], 201);
         } catch (\Throwable $th) {
             return response()->json(['msg' => 'Try Again!'], 422);
         }
