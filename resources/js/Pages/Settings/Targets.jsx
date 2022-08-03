@@ -364,9 +364,6 @@ const Targets = () => {
   };
 
 
-
-  // console.table(tablePropsInit.columns)
-
   const OPTION_KEY = "target-report";
   const stateStore = {
     ...tablePropsInit,

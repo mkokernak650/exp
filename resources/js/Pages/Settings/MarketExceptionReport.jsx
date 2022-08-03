@@ -828,7 +828,6 @@ const MarketExceptionReport = () => {
                   }}
                   fullWidth
                   value={editData?.campaign_id ? editData.campaign_id : ""}
-                // required={true}
                 >
                   <option value="">Select Campaign</option>
                   {allCampaigns.map((option, indx) => (
@@ -850,8 +849,6 @@ const MarketExceptionReport = () => {
                   fullWidth
                   value={editData?.state ? editData.state : ""}
 
-                // required={true}
-
                 >
                   <option value="">Select State</option>
                   {allStates.map((option, indx) => (
@@ -872,9 +869,6 @@ const MarketExceptionReport = () => {
                   }}
                   fullWidth
                   value={editData?.market_id}
-
-                // required={true}
-
                 >
                   <option value="">Select Market</option>
                   {allMarkets.map((option, indx) => (
@@ -896,8 +890,6 @@ const MarketExceptionReport = () => {
                   }}
                   fullWidth
                   value={editData?.call_type ? editData.call_type : ""}
-
-                // required={true}
                 >
                   <option value="">Call Type</option>
                   <option value="L">Landline (L)</option>
@@ -911,7 +903,6 @@ const MarketExceptionReport = () => {
                   name="start_date"
                   onChange={handleEditChange}
                   defaultValue={editData?.start_date ? editData.start_date : ""}
-                  // defaultValue='2022-02-10'
                   margin="normal"
                   fullWidth
                 />

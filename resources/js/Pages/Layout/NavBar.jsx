@@ -305,37 +305,37 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "Calls-Affiliate",
+          title: "Pay Per Call-Affiliate",
           href: "generate.report.affiliate",
           Icon: <UserIcon />,
         },
         {
-          title: "Calls-Customer",
+          title: "Pay Per Call-Customer",
           href: "generate.report.target",
           Icon: <UserIcon />,
         },
         {
-          title: "Calls-Exception",
+          title: "Pay Per Call-Exceptions",
           href: "generate.report.market.exception",
           Icon: <UserIcon />,
         },
         {
-          title: "Calls-Destination",
+          title: "Pay Per Call-Destination",
           href: "generate.report.destination",
           Icon: <UserIcon />,
         },
         {
-          title: "Calls-Length",
+          title: "Pay Per Call-Length",
           href: "generate.report.call.length",
           Icon: <UserIcon />,
         },
         {
-          title: "Calls-Homes Per Call",
+          title: "Pay Per Call-Homes per call",
           href: "generate.report.market.target",
           Icon: <UserIcon />,
         },
         {
-          title: "E-commerce",
+          title: "Phone and Coupon Codes",
           href: "ecommerce.report",
           Icon: <UserIcon />,
         },
@@ -344,7 +344,7 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 4,
       Icon: <SettingsIcon size="20" />,
-      title: "Call Campaigns",
+      title: "Pay Per Call Setup",
       active: false,
       collapse: true,
       submenu: [
@@ -373,7 +373,7 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 5,
       Icon: <SettingsIcon size="20" />,
-      title: "E-commerce",
+      title: "Phone and Coupon Codes",
       active: false,
       collapse: true,
       submenu: [
@@ -388,12 +388,12 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
-          title: "Create Coupon Code",
+          title: "Create Phone or Code",
           href: "ecommerce-affiliates.create",
           Icon: <UserIcon />,
         },
         {
-          title: "All Coupon Codes",
+          title: "All Phone and Codes",
           href: "ecommerce-affiliates.index",
           Icon: <UserIcon />,
         },
