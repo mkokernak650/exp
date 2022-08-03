@@ -1,6 +1,4 @@
 import Layout from "../Layout/Layout";
-// import "./Demo.scss";
-import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
@@ -43,6 +41,8 @@ import NormalModal from "../../Shared/NormalModal";
 import {
   CircularProgress
 } from "@material-ui/core";
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
+
 
 
 const useStyles = makeStyles(() => ({
@@ -220,6 +220,8 @@ const CustomerReport = () => {
     market: item.market,
     state: item.state,
     tv_households: item.tv_households,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
     id: item.id,
     key: index,
   }));
@@ -307,13 +309,13 @@ const CustomerReport = () => {
         key: "market",
         title: "Market",
         dataType: DataType.String,
-        style: { width: 240 },
+        style: { width: 180 },
       },
       {
         key: "state",
         title: "State",
         dataType: DataType.String,
-        style: { width: 240 },
+        style: { width: 120 },
       },
       {
         key: "tv_households",
@@ -321,6 +323,17 @@ const CustomerReport = () => {
         dataType: DataType.Number,
         style: { width: 150 },
       },
+    {
+      key: "created_at",
+      title: "Created At",
+      dataType: DataType.String,
+      style: { width: 100 },
+    }, {
+      key: "updated_at",
+      title: "Updated At",
+      dataType: DataType.Date,
+      style: { width: 100 },
+    },
 
     ],
     paging: {
@@ -342,6 +355,9 @@ const CustomerReport = () => {
             <img src={Edit} alt="edit-icon"></img>
           </div>
         );
+      }
+      if (column.key === "created_at" || column.key === "updated_at") {
+        return DateTimeFormat(value)
       }
     },
   };
@@ -528,7 +544,6 @@ const CustomerReport = () => {
       }
     };
   }, []);
-  useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (

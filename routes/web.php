@@ -106,7 +106,7 @@ Route::get('/market-data', function () {
 })->name('market.data');
 
 Route::get('/add-customer', [CustomerController::class, 'addCustomerForm'])->name('add.customer');
-Route::get('/customer-report', [CustomerController::class, 'customerReport'])->name('customer.report');
+Route::get('/customer-list-all-types', [CustomerController::class, 'customerReport'])->name('customer.report');
 Route::post('/store-customer', [CustomerController::class, 'storeCustomer'])->name('store.customer');
 Route::post('/customer-delete', [CustomerController::class, 'delete'])->name('customer.delete');
 Route::post('/customer-edit', [CustomerController::class, 'edit'])->name('customer.edit');

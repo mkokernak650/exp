@@ -40,7 +40,7 @@ import { Helmet } from "react-helmet";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
 import toast from "react-hot-toast";
-import produce from "immer";
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -152,12 +152,13 @@ const CampaignIndex = () => {
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
-
   const dataArray = campaigns.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
     campaign_name: item?.campaign_name,
     status: [item.status, item.id, index],
+    created_at: item.created_at,
+    updated_at: item.updated_at,
     id: item.id,
     key: index,
   }));
@@ -235,6 +236,8 @@ const CampaignIndex = () => {
     setShowEditModal({ open: true });
   };
 
+
+
   const tablePropsInit = {
     columns: [
       {
@@ -255,12 +258,22 @@ const CampaignIndex = () => {
         key: "campaign_name",
         title: "Campaign",
         dataType: DataType.String,
-        style: { width: 400 },
+        style: { width: 200 },
       },
       {
         key: "status",
         title: "Status",
         dataType: DataType.String,
+        style: { width: 100 },
+      }, {
+        key: "created_at",
+        title: "Created At",
+        dataType: DataType.String,
+        style: { width: 100 },
+      }, {
+        key: "updated_at",
+        title: "Updated At",
+        dataType: DataType.Date,
         style: { width: 100 },
       },
     ],
@@ -296,8 +309,15 @@ const CampaignIndex = () => {
           />
         );
       }
+
+      if (column.key === "created_at" || column.key === "updated_at") {
+        return DateTimeFormat(value)
+      }
     },
   };
+
+  console.log(tablePropsInit.data)
+
 
   const OPTION_KEY = "campaign-index";
   const stateStore = {
@@ -602,7 +622,7 @@ const CampaignIndex = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -678,11 +698,10 @@ const CampaignIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${
-          selectedRowIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? "Do you want to delete these records?"
+          : "Do you want to delete this record?"
+          }`}
       ></ConfirmModal>
     </>
   );

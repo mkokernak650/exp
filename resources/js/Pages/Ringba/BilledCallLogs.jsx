@@ -43,6 +43,7 @@ import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from "../../Helpers/filterData"
 import { defaultFilter } from "../../Helpers/Filter"
 import { SearchedFields } from "../../Helpers/SearchedFields"
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat"
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -372,35 +373,19 @@ const BilledCallLogs = () => {
       }
 
       if (column.key === "Call_Date") {
-        if(value !==undefined){
+        if (value !== undefined) {
 
-        let shortMonth = value.toLocaleString("en-us", { month: "short" })
-        let format_date = value
-        let dd = String(format_date.getDate()).padStart(2, "0")
-        let yyyy = format_date.getFullYear()
-        format_date = dd + "-" + shortMonth + "-" + yyyy
-        return format_date
+          let shortMonth = value.toLocaleString("en-us", { month: "short" })
+          let format_date = value
+          let dd = String(format_date.getDate()).padStart(2, "0")
+          let yyyy = format_date.getFullYear()
+          format_date = dd + "-" + shortMonth + "-" + yyyy
+          return format_date
         }
       }
       if (column.key === "Call_Date_Time") {
         if (value !== undefined) {
-          let d = new Date(value)
-          let hours = d.getHours()
-          let minutes = d.getMinutes()
-          let ampm = hours >= 12 ? "PM" : "AM"
-          hours = hours % 12
-          hours = hours ? hours : 12 // the hour "0" should be "12"
-          minutes = minutes < 10 ? "0" + minutes : minutes
-          let strTime = hours + ":" + minutes + " " + ampm
-          return (
-            d.getDate() +
-            "-" +
-            new Intl.DateTimeFormat("en", { month: "short" }).format(d) +
-            "-" +
-            d.getFullYear().toString().substr(-2) +
-            " " +
-            strTime
-          )
+          return DateTimeFormat(value)
         }
       }
       if (column.key === "Annotation_Tag") {
@@ -1039,8 +1024,8 @@ const BilledCallLogs = () => {
           closeAction={() => handleCloseModal(setShowDeleteModal)}
           width={"400px"}
           title={`${inboundIds.length > 1
-              ? "Do you want to delete these records?"
-              : "Do you want to delete this record?"
+            ? "Do you want to delete these records?"
+            : "Do you want to delete this record?"
             }`}
           loading={deleteLoading}
         ></ConfirmModal>

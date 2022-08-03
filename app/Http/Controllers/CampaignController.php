@@ -64,7 +64,7 @@ class CampaignController extends Controller
 
     public function campaignSettingReport(): Response
     {
-        $allCampaigns = Campaign::get();
+        $allCampaigns = Campaign::active()->get();
         return Inertia::render('Settings/Campaign/CampaignSettingReport', compact('allCampaigns'));
     }
 
