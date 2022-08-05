@@ -11,8 +11,8 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     public $condTypes = [
-        'and' => 'Where',
-        'or' => 'orWhere',
+        'and'   => 'Where',
+        'or'    => 'orWhere',
         'where' => 'Where'
     ];
 
@@ -45,7 +45,7 @@ class Controller extends BaseController
                 return '<';
             default:
                 return 'unknown operator';
-       }
+        }
     }
 
     public function findValue($operator, $val)

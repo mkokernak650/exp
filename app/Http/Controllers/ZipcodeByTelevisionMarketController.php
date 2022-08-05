@@ -35,6 +35,7 @@ class ZipcodeByTelevisionMarketController extends Controller
         if (request('page')) {
             return $allZipcodesByTelevisionMarket;
         }
+
         return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
             'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket
         ]);

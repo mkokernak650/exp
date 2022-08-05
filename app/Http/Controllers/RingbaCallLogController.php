@@ -223,8 +223,6 @@ class RingbaCallLogController extends Controller
 
         // for insert Customer
         $this->getCustomer();
-
-        // dd('payout', $this->payout, 'count', count($this->payout));
     }
 
     /**
@@ -355,7 +353,6 @@ class RingbaCallLogController extends Controller
     private function zipCodeInfo($inboundPhoneNumber)
     {
         $npanxx_number = substr($inboundPhoneNumber, 2, 6);
-        // dd($npanxx_number);
         $result = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->orderBy('ZipCodeCount', 'DESC')

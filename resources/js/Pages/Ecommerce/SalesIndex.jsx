@@ -40,6 +40,7 @@ import SnackBar from "../../Shared/SnackBar";
 import ConfirmModal from "../../Shared/ConfirmModal";
 import NormalModal from "../../Shared/NormalModal";
 import toast from "react-hot-toast";
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -239,6 +240,8 @@ const SalesIndex = () => {
           user_ip: res.data.data.user_ip,
           dialed: res.data.data.dialed,
           inbound: res.data.data.inbound,
+          updated_at : res.data.updated_at
+
         };
 
         setEditData();
@@ -281,6 +284,8 @@ const SalesIndex = () => {
     shipping_cost: item.shipping_cost,
     total: item.total,
     order_at: item.formatted_order_at,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
     id: item.id,
     key: index,
   }));
@@ -476,6 +481,18 @@ const SalesIndex = () => {
         dataType: DataType.String,
         style: { width: 140 },
       },
+      {
+        key: "created_at",
+        title: "Created At",
+        dataType: DataType.String,
+        style: { width: 100 },
+      },
+      {
+        key: "updated_at",
+        title: "Updated At",
+        dataType: DataType.Date,
+        style: { width: 100 },
+      },
     ],
     paging: {
       enabled: true,
@@ -501,18 +518,16 @@ const SalesIndex = () => {
         return value == 1 ? "E-commerce" : "Phone";
       }
       if (column.key === "order_at") {
-        if(value!==undefined){
-          let d = new Date(value)
-          let hours = d.getHours()
-          let minutes = d.getMinutes()
-          let ampm = hours >= 12 ? "PM" : "AM"
-          hours = hours % 12
-          hours = hours ? hours : 12 // the hour "0" should be "12"
-          minutes = minutes < 10 ? "0" + minutes : minutes
-          let strTime = hours + ":" + minutes + " " + ampm
-          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString() + " " + strTime
+        if (value !== undefined) {
+          return DateTimeFormat(value)
         }
       }
+      if (column.key === "created_at" || column.key === "updated_at") {
+        if (value !== undefined) {
+        return DateTimeFormat(value)
+        }
+      }
+
     },
   };
 
@@ -776,7 +791,7 @@ const SalesIndex = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -1016,11 +1031,10 @@ const SalesIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${
-          selectedRowIds.length > 1
+        title={`${selectedRowIds.length > 1
             ? "Do you want to delete these records?"
             : "Do you want to delete this record?"
-        }`}
+          }`}
       ></ConfirmModal>
     </>
   );

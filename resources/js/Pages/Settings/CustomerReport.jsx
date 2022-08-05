@@ -1,5 +1,4 @@
 import Layout from "../Layout/Layout";
-import M from "materialize-css";
 import React, { useEffect, useState, useRef } from "react";
 import { kaReducer, Table } from "ka-table";
 import {
@@ -531,7 +530,6 @@ const CustomerReport = () => {
       }
     };
   }, []);
-  useEffect(() => M.AutoInit());
 
   const TableToolbar = () => {
     return (

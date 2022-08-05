@@ -11,7 +11,7 @@ use App\Imports\MarketImport;
 
 class MarketController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -21,13 +21,13 @@ class MarketController extends Controller
         $allMarkets = Market::all();
         $existing_market = $allMarkets->where('market', $request->market)->first();
         if ($existing_market) {
-            return response()->json(["msg" => "Market already exists"]);
+            return response()->json(['msg' => 'Market already exists']);
         }
 
         Market::create([
             'market_name' => $request->market,
         ]);
-        return response()->json(["msg" => "Successfully added"]);
+        return response()->json(['msg' => 'Successfully added']);
     }
 
     public function marketReport()
@@ -41,7 +41,6 @@ class MarketController extends Controller
     public function import(Request $request)
     {
         // post request
-        // dd($request->importfile);
         Excel::import(new MarketImport, $request->importfile);
         return back()->with('Successfully import!');
     }
@@ -49,7 +48,7 @@ class MarketController extends Controller
     public function export($type)
     {
         // get request
-        Excel::download(new MarketExport,  'markets.' . $type);
+        Excel::download(new MarketExport, 'markets.' . $type);
         return back()->with('Export successfully');
     }
 
@@ -59,7 +58,6 @@ class MarketController extends Controller
         // return $test;
         // $i = 0;
         // while ($i <= count($request->selectedRowIds)) {
-         
 
         //     Market::where('id', $request->selectedRowIds[$i])->delete();
         //     $i++;

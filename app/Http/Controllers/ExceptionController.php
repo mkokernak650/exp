@@ -13,7 +13,6 @@ use App\Models\Exception;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Support\Facades\DB;
 
-
 class ExceptionController extends Controller
 {
     private static $RingbaApiHelpers;
@@ -51,11 +50,11 @@ class ExceptionController extends Controller
     protected $has_annotations = 'NO';
     protected $get_call_log_status = 'Exceptions';
     protected $get_call_qualification = 'Not Qualified';
-    protected $get_city = "";
-    protected $get_state = "";
-    protected $get_zipcode = "";
-    protected $get_market = "";
-    protected $get_type = "";
+    protected $get_city = '';
+    protected $get_state = '';
+    protected $get_zipcode = '';
+    protected $get_market = '';
+    protected $get_type = '';
 
     public function __construct()
     {
@@ -71,6 +70,7 @@ class ExceptionController extends Controller
             'Exceptions' => $allExceptions
         ]);
     }
+
     /**
      * @request post
      * @param \Illuminate\Http\Request $request
@@ -116,7 +116,6 @@ class ExceptionController extends Controller
             while ($i < count($inboundIds)) {
                 $pendingCallLog = new PendingBillCallLog();
                 if (!findDataByInboundId($pendingCallLog, $inboundIds[$i])) {
-
                     $dataById = findDataByInboundId(self::$Exception, $inboundIds[$i]);
                     $pendingCallLog->call_Logs_status = 'Pending';
                     $result = dataMoveHelper($pendingCallLog, $dataById);
@@ -125,9 +124,9 @@ class ExceptionController extends Controller
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Pending successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to Pending successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Data moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Data moving failed', 'status_code' => 500]);
         }
     }
 
@@ -148,17 +147,16 @@ class ExceptionController extends Controller
                 $exception = new Exception();
 
                 if (findDataByInboundId($archivedCallLog, $inboundIds[$i]) === null) {
-
                     $dataById = findDataByInboundId($exception, $inboundIds[$i]);
                     $archivedCallLog->call_Logs_status = 'Archive';
                     $result = dataMoveHelper($archivedCallLog, $dataById);
                     if ($result) {
-                        $msg = ["msg" => "Data moved to Archive successfully", "status_code" => 200];
+                        $msg = ['msg' => 'Data moved to Archive successfully', 'status_code' => 200];
                     } else {
-                        $msg = ["msg" => "Data moving failed", "status_code" => 500];
+                        $msg = ['msg' => 'Data moving failed', 'status_code' => 500];
                     }
                 } else {
-                    $msg = ["msg" => "Data already exixts", "status_code" => 500];
+                    $msg = ['msg' => 'Data already exixts', 'status_code' => 500];
                 }
                 $i++;
             }
@@ -169,7 +167,7 @@ class ExceptionController extends Controller
 
     /**
      * @method for ringba calllog
-     * @method post 
+     * @method post
      * @param \Illuminate\Http\Request $request
      * @return void
      */
@@ -179,43 +177,47 @@ class ExceptionController extends Controller
 
         $apiResposnse = self::$RingbaApiHelpers->getUpdateData($inboundIds);
 
-        if ($apiResposnse->columns)  $this->columns($apiResposnse->columns);
-        if ($apiResposnse->events)   $this->events($apiResposnse->events);
-        if ($apiResposnse->tags)     $this->tags($apiResposnse->tags);
-        // dd($apiResposnse);
+        if ($apiResposnse->columns) {
+            $this->columns($apiResposnse->columns);
+        }
+        if ($apiResposnse->events) {
+            $this->events($apiResposnse->events);
+        }
+        if ($apiResposnse->tags) {
+            $this->tags($apiResposnse->tags);
+        }
 
         $getDataById = findDataByInboundId(self::$Exception, $inboundIds);
-        // dd($getDataById);
 
-        $getDataById->Call_Date_Time       = date("d-M-y H:i:s", $this->get_dtStamp / 1000);
-        $getDataById->Has_Annotation       = $this->has_annotations;
-        $getDataById->Annotation_Tag       = $this->get_annotations_tag;
-        $getDataById->Recording_Url        = $this->get_recordingUrl;
-        $getDataById->call_time            = date('d-M-y', $this->get_dtStamp / 1000);
-        $getDataById->Duplicate_Call       = $this->get_duplicated_status;
-        $getDataById->Affiliate            = $this->get_affiliateName;
-        $getDataById->Affiliate_Id         = $this->get_affiliateId;
-        $getDataById->Market               = $this->get_market;
-        $getDataById->Campaign             = $this->get_campaignName;
-        $getDataById->Campaign_Id          = $this->get_campaignId;
-        $getDataById->Inbound              = $this->get_inboundPhoneNumber;
-        $getDataById->Inbound_Id           = $this->get_inboundCallId;
-        $getDataById->Dialed               = $this->get_number;
-        $getDataById->Type                 = $this->get_type;
-        $getDataById->Customer             = $this->get_customer_name_id;
-        $getDataById->Target               = $this->get_targetName;
-        $getDataById->Target_Description   = $this->get_Target_Description;
-        $getDataById->Source_Hangup        = $this->get_source_hangup;
-        $getDataById->Conn_Duration        = $this->get_callConnectionLength;
-        $getDataById->Time_To_Call         = $this->get_timeToConnect;
+        $getDataById->Call_Date_Time = date('d-M-y H:i:s', $this->get_dtStamp / 1000);
+        $getDataById->Has_Annotation = $this->has_annotations;
+        $getDataById->Annotation_Tag = $this->get_annotations_tag;
+        $getDataById->Recording_Url = $this->get_recordingUrl;
+        $getDataById->call_time = date('d-M-y', $this->get_dtStamp / 1000);
+        $getDataById->Duplicate_Call = $this->get_duplicated_status;
+        $getDataById->Affiliate = $this->get_affiliateName;
+        $getDataById->Affiliate_Id = $this->get_affiliateId;
+        $getDataById->Market = $this->get_market;
+        $getDataById->Campaign = $this->get_campaignName;
+        $getDataById->Campaign_Id = $this->get_campaignId;
+        $getDataById->Inbound = $this->get_inboundPhoneNumber;
+        $getDataById->Inbound_Id = $this->get_inboundCallId;
+        $getDataById->Dialed = $this->get_number;
+        $getDataById->Type = $this->get_type;
+        $getDataById->Customer = $this->get_customer_name_id;
+        $getDataById->Target = $this->get_targetName;
+        $getDataById->Target_Description = $this->get_Target_Description;
+        $getDataById->Source_Hangup = $this->get_source_hangup;
+        $getDataById->Conn_Duration = $this->get_callConnectionLength;
+        $getDataById->Time_To_Call = $this->get_timeToConnect;
         $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
-        $getDataById->Revenue              = $this->get_revenue;
-        $getDataById->payoutAmount         = $this->get_payoutAmount;
-        $getDataById->Total_Cost           = $this->get_totalAmount;
-        $getDataById->Profit               = $this->get_profit;
-        $getDataById->City                 = $this->get_city;
-        $getDataById->State                = $this->get_state;
-        $getDataById->Zipcode              = $this->get_zipcode;
+        $getDataById->Revenue = $this->get_revenue;
+        $getDataById->payoutAmount = $this->get_payoutAmount;
+        $getDataById->Total_Cost = $this->get_totalAmount;
+        $getDataById->Profit = $this->get_profit;
+        $getDataById->City = $this->get_city;
+        $getDataById->State = $this->get_state;
+        $getDataById->Zipcode = $this->get_zipcode;
         $getDataById->save();
 
         $allData = Exception::all();
@@ -234,36 +236,36 @@ class ExceptionController extends Controller
         foreach ($results as $item) {
             if ($item->name === 'dtStamp') {
                 $this->get_dtStamp = $item->formattedValue;
-            } else if ($item->name === 'accountId') {
+            } elseif ($item->name === 'accountId') {
                 $this->get_accountId = $item->formattedValue;
-            } else if ($item->name === 'campaignId') {
+            } elseif ($item->name === 'campaignId') {
                 $this->get_campaignId = $item->formattedValue;
-            } else if ($item->name === 'campaignName') {
+            } elseif ($item->name === 'campaignName') {
                 $this->get_campaignName = $item->formattedValue;
-            } else if ($item->name === 'affiliateId') {
+            } elseif ($item->name === 'affiliateId') {
                 $this->get_affiliateId = $item->formattedValue;
-            } else if ($item->name === 'affiliateName') {
+            } elseif ($item->name === 'affiliateName') {
                 $this->get_affiliateName = $item->formattedValue;
-            } else if ($item->name === 'number') {
+            } elseif ($item->name === 'number') {
                 $this->get_number = $item->formattedValue;
-            } else if ($item->name === 'inboundCallId') {
+            } elseif ($item->name === 'inboundCallId') {
                 $this->get_inboundCallId = $item->formattedValue;
-            } else if ($item->name === 'inboundPhoneNumber') {
+            } elseif ($item->name === 'inboundPhoneNumber') {
                 if ($item->formattedValue) {
                     $this->get_inboundPhoneNumber = $item->formattedValue;
                     $this->zipCodeInfo($this->get_inboundPhoneNumber);
                 } else {
                     $this->get_inboundPhoneNumber = '';
                 }
-            } else if ($item->name === 'totalAmount') {
+            } elseif ($item->name === 'totalAmount') {
                 $this->get_totalAmount = $item->formattedValue;
-            } else if ($item->name === 'callCompletedDt') {
+            } elseif ($item->name === 'callCompletedDt') {
                 $this->get_callCompletedDt = $item->formattedValue;
-            } else if ($item->name === 'source') {
+            } elseif ($item->name === 'source') {
                 $this->get_source_hangup = $item->formattedValue;
-            } else if ($item->name === 'profit') {
+            } elseif ($item->name === 'profit') {
                 $this->get_profit = $item->formattedValue;
-            } else if ($item->name === 'targetName') {
+            } elseif ($item->name === 'targetName') {
                 $this->get_targetName = $item->formattedValue;
                 if (!empty($this->get_targetName)) {
                     // $targetsTable = new Target();
@@ -276,26 +278,26 @@ class ExceptionController extends Controller
                     $this->get_Target_Description = '';
                     $this->get_customer_name_id = null;
                 }
-            } else if ($item->name === 'targetId') {
+            } elseif ($item->name === 'targetId') {
                 $this->get_targetId = $item->formattedValue;
-            } else if ($item->name === 'targetBuyerId') {
+            } elseif ($item->name === 'targetBuyerId') {
                 $this->get_targetBuyerId = $item->formattedValue;
-            } else if ($item->name === 'targetBuyer') {
+            } elseif ($item->name === 'targetBuyer') {
                 $this->get_targetBuyer = $item->formattedValue;
-            } else if ($item->name === 'timeToConnect') {
+            } elseif ($item->name === 'timeToConnect') {
                 $this->get_timeToConnect = $item->formattedValue;
-            } else if ($item->name === 'callConnectionLength') {
+            } elseif ($item->name === 'callConnectionLength') {
                 $this->get_callConnectionLength = $item->formattedValue;
-            } else if ($item->name === 'targetNumber') {
+            } elseif ($item->name === 'targetNumber') {
                 $this->get_targetNumber = $item->formattedValue;
-            } else if ($item->name === 'recordingUrl') {
+            } elseif ($item->name === 'recordingUrl') {
                 $this->get_recordingUrl = $item->formattedValue;
-            } else if ($item->name === 'conversionAmount') {
+            } elseif ($item->name === 'conversionAmount') {
                 // $this->get_conversionAmount = $item->formattedValue;
                 $this->get_revenue = $item->formattedValue;
-            } else if ($item->name === 'callLengthInSeconds') {
+            } elseif ($item->name === 'callLengthInSeconds') {
                 $this->get_callLengthInSeconds = $item->formattedValue;
-            } else if ($item->name === 'payoutAmount') {
+            } elseif ($item->name === 'payoutAmount') {
                 $this->get_payoutAmount = $item->formattedValue;
             }
             // else if ($item->name === 'revenue') {
@@ -315,10 +317,10 @@ class ExceptionController extends Controller
 
         foreach ($results as $item) {
             if ($item->name === 'DuplicateCall') {
-                $this->get_duplicated_status = "Yes";
+                $this->get_duplicated_status = 'Yes';
                 return;
             } else {
-                $this->get_duplicated_status = "No";
+                $this->get_duplicated_status = 'No';
             }
         }
     }
@@ -338,7 +340,7 @@ class ExceptionController extends Controller
                 $this->get_annotations_tag = $item->tagName;
             } else {
                 $this->has_annotations = 'No';
-                $this->get_annotations_tag = "";
+                $this->get_annotations_tag = '';
             }
         }
     }
@@ -349,9 +351,8 @@ class ExceptionController extends Controller
      */
     private function zipCodeInfo($inboundPhoneNumber)
     {
-        $npanxx_number  = substr($inboundPhoneNumber, 2, 6);
-        // dd($npanxx_number);
-        $result         = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
+        $npanxx_number = substr($inboundPhoneNumber, 2, 6);
+        $result = ZipCodeData::select(['ZipCode', 'State', 'City', 'FIPS', 'NXXUseType'])
             ->where('NPANXX', $npanxx_number)
             ->orderBy('ZipCodeCount', 'DESC')
             ->first();
@@ -365,14 +366,14 @@ class ExceptionController extends Controller
             $this->get_zipcode = $result->ZipCode;
             $this->get_state = $result->State;
             $this->get_city = $result->City;
-            $this->get_market = $res->Market ?? "";
+            $this->get_market = $res->Market ?? '';
             $this->get_type = $result->NXXUseType;
         } else {
-            $this->get_zipcode = "";
-            $this->get_state = "";
-            $this->get_city = "";
-            $this->get_market = "";
-            $this->get_type = "";
+            $this->get_zipcode = '';
+            $this->get_state = '';
+            $this->get_city = '';
+            $this->get_market = '';
+            $this->get_type = '';
         }
     }
 
@@ -382,13 +383,13 @@ class ExceptionController extends Controller
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
             // $result =  DB::table('exceptions')->where('id', $request->selectedRowIds[$i])->delete();
-            $result =  Exception::where('id', $request->selectedRowIds[$i])->delete();
+            $result = Exception::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 

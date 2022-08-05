@@ -45,7 +45,7 @@ import CustomFilter from "../../Components/CustomFilter"
 import { filterData } from '../../Helpers/filterData'
 import { defaultFilter } from "../../Helpers/Filter"
 import { SearchedFields } from "../../Helpers/SearchedFields"
-import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat"
 
 
 const useStyles = makeStyles(() => ({
@@ -106,7 +106,7 @@ const CallLogsReport = () => {
           let filteredData = tableProps
           filteredData.data.filter((item, indx) => {
             if (item.id == tableIndex) {
-              filteredData.data[indx].Has_Annotation = res.data.has_annotation;
+              filteredData.data[indx].Has_Annotation = res.data.has_annotation
             }
           })
         }
@@ -959,12 +959,10 @@ const CallLogsReport = () => {
             ) : (
               ""
             )}
-            {showColumns ? (
+            {showColumns && (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
-            ) : (
-              ""
             )}
           </div>
         )}

@@ -21,7 +21,6 @@ class AffiliateController extends Controller
     public function all()
     {
         $results = Affiliate::all();
-        dd($results);
     }
 
     public function getAffiliate(Request $request)
