@@ -519,7 +519,15 @@ const SalesIndex = () => {
       }
       if (column.key === "order_at") {
         if (value !== undefined) {
-          return DateTimeFormat(value)
+                  let d = new Date(value)
+          let hours = d.getHours()
+          let minutes = d.getMinutes()
+          let ampm = hours >= 12 ? "PM" : "AM"
+          hours = hours % 12
+          hours = hours ? hours : 12 // the hour "0" should be "12"
+          minutes = minutes < 10 ? "0" + minutes : minutes
+          let strTime = hours + ":" + minutes + " " + ampm
+          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString() + " " + strTime
         }
       }
       if (column.key === "created_at" || column.key === "updated_at") {
