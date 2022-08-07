@@ -313,7 +313,6 @@ const EcommerceReport = () => {
     ...endDate,
     ...reportType,
     ...reportFor,
-    ...reportType,
     ...ecommerceReportType,
   };
 
@@ -381,6 +380,7 @@ const EcommerceReport = () => {
   }_Created@${currentDate()}`;
   values.file_name = fileName;
 
+  console.log(values)
   const handleSubmit = () => {
     if (orderType.orderType === "") {
       toast.error("Please select order type");
@@ -408,6 +408,11 @@ const EcommerceReport = () => {
             exportReportEcommerce(r.data, fileName, reportFor);
           } else {
             toast.success("Email send successfully");
+            // if(values?.emails){
+            // }else{
+            //   toast.error("No affiliate select for sending report");
+
+            // }
           }
         }
       })

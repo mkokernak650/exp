@@ -47,7 +47,7 @@ class EcommerceReportController extends Controller
             });
         }
 
-        $columns = ['Date', 'Affiliate Name', 'Coupon Code', 'Dialed', 'State','City','Zip Code','Market','TV Market Households','Total Quantity','Total Amount','Total Fee','Net Amount'];
+        $columns = ['Date', 'Affiliate Name', 'Coupon Code', 'Dialed', 'State', 'City', 'Zip Code', 'Market', 'TV Market Households', 'Total Quantity', 'Total Amount', 'Total Fee', 'Net Amount'];
         $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary = [];
@@ -61,7 +61,6 @@ class EcommerceReportController extends Controller
             $newSummary['Total Fee'] = $summary['Total Fee'];
             $newSummary['Net Amount'] = $summary['Net Amount'];
             $sendMailCtrl = new SendMailController();
-
             $sendMailCtrl->sendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
             return;
         }
