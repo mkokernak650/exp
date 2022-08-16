@@ -19,16 +19,28 @@ class EcommerceReportController extends Controller
     {
         $campaigns = EcommerceCampaign::active()->get();
         $customers = Customer::active()->get();
-        $affiliates = Affiliate::active()->get();
         $broadCastMonths = BroadCastMonth::active()->get();
         $broadCastWeeks = BroadCastWeeks::active()->get();
         $eComAffiliateData = EcommerceAffiliate::active()->get(['coupon_code', 'dialed']);
-        $couponCodes = array_filter($eComAffiliateData->pluck('coupon_code')->unique()->toArray());
-        $dialedPhones = array_filter($eComAffiliateData->pluck('dialed')->unique()->toArray());
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
 
-        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'affiliates', 'broadCastMonths', 'broadCastWeeks', 'couponCodes', 'dialedPhones', 'states', 'markets'));
+        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets'));
+    }
+
+    public function campaignWiseData(Request $request)
+    {
+        try {
+            $campaignWiseData = EcommerceAffiliate::with('affiliate:id,affiliate_name')->whereIn('campaign_id', $request->campaign_ids)->get(['coupon_code', 'dialed', 'affiliate_id']);
+
+            $couponCodes = array_filter($campaignWiseData->pluck('coupon_code')->unique()->toArray());
+            $dialedPhones = array_filter($campaignWiseData->pluck('dialed')->unique()->toArray());
+            $affiliates = $campaignWiseData->map(fn ($item) => [$item?->affiliate?->id, $item?->affiliate?->affiliate_name])->unique()->toArray();
+
+            return response()->json(['success' => true, 'affiliates' => $affiliates, 'couponCodes' => $couponCodes, 'dialedPhones' => $dialedPhones]);
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false], 422);
+        }
     }
 
     public function ecommerceReportGenerate(Request $request)

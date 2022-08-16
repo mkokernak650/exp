@@ -47,14 +47,14 @@ const EcommerceReport = () => {
   const {
     campaigns,
     customers,
-    affiliates,
     broadCastMonths,
     broadCastWeeks,
-    couponCodes,
-    dialedPhones,
     states,
     markets,
   } = usePage().props;
+  const [affiliateList, setAffiliateList] = useState([]);
+  const [couponCodeList, setCouponCodeList] = useState([]);
+  const [dialedPhoneList, setDialedPhoneList] = useState([]);
   const [monthByYear, setMonthByYear] = useState(broadCastMonths);
   const [affiliate, setAffiliate] = useState();
   const [month, setMonth] = useState("");
@@ -97,11 +97,6 @@ const EcommerceReport = () => {
     value: item.id,
   }));
 
-  const affiliateOptions = affiliates.map((item) => ({
-    label: item.affiliate_name,
-    value: item.id,
-  }));
-
   const yearOptions = yearsArray.map((year) => ({
     label: year,
     value: year,
@@ -117,15 +112,24 @@ const EcommerceReport = () => {
     value: item.market + ",",
   }));
 
-  const couponCodeOptions = Object.values(couponCodes).map((item) => ({
-    label: item,
-    value: item,
-  }));
+  const setCampaignWiseData = (affiliates, couponCodes, dialedPhones) => {
+    const affiliateOptions = affiliates?.map((item) => ({
+      label: item?.[1],
+      value: item?.[0],
+    }));
+    const couponOptions = Object.values(couponCodes)?.map((item) => ({
+      label: item,
+      value: item,
+    }));
+    const dialedOptions = Object.values(dialedPhones)?.map((item) => ({
+      label: item,
+      value: item,
+    }));
 
-  const dialedOptions = Object.values(dialedPhones).map((item) => ({
-    label: item,
-    value: item,
-  }));
+    setAffiliateList(affiliateOptions);
+    setCouponCodeList(couponOptions);
+    setDialedPhoneList(dialedOptions);
+  };
 
   const getCampaignNames = () => {
     const campaignNames = [];
@@ -171,8 +175,24 @@ const EcommerceReport = () => {
     if (val) {
       const campaign_ids = val.split(",");
       setCampaign({ [key]: campaign_ids });
+
+      axios
+        .post(route("ecommerce.report.campaignWiseData"), { campaign_ids })
+        .then((res) => {
+          if (res.data.success) {
+            setCampaignWiseData(
+              res.data.affiliates,
+              res.data.couponCodes,
+              res.data.dialedPhones
+            );
+          }
+        })
+        .catch((err) => {
+          toast.error("Something went wrong");
+        });
     } else {
       setCampaign();
+      setCampaignWiseData([], [], []);
     }
   };
 
@@ -380,7 +400,6 @@ const EcommerceReport = () => {
   }_Created@${currentDate()}`;
   values.file_name = fileName;
 
-  console.log(values)
   const handleSubmit = () => {
     if (orderType.orderType === "") {
       toast.error("Please select order type");
@@ -517,7 +536,7 @@ const EcommerceReport = () => {
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
-                options={affiliateOptions}
+                options={affiliateList || []}
                 style={{ width: "100%" }}
                 placeholder="Select Affiliates"
               />
@@ -527,7 +546,7 @@ const EcommerceReport = () => {
                 <MultiSelect
                   name="couponCodes"
                   onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
-                  options={couponCodeOptions}
+                  options={couponCodeList || []}
                   style={{ width: "100%" }}
                   placeholder="Select Coupon Codes"
                 />
@@ -538,7 +557,7 @@ const EcommerceReport = () => {
                 <MultiSelect
                   name="dialed"
                   onChange={(val) => dialedHandleChange(val, "dialed")}
-                  options={dialedOptions}
+                  options={dialedPhoneList || []}
                   style={{ width: "100%" }}
                   placeholder="Select Dialed Phone"
                 />
@@ -691,7 +710,4 @@ const EcommerceReport = () => {
   );
 };
 
-EcommerceReport.layout = (page) => (
-  <Layout title="E-commerce Report">{page}</Layout>
-);
 export default EcommerceReport;

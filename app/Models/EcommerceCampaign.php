@@ -21,6 +21,6 @@ class EcommerceCampaign extends Model
 
     public function affiliates(): HasMany
     {
-        return $this->hasMany(EcommerceAffiliate::class);
+        return $this->hasMany(EcommerceAffiliate::class, 'campaign_id');
     }
 }
