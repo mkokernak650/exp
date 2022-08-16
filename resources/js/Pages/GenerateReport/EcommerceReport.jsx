@@ -536,7 +536,7 @@ const EcommerceReport = () => {
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
-                options={affiliateList || []}
+                options={affiliateList}
                 style={{ width: "100%" }}
                 placeholder="Select Affiliates"
               />
@@ -546,7 +546,7 @@ const EcommerceReport = () => {
                 <MultiSelect
                   name="couponCodes"
                   onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
-                  options={couponCodeList || []}
+                  options={couponCodeList}
                   style={{ width: "100%" }}
                   placeholder="Select Coupon Codes"
                 />
@@ -557,7 +557,7 @@ const EcommerceReport = () => {
                 <MultiSelect
                   name="dialed"
                   onChange={(val) => dialedHandleChange(val, "dialed")}
-                  options={dialedPhoneList || []}
+                  options={dialedPhoneList}
                   style={{ width: "100%" }}
                   placeholder="Select Dialed Phone"
                 />
@@ -710,4 +710,7 @@ const EcommerceReport = () => {
   );
 };
 
+EcommerceReport.layout = (page) => (
+  <Layout title="E-commerce Report">{page}</Layout>
+);
 export default EcommerceReport;
