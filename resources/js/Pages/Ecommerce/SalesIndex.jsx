@@ -94,11 +94,21 @@ const operators = [
 ];
 
 export const fields = [
-  // {
-  //   caption: "order_type",
-  //   name: "order_type",
-  //   operators,
-  // },
+  {
+    caption: "campaign",
+    name: "campaign",
+    operators,
+  },
+  {
+    caption: "customer",
+    name: "customer",
+    operators,
+  },
+  {
+    caption: "order_type",
+    name: "order_type",
+    operators,
+  },
   {
     caption: "order_no",
     name: "order_no",
@@ -268,7 +278,7 @@ const SalesIndex = () => {
     customer_id: item?.customer_id,
     campaign: item?.campaign?.campaign_name,
     customer: item?.customer?.customer_name,
-    order_type: item?.order_type,
+    order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
     dialed: item?.dialed,
     inbound: item?.inbound,
     revenue: item?.revenue,
@@ -514,9 +524,9 @@ const SalesIndex = () => {
           </div>
         );
       }
-      if (column.key === "order_type") {
-        return value == 1 ? "E-commerce" : "Phone";
-      }
+      // if (column.key === "order_type") {
+      //   return value == 1 ? "E-commerce" : "Phone";
+      // }
       if (column.key === "order_at") {
         if (value !== undefined) {
                   let d = new Date(value)
@@ -875,8 +885,8 @@ const SalesIndex = () => {
               value={editData ? editData?.order_type : ""}
             >
               <option value="">Select Order Type</option>
-              <option value="1">E-commerce</option>
-              <option value="2">Phone</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Phone">Phone</option>
             </TextField>
             <TextField
               value={editData ? editData?.order_no : ""}
@@ -888,7 +898,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
 
-            {editData?.order_type && editData.order_type == 1 && (
+            {editData?.order_type && editData.order_type == 'E-commerce' && (
               <>
                 <TextField
                   value={editData ? editData?.coupon_code : ""}
@@ -912,7 +922,7 @@ const SalesIndex = () => {
               </>
             )}
 
-            {editData?.order_type && editData.order_type == 2 && (
+            {editData?.order_type && editData.order_type == 'Phone' && (
               <>
                 <TextField
                   value={editData ? editData?.dialed : ""}

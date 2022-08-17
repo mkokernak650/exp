@@ -34,22 +34,29 @@ class EcommerceSaleController extends Controller
     public function update(EcommerceSaleRequest $request, EcommerceSale $ecommerceSale)
     {
         $validated = $request->validated();
+
+        if ($validated['order_type'] === 'E-commerce') {
+            $validated['order_type'] = 1;
+        } else {
+            $validated['order_type'] = 2;
+        }
+
         $eCommerceAffiliate = EcommerceSale::query()
             ->where('id', '!=', $ecommerceSale->id)
-            ->where('customer_id', $request->customer_id)
-            ->where('campaign_id', $request->campaign_id)
-            ->where('order_type', $request->order_type)
-            ->where('order_no', $request->order_no)
-            ->where('shipping_zip', $request->shipping_zip)
+            ->where('customer_id', $validated['customer_id'])
+            ->where('campaign_id', $validated['campaign_id'])
+            ->where('order_type', $validated['order_type'])
+            ->where('order_no', $validated['order_no'])
+            ->where('shipping_zip', $validated['shipping_zip'])
             ->when(
-                $request->order_type == EcommerceSale::ORDER_TYPE['e-commerce'],
+                $validated['order_type'] == EcommerceSale::ORDER_TYPE['e-commerce'],
                 fn ($q) => $q
-                    ->where('coupon_code', $request->coupon_code)
+                    ->where('coupon_code', $validated['coupon_code'])
             )
             ->when(
-                $request->order_type == EcommerceSale::ORDER_TYPE['phone'],
+                $validated['order_type'] == EcommerceSale::ORDER_TYPE['phone'],
                 fn ($q) => $q
-                    ->where('dialed', $request->dialed)
+                    ->where('dialed', $validated['dialed'])
             )
             ->first();
 
@@ -57,7 +64,7 @@ class EcommerceSaleController extends Controller
             return response()->json(['msg' => 'Already Exists!'], 422);
         }
 
-        if ($request->order_type == EcommerceSale::ORDER_TYPE['e-commerce']) {
+        if ($validated['order_type'] == EcommerceSale::ORDER_TYPE['e-commerce']) {
             $validated['dialed'] = null;
             $validated['inbound'] = null;
         } else {
