@@ -11,6 +11,12 @@ import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import StoreIcon from '@material-ui/icons/Store';
+import DialpadIcon from '@material-ui/icons/Dialpad';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+import SettingsIcon from '@material-ui/icons/Settings';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import AssessmentIcon from '@material-ui/icons/Assessment';
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -22,8 +28,6 @@ import TextField from "@material-ui/core/TextField";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import NormalModal from "../../Shared/NormalModal";
 import {
-  BarChart as BarChartIcon,
-  Settings as SettingsIcon,
   User as UserIcon,
   Users as UsersIcon,
   Minus as MinusIcon,
@@ -99,7 +103,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
   content: {
     flexGrow: 1,
@@ -249,17 +253,17 @@ export default function PersistentDrawerLeft(props) {
   );
 
   const items = [
-    {
-      id: 1,
-      href: "home",
-      Icon: <BarChartIcon size="20" />,
-      title: "Dashboard",
-      active: false,
-      collapse: false,
-    },
+    // {
+    //   id: 1,
+    //   href: "home",
+    //   Icon: <BarChartIcon size="20" />,
+    //   title: "Dashboard",
+    //   active: false,
+    //   collapse: false,
+    // },
     {
       id: 2,
-      Icon: <UsersIcon size="20" />,
+      Icon: <PeopleAltIcon size="20" />,
       title: "Ringba",
       active: false,
       collapse: true,
@@ -299,7 +303,7 @@ export default function PersistentDrawerLeft(props) {
 
     {
       id: 3,
-      Icon: <UsersIcon size="20" />,
+      Icon: <LibraryBooksIcon size="20" />,
       title: "Generate Reports",
       active: false,
       collapse: true,
@@ -343,7 +347,7 @@ export default function PersistentDrawerLeft(props) {
     },
     {
       id: 4,
-      Icon: <SettingsIcon size="20" />,
+      Icon: <DialpadIcon size="20" />,
       title: "Pay Per Call Setup",
       active: false,
       collapse: true,
@@ -368,11 +372,16 @@ export default function PersistentDrawerLeft(props) {
           href: "market.exception.form",
           Icon: <UserIcon />,
         },
+        {
+          title: "Market Exception Report",
+          href: "market.exception.report",
+          Icon: <UserIcon />,
+        },
       ],
     },
     {
       id: 5,
-      Icon: <SettingsIcon size="20" />,
+      Icon: <StoreIcon size="20" />,
       title: "Phone and Coupon Codes",
       active: false,
       collapse: true,
@@ -412,31 +421,10 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 6,
       Icon: <SettingsIcon size="20" />,
-      title: "Settings",
+      title: "Affiliates",
       active: false,
       collapse: true,
       submenu: [
-        {
-          title: "Market Exception Report",
-          href: "market.exception.report",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "Add Customer",
-          href: "add.customer",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "Customer Report",
-          href: "customer.report",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "Archived Customers",
-          href: "archived.customers",
-          Icon: <UserIcon />,
-        },
-
         {
           title: "Add Affiliate",
           href: "add.affiliate",
@@ -452,6 +440,15 @@ export default function PersistentDrawerLeft(props) {
           href: "archived.affiliates",
           Icon: <UserIcon />,
         },
+      ],
+    },
+    {
+      id: 7,
+      Icon: <SettingsIcon size="20" />,
+      title: "Targets",
+      active: false,
+      collapse: true,
+      submenu: [
         {
           title: "Add Target",
           href: "target.form",
@@ -467,19 +464,68 @@ export default function PersistentDrawerLeft(props) {
           href: "target_names.report",
           Icon: <UserIcon />,
         },
-
+      ],
+    },
+    {
+      id: 8,
+      Icon: <SettingsIcon size="20" />,
+      title: "Customers",
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: "Add Customer",
+          href: "add.customer",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Customer Report",
+          href: "customer.report",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "Archived Customers",
+          href: "archived.customers",
+          Icon: <UserIcon />,
+        },
+      ],
+    },
+    {
+      id: 9,
+      Icon: <SettingsIcon size="20" />,
+      title: "Database",
+      active: false,
+      collapse: true,
+      submenu: [
         {
           title: "New Television By Market Report",
           href: "zipcode.television.market",
           Icon: <UserIcon />,
         },
-
         {
           title: "Zipcode Database",
           href: "zipcode.data",
           Icon: <UserIcon />,
         },
-
+        {
+          title: "Add TV Households",
+          href: "add.tv.households",
+          Icon: <UserIcon />,
+        },
+        {
+          title: "TV Households Report",
+          href: "tv.households.report",
+          Icon: <UserIcon />,
+        },
+      ],
+    },
+    {
+      id: 10,
+      Icon: <SettingsIcon size="20" />,
+      title: "Calendar",
+      active: false,
+      collapse: true,
+      submenu: [
         {
           title: "Add Broadcast Month",
           href: "add.broadcast.month",
@@ -500,22 +546,12 @@ export default function PersistentDrawerLeft(props) {
           href: "broadcast.week.report",
           Icon: <UserIcon />,
         },
-        {
-          title: "Add TV Households",
-          href: "add.tv.households",
-          Icon: <UserIcon />,
-        },
-        {
-          title: "TV Households Report",
-          href: "tv.households.report",
-          Icon: <UserIcon />,
-        },
       ],
     },
     {
-      id: 7,
+      id: 11,
       href: "webform.reports",
-      Icon: <BarChartIcon size="20" />,
+      Icon: <AssessmentIcon size="20" />,
       title: "Webform Reports",
       active: false,
       collapse: false,
@@ -612,7 +648,9 @@ export default function PersistentDrawerLeft(props) {
       >
         <div className={classes.drawerHeader}>
           <div className="logo">
-            <img src={Logo} alt="consumer-exp-logo"></img>
+            <InertiaLink href="/home">
+              <img src={Logo} alt="consumer-exp-logo"></img>
+            </InertiaLink>
           </div>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "ltr" ? (
