@@ -179,7 +179,8 @@ const EcommerceReport = () => {
       axios
         .post(route("ecommerce.report.campaignWiseData"), { campaign_ids })
         .then((res) => {
-          if (res.data.success) {
+          console.log('ok')
+          if (res?.status == 200) {
             setCampaignWiseData(
               res.data.affiliates,
               res.data.couponCodes,
@@ -188,7 +189,8 @@ const EcommerceReport = () => {
           }
         })
         .catch((err) => {
-          toast.error("Something went wrong");
+          console.log('error')
+          console.log(err);
         });
     } else {
       setCampaign();
