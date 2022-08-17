@@ -113,7 +113,7 @@ const EcommerceReport = () => {
   }));
 
   const setCampaignWiseData = (affiliates, couponCodes, dialedPhones) => {
-    const affiliateOptions = affiliates?.map((item) => ({
+    const affiliateOptions = Object.values(affiliates)?.map((item) => ({
       label: item?.[1],
       value: item?.[0],
     }));
@@ -126,9 +126,9 @@ const EcommerceReport = () => {
       value: item,
     }));
 
-    setAffiliateList(affiliateOptions);
-    setCouponCodeList(couponOptions);
-    setDialedPhoneList(dialedOptions);
+    setAffiliateList(affiliateOptions || []);
+    setCouponCodeList(couponOptions || []);
+    setDialedPhoneList(dialedOptions || []);
   };
 
   const getCampaignNames = () => {
@@ -179,7 +179,6 @@ const EcommerceReport = () => {
       axios
         .post(route("ecommerce.report.campaignWiseData"), { campaign_ids })
         .then((res) => {
-          console.log('ok')
           if (res?.status == 200) {
             setCampaignWiseData(
               res.data.affiliates,
@@ -189,7 +188,6 @@ const EcommerceReport = () => {
           }
         })
         .catch((err) => {
-          console.log('error')
           console.log(err);
         });
     } else {
