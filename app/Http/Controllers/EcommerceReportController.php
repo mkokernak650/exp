@@ -21,7 +21,6 @@ class EcommerceReportController extends Controller
         $customers = Customer::active()->get();
         $broadCastMonths = BroadCastMonth::active()->get();
         $broadCastWeeks = BroadCastWeeks::active()->get();
-        $eComAffiliateData = EcommerceAffiliate::active()->get(['coupon_code', 'dialed']);
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
 
