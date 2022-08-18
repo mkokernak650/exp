@@ -63,7 +63,12 @@ class EcommerceReportController extends Controller
 
         $columns = ['Date', 'Affiliate Name', 'Coupon Code', 'Dialed', 'State', 'City', 'Zip Code', 'Market', 'TV Market Households', 'Total Quantity', 'Total Amount', 'Total Fee', 'Net Amount'];
         $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['success' => false, 'message' => 'No affiliate email found.'], 422);
+            }
+
             $newSummary = [];
             $newSummary[' '] = ' ';
             $newSummary['  '] = '  ';

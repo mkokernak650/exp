@@ -189,13 +189,19 @@ const EcommerceReport = () => {
   };
 
   useEffect(() => {
-    if (typeof campaign?.campaign_id === 'undefined' && typeof customer?.customer_id === 'undefined') {
+    if (
+      typeof campaign?.campaign_id === "undefined" &&
+      typeof customer?.customer_id === "undefined"
+    ) {
       setSelectionWiseData([], [], []);
-      return
+      return;
     }
 
     axios
-      .post(route("ecommerce.report.selectionWiseData"), { campaign_ids: campaign?.campaign_id, customer_ids: customer?.customer_id })
+      .post(route("ecommerce.report.selectionWiseData"), {
+        campaign_ids: campaign?.campaign_id,
+        customer_ids: customer?.customer_id,
+      })
       .then((res) => {
         if (res?.status == 200) {
           setSelectionWiseData(
@@ -430,18 +436,15 @@ const EcommerceReport = () => {
           setLoading(false);
           if (ecommerceReportType.report_type === "export-report") {
             exportReportEcommerce(r.data, fileName, reportFor);
-          } else {
-            toast.success("Email send successfully");
-            // if(values?.emails){
-            // }else{
-            //   toast.error("No affiliate select for sending report");
-
-            // }
           }
         }
       })
       .catch((e) => {
         setLoading(false);
+        if (e.response?.status === 422) {
+          toast.error(e.response?.data?.message);
+          return;
+        }
         toast.error("Error while generating report");
       });
   };
