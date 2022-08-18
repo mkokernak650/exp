@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import Layout from "../Layout/Layout";
 import {
   CircularProgress,
@@ -112,7 +112,7 @@ const EcommerceReport = () => {
     value: item.market + ",",
   }));
 
-  const setCampaignWiseData = (affiliates, couponCodes, dialedPhones) => {
+  const setSelectionWiseData = (affiliates, couponCodes, dialedPhones) => {
     const affiliateOptions = Object.values(affiliates)?.map((item) => ({
       label: item?.[1],
       value: item?.[0],
@@ -175,27 +175,10 @@ const EcommerceReport = () => {
     if (val) {
       const campaign_ids = val.split(",");
       setCampaign({ [key]: campaign_ids });
-
-      axios
-        .post(route("ecommerce.report.campaignWiseData"), { campaign_ids })
-        .then((res) => {
-          if (res?.status == 200) {
-            setCampaignWiseData(
-              res.data.affiliates,
-              res.data.couponCodes,
-              res.data.dialedPhones
-            );
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
     } else {
       setCampaign();
-      setCampaignWiseData([], [], []);
     }
   };
-
   const customerHandleChange = (val, key) => {
     if (val) {
       const customer_ids = val.split(",");
@@ -204,6 +187,28 @@ const EcommerceReport = () => {
       setCustomer();
     }
   };
+
+  useEffect(() => {
+    if (typeof campaign?.campaign_id === 'undefined' && typeof customer?.customer_id === 'undefined') {
+      setSelectionWiseData([], [], []);
+      return
+    }
+
+    axios
+      .post(route("ecommerce.report.selectionWiseData"), { campaign_ids: campaign?.campaign_id, customer_ids: customer?.customer_id })
+      .then((res) => {
+        if (res?.status == 200) {
+          setSelectionWiseData(
+            res.data.affiliates,
+            res.data.couponCodes,
+            res.data.dialedPhones
+          );
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [campaign?.campaign_id, customer?.customer_id]);
 
   const affiliateHandleChange = (val, key) => {
     if (val) {

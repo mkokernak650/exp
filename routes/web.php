@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceReport'])->name('ecommerce.report');
     Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceReportGenerate'])->name('ecommerce.report.generate');
-    Route::post('reports/getCampaignWiseData', [EcommerceReportController::class, 'campaignWiseData'])->name('ecommerce.report.campaignWiseData');
+    Route::post('reports/getSelectionWiseData', [EcommerceReportController::class, 'selectionWiseData'])->name('ecommerce.report.selectionWiseData');
 
     // E-commerce campaign
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');
