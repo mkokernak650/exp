@@ -405,27 +405,15 @@ const EcommerceReport = () => {
     return format_date;
   };
 
-  const fileName = `E-Commerce_${
-    reportFor.reportFor === "sales" ? "Sales" : "Market_Target"
-  }_Report${
-    values.customer_id ? `_For_Customers(${getCustomerNames().toString()})` : ""
-  }${values?.states ? `_For_States(${values.states.toString()})` : ""}${
-    values?.markets ? `_For_Markets(${values.markets.toString()})` : ""
+  const fileName = `${
+    reportType.type === "customer"
+    ? (values?.customer_id ? `For_(${getCustomerNames().toString()})` : "")
+    : (values?.affiliate_id.length ? `For_(${getAffiliateNames().toString()})` : "")
   }${
-    values?.campaign_id
-      ? `_For_Campaigns(${getCampaignNames().toString()})`
-      : ""
+    values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ""
   }${
-    values?.affiliate_id
-      ? `_For_Affiliates(${getAffiliateNames().toString()})`
-      : ""
-  }${year?.year ? `_For_Years(${year.year.toString()})` : ""}${
-    values?.start_date
-      ? `_For_(${values.start_date.toString()}_To_${dateFormat(
-          values?.end_date
-        )})`
-      : ""
-  }_Created@${currentDate()}`;
+    values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""
+  }`;
   values.file_name = fileName;
 
   const handleSubmit = () => {
@@ -740,4 +728,7 @@ const EcommerceReport = () => {
   );
 };
 
+EcommerceReport.layout = (page) => (
+  <Layout title="E-commerce Report">{page}</Layout>
+);
 export default EcommerceReport;
