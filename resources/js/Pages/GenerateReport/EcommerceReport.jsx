@@ -244,10 +244,13 @@ const EcommerceReport = () => {
   }, [campaign?.campaign_id, customer?.customer_id]);
 
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val ? val.split(",") : [];
+    let affiliate_ids = val ? val.split(",") : [];
+    if (affiliate_ids.includes('allAffiliates')) {
+      affiliate_ids = ['allAffiliates'];
+    }
     const emails = [];
     Object.values(affiliateList).map((item) => {
-      if (affiliate_ids.includes(item.value)) {
+      if (affiliate_ids.includes('allAffiliates') || affiliate_ids.includes(item.value)) {
         emails.push(item.email);
       }
     });
@@ -552,7 +555,7 @@ const EcommerceReport = () => {
                 name="affiliate_id"
                 defaultValue={affiliate?.affiliate_id}
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
-                options={affiliateList}
+                options={[{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]}
                 style={{ width: "100%" }}
                 placeholder="Select Affiliates"
               />

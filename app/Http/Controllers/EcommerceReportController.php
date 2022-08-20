@@ -124,7 +124,7 @@ class EcommerceReportController extends Controller
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
             ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
             ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
-            ->when(!empty($request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $request->affiliate_id))
+            ->when(!empty($request->affiliate_id) && !in_array('allAffiliates', $request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $request->affiliate_id))
             ->when(!empty($states) && !in_array('allStates', $states), fn ($q) => $q->whereIn('zipcode_by_television_markets.state', $states))
             ->when(!empty($markets) && !in_array('allMarkets', $markets), fn ($q) => $q->whereIn('zipcode_by_television_markets.market', $markets))
             ->when(!empty($couponCodes) && empty($dialed), fn ($q) => $q->whereIn('ecommerce_sales.coupon_code', $couponCodes))
