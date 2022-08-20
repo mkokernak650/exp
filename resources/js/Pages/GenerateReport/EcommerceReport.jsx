@@ -57,6 +57,7 @@ const EcommerceReport = () => {
   const [dialedPhoneList, setDialedPhoneList] = useState([]);
   const [monthByYear, setMonthByYear] = useState(broadCastMonths);
   const [affiliate, setAffiliate] = useState();
+  const [affiliatesEmail, setAffiliatesEmail] = useState([]);
   const [month, setMonth] = useState("");
   const [year, setYear] = useState([]);
   const [week, setWeek] = useState("");
@@ -115,7 +116,8 @@ const EcommerceReport = () => {
   const setSelectionWiseData = (affiliates, couponCodes, dialedPhones) => {
     const affiliateOptions = Object.values(affiliates)?.map((item) => ({
       label: item?.[1],
-      value: item?.[0],
+      value: item?.[0].toString(),
+      email: item?.[2],
     }));
     const couponOptions = Object.values(couponCodes)?.map((item) => ({
       label: item,
@@ -129,6 +131,31 @@ const EcommerceReport = () => {
     setAffiliateList(affiliateOptions || []);
     setCouponCodeList(couponOptions || []);
     setDialedPhoneList(dialedOptions || []);
+
+    //dynamically set the selected values depending on the customer and campaign
+    const filteredAffiliates = affiliateOptions
+      .filter((item) => {
+        return affiliate?.affiliate_id?.includes(item.value);
+      })
+      .map((item) => item.value)
+      .join(",");
+    affiliateHandleChange(filteredAffiliates, "affiliate_id");
+
+    setCouponCode({
+      couponCodes: couponOptions
+        .filter((item) => {
+          return values?.couponCodes?.includes(item.value);
+        })
+        .map((item) => item.value),
+    });
+
+    setDialed({
+      dialed: dialedOptions
+        .filter((item) => {
+          return values?.dialed?.includes(item.value);
+        })
+        .map((item) => item.value),
+    });
   };
 
   const getCampaignNames = () => {
@@ -145,14 +172,11 @@ const EcommerceReport = () => {
   };
   const getAffiliateNames = () => {
     const affiliateNames = [];
-    if (values?.affiliate_id.length) {
-      for (let i = 0; i < values.affiliate_id.length; i++) {
-        const affiliate = affiliates.find(
-          (affiliate) => affiliate.id == values.affiliate_id[i]
-        );
-        affiliateNames.push(affiliate ? affiliate.affiliate_name : "");
+    Object.values(affiliateList).map((item) => {
+      if (values.affiliate_id.includes(item.value)) {
+        affiliateNames.push(item.label);
       }
-    }
+    });
     return affiliateNames;
   };
   const getCustomerNames = () => {
@@ -194,6 +218,9 @@ const EcommerceReport = () => {
       typeof customer?.customer_id === "undefined"
     ) {
       setSelectionWiseData([], [], []);
+      setAffiliate({ affiliate_id: [] });
+      setCouponCode({ couponCodes: [] });
+      setDialed({ dialed: [] });
       return;
     }
 
@@ -217,12 +244,15 @@ const EcommerceReport = () => {
   }, [campaign?.campaign_id, customer?.customer_id]);
 
   const affiliateHandleChange = (val, key) => {
-    if (val) {
-      const affiliate_ids = val.split(",");
-      setAffiliate({ [key]: affiliate_ids });
-    } else {
-      setAffiliate();
-    }
+    const affiliate_ids = val ? val.split(",") : [];
+    const emails = [];
+    Object.values(affiliateList).map((item) => {
+      if (affiliate_ids.includes(item.value)) {
+        emails.push(item.email);
+      }
+    });
+    setAffiliatesEmail([...emails]);
+    setAffiliate({ [key]: affiliate_ids });
   };
 
   const monthHandleChange = (e) => {
@@ -347,19 +377,6 @@ const EcommerceReport = () => {
     ...ecommerceReportType,
   };
 
-  let affiliatesEmail = [];
-  if (values?.affiliate_id) {
-    affiliates.filter((item) => {
-      let i = 0;
-      for (i; i < values.affiliate_id.length; i++) {
-        if (item.id == values.affiliate_id[i]) {
-          if (item.email) {
-            affiliatesEmail.push(item.email);
-          }
-        }
-      }
-    });
-  }
   let customerEmails = [];
   if (values?.customer_id) {
     customers.filter((item) => {
@@ -373,7 +390,7 @@ const EcommerceReport = () => {
       }
     });
   }
-  const mergeEmail = [...customerEmails, ...affiliatesEmail];
+  const mergeEmail = [...customerEmails];
   if (mergeEmail.length) {
     values.emails = mergeEmail;
   }
@@ -426,7 +443,7 @@ const EcommerceReport = () => {
     }
     setLoading(true);
     axios
-      .post(route("ecommerce.report.generate"), values)
+      .post(route("ecommerce.report.generate"), { ...values, affiliatesEmail })
       .then((r) => {
         setLoading(false);
         if (r?.status === 204) {
@@ -436,6 +453,8 @@ const EcommerceReport = () => {
           setLoading(false);
           if (ecommerceReportType.report_type === "export-report") {
             exportReportEcommerce(r.data, fileName, reportFor);
+          } else {
+            toast.success(r?.data?.message);
           }
         }
       })
@@ -543,6 +562,7 @@ const EcommerceReport = () => {
             <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="affiliate_id"
+                defaultValue={affiliate?.affiliate_id}
                 onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
                 options={affiliateList}
                 style={{ width: "100%" }}
@@ -553,6 +573,7 @@ const EcommerceReport = () => {
               <Grid item xs={12} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="couponCodes"
+                  defaultValue={couponCode?.couponCodes}
                   onChange={(val) => couponCodeHandleChange(val, "couponCodes")}
                   options={couponCodeList}
                   style={{ width: "100%" }}
@@ -564,6 +585,7 @@ const EcommerceReport = () => {
               <Grid item xs={12} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="dialed"
+                  defaultValue={dialed?.dialed}
                   onChange={(val) => dialedHandleChange(val, "dialed")}
                   options={dialedPhoneList}
                   style={{ width: "100%" }}
@@ -718,7 +740,4 @@ const EcommerceReport = () => {
   );
 };
 
-EcommerceReport.layout = (page) => (
-  <Layout title="E-commerce Report">{page}</Layout>
-);
 export default EcommerceReport;
