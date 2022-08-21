@@ -49,20 +49,24 @@ class EcommerceReportController extends Controller
     {
         $salesData = $this->queryReport($request);
 
-        if ($salesData->count() < 1) {
-            return response()->json([], 204);
-        }
-
         if ($request->reportFor === 'marketTarget') {
             $salesData->transform(function ($item) {
-                $item->{'TV Households'} = $item->{'TV Households'} ? number_format($item->{'TV Households'}, 0, '.', ',') : null;
-                $item->{'Homes Per Sales'} = $item->{'Homes Per Sales'} ? number_format($item->{'Homes Per Sales'}, 0, '.', ',') : null;
+                if (isset($item->{'TV Households'})) {
+                    $item->{'TV Households'} = number_format($item->{'TV Households'}, 0, '.', ',');
+                }
+                if (isset($item->{'Homes Per Sales'})) {
+                    $item->{'Homes Per Sales'} = number_format($item->{'Homes Per Sales'}, 0, '.', ',');
+                }
                 return $item;
             });
         }
 
-        $columns = ['Date', 'Affiliate Name', 'Coupon Code', 'Dialed', 'State', 'City', 'Zip Code', 'Market', 'TV Market Households', 'Total Quantity', 'Total Amount', 'Total Fee', 'Net Amount'];
         $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
+
+        if (isset($request->start_date) && isset($request->end_date)) {
+            $summary['From'] = $request->start_date;
+            $summary['To'] = $request->end_date;
+        }
 
         if ($request->report_type === 'email-report') {
             $request->emails = array_merge($request->affiliatesEmail ?? [], $request->emails ?? []);
@@ -70,18 +74,10 @@ class EcommerceReportController extends Controller
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
-            $newSummary['Summary'] = '   ';
-            $newSummary['Total Order'] = $summary['Total Order'];
-            $newSummary['Total Quantity'] = $summary['Total Quantity'];
-            $newSummary['Total Amount'] = $summary['Total Amount'];
-            $newSummary['Total Fee'] = $summary['Total Fee'];
-            $newSummary['Net Amount'] = $summary['Net Amount'];
+            $newSummary = ['Summary' => ''] + $summary;
+
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->sendMail($salesData, $newSummary, [], $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->sendMail($salesData, $newSummary, [], $request->file_name, $request->emails);
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
 

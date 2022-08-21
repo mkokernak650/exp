@@ -15,14 +15,14 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
     protected $headings;
     protected $callSummary;
     protected $tagData;
-    public function __construct($data, $callSummary, $tagData, $columns)
-    {
-        $this->sheetData = $data;
-        $this->headings = $columns;
-        $this->callSummary=$callSummary;
-        $this->tagData=$tagData;
-    }
 
+    public function __construct($data, $callSummary, $tagData)
+    {
+        $this->headings = isset($data[0]) ? array_keys((array)$data[0]) : [];
+        $this->sheetData = $data;
+        $this->callSummary = $callSummary;
+        $this->tagData = $tagData;
+    }
 
     public function collection()
     {
@@ -34,24 +34,31 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
         return $this->headings;
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
+        if (count($this->headings) < 1) {
+            return [];
+        }
+
         return [
-            1    => ['font' => ['bold' => true,'size' => 12]],
+            1 => ['font' => ['bold' => true, 'size' => 12]],
         ];
     }
 
     public function registerEvents(): array
     {
-        return[ AfterSheet::class => function (AfterSheet $event) {
-            foreach ($this->callSummary as $key=>$value) {
-                $event->sheet->appendRows(array(array(
-                    $key,$value
-                )), $event);
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                for ($i = 0; $i < 3; $i++) {
+                    $event->sheet->appendRows([[' ', ' ']], $event);
+                }
+
+                foreach ($this->callSummary as $key => $value) {
+                    $event->sheet->appendRows([[$key, (string)$value]], $event);
+                }
+
+                $event->sheet->getDelegate();
             }
-     
-            $event->sheet->getDelegate();
-        }
-    ];
+        ];
     }
 }

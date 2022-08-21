@@ -16,7 +16,6 @@ import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import { currentDate } from "../../Helpers/CurrentDate";
 import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
 import toast from "react-hot-toast";
@@ -349,6 +348,10 @@ const EcommerceReport = () => {
   const reportForHandleChange = (e) => {
     const { name, value } = e.target;
     setReportFor({ [name]: value });
+
+    if (value !== 'sales') {
+      setEcommerceReportType({ 'report_type': 'export-report' });
+    }
   };
 
   const orderTypeHandleChange = (val) => {
@@ -408,15 +411,11 @@ const EcommerceReport = () => {
     return format_date;
   };
 
-  const fileName = `${
-    reportType.type === "customer"
+  const fileName = `${reportType.type === "customer"
     ? (values?.customer_id ? `For_(${getCustomerNames().toString()})` : "")
     : (values?.affiliate_id.length ? `For_(${getAffiliateNames().toString()})` : "")
-  }${
-    values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ""
-  }${
-    values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""
-  }`;
+    }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ""
+    }${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}`;
   values.file_name = fileName;
 
   const handleSubmit = () => {
