@@ -411,9 +411,9 @@ const EcommerceReport = () => {
     return format_date;
   };
 
-  const fileName = `${reportType.type === "customer"
-    ? (values?.customer_id ? `For_(${getCustomerNames().toString()})` : "")
-    : (values?.affiliate_id.length ? `For_(${getAffiliateNames().toString()})` : "")
+  const fileName = `Report${reportType.type === "customer"
+    ? (values?.customer_id ? `_For_(${getCustomerNames().toString()})` : "")
+    : (values?.affiliate_id.length ? `_For_(${getAffiliateNames().toString()})` : "")
     }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ""
     }${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}`;
   values.file_name = fileName;
@@ -484,6 +484,11 @@ const EcommerceReport = () => {
                   value="marketTarget"
                   control={<Radio color="primary" />}
                   label="Market Target"
+                />
+                <FormControlLabel
+                  value="summary"
+                  control={<Radio color="primary" />}
+                  label="Summary"
                 />
               </RadioGroup>
             </Grid>

@@ -61,11 +61,18 @@ class EcommerceReportController extends Controller
             });
         }
 
-        $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
+        $summary = [];
+        if ($request->reportFor !== 'summary') {
+            $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
 
-        if (isset($request->start_date) && isset($request->end_date)) {
-            $summary['From'] = $request->start_date;
-            $summary['To'] = $request->end_date;
+            if ($request->report_type === 'email-report') {
+                $summary = ['Summary' => ''] + $summary;
+            }
+
+            if (isset($request->start_date) && isset($request->end_date)) {
+                $summary['From'] = $request->start_date;
+                $summary['To'] = $request->end_date;
+            }
         }
 
         if ($request->report_type === 'email-report') {
@@ -74,10 +81,9 @@ class EcommerceReportController extends Controller
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
-            $newSummary = ['Summary' => ''] + $summary;
-
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->sendMail($salesData, $newSummary, [], $request->file_name, $request->emails);
+            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $request->emails);
+
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
 
@@ -162,9 +168,30 @@ class EcommerceReportController extends Controller
                     ->select($this->selectColumnMarketTargetReport())
                     ->orderBy('zipcode_by_television_markets.market')
             )
+            ->when(
+                $reportFor === 'summary',
+                fn ($q) => $q
+                    ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
+                    ->select($this->selectColumnSummaryReport())
+                    ->orderBy('ecommerce_sales.dialed')
+                    ->orderBy('ecommerce_sales.coupon_code')
+            )
             ->get();
 
         return $queryData;
+    }
+
+    protected function selectColumnSummaryReport()
+    {
+        return [
+            'affiliates.affiliate_name AS Affiliate Name',
+            'ecommerce_sales.coupon_code AS Coupon Code',
+            'ecommerce_sales.dialed AS Dialed',
+            DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+            DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+            DB::raw('ROUND(ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity), 2) AS `Total Fee`'),
+            DB::raw('ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) AS `Net Amount`'),
+        ];
     }
 
     protected function selectColumnMarketTargetReport()
@@ -173,8 +200,8 @@ class EcommerceReportController extends Controller
             'zipcode_by_television_markets.market AS Market',
             't_v_households.tv_households AS TV Households',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-            DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity)) AS `Homes Per Sales`'),
-            DB::raw('ROUND(SUM(ecommerce_sales.total)) AS `Total Revenue`'),
+            DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
+            DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
         ];
     }
 
@@ -212,14 +239,14 @@ class EcommerceReportController extends Controller
             't_v_households.tv_households AS TV Market Households',
             'ecommerce_sales.quantity AS Total Quantity',
             'ecommerce_sales.total AS Total Amount',
-            DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity) AS `' . $alias . '`'),
+            DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) AS `' . $alias . '`'),
         ];
 
         $selectRows = $this->addColumnToArray($selectRows, $orderType, 2);
 
         if ($type === 'customer') {
             return array_merge($selectRows, [
-                DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity)) AS `Net Amount`'),
+                DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
             ]);
         }
         return $selectRows;

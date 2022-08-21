@@ -196,7 +196,7 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "coupon_code",
+      field: "campaign",
       operator: "isNotEmpty",
     },
   ],
