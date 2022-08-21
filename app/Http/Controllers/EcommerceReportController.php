@@ -61,18 +61,10 @@ class EcommerceReportController extends Controller
             });
         }
 
-        $summary = [];
-        if ($request->reportFor !== 'summary') {
-            $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
-
-            if ($request->report_type === 'email-report') {
-                $summary = ['Summary' => ''] + $summary;
-            }
-
-            if (isset($request->start_date) && isset($request->end_date)) {
-                $summary['From'] = $request->start_date;
-                $summary['To'] = $request->end_date;
-            }
+        $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
+        if (isset($request->start_date) && isset($request->end_date)) {
+            $summary['From'] = $request->start_date;
+            $summary['To'] = $request->end_date;
         }
 
         if ($request->report_type === 'email-report') {
@@ -81,6 +73,7 @@ class EcommerceReportController extends Controller
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
+            $summary = ['Summary' => ''] + $summary;
             $sendMailCtrl = new SendMailController();
             $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $request->emails);
 
@@ -255,7 +248,18 @@ class EcommerceReportController extends Controller
     protected function getReportSummary($reportFor, $type, $salesData)
     {
         $totalOrder = $salesData->count();
-        $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Affiliate Fee' => 0, 'Net Amount' => 0];
+        $summary = [
+            'Total Order'              => 0,
+            'Total Quantity'           => 0,
+            'Total Amount'             => 0,
+            'Total Fee'                => 0,
+            'Affiliate Fee'            => 0,
+            'Net Amount'               => 0,
+            'Total Coupon Sales'       => 0,
+            'Total Coupon Sales Count' => 0,
+            'Total Phone Sales'        => 0,
+            'Total Phone Sales Count'  => 0,
+        ];
 
         $salesData->each(function ($item) use (&$summary, $type, $totalOrder, $reportFor) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
@@ -267,14 +271,26 @@ class EcommerceReportController extends Controller
                 if ($type === 'customer') {
                     $summary['Net Amount'] += $item->{'Net Amount'};
                     $summary['Total Fee'] += $item->{'Total Fee'};
-                    unset($summary['Affiliate Fee']);
+                    unset($summary['Affiliate Fee'], $summary['Total Coupon Sales'], $summary['Total Coupon Sales Count'], $summary['Total Phone Sales'], $summary['Total Phone Sales Count']);
                 } else {
                     $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
-                    unset($summary['Total Fee'], $summary['Net Amount']);
+                    unset($summary['Total Fee'], $summary['Net Amount'], $summary['Total Coupon Sales'], $summary['Total Coupon Sales Count'], $summary['Total Phone Sales'], $summary['Total Phone Sales Count']);
                 }
             } elseif ($reportFor === 'marketTarget') {
                 $summary['Total Amount'] += $item->{'Total Revenue'};
-                unset($summary['Total Fee'], $summary['Affiliate Fee'], $summary['Net Amount'], $summary['Total Order']);
+                unset($summary['Total Fee'], $summary['Affiliate Fee'], $summary['Net Amount'], $summary['Total Order'], $summary['Total Coupon Sales'], $summary['Total Coupon Sales Count'], $summary['Total Phone Sales'], $summary['Total Phone Sales Count']);
+            } elseif ($reportFor === 'summary') {
+                if (!empty($item->{'Coupon Code'})) {
+                    $summary['Total Coupon Sales'] += $item->{'Total Amount'};
+                    $summary['Total Coupon Sales Count'] += $item->{'Total Quantity'};
+                }
+                if (!empty($item->{'Dialed'})) {
+                    $summary['Total Phone Sales'] += $item->{'Total Amount'};
+                    $summary['Total Phone Sales Count'] += $item->{'Total Quantity'};
+                }
+                $summary['Net Amount'] += $item->{'Net Amount'};
+
+                unset($summary['Total Order'], $summary['Total Amount'], $summary['Total Fee'], $summary['Affiliate Fee'], $summary['Total Order']);
             }
         });
 

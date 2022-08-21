@@ -49,9 +49,7 @@ export const exportReportEcommerce = (apiData, fileName, reportFor) => {
     const ws = XLSX.utils.json_to_sheet(apiData.data, fileName);
     const secondData = apiData.data.length + 5;
     const summary = [];
-    if (reportFor.reportFor !== "summary") {
-        summary.push(["Summary", ""]);
-    }
+    summary.push(["Summary", ""]);
     Object.keys(apiData.summary).forEach((cf) => {
         summary.push([cf, apiData.summary[cf]]);
     });
