@@ -127,18 +127,23 @@ const EcommerceReport = () => {
       value: item,
     }));
 
-    setAffiliateList(affiliateOptions || []);
-    setCouponCodeList(couponOptions || []);
-    setDialedPhoneList(dialedOptions || []);
+    setAffiliateList([...affiliateOptions]);
+    setCouponCodeList([...couponOptions]);
+    setDialedPhoneList([...dialedOptions]);
 
     //dynamically set the selected values depending on the customer and campaign
-    const filteredAffiliates = affiliateOptions
-      .filter((item) => {
-        return affiliate?.affiliate_id?.includes(item.value);
-      })
-      .map((item) => item.value)
-      .join(",");
-    affiliateHandleChange(filteredAffiliates, "affiliate_id");
+    let filteredAffiliates = []
+    if (affiliate?.affiliate_id.includes("allAffiliates")) {
+      filteredAffiliates = "allAffiliates"
+    } else {
+      filteredAffiliates = affiliateOptions
+        .filter((item) => {
+          return affiliate?.affiliate_id?.includes(item.value);
+        })
+        .map((item) => item.value)
+        .join(",");
+    }
+    affiliateHandleChange(filteredAffiliates, "affiliate_id", affiliateOptions);
 
     setCouponCode({
       couponCodes: couponOptions
@@ -242,17 +247,21 @@ const EcommerceReport = () => {
       });
   }, [campaign?.campaign_id, customer?.customer_id]);
 
-  const affiliateHandleChange = (val, key) => {
+  const affiliateHandleChange = (val, key, affiliateOptions = false) => {
     let affiliate_ids = val ? val.split(",") : [];
     if (affiliate_ids.includes('allAffiliates')) {
       affiliate_ids = ['allAffiliates'];
     }
+
+    const affiliateOptionsList = affiliateOptions || affiliateList;
+
     const emails = [];
-    Object.values(affiliateList).map((item) => {
+    Object.values(affiliateOptionsList).map((item) => {
       if (affiliate_ids.includes('allAffiliates') || affiliate_ids.includes(item.value)) {
         emails.push(item.email);
       }
     });
+
     setAffiliatesEmail([...emails]);
     setAffiliate({ [key]: affiliate_ids });
   };
