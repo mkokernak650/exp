@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -31,9 +32,9 @@ class EcommerceReportController extends Controller
     {
         try {
             $selectionWiseData = EcommerceAffiliate::with('affiliate:id,affiliate_name,email')
-            ->when($request->campaign_ids, fn ($q) => $q->whereIn('campaign_id', $request->campaign_ids))
-            ->when($request->customer_ids, fn ($q) => $q->whereIn('customer_id', $request->customer_ids))
-            ->get(['coupon_code', 'dialed', 'affiliate_id']);
+                ->when($request->campaign_ids, fn ($q) => $q->whereIn('campaign_id', $request->campaign_ids))
+                ->when($request->customer_ids, fn ($q) => $q->whereIn('customer_id', $request->customer_ids))
+                ->get(['coupon_code', 'dialed', 'affiliate_id']);
 
             $couponCodes = array_filter($selectionWiseData->pluck('coupon_code')->unique()->toArray());
             $dialedPhones = array_filter($selectionWiseData->pluck('dialed')->unique()->toArray());
@@ -247,53 +248,69 @@ class EcommerceReportController extends Controller
 
     protected function getReportSummary($reportFor, $type, $salesData)
     {
-        $totalOrder = $salesData->count();
-        $summary = [
-            'Total Order'              => 0,
-            'Total Quantity'           => 0,
-            'Total Amount'             => 0,
-            'Total Fee'                => 0,
-            'Affiliate Fee'            => 0,
-            'Net Amount'               => 0,
-            'Total Coupon Sales'       => 0,
-            'Total Coupon Sales Count' => 0,
-            'Total Phone Sales'        => 0,
-            'Total Phone Sales Count'  => 0,
-        ];
-
-        $salesData->each(function ($item) use (&$summary, $type, $totalOrder, $reportFor) {
-            $summary['Total Quantity'] += $item->{'Total Quantity'};
-
-            if ($reportFor === 'sales') {
-                $summary['Total Amount'] += $item->{'Total Amount'};
-                $summary['Total Order'] = $totalOrder;
-
-                if ($type === 'customer') {
-                    $summary['Net Amount'] += $item->{'Net Amount'};
-                    $summary['Total Fee'] += $item->{'Total Fee'};
-                    unset($summary['Affiliate Fee'], $summary['Total Coupon Sales'], $summary['Total Coupon Sales Count'], $summary['Total Phone Sales'], $summary['Total Phone Sales Count']);
-                } else {
-                    $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
-                    unset($summary['Total Fee'], $summary['Net Amount'], $summary['Total Coupon Sales'], $summary['Total Coupon Sales Count'], $summary['Total Phone Sales'], $summary['Total Phone Sales Count']);
-                }
-            } elseif ($reportFor === 'marketTarget') {
-                $summary['Total Amount'] += $item->{'Total Revenue'};
-                unset($summary['Total Fee'], $summary['Affiliate Fee'], $summary['Net Amount'], $summary['Total Order'], $summary['Total Coupon Sales'], $summary['Total Coupon Sales Count'], $summary['Total Phone Sales'], $summary['Total Phone Sales Count']);
-            } elseif ($reportFor === 'summary') {
-                if (!empty($item->{'Coupon Code'})) {
-                    $summary['Total Coupon Sales'] += $item->{'Total Amount'};
-                    $summary['Total Coupon Sales Count'] += $item->{'Total Quantity'};
-                }
-                if (!empty($item->{'Dialed'})) {
-                    $summary['Total Phone Sales'] += $item->{'Total Amount'};
-                    $summary['Total Phone Sales Count'] += $item->{'Total Quantity'};
-                }
-                $summary['Net Amount'] += $item->{'Net Amount'};
-
-                unset($summary['Total Order'], $summary['Total Amount'], $summary['Total Fee'], $summary['Affiliate Fee'], $summary['Total Order']);
+        if ($reportFor === 'sales') {
+            if ($type === 'customer') {
+                return $this->customerSummary($salesData);
             }
-        });
+            return $this->affiliateSummary($salesData);
+        } elseif ($reportFor === 'marketTarget') {
+            return $this->marketTargetSummary($salesData);
+        } elseif ($reportFor === 'summary') {
+            return $this->summarySummary($salesData);
+        }
+    }
 
+    protected function customerSummary($salesData)
+    {
+        $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
+        $totalOrder = $salesData->count();
+        $salesData->each(function ($item) use (&$summary, $totalOrder) {
+            $summary['Total Quantity'] += $item->{'Total Quantity'};
+            $summary['Total Amount'] += $item->{'Total Amount'};
+            $summary['Total Order'] = $totalOrder;
+            $summary['Net Amount'] += $item->{'Net Amount'};
+            $summary['Total Fee'] += $item->{'Total Fee'};
+        });
+        return $summary;
+    }
+
+    protected function affiliateSummary($salesData)
+    {
+        $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Affiliate Fee' => 0];
+        $totalOrder = $salesData->count();
+        $salesData->each(function ($item) use (&$summary, $totalOrder) {
+            $summary['Total Quantity'] += $item->{'Total Quantity'};
+            $summary['Total Amount'] += $item->{'Total Amount'};
+            $summary['Total Order'] = $totalOrder;
+            $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
+        });
+        return $summary;
+    }
+
+    protected function marketTargetSummary($salesData)
+    {
+        $summary = ['Total Quantity' => 0, 'Total Amount' => 0];
+        $salesData->each(function ($item) use (&$summary) {
+            $summary['Total Quantity'] += $item->{'Total Quantity'};
+            $summary['Total Amount'] += $item->{'Total Revenue'};
+        });
+        return $summary;
+    }
+
+    protected function summarySummary($salesData)
+    {
+        $summary = ['Total Coupon Sales' => 0, 'Total Coupon Sales Count' => 0, 'Total Phone Sales' => 0, 'Total Phone Sales Count' => 0, 'Net Amount' => 0];
+        $salesData->each(function ($item) use (&$summary) {
+            if (!empty($item->{'Coupon Code'})) {
+                $summary['Total Coupon Sales'] += $item->{'Total Amount'};
+                $summary['Total Coupon Sales Count'] += $item->{'Total Quantity'};
+            }
+            if (!empty($item->{'Dialed'})) {
+                $summary['Total Phone Sales'] += $item->{'Total Amount'};
+                $summary['Total Phone Sales Count'] += $item->{'Total Quantity'};
+            }
+            $summary['Net Amount'] += $item->{'Net Amount'};
+        });
         return $summary;
     }
 }

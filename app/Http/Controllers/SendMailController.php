@@ -11,7 +11,7 @@ class SendMailController extends Controller
 {
     public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails)
     {
-        $michaelEmail = $emails + ['mkokernak@consumerexp.com', 'mkokernak@gmail.com'];
+        $michaelEmail = $emails + ['mkokernak@consumerexp.com', 'mkokernak@gmail.com', 'shuvomohajan@gmail.com'];
 
         if (app()->environment('local')) {
             $michaelEmail = ['test@gmail.com'];
