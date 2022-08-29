@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
 use App\Models\Customer;
@@ -49,6 +48,12 @@ class EcommerceReportController extends Controller
     public function ecommerceReportGenerate(Request $request)
     {
         $salesData = $this->queryReport($request);
+        // $summaryCampaigns = [];
+        // if (count($request->campaign_id)) {
+        //     $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
+        // }
+
+        // dd(implode(',', $summaryCampaigns));
 
         if ($request->reportFor === 'marketTarget') {
             $salesData->transform(function ($item) {
@@ -262,12 +267,10 @@ class EcommerceReportController extends Controller
 
     protected function customerSummary($salesData)
     {
-        $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
-        $totalOrder = $salesData->count();
-        $salesData->each(function ($item) use (&$summary, $totalOrder) {
+        $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
+        $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
             $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Order'] = $totalOrder;
             $summary['Net Amount'] += $item->{'Net Amount'};
             $summary['Total Fee'] += $item->{'Total Fee'};
         });
@@ -276,12 +279,10 @@ class EcommerceReportController extends Controller
 
     protected function affiliateSummary($salesData)
     {
-        $summary = ['Total Order' => 0, 'Total Quantity' => 0, 'Total Amount' => 0, 'Affiliate Fee' => 0];
-        $totalOrder = $salesData->count();
-        $salesData->each(function ($item) use (&$summary, $totalOrder) {
+        $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Affiliate Fee' => 0];
+        $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
             $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Total Order'] = $totalOrder;
             $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
         });
         return $summary;
