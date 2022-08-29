@@ -48,12 +48,10 @@ class EcommerceReportController extends Controller
     public function ecommerceReportGenerate(Request $request)
     {
         $salesData = $this->queryReport($request);
-        // $summaryCampaigns = [];
-        // if (count($request->campaign_id)) {
-        //     $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
-        // }
-
-        // dd(implode(',', $summaryCampaigns));
+        $summaryCampaigns = [];
+        if (isset($request->campaign_id)) {
+            $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
+        }
 
         if ($request->reportFor === 'marketTarget') {
             $salesData->transform(function ($item) {
@@ -68,6 +66,11 @@ class EcommerceReportController extends Controller
         }
 
         $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
+        if (isset($request->campaign_id)) {
+            $summary = array_reverse($summary);
+            $summary['Campaigns'] = implode(', ', $summaryCampaigns);
+            $summary = array_reverse($summary);
+        }
         if (isset($request->start_date) && isset($request->end_date)) {
             $summary['From'] = $request->start_date;
             $summary['To'] = $request->end_date;
@@ -85,10 +88,9 @@ class EcommerceReportController extends Controller
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
-
         return response()->json([
             'data'    => $salesData,
-            'summary' => $summary
+            'summary' => $summary,
         ], 200);
     }
 
