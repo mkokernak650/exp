@@ -68,7 +68,7 @@ class EcommerceReportController extends Controller
         $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
         if (isset($request->campaign_id)) {
             $summary = array_reverse($summary);
-            $summary['Campaigns'] = implode(', ', $summaryCampaigns);
+            $summary['Campaign Name'] = implode(', ', $summaryCampaigns);
             $summary = array_reverse($summary);
         }
         if (isset($request->start_date) && isset($request->end_date)) {
