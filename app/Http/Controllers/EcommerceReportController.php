@@ -77,7 +77,7 @@ class EcommerceReportController extends Controller
         }
 
         if ($request->report_type === 'email-report') {
-            $request->emails = array_merge($request->affiliatesEmail ?? [], $request->emails ?? []);
+            $request->emails = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
             if (empty($request->emails)) {
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
