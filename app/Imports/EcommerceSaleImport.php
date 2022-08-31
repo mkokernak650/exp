@@ -29,6 +29,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     protected $orderTypes;
     protected $alreadyExist;
     protected $salesCount;
+    protected $order_at;
 
     public function __construct(array $fieldMap, $salesData, $reqCampaignId, $reqCustomerId, $reqOrderType)
     {
@@ -45,6 +46,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         $this->shippingZip = $salesData->pluck('shipping_zip', 'id')->toArray();
         $this->campaignIds = $salesData->pluck('campaign_id', 'id')->toArray();
         $this->customerIds = $salesData->pluck('customer_id', 'id')->toArray();
+        $this->order_at = $salesData->pluck('order_at', 'id')->map(fn ($i) => "$i")->toArray();
     }
 
     public function getAlreadyExist()
@@ -68,11 +70,13 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             return;
         }
         $this->salesCount += 1;
-
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
         if (!empty($keys)) {
             foreach ($keys as $key) {
+                $order_date = array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date');
+
                 if (
+                    Carbon::parse($order_date)->format('Y-m-d H:i:s') == $this->order_at[$key] &&
                     $this->reqOrderType == $this->orderTypes[$key] &&
                     $this->reqCampaignId == $this->campaignIds[$key] &&
                     $this->reqCustomerId == $this->customerIds[$key] &&
@@ -86,6 +90,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
                             trim($this->getValue($row, 'coupon_code')) == $this->couponCodes[$key]
                         )
                     )
+
                 ) {
                     array_push($this->alreadyExist, $row);
                     return;

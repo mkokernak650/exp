@@ -1,7 +1,6 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Exports\AlreadyExistSalesExport;
 use App\Http\Requests\EcommerceSaleRequest;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -11,10 +10,8 @@ use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\Console\Input\Input;
 
 class EcommerceSaleController extends Controller
 {
@@ -112,7 +109,8 @@ class EcommerceSaleController extends Controller
             'order_no',
             'coupon_code',
             'dialed',
-            'shipping_zip'
+            'shipping_zip',
+            'order_at'
         )->get();
 
         $saleImport = new EcommerceSaleImport(
