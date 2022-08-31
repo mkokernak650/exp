@@ -1751,7 +1751,7 @@ const ZipcodeDatabase = () => {
     dispatch(showLoading());
     await axios
       .get(
-        "zipcode-data?page=" +
+        "telephone-and-zip-codes?page=" +
           data.page +
           "&itemPerPage=" +
           itemPerPage +

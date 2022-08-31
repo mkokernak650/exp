@@ -498,12 +498,12 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: "New Television By Market Report",
+          title: "TV Markets By Zip Codes",
           href: "zipcode.television.market",
           Icon: <UserIcon />,
         },
         {
-          title: "Zipcode Database",
+          title: "Telephone and Zip Codes",
           href: "zipcode.data",
           Icon: <UserIcon />,
         },

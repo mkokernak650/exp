@@ -135,11 +135,11 @@ Route::post('/pending', [PendingBillCallLogController::class, 'store'])->name('a
 Route::post('/pending-delete', [PendingBillCallLogController::class, 'delete'])->name('pending.delete');
 Route::post('/billed-call-log', [BilledCallLogController::class, 'store'])->name('store.bill.call.logs');
 
-Route::get('/zipcode-television-market', [ZipcodeByTelevisionMarketController::class, 'index'])->name('zipcode.television.market');
+Route::get('/tv-markets-by-zip-codes', [ZipcodeByTelevisionMarketController::class, 'index'])->name('zipcode.television.market');
 Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])->name('zipcode.television.market.import');
 Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])->name('zipcode.television.market.export');
 Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketController::class, 'delete'])->name('zipcode.television.market.delete');
-Route::get('/zipcode-data', [ZipcodeDataController::class, 'index'])->name('zipcode.data');
+Route::get('/telephone-and-zip-codes', [ZipcodeDataController::class, 'index'])->name('zipcode.data');
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])->name('zipcode.data.delete');

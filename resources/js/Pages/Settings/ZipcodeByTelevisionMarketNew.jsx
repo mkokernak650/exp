@@ -455,7 +455,7 @@ const ZipcodeByTelevisionMarketNew = () => {
     dispatch(showLoading())
     await axios
       .get(
-        "zipcode-television-market?page=" +
+        "tv-markets-by-zip-codes?page=" +
         data.page +
         "&itemPerPage=" +
         itemPerPage +
