@@ -69,8 +69,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         if (empty($this->getValue($row, 'coupon_code')) && empty($this->getValue($row, 'dialed'))) {
             return;
         }
+
         $this->salesCount += 1;
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
+
         if (!empty($keys)) {
             foreach ($keys as $key) {
                 $order_date = array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date');
@@ -110,7 +112,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'shipping_city'  => $this->getValue($row, 'shipping_city'),
             'shipping_state' => $this->getValue($row, 'shipping_state'),
             'shipping_zip'   => substr($this->getValue($row, 'shipping_zip'), 0, 5),
-            'billing_zip'    => $this->getValue($row, 'billing_zip'),
+            'billing_zip'    => substr($this->getValue($row, 'billing_zip'), 0, 5),
             'quantity'       => $this->getValue($row, 'quantity'),
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
