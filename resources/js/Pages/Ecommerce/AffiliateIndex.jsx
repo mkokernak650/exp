@@ -745,7 +745,7 @@ const AffiliateIndex = () => {
               >
                 Import
               </Button>
-              {/* <Button
+              <Button
                 variant="contained"
                 type="submit"
                 color="primary"
@@ -753,7 +753,7 @@ const AffiliateIndex = () => {
                 onClick={exportHandler}
               >
                 Export
-              </Button> */}
+              </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
