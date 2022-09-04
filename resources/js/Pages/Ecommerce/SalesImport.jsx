@@ -106,10 +106,15 @@ const SalesImport = () => {
   };
 
   const checkMappedFields = () => {
-    const checkedField = fieldMap
-      ? fieldMap.filter((item) => !item.applicationField || !item.reportField)
-      : [];
-    if (checkedField.length > 0) return false;
+    const checkedField = fieldMap?.filter(
+      (item) => !item.applicationField || !item.reportField
+    );
+
+    const shippingZipIndex = fieldMap?.findIndex(
+      (item) => item.applicationField === "shipping_zip"
+    );
+
+    if (checkedField.length > 0 || shippingZipIndex < 0) return false;
     return true;
   };
 
@@ -121,6 +126,11 @@ const SalesImport = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!checkMappedFields()) {
+      toast.error("Please map all fields");
+      return;
+    }
+
     setLoading(true);
     const formData = new FormData();
     formData.append("file", values.file);
@@ -167,7 +177,8 @@ const SalesImport = () => {
     <>
       <Helmet title="Import Sales Report" />
       <Note>
-        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong.
+        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will
+        be wrong.
       </Note>
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>

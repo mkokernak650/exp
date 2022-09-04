@@ -107,11 +107,12 @@ class EcommerceSaleController extends Controller
             'campaign_id',
             'customer_id',
             'order_type',
-            'order_no',
             'coupon_code',
             'dialed',
+            'inbound',
             'shipping_zip',
-            'order_at'
+            'total',
+            DB::raw("DATE_FORMAT(order_at, '%Y-%m-%d %H:%i:%s') as formatted_order_at")
         )->get();
 
         $saleImport = new EcommerceSaleImport(

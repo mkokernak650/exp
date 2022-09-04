@@ -19,46 +19,14 @@ class RingbaApiHelpers
 
     public function __construct()
     {
-        $ringbaAuthDetails = new RingbaAuthDetails();
-        if ($ringbaAuthDetails->get()->first()) {
-            // $apiResponse = $this->generateAccessToken();
-            // $accessToken = json_decode($apiResponse);
-
-            // $accountInfoApiResponse = $this->getAccountInfo($accessToken->access_token);
-            // $res = json_decode($accountInfoApiResponse);
-
-            // $ringbaAuthDetails->user_info = json_encode(['username' => $this->_username, 'password' => $this->_password]);
-            // $ringbaAuthDetails->auth_details = $apiResponse;
-            // $ringbaAuthDetails->account_details = json_encode($res->account[0]);
-            // $ringbaAuthDetails->save();
-            $data = $ringbaAuthDetails->first();
-            // $this->_auth_details = json_decode($data->auth_details);
-            $this->_account_details = json_decode($data->account_details);
-            $this->_apiToken = json_decode($data->api_token);
+        $ringbaAuthDetails = RingbaAuthDetails::first();
+        if ($ringbaAuthDetails) {
+            $this->_account_details = json_decode($ringbaAuthDetails->account_details);
+            $this->_apiToken = json_decode($ringbaAuthDetails->api_token);
         } else {
             return ['data not found'];
         }
     }
-
-    // for generate Ringba Access Token
-    // public function generateAccessToken()
-    // {
-    //   $apiEndpoint = $this->_apiEndpoint . '/token';
-
-    //   $client = new Client(['headers' => ['content-type' => "application/x-www-form-urlencoded; charset=UTF-8"]]);
-    //   try {
-    //     $apiResponse = $client->post($apiEndpoint, [
-    //       'form_params' => [
-    //         'grant_type'  => $this->_grantType,
-    //         'username'    => $this->_username,
-    //         'password'    => $this->_password
-    //       ]
-    //     ]);
-    //   } catch (RequestException $e) {
-    //     return (string) $e->getResponse()->getBody();
-    //   }
-    //   return $apiResponse->getBody()->getContents();
-    // }
 
     // for get request
     public function getRequest($method)
@@ -96,21 +64,21 @@ class RingbaApiHelpers
     public function getRingbaData($past = 2, $days = 2)
     {
         $params = [
-      'dateRange' => [
-        'past' => $past,
-        'days' => $days
-      ],
-      'timeSeries' => [
-        'timeGroup' => 'hour'
-      ],
-      'callLog' => [
-        'page' => 0,
-        'pageSize' => 10000,
-        'sort' => 'dtStamp',
-        'sortDirection' => 'desc'
-      ],
-      'timezoneId' => 'Eastern Standard Time'
-    ];
+            'dateRange' => [
+                'past' => $past,
+                'days' => $days
+            ],
+            'timeSeries' => [
+                'timeGroup' => 'hour'
+            ],
+            'callLog' => [
+                'page'          => 0,
+                'pageSize'      => 10000,
+                'sort'          => 'dtStamp',
+                'sortDirection' => 'desc'
+            ],
+            'timezoneId' => 'Eastern Standard Time'
+        ];
 
         $result = json_decode($this->postRequest('calllogs/date', $params));
 
@@ -124,15 +92,15 @@ class RingbaApiHelpers
                 $ringbaData->tags = json_encode($data->tags);
                 $ringbaData->save();
             }
-            $response  = [
-        'status' => 200,
-        'msg' => 'Data Fetch Successfully'
-      ];
+            $response = [
+                'status' => 200,
+                'msg'    => 'Data Fetch Successfully'
+            ];
         } else {
-            $response  = [
-        'status' => 400,
-        'msg' => 'Server Error!'
-      ];
+            $response = [
+                'status' => 400,
+                'msg'    => 'Server Error!'
+            ];
         }
         return $response;
     }
@@ -145,33 +113,31 @@ class RingbaApiHelpers
     private function getDataById($inboundId)
     {
         $params = [
-      'dateRange' => [
-        'past' => 10000,
-        'days' => 10001
-      ],
-      'timeSeries' => [
-        'timeGroup' => 'hour'
-      ],
-      'callLog' => [
-        'page' => 0,
-        'pageSize' => 10000,
-        'sort' => 'dtStamp',
-        'sortDirection' => 'desc'
-      ],
-      'timezoneId' => 'Eastern Standard Time',
-      "filters" => [
-        [
-          'key' => 'inboundCallId',
-          'value' => $inboundId,
-        ]
-      ]
-    ];
+            'dateRange' => [
+                'past' => 10000,
+                'days' => 10001
+            ],
+            'timeSeries' => [
+                'timeGroup' => 'hour'
+            ],
+            'callLog' => [
+                'page'          => 0,
+                'pageSize'      => 10000,
+                'sort'          => 'dtStamp',
+                'sortDirection' => 'desc'
+            ],
+            'timezoneId' => 'Eastern Standard Time',
+            'filters'    => [
+                [
+                    'key'   => 'inboundCallId',
+                    'value' => $inboundId,
+                ]
+            ]
+        ];
 
-        $response =  json_decode($this->postRequest('calllogs/date', $params));
+        $response = json_decode($this->postRequest('calllogs/date', $params));
         return $response->result->callLog->data;
     }
-
-
 
     // private function getDataById($inboundId)
     // {
@@ -191,7 +157,7 @@ class RingbaApiHelpers
      */
     public function getUpdateData($inboundId)
     {
-        $result =  $this->getDataById($inboundId);
+        $result = $this->getDataById($inboundId);
         return $result[0];
     }
 
@@ -203,7 +169,7 @@ class RingbaApiHelpers
      */
     public function getUpdateAnnotation($inboundId)
     {
-        $data =  $this->getDataById($inboundId);
+        $data = $this->getDataById($inboundId);
         $annotation_tag = '';
         $has_annotation = 'NO';
 
@@ -224,9 +190,9 @@ class RingbaApiHelpers
         }
 
         return [
-      'annotation_tag' => $annotation_tag,
-      'has_annotation' => $has_annotation
-    ];
+            'annotation_tag' => $annotation_tag,
+            'has_annotation' => $has_annotation
+        ];
     }
 
     public function getDataDateWise($params)
@@ -275,18 +241,21 @@ class RingbaApiHelpers
         $result = json_decode($this->getRequest('stats'));
         return $result->campaigns;
     }
+
     // get compaigns get affiliate
     public function getAffiliate()
     {
         $result = json_decode($this->getRequest('Publishers'));
         return $result->publishers;
     }
+
     // get compaigns get affiliate
     public function getTargets()
     {
         $result = json_decode($this->getRequest('targets'));
         return $result->targets;
     }
+
     public function getCustomers()
     {
         $result = json_decode($this->getRequest('Buyers'));
