@@ -790,7 +790,7 @@ const SalesIndex = () => {
                     size="1.5rem"
                   />
                 ) : (
-                  "Export"
+                  "Searched Export"
                 )}
               </Button>
             </div>
