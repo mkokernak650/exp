@@ -73,9 +73,12 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         }
         $this->salesCount += 1;
 
-        $orderDate = Carbon::parse($this->getDateTime($row))->format('Y-m-d H:i:s');
-        $keys = array_keys($this->order_at, $orderDate);
+        $orderDate = $this->getDateTime($row);
+        if (!is_null($orderDate)) {
+            $orderDate = Carbon::parse($orderDate)->format('Y-m-d H:i:s');
+        }
 
+        $keys = array_keys($this->order_at, $orderDate);
         if (!empty($keys)) {
             foreach ($keys as $key) {
                 if (
@@ -118,7 +121,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
-            'order_at'       => $this->getDateTime($row),
+            'order_at'       => $orderDate,
         ]);
     }
 
