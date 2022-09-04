@@ -752,7 +752,11 @@ const AffiliateIndex = () => {
                 className={classes.button}
                 onClick={exportHandler}
               >
-                Export
+                {loading ? (
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
+                ) : (
+                  "Export"
+                )}
               </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>

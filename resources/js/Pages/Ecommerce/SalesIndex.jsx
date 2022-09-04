@@ -775,7 +775,7 @@ const SalesIndex = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <img src={eyeIcon} alt="search"></img>
               </div>
-              {/* <Button
+              <Button
                 variant="contained"
                 type="submit"
                 color="primary"
@@ -792,7 +792,7 @@ const SalesIndex = () => {
                 ) : (
                   "Export"
                 )}
-              </Button> */}
+              </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
