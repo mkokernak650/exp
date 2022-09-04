@@ -494,7 +494,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                 <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
               </div>
           
-              {/* <Button
+              <Button
                 variant="contained"
                 type="submit"
                 color="primary"
@@ -507,7 +507,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                 ) : (
                   "Export"
                 )}
-              </Button> */}
+              </Button>
             </div>
 
             <div className="search-icon" onClick={handleSearch}>
