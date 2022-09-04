@@ -1,48 +1,48 @@
-import Layout from "../Layout/Layout";
-import React, { useEffect, useState, useRef } from "react";
-import { kaReducer, Table } from "ka-table";
+import Layout from "../Layout/Layout"
+import React, { useEffect, useState, useRef } from "react"
+import { kaReducer, Table } from "ka-table"
 import {
   DataType,
   SortingMode,
   PagingPosition,
   EditingMode,
   ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+} from "ka-table/enums"
+import { kaPropsUtils } from "ka-table/utils"
+import { usePage } from "@inertiajs/inertia-react"
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import Edit from "../../../images/edit1.svg";
-import Cancel from "../../../images/cancel.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
-import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
-import ConfirmModal from "../../Shared/ConfirmModal";
-import NormalModal from "../../Shared/NormalModal";
+} from "ka-table/actionCreators"
+import FilterControl from "react-filter-control"
+import { filterData } from "../filterData"
+import "ka-table/style.scss"
+import search from "../../../images/search.svg"
+import eyeIcon from "../../../images/eyeIcon.svg"
+import closeNav from "../../../images/closeNav.svg"
+import Edit from "../../../images/edit1.svg"
+import Cancel from "../../../images/cancel.svg"
+import { hideColumn, showColumn } from "ka-table/actionCreators"
+import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
+import Tooltip from "@material-ui/core/Tooltip"
+import DeleteIcon from "@material-ui/icons/Delete"
+import IconButton from "@material-ui/core/IconButton"
+import Checkbox from "@material-ui/core/Checkbox"
+import TextField from "@material-ui/core/TextField"
+import { Button, makeStyles } from "@material-ui/core"
+import axios from "axios"
+import { Helmet } from "react-helmet"
+import SnackBar from "../../Shared/SnackBar"
+import ConfirmModal from "../../Shared/ConfirmModal"
+import NormalModal from "../../Shared/NormalModal"
 import {
   CircularProgress
-} from "@material-ui/core";
-import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
-import { date } from "yup";
+} from "@material-ui/core"
+import { DateTimeFormat } from "../../Helpers/DateTimeFormat"
+import { date } from "yup"
 
 
 
@@ -60,7 +60,7 @@ const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: "15px",
   },
-}));
+}))
 
 
 export const fields = [
@@ -176,7 +176,7 @@ export const fields = [
       },
     ],
   },
-];
+]
 
 export const groups = [
   {
@@ -187,33 +187,34 @@ export const groups = [
     caption: "Or",
     name: "or",
   },
-];
+]
 export const filter = {
   groupName: "and",
   items: [
     {
       field: "market",
       operator: "isNotEmpty",
+      value:""
     },
   ],
-};
+}
 
 const CustomerReport = () => {
-  const classes = useStyles();
-  const { allTVHouseholds } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [editData, setEditData] = useState();
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [showEditModal, setShowEditModal] = useState({ open: false });
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const [importModal, setImportModal] = useState({ open: false });
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const classes = useStyles()
+  const { allTVHouseholds } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [editData, setEditData] = useState()
+  const [response, setResponse] = useState()
+  const [open, setOpen] = useState(false)
+  const [showEditModal, setShowEditModal] = useState({ open: false })
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const [importModal, setImportModal] = useState({ open: false })
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  const showColumnRef = useRef();
+  const showColumnRef = useRef()
 
   const dataArray = allTVHouseholds.map((item, index) => ({
     edit: item.id,
@@ -225,7 +226,7 @@ const CustomerReport = () => {
     updated_at: item.updated_at,
     id: item.id,
     key: index,
-  }));
+  }))
   const SelectionCell = ({
     rowKeyValue,
     dispatch,
@@ -238,27 +239,27 @@ const CustomerReport = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -266,29 +267,29 @@ const CustomerReport = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
+            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true)
+            let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                continue;
+                selectedRowIds.push(tableProps.data[i].id)
+                continue
               }
-              i++;
+              i++
             }
           } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
+            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
             if (selectedRowIds) {
-              selectedRowIds.splice(0, selectedRowIds.length);
+              selectedRowIds.splice(0, selectedRowIds.length)
             }
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
 
   const tablePropsInit = {
     columns: [
@@ -324,17 +325,17 @@ const CustomerReport = () => {
         dataType: DataType.Number,
         style: { width: 100 },
       },
-    {
-      key: "created_at",
-      title: "Created At",
-      dataType: DataType.String,
-      style: { width: 100 },
-    }, {
-      key: "updated_at",
-      title: "Updated At",
-      dataType: DataType.Date,
-      style: { width: 100 },
-    },
+      {
+        key: "created_at",
+        title: "Created At",
+        dataType: DataType.String,
+        style: { width: 100 },
+      }, {
+        key: "updated_at",
+        title: "Updated At",
+        dataType: DataType.Date,
+        style: { width: 100 },
+      },
 
     ],
     paging: {
@@ -355,162 +356,184 @@ const CustomerReport = () => {
           <div className="edit-icon" onClick={() => handleEdit(value)}>
             <img src={Edit} alt="edit-icon"></img>
           </div>
-        );
+        )
       }
       if (column.key === "created_at" || column.key === "updated_at") {
         return DateTimeFormat(value)
       }
     },
-  };
+  }
 
-  const OPTION_KEY = "tv-households-report";
+  const OPTION_KEY = "tv-households-report"
   const stateStore = {
     ...tablePropsInit,
     ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  }
+  const [tableProps, changeTableProps] = useState(stateStore)
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
-  const [filterValue, changeFilter] = useState(filter);
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      return newState
+    })
+  }
+  const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue);
-  };
+    changeFilter(newFilterValue)
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
   const deleteHandler = () => {
     axios
       .post(route("tv.households.delete"), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
+          let filteredData = tableProps
           const newData = filteredData.data.filter(
             (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          )
+          filteredData.data = newData
+          changeTableProps(filteredData)
+          setselectedRowIds([])
+          setTableToolbar(false)
+          setOpen(true)
+          setResponse(res.data.msg)
+          setShowDeleteModal({ open: false })
+          emptyCheckbox()
         } else {
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          setOpen(true)
+          setResponse(res.data.msg)
+          setShowDeleteModal({ open: false })
+          emptyCheckbox()
         }
       })
       .catch((err) => {
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
-      });
-  };
+        setShowDeleteModal({ open: false })
+        emptyCheckbox()
+      })
+  }
 
   const handleEdit = (itemId) => {
     tableProps.data.filter((item) => {
       if (item.id == itemId) {
-        setEditData(item);
+        setEditData(item)
       }
-    });
-    setShowEditModal({ open: true });
-  };
+    })
+    setShowEditModal({ open: true })
+  }
 
 
 
   const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
+    setEditData({ ...editData, [e.target.name]: e.target.value })
+  }
   const handleEditSubmit = () => {
     axios
       .post(route("tv.households.edit"), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
+          let filteredData = tableProps
           filteredData.data.filter((item, indx) => {
             if (item.id === editData.id) {
-              filteredData.data[indx].market = editData.market;
-              filteredData.data[indx].state = editData.state;
-              filteredData.data[indx].tv_households = editData.tv_households;
-              filteredData.data[indx].updated_at = new Date();
+              filteredData.data[indx].market = editData.market
+              filteredData.data[indx].state = editData.state
+              filteredData.data[indx].tv_households = editData.tv_households
+              filteredData.data[indx].updated_at = new Date()
             }
-          });
-          setEditData();
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
+          })
+          setEditData()
+          setShowEditModal({ open: false })
+          setOpen(true)
+          setResponse(res.data.msg)
         } else {
-          setEditData();
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
+          setEditData()
+          setShowEditModal({ open: false })
+          setOpen(true)
+          setResponse(res.data.msg)
         }
       })
       .catch((err) => {
-        console.log(err);
-      });
-  };
+        console.log(err)
+      })
+  }
 
 
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setselectedRowIds([])
+    emptyCheckbox()
   }
 
 
   const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
+    setOpenModal({ open: true })
+  }
 
   const handleImportChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
+    setSelectedFile(e.target.files[0])
+  }
 
   const openImportModal = () => {
-    setImportModal({ open: true });
-  };
+    setImportModal({ open: true })
+  }
 
   const importHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("importfile", selectedFile);
+    e.preventDefault()
+    setLoading(true)
+    const formData = new FormData()
+    formData.append("importfile", selectedFile)
     axios
       .post(route("tv.households.import"), formData)
       .then((res) => {
-        setSelectedFile(null);
-        setLoading(false);
+        setSelectedFile(null)
+        setLoading(false)
         if (res.status === 200) {
-          setImportModal({ open: false });
-          setResponse("Imported Successfully");
-          setOpen(true);
+          setImportModal({ open: false })
+          setResponse("Imported Successfully")
+          setOpen(true)
         } else {
-          setResponse("Import failed");
+          setResponse("Import failed")
         }
       })
-      .catch((err) => { });
-  };
+      .catch((err) => { })
+  }
 
+  const triggerExportLink = (link) => {
+    return window.open(link)
+  }
 
+  const exportHandler = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    axios
+      .get('tv-households-export?filterValue=' + JSON.stringify(filterValue))
+      .then((res) => {
+        setLoading(false)
+        if (res.status === 200) {
+          console.log(res)
+          triggerExportLink(res.request.responseURL)
+          setOpen(true)
+        } else {
+          toast.error("Error while importing file")
+        }
+      })
+      .catch((err) => {
+        setLoading(false)
+      })
+  }
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -518,34 +541,34 @@ const CustomerReport = () => {
         showColumnRef.current &&
         !showColumnRef.current.contains(e.target)
       ) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener("mousedown", checkIfClickedOutside)
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showColumns]);
+      document.removeEventListener("mousedown", checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem(OPTION_KEY));
-    if (storedData?.selectedRows) storedData.selectedRows = [];
-    localStorage.setItem(OPTION_KEY, JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
-    if (filteredData?.selectedRows) filteredData.selectedRows = [];
-    changeTableProps(filteredData);
-  };
+    const storedData = JSON.parse(localStorage.getItem(OPTION_KEY))
+    if (storedData?.selectedRows) storedData.selectedRows = []
+    localStorage.setItem(OPTION_KEY, JSON.stringify(storedData))
+    let filteredData = { ...tableProps }
+    if (filteredData?.selectedRows) filteredData.selectedRows = []
+    changeTableProps(filteredData)
+  }
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem(OPTION_KEY));
+      const storedData = JSON.parse(localStorage.getItem(OPTION_KEY))
       if (storedData != null) {
-        emptyCheckbox();
+        emptyCheckbox()
       }
-    };
-  }, []);
+    }
+  }, [])
 
   const TableToolbar = () => {
     return (
@@ -561,8 +584,8 @@ const CustomerReport = () => {
         </div>
 
       </div>
-    );
-  };
+    )
+  }
 
   const ColumnSettings = (tableProps) => {
     const columnsSettingsProps = {
@@ -588,16 +611,16 @@ const CustomerReport = () => {
         },
       ],
       editingMode: EditingMode.None,
-    };
+    }
     const dispatchSettings = (action) => {
       if (action.type === ActionType.UpdateCellValue) {
         tableProps.dispatch(
           action.value
             ? showColumn(action.rowKeyValue)
             : hideColumn(action.rowKeyValue)
-        );
+        )
       }
-    };
+    }
     return (
       <Table
         {...columnsSettingsProps}
@@ -611,15 +634,15 @@ const CustomerReport = () => {
             content: (props) => {
               switch (props.column.key) {
                 case "visible":
-                  return <CellEditorBoolean {...props} />;
+                  return <CellEditorBoolean {...props} />
               }
             },
           },
         }}
         dispatch={dispatchSettings}
       />
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -644,6 +667,21 @@ const CustomerReport = () => {
                 onClick={openImportModal}
               >
                 Import
+              </Button>
+
+              <Button
+                variant="contained"
+                type="submit"
+                color="primary"
+                className={classes.button}
+                onClick={exportHandler}
+                disabled={allTVHouseholds == ""}
+              >
+                {loading ? (
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
+                ) : (
+                  "Export"
+                )}
               </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
@@ -691,14 +729,14 @@ const CustomerReport = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === "selection-cell") {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -712,7 +750,7 @@ const CustomerReport = () => {
                         tableProps
                       )}
                     />
-                  );
+                  )
                 }
               },
             },
@@ -726,7 +764,7 @@ const CustomerReport = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
             },
@@ -832,10 +870,10 @@ const CustomerReport = () => {
       ></ConfirmModal>
 
     </>
-  );
-};
+  )
+}
 
 CustomerReport.layout = (page) => (
   <Layout title="Customer Report">{page}</Layout>
-);
-export default CustomerReport;
+)
+export default CustomerReport

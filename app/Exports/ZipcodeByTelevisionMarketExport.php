@@ -2,19 +2,39 @@
 
 namespace App\Exports;
 
+use App\Http\Controllers\Controller;
 use App\Models\ZipcodeByTelevisionMarket;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class ZipcodeByTelevisionMarketExport implements FromCollection, WithHeadings, WithMapping
+class ZipcodeByTelevisionMarketExport extends Controller implements FromCollection, WithHeadings, WithMapping
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
+    protected $filterValue;
+
+    public function __construct($filterValue)
+    {
+        $this->filterValue = $filterValue;
+    }
+
     public function collection()
     {
-        return ZipcodeByTelevisionMarket::all();
+        $zipDataQuery = ZipcodeByTelevisionMarket::query();
+        $conditions = json_decode($this->filterValue);
+        $firstCond = $conditions->items[0];
+        $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+        for ($i = 1; $i < count($conditions->items); $i++) {
+            $cond = $conditions->items[$i];
+            $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+        }
+
+        return $zipDataQuery->get();
+    //     $array = [];
+    //     $zipDataQuery->chunk(1000, function ($test) use (&$array) {
+    //         array_push($array, $test);
+    //     });
+    //    return $array;
+
     }
 
     public function headings() : array
@@ -28,26 +48,26 @@ class ZipcodeByTelevisionMarketExport implements FromCollection, WithHeadings, W
             'Zip code',
             'Fips',
             'Median household income, 2007-2011',
-            'Race_AmericanIndian',
-            'Race_Asian',
-            'Race_White',
-            'Race_Black',
-            'Race_Hawaiian',
-            'Race_Hispanic',
-            'Race_Other'
+            'Race AmericanIndian',
+            'Race Asian',
+            'Race White',
+            'Race Black',
+            'Race Hawaiian',
+            'Race Hispanic',
+            'Race Other'
         ];
     }
 
     public function map($zipcode_television_market) : array
     {
         return [
-            $zipcode_television_market->market,     
-            $zipcode_television_market->state,    
-            $zipcode_television_market->county,    
-            $zipcode_television_market->city,      
-            $zipcode_television_market->population,  
-            $zipcode_television_market->zip_code,   
-            $zipcode_television_market->fips,         
+            $zipcode_television_market->market,
+            $zipcode_television_market->state,
+            $zipcode_television_market->county,
+            $zipcode_television_market->city,
+            $zipcode_television_market->population,
+            $zipcode_television_market->zip_code,
+            $zipcode_television_market->fips,
             $zipcode_television_market->median_household_income_2007_2011,
             $zipcode_television_market->race_americanindian,
             $zipcode_television_market->race_asian,

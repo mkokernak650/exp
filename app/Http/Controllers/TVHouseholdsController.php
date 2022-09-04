@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\CustomerExport;
+use App\Exports\TvHouseholdsExport;
 use App\Imports\TVHouseholdsImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -49,12 +49,12 @@ class TVHouseholdsController extends Controller
         return back()->with('Successfully import!');
     }
 
-    public function export($type)
+    public function export(Request $request)
     {
-        // get request
-        Excel::download(new CustomerExport, 'Customers.' . $type);
-        return back()->with('Export successfully');
+        return Excel::download(new TvHouseholdsExport($request->filterValue), 'TVHouseholds.' . 'xlsx');
     }
+
+
 
     public function edit(Request $request)
     {

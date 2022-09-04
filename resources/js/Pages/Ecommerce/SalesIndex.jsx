@@ -32,6 +32,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Edit from "../../../images/edit1.svg";
 import Checkbox from "@material-ui/core/Checkbox";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TextField from "@material-ui/core/TextField";
 import { Button, makeStyles } from "@material-ui/core";
 import axios from "axios";
@@ -196,12 +197,12 @@ export const filter = {
   groupName: "and",
   items: [
     {
-      field: "campaign",
+      field: "order_at",
       operator: "isNotEmpty",
+      value: "",
     },
   ],
 };
-
 
 const SalesIndex = () => {
   const classes = useStyles();
@@ -215,6 +216,7 @@ const SalesIndex = () => {
   const [showEditModal, setShowEditModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const [loading, setLoading] = useState(false);
   const showColumnRef = useRef();
 
   const handleEditChange = ({ target: { name, value } }) => {
@@ -250,8 +252,7 @@ const SalesIndex = () => {
           user_ip: res.data.data.user_ip,
           dialed: res.data.data.dialed,
           inbound: res.data.data.inbound,
-          updated_at : res.data.updated_at
-
+          updated_at: res.data.updated_at,
         };
 
         setEditData();
@@ -278,7 +279,7 @@ const SalesIndex = () => {
     customer_id: item?.customer_id,
     campaign: item?.campaign?.campaign_name,
     customer: item?.customer?.customer_name,
-    order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
+    order_type: item?.order_type == 1 ? "E-commerce" : "Phone",
     dialed: item?.dialed,
     inbound: item?.inbound,
     revenue: item?.revenue,
@@ -529,23 +530,30 @@ const SalesIndex = () => {
       // }
       if (column.key === "order_at") {
         if (value !== undefined) {
-                  let d = new Date(value)
-          let hours = d.getHours()
-          let minutes = d.getMinutes()
-          let ampm = hours >= 12 ? "PM" : "AM"
-          hours = hours % 12
-          hours = hours ? hours : 12 // the hour "0" should be "12"
-          minutes = minutes < 10 ? "0" + minutes : minutes
-          let strTime = hours + ":" + minutes + " " + ampm
-          return d.getDate() + "-" + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + "-" + d.getFullYear().toString() + " " + strTime
+          let d = new Date(value);
+          let hours = d.getHours();
+          let minutes = d.getMinutes();
+          let ampm = hours >= 12 ? "PM" : "AM";
+          hours = hours % 12;
+          hours = hours ? hours : 12; // the hour "0" should be "12"
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          let strTime = hours + ":" + minutes + " " + ampm;
+          return (
+            d.getDate() +
+            "-" +
+            new Intl.DateTimeFormat("en", { month: "short" }).format(d) +
+            "-" +
+            d.getFullYear().toString() +
+            " " +
+            strTime
+          );
         }
       }
       if (column.key === "created_at" || column.key === "updated_at") {
         if (value !== undefined) {
-        return DateTimeFormat(value)
+          return DateTimeFormat(value);
         }
       }
-
     },
   };
 
@@ -730,6 +738,30 @@ const SalesIndex = () => {
     );
   };
 
+  const triggerExportLink = (link) => {
+    return window.open(link);
+  };
+
+  const exportHandler = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    axios
+      .get("ecommerce-sales-export?filterValue=" + JSON.stringify(filterValue))
+      .then((res) => {
+        setLoading(false);
+        if (res.status === 200) {
+          console.log(res);
+          triggerExportLink(res.request.responseURL);
+          setOpen(true);
+        } else {
+          toast.error("Error while importing file");
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+      });
+  };
+
   return (
     <>
       <Helmet title="Sales Index" />
@@ -743,6 +775,24 @@ const SalesIndex = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <img src={eyeIcon} alt="search"></img>
               </div>
+              {/* <Button
+                variant="contained"
+                type="submit"
+                color="primary"
+                className={classes.button}
+                onClick={exportHandler}
+                disabled={sales == ""}
+              >
+                {loading ? (
+                  <CircularProgress
+                    color="inherit"
+                    thickness={3}
+                    size="1.5rem"
+                  />
+                ) : (
+                  "Export"
+                )}
+              </Button> */}
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -809,7 +859,7 @@ const SalesIndex = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
                         tableProps
                       )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -898,7 +948,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
 
-            {editData?.order_type && editData.order_type == 'E-commerce' && (
+            {editData?.order_type && editData.order_type == "E-commerce" && (
               <>
                 <TextField
                   value={editData ? editData?.coupon_code : ""}
@@ -922,7 +972,7 @@ const SalesIndex = () => {
               </>
             )}
 
-            {editData?.order_type && editData.order_type == 'Phone' && (
+            {editData?.order_type && editData.order_type == "Phone" && (
               <>
                 <TextField
                   value={editData ? editData?.dialed : ""}
@@ -1049,10 +1099,11 @@ const SalesIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={"400px"}
-        title={`${selectedRowIds.length > 1
+        title={`${
+          selectedRowIds.length > 1
             ? "Do you want to delete these records?"
             : "Do you want to delete this record?"
-          }`}
+        }`}
       ></ConfirmModal>
     </>
   );

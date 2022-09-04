@@ -168,7 +168,7 @@ export const filter = {
   items: [
     {
       field: "Market",
-      operator: "contains",
+      operator: "isNotEmpty",
       value: "",
     },
   ],
@@ -397,29 +397,29 @@ const ZipcodeByTelevisionMarketNew = () => {
       })
   }
 
+
+
   const triggerExportLink = (link) => {
     return window.open(link)
   }
 
-  const baseUrl = window.location.origin
   const exportHandler = (e) => {
     e.preventDefault()
     setLoading(true)
     axios
-      .get(`${baseUrl}/zipcode-television-market/${type}`)
+      .get('zipcode-television-market-export?filterValue=' + JSON.stringify(filterValue))
       .then((res) => {
         setLoading(false)
         if (res.status === 200) {
-          setExportModal({ open: false })
+          console.log(res)
           triggerExportLink(res.request.responseURL)
-          toast.success("Imported Successfully")
+          setOpen(true)
         } else {
-          toast.error("Import failed")
+          toast.error("Error while importing file")
         }
       })
       .catch((err) => {
         setLoading(false)
-        toast.error("Error while importing file")
       })
   }
 
@@ -464,6 +464,7 @@ const ZipcodeByTelevisionMarketNew = () => {
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
+        console.log(res)
         tmpTableProps.data = res.data.data
         changeTableProps(tmpTableProps)
         setZipcodeTelMarket(res.data)
@@ -508,16 +509,21 @@ const ZipcodeByTelevisionMarketNew = () => {
             >
               Import
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              color="primary"
-              className={classes.button}
-              onClick={openExportModal}
-              disabled={allZipcodesByTelevisionMarket == ""}
-            >
-              Export
-            </Button> */}
+            */}
+              {/* <Button
+                variant="contained"
+                type="submit"
+                color="primary"
+                className={classes.button}
+                onClick={exportHandler}
+                disabled={allZipcodesByTelevisionMarket == ""}
+              >
+                {loading ? (
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
+                ) : (
+                  "Export"
+                )}
+              </Button> */}
             </div>
 
             <div className="search-icon" onClick={handleSearch}>

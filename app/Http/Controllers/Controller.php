@@ -24,9 +24,9 @@ class Controller extends BaseController
             case 'doesNotContain':
                 return 'NOT like';
             case 'isEmpty':
-                return 'IS NULL';
+                return '=';
             case 'isNotEmpty':
-                return 'IS NOT NULL';
+                return '<>';
             case 'startswith':
                 return 'like';
             case 'endsWith':
@@ -78,8 +78,10 @@ class Controller extends BaseController
 
     public function makeConditionQuery($dataQuery, $condType, $field, $operator, $val)
     {
-        if ($operator === 'isEmpty' || $operator === 'isNotEmpty') {
-            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator));
+        if ($operator === 'isEmpty') {
+            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator),null);
+        } elseif ($operator === 'isNotEmpty') {
+            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator),null);
         }
         return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), $this->findValue($operator, $val));
     }

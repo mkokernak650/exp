@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Exports\EcommerceSalesExport;
 use App\Http\Requests\EcommerceSaleRequest;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -136,6 +137,11 @@ class EcommerceSaleController extends Controller
             $data = $existSales;
         }
         return response()->json(['msg'=> $msg, 'alreadyExists' => $data], 201);
+    }
+
+    public function export(Request $request)
+    {
+        return Excel::download(new EcommerceSalesExport($request->filterValue), 'ZipCodeTelevisionByMarket.' . 'xlsx');
     }
 
     public function deleteSelected(Request $request)

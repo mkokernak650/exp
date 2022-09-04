@@ -19,7 +19,6 @@ class ZipcodeByTelevisionMarketController extends Controller
     public function index()
     {
         $conditions = json_decode(request('filteredValue'));
-
         if (request('filteredValue') && count($conditions->items)) {
             $zipDataQuery = ZipcodeByTelevisionMarket::query();
 
@@ -31,19 +30,19 @@ class ZipcodeByTelevisionMarketController extends Controller
             }
             return $zipDataQuery->paginate(request('itemPerPage') ?? 10);
         }
+
         $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $allZipcodesByTelevisionMarket;
         }
-
         return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
             'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket
         ]);
     }
 
-    public function export($type)
+    public function export(Request $request)
     {
-        return Excel::download(new ZipcodeByTelevisionMarketExport, 'Zipcode_by_television_market.' . $type);
+        return Excel::download(new ZipcodeByTelevisionMarketExport($request->filterValue), 'ZipCodeTelevisionByMarket.' . 'xlsx');
     }
 
     public function import(Request $request)

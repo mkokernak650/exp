@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('ecommerce-sales/import', [EcommerceSaleController::class, 'import'])->name('ecommerce-sales.import');
     Route::post('ecommerce-sales/import', [EcommerceSaleController::class, 'importStore'])->name('ecommerce-sales.importStore');
     Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');
+    Route::get('/ecommerce-sales-export', [EcommerceSaleController::class, 'export'])->name('ecommerce.sales.export');
 
     Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceReport'])->name('ecommerce.report');
     Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceReportGenerate'])->name('ecommerce.report.generate');
@@ -137,13 +138,12 @@ Route::post('/billed-call-log', [BilledCallLogController::class, 'store'])->name
 
 Route::get('/tv-markets-by-zip-codes', [ZipcodeByTelevisionMarketController::class, 'index'])->name('zipcode.television.market');
 Route::post('/zipcode-television-market-import', [ZipcodeByTelevisionMarketController::class, 'import'])->name('zipcode.television.market.import');
-Route::get('/zipcode-television-market/{type}', [ZipcodeByTelevisionMarketController::class, 'export'])->name('zipcode.television.market.export');
+Route::get('/zipcode-television-market-export', [ZipcodeByTelevisionMarketController::class, 'export'])->name('zipcode.television.market.export');
 Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketController::class, 'delete'])->name('zipcode.television.market.delete');
 Route::get('/telephone-and-zip-codes', [ZipcodeDataController::class, 'index'])->name('zipcode.data');
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])->name('zipcode.data.delete');
-// Route::get('/pagination/{page}', [ZipcodeDataController::class, 'pagination']);
 
 Route::get('/target-form', [TargetController::class, 'index'])->name('target.form');
 Route::get('/target-report', [TargetController::class, 'TargetsReport'])->name('target.report');
@@ -190,6 +190,7 @@ Route::get('/tv-households-report', [TVHouseholdsController::class, 'TVHousehold
 Route::post('/tv-households-edit', [TVHouseholdsController::class, 'edit'])->name('tv.households.edit');
 Route::post('/tv-households-delete', [TVHouseholdsController::class, 'delete'])->name('tv.households.delete');
 Route::post('/tv-households-import', [TVHouseholdsController::class, 'import'])->name('tv.households.import');
+Route::get('/tv-households-export', [TVHouseholdsController::class, 'export'])->name('tv.households.export');
 
 Route::get('/generate-report-affiliate', [GenerateReportAffiliateController::class, 'GenerateReportAffiliateForm'])->name('generate.report.affiliate');
 Route::get('/generate-report-target', [GenerateReportTargetController::class, 'GenerateReportTargetForm'])->name('generate.report.target');

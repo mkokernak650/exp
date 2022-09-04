@@ -71,6 +71,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         }
         $this->salesCount += 1;
         $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
+        // dd($this->getValue($row, 'order_no'), $this->orderNo);
         if (!empty($keys)) {
             foreach ($keys as $key) {
                 $order_date = array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date');
