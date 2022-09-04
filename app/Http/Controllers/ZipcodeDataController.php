@@ -41,11 +41,7 @@ class ZipcodeDataController extends Controller
         ]);
     }
 
-    public function export(Request $request)
-    {
-        Excel::download(new ZipcodeDataExport, 'Zipcode_database.' . $request->type);
-        return back();
-    }
+ 
 
     public function import(Request $request)
     {
@@ -54,6 +50,11 @@ class ZipcodeDataController extends Controller
         return response()->json($newZipcodes);
     }
 
+
+    public function export(Request $request)
+    {
+        return Excel::download(new ZipcodeDataExport($request->filterValue), 'ZipCodeData.' . 'xlsx');
+    }
     /**
      * @method post
      * @param mixed array($page, $take)

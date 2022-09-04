@@ -411,7 +411,6 @@ const ZipcodeByTelevisionMarketNew = () => {
       .then((res) => {
         setLoading(false)
         if (res.status === 200) {
-          console.log(res)
           triggerExportLink(res.request.responseURL)
           setOpen(true)
         } else {
@@ -436,11 +435,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
-        {/* <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={deleteHandler}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
-          </IconButton>
-        </Tooltip> */}
         <div className="selection-rows">
           {selectedRowIds.length} Row Selected
         </div>
@@ -499,18 +493,8 @@ const ZipcodeByTelevisionMarketNew = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
               </div>
+          
               {/* <Button
-              variant="contained"
-              type="submit"
-              color="primary"
-              className={classes.button}
-              onClick={openImportModal}
-              disabled={allZipcodesByTelevisionMarket == ""}
-            >
-              Import
-            </Button>
-            */}
-              <Button
                 variant="contained"
                 type="submit"
                 color="primary"
@@ -523,7 +507,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                 ) : (
                   "Export"
                 )}
-              </Button>
+              </Button> */}
             </div>
 
             <div className="search-icon" onClick={handleSearch}>

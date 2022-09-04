@@ -144,6 +144,7 @@ Route::get('/telephone-and-zip-codes', [ZipcodeDataController::class, 'index'])-
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])->name('zipcode.data.import');
 Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])->name('zipcode.data.delete');
+Route::get('/zipcode-data-export', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 
 Route::get('/target-form', [TargetController::class, 'index'])->name('target.form');
 Route::get('/target-report', [TargetController::class, 'TargetsReport'])->name('target.report');

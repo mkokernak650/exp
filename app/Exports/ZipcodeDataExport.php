@@ -2,19 +2,33 @@
 
 namespace App\Exports;
 
+use App\Http\Controllers\Controller;
 use App\Models\ZipCodeData;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class ZipcodeDataExport implements FromCollection, WithHeadings, WithMapping
+class ZipcodeDataExport extends Controller implements FromCollection, WithHeadings, WithMapping
 {
-    /**
-     * @return \Illuminate\Support\Collection
-     */
+    protected $filterValue;
+
+    public function __construct($filterValue)
+    {
+        $this->filterValue = $filterValue;
+    }
+
     public function collection()
     {
-        return ZipCodeData::all();
+        $zipDataQuery = ZipCodeData::query();
+        $conditions = json_decode($this->filterValue);
+        $firstCond = $conditions->items[0];
+        $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+        for ($i = 1; $i < count($conditions->items); $i++) {
+            $cond = $conditions->items[$i];
+            $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+        }
+
+        return $zipDataQuery->get();
     }
 
     public function headings(): array
