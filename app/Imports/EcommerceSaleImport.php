@@ -48,7 +48,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         $this->shippingZips = $salesData->pluck('shipping_zip', 'id')->toArray();
         $this->campaignIds = $salesData->pluck('campaign_id', 'id')->toArray();
         $this->customerIds = $salesData->pluck('customer_id', 'id')->toArray();
-        $this->order_at = $salesData->pluck('order_at', 'id')->map(fn ($i) => "$i")->toArray();
+        $this->order_at = $salesData->pluck('formatted_order_at', 'id')->toArray();
     }
 
     public function getAlreadyExist()

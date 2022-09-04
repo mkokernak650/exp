@@ -111,7 +111,7 @@ class EcommerceSaleController extends Controller
             'inbound',
             'shipping_zip',
             'total',
-            'order_at'
+            DB::raw("DATE_FORMAT(order_at, '%Y-%m-%d %H:%i:%s') as formatted_order_at")
         )->get();
 
         $saleImport = new EcommerceSaleImport(
