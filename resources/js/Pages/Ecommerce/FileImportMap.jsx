@@ -30,7 +30,7 @@ export default function FileImportMap({
         onChange={(e) => handleReminderFieldMapping(e)}
       >
         <option value="">Select Application Field</option>
-        {/* <option value="order_date_time">Order date & time</option> */}
+        <option value="order_date_time">Order datetime</option>
         <option value="order_date">Order date</option>
         <option value="order_time">Order time</option>
         <option value="order_no">Order no</option>

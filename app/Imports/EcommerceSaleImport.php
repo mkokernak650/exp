@@ -73,8 +73,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         }
         $this->salesCount += 1;
 
-        $orderDate = array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date');
-        $orderDate = Carbon::parse($orderDate)->format('Y-m-d H:i:s');
+        $orderDate = Carbon::parse($this->getDateTime($row))->format('Y-m-d H:i:s');
         $keys = array_keys($this->order_at, $orderDate);
 
         if (!empty($keys)) {
@@ -119,7 +118,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
             'subtotal'       => $this->getValue($row, 'subtotal'),
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
-            'order_at'       => array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date'),
+            'order_at'       => $this->getDateTime($row),
         ]);
     }
 
@@ -127,6 +126,18 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     {
         if (isset($this->fieldMap[$key])) {
             return $row[$this->fieldMap[$key]];
+        }
+        return null;
+    }
+
+    protected function getDateTime($row)
+    {
+        if (array_key_exists('order_date_time', $this->fieldMap)) {
+            return $this->getValue($row, 'order_date_time');
+        } elseif (array_key_exists('order_date', $this->fieldMap) && !array_key_exists('order_time', $this->fieldMap)) {
+            return $this->getValue($row, 'order_date');
+        } elseif (array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap)) {
+            return $this->mergeDateTime($row, ['order_date', 'order_time']);
         }
         return null;
     }
