@@ -106,10 +106,11 @@ class EcommerceSaleController extends Controller
             'campaign_id',
             'customer_id',
             'order_type',
-            'order_no',
             'coupon_code',
             'dialed',
+            'inbound',
             'shipping_zip',
+            'total',
             'order_at'
         )->get();
 

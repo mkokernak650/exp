@@ -1,24 +1,36 @@
-import ClearIcon from '@material-ui/icons/Clear';
+import ClearIcon from "@material-ui/icons/Clear";
 
-export default function FileImportMap({ index, reminderField, fieldMap, setFieldMap, reportFields }) {
+export default function FileImportMap({
+  index,
+  reminderField,
+  fieldMap,
+  setFieldMap,
+  reportFields,
+}) {
   const handleReminderFieldMapping = (e) => {
-    const newFieldMap = [...fieldMap]
-    newFieldMap[index][e.target.name] = e.target.value
-    setFieldMap([...newFieldMap])
-  }
+    const newFieldMap = [...fieldMap];
+    newFieldMap[index][e.target.name] = e.target.value;
+    setFieldMap([...newFieldMap]);
+  };
 
   const delReminderFieldMap = () => {
-    const newFieldMap = [...fieldMap]
+    const newFieldMap = [...fieldMap];
     if (newFieldMap.length > 1) {
-      newFieldMap.splice(index, 1)
+      newFieldMap.splice(index, 1);
     }
-    setFieldMap([...newFieldMap])
-  }
+    setFieldMap([...newFieldMap]);
+  };
 
   return (
     <div className="flx mt-2 align-center">
-      <select className="custom-input mr-2" name="applicationField" value={reminderField.applicationField || ''} onChange={(e) => handleReminderFieldMapping(e)}>
+      <select
+        className="custom-input mr-2"
+        name="applicationField"
+        value={reminderField.applicationField || ""}
+        onChange={(e) => handleReminderFieldMapping(e)}
+      >
         <option value="">Select Application Field</option>
+        {/* <option value="order_date_time">Order date & time</option> */}
         <option value="order_date">Order date</option>
         <option value="order_time">Order time</option>
         <option value="order_no">Order no</option>
@@ -35,19 +47,28 @@ export default function FileImportMap({ index, reminderField, fieldMap, setField
         <option value="shipping_cost">Shipping cost</option>
         <option value="total">Total</option>
       </select>
-      <select className="custom-input" name="reportField" value={reminderField.reportField || ''} onChange={(e) => handleReminderFieldMapping(e)}>
+      <select
+        className="custom-input"
+        name="reportField"
+        value={reminderField.reportField || ""}
+        onChange={(e) => handleReminderFieldMapping(e)}
+      >
         <option value="">Select Report Field</option>
-        {
-          reportFields[0] && reportFields[0].map((fld, indx) => (
+        {reportFields[0] &&
+          reportFields[0].map((fld, indx) => (
             <option key={`${indx}-2`} value={fld}>
               {fld}
             </option>
-          ))
-        }
+          ))}
       </select>
-      <button onClick={() => delReminderFieldMap()} className="icn-btn sh-sm ml-1" type="button" aria-label="btn">
-        <ClearIcon  style={{ fontSize: '1rem' }} />
+      <button
+        onClick={() => delReminderFieldMap()}
+        className="icn-btn sh-sm ml-1"
+        type="button"
+        aria-label="btn"
+      >
+        <ClearIcon style={{ fontSize: "1rem" }} />
       </button>
     </div>
-  )
+  );
 }

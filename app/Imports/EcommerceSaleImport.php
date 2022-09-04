@@ -21,9 +21,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
     protected $reqCampaignId;
     protected $reqCustomerId;
     protected $dialed;
-    protected $orderNo;
+    protected $totals;
+    protected $inbounds;
     protected $couponCodes;
-    protected $shippingZip;
+    protected $shippingZips;
     protected $campaignIds;
     protected $customerIds;
     protected $orderTypes;
@@ -40,10 +41,11 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         $this->reqCampaignId = $reqCampaignId;
         $this->reqCustomerId = $reqCustomerId;
         $this->dialed = $salesData->pluck('dialed', 'id')->toArray();
-        $this->orderNo = $salesData->pluck('order_no', 'id')->toArray();
+        $this->totals = $salesData->pluck('total', 'id')->toArray();
+        $this->inbounds = $salesData->pluck('inbound', 'id')->toArray();
         $this->orderTypes = $salesData->pluck('order_type', 'id')->toArray();
         $this->couponCodes = $salesData->pluck('coupon_code', 'id')->toArray();
-        $this->shippingZip = $salesData->pluck('shipping_zip', 'id')->toArray();
+        $this->shippingZips = $salesData->pluck('shipping_zip', 'id')->toArray();
         $this->campaignIds = $salesData->pluck('campaign_id', 'id')->toArray();
         $this->customerIds = $salesData->pluck('customer_id', 'id')->toArray();
         $this->order_at = $salesData->pluck('order_at', 'id')->map(fn ($i) => "$i")->toArray();
@@ -69,30 +71,30 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         if (empty($this->getValue($row, 'coupon_code')) && empty($this->getValue($row, 'dialed'))) {
             return;
         }
-
         $this->salesCount += 1;
-        $keys = array_keys($this->orderNo, $this->getValue($row, 'order_no'));
+
+        $orderDate = array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date');
+        $orderDate = Carbon::parse($orderDate)->format('Y-m-d H:i:s');
+        $keys = array_keys($this->order_at, $orderDate);
 
         if (!empty($keys)) {
             foreach ($keys as $key) {
-                $order_date = array_key_exists('order_date', $this->fieldMap) && array_key_exists('order_time', $this->fieldMap) ? $this->mergeDateTime($row, ['order_date', 'order_time']) : $this->getValue($row, 'order_date');
-
                 if (
-                    Carbon::parse($order_date)->format('Y-m-d H:i:s') == $this->order_at[$key] &&
-                    $this->reqOrderType == $this->orderTypes[$key] &&
+                    $this->getValue($row, 'total') == $this->totals[$key] &&
                     $this->reqCampaignId == $this->campaignIds[$key] &&
                     $this->reqCustomerId == $this->customerIds[$key] &&
-                    substr($this->getValue($row, 'shipping_zip'), 0, 5) == $this->shippingZip[$key] &&
+                    $this->reqOrderType == $this->orderTypes[$key] &&
                     (
                         (
                             $this->reqOrderType == EcommerceSale::ORDER_TYPE['phone'] &&
-                            trim($this->getValue($row, 'dialed')) == $this->dialed[$key]
+                            trim($this->getValue($row, 'dialed')) == $this->dialed[$key] &&
+                            $this->getValue($row, 'inbound') == $this->inbounds[$key]
                         ) || (
                             $this->reqOrderType == EcommerceSale::ORDER_TYPE['e-commerce'] &&
-                            trim($this->getValue($row, 'coupon_code')) == $this->couponCodes[$key]
+                            trim($this->getValue($row, 'coupon_code')) == $this->couponCodes[$key] &&
+                            substr($this->getValue($row, 'shipping_zip'), 0, 5) == $this->shippingZips[$key]
                         )
                     )
-
                 ) {
                     array_push($this->alreadyExist, $row);
                     return;

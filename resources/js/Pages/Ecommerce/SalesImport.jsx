@@ -167,7 +167,8 @@ const SalesImport = () => {
     <>
       <Helmet title="Import Sales Report" />
       <Note>
-        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong.
+        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will
+        be wrong.
       </Note>
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
