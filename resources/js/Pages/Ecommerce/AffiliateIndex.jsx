@@ -474,7 +474,7 @@ const AffiliateIndex = () => {
       },
        {
         key: "updated_at",
-        title: "Updated At",
+        title: "Last Updated",
         dataType: DataType.Date,
         style: { width: 100 },
       },
