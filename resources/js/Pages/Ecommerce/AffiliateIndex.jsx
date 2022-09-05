@@ -551,9 +551,7 @@ const AffiliateIndex = () => {
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
     const data = new Blob([excelBuffer], { type: fileType })
     FileSaver.saveAs(data, 'Ecommerce Affiliates' + '.xlsx')
-    // toast.success("Report Generated Successfully")
-
-
+    toast.success('Report Exported Successfully');
   }
   const [serachSidebar, setSearchSidebar] = useState(false)
 

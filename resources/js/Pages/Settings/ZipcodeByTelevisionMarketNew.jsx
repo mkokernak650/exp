@@ -1,197 +1,179 @@
-import Layout from "../Layout/Layout"
-import React, { useEffect, useState, useRef } from "react"
-import { kaReducer, Table } from "ka-table"
-import { DataType, SortingMode } from "ka-table/enums"
-import { kaPropsUtils } from "ka-table/utils"
-import { usePage } from "@inertiajs/inertia-react"
-import FilterControl from "react-filter-control"
-import search from "../../../images/search.svg"
-import eyeIcon from "../../../images/eyeIcon.svg"
-import closeNav from "../../../images/closeNav.svg"
-import {
-  showColumn,
-  hideLoading,
-  showLoading,
-} from "ka-table/actionCreators"
-import {
-  makeStyles,
-  Button,
-  CircularProgress,
-  RadioGroup,
-  Radio,
-  FormControlLabel,
-  FormLabel,
-} from "@material-ui/core"
-import NormalModal from "../../Shared/NormalModal"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import { Pagination } from "react-laravel-paginex"
-import toast from "react-hot-toast"
-import SelectionHeader from "../../TableComponents/SelectionHeader"
-import SelectionCell from "../../TableComponents/SelectionCell"
-import CheckOutsideClick from "../../Helpers/CheckOutsideClick"
-import ColumnSettings from "../../Components/ColumnSettings"
-
+import Layout from '../Layout/Layout';
+import React, { useEffect, useState, useRef } from 'react';
+import { kaReducer, Table } from 'ka-table';
+import { DataType, SortingMode } from 'ka-table/enums';
+import { kaPropsUtils } from 'ka-table/utils';
+import { usePage } from '@inertiajs/inertia-react';
+import FilterControl from 'react-filter-control';
+import search from '../../../images/search.svg';
+import eyeIcon from '../../../images/eyeIcon.svg';
+import closeNav from '../../../images/closeNav.svg';
+import { showColumn, hideLoading, showLoading } from 'ka-table/actionCreators';
+import { makeStyles, Button, CircularProgress } from '@material-ui/core';
+import axios from 'axios';
+import { Helmet } from 'react-helmet';
+import { Pagination } from 'react-laravel-paginex';
+import toast from 'react-hot-toast';
+import SelectionHeader from '../../TableComponents/SelectionHeader';
+import SelectionCell from '../../TableComponents/SelectionCell';
+import CheckOutsideClick from '../../Helpers/CheckOutsideClick';
+import ColumnSettings from '../../Components/ColumnSettings';
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
 
 const useStyles = makeStyles(() => ({
   button: {
-    width: "auto",
-    textTransform: "capitalize",
-    fontSize: "14px",
+    width: 'auto',
+    textTransform: 'capitalize',
+    fontSize: '14px',
   },
-}))
+}));
 
 const operators = [
   {
-    caption: "Contains",
-    name: "contains",
+    caption: 'Contains',
+    name: 'contains',
   },
   {
-    caption: "Not Contains",
-    name: "doesNotContain",
+    caption: 'Not Contains',
+    name: 'doesNotContain',
   },
   {
-    caption: "Is Empty",
-    name: "isEmpty",
+    caption: 'Is Empty',
+    name: 'isEmpty',
   },
   {
-    caption: "Is Not Empty",
-    name: "isNotEmpty",
+    caption: 'Is Not Empty',
+    name: 'isNotEmpty',
   },
   {
-    caption: "Starts With",
-    name: "startswith",
+    caption: 'Starts With',
+    name: 'startswith',
   },
   {
-    caption: "Ends With",
-    name: "endsWith",
+    caption: 'Ends With',
+    name: 'endsWith',
   },
   {
-    caption: "Is",
-    name: "is",
+    caption: 'Is',
+    name: 'is',
   },
   {
-    caption: "Is Not",
-    name: "isnot",
+    caption: 'Is Not',
+    name: 'isnot',
   },
-]
+];
 
 export const fields = [
   {
-    caption: "Market",
-    name: "Market",
-    operators
+    caption: 'Market',
+    name: 'Market',
+    operators,
   },
   {
-    caption: "State",
-    name: "State",
-    operators
+    caption: 'State',
+    name: 'State',
+    operators,
   },
   {
-    caption: "County",
-    name: "County",
-    operators
+    caption: 'County',
+    name: 'County',
+    operators,
   },
   {
-    caption: "City",
-    name: "City",
-    operators
+    caption: 'City',
+    name: 'City',
+    operators,
   },
   {
-    caption: "Population",
-    name: "Population",
-    operators
+    caption: 'Population',
+    name: 'Population',
+    operators,
   },
   {
-    caption: "ZipCode",
-    name: "Zip_Code",
-    operators
+    caption: 'ZipCode',
+    name: 'Zip_Code',
+    operators,
   },
   {
-    caption: "Fips",
-    name: "Fips",
-    operators
+    caption: 'Fips',
+    name: 'Fips',
+    operators,
   },
   {
-    caption: "Median_household_income_2007_2011",
-    name: "Median_household_income_2007_2011",
-    operators
+    caption: 'Median_household_income_2007_2011',
+    name: 'Median_household_income_2007_2011',
+    operators,
   },
   {
-    caption: "Race_americanindian",
-    name: "Race_americanindian",
-    operators
+    caption: 'Race_americanindian',
+    name: 'Race_americanindian',
+    operators,
   },
   {
-    caption: "Race_asian",
-    name: "Race_asian",
-    operators
+    caption: 'Race_asian',
+    name: 'Race_asian',
+    operators,
   },
   {
-    caption: "Race_white",
-    name: "Race_white",
-    operators
+    caption: 'Race_white',
+    name: 'Race_white',
+    operators,
   },
   {
-    caption: "Race_black",
-    name: "Race_black",
-    operators
+    caption: 'Race_black',
+    name: 'Race_black',
+    operators,
   },
   {
-    caption: "Race_hawaiian",
-    name: "Race_hawaiian",
-    operators
+    caption: 'Race_hawaiian',
+    name: 'Race_hawaiian',
+    operators,
   },
   {
-    caption: "Race_hispanic",
-    name: "Race_hispanic",
-    operators
+    caption: 'Race_hispanic',
+    name: 'Race_hispanic',
+    operators,
   },
   {
-    caption: "Race_other",
-    name: "Race_other",
-    operators
+    caption: 'Race_other',
+    name: 'Race_other',
+    operators,
   },
-]
+];
 export const groups = [
   {
-    caption: "And",
-    name: "and",
+    caption: 'And',
+    name: 'and',
   },
   {
-    caption: "Or",
-    name: "or",
+    caption: 'Or',
+    name: 'or',
   },
-]
+];
 export const filter = {
-  groupName: "and",
+  groupName: 'and',
   items: [
     {
-      field: "Market",
-      operator: "isNotEmpty",
-      value: "",
+      field: 'Market',
+      operator: 'isNotEmpty',
+      value: '',
     },
   ],
-}
+};
 
 const ZipcodeByTelevisionMarketNew = () => {
-  const classes = useStyles()
-  const { allZipcodesByTelevisionMarket } = usePage().props
-  const [showColumns, setShowColumns] = useState(false)
-  const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [importModal, setImportModal] = useState({ open: false })
-  const [exportModal, setExportModal] = useState({ open: false })
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [type, setType] = useState("xlsx")
-  const showColumnRef = useRef()
-  const [zipcodeTelMarket, setZipcodeTelMarket] = useState(
-    allZipcodesByTelevisionMarket
-  )
-  const [itemPerPage, setItemPerPage] = useState(10)
-  const [curerentPage, setCurerentPage] = useState(1)
-  const [searchedData, setSearchData] = useState([])
+  const classes = useStyles();
+  const { allZipcodesByTelevisionMarket } = usePage().props;
+  const [showColumns, setShowColumns] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false);
+  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const showColumnRef = useRef();
+  const [zipcodeTelMarket, setZipcodeTelMarket] = useState(allZipcodesByTelevisionMarket);
+  const [itemPerPage, setItemPerPage] = useState(10);
+  const [curerentPage, setCurerentPage] = useState(1);
+  const [searchedData, setSearchData] = useState([]);
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -212,274 +194,244 @@ const ZipcodeByTelevisionMarketNew = () => {
       race_other: item.race_other,
       id: item.id,
       key: index,
-    }))
-  }
-  const dataArray = mapDataArr(allZipcodesByTelevisionMarket)
-
+    }));
+  };
+  const dataArray = mapDataArr(allZipcodesByTelevisionMarket);
 
   const tablePropsInit = {
     columns: [
       {
-        key: "selection-cell",
+        key: 'selection-cell',
         style: { width: 80 },
       },
       {
-        key: "market",
-        title: "Market",
+        key: 'market',
+        title: 'Market',
         dataType: DataType.String,
         style: { width: 250 },
       },
       {
-        key: "state",
-        title: "State",
+        key: 'state',
+        title: 'State',
         dataType: DataType.String,
         style: { width: 130 },
       },
       {
-        key: "county",
-        title: "County",
+        key: 'county',
+        title: 'County',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "city",
-        title: "City",
+        key: 'city',
+        title: 'City',
         dataType: DataType.String,
         style: { width: 230 },
       },
       {
-        key: "population",
-        title: "Population",
+        key: 'population',
+        title: 'Population',
         dataType: DataType.String,
         style: { width: 130 },
       },
       {
-        key: "zip_code",
-        title: "ZipCode",
+        key: 'zip_code',
+        title: 'ZipCode',
         dataType: DataType.String,
         style: { width: 150 },
       },
       {
-        key: "fips",
-        title: "Fips",
+        key: 'fips',
+        title: 'Fips',
         dataType: DataType.String,
         style: { width: 190 },
       },
       {
-        key: "median_household_income_2007_2011",
-        title: "Median_household_income_2007_2011",
+        key: 'median_household_income_2007_2011',
+        title: 'Median_household_income_2007_2011',
         dataType: DataType.String,
         style: { width: 310 },
       },
       {
-        key: "race_americanindian",
-        title: "Race_americanindian",
+        key: 'race_americanindian',
+        title: 'Race_americanindian',
         dataType: DataType.String,
         style: { width: 220 },
       },
       {
-        key: "race_asian",
-        title: "Race_asian",
+        key: 'race_asian',
+        title: 'Race_asian',
         dataType: DataType.String,
         style: { width: 170 },
       },
       {
-        key: "race_white",
-        title: "Race_white",
+        key: 'race_white',
+        title: 'Race_white',
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "race_black",
-        title: "Race_black",
+        key: 'race_black',
+        title: 'Race_black',
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "race_hawaiian",
-        title: "Race_hawaiian",
+        key: 'race_hawaiian',
+        title: 'Race_hawaiian',
         dataType: DataType.String,
         style: { width: 180 },
       },
       {
-        key: "race_hispanic",
-        title: "Race_hispanic",
+        key: 'race_hispanic',
+        title: 'Race_hispanic',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "race_other",
-        title: "Race_other",
+        key: 'race_other',
+        title: 'Race_other',
         dataType: DataType.String,
         style: { width: 240 },
       },
     ],
     loading: {
       enabled: false,
-      text: "Loading...",
+      text: 'Loading...',
     },
     data: dataArray,
-    rowKeyField: "id",
+    rowKeyField: 'id',
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
-  }
+  };
 
-  const OPTION_KEY = "zipcode-television-by-market"
+  const OPTION_KEY = 'zipcode-television-by-market';
   const stateStore = {
     ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  }
-  const [tableProps, changeTableProps] = useState(stateStore)
+    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
+  };
+  const [tableProps, changeTableProps] = useState(stateStore);
 
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
-      return newState
-    })
-  }
+      const newState = kaReducer(prevState, action);
+      const { data, ...settingsWithoutData } = newState;
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
+      return newState;
+    });
+  };
 
-  const [filterValue, changeFilter] = useState(filter)
-  const [serachSidebar, setSearchSidebar] = useState(false)
+  const [filterValue, changeFilter] = useState(filter);
+  const [serachSidebar, setSearchSidebar] = useState(false);
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState)
-  }
+    setSearchSidebar((prevState) => !prevState);
+  };
 
   const handleColumns = () => {
-    setShowColumns(true)
-  }
+    setShowColumns(true);
+  };
   const hideCoumnSettings = () => {
-    setShowColumns(false)
-  }
+    setShowColumns(false);
+  };
   const closeSidebar = () => {
-    setSearchSidebar(false)
-  }
+    setSearchSidebar(false);
+  };
 
-  const openImportModal = () => {
-    setImportModal({ open: true })
-  }
-  const openExportModal = () => {
-    setExportModal({ open: true })
-  }
-
-  const handleImportChange = (e) => {
-    setSelectedFile(e.target.files[0])
-  }
-
-  const handleExportChange = (e) => {
-    setType(e.target.value)
-  }
-
-  const importHandler = (e) => {
-    e.preventDefault()
-    setLoading(true)
-    const formData = new FormData()
-    formData.append("importfile", selectedFile)
-    axios
-      .post(route("zipcode.television.market.import"), formData)
-      .then((res) => {
-        setSelectedFile(null)
-        setLoading(false)
-        if (res.status === 200) {
-          setMainData(res.data)
-          setImportModal({ open: false })
-          toast.success("Imported Successfully")
-        } else {
-          toast.error("Import failed")
-        }
-      })
-      .catch((err) => {
-        setLoading(false)
-        toast.error("Error while importing file")
-      })
-  }
-
-
+ 
 
   const triggerExportLink = (link) => {
-    return window.open(link)
-  }
+    return window.open(link);
+  };
 
   const exportHandler = (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
     axios
       .get('zipcode-television-market-export?filterValue=' + JSON.stringify(filterValue))
       .then((res) => {
-        setLoading(false)
+        setLoading(false);
         if (res.status === 200) {
-          triggerExportLink(res.request.responseURL)
-          setOpen(true)
+          triggerExportLink(res.request.responseURL);
+          setOpen(true);
         } else {
-          toast.error("Error while importing file")
+          toast.error('Error while importing file');
         }
       })
       .catch((err) => {
-        setLoading(false)
-      })
-  }
+        setLoading(false);
+      });
+  };
+
+  const viewExport = () => {
+    const filterdData = tableProps.data.map((item) => {
+      delete item.id;
+      delete item.key;
+      return item;
+    });
+    const fileType =
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    const ws = XLSX.utils.json_to_sheet(filterdData, 'ZipCodeTelevisionByMarketView');
+    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, 'ZipCodeTelevisionByMarketView' + '.xlsx');
+    toast.success('Report Exported Successfully');
+  };
 
   useEffect(() => {
     const closeColumnSetting = (e) => {
-      CheckOutsideClick(e, showColumn, setShowColumns, showColumnRef)
-    }
-    document.addEventListener("mousedown", closeColumnSetting)
+      CheckOutsideClick(e, showColumn, setShowColumns, showColumnRef);
+    };
+    document.addEventListener('mousedown', closeColumnSetting);
     return () => {
-      document.removeEventListener("mousedown", closeColumnSetting)
-    }
-  }, [showColumns])
+      document.removeEventListener('mousedown', closeColumnSetting);
+    };
+  }, [showColumns]);
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
-        <div className="selection-rows">
-          {selectedRowIds.length} Row Selected
-        </div>
+        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    )
-  }
-
-
+    );
+  };
 
   const getSearchingData = async (data) => {
-    setCurerentPage(data)
-    dispatch(showLoading())
+    setCurerentPage(data);
+    dispatch(showLoading());
     await axios
       .get(
-        "tv-markets-by-zip-codes?page=" +
-        data.page +
-        "&itemPerPage=" +
-        itemPerPage +
-        "&filteredValue=" +
-        JSON.stringify(filterValue)
+        'tv-markets-by-zip-codes?page=' +
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        console.log(res)
-        tmpTableProps.data = res.data.data
-        changeTableProps(tmpTableProps)
-        setZipcodeTelMarket(res.data)
-        dispatch(hideLoading())
-        setSearchData(res.data.data)
-      })
-  }
+        const tmpTableProps = { ...tableProps };
+        console.log(res);
+        tmpTableProps.data = res.data.data;
+        changeTableProps(tmpTableProps);
+        setZipcodeTelMarket(res.data);
+        dispatch(hideLoading());
+        setSearchData(res.data.data);
+      });
+  };
 
   const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
+    changeFilter(newFilterValue);
+  };
 
   const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
-  }
+    setItemPerPage(e.target.value);
+  };
 
   useEffect(() => {
-    getSearchingData(curerentPage)
-
-  }, [itemPerPage, filterValue])
-
+    getSearchingData(curerentPage);
+  }, [itemPerPage, filterValue]);
 
   return (
     <>
@@ -493,20 +445,30 @@ const ZipcodeByTelevisionMarketNew = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
               </div>
-          
+
               <Button
                 variant="contained"
                 type="submit"
                 color="primary"
                 className={classes.button}
                 onClick={exportHandler}
-                disabled={allZipcodesByTelevisionMarket == ""}
+                disabled={allZipcodesByTelevisionMarket == ''}
               >
                 {loading ? (
                   <CircularProgress color="inherit" thickness={3} size="1.5rem" />
                 ) : (
-                  "Searched Export"
+                  'Searched Export'
                 )}
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                color="primary"
+                className={classes.button}
+                onClick={viewExport}
+                disabled={tableProps.data.length < 1}
+              >
+                View Export
               </Button>
             </div>
 
@@ -538,7 +500,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                 </div>
               </div>
             ) : (
-              ""
+              ''
             )}
             {showColumns && (
               <div className="column-settings" ref={showColumnRef}>
@@ -552,54 +514,55 @@ const ZipcodeByTelevisionMarketNew = () => {
           childComponents={{
             cellText: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props}
-                    selectedRowIds={selectedRowIds}
-                    setTableToolbar={setTableToolbar}
-                  />
+                if (props.column.key === 'selection-cell') {
+                  return (
+                    <SelectionCell
+                      {...props}
+                      selectedRowIds={selectedRowIds}
+                      setTableToolbar={setTableToolbar}
+                    />
+                  );
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
-                  return <></>
+                if (props.column.key === 'selection-cell') {
+                  return <></>;
                 }
               },
             },
             headCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return (
                     <SelectionHeader
                       {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                        tableProps
-                      )}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                       selectedRowIds={selectedRowIds}
                       setTableToolbar={setTableToolbar}
                       searchedData={searchedData}
                     />
-                  )
+                  );
                 }
               },
             },
             cell: {
               content: (props) => {
                 switch (props.column.key) {
-                  case "drag":
+                  case 'drag':
                     return (
                       <img
-                        style={{ cursor: "move" }}
+                        style={{ cursor: 'move' }}
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    )
+                    );
                 }
               },
             },
             noDataRow: {
-              content: () => "No Data Found",
+              content: () => 'No Data Found',
             },
           }}
           dispatch={dispatch}
@@ -615,74 +578,15 @@ const ZipcodeByTelevisionMarketNew = () => {
           >
             <option value="10">10</option>
             <option value="20">20</option>
-            <option value="50">50</option>
             <option value="100">100</option>
+            <option value="200">200</option>
           </select>
           <Pagination changePage={getSearchingData} data={zipcodeTelMarket} />
         </div>
-
-        <NormalModal
-          open={importModal.open}
-          setOpen={setImportModal}
-          width={"500px"}
-          title={""}
-        >
-          <div className={classes.import}>
-            <input
-              id="importfile"
-              type="file"
-              name="importfile"
-              onChange={handleImportChange}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={importHandler}
-              disabled={!selectedFile}
-            >
-              {loading ? (
-                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-              ) : (
-                "Next"
-              )}
-            </Button>
-          </div>
-        </NormalModal>
-
-        <NormalModal
-          open={exportModal.open}
-          setOpen={setExportModal}
-          width={"500px"}
-          title={""}
-        >
-          <div className={classes.import}>
-            <FormLabel component="legend">Select Type</FormLabel>
-            <RadioGroup
-              aria-label="type"
-              name="type"
-              value={type}
-              onChange={handleExportChange}
-            >
-              <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
-              <FormControlLabel value="csv" control={<Radio />} label="CSV" />
-              <FormControlLabel value="xls" control={<Radio />} label="XLS" />
-              <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
-            </RadioGroup>
-            <Button variant="contained" color="primary" onClick={exportHandler}>
-              {loading ? (
-                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-              ) : (
-                "Next"
-              )}
-            </Button>
-          </div>
-        </NormalModal>
       </div>
     </>
-  )
-}
+  );
+};
 
-ZipcodeByTelevisionMarketNew.layout = (page) => (
-  <Layout title="Zipcode Database">{page}</Layout>
-)
-export default ZipcodeByTelevisionMarketNew
+ZipcodeByTelevisionMarketNew.layout = (page) => <Layout title="Zipcode Database">{page}</Layout>;
+export default ZipcodeByTelevisionMarketNew;

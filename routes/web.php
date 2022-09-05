@@ -142,7 +142,6 @@ Route::get('/zipcode-television-market-export', [ZipcodeByTelevisionMarketContro
 Route::post('/zipcode-television-market-delete', [ZipcodeByTelevisionMarketController::class, 'delete'])->name('zipcode.television.market.delete');
 Route::get('/telephone-and-zip-codes', [ZipcodeDataController::class, 'index'])->name('zipcode.data');
 Route::post('/zipcode-data-import', [ZipcodeDataController::class, 'import'])->name('zipcode.data.import');
-Route::get('/zipcode-data-export/{type}', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 Route::post('/zipcode-data-delete', [ZipcodeDataController::class, 'delete'])->name('zipcode.data.delete');
 Route::get('/zipcode-data-export', [ZipcodeDataController::class, 'export'])->name('zipcode.data.export');
 
