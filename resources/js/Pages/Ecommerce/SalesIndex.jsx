@@ -1,204 +1,198 @@
-import Layout from "../Layout/Layout";
-import M from "materialize-css";
-import React, { useEffect, useState, useRef } from "react";
-import { kaReducer, Table } from "ka-table";
-import {
-  DataType,
-  SortingMode,
-  PagingPosition,
-  EditingMode,
-  ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+import Layout from '../Layout/Layout';
+import M from 'materialize-css';
+import React, { useEffect, useState, useRef } from 'react';
+import { kaReducer, Table } from 'ka-table';
+import { DataType, SortingMode, PagingPosition, EditingMode, ActionType } from 'ka-table/enums';
+import { kaPropsUtils } from 'ka-table/utils';
+import { usePage } from '@inertiajs/inertia-react';
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/cancel.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Edit from "../../../images/edit1.svg";
-import Checkbox from "@material-ui/core/Checkbox";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
-import ConfirmModal from "../../Shared/ConfirmModal";
-import NormalModal from "../../Shared/NormalModal";
-import toast from "react-hot-toast";
-import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
+} from 'ka-table/actionCreators';
+import FilterControl from 'react-filter-control';
+import { filterData } from '../filterData';
+import 'ka-table/style.scss';
+import search from '../../../images/search.svg';
+import eyeIcon from '../../../images/eyeIcon.svg';
+import closeNav from '../../../images/closeNav.svg';
+import Cancel from '../../../images/cancel.svg';
+import { hideColumn, showColumn } from 'ka-table/actionCreators';
+import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean';
+import Tooltip from '@material-ui/core/Tooltip';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+import Edit from '../../../images/edit1.svg';
+import Checkbox from '@material-ui/core/Checkbox';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import TextField from '@material-ui/core/TextField';
+import { Button, makeStyles } from '@material-ui/core';
+import axios from 'axios';
+import { Helmet } from 'react-helmet';
+import SnackBar from '../../Shared/SnackBar';
+import ConfirmModal from '../../Shared/ConfirmModal';
+import NormalModal from '../../Shared/NormalModal';
+import toast from 'react-hot-toast';
+import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
 
 const useStyles = makeStyles(() => ({
   topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
+    display: 'flex',
+    gap: '10px',
+    marginLeft: '10px',
   },
   button: {
-    textTransform: "capitalize",
-    fontSize: "14px",
+    textTransform: 'capitalize',
+    fontSize: '14px',
   },
   editButton: {
-    marginTop: "15px",
+    marginTop: '15px',
   },
 }));
 
 const operators = [
   {
-    caption: "Contains",
-    name: "contains",
+    caption: 'Contains',
+    name: 'contains',
   },
   {
-    caption: "Not Contains",
-    name: "doesNotContain",
+    caption: 'Not Contains',
+    name: 'doesNotContain',
   },
   {
-    caption: "Is Empty",
-    name: "isEmpty",
+    caption: 'Is Empty',
+    name: 'isEmpty',
   },
   {
-    caption: "Is Not Empty",
-    name: "isNotEmpty",
+    caption: 'Is Not Empty',
+    name: 'isNotEmpty',
   },
   {
-    caption: "Starts With",
-    name: "startswith",
+    caption: 'Starts With',
+    name: 'startswith',
   },
   {
-    caption: "Ends With",
-    name: "endsWith",
+    caption: 'Ends With',
+    name: 'endsWith',
   },
   {
-    caption: "Is",
-    name: "is",
+    caption: 'Is',
+    name: 'is',
   },
   {
-    caption: "Is Not",
-    name: "isnot",
+    caption: 'Is Not',
+    name: 'isnot',
   },
 ];
 
 export const fields = [
   {
-    caption: "campaign",
-    name: "campaign",
+    caption: 'campaign',
+    name: 'campaign',
     operators,
   },
   {
-    caption: "customer",
-    name: "customer",
+    caption: 'customer',
+    name: 'customer',
     operators,
   },
   {
-    caption: "order_type",
-    name: "order_type",
+    caption: 'order_type',
+    name: 'order_type',
     operators,
   },
   {
-    caption: "order_no",
-    name: "order_no",
+    caption: 'order_no',
+    name: 'order_no',
     operators,
   },
   {
-    caption: "coupon_code",
-    name: "coupon_code",
+    caption: 'coupon_code',
+    name: 'coupon_code',
     operators,
   },
   {
-    caption: "dialed",
-    name: "dialed",
+    caption: 'dialed',
+    name: 'dialed',
     operators,
   },
   {
-    caption: "user_ip",
-    name: "user_ip",
+    caption: 'user_ip',
+    name: 'user_ip',
     operators,
   },
   {
-    caption: "inbound",
-    name: "inbound",
+    caption: 'inbound',
+    name: 'inbound',
     operators,
   },
   {
-    caption: "shipping_city",
-    name: "shipping_city",
+    caption: 'shipping_city',
+    name: 'shipping_city',
     operators,
   },
   {
-    caption: "shipping_state",
-    name: "shipping_state",
+    caption: 'shipping_state',
+    name: 'shipping_state',
     operators,
   },
   {
-    caption: "shipping_zip",
-    name: "shipping_zip",
+    caption: 'shipping_zip',
+    name: 'shipping_zip',
     operators,
   },
   {
-    caption: "billing_zip",
-    name: "billing_zip",
+    caption: 'billing_zip',
+    name: 'billing_zip',
     operators,
   },
   {
-    caption: "quantity",
-    name: "quantity",
+    caption: 'quantity',
+    name: 'quantity',
     operators,
   },
   {
-    caption: "subtotal",
-    name: "subtotal",
+    caption: 'subtotal',
+    name: 'subtotal',
     operators,
   },
   {
-    caption: "shipping_cost",
-    name: "shipping_cost",
+    caption: 'shipping_cost',
+    name: 'shipping_cost',
     operators,
   },
   {
-    caption: "total",
-    name: "total",
+    caption: 'total',
+    name: 'total',
     operators,
   },
   {
-    caption: "order_at",
-    name: "order_at",
+    caption: 'order_at',
+    name: 'order_at',
     operators,
   },
 ];
 
 export const groups = [
   {
-    caption: "And",
-    name: "and",
+    caption: 'And',
+    name: 'and',
   },
   {
-    caption: "Or",
-    name: "or",
+    caption: 'Or',
+    name: 'or',
   },
 ];
 
 export const filter = {
-  groupName: "and",
+  groupName: 'and',
   items: [
     {
-      field: "order_at",
-      operator: "isNotEmpty",
-      value: "",
+      field: 'order_at',
+      operator: 'isNotEmpty',
+      value: '',
     },
   ],
 };
@@ -211,7 +205,7 @@ const SalesIndex = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
-  const [responseType, setResponseType] = useState("success");
+  const [responseType, setResponseType] = useState('success');
   const [showEditModal, setShowEditModal] = useState({ open: false });
   const [editData, setEditData] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
@@ -223,22 +217,22 @@ const SalesIndex = () => {
   };
 
   const headers = {
-    headers: { Accept: "application/json" },
+    headers: { Accept: 'application/json' },
   };
 
   const getCustomerNameById = (id) => {
     const customer = customers.find((customer) => customer.id == id);
-    return customer ? customer.customer_name : "";
+    return customer ? customer.customer_name : '';
   };
 
   const getCampaignNameById = (id) => {
     const campaign = campaigns.find((campaign) => campaign.id == id);
-    return campaign ? campaign.campaign_name : "";
+    return campaign ? campaign.campaign_name : '';
   };
 
   const handleEditSubmit = () => {
     axios
-      .put(route("ecommerce-sales.update", editData?.id), editData, headers)
+      .put(route('ecommerce-sales.update', editData?.id), editData, headers)
       .then((res) => {
         let campaignName = getCampaignNameById(editData?.campaign_id);
         let customerName = getCustomerNameById(editData?.customer_id);
@@ -259,10 +253,10 @@ const SalesIndex = () => {
         toast.success(res.data.msg);
       })
       .catch((err) => {
-        let errors = "";
+        let errors = '';
         if (err.response.data?.errors) {
           Object.values(err.response.data?.errors).map((error) => {
-            errors += error[0] + "\n";
+            errors += error[0] + '\n';
           });
         } else if (err.response.data?.msg) {
           errors = err.response.data.msg;
@@ -278,7 +272,7 @@ const SalesIndex = () => {
     customer_id: item?.customer_id,
     campaign: item?.campaign?.campaign_name,
     customer: item?.customer?.customer_name,
-    order_type: item?.order_type == 1 ? "E-commerce" : "Phone",
+    order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
     dialed: item?.dialed,
     inbound: item?.inbound,
     revenue: item?.revenue,
@@ -300,12 +294,7 @@ const SalesIndex = () => {
     key: index,
   }));
 
-  const SelectionCell = ({
-    rowKeyValue,
-    dispatch,
-    isSelectedRow,
-    selectedRows,
-  }) => {
+  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
       <Checkbox
         checked={isSelectedRow}
@@ -376,130 +365,130 @@ const SalesIndex = () => {
   const tablePropsInit = {
     columns: [
       {
-        key: "edit",
+        key: 'edit',
         style: { width: 40 },
       },
       {
-        key: "selection-cell",
+        key: 'selection-cell',
         style: { width: 80 },
       },
       {
-        key: "sl",
-        title: "SL",
+        key: 'sl',
+        title: 'SL',
         dataType: DataType.Number,
         style: { width: 60 },
       },
       {
-        key: "campaign",
-        title: "Campaign",
+        key: 'campaign',
+        title: 'Campaign',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "customer",
-        title: "Customer",
+        key: 'customer',
+        title: 'Customer',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "order_at",
-        title: "Order AT",
+        key: 'order_at',
+        title: 'Order AT',
         dataType: DataType.Date,
         style: { width: 160 },
       },
       {
-        key: "order_type",
-        title: "Order Type",
+        key: 'order_type',
+        title: 'Order Type',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "order_no",
-        title: "Order No",
+        key: 'order_no',
+        title: 'Order No',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "coupon_code",
-        title: "Coupon Code",
+        key: 'coupon_code',
+        title: 'Coupon Code',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "dialed",
-        title: "Dialed",
+        key: 'dialed',
+        title: 'Dialed',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "user_ip",
-        title: "User IP",
+        key: 'user_ip',
+        title: 'User IP',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "inbound",
-        title: "Inbound",
+        key: 'inbound',
+        title: 'Inbound',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "shipping_city",
-        title: "Shipping City",
+        key: 'shipping_city',
+        title: 'Shipping City',
         dataType: DataType.String,
         style: { width: 160 },
       },
       {
-        key: "shipping_state",
-        title: "Shipping State",
+        key: 'shipping_state',
+        title: 'Shipping State',
         dataType: DataType.String,
         style: { width: 140 },
       },
       {
-        key: "shipping_zip",
-        title: "Shipping Zip",
+        key: 'shipping_zip',
+        title: 'Shipping Zip',
         dataType: DataType.String,
         style: { width: 140 },
       },
       {
-        key: "billing_zip",
-        title: "Billing Zip",
+        key: 'billing_zip',
+        title: 'Billing Zip',
         dataType: DataType.String,
         style: { width: 120 },
       },
       {
-        key: "quantity",
-        title: "Quantity",
+        key: 'quantity',
+        title: 'Quantity',
         dataType: DataType.String,
         style: { width: 120 },
       },
       {
-        key: "subtotal",
-        title: "Subtotal",
+        key: 'subtotal',
+        title: 'Subtotal',
         dataType: DataType.String,
         style: { width: 140 },
       },
       {
-        key: "shipping_cost",
-        title: "Shipping Cost",
+        key: 'shipping_cost',
+        title: 'Shipping Cost',
         dataType: DataType.String,
         style: { width: 140 },
       },
       {
-        key: "total",
-        title: "Total",
+        key: 'total',
+        title: 'Total',
         dataType: DataType.String,
         style: { width: 140 },
       },
       {
-        key: "created_at",
-        title: "Created At",
+        key: 'created_at',
+        title: 'Created At',
         dataType: DataType.String,
         style: { width: 100 },
       },
       {
-        key: "updated_at",
-        title: "Last Updated",
+        key: 'updated_at',
+        title: 'Last Updated',
         dataType: DataType.Date,
         style: { width: 100 },
       },
@@ -512,12 +501,12 @@ const SalesIndex = () => {
       position: PagingPosition.Bottom,
     },
     data: dataArray,
-    rowKeyField: "id",
+    rowKeyField: 'id',
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
-      if (column.key === "edit") {
+      if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
             <img src={Edit} alt="edit-icon"></img>
@@ -527,28 +516,28 @@ const SalesIndex = () => {
       // if (column.key === "order_type") {
       //   return value == 1 ? "E-commerce" : "Phone";
       // }
-      if (column.key === "order_at") {
+      if (column.key === 'order_at') {
         if (value !== undefined) {
           let d = new Date(value);
           let hours = d.getHours();
           let minutes = d.getMinutes();
-          let ampm = hours >= 12 ? "PM" : "AM";
+          let ampm = hours >= 12 ? 'PM' : 'AM';
           hours = hours % 12;
           hours = hours ? hours : 12; // the hour "0" should be "12"
-          minutes = minutes < 10 ? "0" + minutes : minutes;
-          let strTime = hours + ":" + minutes + " " + ampm;
+          minutes = minutes < 10 ? '0' + minutes : minutes;
+          let strTime = hours + ':' + minutes + ' ' + ampm;
           return (
             d.getDate() +
-            "-" +
-            new Intl.DateTimeFormat("en", { month: "short" }).format(d) +
-            "-" +
+            '-' +
+            new Intl.DateTimeFormat('en', { month: 'short' }).format(d) +
+            '-' +
             d.getFullYear().toString() +
-            " " +
+            ' ' +
             strTime
           );
         }
       }
-      if (column.key === "created_at" || column.key === "updated_at") {
+      if (column.key === 'created_at' || column.key === 'updated_at') {
         if (value !== undefined) {
           return DateTimeFormat(value);
         }
@@ -556,10 +545,10 @@ const SalesIndex = () => {
     },
   };
 
-  const OPTION_KEY = "sales-index";
+  const OPTION_KEY = 'sales-index';
   const stateStore = {
     ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
+    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
   const dispatch = (action) => {
@@ -590,17 +579,15 @@ const SalesIndex = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route("ecommerce-sales.deleteSelected"), { selectedRowIds })
+      .post(route('ecommerce-sales.deleteSelected'), { selectedRowIds })
       .then((res) => {
         let filteredData = tableProps;
-        const newData = filteredData.data.filter(
-          (item) => !selectedRowIds.includes(item.id)
-        );
+        const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id));
         filteredData.data = newData;
         changeTableProps(filteredData);
         setSelectedRowIds([]);
         setTableToolbar(false);
-        setResponseType("success");
+        setResponseType('success');
         setOpen(true);
         setResponse(res.data.msg);
         setShowDeleteModal({ open: false });
@@ -608,7 +595,7 @@ const SalesIndex = () => {
       })
       .catch((err) => {
         setOpen(true);
-        setResponseType("error");
+        setResponseType('error');
         setResponse(err.response.data.msg);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
@@ -628,26 +615,22 @@ const SalesIndex = () => {
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      if (
-        showColumns &&
-        showColumnRef.current &&
-        !showColumnRef.current.contains(e.target)
-      ) {
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
         setShowColumns(false);
       }
     };
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside);
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside);
+      document.removeEventListener('mousedown', checkIfClickedOutside);
     };
   }, [showColumns]);
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("sales-index"));
+    const storedData = JSON.parse(localStorage.getItem('sales-index'));
     storedData.selectedRows = [];
-    localStorage.setItem("sales-index", JSON.stringify(storedData));
+    localStorage.setItem('sales-index', JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     filteredData.selectedRows = [];
     changeTableProps(filteredData);
@@ -655,7 +638,7 @@ const SalesIndex = () => {
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("sales-index"));
+      const storedData = JSON.parse(localStorage.getItem('sales-index'));
       if (storedData != null) {
         emptyCheckbox();
       }
@@ -666,16 +649,11 @@ const SalesIndex = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton
-            aria-label="delete"
-            onClick={() => handleOpenModal(setShowDeleteModal)}
-          >
-            <DeleteIcon style={{ color: "#031b4e" }} />
+          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
+            <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
-        <div className="selection-rows">
-          {selectedRowIds.length} Row Selected
-        </div>
+        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     );
   };
@@ -686,20 +664,20 @@ const SalesIndex = () => {
         ...c,
         visible: c.visible !== false,
       })),
-      rowKeyField: "key",
+      rowKeyField: 'key',
       columns: [
         {
-          key: "visible",
-          title: "Visible",
+          key: 'visible',
+          title: 'Visible',
           isEditable: false,
-          style: { textAlign: "center" },
+          style: { textAlign: 'center' },
           width: 80,
           dataType: DataType.Boolean,
         },
         {
-          key: "title",
+          key: 'title',
           isEditable: false,
-          title: "Fields",
+          title: 'Fields',
           dataType: DataType.String,
         },
       ],
@@ -708,9 +686,7 @@ const SalesIndex = () => {
     const dispatchSettings = (action) => {
       if (action.type === ActionType.UpdateCellValue) {
         tableProps.dispatch(
-          action.value
-            ? showColumn(action.rowKeyValue)
-            : hideColumn(action.rowKeyValue)
+          action.value ? showColumn(action.rowKeyValue) : hideColumn(action.rowKeyValue)
         );
       }
     };
@@ -726,7 +702,7 @@ const SalesIndex = () => {
           cell: {
             content: (props) => {
               switch (props.column.key) {
-                case "visible":
+                case 'visible':
                   return <CellEditorBoolean {...props} />;
               }
             },
@@ -745,7 +721,7 @@ const SalesIndex = () => {
     e.preventDefault();
     setLoading(true);
     axios
-      .get("ecommerce-sales-export?filterValue=" + JSON.stringify(filterValue))
+      .get('ecommerce-sales-export?filterValue=' + JSON.stringify(filterValue))
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
@@ -753,7 +729,7 @@ const SalesIndex = () => {
           triggerExportLink(res.request.responseURL);
           setOpen(true);
         } else {
-          toast.error("Error while importing file");
+          toast.error('Error while importing file');
         }
       })
       .catch((err) => {
@@ -780,16 +756,12 @@ const SalesIndex = () => {
                 color="primary"
                 className={classes.button}
                 onClick={exportHandler}
-                disabled={sales == ""}
+                disabled={sales == ''}
               >
                 {loading ? (
-                  <CircularProgress
-                    color="inherit"
-                    thickness={3}
-                    size="1.5rem"
-                  />
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
                 ) : (
-                  "Searched Export"
+                  'Searched Export'
                 )}
               </Button>
             </div>
@@ -821,14 +793,14 @@ const SalesIndex = () => {
                 </div>
               </div>
             ) : (
-              ""
+              ''
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
-              ""
+              ''
             )}
           </div>
         )}
@@ -837,27 +809,25 @@ const SalesIndex = () => {
           childComponents={{
             cellText: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return <SelectionCell {...props} />;
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return <></>;
                 }
               },
             },
             headCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return (
                     <SelectionHeader
                       {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                        tableProps
-                      )}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                       // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   );
@@ -867,10 +837,10 @@ const SalesIndex = () => {
             cell: {
               content: (props) => {
                 switch (props.column.key) {
-                  case "drag":
+                  case 'drag':
                     return (
                       <img
-                        style={{ cursor: "move" }}
+                        style={{ cursor: 'move' }}
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
@@ -887,13 +857,13 @@ const SalesIndex = () => {
       <NormalModal
         open={showEditModal.open}
         setOpen={setShowEditModal}
-        width={"600px"}
-        title={"Edit E-commerce Affiliate"}
+        width={'600px'}
+        title={'Edit E-commerce Affiliate'}
       >
         <div className="edit_target">
           <form className={classes.form}>
             <TextField
-              value={editData ? editData?.campaign_id : ""}
+              value={editData ? editData?.campaign_id : ''}
               select
               name="campaign_id"
               margin="normal"
@@ -909,7 +879,7 @@ const SalesIndex = () => {
               ))}
             </TextField>
             <TextField
-              value={editData ? editData?.customer_id : ""}
+              value={editData ? editData?.customer_id : ''}
               select
               name="customer_id"
               margin="normal"
@@ -931,14 +901,14 @@ const SalesIndex = () => {
               name="order_type"
               margin="normal"
               onChange={handleEditChange}
-              value={editData ? editData?.order_type : ""}
+              value={editData ? editData?.order_type : ''}
             >
               <option value="">Select Order Type</option>
               <option value="E-commerce">E-commerce</option>
               <option value="Phone">Phone</option>
             </TextField>
             <TextField
-              value={editData ? editData?.order_no : ""}
+              value={editData ? editData?.order_no : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -947,10 +917,10 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
 
-            {editData?.order_type && editData.order_type == "E-commerce" && (
+            {editData?.order_type && editData.order_type == 'E-commerce' && (
               <>
                 <TextField
-                  value={editData ? editData?.coupon_code : ""}
+                  value={editData ? editData?.coupon_code : ''}
                   fullWidth
                   type="text"
                   margin="normal"
@@ -960,7 +930,7 @@ const SalesIndex = () => {
                   onChange={handleEditChange}
                 />
                 <TextField
-                  value={editData ? editData?.user_ip : ""}
+                  value={editData ? editData?.user_ip : ''}
                   fullWidth
                   type="text"
                   margin="normal"
@@ -971,10 +941,10 @@ const SalesIndex = () => {
               </>
             )}
 
-            {editData?.order_type && editData.order_type == "Phone" && (
+            {editData?.order_type && editData.order_type == 'Phone' && (
               <>
                 <TextField
-                  value={editData ? editData?.dialed : ""}
+                  value={editData ? editData?.dialed : ''}
                   fullWidth
                   type="text"
                   margin="normal"
@@ -984,7 +954,7 @@ const SalesIndex = () => {
                   onChange={handleEditChange}
                 />
                 <TextField
-                  value={editData ? editData?.inbound : ""}
+                  value={editData ? editData?.inbound : ''}
                   fullWidth
                   type="text"
                   margin="normal"
@@ -996,7 +966,7 @@ const SalesIndex = () => {
             )}
 
             <TextField
-              value={editData ? editData?.quantity : ""}
+              value={editData ? editData?.quantity : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1005,7 +975,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.subtotal : ""}
+              value={editData ? editData?.subtotal : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1014,7 +984,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.shipping_cost : ""}
+              value={editData ? editData?.shipping_cost : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1023,7 +993,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.total : ""}
+              value={editData ? editData?.total : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1032,7 +1002,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.shipping_state : ""}
+              value={editData ? editData?.shipping_state : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1041,7 +1011,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.shipping_city : ""}
+              value={editData ? editData?.shipping_city : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1050,7 +1020,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.shipping_zip : ""}
+              value={editData ? editData?.shipping_zip : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1059,7 +1029,7 @@ const SalesIndex = () => {
               onChange={handleEditChange}
             />
             <TextField
-              value={editData ? editData?.billing_zip : ""}
+              value={editData ? editData?.billing_zip : ''}
               fullWidth
               type="text"
               margin="normal"
@@ -1077,31 +1047,23 @@ const SalesIndex = () => {
             </Button>
           </form>
 
-          <div
-            onClick={() => handleCloseModal(setShowEditModal)}
-            className="close-modal-icon"
-          >
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
             <img src={Cancel} alt="close-modal-icon"></img>
           </div>
         </div>
       </NormalModal>
 
-      <SnackBar
-        open={open}
-        setOpen={setOpen}
-        severity={responseType}
-        response={response}
-      />
+      <SnackBar open={open} setOpen={setOpen} severity={responseType} response={response} />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
-        width={"400px"}
+        width={'400px'}
         title={`${
           selectedRowIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
         }`}
       ></ConfirmModal>
     </>

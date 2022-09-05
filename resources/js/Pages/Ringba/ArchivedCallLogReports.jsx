@@ -92,7 +92,6 @@ const ArchivedCallLogReports = () => {
     Campaign: item.Campaign,
     Call_Date: item.Call_Date,
     Call_Date_Time: item.Call_Date_Time,
-    Call_Date_Time: item.Call_Date_Time,
     Conn_Duration: item.Conn_Duration,
     Call_Length_In_Seconds: item.call_Length_In_Seconds,
     Customer: item.Customer,
