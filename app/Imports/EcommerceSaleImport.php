@@ -75,7 +75,8 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
 
         $orderDate = $this->getDateTime($row);
         if (!is_null($orderDate)) {
-            $orderDate = Carbon::parse($orderDate)->format('Y-m-d H:i:s');
+            $timestamp = Date::excelToTimestamp($orderDate, config('app.timezone'));
+            $orderDate = Carbon::parse($timestamp)->format('Y-m-d H:i:s');
         }
 
         $keys = array_keys($this->order_at, $orderDate);
@@ -150,8 +151,8 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         $date = $this->getValue($row, $dateTime[0]);
         $time = $this->getValue($row, $dateTime[1]);
         if (!empty($date)) {
-            $newDate = Date::excelToTimestamp($date, env('Time_Zone'));
-            $newTime = Date::excelToTimestamp($time, env('Time_Zone'));
+            $newDate = Date::excelToTimestamp($date, config('app.timezone'));
+            $newTime = Date::excelToTimestamp($time, config('app.timezone'));
             $order_at = !empty($time) ? Carbon::parse(date('d-m-Y', $newDate))->toDateString() . ' ' . Carbon::parse(date('H:i:s', $newTime))->toTimeString() : Carbon::parse(date('d-m-Y', $newDate))->toDateString();
             return $order_at;
         }

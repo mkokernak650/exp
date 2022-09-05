@@ -1,31 +1,25 @@
-import { React, useState } from "react";
-import Layout from "../Layout/Layout";
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import FileImportMap from "./FileImportMap";
-import XLSX from "xlsx";
-import { useEffect } from "react";
-import { usePage } from "@inertiajs/inertia-react";
-import toast from "react-hot-toast";
-import { exportReportAlreadyExist } from "../../Helpers/ExportReport";
-import Note from "../../Components/Note";
+import { React, useState } from 'react';
+import Layout from '../Layout/Layout';
+import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
+import axios from 'axios';
+import { Helmet } from 'react-helmet';
+import FileImportMap from './FileImportMap';
+import XLSX from 'xlsx';
+import { useEffect } from 'react';
+import { usePage } from '@inertiajs/inertia-react';
+import toast from 'react-hot-toast';
+import { exportReportAlreadyExist } from '../../Helpers/ExportReport';
+import Note from '../../Components/Note';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
-    width: "600px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
+    display: 'grid',
+    width: '600px',
+    margin: 'auto',
+    marginTop: '2rem',
+    padding: '40px',
     flexGrow: 1,
   },
   paper: {
@@ -33,20 +27,20 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   title: {
-    textAlign: "center",
-    marginBottom: "35px",
+    textAlign: 'center',
+    marginBottom: '35px',
   },
   snackbar: {
-    maxWidth: "500px",
+    maxWidth: '500px',
   },
 }));
 
 const SalesImport = () => {
   const defaultState = {
-    campaign_id: "",
-    customer_id: "",
-    order_type: "",
-    file: "",
+    campaign_id: '',
+    customer_id: '',
+    order_type: '',
+    file: '',
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
@@ -63,7 +57,7 @@ const SalesImport = () => {
     reader.onload = (e) => {
       // Parse data
       const bstr = e.target.result;
-      const wb = XLSX.read(bstr, { type: rABS ? "binary" : "array" });
+      const wb = XLSX.read(bstr, { type: rABS ? 'binary' : 'array' });
       // Get first worksheet
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
@@ -82,7 +76,7 @@ const SalesImport = () => {
 
     reportFields[0] &&
       reportFields[0].forEach((item) => {
-        newFieldMap.push({ applicationField: "", reportField: item });
+        newFieldMap.push({ applicationField: '', reportField: item });
       });
 
     setFieldMap([...newFieldMap]);
@@ -101,17 +95,15 @@ const SalesImport = () => {
     } else {
       setFileSelected(false);
       setReportFields([]);
-      setValues((oldValues) => ({ ...oldValues, [e.target.name]: "" }));
+      setValues((oldValues) => ({ ...oldValues, [e.target.name]: '' }));
     }
   };
 
   const checkMappedFields = () => {
-    const checkedField = fieldMap?.filter(
-      (item) => !item.applicationField || !item.reportField
-    );
+    const checkedField = fieldMap?.filter((item) => !item.applicationField || !item.reportField);
 
     const shippingZipIndex = fieldMap?.findIndex(
-      (item) => item.applicationField === "shipping_zip"
+      (item) => item.applicationField === 'shipping_zip'
     );
 
     if (checkedField.length > 0 || shippingZipIndex < 0) return false;
@@ -120,27 +112,27 @@ const SalesImport = () => {
 
   const headers = {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!checkMappedFields()) {
-      toast.error("Please map all fields");
+      toast.error('Please map all fields');
       return;
     }
 
     setLoading(true);
     const formData = new FormData();
-    formData.append("file", values.file);
-    formData.append("campaign_id", values.campaign_id);
-    formData.append("customer_id", values.customer_id);
-    formData.append("order_type", values.order_type);
-    formData.append("fieldMap", JSON.stringify(fieldMap));
+    formData.append('file', values.file);
+    formData.append('campaign_id', values.campaign_id);
+    formData.append('customer_id', values.customer_id);
+    formData.append('order_type', values.order_type);
+    formData.append('fieldMap', JSON.stringify(fieldMap));
 
     axios
-      .post(route("ecommerce-sales.importStore"), formData, headers)
+      .post(route('ecommerce-sales.importStore'), formData, headers)
       .then((res) => {
         setFileSelected(false);
         setReportFields([]);
@@ -154,10 +146,10 @@ const SalesImport = () => {
         toast.success(res.data.msg, { duration: 10000 });
       })
       .catch((err) => {
-        let errors = "";
+        let errors = '';
         if (err.response.data?.errors) {
           Object.values(err.response.data?.errors).map((error) => {
-            errors += error[0] + "\n";
+            errors += error[0] + '\n';
           });
         } else if (err.response.data?.msg) {
           errors = err.response.data.msg;
@@ -177,8 +169,7 @@ const SalesImport = () => {
     <>
       <Helmet title="Import Sales Report" />
       <Note>
-        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will
-        be wrong.
+        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong.
       </Note>
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
@@ -186,7 +177,7 @@ const SalesImport = () => {
         </Typography>
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={4}>
-            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
+            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
               <TextField
                 value={values?.campaign_id}
                 id="campaign_id"
@@ -210,7 +201,7 @@ const SalesImport = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
+            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
               <TextField
                 value={values?.customer_id}
                 id="customer_id"
@@ -234,7 +225,7 @@ const SalesImport = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
+            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
               <TextField
                 value={values?.order_type}
                 id="order_type"
@@ -255,7 +246,7 @@ const SalesImport = () => {
                 <option value="2">Phone</option>
               </TextField>
             </Grid>
-            <Grid item xs={12} style={{ paddingBottom: "5px" }}>
+            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
               <label htmlFor="file">Select Sales Report</label>
               <TextField
                 id="file"
@@ -275,10 +266,7 @@ const SalesImport = () => {
 
             {fileSelected && (
               <Grid item xs={12}>
-                <div
-                  className="flx flx-around mt-4 mb-2"
-                  style={{ marginRight: 40 }}
-                >
+                <div className="flx flx-around mt-4 mb-2" style={{ marginRight: 40 }}>
                   <b>Application Field</b>
                   <b>Report Field</b>
                 </div>
@@ -293,10 +281,7 @@ const SalesImport = () => {
                       reportFields={reportFields}
                     />
                   ))}
-                <div
-                  className="txt-center w-full mt-2"
-                  style={{ transform: "translateX(-16px)" }}
-                >
+                <div className="txt-center w-full mt-2" style={{ transform: 'translateX(-16px)' }}>
                   <button
                     onClick={() => addFieldMap(fieldMap.length)}
                     className="icn-btn sh-sm"
@@ -316,13 +301,9 @@ const SalesImport = () => {
                 type="submit"
               >
                 {loading ? (
-                  <CircularProgress
-                    color="inherit"
-                    thickness={3}
-                    size="1.5rem"
-                  />
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
                 ) : (
-                  "Import"
+                  'Import'
                 )}
               </Button>
             </Grid>
@@ -333,7 +314,5 @@ const SalesImport = () => {
   );
 };
 
-SalesImport.layout = (page) => (
-  <Layout title="Import Sales Report">{page}</Layout>
-);
+SalesImport.layout = (page) => <Layout title="Import Sales Report">{page}</Layout>;
 export default SalesImport;
