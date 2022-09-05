@@ -188,7 +188,6 @@ const EcommerceReport = () => {
   const ecommerceReportTypeHandleChange = (e) => {
     const { name, value } = e.target;
     setEcommerceReportType({ [name]: value });
-    
   };
   const campaignHandleChange = (val, key) => {
     if (val) {
@@ -707,6 +706,25 @@ const EcommerceReport = () => {
 
             {reportFor.reportFor === 'marketTarget' && (
               <Grid item xs={12}>
+                <Grid item xs={12}>
+                  <RadioGroup
+                    aria-label="type"
+                    name="type"
+                    value={reportType.type}
+                    onChange={reportTypeHandleChange}
+                  >
+                    <FormControlLabel
+                      value="customer"
+                      control={<Radio color="primary" />}
+                      label="For Customer"
+                    />
+                    <FormControlLabel
+                      value="affiliate"
+                      control={<Radio color="primary" />}
+                      label="For Affiliate"
+                    />
+                  </RadioGroup>
+                </Grid>
                 <RadioGroup
                   aria-label="report-type"
                   name="report_type"
