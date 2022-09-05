@@ -7,12 +7,12 @@ use App\Models\EcommerceSale;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-// use Maatwebsite\Excel\Concerns\WithChunkReading;
-
-class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
+class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, WithBatchInserts, WithChunkReading
 {
     use SkipsErrors;
 
@@ -159,9 +159,13 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow
         return null;
     }
 
-    // TODO problem with chunking
-    // public function chunkSize(): int
-    // {
-    //     return 1000;
-    // }
+    public function batchSize(): int
+    {
+        return 1000;
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
+    }
 }
