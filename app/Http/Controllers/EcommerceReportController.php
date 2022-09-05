@@ -158,7 +158,6 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->groupBy('ecommerce_sales.id')
                     ->select($this->selectColumnSalesReport($type, $orderType))
-                    ->orderBy('ecommerce_sales.coupon_code')
                     ->orderBy('ecommerce_sales.order_at')
             )
             ->when(
@@ -167,7 +166,7 @@ class EcommerceReportController extends Controller
                     ->whereNotNull('zipcode_by_television_markets.market')
                     ->groupBy('zipcode_by_television_markets.market')
                     ->select($this->selectColumnMarketTargetReport())
-                    ->orderBy('zipcode_by_television_markets.market')
+                    ->orderByDesc('Total Quantity')
             )
             ->when(
                 $reportFor === 'summary',
