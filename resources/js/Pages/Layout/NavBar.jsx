@@ -1,43 +1,36 @@
-import React from "react";
-import clsx from "clsx";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import List from "@material-ui/core/List";
-import Divider from "@material-ui/core/Divider";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import clsx from 'clsx';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Drawer from '@material-ui/core/Drawer';
+import Button from '@material-ui/core/Button';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import StoreIcon from '@material-ui/icons/Store';
 import DialpadIcon from '@material-ui/icons/Dialpad';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import SettingsIcon from '@material-ui/icons/Settings';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import AssessmentIcon from '@material-ui/icons/Assessment';
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import Collapse from "@material-ui/core/Collapse";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import TextField from "@material-ui/core/TextField";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import NormalModal from "../../Shared/NormalModal";
-import {
-  User as UserIcon,
-  Users as UsersIcon,
-  Minus as MinusIcon,
-} from "react-feather";
-import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { InertiaLink } from "@inertiajs/inertia-react";
-import { useState } from "react";
-import Logo from "../../../images/webform/logo.png";
-import MoreIcon from "@material-ui/icons/MoreVert";
-import ConfirmModal from "../../Shared/ConfirmModal";
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import { User as UserIcon, Minus as MinusIcon } from 'react-feather';
+import { ExpandLess, ExpandMore } from '@material-ui/icons';
+import { InertiaLink } from '@inertiajs/inertia-react';
+import { useState } from 'react';
+import Logo from '../../../images/webform/logo.png';
+import MoreIcon from '@material-ui/icons/MoreVert';
+import ConfirmModal from '../../Shared/ConfirmModal';
 
 const drawerWidth = 280;
 
@@ -49,31 +42,31 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   title: {
-    display: "none",
-    [theme.breakpoints.up("sm")]: {
-      display: "block",
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
     },
   },
   sectionDesktop: {
-    display: "none",
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
     },
   },
   sectionMobile: {
-    display: "flex",
-    [theme.breakpoints.up("md")]: {
-      display: "none",
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
     },
   },
   paper: {
     top: 64,
   },
   root: {
-    display: "flex",
+    display: 'flex',
   },
   appBar: {
-    transition: theme.transitions.create(["margin", "width"], {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
@@ -81,13 +74,13 @@ const useStyles = makeStyles((theme) => ({
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    transition: theme.transitions.create(["margin", "width"], {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
   hide: {
-    display: "none",
+    display: 'none',
   },
   drawer: {
     width: drawerWidth,
@@ -95,27 +88,27 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    overflow: "auto",
+    overflow: 'auto',
   },
   drawerHeader: {
-    display: "flex",
-    alignItems: "center",
+    display: 'flex',
+    alignItems: 'center',
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
+    transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: -drawerWidth,
   },
   contentShift: {
-    transition: theme.transitions.create("margin", {
+    transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -125,23 +118,23 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 30,
   },
   menuText: {
-    color: "rgb(69 72 77)",
-    "& span, & svg": {
-      fontSize: "15px",
+    color: 'rgb(69 72 77)',
+    '& span, & svg': {
+      fontSize: '15px',
     },
-    fontWeight: "500!important",
+    fontWeight: '500!important',
   },
   link: {
-    textDecoration: "none",
+    textDecoration: 'none',
   },
   nested: {
-    paddingLeft: "25px",
-    backgroundColor: "#f9f9f9",
+    paddingLeft: '25px',
+    backgroundColor: '#f9f9f9',
   },
   item: {
-    color: "rgb(107, 119, 140)",
-    "& span, & svg": {
-      fontSize: "13px",
+    color: 'rgb(107, 119, 140)',
+    '& span, & svg': {
+      fontSize: '13px',
     },
   },
 }));
@@ -150,45 +143,24 @@ export default function PersistentDrawerLeft(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(true);
-  const [showModal, setShowModal] = useState({ open: false });
-  const [values, setValues] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [showlStaorageModal, setShowlStaorageModal] = useState({ open: false });
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
   };
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-  const openModal = () => {
-    setShowModal({ open: true });
-  };
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
 
   const handleDrawerClose = () => {
     setOpen(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((oldValues) => ({
-      ...oldValues,
-      [name]: value,
-    }));
   };
 
   const handleOpenModal = (setOpenModal) => {
@@ -204,98 +176,62 @@ export default function PersistentDrawerLeft(props) {
     setShowlStaorageModal({ open: false });
   };
 
-  const menuId = "primary-search-account-menu";
+  const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       id={menuId}
       keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={openModal}>Profile</MenuItem>
-      <InertiaLink
-        method="post"
-        href={route("logout")}
-        className={classes.link}
-        as="div"
-      >
+      <MenuItem>Profile</MenuItem>
+      <InertiaLink method="post" href={route('logout')} className={classes.link} as="div">
         <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
       </InertiaLink>
     </Menu>
   );
 
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p onClick={openModal}>Profile</p>
-      </MenuItem>
-    </Menu>
-  );
+  const mobileMenuId = 'primary-search-account-menu-mobile';
 
   const items = [
-    // {
-    //   id: 1,
-    //   href: "home",
-    //   Icon: <BarChartIcon size="20" />,
-    //   title: "Dashboard",
-    //   active: false,
-    //   collapse: false,
-    // },
     {
       id: 2,
       Icon: <PeopleAltIcon size="20" />,
-      title: "Ringba",
+      title: 'Ringba',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Get Ringba Data",
-          href: "get.ringbadata",
+          title: 'Get Ringba Data',
+          href: 'get.ringbadata',
           Icon: <UserIcon />,
         },
         {
-          title: "Call Logs Report",
-          href: "call-logs-report",
+          title: 'Call Logs Report',
+          href: 'call-logs-report',
           Icon: <UserIcon />,
         },
         {
-          title: "Archived Call Logs Report",
-          href: "archived-call-log-report",
+          title: 'Archived Call Logs Report',
+          href: 'archived-call-log-report',
           Icon: <UserIcon />,
         },
         {
-          title: "Pending Call Logs Report",
-          href: "pending-call-log-report",
+          title: 'Pending Call Logs Report',
+          href: 'pending-call-log-report',
           Icon: <UserIcon />,
         },
         {
-          title: "Exceptions",
-          href: "get.exceptions",
+          title: 'Exceptions',
+          href: 'get.exceptions',
           Icon: <UserIcon />,
         },
         {
-          title: "Billed Call Logs Report",
-          href: "billed-call-log-report",
+          title: 'Billed Call Logs Report',
+          href: 'billed-call-log-report',
           Icon: <UserIcon />,
         },
       ],
@@ -304,43 +240,43 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 3,
       Icon: <LibraryBooksIcon size="20" />,
-      title: "Generate Reports",
+      title: 'Generate Reports',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Pay Per Call-Affiliate",
-          href: "generate.report.affiliate",
+          title: 'Pay Per Call-Affiliate',
+          href: 'generate.report.affiliate',
           Icon: <UserIcon />,
         },
         {
-          title: "Pay Per Call-Customer",
-          href: "generate.report.target",
+          title: 'Pay Per Call-Customer',
+          href: 'generate.report.target',
           Icon: <UserIcon />,
         },
         {
-          title: "Pay Per Call-Exceptions",
-          href: "generate.report.market.exception",
+          title: 'Pay Per Call-Exceptions',
+          href: 'generate.report.market.exception',
           Icon: <UserIcon />,
         },
         {
-          title: "Pay Per Call-Destination",
-          href: "generate.report.destination",
+          title: 'Pay Per Call-Destination',
+          href: 'generate.report.destination',
           Icon: <UserIcon />,
         },
         {
-          title: "Pay Per Call-Length",
-          href: "generate.report.call.length",
+          title: 'Pay Per Call-Length',
+          href: 'generate.report.call.length',
           Icon: <UserIcon />,
         },
         {
-          title: "Pay Per Call-Homes per call",
-          href: "generate.report.market.target",
+          title: 'Pay Per Call-Homes per call',
+          href: 'generate.report.market.target',
           Icon: <UserIcon />,
         },
         {
-          title: "Phone and Coupon Codes",
-          href: "ecommerce.report",
+          title: 'Phone and Coupon Codes',
+          href: 'ecommerce.report',
           Icon: <UserIcon />,
         },
       ],
@@ -348,33 +284,33 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 4,
       Icon: <DialpadIcon size="20" />,
-      title: "Pay Per Call Setup",
+      title: 'Pay Per Call Setup',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Campaign List",
-          href: "campaign.setting.report",
+          title: 'Campaign List',
+          href: 'campaign.setting.report',
           Icon: <UserIcon />,
         },
         {
-          title: "Set Duration",
-          href: "campaign.setting.form",
+          title: 'Set Duration',
+          href: 'campaign.setting.form',
           Icon: <UserIcon />,
         },
         {
-          title: "Create Annotations",
-          href: "annotation.create",
+          title: 'Create Annotations',
+          href: 'annotation.create',
           Icon: <UserIcon />,
         },
         {
-          title: "Add Exceptions",
-          href: "market.exception.form",
+          title: 'Add Exceptions',
+          href: 'market.exception.form',
           Icon: <UserIcon />,
         },
         {
-          title: "Market Exception Report",
-          href: "market.exception.report",
+          title: 'Market Exception Report',
+          href: 'market.exception.report',
           Icon: <UserIcon />,
         },
       ],
@@ -382,38 +318,38 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 5,
       Icon: <StoreIcon size="20" />,
-      title: "Phone and Coupon Codes",
+      title: 'Phone and Coupon Codes',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Create Campaign",
-          href: "ecommerce-campaigns.create",
+          title: 'Create Campaign',
+          href: 'ecommerce-campaigns.create',
           Icon: <UserIcon />,
         },
         {
-          title: "All Campaigns",
-          href: "ecommerce-campaigns.index",
+          title: 'All Campaigns',
+          href: 'ecommerce-campaigns.index',
           Icon: <UserIcon />,
         },
         {
-          title: "Create Phone or Code",
-          href: "ecommerce-affiliates.create",
+          title: 'Create Phone or Code',
+          href: 'ecommerce-affiliates.create',
           Icon: <UserIcon />,
         },
         {
-          title: "All Phone and Codes",
-          href: "ecommerce-affiliates.index",
+          title: 'All Phone and Codes',
+          href: 'ecommerce-affiliates.index',
           Icon: <UserIcon />,
         },
         {
-          title: "Import Sales Report",
-          href: "ecommerce-sales.import",
+          title: 'Import Sales Report',
+          href: 'ecommerce-sales.import',
           Icon: <UserIcon />,
         },
         {
-          title: "Historical sales",
-          href: "ecommerce-sales.index",
+          title: 'Historical sales',
+          href: 'ecommerce-sales.index',
           Icon: <UserIcon />,
         },
       ],
@@ -421,23 +357,23 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 6,
       Icon: <SettingsIcon size="20" />,
-      title: "Affiliates",
+      title: 'Affiliates',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Add Affiliate",
-          href: "add.affiliate",
+          title: 'Add Affiliate',
+          href: 'add.affiliate',
           Icon: <UserIcon />,
         },
         {
-          title: "Affiliate Report",
-          href: "affiliate.report",
+          title: 'Affiliate Report',
+          href: 'affiliate.report',
           Icon: <UserIcon />,
         },
         {
-          title: "Archived Affiliates",
-          href: "archived.affiliates",
+          title: 'Archived Affiliates',
+          href: 'archived.affiliates',
           Icon: <UserIcon />,
         },
       ],
@@ -445,23 +381,23 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 7,
       Icon: <SettingsIcon size="20" />,
-      title: "Targets",
+      title: 'Targets',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Add Target",
-          href: "target.form",
+          title: 'Add Target',
+          href: 'target.form',
           Icon: <UserIcon />,
         },
         {
-          title: "Targets",
-          href: "target.report",
+          title: 'Targets',
+          href: 'target.report',
           Icon: <UserIcon />,
         },
         {
-          title: "Target Names",
-          href: "target_names.report",
+          title: 'Target Names',
+          href: 'target_names.report',
           Icon: <UserIcon />,
         },
       ],
@@ -469,23 +405,23 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 8,
       Icon: <SettingsIcon size="20" />,
-      title: "Customers",
+      title: 'Customers',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Add Customer",
-          href: "add.customer",
+          title: 'Add Customer',
+          href: 'add.customer',
           Icon: <UserIcon />,
         },
         {
-          title: "Customer Report",
-          href: "customer.report",
+          title: 'Customer Report',
+          href: 'customer.report',
           Icon: <UserIcon />,
         },
         {
-          title: "Archived Customers",
-          href: "archived.customers",
+          title: 'Archived Customers',
+          href: 'archived.customers',
           Icon: <UserIcon />,
         },
       ],
@@ -493,28 +429,28 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 9,
       Icon: <SettingsIcon size="20" />,
-      title: "Database",
+      title: 'Database',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "TV Markets By Zip Codes",
-          href: "zipcode.television.market",
+          title: 'TV Markets By Zip Codes',
+          href: 'zipcode.television.market',
           Icon: <UserIcon />,
         },
         {
-          title: "Telephone and Zip Codes",
-          href: "zipcode.data",
+          title: 'Telephone and Zip Codes',
+          href: 'zipcode.data',
           Icon: <UserIcon />,
         },
         {
-          title: "Add TV Households",
-          href: "add.tv.households",
+          title: 'Add TV Households',
+          href: 'add.tv.households',
           Icon: <UserIcon />,
         },
         {
-          title: "TV Households Report",
-          href: "tv.households.report",
+          title: 'TV Households Report',
+          href: 'tv.households.report',
           Icon: <UserIcon />,
         },
       ],
@@ -522,44 +458,52 @@ export default function PersistentDrawerLeft(props) {
     {
       id: 10,
       Icon: <SettingsIcon size="20" />,
-      title: "Calendar",
+      title: 'Calendar',
       active: false,
       collapse: true,
       submenu: [
         {
-          title: "Add Broadcast Month",
-          href: "add.broadcast.month",
+          title: 'Add Broadcast Month',
+          href: 'add.broadcast.month',
           Icon: <UserIcon />,
         },
         {
-          title: "Broadcast Month Report",
-          href: "broadcast.month.report",
+          title: 'Broadcast Month Report',
+          href: 'broadcast.month.report',
           Icon: <UserIcon />,
         },
         {
-          title: "Add Broadcast Week",
-          href: "add.broadcast.week",
+          title: 'Add Broadcast Week',
+          href: 'add.broadcast.week',
           Icon: <UserIcon />,
         },
         {
-          title: "Broadcast Week Report",
-          href: "broadcast.week.report",
+          title: 'Broadcast Week Report',
+          href: 'broadcast.week.report',
           Icon: <UserIcon />,
         },
+        // {
+        //   id: 123,
+        //   Icon: <SettingsIcon size="20" />,
+        //   title: 'Test',
+        //   active: false,
+        //   collapse: true,
+        //   name: 'sub-child',
+        // },
       ],
     },
     {
       id: 11,
-      href: "webform.reports",
+      href: 'webform.reports',
       Icon: <AssessmentIcon size="20" />,
-      title: "Webform Reports",
+      title: 'Webform Reports',
       active: false,
       collapse: false,
     },
   ];
 
   const [active, setActive] = useState({
-    id: "",
+    id: '',
     active: false,
   });
 
@@ -597,14 +541,13 @@ export default function PersistentDrawerLeft(props) {
               <img src={Logo} alt="consumer-exp-logo"></img>
             </div>
           ) : (
-            ""
+            ''
           )}
           <Button
             variant="contained"
             type="submit"
             color="primary"
             onClick={() => handleOpenModal(setShowlStaorageModal)}
-            // className={classes.button}
           >
             Clear LocalStorage
           </Button>
@@ -626,7 +569,7 @@ export default function PersistentDrawerLeft(props) {
               aria-label="show more"
               aria-controls={mobileMenuId}
               aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
+              onClick={handleProfileMenuOpen}
               color="inherit"
             >
               <MoreIcon />
@@ -635,7 +578,6 @@ export default function PersistentDrawerLeft(props) {
         </Toolbar>
       </AppBar>
 
-      {renderMobileMenu}
       {renderMenu}
       <Drawer
         className={classes.drawer}
@@ -653,89 +595,58 @@ export default function PersistentDrawerLeft(props) {
             </InertiaLink>
           </div>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </div>
         <Divider />
         <List>
-          {items.map((menu) => (
-            <div key={menu.id}>
-              {menu.collapse ? (
-                <ListItem
-                  button
-                  onClick={() => handleClick(menu.id)}
-                  key={menu.id}
-                >
-                  <ListItemIcon className={classes.menuIcon}>
-                    {menu.Icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={menu.title}
-                    className={classes.menuText}
-                  />
-                  {active.id === menu.id && active.active ? (
-                    <ExpandLess />
-                  ) : (
-                    <ExpandMore />
-                  )}
-                </ListItem>
-              ) : (
-                <InertiaLink
-                  href={route(menu.href)}
-                  style={{ textDecoration: "none" }}
-                >
-                  <ListItem button>
-                    <ListItemIcon className={classes.menuIcon}>
-                      {menu.Icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={menu.title}
-                      className={classes.menuText}
-                    />
+          {items.map((menu) => {
+            console.log(menu)
+            return (
+              <div key={menu.id}>
+                {menu.collapse ? (
+                  <ListItem button onClick={() => handleClick(menu.id)} key={menu.id}>
+                    <ListItemIcon className={classes.menuIcon}>{menu.Icon}</ListItemIcon>
+                    <ListItemText primary={menu.title} className={classes.menuText} />
+                    {active.id === menu.id && active.active ? <ExpandLess /> : <ExpandMore />}
                   </ListItem>
-                </InertiaLink>
-              )}
+                ) : (
+                  <InertiaLink href={route(menu.href)} style={{ textDecoration: 'none' }}>
+                    <ListItem button>
+                      <ListItemIcon className={classes.menuIcon}>{menu.Icon}</ListItemIcon>
+                      <ListItemText primary={menu.title} className={classes.menuText} />
+                    </ListItem>
+                  </InertiaLink>
+                )}
 
-              {menu.collapse ? (
-                <Collapse
-                  in={active.id === menu.id && active.active}
-                  timeout="auto"
-                  unmountOnExit
-                  style={{ overflow: "hidden" }}
-                >
-                  <List component="div" disablePadding>
-                    {menu.submenu.map((submenu) => (
-                      <InertiaLink
-                        href={route(submenu.href)}
-                        style={{ textDecoration: "none" }}
-                        key={submenu.title}
-                      >
-                        <ListItem
-                          button
-                          className={classes.nested}
-                          key={submenu.id}
+                {menu.collapse && (
+                  <Collapse
+                    in={active.id === menu.id && active.active}
+                    timeout="auto"
+                    unmountOnExit
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <List component="div" disablePadding>
+                      {menu.submenu.map((submenu) => (
+                        <InertiaLink
+                          href={route(submenu.href)}
+                          style={{ textDecoration: 'none' }}
+                          key={submenu.title}
                         >
-                          <ListItemIcon className={classes.menuIcon}>
-                            <MinusIcon size="15" />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={submenu.title}
-                            className={classes.item}
-                          />
-                        </ListItem>
-                      </InertiaLink>
-                    ))}
-                  </List>
-                </Collapse>
-              ) : (
-                ""
-              )}
-            </div>
-          ))}
+                          <ListItem button className={classes.nested} key={submenu.id}>
+                            <ListItemIcon className={classes.menuIcon}>
+                              <MinusIcon size="15" />
+                            </ListItemIcon>
+                            <ListItemText primary={submenu.title} className={classes.item} />
+                          </ListItem>
+                        </InertiaLink>
+                      ))}
+                    </List>
+                  </Collapse>
+                )}
+              </div>
+            );
+          })}
         </List>
       </Drawer>
       <main
@@ -747,55 +658,13 @@ export default function PersistentDrawerLeft(props) {
         {props.main}
       </main>
 
-      <NormalModal
-        open={showModal.open}
-        setOpen={setShowModal}
-        width={"600px"}
-        title={"My Profile"}
-      >
-        <div className="myprofile">
-          <form className={classes.form}>
-            <span>First Name:</span>
-            <TextField
-              fullWidth
-              margin="normal"
-              name="firstname"
-              type="text"
-              variant="outlined"
-              required="true"
-              onChange={handleChange}
-            />
-            <span>Last Name:</span>
-            <TextField
-              fullWidth
-              margin="normal"
-              name="lastname"
-              type="text"
-              variant="outlined"
-              required="true"
-              onChange={handleChange}
-            />
-            <span>Email:</span>
-            <TextField
-              fullWidth
-              margin="normal"
-              name="email"
-              type="email"
-              variant="outlined"
-              required="true"
-              onChange={handleChange}
-            />
-          </form>
-        </div>
-      </NormalModal>
-
       <ConfirmModal
         open={showlStaorageModal.open}
         setOpen={setShowlStaorageModal}
         btnAction={clearLocalStorage}
         closeAction={() => handleCloseModal(setShowlStaorageModal)}
-        width={"400px"}
-        title={"Do you want to clear LocalStorage"}
+        width={'400px'}
+        title={'Do you want to clear LocalStorage'}
       ></ConfirmModal>
     </div>
   );

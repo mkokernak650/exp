@@ -56,7 +56,6 @@ const useStyles = makeStyles(() => ({
     marginLeft: "10px",
   },
   button: {
-    width: 130,
     textTransform: "capitalize",
     fontSize: "14px",
   },
