@@ -145,7 +145,7 @@ export default function PersistentDrawerLeft(props) {
   const [open, setOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
-  const [showlStaorageModal, setShowlStaorageModal] = useState({ open: false });
+  const [showlStorageModal, setShowlStorageModal] = useState({ open: false });
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -173,7 +173,7 @@ export default function PersistentDrawerLeft(props) {
 
   const clearLocalStorage = () => {
     window.localStorage.clear();
-    setShowlStaorageModal({ open: false });
+    setShowlStorageModal({ open: false });
   };
 
   const menuId = 'primary-search-account-menu';
@@ -313,6 +313,31 @@ export default function PersistentDrawerLeft(props) {
           href: 'market.exception.report',
           Icon: <UserIcon />,
         },
+        {
+          id: 7,
+          Icon: <SettingsIcon size="20" />,
+          title: 'Targets',
+          active: false,
+          collapse: true,
+          name: 'sub-child',
+          submenu: [
+            {
+              title: 'Add Target',
+              href: 'target.form',
+              Icon: <UserIcon />,
+            },
+            {
+              title: 'Targets',
+              href: 'target.report',
+              Icon: <UserIcon />,
+            },
+            {
+              title: 'Target Names',
+              href: 'target_names.report',
+              Icon: <UserIcon />,
+            },
+          ],
+        },
       ],
     },
     {
@@ -374,30 +399,6 @@ export default function PersistentDrawerLeft(props) {
         {
           title: 'Archived Affiliates',
           href: 'archived.affiliates',
-          Icon: <UserIcon />,
-        },
-      ],
-    },
-    {
-      id: 7,
-      Icon: <SettingsIcon size="20" />,
-      title: 'Targets',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Add Target',
-          href: 'target.form',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Targets',
-          href: 'target.report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Target Names',
-          href: 'target_names.report',
           Icon: <UserIcon />,
         },
       ],
@@ -482,14 +483,6 @@ export default function PersistentDrawerLeft(props) {
           href: 'broadcast.week.report',
           Icon: <UserIcon />,
         },
-        // {
-        //   id: 123,
-        //   Icon: <SettingsIcon size="20" />,
-        //   title: 'Test',
-        //   active: false,
-        //   collapse: true,
-        //   name: 'sub-child',
-        // },
       ],
     },
     {
@@ -502,17 +495,53 @@ export default function PersistentDrawerLeft(props) {
     },
   ];
 
-  const [active, setActive] = useState({
+  const [activeItems, setActiveItems] = useState({
     id: '',
     active: false,
+    submenu: {
+      id: '',
+      active: false,
+    },
   });
 
-  const handleClick = (id) => {
+  const handleClick = (id, type) => {
     items.forEach((item) => {
-      if (item.id === id && active.id === id && active.active === true) {
-        setActive({ id: item.id, active: false });
-      } else if (item.id === id) {
-        setActive({ id: item.id, active: true });
+      if (type === 'parent') {
+        if (item.id === id && activeItems.id === id && activeItems.active) {
+          let tmpActiveItems = { ...activeItems };
+          tmpActiveItems.id = item.id;
+          tmpActiveItems.active = false;
+          item.submenu.forEach((child) => {
+            if (child?.name) {
+              if (child.id === activeItems.submenu.id && activeItems.submenu.active) {
+                tmpActiveItems.submenu.id = child.id;
+                tmpActiveItems.submenu.active = false;
+              }
+            }
+          });
+          setActiveItems(tmpActiveItems);
+        } else if (item.id === id) {
+          let tmpActiveItems = { ...activeItems };
+          tmpActiveItems.id = item.id;
+          tmpActiveItems.active = true;
+          setActiveItems(tmpActiveItems);
+        }
+      } else {
+        item?.submenu?.forEach((child) => {
+          if (child?.name) {
+            if (child.id === activeItems.submenu.id && activeItems.submenu.active) {
+              let tmpActiveItems = { ...activeItems };
+              tmpActiveItems.submenu.id = child.id;
+              tmpActiveItems.submenu.active = false;
+              setActiveItems(tmpActiveItems);
+            } else if (child.id === id) {
+              let tmpActiveItems = { ...activeItems };
+              tmpActiveItems.submenu.id = child.id;
+              tmpActiveItems.submenu.active = true;
+              setActiveItems(tmpActiveItems);
+            }
+          }
+        });
       }
     });
   };
@@ -547,7 +576,7 @@ export default function PersistentDrawerLeft(props) {
             variant="contained"
             type="submit"
             color="primary"
-            onClick={() => handleOpenModal(setShowlStaorageModal)}
+            onClick={() => handleOpenModal(setShowlStorageModal)}
           >
             Clear LocalStorage
           </Button>
@@ -601,14 +630,17 @@ export default function PersistentDrawerLeft(props) {
         <Divider />
         <List>
           {items.map((menu) => {
-            console.log(menu)
             return (
               <div key={menu.id}>
                 {menu.collapse ? (
-                  <ListItem button onClick={() => handleClick(menu.id)} key={menu.id}>
+                  <ListItem button onClick={() => handleClick(menu.id, 'parent')} key={menu.id}>
                     <ListItemIcon className={classes.menuIcon}>{menu.Icon}</ListItemIcon>
                     <ListItemText primary={menu.title} className={classes.menuText} />
-                    {active.id === menu.id && active.active ? <ExpandLess /> : <ExpandMore />}
+                    {activeItems.id === menu.id && activeItems.active ? (
+                      <ExpandLess />
+                    ) : (
+                      <ExpandMore />
+                    )}
                   </ListItem>
                 ) : (
                   <InertiaLink href={route(menu.href)} style={{ textDecoration: 'none' }}>
@@ -621,26 +653,90 @@ export default function PersistentDrawerLeft(props) {
 
                 {menu.collapse && (
                   <Collapse
-                    in={active.id === menu.id && active.active}
+                    in={activeItems.id === menu.id && activeItems.active}
                     timeout="auto"
                     unmountOnExit
                     style={{ overflow: 'hidden' }}
                   >
                     <List component="div" disablePadding>
-                      {menu.submenu.map((submenu) => (
-                        <InertiaLink
-                          href={route(submenu.href)}
-                          style={{ textDecoration: 'none' }}
-                          key={submenu.title}
-                        >
-                          <ListItem button className={classes.nested} key={submenu.id}>
-                            <ListItemIcon className={classes.menuIcon}>
-                              <MinusIcon size="15" />
-                            </ListItemIcon>
-                            <ListItemText primary={submenu.title} className={classes.item} />
-                          </ListItem>
-                        </InertiaLink>
-                      ))}
+                      {menu.submenu.map((submenu) => {
+                        if (submenu?.name) {
+                          return (
+                            <List component="div" disablePadding>
+                              <ListItem
+                                button
+                                onClick={() => handleClick(submenu.id, 'child')}
+                                key={submenu.id}
+                                style={{ paddingLeft: '22px' }}
+                              >
+                                <ListItemIcon className={classes.menuIcon}>
+                                  {submenu.Icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={submenu.title}
+                                  className={classes.menuText}
+                                />
+                                {activeItems?.submenu?.id === submenu?.id &&
+                                activeItems?.submenu?.active ? (
+                                  <ExpandLess />
+                                ) : (
+                                  <ExpandMore />
+                                )}
+                              </ListItem>
+                              <Collapse
+                                in={
+                                  activeItems?.submenu?.id === submenu?.id &&
+                                  activeItems?.submenu?.active
+                                }
+                                timeout="auto"
+                                unmountOnExit
+                                style={{ overflow: 'hidden' }}
+                              >
+                                {submenu.submenu.map((child) => {
+                                  return (
+                                    <List component="div" disablePadding>
+                                      <InertiaLink
+                                        href={route(child.href)}
+                                        style={{ textDecoration: 'none' }}
+                                        key={child.title}
+                                      >
+                                        <ListItem
+                                          button
+                                          key={submenu?.id}
+                                          className={classes.nested}
+                                        >
+                                          <ListItemIcon className={classes.menuIcon}>
+                                            <MinusIcon size="15" />
+                                          </ListItemIcon>
+                                          <ListItemText
+                                            primary={child.title}
+                                            className={classes.item}
+                                          />
+                                        </ListItem>
+                                      </InertiaLink>
+                                    </List>
+                                  );
+                                })}
+                              </Collapse>
+                            </List>
+                          );
+                        } else {
+                          return (
+                            <InertiaLink
+                              href={route(submenu.href)}
+                              style={{ textDecoration: 'none' }}
+                              key={submenu.title}
+                            >
+                              <ListItem button className={classes.nested} key={submenu.id}>
+                                <ListItemIcon className={classes.menuIcon}>
+                                  <MinusIcon size="15" />
+                                </ListItemIcon>
+                                <ListItemText primary={submenu.title} className={classes.item} />
+                              </ListItem>
+                            </InertiaLink>
+                          );
+                        }
+                      })}
                     </List>
                   </Collapse>
                 )}
@@ -659,10 +755,10 @@ export default function PersistentDrawerLeft(props) {
       </main>
 
       <ConfirmModal
-        open={showlStaorageModal.open}
-        setOpen={setShowlStaorageModal}
+        open={showlStorageModal.open}
+        setOpen={setShowlStorageModal}
         btnAction={clearLocalStorage}
-        closeAction={() => handleCloseModal(setShowlStaorageModal)}
+        closeAction={() => handleCloseModal(setShowlStorageModal)}
         width={'400px'}
         title={'Do you want to clear LocalStorage'}
       ></ConfirmModal>
