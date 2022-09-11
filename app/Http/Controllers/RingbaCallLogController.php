@@ -86,24 +86,6 @@ class RingbaCallLogController extends Controller
      * @param \Illuminate\Http\Request $request post
      * @return void
      */
-    public function moveDataToCallLogs(Request $request)
-    {
-        // $ids = $request->id;
-        $ids = [45, 46, 47, 48, 49, 50, 51, 52, 53];
-        $results = RingbaData::whereIn('id', $ids)->get();
-        $this->ringbaCallLogs($results);
-    }
-
-    /**
-     * for delete Ringba data form Ringba temporary table
-     * @param \Illuminate\Http\Request $request post
-     * @return success
-     */
-    public function deleteRingbaData(Request $request)
-    {
-        $ids = [1, 2];
-        RingbaData::whereIn('id', $ids)->delete();
-    }
 
     /**
      * @method use for get data By Scheduler
@@ -159,7 +141,6 @@ class RingbaCallLogController extends Controller
                 $this->ringbaDataObject($checkRingbaCallLogs);
             } else {
                 if ($checkRingbaCallLogs || $checkArchiveCallLogs || $checkPendingBillCallLog || $checkBilledCallLag || $checkExceptionCallLog) {
-                    // $row->delete();
                     continue;
                 }
 
@@ -167,7 +148,6 @@ class RingbaCallLogController extends Controller
                 $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
 
                 $this->ringbaDataObject($ringbaCallLogs);
-                // $row->delete();
 
                 $campaign = Campaign::where('campaign_name', $this->get_campaignName)->select(['id', 'connection_duration'])->first();
 
@@ -598,55 +578,13 @@ class RingbaCallLogController extends Controller
         }
 
         $result = self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
-
         RingbaDataFetchedLog::truncate();
         RingbaDataFetchedLog::create([
             'start_date' => $request->start_date,
             'end_date'   => $request->end_date,
         ]);
         $this->ringbaCallLogs();
-        // if ($result) {
-        //     $client = new Client(
-        //         [
-        //             // 'base_uri' => 'http://127.0.0.1:8000',
-        //             'timeout'  => 0.5,
-        //         ]
-        //     );
-        //     try {
-        //         $response = $client->get('http://127.0.0.1:8000/get-call-logs-secheduler/');
-        //     } catch (RequestException $e) {
-        //         return (string) $e->getResponse()->getBody();
-        //     }
-        // }
-
         return $result;
-
-        // return Inertia::render(
-        //     'Ringba/TempRingbaData',
-        //     [
-        //         'ringbaData' => RingbaData::all()
-        //     ]
-        // );
-    }
-
-    /**
-     * for get Ringba temporary data
-     * @return JsonObject
-     */
-    public function tempRingbaData()
-    {
-        $ringbaData = RingbaData::all();
-        return Inertia::render('Ringba/TempRingbaData', [
-            'ringbaData' => $ringbaData
-        ]);
-        //    RingbaData::chunk(100, function ($items) {
-        //         foreach ($items as $item) {
-        //             array_push(self::$test,$item);
-        //         }
-        //     });
-        //     return Inertia::render('Ringba/TempRingbaData', [
-        //         'ringbaData' => self::$test
-        //     ]);
     }
 
     public function callLogsReport()

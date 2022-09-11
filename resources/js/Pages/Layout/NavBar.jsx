@@ -206,7 +206,7 @@ export default function PersistentDrawerLeft(props) {
       submenu: [
         {
           title: 'Get Ringba Data',
-          href: 'get.ringbadata',
+          href: 'get.ringba.data.form',
           Icon: <UserIcon />,
         },
         {

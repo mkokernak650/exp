@@ -77,17 +77,14 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')-
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/get-customer', [RingbaCallLogController::class, 'getCustomer']);
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::post('/temp-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])->name('temp-ringba-data');
-Route::get('/temp-ringba-data', [RingbaCallLogController::class, 'tempRingbaData'])->name('tempringbadata');
-Route::post('/temp-ringba-data-delete', [RingbaCallLogController::class, 'tempDataDelete'])->name('temp.ringba.data.delete');
-Route::get('/temp-ringba-call-log', [RingbaCallLogController::class, 'ringbaCallLogs'])->name('ringbaCallLogs');
+Route::post('/fetch-ringba-data', [RingbaCallLogController::class, 'dateWiseData'])->name('fetch.ringba.data');
 Route::get('/call-logs-report', [RingbaCallLogController::class, 'callLogsReport'])->name('call-logs-report');
 Route::post('/call-logs-delete', [RingbaCallLogController::class, 'delete'])->name('call.logs.delete');
 Route::post('/update-data', [RingbaCallLogController::class, 'updateByInboundIds'])->name('update.data');
 Route::get('/delete-ringba-date', [RingbaCallLogController::class, 'delete'])->name('delete.ringba.date');
 Route::post('/market-delete', [MarketController::class, 'delete']);
 
-Route::get('/get-ringba-data', [RingbaCallLogController::class, 'getRingbaDataForm'])->name('get.ringbadata');
+Route::get('/get-ringba-data-form', [RingbaCallLogController::class, 'getRingbaDataForm'])->name('get.ringba.data.form');
 Route::post('/add-market-exception', [MarketExceptionController::class, 'addMarketException'])->name('add.market.exception');
 Route::get('/market-exception-form', [MarketExceptionController::class, 'marketExceptionForm'])->name('market.exception.form');
 Route::get('/market-exception-report', [MarketExceptionController::class, 'marketExceptionReport'])->name('market.exception.report');
