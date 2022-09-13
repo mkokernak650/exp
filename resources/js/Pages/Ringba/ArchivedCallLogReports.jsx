@@ -1,55 +1,44 @@
-import Layout from "../Layout/Layout";
-import M from "materialize-css";
-import { useEffect, useState, useRef } from "react";
-import { kaReducer, Table } from "ka-table";
-import {
-  DataType,
-  SortingMode,
-  PagingPosition,
-  EditingMode,
-  ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+import Layout from '../Layout/Layout';
+import { useEffect, useState, useRef } from 'react';
+import { kaReducer, Table } from 'ka-table';
+import { DataType, SortingMode, PagingPosition, EditingMode, ActionType } from 'ka-table/enums';
+import { kaPropsUtils } from 'ka-table/utils';
+import { usePage } from '@inertiajs/inertia-react';
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import closeNav from "../../../images/closeNav.svg";
-import Edit from "../../../images/three-dots.svg";
-import { hideColumn, showColumn } from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
-import { Button, makeStyles } from "@material-ui/core";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
-import ConfirmModal from "../../Shared/ConfirmModal";
-import CustomFilter from "../../Components/CustomFilter";
+} from 'ka-table/actionCreators';
+import 'ka-table/style.scss';
+import search from '../../../images/search.svg';
+import eyeIcon from '../../../images/eyeIcon.svg';
+import closeNav from '../../../images/closeNav.svg';
+import Edit from '../../../images/three-dots.svg';
+import Tooltip from '@material-ui/core/Tooltip';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+import Checkbox from '@material-ui/core/Checkbox';
+import { Button, makeStyles } from '@material-ui/core';
+import axios from 'axios';
+import { Helmet } from 'react-helmet';
+import SnackBar from '../../Shared/SnackBar';
+import ConfirmModal from '../../Shared/ConfirmModal';
+import CustomFilter from '../../Components/CustomFilter';
 import { filterData } from '../../Helpers/filterData';
-import { defaultFilter } from "../../Helpers/Filter";
-import { SearchedFields } from "../../Helpers/SearchedFields";
-import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
+import { defaultFilter } from '../../Helpers/Filter';
+import { SearchedFields } from '../../Helpers/SearchedFields';
+import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
+import ColumnSettings from '../../Components/ColumnSettings';
 
 const useStyles = makeStyles(() => ({
   button: {
-    width: "auto",
-    textTransform: "capitalize",
-    fontSize: "14px",
+    width: 'auto',
+    textTransform: 'capitalize',
+    fontSize: '14px',
   },
 }));
-
-
-
 
 const ArchivedCallLogReports = () => {
   const classes = useStyles();
@@ -71,8 +60,9 @@ const ArchivedCallLogReports = () => {
   const [editData, setEditData] = useState([]);
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [filterValue, setFilterValue] = useState(defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, ''));
-
+  const [filterValue, setFilterValue] = useState(
+    defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
+  );
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
@@ -83,9 +73,7 @@ const ArchivedCallLogReports = () => {
       setPosition({ x: e.screenX, y: e.screenY });
     }
   };
-  const [filteredData, setFilteredData] = useState(
-    filterData(archivedCallLogs, filterValue)
-  );
+  const [filteredData, setFilteredData] = useState(filterData(archivedCallLogs, filterValue));
   const dataArray = filteredData.map((item, index) => ({
     sl: index + 1,
     SN: item.SN,
@@ -119,24 +107,24 @@ const ArchivedCallLogReports = () => {
   const tablePropsInit = {
     columns: [
       {
-        key: "selection-cell",
+        key: 'selection-cell',
         style: { width: 80 },
       },
       {
-        key: "sl",
-        title: "SL",
+        key: 'sl',
+        title: 'SL',
         dataType: DataType.Number,
         style: { width: 100 },
       },
       {
-        key: "SN",
-        title: "SN",
+        key: 'SN',
+        title: 'SN',
         dataType: DataType.String,
         style: { width: 130 },
       },
       {
-        key: "Call_Date_Time",
-        title: "Call Time (EST)",
+        key: 'Call_Date_Time',
+        title: 'Call Time (EST)',
         dataType: DataType.string,
         style: { width: 230 },
       },
@@ -148,86 +136,86 @@ const ArchivedCallLogReports = () => {
       // },
 
       {
-        key: "Inbound_Id",
-        title: "Inbound Id",
+        key: 'Inbound_Id',
+        title: 'Inbound Id',
         dataType: DataType.String,
         style: { width: 600 },
       },
       {
-        key: "Affiliate",
-        title: "Affiliate",
+        key: 'Affiliate',
+        title: 'Affiliate',
         dataType: DataType.String,
         style: { width: 240 },
       },
       {
-        key: "Market",
-        title: "Market",
+        key: 'Market',
+        title: 'Market',
         dataType: DataType.String,
         style: { width: 350 },
       },
       {
-        key: "Campaign",
-        title: "Campaign",
+        key: 'Campaign',
+        title: 'Campaign',
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "Inbound",
-        title: "Inbound",
+        key: 'Inbound',
+        title: 'Inbound',
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "Dialed",
-        title: "Dialed",
+        key: 'Dialed',
+        title: 'Dialed',
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "Type",
-        title: "Type",
+        key: 'Type',
+        title: 'Type',
         dataType: DataType.String,
         style: { width: 100 },
       },
       {
-        key: "Customer",
-        title: "Customer",
+        key: 'Customer',
+        title: 'Customer',
         dataType: DataType.String,
         style: { width: 240 },
       },
       {
-        key: "Target",
-        title: "Target",
+        key: 'Target',
+        title: 'Target',
         dataType: DataType.String,
         style: { width: 350 },
       },
       {
-        key: "Target_Number",
-        title: "Target Number",
+        key: 'Target_Number',
+        title: 'Target Number',
         dataType: DataType.String,
         style: { width: 200 },
       },
       {
-        key: "Target_Description",
-        title: "Target Description",
+        key: 'Target_Description',
+        title: 'Target Description',
         dataType: DataType.String,
         style: { width: 400 },
       },
       {
-        key: "Call_Length_In_Seconds",
-        title: "Call Length In Seconds",
+        key: 'Call_Length_In_Seconds',
+        title: 'Call Length In Seconds',
         dataType: DataType.Number,
         style: { width: 240 },
       },
       {
-        key: "Revenue",
-        title: "Revenue",
+        key: 'Revenue',
+        title: 'Revenue',
         dataType: DataType.Number,
         style: { width: 120 },
       },
       {
-        key: "Conn_Duration",
-        title: "Conn.Duration",
+        key: 'Conn_Duration',
+        title: 'Conn.Duration',
         dataType: DataType.Number,
         style: { width: 240 },
       },
@@ -238,38 +226,38 @@ const ArchivedCallLogReports = () => {
       //   style: { width: 220 },
       // },
       {
-        key: "Payout",
-        title: "Payout",
+        key: 'Payout',
+        title: 'Payout',
         dataType: DataType.Number,
         style: { width: 100 },
       },
       {
-        key: "Total_Cost",
-        title: "Total Cost",
+        key: 'Total_Cost',
+        title: 'Total Cost',
         dataType: DataType.Number,
         style: { width: 120 },
       },
       {
-        key: "Profit",
-        title: "Profit",
+        key: 'Profit',
+        title: 'Profit',
         dataType: DataType.Number,
         style: { width: 120 },
       },
       {
-        key: "City",
-        title: "City",
+        key: 'City',
+        title: 'City',
         dataType: DataType.String,
         style: { width: 240 },
       },
       {
-        key: "State",
-        title: "State",
+        key: 'State',
+        title: 'State',
         dataType: DataType.String,
         style: { width: 240 },
       },
       {
-        key: "Zipcode",
-        title: "Zipcode",
+        key: 'Zipcode',
+        title: 'Zipcode',
         dataType: DataType.String,
         style: { width: 240 },
       },
@@ -282,53 +270,45 @@ const ArchivedCallLogReports = () => {
       position: PagingPosition.Bottom,
     },
     data: dataArray,
-    rowKeyField: "id",
+    rowKeyField: 'id',
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
-      if (column.key === "edit") {
+      if (column.key === 'edit') {
         return (
-          <div
-            className="edit-icon"
-            onClick={() => handleRowFunctionalities(value)}
-          >
+          <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
             <img src={Edit} alt="edit-icon"></img>
           </div>
         );
       }
-      if (column.key === "Call_Date") {
+      if (column.key === 'Call_Date') {
         if (value !== undefined) {
           let shortMonth = value.toLocaleString('en-us', { month: 'short' });
-          let format_date = value
-          let dd = String(format_date.getDate()).padStart(2, "0");
+          let format_date = value;
+          let dd = String(format_date.getDate()).padStart(2, '0');
           let yyyy = format_date.getFullYear();
-          format_date = dd + "-" + shortMonth + "-" + yyyy;
+          format_date = dd + '-' + shortMonth + '-' + yyyy;
           return format_date;
         }
       }
-      if (column.key === "Call_Date_Time") {
+      if (column.key === 'Call_Date_Time') {
         if (value !== undefined) {
-          return DateTimeFormat(value)
+          return DateTimeFormat(value);
         }
       }
     },
   };
-  const fields = SearchedFields(tablePropsInit.columns)
+  const fields = SearchedFields(tablePropsInit.columns);
 
-  const OPTION_KEY = "archived-call-logs";
+  const OPTION_KEY = 'archived-call-logs';
   const stateStore = {
     ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
+    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
   };
   const [tableProps, changeTableProps] = useState(stateStore);
 
-  const SelectionCell = ({
-    rowKeyValue,
-    dispatch,
-    isSelectedRow,
-    selectedRows,
-  }) => {
+  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
       <Checkbox
         checked={isSelectedRow}
@@ -343,9 +323,7 @@ const ArchivedCallLogReports = () => {
             if (!selectedRowIds.includes(id)) {
               selectedRowIds.push(id);
             }
-            const selectedRowData = tableProps.data.filter(
-              (item) => item.id == id
-            );
+            const selectedRowData = tableProps.data.filter((item) => item.id == id);
             inboundIds.push(selectedRowData[0].Inbound_Id);
           } else {
             dispatch(deselectRow(rowKeyValue));
@@ -355,12 +333,8 @@ const ArchivedCallLogReports = () => {
             if (selectedRowIds.length < 1) {
               setTableToolbar(false);
             }
-            const selectedRowData = tableProps.data.filter(
-              (item) => item.id == id
-            );
-            const inboundIndx = selectedRowData.indexOf(
-              selectedRowData.Inbound_Id
-            );
+            const selectedRowData = tableProps.data.filter((item) => item.id == id);
+            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id);
             inboundIds.splice(inboundIndx, 1);
           }
         }}
@@ -372,8 +346,8 @@ const ArchivedCallLogReports = () => {
     if (event.currentTarget.checked) {
       dispatch(selectAllFilteredRows());
       setTableToolbar(true);
-      setInbounIds(tableProps.data.map(item => item.Inbound_Id))
-      setselectedRowIds(tableProps.data.map(item => item.id))
+      setInbounIds(tableProps.data.map((item) => item.Inbound_Id));
+      setselectedRowIds(tableProps.data.map((item) => item.id));
     } else {
       dispatch(deselectAllFilteredRows());
       selectedRowIds.splice(0, selectedRowIds.length);
@@ -382,8 +356,7 @@ const ArchivedCallLogReports = () => {
         setTableToolbar(false);
       }
     }
-
-  }
+  };
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -415,18 +388,16 @@ const ArchivedCallLogReports = () => {
     setSearchSidebar(false);
   };
   const deleteHandler = () => {
-    setDeleteLoading(true)
+    setDeleteLoading(true);
 
     axios
-      .post("archive-delete", { selectedRowIds })
+      .post('archive-delete', { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
+          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id));
           filteredData.data = newData;
-          setDeleteLoading(false)
+          setDeleteLoading(false);
 
           changeTableProps(filteredData);
           setInbounIds([]);
@@ -436,20 +407,18 @@ const ArchivedCallLogReports = () => {
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
-
         } else {
-          setDeleteLoading(false)
+          setDeleteLoading(false);
           setOpen(true);
           setResponse(res.data.msg);
           setInbounIds([]);
           setselectedRowIds([]);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
-
         }
       })
       .catch((err) => {
-        setDeleteLoading(false)
+        setDeleteLoading(false);
         setInbounIds([]);
         setselectedRowIds([]);
         setShowDeleteModal({ open: false });
@@ -458,79 +427,70 @@ const ArchivedCallLogReports = () => {
   };
 
   const handleMoveCallLog = (inboundIds) => {
-    setArchiveLoading(true)
-
+    setArchiveLoading(true);
     axios
-      .post(route("archived.to.call.log"), { inboundIds })
+      .post(route('archived.to.call.log'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setArchiveLoading(false)
+          setArchiveLoading(false);
           setResponse(res.data.msg);
           setOpen(true);
           let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !inboundIds.includes(item.Inbound_Id)
-          );
+          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
           filteredData.data = newData;
           changeTableProps(filteredData);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
           setInbounIds([]);
-          setShowCallLogModal({ open: false })
+          setShowCallLogModal({ open: false });
         } else {
-          setArchiveLoading(false)
+          setArchiveLoading(false);
           setOpen(true);
           setResponse(res.data.msg);
           setTableToolbar(false);
           setInbounIds([]);
           setselectedRowIds([]);
           setInbounIds([]);
-          setShowCallLogModal({ open: false })
-
+          setShowCallLogModal({ open: false });
         }
       })
       .catch((err) => {
-        setArchiveLoading(false)
+        setArchiveLoading(false);
         setTableToolbar(false);
         setInbounIds([]);
         setselectedRowIds([]);
         setInbounIds([]);
-        setShowCallLogModal({ open: false })
+        setShowCallLogModal({ open: false });
       });
   };
 
   const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true })
-  }
+    setOpenModal({ open: true });
+  };
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
     setselectedRowIds([]);
     emptyCheckbox();
-  }
+  };
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      if (
-        showColumns &&
-        showColumnRef.current &&
-        !showColumnRef.current.contains(e.target)
-      ) {
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
         setShowColumns(false);
       }
     };
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside);
     return () => {
-      // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside);
+      document.removeEventListener('mousedown', checkIfClickedOutside);
     };
   }, [showColumns]);
 
   const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("archived-call-logs"));
+    const storedData = JSON.parse(localStorage.getItem('archived-call-logs'));
     if (storedData?.selectedRows) storedData.selectedRows = [];
-    localStorage.setItem("archived-call-logs", JSON.stringify(storedData));
+    localStorage.setItem('archived-call-logs', JSON.stringify(storedData));
     let filteredData = { ...tableProps };
     if (filteredData?.selectedRows) filteredData.selectedRows = [];
     changeTableProps(filteredData);
@@ -538,14 +498,13 @@ const ArchivedCallLogReports = () => {
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("archived-call-logs"));
+      const storedData = JSON.parse(localStorage.getItem('archived-call-logs'));
       if (storedData != null) {
         emptyCheckbox();
       }
     };
   }, []);
 
-  // useEffect(() => M.AutoInit());
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -557,35 +516,32 @@ const ArchivedCallLogReports = () => {
       }
     };
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside);
     return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
+      document.removeEventListener('mousedown', checkIfClickedOutside);
     };
   }, [openRowFunctionalities]);
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      if (
-        showColumns &&
-        showColumnRef.current &&
-        !showColumnRef.current.contains(e.target)
-      ) {
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
         setShowColumns(false);
       }
     };
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside);
     return () => {
-      // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside);
+      document.removeEventListener('mousedown', checkIfClickedOutside);
     };
   }, [showColumns]);
+
+
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
+            <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
 
@@ -598,20 +554,14 @@ const ArchivedCallLogReports = () => {
         >
           Move Call Log
         </Button>
-        <div className="selection-rows">
-          {selectedRowIds.length} Row Selected
-        </div>
+        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     );
   };
 
   const RowFunctionalities = () => {
     return (
-      <div
-        className="row-functionalities"
-        ref={rowFunctionalitiesRef}
-        style={style}
-      >
+      <div className="row-functionalities" ref={rowFunctionalitiesRef} style={style}>
         <div>
           <span onClick={() => handleMoveCallLog}>Move CallLog</span>
         </div>
@@ -630,68 +580,11 @@ const ArchivedCallLogReports = () => {
     editData.push(tempData[0].Inbound_Id);
   };
 
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: "key",
-      columns: [
-        {
-          key: "visible",
-          title: "Visible",
-          isEditable: false,
-          style: { textAlign: "center" },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: "title",
-          isEditable: false,
-          title: "Fields",
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    };
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value
-            ? showColumn(action.rowKeyValue)
-            : hideColumn(action.rowKeyValue)
-        );
-      }
-    };
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "visible":
-                  return <CellEditorBoolean {...props} />;
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
-    );
-  };
-
   return (
     <>
       <Helmet title="Archived CallLogs Report" />
       <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
-        {openRowFunctionalities ? <RowFunctionalities /> : ""}
+        {openRowFunctionalities ? <RowFunctionalities /> : ''}
         {tableToolbar ? (
           <TableToolbar />
         ) : (
@@ -716,19 +609,26 @@ const ArchivedCallLogReports = () => {
                 </div>
 
                 <div className="top-element">
-                  <CustomFilter mainData={tableProps.data} fields={fields} filterValue={filterValue} setFilterValue={setFilterValue} filteredData={filteredData} setFilteredData={setFilteredData} filterData={filterData} />
-
+                  <CustomFilter
+                    mainData={tableProps.data}
+                    fields={fields}
+                    filterValue={filterValue}
+                    setFilterValue={setFilterValue}
+                    filteredData={filteredData}
+                    setFilteredData={setFilteredData}
+                    filterData={filterData}
+                  />
                 </div>
               </div>
             ) : (
-              ""
+              ''
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
-              ""
+              ''
             )}
           </div>
         )}
@@ -737,28 +637,25 @@ const ArchivedCallLogReports = () => {
           childComponents={{
             cellText: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return <SelectionCell {...props} />;
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return <></>;
                 }
               },
             },
             headCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return (
                     <SelectionHeader
                       {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                        tableProps
-                      )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
                   );
                 }
@@ -767,10 +664,10 @@ const ArchivedCallLogReports = () => {
             cell: {
               content: (props) => {
                 switch (props.column.key) {
-                  case "drag":
+                  case 'drag':
                     return (
                       <img
-                        style={{ cursor: "move" }}
+                        style={{ cursor: 'move' }}
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
@@ -790,13 +687,13 @@ const ArchivedCallLogReports = () => {
           setOpen={setShowCallLogModal}
           btnAction={() => handleMoveCallLog(inboundIds)}
           closeAction={() => handleCloseModal(setShowCallLogModal)}
-          width={"450px"}
-          title={`${inboundIds.length > 1
-            ? "Do you want to move these records to Call Log?"
-            : "Do you want to move this record to Call Log?"
-            }`}
+          width={'450px'}
+          title={`${
+            inboundIds.length > 1
+              ? 'Do you want to move these records to Call Log?'
+              : 'Do you want to move this record to Call Log?'
+          }`}
           loading={archiveLoading}
-
         ></ConfirmModal>
 
         <ConfirmModal
@@ -804,11 +701,12 @@ const ArchivedCallLogReports = () => {
           setOpen={setShowDeleteModal}
           btnAction={deleteHandler}
           closeAction={() => handleCloseModal(setShowDeleteModal)}
-          width={"400px"}
-          title={`${inboundIds.length > 1
-            ? "Do you want to delete these records?"
-            : "Do you want to delete this record?"
-            }`}
+          width={'400px'}
+          title={`${
+            inboundIds.length > 1
+              ? 'Do you want to delete these records?'
+              : 'Do you want to delete this record?'
+          }`}
           loading={deleteLoading}
         ></ConfirmModal>
       </div>
@@ -816,7 +714,5 @@ const ArchivedCallLogReports = () => {
   );
 };
 
-ArchivedCallLogReports.layout = (page) => (
-  <Layout title="Archived Call Log Reports">{page}</Layout>
-);
+ArchivedCallLogReports.layout = (page) => <Layout title="Archived Call Log Reports">{page}</Layout>;
 export default ArchivedCallLogReports;

@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout';
 import React, { useEffect, useState, useRef } from 'react';
 import { kaReducer, Table } from 'ka-table';
-import { DataType, SortingMode, PagingPosition, EditingMode, ActionType } from 'ka-table/enums';
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums';
 import { kaPropsUtils } from 'ka-table/utils';
 import { usePage } from '@inertiajs/inertia-react';
 import {
@@ -16,8 +16,6 @@ import search from '../../../images/search.svg';
 import eyeIcon from '../../../images/eyeIcon.svg';
 import closeNav from '../../../images/closeNav.svg';
 import Edit from '../../../images/three-dots.svg';
-import { hideColumn, showColumn } from 'ka-table/actionCreators';
-import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean';
 import Tooltip from '@material-ui/core/Tooltip';
 import DeleteIcon from '@material-ui/icons/Delete';
 import produce from 'immer';
@@ -28,12 +26,13 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import ConfirmModal from '../../Shared/ConfirmModal';
 import PulseLoader from 'react-spinners/PulseLoader';
-import SnackBar from '../../Shared/SnackBar';
 import CustomFilter from '../../Components/CustomFilter';
 import { filterData } from '../../Helpers/filterData';
 import { defaultFilter } from '../../Helpers/Filter';
 import { SearchedFields } from '../../Helpers/SearchedFields';
 import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
+import ColumnSettings from '../../Components/ColumnSettings';
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -50,8 +49,6 @@ const Exceptions = () => {
   const [tableToolbar, setTableToolbar] = useState(false);
   const [selectedRowIds, setselectedRowIds] = useState([]);
   const [inboundIds, setInbounIds] = useState([]);
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [annotationLoading, setAnnotationLoading] = useState(false);
   const [revenueLoading, setRevenueLoading] = useState(false);
@@ -74,8 +71,8 @@ const Exceptions = () => {
   const rowFunctionalitiesRef = useRef();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const showColumnRef = useRef();
-  let [color, setColor] = useState('#36D7B7');
-  const [drawerWidth, setDrawerWidth] = useState(350);
+  const color = '#36D7B7';
+  const drawerWidth = 350;
   const [count, setCount] = useState(0);
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
@@ -435,11 +432,9 @@ const Exceptions = () => {
             }
           } else {
             dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
             selectedRowIds.splice(0, selectedRowIds.length);
             inboundIds.splice(0, inboundIds.length);
 
-            // }
             if (selectedRowIds.length < 1) {
               setTableToolbar(false);
             }
@@ -483,8 +478,7 @@ const Exceptions = () => {
           setselectedRowIds([]);
           setInbounIds([]);
           setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
+          toast.success(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox('exception-report', tableProps, changeTableProps);
         } else {
@@ -492,8 +486,7 @@ const Exceptions = () => {
           setselectedRowIds([]);
           setInbounIds([]);
           setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
+          toast.error(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox('exception-report', tableProps, changeTableProps);
         }
@@ -515,8 +508,7 @@ const Exceptions = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           setPendingLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.success(res.data.msg);
           let columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
             draft.data = filteredData;
@@ -530,8 +522,7 @@ const Exceptions = () => {
           setShowPendingModal({ open: false });
         } else {
           setPendingLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.error(res.data.msg);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
@@ -553,8 +544,7 @@ const Exceptions = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           setArchiveLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.success(res.data.msg);
           let columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
             draft.data = filteredData;
@@ -567,8 +557,7 @@ const Exceptions = () => {
           setShowArchivedModal({ open: false });
         } else {
           setArchiveLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.error(res.data.msg);
           setInbounIds([]);
           setselectedRowIds([]);
           setShowArchivedModal({ open: false });
@@ -605,8 +594,7 @@ const Exceptions = () => {
           });
           response.push(res.data);
           if (updateState < inboundIdsParam.length) {
-            setResponse(`${updateState}  Record Updated`);
-            setOpen(true);
+            toast.success(`${updateState}  Record Updated`);
           }
           if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, (draft) => {
@@ -636,7 +624,7 @@ const Exceptions = () => {
           setOpenRowFunctionalities(false);
           emptyCheckbox('exception-report', tableProps, changeTableProps);
         } else {
-          toast.error("Updating failed");
+          toast.error('Updating failed');
           setUpdateLoading(false);
           setInbounIds([]);
           setselectedRowIds([]);
@@ -645,7 +633,7 @@ const Exceptions = () => {
         }
       })
       .catch((err) => {
-        toast.error("Updating failed");
+        toast.error('Updating failed');
         setUpdateLoading(false);
         setInbounIds([]);
         setselectedRowIds([]);
@@ -676,8 +664,7 @@ const Exceptions = () => {
           });
           response.push(res.data);
           if (updateState < inboundIdsParam.length) {
-            setResponse(`${updateState}  Record Updated`);
-            setOpen(true);
+            toast.success(`${updateState}  Record Updated`);
           }
           if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, (draft) => {
@@ -692,8 +679,7 @@ const Exceptions = () => {
             setCount(0);
 
             changeTableProps(columnsData);
-            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
-            setOpen(true);
+            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`);
             setAnnotationLoading(false);
             setTableToolbar(false);
             setInbounIds([]);
@@ -703,8 +689,7 @@ const Exceptions = () => {
           }
         } else {
           setAnnotationLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.error(res.data.msg);
           setInbounIds([]);
           setselectedRowIds([]);
           setOpenRowFunctionalities(false);
@@ -726,8 +711,7 @@ const Exceptions = () => {
       .then((res) => {
         if (res.status === 200) {
           setRevenueLoading(false);
-          setResponse('Successfully Updated');
-          setOpen(true);
+          toast.success('Successfully Updated');
           let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
               if (item.Inbound_Id === editData[0]) {
@@ -743,8 +727,7 @@ const Exceptions = () => {
           setselectedRowIds([]);
         } else {
           setRevenueLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.error(res.data.msg);
           setShowRevenueClearModal({ open: false });
           setOpenRowFunctionalities(false);
           setInbounIds([]);
@@ -892,7 +875,6 @@ const Exceptions = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside);
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside);
     };
   }, [showColumns]);
@@ -924,61 +906,6 @@ const Exceptions = () => {
     }
     const tempData = tableProps.data.filter((item) => item.id == id);
     editData.push(tempData[0].Inbound_Id);
-  };
-
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: 'key',
-      columns: [
-        {
-          key: 'visible',
-          title: 'Visible',
-          isEditable: false,
-          style: { textAlign: 'center' },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: 'title',
-          isEditable: false,
-          title: 'Fields',
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    };
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value ? showColumn(action.rowKeyValue) : hideColumn(action.rowKeyValue)
-        );
-      }
-    };
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case 'visible':
-                  return <CellEditorBoolean {...props} />;
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
-    );
   };
 
   return (
@@ -1109,7 +1036,6 @@ const Exceptions = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <SnackBar open={open} setOpen={setOpen} response={response} />
       </div>
 
       <ConfirmModal

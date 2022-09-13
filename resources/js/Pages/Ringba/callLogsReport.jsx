@@ -1,23 +1,23 @@
-import Layout from '../Layout/Layout';
-import React, { useEffect, useState, useRef } from 'react';
-import { kaReducer, Table } from 'ka-table';
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums';
-import { kaPropsUtils } from 'ka-table/utils';
+import Layout from '../Layout/Layout'
+import React, { useEffect, useState, useRef } from 'react'
+import { kaReducer, Table } from 'ka-table'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { kaPropsUtils } from 'ka-table/utils'
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from 'ka-table/actionCreators';
-import 'ka-table/style.scss';
-import { usePage } from '@inertiajs/inertia-react';
-import search from '../../../images/search.svg';
-import eyeIcon from '../../../images/eyeIcon.svg';
-import closeNav from '../../../images/closeNav.svg';
-import Edit from '../../../images/three-dots.svg';
-import DeleteIcon from '@material-ui/icons/Delete';
-import produce from 'immer';
+} from 'ka-table/actionCreators'
+import 'ka-table/style.scss'
+import { usePage } from '@inertiajs/inertia-react'
+import search from '../../../images/search.svg'
+import eyeIcon from '../../../images/eyeIcon.svg'
+import closeNav from '../../../images/closeNav.svg'
+import Edit from '../../../images/three-dots.svg'
+import DeleteIcon from '@material-ui/icons/Delete'
+import produce from 'immer'
 import {
   Button,
   makeStyles,
@@ -26,22 +26,21 @@ import {
   Checkbox,
   Tooltip,
   TextField,
-} from '@material-ui/core';
-import axios from 'axios';
-import { Helmet } from 'react-helmet';
-import ConfirmModal from '../../Shared/ConfirmModal';
-import SnackBar from '../../Shared/SnackBar';
-import PulseLoader from 'react-spinners/PulseLoader';
-import emptyCheckbox from '../../Helpers/EmptyCheckbox';
-import { stateStore } from '../../Helpers/StateStore';
-import ColumnSettings from '../../Components/ColumnSettings';
-import { deleteHandler } from '../../Helpers/HandleRequests';
-import CustomFilter from '../../Components/CustomFilter';
-import { filterData } from '../../Helpers/filterData';
-import { defaultFilter } from '../../Helpers/Filter';
-import { SearchedFields } from '../../Helpers/SearchedFields';
-import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
-import toast from 'react-hot-toast';
+} from '@material-ui/core'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import ConfirmModal from '../../Shared/ConfirmModal'
+import PulseLoader from 'react-spinners/PulseLoader'
+import emptyCheckbox from '../../Helpers/EmptyCheckbox'
+import { stateStore } from '../../Helpers/StateStore'
+import ColumnSettings from '../../Components/ColumnSettings'
+import { deleteHandler } from '../../Helpers/HandleRequests'
+import CustomFilter from '../../Components/CustomFilter'
+import { filterData } from '../../Helpers/filterData'
+import { defaultFilter } from '../../Helpers/Filter'
+import { SearchedFields } from '../../Helpers/SearchedFields'
+import { DateTimeFormat } from '../../Helpers/DateTimeFormat'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -49,48 +48,46 @@ const useStyles = makeStyles(() => ({
     textTransform: 'capitalize',
     fontSize: '14px',
   },
-}));
+}))
 
 const CallLogsReport = () => {
-  const classes = useStyles();
-  const { allCallLogs, campaignsWithAnnotations } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [inboundIds, setInbounIds] = useState([]);
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [updateLoading, setUpdateLoading] = useState(false);
-  const [annotationLoading, setAnnotationLoading] = useState(false);
-  const [revenueLoading, setRevenueLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [pendingLoading, setPendingLoading] = useState(false);
-  const [archiveLoading, setArchiveLoading] = useState(false);
-  const [editData, setEditData] = useState([]);
-  const [sn, setSn] = useState('');
-  const [showRevenueClearModal, setShowRevenueClearModal] = useState({ open: false });
-  const [showPendingModal, setShowPendingModal] = useState({ open: false });
-  const [showArchivedModal, setShowArchivedModal] = useState({ open: false });
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
-  const rowFunctionalitiesRef = useRef();
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const showColumnRef = useRef();
-  const color = '#36D7B7';
-  const drawerWidth = 350;
+  const classes = useStyles()
+  const { allCallLogs, campaignsWithAnnotations } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [inboundIds, setInbounIds] = useState([])
+  const [updateLoading, setUpdateLoading] = useState(false)
+  const [annotationLoading, setAnnotationLoading] = useState(false)
+  const [revenueLoading, setRevenueLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [pendingLoading, setPendingLoading] = useState(false)
+  const [archiveLoading, setArchiveLoading] = useState(false)
+  const [editData, setEditData] = useState([])
+  const [sn, setSn] = useState('')
+  const [showRevenueClearModal, setShowRevenueClearModal] = useState({ open: false })
+  const [showPendingModal, setShowPendingModal] = useState({ open: false })
+  const [showArchivedModal, setShowArchivedModal] = useState({ open: false })
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
+  const rowFunctionalitiesRef = useRef()
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const showColumnRef = useRef()
+  const color = '#36D7B7'
+  const drawerWidth = 350
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
-  );
+  )
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
     left: drawerWidth,
-  };
-  const [count, setCount] = useState(0);
+  }
+  const [count, setCount] = useState(0)
 
-  const [filteredData, setFilteredData] = useState(filterData(allCallLogs, filterValue));
+  const [filteredData, setFilteredData] = useState(filterData(allCallLogs, filterValue))
   const updateAnnotation = (e, tableIndex) => {
-    e.preventDefault();
+    e.preventDefault()
     axios
       .post(route('change.annotation', 'ringbaCallLog'), {
         indexId: tableIndex,
@@ -98,25 +95,23 @@ const CallLogsReport = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
-
-          let filteredData = tableProps;
+          toast.success(res.data.msg)
+          let filteredData = tableProps
           filteredData.data.filter((item, indx) => {
             if (item.id == tableIndex) {
-              filteredData.data[indx].Has_Annotation = res.data.has_annotation;
+              filteredData.data[indx].Has_Annotation = res.data.has_annotation
             }
-          });
+          })
         }
       })
-      .catch((err) => {});
-  };
+      .catch((err) => {})
+  }
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
-      setPosition({ x: e.screenX, y: e.screenY });
+      setPosition({ x: e.screenX, y: e.screenY })
     }
-  };
+  }
   const dataArray = filteredData.map((item, index) => {
     return {
       edit: item.id,
@@ -153,8 +148,8 @@ const CallLogsReport = () => {
       Zipcode: item.Zipcode,
       id: item.id,
       key: index,
-    };
-  });
+    }
+  })
 
   const tablePropsInit = {
     columns: [
@@ -171,12 +166,14 @@ const CallLogsReport = () => {
         title: 'SL',
         dataType: DataType.Number,
         style: { width: 100 },
+        visible: false,
       },
       {
         key: 'SN',
         title: 'SN',
         dataType: DataType.String,
         style: { width: 130 },
+        visible: false,
       },
       {
         key: 'Call_Date_Time',
@@ -364,10 +361,10 @@ const CallLogsReport = () => {
           <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
             <img src={Edit} alt="edit-icon"></img>
           </div>
-        );
+        )
       }
       if (column.key === 'Annotation_Tag') {
-        let arrayValue = value.split(',');
+        let arrayValue = value.split(',')
         return (
           <TextField
             id="annotation_id"
@@ -389,7 +386,7 @@ const CallLogsReport = () => {
                 </option>
               ))}
           </TextField>
-        );
+        )
       }
       if (column.key === 'Recording_Url') {
         return (
@@ -397,30 +394,30 @@ const CallLogsReport = () => {
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
-        );
+        )
       }
 
       if (column.key === 'Call_Date_Time') {
         if (value !== undefined) {
-          return DateTimeFormat(value);
+          return DateTimeFormat(value)
         }
       }
       if (column.key === 'Call_Date') {
         if (value !== undefined) {
-          let shortMonth = value.toLocaleString('en-us', { month: 'short' });
-          let format_date = value;
-          let dd = String(format_date.getDate()).padStart(2, '0');
-          let yyyy = format_date.getFullYear();
-          format_date = dd + '-' + shortMonth + '-' + yyyy;
-          return format_date;
+          let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+          let format_date = value
+          let dd = String(format_date.getDate()).padStart(2, '0')
+          let yyyy = format_date.getFullYear()
+          format_date = dd + '-' + shortMonth + '-' + yyyy
+          return format_date
         }
       }
     },
-  };
+  }
 
-  const fields = SearchedFields(tablePropsInit.columns);
-  const OPTION_KEY = 'call-logs-report';
-  const [tableProps, changeTableProps] = useState(stateStore(tablePropsInit, 'call-logs-report'));
+  const fields = SearchedFields(tablePropsInit.columns)
+  const OPTION_KEY = 'call-logs-report'
+  const [tableProps, changeTableProps] = useState(stateStore(tablePropsInit, 'call-logs-report'))
 
   const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
@@ -429,48 +426,48 @@ const CallLogsReport = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id);
-            inboundIds.push(selectedRowData[0].Inbound_Id);
+            const selectedRowData = tableProps.data.filter((item) => item.id == id)
+            inboundIds.push(selectedRowData[0].Inbound_Id)
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id);
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id);
-            inboundIds.splice(inboundIndx, 1);
+            const selectedRowData = tableProps.data.filter((item) => item.id == id)
+            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
+            inboundIds.splice(inboundIndx, 1)
           }
         }}
       />
-    );
-  };
+    )
+  }
 
   const allSelect = (event, dispatch) => {
     if (event.currentTarget.checked) {
-      dispatch(selectAllFilteredRows());
-      setTableToolbar(true);
-      setInbounIds(tableProps.data.map((item) => item.Inbound_Id));
-      setselectedRowIds(tableProps.data.map((item) => item.id));
+      dispatch(selectAllFilteredRows())
+      setTableToolbar(true)
+      setInbounIds(tableProps.data.map((item) => item.Inbound_Id))
+      setselectedRowIds(tableProps.data.map((item) => item.id))
     } else {
-      dispatch(deselectAllFilteredRows());
-      selectedRowIds.splice(0, selectedRowIds.length);
-      inboundIds.splice(0, inboundIds.length);
+      dispatch(deselectAllFilteredRows())
+      selectedRowIds.splice(0, selectedRowIds.length)
+      inboundIds.splice(0, inboundIds.length)
       if (selectedRowIds.length < 1) {
-        setTableToolbar(false);
+        setTableToolbar(false)
       }
     }
-  };
+  }
 
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
@@ -479,307 +476,297 @@ const CallLogsReport = () => {
         color="primary"
         onChange={(event) => allSelect(event, dispatch)}
       />
-    );
-  };
+    )
+  }
 
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      return newState
+    })
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
   const handleColumns = () => {
-    setShowColumns(true);
-    setOpenRowFunctionalities(false);
-  };
+    setShowColumns(true)
+    setOpenRowFunctionalities(false)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
 
   const handlePending = (inboundIds) => {
-    setPendingLoading(true);
+    setPendingLoading(true)
     axios
       .post(route('add.pending.bill.call'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setPendingLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
+          setPendingLoading(false)
+          toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
-            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
-            draft.data = filteredData;
-          });
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowPendingModal({ open: false });
+            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
+            draft.data = filteredData
+          })
+          changeTableProps(columnsData)
+          setTableToolbar(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowPendingModal({ open: false })
         } else {
-          setPendingLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowPendingModal({ open: false });
+          setPendingLoading(false)
+          toast.error(res.data.msg)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowPendingModal({ open: false })
         }
       })
       .catch((err) => {
-        setPendingLoading(false);
-        setOpenRowFunctionalities(false);
-        setShowPendingModal({ open: false });
-        setselectedRowIds([]);
-        setInbounIds([]);
-      });
-  };
+        setPendingLoading(false)
+        setOpenRowFunctionalities(false)
+        setShowPendingModal({ open: false })
+        setselectedRowIds([])
+        setInbounIds([])
+      })
+  }
 
   const handleArchived = (inboundIds) => {
-    setArchiveLoading(true);
+    setArchiveLoading(true)
     axios
       .post(route('add.arichived.bill.call'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setArchiveLoading(false);
-          toast.success(res.data.msg);
-          setOpen(true);
+          setArchiveLoading(false)
+          toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
-            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
-            draft.data = filteredData;
-          });
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowArchivedModal({ open: false });
+            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
+            draft.data = filteredData
+          })
+          changeTableProps(columnsData)
+          setTableToolbar(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowArchivedModal({ open: false })
         } else {
-          setArchiveLoading(false);
-          toast.error(res.data.msg);
-          setOpen(true);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowArchivedModal({ open: false });
+          setArchiveLoading(false)
+          toast.error(res.data.msg)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowArchivedModal({ open: false })
         }
       })
       .catch((err) => {
-        setArchiveLoading(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
-        setShowArchivedModal({ open: false });
-      });
-  };
+        setArchiveLoading(false)
+        setInbounIds([])
+        setselectedRowIds([])
+        setOpenRowFunctionalities(false)
+        setShowArchivedModal({ open: false })
+      })
+  }
 
   const handleUpdate = (inboundIds) => {
-    const response = [];
-    let i = 0;
+    const response = []
+    let i = 0
     while (i < inboundIds.length) {
-      updatePostRequest(inboundIds, i, response);
-      i = i + 1;
+      updatePostRequest(inboundIds, i, response)
+      i = i + 1
     }
-  };
+  }
 
   const updatePostRequest = (inboundIdsParam, id, response) => {
-    setUpdateLoading(true);
+    setUpdateLoading(true)
     axios
       .post(route('update.data'), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
-          let updateState;
+          let updateState
           setCount((prevState) => {
-            updateState = prevState + 1;
-            return prevState + 1;
-          });
-          response.push(res.data);
+            updateState = prevState + 1
+            return prevState + 1
+          })
+          response.push(res.data)
           if (updateState < inboundIdsParam.length) {
-            toast.success(`${updateState}  Record Updated`);
+            toast.success(`${updateState}  Record Updated`)
           }
           if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, (draft) => {
               for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = '';
-                res.data[i].edit = res.data[i].id;
-                if (!res.data[i].sl) res.data.sl = '';
-                res.data[i].sl = i + 1;
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
               }
-              draft.data = res.data;
-            });
-            setCount(0);
-            changeTableProps(columnsData);
-            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`);
-            setUpdateLoading(false);
-            setTableToolbar(false);
-            setInbounIds([]);
-            setselectedRowIds([]);
-            setOpenRowFunctionalities(false);
-            emptyCheckbox('call-logs-report', columnsData, changeTableProps);
+              draft.data = res.data
+            })
+            setCount(0)
+            changeTableProps(columnsData)
+            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
+            setUpdateLoading(false)
+            setTableToolbar(false)
+            setInbounIds([])
+            setselectedRowIds([])
+            setOpenRowFunctionalities(false)
+            emptyCheckbox('call-logs-report', columnsData, changeTableProps)
           }
         } else if (res.status === 204) {
-          toast.error("The record isn't exist in Ringba");
-          setUpdateLoading(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox('call-logs-report', tableProps, changeTableProps);
+          toast.error("The record isn't exist in Ringba")
+          setUpdateLoading(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          emptyCheckbox('call-logs-report', tableProps, changeTableProps)
         } else {
-          toast.error("Updating failed");
-          setUpdateLoading(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox('call-logs-report', tableProps, changeTableProps);
+          toast.error('Updating failed')
+          setUpdateLoading(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          emptyCheckbox('call-logs-report', tableProps, changeTableProps)
         }
       })
       .catch((err) => {
-        toast.error("Updating failed");
-        setUpdateLoading(false);
-        emptyCheckbox('call-logs-report', tableProps, changeTableProps);
-        setInbounIds([]);
-        setselectedRowIds([]);
-      });
-  };
+        toast.error('Updating failed')
+        setUpdateLoading(false)
+        emptyCheckbox('call-logs-report', tableProps, changeTableProps)
+        setInbounIds([])
+        setselectedRowIds([])
+      })
+  }
 
   const handleAnnotation = (inboundIds) => {
-    const response = [];
-    let i = 0;
+    const response = []
+    let i = 0
     while (i < inboundIds.length) {
-      annotationPostRequest(inboundIds, i, response);
-      i = i + 1;
+      annotationPostRequest(inboundIds, i, response)
+      i = i + 1
     }
-  };
+  }
   const annotationPostRequest = (inboundIdsParam, id, response) => {
-    setAnnotationLoading(true);
+    setAnnotationLoading(true)
     axios
       .post(route('update.annotation'), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          let updateState;
+          let updateState
           setCount((prevState) => {
-            updateState = prevState + 1;
-            return prevState + 1;
-          });
-          response.push(res.data);
+            updateState = prevState + 1
+            return prevState + 1
+          })
+          response.push(res.data)
           if (updateState < inboundIdsParam.length) {
-            setResponse(`${updateState}  Record Updated`);
-            setOpen(true);
+            toast.success(`${updateState}  Record Updated`)
           }
           if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, (draft) => {
               for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = '';
-                res.data[i].edit = res.data[i].id;
-                if (!res.data[i].sl) res.data.sl = '';
-                res.data[i].sl = i + 1;
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
               }
-              draft.data = res.data;
-            });
-            setCount(0);
-            changeTableProps(columnsData);
-            setResponse(`${inboundIdsParam.length} Record Updated and Updating Completed`);
-            setOpen(true);
-            setAnnotationLoading(false);
-            setTableToolbar(false);
-            setInbounIds([]);
-            setselectedRowIds([]);
-            setOpenRowFunctionalities(false);
-            emptyCheckbox('call-logs-report', columnsData, changeTableProps);
+              draft.data = res.data
+            })
+            setCount(0)
+            changeTableProps(columnsData)
+            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
+            setAnnotationLoading(false)
+            setTableToolbar(false)
+            setInbounIds([])
+            setselectedRowIds([])
+            setOpenRowFunctionalities(false)
+            emptyCheckbox('call-logs-report', columnsData, changeTableProps)
           }
         } else {
-          setAnnotationLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox('call-logs-report', tableProps, changeTableProps);
+          setAnnotationLoading(false)
+          toast.error(res.data.msg)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          emptyCheckbox('call-logs-report', tableProps, changeTableProps)
         }
       })
       .catch((err) => {
-        emptyCheckbox('call-logs-report', tableProps, changeTableProps);
-        setAnnotationLoading(false);
-      });
-  };
+        emptyCheckbox('call-logs-report', tableProps, changeTableProps)
+        setAnnotationLoading(false)
+      })
+  }
   const handleClear = (inboundIds) => {
-    setRevenueLoading(true);
+    setRevenueLoading(true)
     axios
       .post(route('calllogs.revenue.update'), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
-          setRevenueLoading(false);
-          setResponse('Successfully Updated');
-          setOpen(true);
+          setRevenueLoading(false)
+          toast.success('Successfully Updated')
           let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
               if (item.Inbound_Id === editData[0]) {
-                item.Revenue = '';
-                item.payoutAmount = '';
+                item.Revenue = ''
+                item.payoutAmount = ''
               }
-            });
-          });
-          changeTableProps(columnsData);
-          setShowRevenueClearModal({ open: false });
-          setOpenRowFunctionalities(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
+            })
+          })
+          changeTableProps(columnsData)
+          setShowRevenueClearModal({ open: false })
+          setOpenRowFunctionalities(false)
+          setInbounIds([])
+          setselectedRowIds([])
         } else {
-          setRevenueLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
-          setShowRevenueClearModal({ open: false });
-          setOpenRowFunctionalities(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
+          setRevenueLoading(false)
+          toast.error(res.data.msg)
+          setShowRevenueClearModal({ open: false })
+          setOpenRowFunctionalities(false)
+          setInbounIds([])
+          setselectedRowIds([])
         }
       })
       .catch((err) => {
-        setRevenueLoading(false);
-        setShowRevenueClearModal({ open: false });
-        setOpenRowFunctionalities(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-      });
-  };
+        setRevenueLoading(false)
+        setShowRevenueClearModal({ open: false })
+        setOpenRowFunctionalities(false)
+        setInbounIds([])
+        setselectedRowIds([])
+      })
+  }
 
   const handleOpenModal = (setOpenModal, tableData) => {
-    setOpenModal({ open: true });
+    setOpenModal({ open: true })
     if (tableData) {
-      let filteredData = tableProps;
+      let filteredData = tableProps
       filteredData.data.filter((item) => {
         if (item.Inbound_Id === editData[0]) {
-          setSn(item.SN);
+          setSn(item.SN)
         }
-      });
-      setShowRevenueClearModal({ open: true });
+      })
+      setShowRevenueClearModal({ open: true })
     }
-  };
+  }
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setOpenRowFunctionalities(false);
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    setInbounIds([]);
-    emptyCheckbox('call-logs-report', tableProps, changeTableProps);
-  };
+    setOpenModal({ open: false })
+    setOpenRowFunctionalities(false)
+    setTableToolbar(false)
+    setselectedRowIds([])
+    setInbounIds([])
+    emptyCheckbox('call-logs-report', tableProps, changeTableProps)
+  }
 
   useEffect(() => {
     window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem('call-logs-report'));
+      const storedData = JSON.parse(localStorage.getItem('call-logs-report'))
       if (storedData != null) {
-        emptyCheckbox('call-logs-report', tableProps, changeTableProps);
+        emptyCheckbox('call-logs-report', tableProps, changeTableProps)
       }
-    };
-  }, []);
+    }
+  }, [])
 
   const TableToolbar = () => {
     return (
@@ -845,8 +832,8 @@ const CallLogsReport = () => {
 
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    );
-  };
+    )
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -855,27 +842,27 @@ const CallLogsReport = () => {
         rowFunctionalitiesRef.current &&
         !rowFunctionalitiesRef.current.contains(e.target)
       ) {
-        setOpenRowFunctionalities(false);
+        setOpenRowFunctionalities(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
-    };
-  }, [openRowFunctionalities]);
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [openRowFunctionalities])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    }
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
-    };
-  }, [showColumns]);
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const RowFunctionalities = () => {
     return (
@@ -892,19 +879,19 @@ const CallLogsReport = () => {
           <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   const handleRowFunctionalities = (id) => {
-    setOpenRowFunctionalities(true);
-    setShowColumns(false);
+    setOpenRowFunctionalities(true)
+    setShowColumns(false)
     if (editData.length > 0) {
-      const itemIndx = editData.indexOf(id);
-      editData.splice(itemIndx, 1);
+      const itemIndx = editData.indexOf(id)
+      editData.splice(itemIndx, 1)
     }
-    const tempData = tableProps.data.filter((item) => item.id == id);
-    editData.push(tempData[0].Inbound_Id);
-  };
+    const tempData = tableProps.data.filter((item) => item.id == id)
+    editData.push(tempData[0].Inbound_Id)
+  }
 
   return (
     <>
@@ -962,14 +949,14 @@ const CallLogsReport = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -981,7 +968,7 @@ const CallLogsReport = () => {
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
-                  );
+                  )
                 }
               },
 
@@ -994,7 +981,7 @@ const CallLogsReport = () => {
                       left: 0,
                       zIndex: 10,
                     },
-                  };
+                  }
                 }
               },
             },
@@ -1008,7 +995,7 @@ const CallLogsReport = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
 
@@ -1021,7 +1008,7 @@ const CallLogsReport = () => {
                       left: 0,
                       backgroundColor: '#fff',
                     },
-                  };
+                  }
                 }
               },
             },
@@ -1030,7 +1017,7 @@ const CallLogsReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <SnackBar open={open} setOpen={setOpen} response={response} />
+        {/* <SnackBar open={open} setOpen={setOpen} response={response} /> */}
       </div>
 
       <ConfirmModal
@@ -1089,8 +1076,6 @@ const CallLogsReport = () => {
             setDeleteLoading,
             setInbounIds,
             setTableToolbar,
-            setOpen,
-            setResponse,
             setShowDeleteModal,
             OPTION_KEY
           )
@@ -1105,8 +1090,8 @@ const CallLogsReport = () => {
         loading={deleteLoading}
       ></ConfirmModal>
     </>
-  );
-};
+  )
+}
 
-CallLogsReport.layout = (page) => <Layout title="Call Logs Report">{page}</Layout>;
-export default CallLogsReport;
+CallLogsReport.layout = (page) => <Layout title="Call Logs Report">{page}</Layout>
+export default CallLogsReport

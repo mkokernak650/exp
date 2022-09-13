@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import FileImportMap from './FileImportMap';
-import XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 import { useEffect } from 'react';
 import { usePage } from '@inertiajs/inertia-react';
 import toast from 'react-hot-toast';
