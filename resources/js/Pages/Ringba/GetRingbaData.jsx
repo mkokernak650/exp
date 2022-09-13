@@ -12,7 +12,6 @@ import { Helmet } from 'react-helmet';
 import { currentDate } from '../../Helpers/CurrentDate';
 import { usePage } from '@inertiajs/inertia-react';
 import axios from 'axios';
-import SnackBar from '../../Shared/SnackBar';
 import toast from 'react-hot-toast';
 
 const useStyles = makeStyles((theme) => ({

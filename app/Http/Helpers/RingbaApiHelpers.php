@@ -13,7 +13,6 @@ class RingbaApiHelpers
     private $_password = 'Msk565656!';
     private $_grantType = 'password';
     private $_apiEndpoint = 'https://api.ringba.com/v2/';
-    private $_auth_details;
     private $_account_details;
     private $_apiToken;
 
@@ -32,7 +31,6 @@ class RingbaApiHelpers
     public function getRequest($method)
     {
         $apiEndpoint = $this->_apiEndpoint . "{$this->_account_details->accountId}/{$method}";
-
         $client = new Client(['headers' => ['Authorization' => "Token {$this->_apiToken->api_token}"]]);
         try {
             $apiResponse = $client->get($apiEndpoint);
@@ -65,8 +63,8 @@ class RingbaApiHelpers
     {
         $params = [
             'dateRange' => [
-                'past' => $past,
-                'days' => $days
+                'past' => (int) $past,
+                'days' => (int) $days
             ],
             'timeSeries' => [
                 'timeGroup' => 'hour'
@@ -79,9 +77,10 @@ class RingbaApiHelpers
             ],
             'timezoneId' => 'Eastern Standard Time'
         ];
+        // dd($params);
 
         $result = json_decode($this->postRequest('calllogs/date', $params));
-
+        // dd($result);
         if ($result) {
             $ringbaData = new RingbaData();
             $ringbaData->truncate();
@@ -139,17 +138,6 @@ class RingbaApiHelpers
         return $response->result->callLog->data;
     }
 
-    // private function getDataById($inboundId)
-    // {
-
-    //   $params = [
-    //     "InboundCallIds" => $inboundId,
-    //   ];
-
-    //   $response =  json_decode($this->postRequest('calllogs/detail', $params));
-    //   return $response->result->callLog->data;
-    // }
-
     /**
      * @for update Ringba call log
      * @param mixed $inboundId
@@ -157,8 +145,12 @@ class RingbaApiHelpers
      */
     public function getUpdateData($inboundId)
     {
-        $result = $this->getDataById($inboundId);
-        return $result[0];
+        $response = $this->getDataById($inboundId);
+        if (empty($response)) {
+            return response()->json([], 204);
+        } else {
+            return response()->json([], 200);
+        }
     }
 
     // get update data by inboundId

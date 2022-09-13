@@ -366,9 +366,9 @@ class RingbaCallLogController extends Controller
     public function updateByInboundIds(Request $request)
     {
         $inboundIds = $request->inboundIds;
-        $this->updateData($inboundIds);
+        $result = $this->updateData($inboundIds);
         $allData = RingbaCallLog::all();
-        return response()->json($allData);
+        return response()->json($allData, $result->getStatusCode());
     }
 
     /**
@@ -378,19 +378,19 @@ class RingbaCallLogController extends Controller
      */
     private function updateData($inboundId)
     {
-        $row = self::$RingbaApiHelpers->getUpdateData($inboundId);
-        if ($row->columns) {
+        $response = self::$RingbaApiHelpers->getUpdateData($inboundId);
+        if (!empty($response->getData())) {
+            $row = $response->getData();
             $this->columns($row->columns);
-        }
-        if ($row->events) {
             $this->events($row->events);
-        }
-        if ($row->tags) {
             $this->tags($row->tags);
+            $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
+            $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
+            $this->ringbaDataObject($ringbaCallLogs);
+            return $response;
+        } else {
+            return $response;
         }
-        $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
-        $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
-        $this->ringbaDataObject($ringbaCallLogs);
     }
 
     /**
@@ -558,11 +558,11 @@ class RingbaCallLogController extends Controller
         $start_date = date_create($request->start_date);
         $end_date = date_create($request->end_date);
         $current_date = date_create(date('m/d/Y'));
-
         $start_current_diff = date_diff($start_date, $current_date);
         $start_current_diff_result = $start_current_diff->format('%a');
 
         $start_end_diff = date_diff($start_date, $end_date);
+
         $start_end_diff_result = $start_end_diff->format('%a');
 
         if ($start_current_diff_result > 0) {
@@ -666,21 +666,6 @@ class RingbaCallLogController extends Controller
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
             $result = DB::table('ringba_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
-            $i++;
-        }
-        if ($result) {
-            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
-        } else {
-            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
-        }
-    }
-
-    public function tempDataDelete(Request $request)
-    {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = DB::table('ringba_data')->where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {

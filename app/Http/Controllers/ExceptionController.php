@@ -174,61 +174,59 @@ class ExceptionController extends Controller
     public function updateExceptionReport(Request $request)
     {
         $inboundIds = $request->inboundIds;
-
         $apiResposnse = self::$RingbaApiHelpers->getUpdateData($inboundIds);
 
-        if ($apiResposnse->columns) {
+        if (!empty($apiResposnse->getData())) {
             $this->columns($apiResposnse->columns);
-        }
-        if ($apiResposnse->events) {
             $this->events($apiResposnse->events);
-        }
-        if ($apiResposnse->tags) {
             $this->tags($apiResposnse->tags);
+
+            $getDataById = findDataByInboundId(self::$Exception, $inboundIds);
+
+            $getDataById->Call_Date_Time = date('d-M-y H:i:s', $this->get_dtStamp / 1000);
+            $getDataById->Has_Annotation = $this->has_annotations;
+            $getDataById->Annotation_Tag = $this->get_annotations_tag;
+            $getDataById->Recording_Url = $this->get_recordingUrl;
+            $getDataById->call_time = date('d-M-y', $this->get_dtStamp / 1000);
+            $getDataById->Duplicate_Call = $this->get_duplicated_status;
+            $getDataById->Affiliate = $this->get_affiliateName;
+            $getDataById->Affiliate_Id = $this->get_affiliateId;
+            $getDataById->Market = $this->get_market;
+            $getDataById->Campaign = $this->get_campaignName;
+            $getDataById->Campaign_Id = $this->get_campaignId;
+            $getDataById->Inbound = $this->get_inboundPhoneNumber;
+            $getDataById->Inbound_Id = $this->get_inboundCallId;
+            $getDataById->Dialed = $this->get_number;
+            $getDataById->Type = $this->get_type;
+            $getDataById->Customer = $this->get_customer_name_id;
+            $getDataById->Target = $this->get_targetName;
+            $getDataById->Target_Description = $this->get_Target_Description;
+            $getDataById->Source_Hangup = $this->get_source_hangup;
+            $getDataById->Conn_Duration = $this->get_callConnectionLength;
+            $getDataById->Time_To_Call = $this->get_timeToConnect;
+            $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
+            $getDataById->Revenue = $this->get_revenue;
+            $getDataById->payoutAmount = $this->get_payoutAmount;
+            $getDataById->Total_Cost = $this->get_totalAmount;
+            $getDataById->Profit = $this->get_profit;
+            $getDataById->City = $this->get_city;
+            $getDataById->State = $this->get_state;
+            $getDataById->Zipcode = $this->get_zipcode;
+            $getDataById->save();
+
+            $allData = Exception::all();
+            return response()->json($allData, $apiResposnse->getStatusCode());
+        } else {
+            $allData = Exception::all();
+            return response()->json($allData, $apiResposnse->getStatusCode());
         }
-
-        $getDataById = findDataByInboundId(self::$Exception, $inboundIds);
-
-        $getDataById->Call_Date_Time = date('d-M-y H:i:s', $this->get_dtStamp / 1000);
-        $getDataById->Has_Annotation = $this->has_annotations;
-        $getDataById->Annotation_Tag = $this->get_annotations_tag;
-        $getDataById->Recording_Url = $this->get_recordingUrl;
-        $getDataById->call_time = date('d-M-y', $this->get_dtStamp / 1000);
-        $getDataById->Duplicate_Call = $this->get_duplicated_status;
-        $getDataById->Affiliate = $this->get_affiliateName;
-        $getDataById->Affiliate_Id = $this->get_affiliateId;
-        $getDataById->Market = $this->get_market;
-        $getDataById->Campaign = $this->get_campaignName;
-        $getDataById->Campaign_Id = $this->get_campaignId;
-        $getDataById->Inbound = $this->get_inboundPhoneNumber;
-        $getDataById->Inbound_Id = $this->get_inboundCallId;
-        $getDataById->Dialed = $this->get_number;
-        $getDataById->Type = $this->get_type;
-        $getDataById->Customer = $this->get_customer_name_id;
-        $getDataById->Target = $this->get_targetName;
-        $getDataById->Target_Description = $this->get_Target_Description;
-        $getDataById->Source_Hangup = $this->get_source_hangup;
-        $getDataById->Conn_Duration = $this->get_callConnectionLength;
-        $getDataById->Time_To_Call = $this->get_timeToConnect;
-        $getDataById->call_Length_In_Seconds = $this->get_callLengthInSeconds;
-        $getDataById->Revenue = $this->get_revenue;
-        $getDataById->payoutAmount = $this->get_payoutAmount;
-        $getDataById->Total_Cost = $this->get_totalAmount;
-        $getDataById->Profit = $this->get_profit;
-        $getDataById->City = $this->get_city;
-        $getDataById->State = $this->get_state;
-        $getDataById->Zipcode = $this->get_zipcode;
-        $getDataById->save();
-
-        $allData = Exception::all();
-        return response()->json($allData);
     }
 
     /**
-     * @method for convert and assign value from String to Array
-     * @param mixed $row
-     * @return void
-     */
+         * @method for convert and assign value from String to Array
+         * @param mixed $row
+         * @return void
+         */
     private function columns($row)
     {
         $results = gettype($row) === 'array' ? $row : json_decode($row);
