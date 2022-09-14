@@ -9,5 +9,5 @@
   },
   "include": [
     "./resources/js/*"
-  ]
+, "resources/js/Components/TableComponents"  ]
 }

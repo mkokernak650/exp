@@ -281,18 +281,16 @@ div::-webkit-scrollbar-thumb {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    background-color: #78797a;
     height: 30px;
     width: 30px;
     border-radius: 100%;
     color: #fff;
     opacity: 0.8;
     cursor: pointer;
+    background-color: #ccc;
 }
 
-.close-nav:hover {
-    opacity: 1;
-}
+
 
 .close-nav img {
     width: 11px;
@@ -488,9 +486,6 @@ div::-webkit-scrollbar-thumb {
 }
 
 .edit-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     cursor: pointer;
 }
 

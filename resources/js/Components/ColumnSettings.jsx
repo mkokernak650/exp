@@ -4,10 +4,10 @@ import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorB
 import { hideColumn, showColumn } from 'ka-table/actionCreators'
 
 const ColumnSettings = (tableProps) => {
-  const hiddenColumns = ['sl', 'edit', 'selection-cell', 'SN']
+  const hiddenColumns = ['sl', 'edit', 'selection-cell']
+  console.log("==>",tableProps)
   const columnsSettingsProps = {
     data: tableProps.columns.filter((c) => {
-      c.visible = c.visible !== false
       if (!hiddenColumns.includes(c.key)) {
         return c
       }

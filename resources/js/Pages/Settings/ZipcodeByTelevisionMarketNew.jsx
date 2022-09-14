@@ -14,10 +14,10 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { Pagination } from 'react-laravel-paginex';
 import toast from 'react-hot-toast';
-import SelectionHeader from '../../TableComponents/SelectionHeader';
-import SelectionCell from '../../TableComponents/SelectionCell';
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader';
+import SelectionCell from '@/Components/TableComponents/SelectionCell';
 import CheckOutsideClick from '../../Helpers/CheckOutsideClick';
-import ColumnSettings from '../../Components/ColumnSettings';
+import ColumnSettings from '@/Components/ColumnSettings';
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 

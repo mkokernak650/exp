@@ -3,8 +3,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
-import { groups } from "../Helpers/SearchingGroups";
+import { groups } from "@/Helpers/SearchingGroups";
 import Trash from "../../images/trash.svg";
+import { filterData } from '@/Helpers/filterData'
 
 const CustomFilter = (props) => {
   const {
@@ -12,9 +13,7 @@ const CustomFilter = (props) => {
     fields,
     filterValue,
     setFilterValue,
-    filteredData,
     setFilteredData,
-    filterData,
   } = props;
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -154,7 +153,7 @@ const CustomFilter = (props) => {
               >
                 {fields?.map((fieldName, uniqueKey) => (
                   <option
-                    value={fieldName.name}
+                    value={fieldName?.name}
                     data-type={fieldName.dataType}
                     data-fkey={uniqueKey}
                     key={uniqueKey}

@@ -593,7 +593,7 @@ class RingbaCallLogController extends Controller
             $query->orderBy('annotations.order');
         }])->get();
 
-        return Inertia::render('Ringba/callLogsReport', [
+        return Inertia::render('Ringba/CallLogsReport', [
             'allCallLogs'              => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
             'campaignsWithAnnotations' => $campaignsWithAnnotations
         ]);

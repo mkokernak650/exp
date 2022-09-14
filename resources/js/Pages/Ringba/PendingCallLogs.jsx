@@ -141,7 +141,7 @@ const PendingCallLogsReport = () => {
       {
         key: 'Call_Date_Time',
         title: 'Call Time (EST)',
-        dataType: DataType.string,
+        dataType: DataType.String,
         style: { width: 230 },
       },
       {

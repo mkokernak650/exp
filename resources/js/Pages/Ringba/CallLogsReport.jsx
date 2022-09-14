@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
@@ -12,10 +12,10 @@ import {
 } from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
 import { usePage } from '@inertiajs/inertia-react'
-import search from '../../../images/search.svg'
-import eyeIcon from '../../../images/eyeIcon.svg'
-import closeNav from '../../../images/closeNav.svg'
-import Edit from '../../../images/three-dots.svg'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import Edit from '@/Components/Icons/Edit.jsx'
 import DeleteIcon from '@material-ui/icons/Delete'
 import produce from 'immer'
 import {
@@ -29,17 +29,17 @@ import {
 } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import ConfirmModal from '../../Shared/ConfirmModal'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import emptyCheckbox from '@/Helpers/EmptyCheckbox'
+import { stateStore } from '@/Helpers/StateStore'
+import ColumnSettings from '@/Components/ColumnSettings'
+import { deleteHandler } from '@/Helpers/HandleRequests'
+import CustomFilter from '@/Components/CustomFilter'
+import { filterData } from '@/Helpers/filterData'
+import { defaultFilter } from '@/Helpers/Filter'
+import { SearchedFields } from '@/Helpers/SearchedFields'
+import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
-import emptyCheckbox from '../../Helpers/EmptyCheckbox'
-import { stateStore } from '../../Helpers/StateStore'
-import ColumnSettings from '../../Components/ColumnSettings'
-import { deleteHandler } from '../../Helpers/HandleRequests'
-import CustomFilter from '../../Components/CustomFilter'
-import { filterData } from '../../Helpers/filterData'
-import { defaultFilter } from '../../Helpers/Filter'
-import { SearchedFields } from '../../Helpers/SearchedFields'
-import { DateTimeFormat } from '../../Helpers/DateTimeFormat'
 import toast from 'react-hot-toast'
 
 const useStyles = makeStyles(() => ({
@@ -86,6 +86,7 @@ const CallLogsReport = () => {
   const [count, setCount] = useState(0)
 
   const [filteredData, setFilteredData] = useState(filterData(allCallLogs, filterValue))
+
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
     axios
@@ -96,10 +97,9 @@ const CallLogsReport = () => {
       .then((res) => {
         if (res.status === 200) {
           toast.success(res.data.msg)
-          let filteredData = tableProps
-          filteredData.data.filter((item, indx) => {
+          tableProps.data.filter((item, indx) => {
             if (item.id == tableIndex) {
-              filteredData.data[indx].Has_Annotation = res.data.has_annotation
+              tableProps.data[indx].Has_Annotation = res.data.has_annotation
             }
           })
         }
@@ -112,6 +112,7 @@ const CallLogsReport = () => {
       setPosition({ x: e.screenX, y: e.screenY })
     }
   }
+
   const dataArray = filteredData.map((item, index) => {
     return {
       edit: item.id,
@@ -156,10 +157,12 @@ const CallLogsReport = () => {
       {
         key: 'edit',
         style: { width: 10 },
+        visible: true,
       },
       {
         key: 'selection-cell',
         style: { width: 80 },
+        visible: true,
       },
       {
         key: 'sl',
@@ -180,167 +183,195 @@ const CallLogsReport = () => {
         title: 'Call Time (EST)',
         dataType: DataType.Date,
         style: { width: 230 },
+        visible: true,
       },
       {
         key: 'Has_Annotation',
         title: 'Has Annotation',
         dataType: DataType.String,
         style: { width: 160 },
+        visible: true,
       },
       {
         key: 'Annotation_Tag',
         title: 'Annotation Tag',
         dataType: DataType.String,
         style: { width: 350 },
+        visible: true,
       },
       {
         key: 'call_Logs_status',
         title: 'Call Status',
         dataType: DataType.String,
         style: { width: 130 },
+        visible: true,
       },
       {
         key: 'Duplicate_Call',
         title: 'Duplicate Call',
         dataType: DataType.String,
         style: { width: 150 },
+        visible: true,
       },
       {
         key: 'Recording_Url',
         title: 'Recording_Url',
         style: { width: 360 },
+        visible: true,
       },
       {
         key: 'Inbound_Id',
         title: 'Inbound Id',
         dataType: DataType.String,
         style: { width: 600 },
+        visible: true,
       },
       {
         key: 'Affiliate',
         title: 'Affiliate',
         dataType: DataType.String,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'Market',
         title: 'Market',
         dataType: DataType.String,
         style: { width: 350 },
+        visible: true,
       },
       {
         key: 'Campaign',
         title: 'Campaign',
         dataType: DataType.String,
         style: { width: 200 },
+        visible: true,
       },
       {
         key: 'Inbound',
         title: 'Inbound',
         dataType: DataType.String,
         style: { width: 200 },
+        visible: true,
       },
       {
         key: 'Dialed',
         title: 'Dialed',
         dataType: DataType.String,
         style: { width: 200 },
+        visible: true,
       },
       {
         key: 'Type',
         title: 'Type',
         dataType: DataType.String,
         style: { width: 100 },
+        visible: true,
       },
       {
         key: 'Customer',
         title: 'Customer',
         dataType: DataType.String,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'Target',
         title: 'Target',
         dataType: DataType.String,
         style: { width: 350 },
+        visible: true,
       },
       {
         key: 'Target_Number',
         title: 'Target Number',
         dataType: DataType.String,
         style: { width: 200 },
+        visible: true,
       },
       {
         key: 'Target_Description',
         title: 'Target Description',
         dataType: DataType.String,
         style: { width: 400 },
+        visible: true,
       },
       {
         key: 'Source_Hangup',
         title: 'Source/Hangup',
         dataType: DataType.String,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'Time_To_Call',
         title: 'Time To Call',
         dataType: DataType.Number,
         style: { width: 130 },
+        visible: true,
       },
       {
         key: 'call_Length_In_Seconds',
         title: 'Call Length In Seconds',
         dataType: DataType.Number,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'Revenue',
         title: 'Revenue',
         dataType: DataType.Number,
         style: { width: 120 },
+        visible: true,
       },
       {
         key: 'Conn_Duration',
         title: 'Conn.Duration',
         dataType: DataType.Number,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'payoutAmount',
         title: 'Payout',
         dataType: DataType.Number,
         style: { width: 100 },
+        visible: true,
       },
       {
         key: 'Total_Cost',
         title: 'Total Cost',
         dataType: DataType.Number,
         style: { width: 120 },
+        visible: true,
       },
       {
         key: 'Profit',
         title: 'Profit',
         dataType: DataType.Number,
         style: { width: 120 },
+        visible: true,
       },
       {
         key: 'City',
         title: 'City',
         dataType: DataType.String,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'State',
         title: 'State',
         dataType: DataType.String,
         style: { width: 240 },
+        visible: true,
       },
       {
         key: 'Zipcode',
         title: 'Zipcode',
         dataType: DataType.String,
         style: { width: 240 },
+        visible: true,
       },
     ],
     paging: {
@@ -359,7 +390,7 @@ const CallLogsReport = () => {
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <Edit />
           </div>
         )
       }
@@ -418,7 +449,6 @@ const CallLogsReport = () => {
   const fields = SearchedFields(tablePropsInit.columns)
   const OPTION_KEY = 'call-logs-report'
   const [tableProps, changeTableProps] = useState(stateStore(tablePropsInit, 'call-logs-report'))
-
   const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
       <Checkbox
@@ -890,6 +920,7 @@ const CallLogsReport = () => {
       editData.splice(itemIndx, 1)
     }
     const tempData = tableProps.data.filter((item) => item.id == id)
+
     editData.push(tempData[0].Inbound_Id)
   }
 
@@ -903,11 +934,11 @@ const CallLogsReport = () => {
         ) : (
           <div className="table-top">
             <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search"></img>
+              <Eye />
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -917,7 +948,7 @@ const CallLogsReport = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -927,9 +958,7 @@ const CallLogsReport = () => {
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
-                    filteredData={filteredData}
                     setFilteredData={setFilteredData}
-                    filterData={filterData}
                   />
                 </div>
               </div>
@@ -1016,8 +1045,6 @@ const CallLogsReport = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
-        {/* <SnackBar open={open} setOpen={setOpen} response={response} /> */}
       </div>
 
       <ConfirmModal
