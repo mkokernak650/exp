@@ -29,6 +29,7 @@ import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
+import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
 
 const useStyles = makeStyles(() => ({
@@ -41,7 +42,7 @@ const useStyles = makeStyles(() => ({
 
 const ArchivedCallLogReports = () => {
   const classes = useStyles()
-  const { archivedCallLogs } = usePage().props
+  const { archivedCallLogs, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setselectedRowIds] = useState([])
@@ -89,176 +90,185 @@ const ArchivedCallLogReports = () => {
     key: index,
   }))
 
-  const tablePropsInit = {
-    columns: [
-      {
-        key: 'selection-cell',
-        style: { width: 80 },
-        visible: true,
-      },
-      {
-        key: 'sl',
-        title: 'SL',
-        dataType: DataType.Number,
-        style: { width: 100 },
-        visible: false,
-      },
-      {
-        key: 'SN',
-        title: 'SN',
-        dataType: DataType.String,
-        style: { width: 130 },
-        visible: true,
-      },
-      {
-        key: 'Call_Date_Time',
-        title: 'Call Time (EST)',
-        dataType: DataType.String,
-        style: { width: 230 },
-        visible: true,
-      },
+  const columns = [
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'sl',
+      title: 'SL',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: false,
+    },
+    {
+      key: 'SN',
+      title: 'SN',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Call_Date_Time',
+      title: 'Call Time (EST)',
+      dataType: DataType.String,
+      style: { width: 230 },
+      visible: true,
+    },
 
-      {
-        key: 'Inbound_Id',
-        title: 'Inbound Id',
-        dataType: DataType.String,
-        style: { width: 600 },
-        visible: true,
-      },
-      {
-        key: 'Affiliate',
-        title: 'Affiliate',
-        dataType: DataType.String,
-        style: { width: 240 },
-        visible: true,
-      },
-      {
-        key: 'Market',
-        title: 'Market',
-        dataType: DataType.String,
-        style: { width: 350 },
-        visible: true,
-      },
-      {
-        key: 'Campaign',
-        title: 'Campaign',
-        dataType: DataType.String,
-        style: { width: 200 },
-        visible: true,
-      },
-      {
-        key: 'Inbound',
-        title: 'Inbound',
-        dataType: DataType.String,
-        style: { width: 200 },
-        visible: true,
-      },
-      {
-        key: 'Dialed',
-        title: 'Dialed',
-        dataType: DataType.String,
-        style: { width: 200 },
-        visible: true,
-      },
-      {
-        key: 'Type',
-        title: 'Type',
-        dataType: DataType.String,
-        style: { width: 100 },
-        visible: true,
-      },
-      {
-        key: 'Customer',
-        title: 'Customer',
-        dataType: DataType.String,
-        style: { width: 240 },
-        visible: true,
-      },
-      {
-        key: 'Target',
-        title: 'Target',
-        dataType: DataType.String,
-        style: { width: 350 },
-        visible: true,
-      },
-      {
-        key: 'Target_Number',
-        title: 'Target Number',
-        dataType: DataType.String,
-        style: { width: 200 },
-        visible: true,
-      },
-      {
-        key: 'Target_Description',
-        title: 'Target Description',
-        dataType: DataType.String,
-        style: { width: 400 },
-        visible: true,
-      },
-      {
-        key: 'Call_Length_In_Seconds',
-        title: 'Call Length In Seconds',
-        dataType: DataType.Number,
-        style: { width: 240 },
-        visible: true,
-      },
-      {
-        key: 'Revenue',
-        title: 'Revenue',
-        dataType: DataType.Number,
-        style: { width: 120 },
-        visible: true,
-      },
-      {
-        key: 'Conn_Duration',
-        title: 'Conn.Duration',
-        dataType: DataType.Number,
-        style: { width: 240 },
-        visible: true,
-      },
-      {
-        key: 'Payout',
-        title: 'Payout',
-        dataType: DataType.Number,
-        style: { width: 100 },
-        visible: true,
-      },
-      {
-        key: 'Total_Cost',
-        title: 'Total Cost',
-        dataType: DataType.Number,
-        style: { width: 120 },
-        visible: true,
-      },
-      {
-        key: 'Profit',
-        title: 'Profit',
-        dataType: DataType.Number,
-        style: { width: 120 },
-        visible: true,
-      },
-      {
-        key: 'City',
-        title: 'City',
-        dataType: DataType.String,
-        style: { width: 240 },
-        visible: true,
-      },
-      {
-        key: 'State',
-        title: 'State',
-        dataType: DataType.String,
-        style: { width: 240 },
-        visible: true,
-      },
-      {
-        key: 'Zipcode',
-        title: 'Zipcode',
-        dataType: DataType.String,
-        style: { width: 240 },
-        visible: true,
-      },
-    ],
+    {
+      key: 'Inbound_Id',
+      title: 'Inbound Id',
+      dataType: DataType.String,
+      style: { width: 600 },
+      visible: true,
+    },
+    {
+      key: 'Affiliate',
+      title: 'Affiliate',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Market',
+      title: 'Market',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'Campaign',
+      title: 'Campaign',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Inbound',
+      title: 'Inbound',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Dialed',
+      title: 'Dialed',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Type',
+      title: 'Type',
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'Customer',
+      title: 'Customer',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Target',
+      title: 'Target',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'Target_Number',
+      title: 'Target Number',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Target_Description',
+      title: 'Target Description',
+      dataType: DataType.String,
+      style: { width: 400 },
+      visible: true,
+    },
+    {
+      key: 'Call_Length_In_Seconds',
+      title: 'Call Length In Seconds',
+      dataType: DataType.Number,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Revenue',
+      title: 'Revenue',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'Conn_Duration',
+      title: 'Conn.Duration',
+      dataType: DataType.Number,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Payout',
+      title: 'Payout',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'Total_Cost',
+      title: 'Total Cost',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'Profit',
+      title: 'Profit',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'City',
+      title: 'City',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'State',
+      title: 'State',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Zipcode',
+      title: 'Zipcode',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+  ]
+  const optionKey = 'archived-call-logs'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
+
+  const tablePropsInit = {
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -290,13 +300,8 @@ const ArchivedCallLogReports = () => {
     },
   }
   const fields = SearchedFields(tablePropsInit.columns)
-  
-  const OPTION_KEY = 'archived-call-logs'
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
-  }
-  const [tableProps, changeTableProps] = useState(stateStore)
+
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
@@ -360,7 +365,9 @@ const ArchivedCallLogReports = () => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+      }
       return newState
     })
   }
@@ -394,14 +401,12 @@ const ArchivedCallLogReports = () => {
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox()
         } else {
           setDeleteLoading(false)
           toast.error(res.data.msg)
           setInbounIds([])
           setselectedRowIds([])
           setShowDeleteModal({ open: false })
-          emptyCheckbox()
         }
       })
       .catch((err) => {
@@ -409,7 +414,6 @@ const ArchivedCallLogReports = () => {
         setInbounIds([])
         setselectedRowIds([])
         setShowDeleteModal({ open: false })
-        emptyCheckbox()
       })
   }
 
@@ -457,8 +461,8 @@ const ArchivedCallLogReports = () => {
     setOpenModal({ open: false })
     setTableToolbar(false)
     setselectedRowIds([])
-    emptyCheckbox()
   }
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
@@ -471,24 +475,6 @@ const ArchivedCallLogReports = () => {
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem('archived-call-logs'))
-    if (storedData?.selectedRows) storedData.selectedRows = []
-    localStorage.setItem('archived-call-logs', JSON.stringify(storedData))
-    let filteredData = { ...tableProps }
-    if (filteredData?.selectedRows) filteredData.selectedRows = []
-    changeTableProps(filteredData)
-  }
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem('archived-call-logs'))
-      if (storedData != null) {
-        emptyCheckbox()
-      }
-    }
-  }, [])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {

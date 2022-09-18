@@ -3,22 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\tableDetails;
+use App\Models\TableDetails;
 
 class TableDetailsController extends Controller
 {
-    public function index()
-    {
-        $tableDetailsData = tableDetails::all();
-        return $tableDetailsData;
-    }
     public function store(request $request)
     {
-        tableDetails::truncate();
-        $result= tableDetails::create([
-            'columns' =>$request->finalData
-        ]);
+        $existingTableDetails = TableDetails::first();
 
-        return $result;
+        if ($existingTableDetails !== null && $existingTableDetails !=='') {
+            $existingTableDetails->column_details = json_encode($request->columnsData);
+            $existingTableDetails->updated_at = now();
+            $existingTableDetails->save();
+        } else {
+            TableDetails::insert([
+                'column_details' => json_encode($request->columnsData),
+                'created_at'     => now()
+            ]);
+        }
     }
 }

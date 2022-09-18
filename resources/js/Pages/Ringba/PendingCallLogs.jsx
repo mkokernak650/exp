@@ -1,35 +1,38 @@
-import Layout from '../Layout/Layout';
-import React, { useEffect, useState, useRef } from 'react';
-import { kaReducer, Table } from 'ka-table';
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums';
-import { kaPropsUtils } from 'ka-table/utils';
-import { usePage } from '@inertiajs/inertia-react';
+import Layout from '../Layout/Layout'
+import React, { useEffect, useState, useRef } from 'react'
+import { kaReducer, Table } from 'ka-table'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { kaPropsUtils } from 'ka-table/utils'
+import { usePage } from '@inertiajs/inertia-react'
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from 'ka-table/actionCreators';
-import 'ka-table/style.scss';
-import search from '../../../images/search.svg';
-import eyeIcon from '../../../images/eyeIcon.svg';
-import closeNav from '../../../images/closeNav.svg';
-import Tooltip from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/Delete';
-import IconButton from '@material-ui/core/IconButton';
-import Checkbox from '@material-ui/core/Checkbox';
-import { Button, makeStyles, TextField } from '@material-ui/core';
-import axios from 'axios';
-import { Helmet } from 'react-helmet';
-import ConfirmModal from '../../Shared/ConfirmModal';
-import SnackBar from '../../Shared/SnackBar';
-import CustomFilter from '../../Components/CustomFilter';
-import { filterData } from '../../Helpers/filterData';
-import { defaultFilter } from '../../Helpers/Filter';
-import { SearchedFields } from '../../Helpers/SearchedFields';
-import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
-import ColumnSettings from '../../Components/ColumnSettings';
+} from 'ka-table/actionCreators'
+import 'ka-table/style.scss'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import Tooltip from '@material-ui/core/Tooltip'
+import DeleteIcon from '@material-ui/icons/Delete'
+import IconButton from '@material-ui/core/IconButton'
+import Checkbox from '@material-ui/core/Checkbox'
+import { Button, makeStyles, TextField } from '@material-ui/core'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import SnackBar from '@/Shared/SnackBar'
+import CustomFilter from '@/Components/CustomFilter'
+import { filterData } from '@/Helpers/filterData'
+import { defaultFilter } from '@/Helpers/Filter'
+import { SearchedFields } from '@/Helpers/SearchedFields'
+import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
+import ColumnSettings from '@/Components/ColumnSettings'
+import produce from 'immer'
+import toast from 'react-hot-toast'
+import addTableDetails from '@/Helpers/AddTableDetails'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -37,36 +40,34 @@ const useStyles = makeStyles(() => ({
     textTransform: 'capitalize',
     fontSize: '14px',
   },
-}));
-
-
+}))
 
 const PendingCallLogsReport = () => {
-  const classes = useStyles();
-  const { results, campaignsWithAnnotations } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [inboundIds, setInbounIds] = useState([]);
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
+  const classes = useStyles()
+  const { results, campaignsWithAnnotations, columnsData } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [inboundIds, setInbounIds] = useState([])
+  const [response, setResponse] = useState()
+  const [open, setOpen] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [showCallLogModal, setShowCallLogModal] = useState({
     open: false,
-  });
-  const [showBilledModal, setShowBilledModal] = useState({ open: false });
-  const showColumnRef = useRef();
-  const [callLogsLoading, setcallLogsLoading] = useState(false);
-  const [billedLoading, setBilledLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  })
+  const [showBilledModal, setShowBilledModal] = useState({ open: false })
+  const showColumnRef = useRef()
+  const [callLogsLoading, setcallLogsLoading] = useState(false)
+  const [billedLoading, setBilledLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
-  );
+  )
 
-  const [filteredData, setFilteredData] = useState(filterData(results, filterValue));
+  const [filteredData, setFilteredData] = useState(filterData(results, filterValue))
 
   const updateAnnotation = (e, tableIndex) => {
-    e.preventDefault();
+    e.preventDefault()
     axios
       .post(route('change.annotation', 'pendingBillCallLog'), {
         indexId: tableIndex,
@@ -74,19 +75,19 @@ const PendingCallLogsReport = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
-
-          let filteredData = tableProps;
-          filteredData.data.filter((item, indx) => {
-            if (item.id == tableIndex) {
-              filteredData.data[indx].Has_Annotation = res.data.has_annotation;
-            }
-          });
+          toast.success(res.data.msg)
+          const result = produce(tableProps, (draft) => {
+            draft.data.filter((item, indx) => {
+              if (item.id == tableIndex) {
+                draft.data[indx].Has_Annotation = res.data.has_annotation
+              }
+            })
+          })
+          changeTableProps(result)
         }
       })
-      .catch((err) => {});
-  };
+      .catch((err) => {})
+  }
 
   const dataArray = filteredData.map((item, index) => ({
     sl: index + 1,
@@ -118,173 +119,210 @@ const PendingCallLogsReport = () => {
     Has_Annotation: item.Has_Annotation,
     id: item.id,
     key: index,
-  }));
+  }))
+
+  const columns = [
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'sl',
+      title: 'SL',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: false,
+    },
+    {
+      key: 'SN',
+      title: 'SN',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Call_Date_Time',
+      title: 'Call Time (EST)',
+      dataType: DataType.String,
+      style: { width: 230 },
+      visible: true,
+    },
+    {
+      key: 'Has_Annotation',
+      title: 'Has Annotation',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'Annotation_Tag',
+      title: 'Annotation Tag',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'Call_Status',
+      title: 'Call Status',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Duplicate_Call',
+      title: 'Duplicate Call',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+
+    {
+      key: 'Inbound_Id',
+      title: 'Inbound Id',
+      dataType: DataType.String,
+      style: { width: 600 },
+      visible: true,
+    },
+    {
+      key: 'Affiliate',
+      title: 'Affiliate',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Market',
+      title: 'Market',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+
+    {
+      key: 'Campaign',
+      title: 'Campaign',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Inbound',
+      title: 'Inbound',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Dialed',
+      title: 'Dialed',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Type',
+      title: 'Type',
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'Customer',
+      title: 'Customer',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Target',
+      title: 'Target',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'Target_Number',
+      title: 'Target Number',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Source_Hangup',
+      title: 'Source/Hangup',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Time_To_Call',
+      title: 'Time To Call',
+      dataType: DataType.Number,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Call_Length_In_Seconds',
+      title: 'Call Length In Seconds',
+      dataType: DataType.Number,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Revenue',
+      title: 'Revenue',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'Conn_Duration',
+      title: 'Conn.Duration',
+      dataType: DataType.Number,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Payout',
+      title: 'Payout',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'Total_Cost',
+      title: 'Total Cost',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'Profit',
+      title: 'Profit',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'City',
+      title: 'City',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+  ]
+
+  const optionKey = 'pending-call-logs'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
 
   const tablePropsInit = {
-    columns: [
-      {
-        key: 'selection-cell',
-        style: { width: 80 },
-      },
-      {
-        key: 'sl',
-        title: 'SL',
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: 'SN',
-        title: 'SN',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'Call_Date_Time',
-        title: 'Call Time (EST)',
-        dataType: DataType.String,
-        style: { width: 230 },
-      },
-      {
-        key: 'Has_Annotation',
-        title: 'Has Annotation',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'Annotation_Tag',
-        title: 'Annotation Tag',
-        dataType: DataType.String,
-        style: { width: 350 },
-      },
-      {
-        key: 'Call_Status',
-        title: 'Call Status',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'Duplicate_Call',
-        title: 'Duplicate Call',
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-
-      {
-        key: 'Inbound_Id',
-        title: 'Inbound Id',
-        dataType: DataType.String,
-        style: { width: 600 },
-      },
-      {
-        key: 'Affiliate',
-        title: 'Affiliate',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Market',
-        title: 'Market',
-        dataType: DataType.String,
-        style: { width: 350 },
-      },
-
-      {
-        key: 'Campaign',
-        title: 'Campaign',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Inbound',
-        title: 'Inbound',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Dialed',
-        title: 'Dialed',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Type',
-        title: 'Type',
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: 'Customer',
-        title: 'Customer',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Target',
-        title: 'Target',
-        dataType: DataType.String,
-        style: { width: 350 },
-      },
-      {
-        key: 'Target_Number',
-        title: 'Target Number',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Source_Hangup',
-        title: 'Source/Hangup',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Time_To_Call',
-        title: 'Time To Call',
-        dataType: DataType.Number,
-        style: { width: 130 },
-      },
-      {
-        key: 'Call_Length_In_Seconds',
-        title: 'Call Length In Seconds',
-        dataType: DataType.Number,
-        style: { width: 240 },
-      },
-      {
-        key: 'Revenue',
-        title: 'Revenue',
-        dataType: DataType.Number,
-        style: { width: 120 },
-      },
-      {
-        key: 'Conn_Duration',
-        title: 'Conn.Duration',
-        dataType: DataType.Number,
-        style: { width: 240 },
-      },
-      {
-        key: 'Payout',
-        title: 'Payout',
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: 'Total_Cost',
-        title: 'Total Cost',
-        dataType: DataType.Number,
-        style: { width: 120 },
-      },
-      {
-        key: 'Profit',
-        title: 'Profit',
-        dataType: DataType.Number,
-        style: { width: 120 },
-      },
-      {
-        key: 'City',
-        title: 'City',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-    ],
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -300,21 +338,21 @@ const PendingCallLogsReport = () => {
     format: ({ column, value }) => {
       if (column.key === 'Call_Date') {
         if (value !== undefined || '') {
-          let shortMonth = value.toLocaleString('en-us', { month: 'short' });
-          let format_date = value;
-          let dd = String(format_date.getDate()).padStart(2, '0');
-          let yyyy = format_date.getFullYear();
-          format_date = dd + '-' + shortMonth + '-' + yyyy;
-          return format_date;
+          let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+          let format_date = value
+          let dd = String(format_date.getDate()).padStart(2, '0')
+          let yyyy = format_date.getFullYear()
+          format_date = dd + '-' + shortMonth + '-' + yyyy
+          return format_date
         }
       }
       if (column.key === 'Call_Date_Time') {
         if (value !== undefined || '') {
-          return DateTimeFormat(value);
+          return DateTimeFormat(value)
         }
       }
       if (column.key === 'Annotation_Tag') {
-        let arrayValue = value.split(',');
+        let arrayValue = value.split(',')
         return (
           <TextField
             id="annotation_id"
@@ -336,18 +374,12 @@ const PendingCallLogsReport = () => {
                 </option>
               ))}
           </TextField>
-        );
+        )
       }
     },
-  };
-  const fields = SearchedFields(tablePropsInit.columns);
-
-  const OPTION_KEY = 'pending-call-logs';
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  }
+  const fields = SearchedFields(tablePropsInit.columns)
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
@@ -356,48 +388,48 @@ const PendingCallLogsReport = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id);
-            inboundIds.push(selectedRowData[0].Inbound_Id);
+            const selectedRowData = tableProps.data.filter((item) => item.id == id)
+            inboundIds.push(selectedRowData[0].Inbound_Id)
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id);
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id);
-            inboundIds.splice(inboundIndx, 1);
+            const selectedRowData = tableProps.data.filter((item) => item.id == id)
+            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
+            inboundIds.splice(inboundIndx, 1)
           }
         }}
       />
-    );
-  };
+    )
+  }
 
   const allSelect = (event, dispatch) => {
     if (event.currentTarget.checked) {
-      dispatch(selectAllFilteredRows());
-      setTableToolbar(true);
-      setInbounIds(tableProps.data.map((item) => item.Inbound_Id));
-      setselectedRowIds(tableProps.data.map((item) => item.id));
+      dispatch(selectAllFilteredRows())
+      setTableToolbar(true)
+      setInbounIds(tableProps.data.map((item) => item.Inbound_Id))
+      setselectedRowIds(tableProps.data.map((item) => item.id))
     } else {
-      dispatch(deselectAllFilteredRows());
-      selectedRowIds.splice(0, selectedRowIds.length);
-      inboundIds.splice(0, inboundIds.length);
+      dispatch(deselectAllFilteredRows())
+      selectedRowIds.splice(0, selectedRowIds.length)
+      inboundIds.splice(0, inboundIds.length)
       if (selectedRowIds.length < 1) {
-        setTableToolbar(false);
+        setTableToolbar(false)
       }
     }
-  };
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -405,186 +437,154 @@ const PendingCallLogsReport = () => {
         color="primary"
         onChange={(event) => allSelect(event, dispatch)}
       />
-    );
-  };
+    )
+  }
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData,optionKey)
+      }
+      return newState
+    })
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
   const deleteHandler = () => {
-    setDeleteLoading(true);
+    setDeleteLoading(true)
     axios
       .post(route('pending.delete'), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id));
-          filteredData.data = newData;
-          setDeleteLoading(false);
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          let filteredData = tableProps
+          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
+          filteredData.data = newData
+          setDeleteLoading(false)
+          changeTableProps(filteredData)
+          setselectedRowIds([])
+          setTableToolbar(false)
+          toast.success(res.data.msg)
+          setShowDeleteModal({ open: false })
         } else {
-          setDeleteLoading(false);
-          setOpen(true);
-          setResponse(res.data.msg);
-          setselectedRowIds([]);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
+          setDeleteLoading(false)
+          toast.error(res.data.msg)
+          setselectedRowIds([])
+          setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
-        setDeleteLoading(false);
-        setselectedRowIds([]);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
-      });
-  };
+        setDeleteLoading(false)
+        setselectedRowIds([])
+        setShowDeleteModal({ open: false })
+      })
+  }
 
   const handleMoveCallLog = () => {
-    setcallLogsLoading(true);
+    setcallLogsLoading(true)
     axios
       .post(route('move.from.pending.bill.to.ringba.call.log'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
-          filteredData.data = newData;
-          setcallLogsLoading(false);
-          changeTableProps(filteredData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setShowCallLogModal({ open: false });
-          setInbounIds([]);
-          setselectedRowIds([]);
-          emptyCheckbox();
+          toast.success(res.data.msg)
+          let filteredData = tableProps
+          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          filteredData.data = newData
+          setcallLogsLoading(false)
+          changeTableProps(filteredData)
+          setTableToolbar(false)
+          setInbounIds([])
+          setShowCallLogModal({ open: false })
+          setInbounIds([])
+          setselectedRowIds([])
         } else {
-          setcallLogsLoading(false);
-          changeTableProps(filteredData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setShowCallLogModal({ open: false });
-          setInbounIds([]);
-          setselectedRowIds([]);
-          emptyCheckbox();
+          setcallLogsLoading(false)
+          changeTableProps(filteredData)
+          setTableToolbar(false)
+          setInbounIds([])
+          setShowCallLogModal({ open: false })
+          setInbounIds([])
+          setselectedRowIds([])
         }
       })
       .catch((err) => {
-        setcallLogsLoading(false);
-        changeTableProps(filteredData);
-        setTableToolbar(false);
-        setInbounIds([]);
-        setShowCallLogModal({ open: false });
-        setInbounIds([]);
-        setselectedRowIds([]);
-        emptyCheckbox();
-      });
-  };
+        setcallLogsLoading(false)
+        changeTableProps(filteredData)
+        setTableToolbar(false)
+        setInbounIds([])
+        setShowCallLogModal({ open: false })
+        setInbounIds([])
+        setselectedRowIds([])
+      })
+  }
 
   const handleBilledCallLog = () => {
-    setBilledLoading(true);
+    setBilledLoading(true)
     axios
       .post(route('store.bill.call.logs'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
-          filteredData.data = newData;
-          setBilledLoading(false);
-          changeTableProps(filteredData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setShowBilledModal({ open: false });
-          emptyCheckbox();
+          toast(res.data.msg)
+          setOpen(true)
+          let filteredData = tableProps
+          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
+          filteredData.data = newData
+          setBilledLoading(false)
+          changeTableProps(filteredData)
+          setTableToolbar(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setShowBilledModal({ open: false })
         } else {
-          setBilledLoading(false);
-          setResponse(res.data.msg);
-          setOpen(true);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setShowBilledModal({ open: false });
-          emptyCheckbox();
+          setBilledLoading(false)
+          setResponse(res.data.msg)
+          setOpen(true)
+          setInbounIds([])
+          setselectedRowIds([])
+          setShowBilledModal({ open: false })
         }
       })
       .catch((err) => {
-        setBilledLoading(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setShowBilledModal({ open: false });
-        emptyCheckbox();
-      });
-  };
+        setBilledLoading(false)
+        setInbounIds([])
+        setselectedRowIds([])
+        setShowBilledModal({ open: false })
+      })
+  }
 
   const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
+    setOpenModal({ open: true })
+  }
 
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
-  };
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setselectedRowIds([])
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
-      document.removeEventListener('mousedown', checkIfClickedOutside);
-    };
-  }, [showColumns]);
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem('pending-call-logs'));
-    storedData.selectedRows = [];
-    localStorage.setItem('pending-call-logs', JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
-    changeTableProps(filteredData);
-  };
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem('pending-call-logs'));
-      if (storedData != null) {
-        emptyCheckbox();
-      }
-    };
-  }, []);
-
-  // useEffect(() => M.AutoInit());
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const TableToolbar = () => {
     return (
@@ -615,24 +615,23 @@ const PendingCallLogsReport = () => {
         </Button>
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <>
       <Helmet title="Pending Call Logs Report" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
         ) : (
           <div className="table-top">
             <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search"></img>
+              <Eye />
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -642,7 +641,7 @@ const PendingCallLogsReport = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -676,14 +675,14 @@ const PendingCallLogsReport = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -696,7 +695,7 @@ const PendingCallLogsReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                       // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
-                  );
+                  )
                 }
               },
             },
@@ -710,7 +709,7 @@ const PendingCallLogsReport = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
             },
@@ -735,6 +734,7 @@ const PendingCallLogsReport = () => {
         }`}
         loading={callLogsLoading}
       ></ConfirmModal>
+
       <ConfirmModal
         open={showBilledModal.open}
         setOpen={setShowBilledModal}
@@ -763,8 +763,8 @@ const PendingCallLogsReport = () => {
         loading={deleteLoading}
       ></ConfirmModal>
     </>
-  );
-};
+  )
+}
 
-PendingCallLogsReport.layout = (page) => <Layout title="Pending Call Logs Report">{page}</Layout>;
-export default PendingCallLogsReport;
+PendingCallLogsReport.layout = (page) => <Layout title="Pending Call Logs Report">{page}</Layout>
+export default PendingCallLogsReport

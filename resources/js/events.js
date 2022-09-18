@@ -444,6 +444,45 @@ const events = [
     }
 ]
 
+const column_names={
+    "campaignName": "API Test",
+    "publisherName": "You",
+    "targetName": "Ringba Test Target",
+    "targetNumber": "+16317918378",
+    "campaignId": "CA74c0b7f1f3824246b73e72a9238b4bfc",
+    "publisherId": "AFbd21c4a3274c4382aa98919d5149baf3",
+    "publisherSubId": "",
+    "targetId": "TA2f6961e921ef4b92b7304dd76db8336f",
+    "inboundCallId": "v2147G0eMkK4nw_BU3SAcXiDHM4reCssygiNWj_2dEJ78LxV4pFrCWWw",
+    "callDt": 1612219032605,
+    "inboundPhoneNumber": "+17745459961",
+    "number": "+18884143472",
+    "numberId": "PV18884143472",
+    "isFromNumberPool": false,
+    "numberPoolId": "",
+    "numberPoolName": "",
+    "timeToCallInSeconds": 0,
+    "callCompletedDt": 1612219037364,
+    "callConnectionDt": 1612219034636,
+    "callLengthInSeconds": 4,
+    "connectedCallLengthInSeconds": 2,
+    "endCallSource": "Caller",
+    "hasConnected": true,
+    "hasPayout": true,
+    "hasPreviouslyConnected": false,
+    "hasRecording": true,
+    "hasConverted": true,
+    "isLive": false,
+    "conversionAmount": 0,
+    "profitNet": -0.04,
+    "profitGross": 0,
+    "payoutAmount": 0,
+    "totalCost": 0.04,
+    "telcoCost": 0.04,
+    "recordingUrl": "https://media.ringba.com/recording-public?v=v1&k=EFuAX1oRg9ftDT49cglfqgeim8mlFkrUtC7nYY0WNCEq4U9lvH16LJx2aXKKwJIhuMMO0dPhjFEoC9Mp4Vc3a2cx8jXMHoGtGoyIIthl0CvnXGXa2YV1DNvruiPTbn7s85HxuHZHViriBIMqFNyGPio7O00ZhBQSOSpPVF6aoWqj4nF8Mh387Y9pan0x%2becuhSQ5cdKy3MAw3OPjPDHJCoJZLS%2fFNpM9m%2bFFpnoHq45e70P3MVS4bpgSmJ4UBHxvniNW5PP7eirEWHuso7Vcz6f%2bwwY%3d",
+    "timeToConnectInSeconds": 2
+  }
+
 
 if (events.contains("targetBuyer")) {
 console.log(true)

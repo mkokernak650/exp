@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EcommerceCampaign;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -17,7 +18,14 @@ class EcommerceCampaignController extends Controller
     public function index()
     {
         $campaigns = EcommerceCampaign::all();
-        return Inertia::render('Ecommerce/CampaignIndex', compact('campaigns'));
+        $columnsData = TableDetails::all()->pluck('column_details');
+        return Inertia::render(
+            'Ecommerce/CampaignIndex',
+            [
+                'campaigns'  => $campaigns,
+                'columnsData'=> $columnsData
+            ]
+        );
     }
 
     /**

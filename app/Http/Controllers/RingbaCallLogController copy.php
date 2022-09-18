@@ -6,26 +6,28 @@ use App\Http\Helpers\RingbaApiHelpers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-use  App\Models\Affiliate;
+use App\Models\Affiliate;
 use App\Models\ArchivedCallLog;
 use App\Models\BilledCallLog;
 use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\RingbaCallLog;
 use App\Models\PendingBillCallLog;
+use App\Models\RingbaData;
 use App\Models\Target;
 use App\Models\ZipCodeData;
 use App\Models\Exception;
+use App\Models\MarketExcptions;
 use App\Models\ZipcodeByTelevisionMarket;
 use App\Models\RingbaDataFetchedLog;
 use App\Http\Controllers\CampaignController;
 use App\Models\TableDetails;
-use App\Jobs\FetchRingbaData;
 
 class RingbaCallLogController extends Controller
 {
     private static $RingbaApiHelpers;
     private static $RingbaCallLog;
+
     protected $get_dtStamp = null;
     protected $get_accountId = '';
     protected $get_campaignId = '';
@@ -53,7 +55,7 @@ class RingbaCallLogController extends Controller
     protected $get_source_hangup = '';
     protected $get_customer_name_id = null;
     protected $get_revenue = null;
-    // protected $get_annotations_tag = null;
+    protected $get_annotations_tag = '';
     protected $has_annotations = 'No';
     protected $get_call_log_status = 'Active';
     protected $get_call_qualification = 'Not Qualified';
@@ -80,17 +82,20 @@ class RingbaCallLogController extends Controller
     }
 
     /**
+     * for move data from Ringba temporary table id
+     * @param \Illuminate\Http\Request $request post
+     * @return void
+     */
+
+    /**
      * @method use for get data By Scheduler
      * @call form \Illuminate\Console\Scheduling\Schedule
      * @return void
      */
     public function getRingbaDataByScheduler()
     {
-        $startDate = now()->subDay()->format('Y-m-d');
-        $endDate = now()->addDay()->format('Y-m-d');
-        $offset = 0;
-        $apiResponse=self::$RingbaApiHelpers->getRingbaData($startDate, $endDate, $offset);
-        $this->ringbaCallLogs($apiResponse->report->records);
+        self::$RingbaApiHelpers->getRingbaData();
+        $this->ringbaCallLogs();
     }
 
     public function getCallLogsScheduler()
@@ -103,20 +108,32 @@ class RingbaCallLogController extends Controller
      * @method for ringba calllog
      * @return void
      */
-    public function ringbaCallLogs($apiData)
+    public function ringbaCallLogs($getRingbaDateById = null)
     {
         CampaignController::getNewCampaigns();
+        $ringbaMain = $getRingbaDateById === null ? RingbaData::all() : $getRingbaDateById;
+
         $sn_id = empty(self::$RingbaCallLog->latest('id')->first()->id) ? 0 : self::$RingbaCallLog->latest('id')->first()->id;
 
-        foreach ($apiData as $row) {
+        foreach ($ringbaMain as $row) {
             $sn_id++;
-            $this->insertCallLogs($row);
+            if ($row->columns) {
+                $this->columns($row->columns);
+            }
+            if ($row->events) {
+                $this->events($row->events);
+            }
+            if ($row->tags) {
+                $this->tags($row->tags);
+            }
+
             $ringbaCallLogs = new RingbaCallLog();
-            $checkRingbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $row->inboundCallId);
-            $checkArchiveCallLogs = findDataByInboundId(new ArchivedCallLog(), $row->inboundCallId);
-            $checkPendingBillCallLog = findDataByInboundId(new PendingBillCallLog(), $row->inboundCallId);
-            $checkBilledCallLag = findDataByInboundId(new BilledCallLog(), $row->inboundCallId);
-            $checkExceptionCallLog = findDataByInboundId(new Exception(), $row->inboundCallId);
+
+            $checkRingbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
+            $checkArchiveCallLogs = findDataByInboundId(new ArchivedCallLog(), $this->get_inboundCallId);
+            $checkPendingBillCallLog = findDataByInboundId(new PendingBillCallLog(), $this->get_inboundCallId);
+            $checkBilledCallLag = findDataByInboundId(new BilledCallLog(), $this->get_inboundCallId);
+            $checkExceptionCallLog = findDataByInboundId(new Exception(), $this->get_inboundCallId);
 
             if ($checkRingbaCallLogs !== null) {
                 // for existing data update
@@ -131,6 +148,7 @@ class RingbaCallLogController extends Controller
                 $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
 
                 $this->ringbaDataObject($ringbaCallLogs);
+
                 $campaign = Campaign::where('campaign_name', $this->get_campaignName)->select(['id', 'connection_duration'])->first();
 
                 $market_exception = $campaign->marketExceptions()
@@ -147,8 +165,40 @@ class RingbaCallLogController extends Controller
                     }
                 }
             }
+            $this->get_accountId =
+                $this->get_campaignId =
+                $this->get_campaignName =
+                $this->get_affiliateId =
+                $this->get_affiliateName =
+                $this->get_number =
+                $this->get_inboundCallId =
+                $this->get_inboundPhoneNumber =
+                $this->get_totalAmount =
+                $this->get_targetName =
+                $this->get_Target_Description =
+                $this->get_targetId =
+                $this->get_targetBuyerId =
+                $this->get_targetBuyer =
+                $this->get_targetNumber =
+                $this->get_recordingUrl =
+                $this->get_callCompletedDt =
+                $this->get_profit =
+                $this->get_source_hangup =
+                $this->get_annotations_tag =
+                $this->get_city =
+                $this->get_state =
+                $this->get_zipcode =
+                $this->get_market =
+                $this->get_type = '';
+
+            $this->get_callLengthInSeconds =
+                $this->get_payoutAmount =
+                $this->get_customer_name_id =
+                $this->get_revenue =
+                $this->get_timeToConnect =
+                $this->get_callConnectionLength = null;
         }
-        // for insert Affiliate
+        // for inser Affiliate
         $this->getAffiliate();
 
         // for insert Customer
@@ -160,112 +210,114 @@ class RingbaCallLogController extends Controller
      * @param mixed $row
      * @return void
      */
-    private function insertCallLogs($item)
+    private function columns($row)
     {
-        if (isset($item->previouseCallDateTime)) {
-            $this->get_dtStamp = $item->previouseCallDateTime;
-        }
-        if (isset($item->campaignId)) {
-            $this->get_campaignId = $item->campaignId;
-        }
-        if (isset($item->campaignName)) {
-            $this->get_campaignName = $item->campaignName;
-        }
-        if (isset($item->publisherId)) {
-            $this->get_affiliateId = $item->publisherId;
-        }
-        if (isset($item->publisherName)) {
-            $this->get_affiliateName = $item->publisherName;
-        }
-        if (isset($item->number)) {
-            $this->get_number = $item->number;
-        }
-        if (isset($item->inboundCallId)) {
-            $this->get_inboundCallId = $item->inboundCallId;
-        }
-        if (isset($item->inboundPhoneNumber)) {
-            if ($item->inboundPhoneNumber) {
-                $this->get_inboundPhoneNumber = $item->inboundPhoneNumber;
-                $this->zipCodeInfo($this->get_inboundPhoneNumber);
-            } else {
-                $this->get_inboundPhoneNumber = '';
-            }
-        }
-        if (isset($item->totalCost)) {
-            $this->get_totalAmount = $item->totalCost;
-        }
-        if (isset($item->callCompletedDt)) {
-            $this->get_callCompletedDt = $item->callCompletedDt;
-        }
-        if (isset($item->endCallSource)) {
-            $this->get_source_hangup = $item->endCallSource;
-        }
-        if (isset($item->profitGross)) {
-            if (isset($item->profitGross)) {
-                $this->get_profit = $item->profitGross;
-            } else {
-                $this->get_profit = 0;
-            }
-        }
-
-        if (isset($item->targetName)) {
-            $this->get_targetName = $item->targetName;
-            if (!empty($this->get_targetName)) {
-                $result = Target::where('Ringba_Targets_Name', 'LIKE', "%{$item->targetName}%")->first();
-                if ($result) {
-                    $this->get_Target_Description = $result->Description;
-                    $this->get_customer_name_id = $result->Customer;
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
+        foreach ($results as $item) {
+            if ($item->name === 'dtStamp') {
+                $this->get_dtStamp = $item->formattedValue;
+            } elseif ($item->name === 'accountId') {
+                $this->get_accountId = $item->formattedValue;
+            } elseif ($item->name === 'campaignId') {
+                $this->get_campaignId = $item->formattedValue;
+            } elseif ($item->name === 'campaignName') {
+                $this->get_campaignName = $item->formattedValue;
+            } elseif ($item->name === 'affiliateId') {
+                $this->get_affiliateId = $item->formattedValue;
+            } elseif ($item->name === 'affiliateName') {
+                $this->get_affiliateName = $item->formattedValue;
+            } elseif ($item->name === 'number') {
+                $this->get_number = $item->formattedValue;
+            } elseif ($item->name === 'inboundCallId') {
+                $this->get_inboundCallId = $item->formattedValue;
+            } elseif ($item->name === 'inboundPhoneNumber') {
+                if ($item->formattedValue) {
+                    $this->get_inboundPhoneNumber = $item->formattedValue;
+                    $this->zipCodeInfo($this->get_inboundPhoneNumber);
+                } else {
+                    $this->get_inboundPhoneNumber = '';
                 }
-            } else {
-                $this->get_Target_Description = '';
-                $this->get_customer_name_id = null;
+            } elseif ($item->name === 'totalAmount') {
+                $this->get_totalAmount = $item->formattedValue;
+            } elseif ($item->name === 'callCompletedDt') {
+                $this->get_callCompletedDt = $item->formattedValue;
+            } elseif ($item->name === 'source') {
+                $this->get_source_hangup = $item->formattedValue;
+            } elseif ($item->name === 'profit') {
+                $this->get_profit = $item->formattedValue;
+            } elseif ($item->name === 'targetName') {
+                $this->get_targetName = $item->formattedValue;
+                if (!empty($this->get_targetName)) {
+                    $result = Target::where('Ringba_Targets_Name', 'LIKE', "%{$item->formattedValue}%")->first();
+                    if ($result) {
+                        $this->get_Target_Description = $result->Description;
+                        $this->get_customer_name_id = $result->Customer;
+                    }
+                } else {
+                    $this->get_Target_Description = '';
+                    $this->get_customer_name_id = null;
+                }
+            } elseif ($item->name === 'targetId') {
+                $this->get_targetId = $item->formattedValue;
+            } elseif ($item->name === 'targetBuyerId') {
+                $this->get_targetBuyerId = $item->formattedValue;
+            } elseif ($item->name === 'targetBuyer') {
+                $this->get_targetBuyer = $item->formattedValue;
+            } elseif ($item->name === 'timeToConnect') {
+                $this->get_timeToConnect = $item->formattedValue;
+            } elseif ($item->name === 'callConnectionLength') {
+                $this->get_callConnectionLength = $item->formattedValue;
+            } elseif ($item->name === 'targetNumber') {
+                $this->get_targetNumber = $item->formattedValue;
+            } elseif ($item->name === 'recordingUrl') {
+                $this->get_recordingUrl = $item->formattedValue;
+            } elseif ($item->name === 'conversionAmount') {
+                $this->get_revenue = $item->formattedValue;
+            } elseif ($item->name === 'callLengthInSeconds') {
+                $this->get_callLengthInSeconds = $item->formattedValue;
+            } elseif ($item->name === 'payoutAmount') {
+                $this->get_payoutAmount = $item->formattedValue;
             }
         }
+    }
 
-        if (isset($item->connectedCallLengthInSeconds) && isset($item->callLengthInSeconds)) {
-            $this->get_timeToConnect = $item->callLengthInSeconds - $item->connectedCallLengthInSeconds;
-            $this->get_callConnectionLength = $item->connectedCallLengthInSeconds;
-        } elseif (isset($item->connectedCallLengthInSeconds) && !isset($item->callLengthInSeconds)) {
-            $this->get_callConnectionLength = $item->connectedCallLengthInSeconds;
-            $this->get_timeToConnect = 0;
-        } elseif (!isset($item->connectedCallLengthInSeconds) && isset($item->callLengthInSeconds)) {
-            $this->get_timeToConnect = $item->callLengthInSeconds;
-            $this->get_callConnectionLength = 0;
-        } else {
-            $this->get_callConnectionLength = 0;
-            $this->get_timeToConnect = 0;
-        }
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     * @return void
+     */
+    private function events($row)
+    {
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
 
-        if (isset($item->targetNumber)) {
-            $this->get_targetNumber = $item->targetNumber;
-        }
-
-        if (isset($item->recordingUrl)) {
-            $this->get_recordingUrl = $item->recordingUrl;
-        }
-        if (isset($item->conversionAmount)) {
-            $this->get_revenue = $item->conversionAmount;
-        } else {
-            $this->get_revenue = 0;
-        }
-        $this->get_callLengthInSeconds = $item->callLengthInSeconds;
-        if (isset($item->payoutAmount)) {
-            $this->get_payoutAmount = $item->payoutAmount;
-        } else {
-            $this->get_payoutAmount = 0;
-        }
-        if (isset($item->isDuplicate)) {
-            if ($item->isDuplicate) {
+        foreach ($results as $item) {
+            if ($item->name === 'DuplicateCall') {
                 $this->get_duplicated_status = 'Yes';
+                return;
             } else {
                 $this->get_duplicated_status = 'No';
             }
         }
-        // if (isset($item->hasAnnotations)) {
-        //     $this->has_annotations = 'Yes';
-        // } else {
-        //     $this->has_annotations = 'No';
-        // }
+    }
+
+    /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     * @return void
+     */
+    private function tags($row)
+    {
+        $results = gettype($row) === 'array' ? $row : json_decode($row);
+
+        foreach ($results as $item) {
+            if ($item->tagType === 'Annotations') {
+                $this->has_annotations = 'Yes';
+                $this->get_annotations_tag = $item->tagName;
+            } else {
+                $this->has_annotations = 'No';
+                $this->get_annotations_tag = '';
+            }
+        }
     }
 
     /**
@@ -373,7 +425,7 @@ class RingbaCallLogController extends Controller
         $instance->Recording_Url = $this->get_recordingUrl;
         $instance->Customer = $this->get_customer_name_id;
         $instance->Has_Annotation = $this->has_annotations;
-        // $instance->Annotation_Tag = $this->get_annotations_tag;
+        $instance->Annotation_Tag = $this->get_annotations_tag;
         $instance->save();
     }
 
@@ -493,43 +545,39 @@ class RingbaCallLogController extends Controller
      */
     public function dateWiseData(Request $request)
     {
-        $totalDataCount = 0;
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-        $response = self::$RingbaApiHelpers->totalDataCount($startDate, $endDate);
+        $get_past_days_range = null;
+        $get_days_range = null;
 
-        if (isset($response->isSuccessful) && $response->isSuccessful) {
-            $this->storeRingbaDataLogs($startDate, $endDate);
-            $totalDataCount = $response->report->totalCount;
-            $requestLength = (int) ceil($totalDataCount / 1000);
-            $offset = 0;
-            $data = [];
-            for ($i = 0; $i < $requestLength; $i++) {
-                $apiResponse = self::$RingbaApiHelpers->getRingbaData($startDate, $endDate, $offset);
-                $offset += 1000;
-                if ($i < 1) {
-                    $data = $apiResponse->report->records;
-                } else {
-                    $data = array_merge($data, $apiResponse->report->records);
-                }
-            }
-            // $this->ringbaCallLogs($apiResponse->report->records);
-            FetchRingbaData::dispatch($data);
-            return response()->json(['msg'=>'Data fetched Successfully'], 200);
-        } elseif (isset($response->isSuccessful) && !$response->isSuccessful) {
-            return response()->json(['msg'=>'End date must be later than Start date'], 201);
+        $start_date = date_create($request->start_date);
+        $end_date = date_create($request->end_date);
+        $current_date = date_create(date('m/d/Y'));
+        $start_current_diff = date_diff($start_date, $current_date);
+        $start_current_diff_result = $start_current_diff->format('%a');
+
+        $start_end_diff = date_diff($start_date, $end_date);
+
+        $start_end_diff_result = $start_end_diff->format('%a');
+
+        if ($start_current_diff_result > 0) {
+            $get_past_days_range = $start_current_diff_result;
         } else {
-            return response()->json(['msg'=>'Data fetching failed'], 500);
+            $get_past_days_range = 1;
         }
-    }
 
-    public function storeRingbaDataLogs($start_date, $end_date)
-    {
+        if ($start_end_diff_result > 0) {
+            $get_days_range = $start_end_diff_result + 1;
+        } else {
+            $get_days_range = 1;
+        }
+
+        $result = self::$RingbaApiHelpers->getRingbaData($get_past_days_range, $get_days_range);
         RingbaDataFetchedLog::truncate();
         RingbaDataFetchedLog::create([
-            'start_date' => $start_date,
-            'end_date'   => $end_date,
+            'start_date' => $request->start_date,
+            'end_date'   => $request->end_date,
         ]);
+        $this->ringbaCallLogs();
+        return $result;
     }
 
     public function callLogsReport()

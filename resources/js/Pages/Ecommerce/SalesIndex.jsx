@@ -1,5 +1,4 @@
 import Layout from '../Layout/Layout';
-import M from 'materialize-css';
 import React, { useEffect, useState, useRef } from 'react';
 import { kaReducer, Table } from 'ka-table';
 import { DataType, SortingMode, PagingPosition, EditingMode, ActionType } from 'ka-table/enums';
@@ -17,8 +16,7 @@ import { filterData } from '../filterData';
 import 'ka-table/style.scss';
 import search from '../../../images/search.svg';
 import eyeIcon from '../../../images/eyeIcon.svg';
-import closeNav from '../../../images/closeNav.svg';
-import Cancel from '../../../images/cancel.svg';
+import Cancel from '@/Components/Icons/Cancel.jsx'
 import { hideColumn, showColumn } from 'ka-table/actionCreators';
 import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -777,7 +775,7 @@ const SalesIndex = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -1048,7 +1046,7 @@ const SalesIndex = () => {
           </form>
 
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
+            <Cancel />
           </div>
         </div>
       </NormalModal>

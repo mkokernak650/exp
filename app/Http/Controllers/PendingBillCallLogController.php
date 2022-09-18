@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Campaign;
 use App\Models\PendingBillCallLog;
 use App\Models\RingbaCallLog;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -26,11 +27,13 @@ class PendingBillCallLogController extends Controller
         $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
         }])->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
 
         $results = PendingBillCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/PendingCallLogs', [
             'results'                  => $results,
             'campaignsWithAnnotations' => $campaignsWithAnnotations,
+            'columnsData'              => $columnsData
         ]);
     }
 

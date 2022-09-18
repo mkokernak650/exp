@@ -15,7 +15,7 @@ class CreateTableDetailsTable extends Migration
     {
         Schema::create('table_details', function (Blueprint $table) {
             $table->id();
-            $table->text('columns')->nullable();
+            $table->json('column_details');
             $table->timestamps();
         });
     }

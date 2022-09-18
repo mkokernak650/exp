@@ -1,5 +1,5 @@
-import { React, useState } from 'react';
-import Layout from '../Layout/Layout';
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
 import {
   CircularProgress,
   Typography,
@@ -7,12 +7,12 @@ import {
   Button,
   makeStyles,
   Paper,
-} from '@material-ui/core';
-import { Helmet } from 'react-helmet';
-import { currentDate } from '../../Helpers/CurrentDate';
-import { usePage } from '@inertiajs/inertia-react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+} from '@material-ui/core'
+import { Helmet } from 'react-helmet'
+import { currentDate } from '../../Helpers/CurrentDate'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -42,42 +42,42 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     marginBottom: '35px',
   },
-}));
+}))
 
 const GetRingbaData = () => {
-  const classes = useStyles();
-  const { lastDataFetchedDate } = usePage().props;
+  const classes = useStyles()
+  const { lastDataFetchedDate } = usePage().props
   const [values, setValues] = useState({
     start_date: lastDataFetchedDate.length > 0 ? lastDataFetchedDate[0].end_date : currentDate(),
     end_date: currentDate(),
-  });
-  const [loading, setLoading] = useState(false);
+  })
+  const [loading, setLoading] = useState(false)
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setValues((oldValues) => ({
       ...oldValues,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
       .post(route('fetch.ringba.data'), values)
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          toast.success('Data Fetched Successfully');
+          toast.success(res.data.msg)
         } else {
-          toast.error('Data Fetching Failed');
+          toast.error(res.data.msg)
         }
       })
       .catch((err) => {
-        setLoading(false);
-        toast.error('Data Fetching Failed');
-      });
-  };
+        setLoading(false)
+        toast.error('Data Fetching Failed')
+      })
+  }
 
   return (
     <div>
@@ -128,8 +128,8 @@ const GetRingbaData = () => {
         </form>
       </Paper>
     </div>
-  );
-};
+  )
+}
 
-GetRingbaData.layout = (page) => <Layout title="Get Ringba Data">{page}</Layout>;
-export default GetRingbaData;
+GetRingbaData.layout = (page) => <Layout title="Get Ringba Data">{page}</Layout>
+export default GetRingbaData

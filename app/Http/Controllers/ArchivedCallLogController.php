@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchivedCallLog;
 use App\Models\RingbaCallLog;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -22,15 +23,19 @@ class ArchivedCallLogController extends Controller
     public function index()
     {
         $results = ArchivedCallLog::orderBy('id', 'asc')->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Ringba/ArchivedCallLogReports', [
-            'archivedCallLogs' => $results
+            'archivedCallLogs'         => $results,
+            'columnsData'              => $columnsData
+
         ]);
     }
 
     /**
      * @param Array of inbound Id
      * @method POST
-     * @return true or false 
+     * @return true or false
      */
     public function store(Request $request)
     {
@@ -55,9 +60,9 @@ class ArchivedCallLogController extends Controller
         }
 
         if ($result) {
-            return response()->json(["msg" => "Data moved to Arichive successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to Arichive successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
         }
     }
 
@@ -81,9 +86,9 @@ class ArchivedCallLogController extends Controller
             }
         }
         if ($result) {
-            return response()->json(["msg" => "Data moved to Call Logs successfully", "status_code" => 200]);
+            return response()->json(['msg' => 'Data moved to Call Logs successfully', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "moving failed", "status_code" => 500]);
+            return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
         }
     }
 
@@ -92,13 +97,13 @@ class ArchivedCallLogController extends Controller
         $result = false;
         $i = 0;
         while ($i < count($request->selectedRowIds)) {
-            $result =  ArchivedCallLog::where('id', $request->selectedRowIds[$i])->delete();
+            $result = ArchivedCallLog::where('id', $request->selectedRowIds[$i])->delete();
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 }

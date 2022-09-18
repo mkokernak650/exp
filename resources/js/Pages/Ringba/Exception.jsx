@@ -1,38 +1,39 @@
-import Layout from '../Layout/Layout';
-import React, { useEffect, useState, useRef } from 'react';
-import { kaReducer, Table } from 'ka-table';
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums';
-import { kaPropsUtils } from 'ka-table/utils';
-import { usePage } from '@inertiajs/inertia-react';
+import Layout from '../Layout/Layout'
+import React, { useEffect, useState, useRef } from 'react'
+import { kaReducer, Table } from 'ka-table'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { kaPropsUtils } from 'ka-table/utils'
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from 'ka-table/actionCreators';
-import 'ka-table/style.scss';
-import search from '../../../images/search.svg';
-import eyeIcon from '../../../images/eyeIcon.svg';
-import closeNav from '../../../images/closeNav.svg';
-import Edit from '../../../images/three-dots.svg';
-import Tooltip from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/Delete';
-import produce from 'immer';
-import IconButton from '@material-ui/core/IconButton';
-import Checkbox from '@material-ui/core/Checkbox';
-import { Button, makeStyles, CircularProgress } from '@material-ui/core';
-import axios from 'axios';
-import { Helmet } from 'react-helmet';
-import ConfirmModal from '../../Shared/ConfirmModal';
-import PulseLoader from 'react-spinners/PulseLoader';
-import CustomFilter from '../../Components/CustomFilter';
-import { filterData } from '../../Helpers/filterData';
-import { defaultFilter } from '../../Helpers/Filter';
-import { SearchedFields } from '../../Helpers/SearchedFields';
-import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
-import ColumnSettings from '../../Components/ColumnSettings';
+} from 'ka-table/actionCreators'
+import 'ka-table/style.scss'
+import { usePage } from '@inertiajs/inertia-react'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import Edit from '@/Components/Icons/Edit.jsx'
+import Tooltip from '@material-ui/core/Tooltip'
+import DeleteIcon from '@material-ui/icons/Delete'
+import produce from 'immer'
+import IconButton from '@material-ui/core/IconButton'
+import Checkbox from '@material-ui/core/Checkbox'
+import { Button, makeStyles, CircularProgress } from '@material-ui/core'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import ColumnSettings from '@/Components/ColumnSettings'
+import CustomFilter from '@/Components/CustomFilter'
+import { filterData } from '@/Helpers/filterData'
+import { defaultFilter } from '@/Helpers/Filter'
+import { SearchedFields } from '@/Helpers/SearchedFields'
+import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
+import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
+import addTableDetails from '@/Helpers/AddTableDetails'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -40,291 +41,329 @@ const useStyles = makeStyles(() => ({
     textTransform: 'capitalize',
     fontSize: '14px',
   },
-}));
+}))
 
 const Exceptions = () => {
-  const classes = useStyles();
-  const { Exceptions } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [inboundIds, setInbounIds] = useState([]);
-  const [updateLoading, setUpdateLoading] = useState(false);
-  const [annotationLoading, setAnnotationLoading] = useState(false);
-  const [revenueLoading, setRevenueLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [pendingLoading, setPendingLoading] = useState(false);
-  const [archiveLoading, setArchiveLoading] = useState(false);
-  const [editData, setEditData] = useState([]);
-  const [sn, setSn] = useState('');
+  const classes = useStyles()
+  const { Exceptions, columnsData } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [inboundIds, setInbounIds] = useState([])
+  const [updateLoading, setUpdateLoading] = useState(false)
+  const [annotationLoading, setAnnotationLoading] = useState(false)
+  const [revenueLoading, setRevenueLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [pendingLoading, setPendingLoading] = useState(false)
+  const [archiveLoading, setArchiveLoading] = useState(false)
+  const [editData, setEditData] = useState([])
+  const [sn, setSn] = useState('')
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({
     open: false,
-  });
+  })
   const [showPendingModal, setShowPendingModal] = useState({
     open: false,
-  });
+  })
   const [showArchivedModal, setShowArchivedModal] = useState({
     open: false,
-  });
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false);
-  const rowFunctionalitiesRef = useRef();
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const showColumnRef = useRef();
-  const color = '#36D7B7';
-  const drawerWidth = 350;
-  const [count, setCount] = useState(0);
+  })
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
+  const rowFunctionalitiesRef = useRef()
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const showColumnRef = useRef()
+  const color = '#36D7B7'
+  const drawerWidth = 350
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
-  );
+  )
+  const [count, setCount] = useState(0)
 
   const style = {
     top: position.y < 650 ? position.y - 79 : position.y - 275,
     left: drawerWidth,
-  };
+  }
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
-      setPosition({ x: e.screenX, y: e.screenY });
+      setPosition({ x: e.screenX, y: e.screenY })
     }
-  };
-  const [filteredData, setFilteredData] = useState(filterData(Exceptions, filterValue));
+  }
+  const [filteredData, setFilteredData] = useState(filterData(Exceptions, filterValue))
 
-  const dataArray = filteredData.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    SN: item.SN,
-    Call_Date_Time: item.Call_Date_Time,
-    Call_Date: item.Call_Date_Time,
-    Has_Annotation: item.Has_Annotation,
-    Annotation_Tag: item.Annotation_Tag,
-    call_Logs_status: item.call_Logs_status,
-    Duplicate_Call: item.Duplicate_Call,
-    Recording_Url: item.Recording_Url,
-    Inbound_Id: item.Inbound_Id,
-    Affiliate: item.Affiliate,
-    Market: item.Market,
-    Campaign: item.Campaign,
-    Inbound: item.Inbound,
-    Dialed: item.Dialed,
-    Type: item.Type,
-    Customer: item.Customer,
-    Target: item.Target,
-    Target_Number: item.Target_Number,
-    Target_Description: item.Target_Description,
-    Source_Hangup: item.Source_Hangup,
-    Time_To_Call: item.Time_To_Call,
-    call_Length_In_Seconds: item.call_Length_In_Seconds,
-    Revenue: item.Revenue,
-    Conn_Duration: item.Conn_Duration,
-    Time: item.Call_Date_Time,
-    payoutAmount: item.payoutAmount,
-    Total_Cost: item.Total_Cost,
-    Profit: item.Profit,
-    City: item.City,
-    State: item.State,
-    Zipcode: item.Zipcode,
-    id: item.id,
-    key: index,
-  }));
+  const mapDataArr = (data) => {
+    return data.map((item, index) => {
+      return {
+        edit: item.id,
+        sl: index + 1,
+        SN: item.SN,
+        Call_Date_Time: item.Call_Date_Time,
+        Call_Date: item.Call_Date_Time,
+        Has_Annotation: item.Has_Annotation,
+        Annotation_Tag: item.Annotation_Tag,
+        call_Logs_status: item.call_Logs_status,
+        Duplicate_Call: item.Duplicate_Call,
+        Recording_Url: item.Recording_Url,
+        Inbound_Id: item.Inbound_Id,
+        Affiliate: item.Affiliate,
+        Market: item.Market,
+        Campaign: item.Campaign,
+        Inbound: item.Inbound,
+        Dialed: item.Dialed,
+        Type: item.Type,
+        Customer: item.Customer,
+        Target: item.Target,
+        Target_Number: item.Target_Number,
+        Target_Description: item.Target_Description,
+        Source_Hangup: item.Source_Hangup,
+        Time_To_Call: item.Time_To_Call,
+        call_Length_In_Seconds: item.call_Length_In_Seconds,
+        Revenue: item.Revenue,
+        Conn_Duration: item.Conn_Duration,
+        Time: item.Call_Date_Time,
+        payoutAmount: item.payoutAmount,
+        Total_Cost: item.Total_Cost,
+        Profit: item.Profit,
+        City: item.City,
+        State: item.State,
+        Zipcode: item.Zipcode,
+        id: item.id,
+        key: index,
+      }
+    })
+  }
 
+  const dataArray = mapDataArr(filteredData)
+
+  const columns = [
+    {
+      key: 'edit',
+      style: { width: 10 },
+      visible: true,
+    },
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'sl',
+      title: 'SL',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: false,
+    },
+    {
+      key: 'SN',
+      title: 'SN',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Call_Date_Time',
+      title: 'Call Time (EST)',
+      dataType: DataType.String,
+      style: { width: 230 },
+      visible: true,
+    },
+    {
+      key: 'Has_Annotation',
+      title: 'Has Annotation',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'Annotation_Tag',
+      title: 'Annotation Tag',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'call_Logs_status',
+      title: 'Call Status',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Duplicate_Call',
+      title: 'Duplicate Call',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: 'Recording_Url',
+      title: 'Recording_Url',
+      dataType: DataType.String,
+      style: { width: 360 },
+      visible: true,
+    },
+    {
+      key: 'Inbound_Id',
+      title: 'Inbound Id',
+      dataType: DataType.String,
+      style: { width: 600 },
+      visible: true,
+    },
+    {
+      key: 'Affiliate',
+      title: 'Affiliate',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Market',
+      title: 'Market',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'Campaign',
+      title: 'Campaign',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Inbound',
+      title: 'Inbound',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Dialed',
+      title: 'Dialed',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Type',
+      title: 'Type',
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'Customer',
+      title: 'Customer',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Target',
+      title: 'Target',
+      dataType: DataType.String,
+      style: { width: 350 },
+      visible: true,
+    },
+    {
+      key: 'Target_Number',
+      title: 'Target Number',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'Target_Description',
+      title: 'Target Description',
+      dataType: DataType.String,
+      style: { width: 400 },
+      visible: true,
+    },
+    {
+      key: 'Source_Hangup',
+      title: 'Source/Hangup',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Time_To_Call',
+      title: 'Time To Call',
+      dataType: DataType.Number,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'call_Length_In_Seconds',
+      title: 'Call Length In Seconds',
+      dataType: DataType.Number,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Revenue',
+      title: 'Revenue',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'Conn_Duration',
+      title: 'Conn.Duration',
+      dataType: DataType.Number,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'payoutAmount',
+      title: 'Payout',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'Total_Cost',
+      title: 'Total Cost',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'Profit',
+      title: 'Profit',
+      dataType: DataType.Number,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'City',
+      title: 'City',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'State',
+      title: 'State',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Zipcode',
+      title: 'Zipcode',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+  ]
+
+  const optionKey = 'exception-call-logs-report'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
   const tablePropsInit = {
-    columns: [
-      {
-        key: 'edit',
-        style: { width: 10 },
-      },
-      {
-        key: 'selection-cell',
-        style: { width: 80 },
-      },
-      {
-        key: 'sl',
-        title: 'SL',
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: 'SN',
-        title: 'SN',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'Call_Date_Time',
-        title: 'Call Time (EST)',
-        dataType: DataType.String,
-        style: { width: 230 },
-      },
-      {
-        key: 'Has_Annotation',
-        title: 'Has Annotation',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'Annotation_Tag',
-        title: 'Annotation Tag',
-        dataType: DataType.String,
-        style: { width: 350 },
-      },
-      {
-        key: 'call_Logs_status',
-        title: 'Call Status',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'Duplicate_Call',
-        title: 'Duplicate Call',
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: 'Recording_Url',
-        title: 'Recording_Url',
-        dataType: DataType.String,
-        style: { width: 360 },
-      },
-      {
-        key: 'Inbound_Id',
-        title: 'Inbound Id',
-        dataType: DataType.String,
-        style: { width: 600 },
-      },
-      {
-        key: 'Affiliate',
-        title: 'Affiliate',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Market',
-        title: 'Market',
-        dataType: DataType.String,
-        style: { width: 350 },
-      },
-      {
-        key: 'Campaign',
-        title: 'Campaign',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Inbound',
-        title: 'Inbound',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Dialed',
-        title: 'Dialed',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Type',
-        title: 'Type',
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: 'Customer',
-        title: 'Customer',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Target',
-        title: 'Target',
-        dataType: DataType.String,
-        style: { width: 350 },
-      },
-      {
-        key: 'Target_Number',
-        title: 'Target Number',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'Target_Description',
-        title: 'Target Description',
-        dataType: DataType.String,
-        style: { width: 400 },
-      },
-      {
-        key: 'Source_Hangup',
-        title: 'Source/Hangup',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Time_To_Call',
-        title: 'Time To Call',
-        dataType: DataType.Number,
-        style: { width: 130 },
-      },
-      {
-        key: 'call_Length_In_Seconds',
-        title: 'Call Length In Seconds',
-        dataType: DataType.Number,
-        style: { width: 240 },
-      },
-      {
-        key: 'Revenue',
-        title: 'Revenue',
-        dataType: DataType.Number,
-        style: { width: 120 },
-      },
-      {
-        key: 'Conn_Duration',
-        title: 'Conn.Duration',
-        dataType: DataType.Number,
-        style: { width: 240 },
-      },
-      // {
-      //   key: "Time",
-      //   title: "Time",
-      //   dataType: DataType.String,
-      //   style: { width: 220 },
-      // },
-      {
-        key: 'payoutAmount',
-        title: 'Payout',
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: 'Total_Cost',
-        title: 'Total Cost',
-        dataType: DataType.Number,
-        style: { width: 120 },
-      },
-      {
-        key: 'Profit',
-        title: 'Profit',
-        dataType: DataType.Number,
-        style: { width: 120 },
-      },
-      {
-        key: 'City',
-        title: 'City',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'State',
-        title: 'State',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Zipcode',
-        title: 'Zipcode',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-    ],
+    columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -344,40 +383,35 @@ const Exceptions = () => {
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
-        );
+        )
       }
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
             <img src={Edit} alt="edit-icon"></img>
           </div>
-        );
+        )
       }
       if (column.key === 'Call_Date_Time') {
         if (value !== undefined) {
-          return DateTimeFormat(value);
+          return DateTimeFormat(value)
         }
       }
       if (column.key === 'Call_Date') {
         if (value !== undefined) {
-          let shortMonth = value.toLocaleString('en-us', { month: 'short' });
-          let format_date = value;
-          let dd = String(format_date.getDate()).padStart(2, '0');
-          let yyyy = format_date.getFullYear();
-          format_date = dd + '-' + shortMonth + '-' + yyyy;
-          return format_date;
+          let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+          let format_date = value
+          let dd = String(format_date.getDate()).padStart(2, '0')
+          let yyyy = format_date.getFullYear()
+          format_date = dd + '-' + shortMonth + '-' + yyyy
+          return format_date
         }
       }
     },
-  };
-  const fields = SearchedFields(tablePropsInit.columns);
+  }
+  const fields = SearchedFields(tablePropsInit.columns)
 
-  const OPTION_KEY = 'exception-report';
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
@@ -386,32 +420,32 @@ const Exceptions = () => {
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
+              selectedRowIds.push(id)
             }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id);
-            inboundIds.push(selectedRowData[0].Inbound_Id);
+            const selectedRowData = tableProps.data.filter((item) => item.id == id)
+            inboundIds.push(selectedRowData[0].Inbound_Id)
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id);
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id);
-            inboundIds.splice(inboundIndx, 1);
+            const selectedRowData = tableProps.data.filter((item) => item.id == id)
+            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
+            inboundIds.splice(inboundIndx, 1)
           }
         }}
       />
-    );
-  };
+    )
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -419,368 +453,352 @@ const Exceptions = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
+            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
+            setTableToolbar(true)
+            let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                inboundIds.push(tableProps.data[i].Inbound_Id);
-                continue;
+                selectedRowIds.push(tableProps.data[i].id)
+                inboundIds.push(tableProps.data[i].Inbound_Id)
+                continue
               }
-              i++;
+              i++
             }
           } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            selectedRowIds.splice(0, selectedRowIds.length);
-            inboundIds.splice(0, inboundIds.length);
+            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
+            selectedRowIds.splice(0, selectedRowIds.length)
+            inboundIds.splice(0, inboundIds.length)
 
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData,optionKey)
+      }
+      return newState
+    })
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
   const deleteHandler = () => {
-    setDeleteLoading(true);
+    setDeleteLoading(true)
     axios
       .post(route('exception.delete'), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id));
-          filteredData.data = newData;
-          setDeleteLoading(false);
-          changeTableProps(filteredData);
-          setselectedRowIds([]);
-          setInbounIds([]);
-          setTableToolbar(false);
-          toast.success(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox('exception-report', tableProps, changeTableProps);
+          let filteredData = tableProps
+          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
+          filteredData.data = newData
+          setDeleteLoading(false)
+          changeTableProps(filteredData)
+          setselectedRowIds([])
+          setInbounIds([])
+          setTableToolbar(false)
+          toast.success(res.data.msg)
+          setShowDeleteModal({ open: false })
+          emptyCheckbox('exception-report', tableProps, changeTableProps)
         } else {
-          setDeleteLoading(false);
-          setselectedRowIds([]);
-          setInbounIds([]);
-          setTableToolbar(false);
-          toast.error(res.data.msg);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox('exception-report', tableProps, changeTableProps);
+          setDeleteLoading(false)
+          setselectedRowIds([])
+          setInbounIds([])
+          setTableToolbar(false)
+          toast.error(res.data.msg)
+          setShowDeleteModal({ open: false })
+          emptyCheckbox('exception-report', tableProps, changeTableProps)
         }
       })
       .catch((err) => {
-        setDeleteLoading(false);
-        setselectedRowIds([]);
-        setInbounIds([]);
-        setTableToolbar(false);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox('exception-report', tableProps, changeTableProps);
-      });
-  };
+        setDeleteLoading(false)
+        setselectedRowIds([])
+        setInbounIds([])
+        setTableToolbar(false)
+        setShowDeleteModal({ open: false })
+        emptyCheckbox('exception-report', tableProps, changeTableProps)
+      })
+  }
 
   const handlePending = (inboundIds) => {
-    setPendingLoading(true);
+    setPendingLoading(true)
     axios
       .post(route('move.exception.to.pending'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setPendingLoading(false);
-          toast.success(res.data.msg);
+          setPendingLoading(false)
+          toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
-            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
-            draft.data = filteredData;
-          });
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setselectedRowIds([]);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowPendingModal({ open: false });
+            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
+            draft.selectedRows = []
+            draft.data = filteredData
+          })
+          changeTableProps(columnsData)
+          setTableToolbar(false)
+          setselectedRowIds([])
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowPendingModal({ open: false })
         } else {
-          setPendingLoading(false);
-          toast.error(res.data.msg);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowPendingModal({ open: false });
+          setPendingLoading(false)
+          toast.error(res.data.msg)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowPendingModal({ open: false })
         }
       })
       .catch((err) => {
-        setPendingLoading(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
-      });
-  };
+        setPendingLoading(false)
+        setInbounIds([])
+        setselectedRowIds([])
+        setOpenRowFunctionalities(false)
+      })
+  }
 
   const handleArchived = (inboundIds) => {
-    setArchiveLoading(true);
+    setArchiveLoading(true)
     axios
       .post(route('move.exception.to.arhived'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setArchiveLoading(false);
-          toast.success(res.data.msg);
+          setArchiveLoading(false)
+          toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
-            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id));
-            draft.data = filteredData;
-          });
-          changeTableProps(columnsData);
-          setTableToolbar(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          setShowArchivedModal({ open: false });
+            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
+            draft.selectedRows = []
+            draft.data = filteredData
+          })
+          changeTableProps(columnsData)
+          setTableToolbar(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          setShowArchivedModal({ open: false })
         } else {
-          setArchiveLoading(false);
-          toast.error(res.data.msg);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setShowArchivedModal({ open: false });
+          setArchiveLoading(false)
+          toast.error(res.data.msg)
+          setInbounIds([])
+          setselectedRowIds([])
+          setShowArchivedModal({ open: false })
         }
       })
       .catch((err) => {
-        setArchiveLoading(false);
-        setTableToolbar(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
-      });
-  };
+        setArchiveLoading(false)
+        setTableToolbar(false)
+        setInbounIds([])
+        setselectedRowIds([])
+        setOpenRowFunctionalities(false)
+      })
+  }
 
   const handleUpdate = (inboundIds) => {
-    const response = [];
-    let i = 0;
+    const response = []
+    let i = 0
     while (i < inboundIds.length) {
-      updatePostRequest(inboundIds, i, response);
-      i = i + 1;
+      updatePostRequest(inboundIds, i, response)
+      i = i + 1
     }
-  };
+  }
 
   const updatePostRequest = (inboundIdsParam, id, response) => {
-    setUpdateLoading(true);
+    setUpdateLoading(true)
     axios
       .post(route('update.exception.report'), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          let updateState;
+          let updateState
           setCount((prevState) => {
-            updateState = prevState + 1;
-            return prevState + 1;
-          });
-          response.push(res.data);
+            updateState = prevState + 1
+            return prevState + 1
+          })
+          response.push(res.data)
           if (updateState < inboundIdsParam.length) {
-            toast.success(`${updateState}  Record Updated`);
+            toast.success(`${updateState}  Record Updated`)
           }
           if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, (draft) => {
               for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = '';
-                res.data[i].edit = res.data[i].id;
-                if (!res.data[i].sl) res.data.sl = '';
-                res.data[i].sl = i + 1;
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
               }
-              draft.data = res.data;
-            });
-            setCount(0);
-            changeTableProps(columnsData);
-            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`);
-            setUpdateLoading(false);
-            setTableToolbar(false);
-            setInbounIds([]);
-            setselectedRowIds([]);
-            setOpenRowFunctionalities(false);
-            emptyCheckbox('exception-report', columnsData, changeTableProps);
+              draft.selectedRows = []
+              draft.data = res.data
+            })
+            setCount(0)
+            changeTableProps(columnsData)
+            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
+            setUpdateLoading(false)
+            setTableToolbar(false)
+            setInbounIds([])
+            setselectedRowIds([])
+            setOpenRowFunctionalities(false)
+            emptyCheckbox('exception-report', columnsData, changeTableProps)
           }
         } else if (res.status === 204) {
-          toast.error("The record isn't exist in Ringba");
-          setUpdateLoading(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox('exception-report', tableProps, changeTableProps);
+          toast.error("The record isn't exist in Ringba")
+          setUpdateLoading(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          emptyCheckbox('exception-report', tableProps, changeTableProps)
         } else {
-          toast.error('Updating failed');
-          setUpdateLoading(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox('exception-report', tableProps, changeTableProps);
+          toast.error('Updating failed')
+          setUpdateLoading(false)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
+          emptyCheckbox('exception-report', tableProps, changeTableProps)
         }
       })
       .catch((err) => {
-        toast.error('Updating failed');
-        setUpdateLoading(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
-        emptyCheckbox('exception-report', tableProps, changeTableProps);
-      });
-  };
+        toast.error('Updating failed')
+        setUpdateLoading(false)
+        setInbounIds([])
+        setselectedRowIds([])
+        setOpenRowFunctionalities(false)
+        emptyCheckbox('exception-report', tableProps, changeTableProps)
+      })
+  }
 
   const handleAnnotation = (inboundIds) => {
-    const response = [];
-    let i = 0;
+    const response = []
+    let i = 0
     while (i < inboundIds.length) {
-      annotationPostRequest(inboundIds, i, response);
-      i = i + 1;
+      annotationPostRequest(inboundIds, i, response)
+      i = i + 1
     }
-  };
+  }
 
   const annotationPostRequest = (inboundIdsParam, id, response) => {
-    setAnnotationLoading(true);
+    setAnnotationLoading(true)
     axios
       .post(route('exception.get.annotation'), { inboundIds: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          let updateState;
+          let updateState
           setCount((prevState) => {
-            updateState = prevState + 1;
-            return prevState + 1;
-          });
-          response.push(res.data);
+            updateState = prevState + 1
+            return prevState + 1
+          })
+          response.push(res.data)
           if (updateState < inboundIdsParam.length) {
-            toast.success(`${updateState}  Record Updated`);
+            toast.success(`${updateState}  Record Updated`)
           }
           if (updateState == inboundIdsParam.length) {
             let columnsData = produce(tableProps, (draft) => {
               for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = '';
-                res.data[i].edit = res.data[i].id;
-                if (!res.data[i].sl) res.data.sl = '';
-                res.data[i].sl = i + 1;
+                if (!res.data[i].edit) res.data.edit = ''
+                res.data[i].edit = res.data[i].id
+                if (!res.data[i].sl) res.data.sl = ''
+                res.data[i].sl = i + 1
               }
-              draft.data = res.data;
-            });
-            setCount(0);
+              draft.selectedRows = []
+              draft.data = res.data
+            })
+            setCount(0)
 
-            changeTableProps(columnsData);
-            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`);
-            setAnnotationLoading(false);
-            setTableToolbar(false);
-            setInbounIds([]);
-            setselectedRowIds([]);
-            setOpenRowFunctionalities(false);
-            emptyCheckbox('exception-report', columnsData, changeTableProps);
+            changeTableProps(columnsData)
+            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
+            setAnnotationLoading(false)
+            setTableToolbar(false)
+            setInbounIds([])
+            setselectedRowIds([])
+            setOpenRowFunctionalities(false)
           }
         } else {
-          setAnnotationLoading(false);
-          toast.error(res.data.msg);
-          setInbounIds([]);
-          setselectedRowIds([]);
-          setOpenRowFunctionalities(false);
-          emptyCheckbox('exception-report', tableProps, changeTableProps);
+          setAnnotationLoading(false)
+          toast.error(res.data.msg)
+          setInbounIds([])
+          setselectedRowIds([])
+          setOpenRowFunctionalities(false)
         }
       })
       .catch((err) => {
-        emptyCheckbox('exception-report', tableProps, changeTableProps);
-        setAnnotationLoading(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-      });
-  };
+        setAnnotationLoading(false)
+        setInbounIds([])
+        setselectedRowIds([])
+      })
+  }
 
   const handleClear = (inboundIds) => {
-    setRevenueLoading(true);
+    setRevenueLoading(true)
     axios
       .post(route('exception.revenue.update'), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
-          setRevenueLoading(false);
-          toast.success('Successfully Updated');
+          setRevenueLoading(false)
+          toast.success('Successfully Updated')
           let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
               if (item.Inbound_Id === editData[0]) {
-                item.Revenue = '';
-                item.payoutAmount = '';
+                item.Revenue = ''
+                item.payoutAmount = ''
               }
-            });
-          });
-          changeTableProps(columnsData);
-          setShowRevenueClearModal({ open: false });
-          setOpenRowFunctionalities(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
+            })
+          })
+          changeTableProps(columnsData)
+          setShowRevenueClearModal({ open: false })
+          setOpenRowFunctionalities(false)
+          setInbounIds([])
+          setselectedRowIds([])
         } else {
-          setRevenueLoading(false);
-          toast.error(res.data.msg);
-          setShowRevenueClearModal({ open: false });
-          setOpenRowFunctionalities(false);
-          setInbounIds([]);
-          setselectedRowIds([]);
+          setRevenueLoading(false)
+          toast.error(res.data.msg)
+          setShowRevenueClearModal({ open: false })
+          setOpenRowFunctionalities(false)
+          setInbounIds([])
+          setselectedRowIds([])
         }
       })
       .catch((err) => {
-        setRevenueLoading(false);
-        setInbounIds([]);
-        setselectedRowIds([]);
-        setOpenRowFunctionalities(false);
-        emptyCheckbox('exception-report', tableProps, changeTableProps);
-      });
-  };
+        setRevenueLoading(false)
+        setInbounIds([])
+        setselectedRowIds([])
+        setOpenRowFunctionalities(false)
+        emptyCheckbox('exception-report', tableProps, changeTableProps)
+      })
+  }
 
   const handleOpenModal = (setOpenModal, tableData) => {
-    setOpenModal({ open: true });
+    setOpenModal({ open: true })
     if (tableData) {
-      let filteredData = tableProps;
+      let filteredData = tableProps
       filteredData.data.filter((item) => {
         if (item.Inbound_Id === editData[0]) {
-          setSn(item.SN);
+          setSn(item.SN)
         }
-      });
-      setShowRevenueClearModal({ open: true });
+      })
+      setShowRevenueClearModal({ open: true })
     }
-  };
+  }
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setOpenRowFunctionalities(false);
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    setInbounIds([]);
-    emptyCheckbox('exception-report', tableProps, changeTableProps);
-  };
-
-  const emptyCheckbox = (storageName, tempData, changeTableProps) => {
-    const storedData = JSON.parse(localStorage.getItem(`${storageName}`));
-    storedData.selectedRows = [];
-    localStorage.setItem('exception-report', JSON.stringify(storedData));
-    let filteredData = { ...tempData };
-    filteredData.selectedRows = [];
-    changeTableProps(filteredData);
-  };
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem('exception-report'));
-      if (storedData != null) {
-        emptyCheckbox('exception-report', tableProps, changeTableProps);
-      }
-    };
-  }, []);
+    setOpenModal({ open: false })
+    setOpenRowFunctionalities(false)
+    setTableToolbar(false)
+    setselectedRowIds([])
+    setInbounIds([])
+  }
 
   const TableToolbar = () => {
     return (
@@ -826,7 +844,7 @@ const Exceptions = () => {
             />
           )}
         </Button>
-        <Button
+        {/* <Button
           variant="contained"
           type="submit"
           color="primary"
@@ -842,12 +860,12 @@ const Exceptions = () => {
               style={{ marginLeft: '5px' }}
             />
           )}
-        </Button>
+        </Button> */}
 
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    );
-  };
+    )
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -856,28 +874,28 @@ const Exceptions = () => {
         rowFunctionalitiesRef.current &&
         !rowFunctionalitiesRef.current.contains(e.target)
       ) {
-        setOpenRowFunctionalities(false);
+        setOpenRowFunctionalities(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
-    };
-  }, [openRowFunctionalities]);
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [openRowFunctionalities])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
-    };
-  }, [showColumns]);
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const RowFunctionalities = () => {
     return (
@@ -888,30 +906,29 @@ const Exceptions = () => {
           <span onClick={() => handleUpdate(editData)}>
             Update <PulseLoader color={color} loading={updateLoading} size={5} />
           </span>
-          <span onClick={() => handleAnnotation(editData)}>
+          {/* <span onClick={() => handleAnnotation(editData)}>
             Get Annotation <PulseLoader color={color} loading={annotationLoading} size={5} />
-          </span>
+          </span> */}
           <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   const handleRowFunctionalities = (id) => {
-    setOpenRowFunctionalities(true);
-    setShowColumns(false);
+    setOpenRowFunctionalities(true)
+    setShowColumns(false)
     if (editData.length > 0) {
-      const itemIndx = editData.indexOf(id);
-      editData.splice(itemIndx, 1);
+      const itemIndx = editData.indexOf(id)
+      editData.splice(itemIndx, 1)
     }
-    const tempData = tableProps.data.filter((item) => item.id == id);
-    editData.push(tempData[0].Inbound_Id);
-  };
+    const tempData = tableProps.data.filter((item) => item.id == id)
+    editData.push(tempData[0].Inbound_Id)
+  }
 
   return (
     <>
       <Helmet title="Exception Report" />
-
       <div className="selection-demo" onClick={rowFunctionalitiesPosition}>
         {openRowFunctionalities ? <RowFunctionalities /> : ''}
         {tableToolbar ? (
@@ -919,11 +936,11 @@ const Exceptions = () => {
         ) : (
           <div className="table-top">
             <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search"></img>
+              <Eye />
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -933,7 +950,7 @@ const Exceptions = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -967,14 +984,14 @@ const Exceptions = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />;
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <></>;
+                  return <></>
                 }
               },
             },
@@ -985,9 +1002,8 @@ const Exceptions = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
-                  );
+                  )
                 }
               },
 
@@ -1000,7 +1016,7 @@ const Exceptions = () => {
                       left: 0,
                       zIndex: 10,
                     },
-                  };
+                  }
                 }
               },
             },
@@ -1014,7 +1030,7 @@ const Exceptions = () => {
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
 
@@ -1027,7 +1043,7 @@ const Exceptions = () => {
                       left: 0,
                       backgroundColor: '#fff',
                     },
-                  };
+                  }
                 }
               },
             },
@@ -1035,7 +1051,6 @@ const Exceptions = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
       </div>
 
       <ConfirmModal
@@ -1052,6 +1067,7 @@ const Exceptions = () => {
         }
         loading={revenueLoading}
       ></ConfirmModal>
+
       <ConfirmModal
         open={showPendingModal.open}
         setOpen={setShowPendingModal}
@@ -1094,8 +1110,8 @@ const Exceptions = () => {
         loading={deleteLoading}
       ></ConfirmModal>
     </>
-  );
-};
+  )
+}
 
-Exceptions.layout = (page) => <Layout title="Exceptions">{page}</Layout>;
-export default Exceptions;
+Exceptions.layout = (page) => <Layout title="Exceptions">{page}</Layout>
+export default Exceptions

@@ -59,42 +59,82 @@ class RingbaApiHelpers
      * @param mixed $past|$days
      * @return void
      */
-    public function totalDataCount($start_date, $end_date)
+    public function getRingbaData($past = 2, $days = 2)
     {
         $params = [
-            'reportStart'=> $start_date,
-            'reportEnd'  => $end_date
+            'dateRange' => [
+                'past' => (int) $past,
+                'days' => (int) $days
+            ],
+            'timeSeries' => [
+                'timeGroup' => 'hour'
+            ],
+            'callLog' => [
+                'page'          => 0,
+                'pageSize'      => 10000,
+                'sort'          => 'dtStamp',
+                'sortDirection' => 'desc'
+            ],
+            'timezoneId' => 'Eastern Standard Time'
         ];
 
-        $response = json_decode($this->postRequest('calllogs', $params));
+        $result = json_decode($this->postRequest('calllogs/date', $params));
+        // dd($result);
+        if ($result) {
+            $ringbaData = new RingbaData();
+            $ringbaData->truncate();
+            foreach ($result->result->callLog->data as $data) {
+                $ringbaData = new RingbaData();
+                $ringbaData->columns = json_encode($data->columns);
+                $ringbaData->events = json_encode($data->events);
+                $ringbaData->tags = json_encode($data->tags);
+                $ringbaData->save();
+            }
+            $response = [
+                'status' => 200,
+                'msg'    => 'Data Fetch Successfully'
+            ];
+        } else {
+            $response = [
+                'status' => 400,
+                'msg'    => 'Server Error!'
+            ];
+        }
         return $response;
     }
 
-      public function getRingbaData($start_date, $end_date, $offset)
-      {
-          $params = [
-              'reportStart'=> $start_date,
-              'reportEnd'  => $end_date,
-              'size'       => 1000,
-              'offset'     => $offset
-          ];
-
-          $response = json_decode($this->postRequest('calllogs', $params));
-          return $response;
-      }
-
     /**
-       * @var mixed $inboundId
-       * @param mixed $inboundId
-       * @return Object
-       */
+     * @var mixed $inboundId
+     * @param mixed $inboundId
+     * @return Object
+     */
     private function getDataById($inboundId)
     {
         $params = [
-            'InboundCallIds'=> [$inboundId]
+            'dateRange' => [
+                'past' => 10000,
+                'days' => 10001
+            ],
+            'timeSeries' => [
+                'timeGroup' => 'hour'
+            ],
+            'callLog' => [
+                'page'          => 0,
+                'pageSize'      => 10000,
+                'sort'          => 'dtStamp',
+                'sortDirection' => 'desc'
+            ],
+            'timezoneId' => 'Eastern Standard Time',
+            'filters'    => [
+                [
+                    'key'   => 'inboundCallId',
+                    'value' => $inboundId,
+                ]
+            ]
         ];
-        $response = json_decode($this->postRequest('calllogs/detail', $params));
-        return $response->report->records;
+
+        $response = json_decode($this->postRequest('calllogs/date', $params));
+        return $response->result->callLog->data;
     }
 
     /**

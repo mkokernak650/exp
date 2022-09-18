@@ -7,7 +7,7 @@ import { usePage } from '@inertiajs/inertia-react';
 import FilterControl from 'react-filter-control';
 import search from '../../../images/search.svg';
 import eyeIcon from '../../../images/eyeIcon.svg';
-import closeNav from '../../../images/closeNav.svg';
+import Cancel from '@/Components/Icons/Cancel.jsx'
 import { showColumn, hideLoading, showLoading } from 'ka-table/actionCreators';
 import { makeStyles, Button, CircularProgress } from '@material-ui/core';
 import axios from 'axios';
@@ -484,7 +484,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                  <Cancel />
                   </a>
                 </div>
 
