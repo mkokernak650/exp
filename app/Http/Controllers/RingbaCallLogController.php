@@ -89,7 +89,7 @@ class RingbaCallLogController extends Controller
         $startDate = now()->subDay()->format('Y-m-d');
         $endDate = now()->addDay()->format('Y-m-d');
         $offset = 0;
-        $apiResponse=self::$RingbaApiHelpers->getRingbaData($startDate, $endDate, $offset);
+        $apiResponse = self::$RingbaApiHelpers->getRingbaData($startDate, $endDate, $offset);
         $this->ringbaCallLogs($apiResponse->report->records);
     }
 
@@ -513,8 +513,8 @@ class RingbaCallLogController extends Controller
                     $data = array_merge($data, $apiResponse->report->records);
                 }
             }
-            // $this->ringbaCallLogs($apiResponse->report->records);
-            FetchRingbaData::dispatch($data);
+            $this->ringbaCallLogs($data);
+            // FetchRingbaData::dispatch($data);
             return response()->json(['msg'=>'Data fetched Successfully'], 200);
         } elseif (isset($response->isSuccessful) && !$response->isSuccessful) {
             return response()->json(['msg'=>'End date must be later than Start date'], 201);
