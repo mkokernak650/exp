@@ -90,6 +90,7 @@ class RingbaCallLogController extends Controller
         $endDate = now()->addDay()->format('Y-m-d');
         $offset = 0;
         $apiResponse = self::$RingbaApiHelpers->getRingbaData($startDate, $endDate, $offset);
+        $this->storeRingbaDataLogs($startDate, $endDate);
         $this->ringbaCallLogs($apiResponse->report->records);
     }
 
@@ -513,6 +514,7 @@ class RingbaCallLogController extends Controller
                     $data = array_merge($data, $apiResponse->report->records);
                 }
             }
+            // dd($data);
             $this->ringbaCallLogs($data);
             // FetchRingbaData::dispatch($data);
             return response()->json(['msg'=>'Data fetched Successfully'], 200);
