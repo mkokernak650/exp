@@ -535,8 +535,7 @@ const PendingCallLogsReport = () => {
       .post(route('store.bill.call.logs'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          toast(res.data.msg)
-          setOpen(true)
+          toast.success(res.data.msg)
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
           filteredData.data = newData
@@ -548,8 +547,7 @@ const PendingCallLogsReport = () => {
           setShowBilledModal({ open: false })
         } else {
           setBilledLoading(false)
-          setResponse(res.data.msg)
-          setOpen(true)
+          toast.error(res.data.msg)
           setInbounIds([])
           setselectedRowIds([])
           setShowBilledModal({ open: false })
