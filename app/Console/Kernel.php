@@ -25,17 +25,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('getdata:daily');
-
-        // get Rinba data
-        // $schedule->call( function (){
-        //     $ringba = new RingbaCallLogController();
-        //     $ringba->getRingbaDataByScheduler();
-        // })->daily();
-        
-        // $schedule->call( function (){
-        //     $ringba = new RingbaCallLogController();
-        //     $ringba->getRingbaDataByScheduler();
-        // })->everyMinute();
     }
 
     /**
@@ -45,7 +34,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
         require base_path('routes/console.php');
     }
 }

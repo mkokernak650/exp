@@ -29,11 +29,11 @@ class PendingBillCallLogController extends Controller
         }])->get();
         $columnsData = TableDetails::all()->pluck('column_details');
 
-        $results = PendingBillCallLog::orderBy('id', 'asc')->get();
+        $pendingCallLogs = PendingBillCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/PendingCallLogs', [
-            'results'                  => $results,
-            'campaignsWithAnnotations' => $campaignsWithAnnotations,
-            'columnsData'              => $columnsData
+            'pendingCallLogs'                  => $pendingCallLogs,
+            'campaignsWithAnnotations'         => $campaignsWithAnnotations,
+            'columnsData'                      => $columnsData
         ]);
     }
 

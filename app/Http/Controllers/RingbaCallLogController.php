@@ -442,7 +442,7 @@ class RingbaCallLogController extends Controller
     {
         $get_affiliate = RingbaCallLog::distinct()->get(['Affiliate', 'Affiliate_Id']);
         $results = Affiliate::all();
-        $affiliate_api = self::$RingbaApiHelpers->getAffiliate();
+        // $affiliate_api = self::$RingbaApiHelpers->getAffiliate();
 
         $aff_key = [];
         $aff_val = [];
@@ -460,14 +460,14 @@ class RingbaCallLogController extends Controller
             }
         }
         // affiliate data insert from Ringba Api
-        foreach ($affiliate_api as $api_aff_item) {
-            if (!in_array($api_aff_item->name, $aff_val) || !in_array($api_aff_item->id, $aff_key)) {
-                $affiliateModel = new Affiliate();
-                $affiliateModel->affiliate_id = $api_aff_item->id;
-                $affiliateModel->affiliate_name = $api_aff_item->name;
-                $affiliateModel->save();
-            }
-        }
+        // foreach ($affiliate_api as $api_aff_item) {
+        //     if (!in_array($api_aff_item->name, $aff_val) || !in_array($api_aff_item->id, $aff_key)) {
+        //         $affiliateModel = new Affiliate();
+        //         $affiliateModel->affiliate_id = $api_aff_item->id;
+        //         $affiliateModel->affiliate_name = $api_aff_item->name;
+        //         $affiliateModel->save();
+        //     }
+        // }
     }
 
     // for get Customer
@@ -517,7 +517,6 @@ class RingbaCallLogController extends Controller
                     $data = array_merge($data, $apiResponse->report->records);
                 }
             }
-            // dd($data);
             $this->ringbaCallLogs($data);
             // FetchRingbaData::dispatch($data);
             return response()->json(['msg'=>'Data fetched Successfully'], 200);

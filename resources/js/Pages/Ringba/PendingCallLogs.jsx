@@ -44,12 +44,11 @@ const useStyles = makeStyles(() => ({
 
 const PendingCallLogsReport = () => {
   const classes = useStyles()
-  const { results, campaignsWithAnnotations, columnsData } = usePage().props
+  const { pendingCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setselectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
-  const [response, setResponse] = useState()
   const [open, setOpen] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [showCallLogModal, setShowCallLogModal] = useState({
@@ -64,7 +63,7 @@ const PendingCallLogsReport = () => {
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
 
-  const [filteredData, setFilteredData] = useState(filterData(results, filterValue))
+  const [filteredData, setFilteredData] = useState(filterData(pendingCallLogs, filterValue))
 
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
@@ -716,7 +715,6 @@ const PendingCallLogsReport = () => {
           extendedFilter={(data) => filterData(data, filterValue)}
         />
 
-        <SnackBar open={open} setOpen={setOpen} response={response} />
       </div>
 
       <ConfirmModal
