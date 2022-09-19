@@ -249,7 +249,10 @@ class RingbaCallLogController extends Controller
         } else {
             $this->get_revenue = 0;
         }
-        $this->get_callLengthInSeconds = $item->callLengthInSeconds;
+        if (isset($item->callLengthInSeconds)) {
+            $this->get_callLengthInSeconds = $item->callLengthInSeconds;
+        }
+
         if (isset($item->payoutAmount)) {
             $this->get_payoutAmount = $item->payoutAmount;
         } else {
