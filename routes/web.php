@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     // Ringba Campaign
 
     Route::post('campaign-edit', [CampaignController::class, 'edit'])->name('campaign.edit');
+    Route::post('campaigns-status-update/{campaign}', [CampaignController::class, 'statusUpdate'])->name('campaigns.status.update');
     Route::post('campaign-delete', [CampaignController::class, 'delete'])->name('campaign.delete');
     Route::get('campaign-setting-form', [CampaignController::class, 'campaignSettingForm'])->name('campaign.setting.form');
     Route::post('campaign-setting-form', [CampaignController::class, 'campaignSettingUpdate'])->name('campaign.setting.update');

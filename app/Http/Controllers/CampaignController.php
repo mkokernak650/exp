@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Models\MarketExcptions;
 use App\Models\RingbaCallLog;
 use App\Models\Annotation;
+use App\Models\TableDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -65,8 +66,12 @@ class CampaignController extends Controller
     public function campaignSettingReport(): Response
     {
         $allCampaigns = Campaign::get();
+        $columnsData = TableDetails::all()->pluck('column_details');
 
-        return Inertia::render('Settings/Campaign/CampaignSettingReport', compact('allCampaigns'));
+        return Inertia::render('Settings/Campaign/CampaignSettingReport', [
+            'allCampaigns'                     => $allCampaigns,
+            'columnsData'                      => $columnsData
+        ]);
     }
 
     public function campaignAnnotations(Campaign $campaign): Response
@@ -112,6 +117,12 @@ class CampaignController extends Controller
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
+    }
+
+    public function statusUpdate(Request $request, Campaign $campaign)
+    {
+        $campaign->update(['status' => $request->status]);
+        return response()->json(['msg' => 'Updated Successfully.'], 201);
     }
 
     public function delete(Request $request)
