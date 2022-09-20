@@ -15,7 +15,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import Edit from '@/Components/Icons/Edit.jsx'
+import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
 import DeleteIcon from '@material-ui/icons/Delete'
 import produce from 'immer'
 import {
@@ -402,7 +402,7 @@ const CallLogsReport = () => {
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-            <Edit />
+            <ThreeDots />
           </div>
         )
       }

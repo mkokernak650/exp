@@ -6,6 +6,7 @@ use App\Exports\MarketExceptionExport;
 use App\Imports\MarketExceptionImport;
 use App\Models\Campaign;
 use App\Models\MarketExcptions;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -28,18 +29,18 @@ class MarketExceptionController extends Controller
             ->where('state', $request->state)
             ->count();
         if ($existData > 0) {
-            return response()->json(["msg" => "Data already Exist"]);
+            return response()->json(['msg' => 'Data already Exist']);
         }
 
         MarketExcptions::create([
             'campaign_id' => $request->campaign_id,
-            'state'=>$request->state,
+            'state'       => $request->state,
             'market_id'   => $request->market,
             'call_type'   => $request->call_type,
             'start_date'  => $request->start_date,
         ]);
 
-        return response()->json(["msg" => "Successfully added"]);
+        return response()->json(['msg' => 'Successfully added']);
     }
 
     public function marketExceptionForm()
@@ -48,12 +49,11 @@ class MarketExceptionController extends Controller
         $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
         $allCampaigns = Campaign::active()->get();
         return Inertia::render('Settings/MarketExceptionForm', [
-            'allStates'   => $allStates,
+            'allStates'    => $allStates,
             'allMarkets'   => $allMarkets,
             'allCampaigns' => $allCampaigns
         ]);
     }
-
 
     public function marketExceptionReport()
     {
@@ -61,15 +61,18 @@ class MarketExceptionController extends Controller
         $allStates = DB::table('zipcode_by_television_markets')->select('state')->distinct()->get();
         $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
         $allCampaigns = Campaign::active()->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Settings/MarketExceptionReport', [
-            'marketExceptions' => $marketExceptions,
-            'campaignId'       => null,
-            'allStates'   => $allStates,
-            'allMarkets'   => $allMarkets,
-            'allCampaigns' => $allCampaigns
+            'marketExceptions'                 => $marketExceptions,
+            'campaignId'                       => null,
+            'allStates'                        => $allStates,
+            'allMarkets'                       => $allMarkets,
+            'allCampaigns'                     => $allCampaigns,
+            'columnsData'                      => $columnsData
+
         ]);
     }
-
 
     public function import(Request $request)
     {
@@ -96,9 +99,9 @@ class MarketExceptionController extends Controller
         $result = $data->save();
         // deleteSuccessOrFailed($result);
         if ($result) {
-            return response()->json(["msg" => "Successfully Updated", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Updated', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Updating Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Updating Failed', 'status_code' => 500]);
         }
     }
 
@@ -112,9 +115,9 @@ class MarketExceptionController extends Controller
             $i++;
         }
         if ($result) {
-            return response()->json(["msg" => "Successfully Deleted", "status_code" => 200]);
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
-            return response()->json(["msg" => "Deleting Failed", "status_code" => 500]);
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
 }

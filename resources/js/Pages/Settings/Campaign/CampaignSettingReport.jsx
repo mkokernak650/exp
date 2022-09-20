@@ -191,7 +191,6 @@ const CampaignSettingReport = () => {
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setselectedRowIds] = useState([])
-  const [open, setOpen] = useState(false)
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -386,6 +385,7 @@ const CampaignSettingReport = () => {
   }
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)

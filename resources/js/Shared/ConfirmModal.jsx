@@ -4,6 +4,7 @@ import Modal from "@material-ui/core/Modal";
 import { Button } from "@material-ui/core";
 import Cancel from "../../images/cancel.svg";
 import {CircularProgress} from "@material-ui/core";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",

@@ -5,7 +5,7 @@ import { hideColumn, showColumn } from 'ka-table/actionCreators'
 
 const ColumnSettings = (tableProps) => {
   const hiddenColumns = ['sl', 'edit', 'selection-cell']
-  console.log("==>",tableProps)
+  
   const columnsSettingsProps = {
     data: tableProps.columns.filter((c) => {
       if (!hiddenColumns.includes(c.key)) {

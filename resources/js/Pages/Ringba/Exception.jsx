@@ -15,7 +15,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import Edit from '@/Components/Icons/Edit.jsx'
+import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import produce from 'immer'
@@ -363,7 +363,10 @@ const Exceptions = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
   const tablePropsInit = {
-    columns,
+    columns:
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -388,7 +391,7 @@ const Exceptions = () => {
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <ThreeDots />
           </div>
         )
       }
@@ -482,7 +485,7 @@ const Exceptions = () => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
       if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData,optionKey)
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
       }
       return newState
     })
@@ -681,65 +684,65 @@ const Exceptions = () => {
       })
   }
 
-  const handleAnnotation = (inboundIds) => {
-    const response = []
-    let i = 0
-    while (i < inboundIds.length) {
-      annotationPostRequest(inboundIds, i, response)
-      i = i + 1
-    }
-  }
+  // const handleAnnotation = (inboundIds) => {
+  //   const response = []
+  //   let i = 0
+  //   while (i < inboundIds.length) {
+  //     annotationPostRequest(inboundIds, i, response)
+  //     i = i + 1
+  //   }
+  // }
 
-  const annotationPostRequest = (inboundIdsParam, id, response) => {
-    setAnnotationLoading(true)
-    axios
-      .post(route('exception.get.annotation'), { inboundIds: inboundIdsParam[id] })
-      .then((res) => {
-        if (res.status === 200) {
-          let updateState
-          setCount((prevState) => {
-            updateState = prevState + 1
-            return prevState + 1
-          })
-          response.push(res.data)
-          if (updateState < inboundIdsParam.length) {
-            toast.success(`${updateState}  Record Updated`)
-          }
-          if (updateState == inboundIdsParam.length) {
-            let columnsData = produce(tableProps, (draft) => {
-              for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = ''
-                res.data[i].edit = res.data[i].id
-                if (!res.data[i].sl) res.data.sl = ''
-                res.data[i].sl = i + 1
-              }
-              draft.selectedRows = []
-              draft.data = res.data
-            })
-            setCount(0)
+  // const annotationPostRequest = (inboundIdsParam, id, response) => {
+  //   setAnnotationLoading(true)
+  //   axios
+  //     .post(route('exception.get.annotation'), { inboundIds: inboundIdsParam[id] })
+  //     .then((res) => {
+  //       if (res.status === 200) {
+  //         let updateState
+  //         setCount((prevState) => {
+  //           updateState = prevState + 1
+  //           return prevState + 1
+  //         })
+  //         response.push(res.data)
+  //         if (updateState < inboundIdsParam.length) {
+  //           toast.success(`${updateState}  Record Updated`)
+  //         }
+  //         if (updateState == inboundIdsParam.length) {
+  //           let columnsData = produce(tableProps, (draft) => {
+  //             for (let i = 0; i < res.data.length; i++) {
+  //               if (!res.data[i].edit) res.data.edit = ''
+  //               res.data[i].edit = res.data[i].id
+  //               if (!res.data[i].sl) res.data.sl = ''
+  //               res.data[i].sl = i + 1
+  //             }
+  //             draft.selectedRows = []
+  //             draft.data = res.data
+  //           })
+  //           setCount(0)
 
-            changeTableProps(columnsData)
-            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-            setAnnotationLoading(false)
-            setTableToolbar(false)
-            setInbounIds([])
-            setselectedRowIds([])
-            setOpenRowFunctionalities(false)
-          }
-        } else {
-          setAnnotationLoading(false)
-          toast.error(res.data.msg)
-          setInbounIds([])
-          setselectedRowIds([])
-          setOpenRowFunctionalities(false)
-        }
-      })
-      .catch((err) => {
-        setAnnotationLoading(false)
-        setInbounIds([])
-        setselectedRowIds([])
-      })
-  }
+  //           changeTableProps(columnsData)
+  //           toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
+  //           setAnnotationLoading(false)
+  //           setTableToolbar(false)
+  //           setInbounIds([])
+  //           setselectedRowIds([])
+  //           setOpenRowFunctionalities(false)
+  //         }
+  //       } else {
+  //         setAnnotationLoading(false)
+  //         toast.error(res.data.msg)
+  //         setInbounIds([])
+  //         setselectedRowIds([])
+  //         setOpenRowFunctionalities(false)
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       setAnnotationLoading(false)
+  //       setInbounIds([])
+  //       setselectedRowIds([])
+  //     })
+  // }
 
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)

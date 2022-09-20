@@ -78,7 +78,13 @@ class CampaignController extends Controller
     {
         $campaign = $campaign->load('annotations');
         $annotation = [...$campaign->annotations->sortBy('order')];
-        return Inertia::render('Settings/Campaign/CampaignAnnotations', compact('annotation'));
+        $columnsData = TableDetails::all()->pluck('column_details');
+
+        return Inertia::render('Settings/Campaign/CampaignAnnotations', [
+            'annotation'                       => $annotation,
+            'columnsData'                      => $columnsData
+
+        ]);
     }
 
     public function storeAnnotationsRowOrder(Request $request)
@@ -98,10 +104,22 @@ class CampaignController extends Controller
         $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')
             ->where('campaign_id', $campaignId)
             ->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
+
         $allCampaigns = [];
         $allStates = [];
         $allMarkets = [];
-        return Inertia::render('Settings/MarketExceptionReport', compact('marketExceptions', 'campaignId', 'allCampaigns', 'allStates', 'allMarkets'));
+        return Inertia::render(
+            'Settings/MarketExceptionReport',
+            [
+                'marketExceptions' => $marketExceptions,
+                'campaignId'       => $campaignId,
+                'allCampaigns'     => $allCampaigns,
+                'allStates'        => $allStates,
+                'allMarkets'       => $allMarkets,
+                'columnsData'      => $columnsData
+            ]
+        );
     }
 
     public function edit(Request $request)

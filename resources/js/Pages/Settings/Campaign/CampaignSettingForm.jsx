@@ -14,6 +14,7 @@ import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,8 +46,6 @@ const CampaignSettingForm = () => {
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
   const { allCampaigns } = usePage().props;
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -70,8 +69,7 @@ const CampaignSettingForm = () => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.success(res.data.msg);
         }
       })
       .catch((err) => {});
@@ -130,17 +128,6 @@ const CampaignSettingForm = () => {
           </Grid>
         </form>
       </Paper>
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
-      </>
     </>
   );
 };
