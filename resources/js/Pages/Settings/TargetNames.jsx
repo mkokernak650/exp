@@ -1,140 +1,125 @@
-import Layout from "../Layout/Layout";
-import React, { useEffect, useState, useRef } from "react";
-import { kaReducer, Table } from "ka-table";
-import {
-  DataType,
-  SortingMode,
-  PagingPosition,
-  EditingMode,
-  ActionType,
-} from "ka-table/enums";
-import { kaPropsUtils } from "ka-table/utils";
-import { usePage } from "@inertiajs/inertia-react";
+import Layout from '../Layout/Layout'
+import React, { useEffect, useState, useRef } from 'react'
+import { kaReducer, Table } from 'ka-table'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { kaPropsUtils } from 'ka-table/utils'
+import { usePage } from '@inertiajs/inertia-react'
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators";
-import FilterControl from "react-filter-control";
-import { filterData } from "../filterData";
-import "ka-table/style.scss";
-import search from "../../../images/search.svg";
-import eyeIcon from "../../../images/eyeIcon.svg";
-import Edit from "../../../images/edit1.svg";
-import closeNav from "../../../images/closeNav.svg";
-import Cancel from "../../../images/cancel.svg";
-import Switch from "@material-ui/core/Switch";
-import {
-  hideColumn,
-  showColumn,
-} from "ka-table/actionCreators";
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "@material-ui/core/IconButton";
-import Checkbox from "@material-ui/core/Checkbox";
-import TextField from "@material-ui/core/TextField";
-import { Button, makeStyles } from "@material-ui/core";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import NormalModal from "../../Shared/NormalModal";
-import SnackBar from "../../Shared/SnackBar";
-import ConfirmModal from "../../Shared/ConfirmModal";
+} from 'ka-table/actionCreators'
+import FilterControl from 'react-filter-control'
+import { filterData } from '../filterData'
+import 'ka-table/style.scss'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import Edit from '@/Components/Icons/Edit.jsx'
+import Switch from '@material-ui/core/Switch'
+import Tooltip from '@material-ui/core/Tooltip'
+import DeleteIcon from '@material-ui/icons/Delete'
+import IconButton from '@material-ui/core/IconButton'
+import Checkbox from '@material-ui/core/Checkbox'
+import TextField from '@material-ui/core/TextField'
+import { Button, makeStyles } from '@material-ui/core'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import NormalModal from '../../Shared/NormalModal'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import toast from 'react-hot-toast'
+import ColumnSettings from '@/Components/ColumnSettings'
+import addTableDetails from '@/Helpers/AddTableDetails'
 
 const useStyles = makeStyles(() => ({
   topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
+    display: 'flex',
+    gap: '10px',
+    marginLeft: '10px',
   },
   button: {
-    width: "130",
-    textTransform: "capitalize",
-    fontSize: "14px",
+    width: '130',
+    textTransform: 'capitalize',
+    fontSize: '14px',
   },
   editButton: {
-    marginTop: "15px",
+    marginTop: '15px',
   },
-}));
-
+}))
 
 export const fields = [
-
   {
-    caption: "Target Name",
-    name: "target_name",
+    caption: 'Target Name',
+    name: 'target_name',
     operators: [
       {
-        caption: "Contains",
-        name: "contains",
+        caption: 'Contains',
+        name: 'contains',
       },
       {
-        caption: "Not Contains",
-        name: "doesNotContain",
+        caption: 'Not Contains',
+        name: 'doesNotContain',
       },
       {
-        caption: "Is Empty",
-        name: "isEmpty",
+        caption: 'Is Empty',
+        name: 'isEmpty',
       },
       {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
       },
       {
-        caption: "Starts With",
-        name: "startswith",
+        caption: 'Starts With',
+        name: 'startswith',
       },
       {
-        caption: "Ends With",
-        name: "endsWith",
+        caption: 'Ends With',
+        name: 'endsWith',
       },
       {
-        caption: "Is",
-        name: "is",
+        caption: 'Is',
+        name: 'is',
       },
       {
-        caption: "Is Not",
-        name: "isnot",
+        caption: 'Is Not',
+        name: 'isnot',
       },
     ],
   },
-
-];
+]
 
 export const groups = [
   {
-    caption: "And",
-    name: "and",
+    caption: 'And',
+    name: 'and',
   },
   {
-    caption: "Or",
-    name: "or",
+    caption: 'Or',
+    name: 'or',
   },
-];
+]
 export const filter = {
-  groupName: "and",
+  groupName: 'and',
   items: [
     {
-      field: "target_name",
-      operator: "isNotEmpty",
+      field: 'target_name',
+      operator: 'isNotEmpty',
     },
   ],
-};
+}
 
 const Targets = () => {
-  const classes = useStyles();
-  const { allTargetNames } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
-  const [editData, setEditData] = useState();
-  const [response, setResponse] = useState();
-  const [open, setOpen] = useState(false);
-  const [showEditModal, setShowEditModal] = useState({ open: false });
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const showColumnRef = useRef();
+  const classes = useStyles()
+  const { allTargetNames,columnsData } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [editData, setEditData] = useState()
+  const [showEditModal, setShowEditModal] = useState({ open: false })
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const showColumnRef = useRef()
 
   const dataArray = allTargetNames.map((item, index) => ({
     edit: item.id,
@@ -143,40 +128,36 @@ const Targets = () => {
     status: [item.status, item.id],
     id: item.id,
     key: index,
-  }));
-  const SelectionCell = ({
-    rowKeyValue,
-    dispatch,
-    isSelectedRow,
-    selectedRows,
-  }) => {
+  }))
+
+  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
       <Checkbox
         checked={isSelectedRow}
         color="primary"
         onChange={(event) => {
           if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
+            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
           } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
+            dispatch(selectRow(rowKeyValue))
+            setTableToolbar(true)
+            const id = parseInt(rowKeyValue)
             if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
-            }
+              selectedRowIds.push(id)
+            } 
           } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
+            dispatch(deselectRow(rowKeyValue))
+            const id = parseInt(rowKeyValue)
+            const itemIndx = selectedRowIds.indexOf(id)
+            selectedRowIds.splice(itemIndx, 1)
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -184,60 +165,74 @@ const Targets = () => {
         color="primary"
         onChange={(event) => {
           if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows());
-            setTableToolbar(true);
-            let i = 0;
+            dispatch(selectAllFilteredRows())
+            setTableToolbar(true)
+            let i = 0
             while (i < tableProps.data.length) {
               if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                continue;
+                selectedRowIds.push(tableProps.data[i].id)
+                continue
               }
-              i++;
+              i++
             }
           } else {
-            dispatch(deselectAllFilteredRows());
+            dispatch(deselectAllFilteredRows())
             if (selectedRowIds) {
-              selectedRowIds.splice(0, selectedRowIds.length);
+              selectedRowIds.splice(0, selectedRowIds.length)
             }
             if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
+              setTableToolbar(false)
             }
           }
         }}
       />
-    );
-  };
+    )
+  }
 
+  const columns = [
+    {
+      key: 'edit',
+      style: { width: 20 },
+      visible: true,
+    },
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'sl',
+      title: 'SL',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: false,
+    },
+    {
+      key: 'target_name',
+      title: 'Target Name',
+      dataType: DataType.String,
+      style: { width: 360 },
+      visible: true,
+    },
+
+    {
+      key: 'status',
+      title: 'Status',
+      style: { width: 240 },
+      visible: true,
+    },
+  ]
+
+  const optionKey = 'target-names-report'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
 
   const tablePropsInit = {
-    columns: [
-      {
-        key: "edit",
-        style: { width: 20 },
-      },
-      {
-        key: "selection-cell",
-        style: { width: 80 },
-      },
-      {
-        key: "sl",
-        title: "SL",
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: "target_name",
-        title: "Target Name",
-        dataType: DataType.String,
-        style: { width: 360 },
-      },
-
-      {
-        key: "status",
-        title: "Status",
-        style: { width: 240 },
-      },
-    ],
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -246,281 +241,182 @@ const Targets = () => {
       position: PagingPosition.Bottom,
     },
     data: dataArray,
-    rowKeyField: "id",
+    rowKeyField: 'id',
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
 
     format: ({ column, value }) => {
-      if (column.key === "edit") {
+      if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <Edit />
           </div>
-        );
+        )
       }
-      if (column.key === "status") {
+      if (column.key === 'status') {
         return (
           <Switch
             checked={value[0] === 1 && true}
             color="primary"
             onChange={() => handleStatus(event, value[0], value[1])}
           />
-        );
+        )
       }
-
-
-
     },
-  };
+  }
 
 
-
-
-  const OPTION_KEY = "target-names-report";
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const handleStatus = (e, value, rowId) => {
-    axios.post(route('target_names.status.update'), { value: value, rowId: rowId })
+    axios
+      .post(route('target_names.status.update'), { value: value, rowId: rowId })
       .then((res) => {
         let tmpData = { ...tableProps }
         tmpData.data.filter((item, indx) => {
           if (item.id === rowId) {
             if (tmpData.data[indx].status[0] == 1) {
-              tmpData.data[indx].status = [0, rowId];
+              tmpData.data[indx].status = [0, rowId]
             } else {
-              tmpData.data[indx].status = [1, rowId];
+              tmpData.data[indx].status = [1, rowId]
             }
           }
-        });
+        })
         changeTableProps(tmpData)
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err)
       })
   }
 
   const dispatch = (action) => {
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+      }
+      return newState
+    })
+  }
 
-  const [filterValue, changeFilter] = useState(filter);
+  const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue);
-  };
+    changeFilter(newFilterValue)
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
   const deleteHandler = () => {
     axios
-      .post(route("target_names.delete"), { selectedRowIds })
+      .post(route('target_names.delete'), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          );
-          filteredData.data = newData;
-          setselectedRowIds([]);
-          changeTableProps(filteredData);
-          setTableToolbar(false);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
-          setOpen(true);
-          setResponse(res.data.msg);
+          let filteredData = tableProps
+          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
+          filteredData.data = newData
+          setselectedRowIds([])
+          changeTableProps(filteredData)
+          setTableToolbar(false)
+          setShowDeleteModal({ open: false })
+          toast.success(res.data.msg)
         } else {
-          setselectedRowIds([]);
-          setTableToolbar(false);
-          setShowDeleteModal({ open: false });
-          emptyCheckbox();
-          setOpen(true);
-          setResponse(res.data.msg);
+          setselectedRowIds([])
+          setTableToolbar(false)
+          setShowDeleteModal({ open: false })
+          toast.error(res.data.msg)
         }
       })
       .catch((err) => {
-        setselectedRowIds([]);
-        setTableToolbar(false);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
-      });
-  };
+        setselectedRowIds([])
+        setTableToolbar(false)
+        setShowDeleteModal({ open: false })
+      })
+  }
 
   const handleEdit = (itemId) => {
     tableProps.data.filter((item) => {
       if (item.id == itemId) {
-        setEditData(item);
+        setEditData(item)
       }
-    });
-    setShowEditModal({ open: true });
-  };
+    })
+    setShowEditModal({ open: true })
+  }
   const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
+    setEditData({ ...editData, [e.target.name]: e.target.value })
+  }
   const handleEditSubmit = () => {
     axios
-      .post(route("target_name.edit"), editData)
+      .post(route('target_name.edit'), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps;
+          let filteredData = tableProps
           filteredData.data.filter((item, indx) => {
             if (item.id === editData.id) {
-              filteredData.data[indx].target_name = editData.target_name;
+              filteredData.data[indx].target_name = editData.target_name
             }
-          });
-          setEditData();
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
+          })
+          setEditData()
+          setShowEditModal({ open: false })
+          toast.success(res.data.msg)
           setselectedRowIds([])
         } else {
-          setEditData();
-          setShowEditModal({ open: false });
-          setOpen(true);
-          setResponse(res.data.msg);
+          setEditData()
+          setShowEditModal({ open: false })
+          toast.error(res.data.msg)
           setselectedRowIds([])
         }
       })
       .catch((err) => {
-        console.log(err);
-      });
-  };
+        console.log(err)
+      })
+  }
 
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setselectedRowIds([]);
-    emptyCheckbox();
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setselectedRowIds([])
   }
 
   const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
+    setOpenModal({ open: true })
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      if (
-        showColumns &&
-        showColumnRef.current &&
-        !showColumnRef.current.contains(e.target)
-      ) {
-        setShowColumns(false);
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showColumns]);
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("target-report"));
-    if (storedData?.selectedRows) storedData.selectedRows = [];
-    localStorage.setItem("target-report", JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
-    if (filteredData?.selectedRows) filteredData.selectedRows = [];
-    changeTableProps(filteredData);
-  };
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("target-report"));
-      if (storedData != null) {
-        emptyCheckbox();
-      }
-    };
-  }, []);
-
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
+            <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
-        <div className="selection-rows">
-          {selectedRowIds.length} Row Selected
-        </div>
+        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    );
-  };
-
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: "key",
-      columns: [
-        {
-          key: "visible",
-          title: "Visible",
-          isEditable: false,
-          style: { textAlign: "center" },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: "title",
-          isEditable: false,
-          title: "Fields",
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    };
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value
-            ? showColumn(action.rowKeyValue)
-            : hideColumn(action.rowKeyValue)
-        );
-      }
-    };
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "visible":
-                  return <CellEditorBoolean {...props} />;
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -531,11 +427,11 @@ const Targets = () => {
         ) : (
           <div className="table-top">
             <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search"></img>
+              <Eye />
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -545,7 +441,7 @@ const Targets = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -561,14 +457,14 @@ const Targets = () => {
                 </div>
               </div>
             ) : (
-              ""
+              ''
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
-              ""
+              ''
             )}
           </div>
         )}
@@ -577,44 +473,41 @@ const Targets = () => {
           childComponents={{
             cellText: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
-                  return <SelectionCell {...props} />;
+                if (props.column.key === 'selection-cell') {
+                  return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
-                  return <></>;
+                if (props.column.key === 'selection-cell') {
+                  return <></>
                 }
               },
             },
             headCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return (
                     <SelectionHeader
                       {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                        tableProps
-                      )}
-                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
-                  );
+                  )
                 }
               },
             },
             cell: {
               content: (props) => {
                 switch (props.column.key) {
-                  case "drag":
+                  case 'drag':
                     return (
                       <img
-                        style={{ cursor: "move" }}
+                        style={{ cursor: 'move' }}
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
-                    );
+                    )
                 }
               },
             },
@@ -624,18 +517,17 @@ const Targets = () => {
         />
       </div>
 
-
       <NormalModal
         open={showEditModal.open}
         setOpen={setShowEditModal}
-        width={"600px"}
-        title={"Edit Target Names"}
+        width={'600px'}
+        title={'Edit Target Names'}
       >
         <div className="edit_target">
           <form className={classes.form}>
             <span>Target Name:</span>
             <TextField
-              value={editData ? editData.target_name : ""}
+              value={editData ? editData.target_name : ''}
               fullWidth
               margin="normal"
               name="target_name"
@@ -654,26 +546,26 @@ const Targets = () => {
           </form>
 
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
+            <Cancel />
           </div>
         </div>
       </NormalModal>
 
-      <SnackBar open={open} setOpen={setOpen} response={response} />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
-        width={"400px"}
-        title={`${selectedRowIds.length > 1
-          ? "Do you want to delete these records?"
-          : "Do you want to delete this record?"
-          }`}
+        width={'400px'}
+        title={`${
+          selectedRowIds.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
-  );
-};
+  )
+}
 
-Targets.layout = (page) => <Layout title="Targets">{page}</Layout>;
-export default Targets;
+Targets.layout = (page) => <Layout title="Targets">{page}</Layout>
+export default Targets

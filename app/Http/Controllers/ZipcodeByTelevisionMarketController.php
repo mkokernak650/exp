@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ZipcodeByTelevisionMarketExport;
 use App\Imports\ZipcodeByTelevisionMarketImport;
+use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,8 +36,11 @@ class ZipcodeByTelevisionMarketController extends Controller
         if (request('page')) {
             return $allZipcodesByTelevisionMarket;
         }
+        $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Settings/ZipcodeByTelevisionMarketNew', [
-            'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket
+            'allZipcodesByTelevisionMarket' => $allZipcodesByTelevisionMarket,
+            'columnsData'                   => $columnsData
         ]);
     }
 

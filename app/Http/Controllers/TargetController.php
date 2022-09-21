@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Target;
 use Inertia\Inertia;
 use App\Models\Customer;
+use App\Models\TableDetails;
 use App\Models\TargetNames;
 
 class TargetController extends Controller
@@ -20,25 +21,31 @@ class TargetController extends Controller
     {
         $allCustomers = Customer::select('customer_name')->active()->distinct()->get();
         $allTargetNames = TargetNames::select('target_name')->active()->distinct()->get();
+
         return Inertia::render('Settings/AddTargets', [
-            'allCustomers'   => $allCustomers,
-            'allTargetNames' => $allTargetNames
+            'allTargetNames'=> $allTargetNames,
+            'allCustomers'  => $allCustomers,
         ]);
     }
 
     public function TargetsReport()
     {
         $allTargets = Target::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Settings/Targets', [
-            'allTargets' => $allTargets
+            'allTargets'    => $allTargets,
+            'columnsData'   => $columnsData
         ]);
     }
 
     public function TargetNamesReport()
     {
         $allTargetNames = TargetNames::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/TargetNames', [
-            'allTargetNames' => $allTargetNames
+            'allTargetNames' => $allTargetNames,
+            'columnsData'    => $columnsData
         ]);
     }
 

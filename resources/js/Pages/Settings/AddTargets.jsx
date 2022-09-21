@@ -8,7 +8,6 @@ import {
   Button,
   Snackbar,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { usePage } from "@inertiajs/inertia-react";
@@ -16,6 +15,8 @@ import axios from "axios";
 import { Helmet } from "react-helmet";
 import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
+import toast from 'react-hot-toast'
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,29 +38,15 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     maxWidth: "500px",
   },
-  // MuiGridItem: {
-  //   padding: "8px!important",
-  // },
-
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+
 const AddTargets = () => {
   const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
   const { allCustomers, allTargetNames } = usePage().props;
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
 
   const options = allTargetNames.map((item) => ({
     label: item.target_name,
@@ -91,8 +78,7 @@ const AddTargets = () => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
+          toast.success(res.data.msg);
           e.target.reset();
         }
       })
@@ -162,17 +148,6 @@ const AddTargets = () => {
           </Grid>
         </form>
       </Paper>
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
-      </>
     </>
   );
 };

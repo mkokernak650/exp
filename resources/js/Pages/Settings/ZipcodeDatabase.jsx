@@ -1,41 +1,33 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, EditingMode, ActionType } from 'ka-table/enums'
+import { DataType, SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
 import FilterControl from 'react-filter-control'
 import 'ka-table/style.scss'
-import search from '../../../images/search.svg'
-import eyeIcon from '../../../images/eyeIcon.svg'
-import closeNav from '../../../images/closeNav.svg'
-import { hideColumn, showColumn, hideLoading, showLoading } from 'ka-table/actionCreators'
-import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean'
-import Checkbox from '@material-ui/core/Checkbox'
+import {hideLoading, showLoading } from 'ka-table/actionCreators'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
 import {
   makeStyles,
   Button,
-  Snackbar,
   CircularProgress,
   RadioGroup,
   Radio,
   FormControlLabel,
   FormLabel,
 } from '@material-ui/core'
-import MuiAlert from '@material-ui/lab/Alert'
 import NormalModal from '../../Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
+import ColumnSettings from '@/Components/ColumnSettings'
+import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '../../Helpers/HandleSelect'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -44,10 +36,6 @@ const useStyles = makeStyles(() => ({
     fontSize: '14px',
   },
 }))
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
 
 export const fields = [
   {
@@ -1253,10 +1241,9 @@ export const filter = {
 
 const ZipcodeDatabase = () => {
   const classes = useStyles()
-  const { allZipcodes } = usePage().props
+  const { allZipcodes, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [selectedRowIds, setselectedRowIds] = useState([])
-  const [response, setResponse] = useState()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [importModal, setImportModal] = useState({ open: false })
@@ -1268,14 +1255,9 @@ const ZipcodeDatabase = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [searchedData, setSearchData] = useState([])
-  const [tableToolbar, setTableToolbar] = useState(false);
+  const [tableToolbar, setTableToolbar] = useState(false)
 
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpen(false)
-  }
+
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -1318,193 +1300,234 @@ const ZipcodeDatabase = () => {
 
   const dataArray = mapDataArr(allZipcodes)
 
+  const columns = [
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'NPA',
+      title: 'NPA',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'NXX',
+      title: 'NXX',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: 'NPANXX',
+      title: 'NPANXX',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'ZipCode',
+      title: 'ZipCode',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'State',
+      title: 'State',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'City',
+      title: 'City',
+      dataType: DataType.String,
+      style: { width: 210 },
+      visible: true,
+    },
+    {
+      key: 'County',
+      title: 'County',
+      dataType: DataType.String,
+      style: { width: 170 },
+      visible: true,
+    },
+    {
+      key: 'CountyPop',
+      title: 'CountyPop',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: 'ZipCodeCount',
+      title: 'ZipCodeCount',
+      dataType: DataType.String,
+      style: { width: 190 },
+      visible: true,
+    },
+    {
+      key: 'ZipCodeFreq',
+      title: 'ZipCodeFreq',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: 'Latitude',
+      title: 'Latitude',
+      dataType: DataType.String,
+      style: { width: 170 },
+      visible: true,
+    },
+    {
+      key: 'Longitude',
+      title: 'Longitude',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'TimeZone',
+      title: 'TimeZone',
+      dataType: DataType.String,
+      style: { width: 140 },
+      visible: true,
+    },
+    {
+      key: 'ObservesDST',
+      title: 'ObservesDST',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'NXXUseType',
+      title: 'NXXUseType',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: 'NXXIntroVersion',
+      title: 'NXXIntroVersion',
+      dataType: DataType.String,
+      style: { width: 180 },
+      visible: true,
+    },
+    {
+      key: 'NPANew',
+      title: 'NPANew',
+      dataType: DataType.Number,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'FIPS',
+      title: 'FIPS',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'LATA',
+      title: 'LATA',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'Overlay',
+      title: 'Overlay',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'RateCenter',
+      title: 'RateCenter',
+      dataType: DataType.String,
+      style: { width: 180 },
+      visible: true,
+    },
+    {
+      key: 'SwitchCLLI',
+      title: 'SwitchCLLI',
+      dataType: DataType.String,
+      style: { width: 130 },
+      visible: true,
+    },
+    {
+      key: 'MSA_CBSA',
+      title: 'MSA_CBSA',
+      dataType: DataType.String,
+      style: { width: 400 },
+      visible: true,
+    },
+    {
+      key: 'MSA_CBSA_CODE',
+      title: 'MSA_CBSA_CODE',
+      dataType: DataType.String,
+      style: { width: 190 },
+      visible: true,
+    },
+    {
+      key: 'OCN',
+      title: 'OCN',
+      dataType: DataType.String,
+      style: { width: 180 },
+      visible: true,
+    },
+    {
+      key: 'Company',
+      title: 'Company',
+      dataType: DataType.String,
+      style: { width: 360 },
+      visible: true,
+    },
+    {
+      key: 'CoverageAreaName',
+      title: 'CoverageAreaName',
+      dataType: DataType.String,
+      style: { width: 240 },
+      visible: true,
+    },
+    {
+      key: 'Flags',
+      title: 'Flags',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'WeightedLat',
+      title: 'WeightedLat',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'WeightedLon',
+      title: 'WeightedLon',
+      dataType: DataType.String,
+      style: { width: 180 },
+      visible: true,
+    },
+  ]
+
+  const optionKey = 'zipcode-database'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
+
   const tablePropsInit = {
-    columns: [
-      {
-        key: 'selection-cell',
-        style: { width: 80 },
-      },
-      {
-        key: 'NPA',
-        title: 'NPA',
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: 'NXX',
-        title: 'NXX',
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: 'NPANXX',
-        title: 'NPANXX',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'ZipCode',
-        title: 'ZipCode',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'State',
-        title: 'State',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'City',
-        title: 'City',
-        dataType: DataType.String,
-        style: { width: 210 },
-      },
-      {
-        key: 'County',
-        title: 'County',
-        dataType: DataType.String,
-        style: { width: 170 },
-      },
-      {
-        key: 'CountyPop',
-        title: 'CountyPop',
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: 'ZipCodeCount',
-        title: 'ZipCodeCount',
-        dataType: DataType.String,
-        style: { width: 190 },
-      },
-      {
-        key: 'ZipCodeFreq',
-        title: 'ZipCodeFreq',
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: 'Latitude',
-        title: 'Latitude',
-        dataType: DataType.String,
-        style: { width: 170 },
-      },
-      {
-        key: 'Longitude',
-        title: 'Longitude',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'TimeZone',
-        title: 'TimeZone',
-        dataType: DataType.String,
-        style: { width: 140 },
-      },
-      {
-        key: 'ObservesDST',
-        title: 'ObservesDST',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'NXXUseType',
-        title: 'NXXUseType',
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: 'NXXIntroVersion',
-        title: 'NXXIntroVersion',
-        dataType: DataType.String,
-        style: { width: 180 },
-      },
-      {
-        key: 'NPANew',
-        title: 'NPANew',
-        dataType: DataType.Number,
-        style: { width: 130 },
-      },
-      {
-        key: 'FIPS',
-        title: 'FIPS',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'LATA',
-        title: 'LATA',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'Overlay',
-        title: 'Overlay',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'RateCenter',
-        title: 'RateCenter',
-        dataType: DataType.String,
-        style: { width: 180 },
-      },
-      {
-        key: 'SwitchCLLI',
-        title: 'SwitchCLLI',
-        dataType: DataType.String,
-        style: { width: 130 },
-      },
-      {
-        key: 'MSA_CBSA',
-        title: 'MSA_CBSA',
-        dataType: DataType.String,
-        style: { width: 400 },
-      },
-      {
-        key: 'MSA_CBSA_CODE',
-        title: 'MSA_CBSA_CODE',
-        dataType: DataType.String,
-        style: { width: 190 },
-      },
-      {
-        key: 'OCN',
-        title: 'OCN',
-        dataType: DataType.String,
-        style: { width: 180 },
-      },
-      {
-        key: 'Company',
-        title: 'Company',
-        dataType: DataType.String,
-        style: { width: 360 },
-      },
-      {
-        key: 'CoverageAreaName',
-        title: 'CoverageAreaName',
-        dataType: DataType.String,
-        style: { width: 240 },
-      },
-      {
-        key: 'Flags',
-        title: 'Flags',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'WeightedLat',
-        title: 'WeightedLat',
-        dataType: DataType.String,
-        style: { width: 200 },
-      },
-      {
-        key: 'WeightedLon',
-        title: 'WeightedLon',
-        dataType: DataType.String,
-        style: { width: 180 },
-      },
-    ],
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     loading: {
       enabled: false,
       text: 'Loading...',
@@ -1516,18 +1539,16 @@ const ZipcodeDatabase = () => {
     columnReordering: true,
   }
 
-  const OPTION_KEY = 'zipcode-database'
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
-  }
-  const [tableProps, changeTableProps] = useState(stateStore)
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
+    handleSelects({action, selectedRowIds, setselectedRowIds, tableProps, setTableToolbar})
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+      }
       return newState
     })
   }
@@ -1570,10 +1591,9 @@ const ZipcodeDatabase = () => {
         if (res.status === 200) {
           setMainData(res.data)
           setImportModal({ open: false })
-          setResponse('Imported Successfully')
-          setOpen(true)
+          toast.success('Imported Successfully')
         } else {
-          setResponse('Import failed')
+          toast.error('Import failed')
         }
       })
       .catch((err) => {})
@@ -1591,61 +1611,6 @@ const ZipcodeDatabase = () => {
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
-
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: 'key',
-      columns: [
-        {
-          key: 'visible',
-          title: 'Visible',
-          isEditable: false,
-          style: { textAlign: 'center' },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: 'title',
-          isEditable: false,
-          title: 'Fields',
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    }
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value ? showColumn(action.rowKeyValue) : hideColumn(action.rowKeyValue)
-        )
-      }
-    }
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case 'visible':
-                  return <CellEditorBoolean {...props} />
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
-    )
-  }
 
   const getSearchingData = async (data) => {
     setCurerentPage(data)
@@ -1712,7 +1677,7 @@ const ZipcodeDatabase = () => {
         <div className="table-top">
           <div className="top-left">
             <div className="columns-show-hide" onClick={handleColumns}>
-              <img src={eyeIcon} alt="search" onBlur={hideCoumnSettings}></img>
+              <Eye />
             </div>
             <Button
               variant="contained"
@@ -1732,7 +1697,7 @@ const ZipcodeDatabase = () => {
 
           <div className="search-icon" onClick={handleSearch}>
             <span>Search Here</span>
-            <img src={search} alt="search"></img>
+            <Search />
           </div>
 
           {serachSidebar ? (
@@ -1742,7 +1707,7 @@ const ZipcodeDatabase = () => {
                   <span>Search</span>
                 </div>
                 <a className="close-nav" onClick={closeSidebar}>
-                  <img src={closeNav} alt="file not found"></img>
+                  <Cancel />
                 </a>
               </div>
 
@@ -1841,16 +1806,6 @@ const ZipcodeDatabase = () => {
           </select>
           <Pagination changePage={getSearchingData} data={zipCodeData} />
         </div>
-
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
 
         <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>
           <div className={classes.import}>

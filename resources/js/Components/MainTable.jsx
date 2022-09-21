@@ -77,6 +77,7 @@ export default function MainTable(props) {
             />
         );
     };
+    
     const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
         return (
             <Checkbox
