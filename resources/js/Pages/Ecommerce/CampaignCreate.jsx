@@ -11,7 +11,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import SnackBar from "../../Shared/SnackBar";
 import toast from "react-hot-toast";
 
 const useStyles = makeStyles((theme) => ({
@@ -30,10 +29,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     textAlign: "center",
     marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
-  },
+  }
 }));
 
 const CampaignCreate = () => {
@@ -120,13 +116,6 @@ const CampaignCreate = () => {
           </Grid>
         </form>
       </Paper>
-
-      <SnackBar
-        open={open}
-        setOpen={setOpen}
-        severity={responseType}
-        response={response}
-      />
     </>
   );
 };

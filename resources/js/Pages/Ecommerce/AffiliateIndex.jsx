@@ -5,8 +5,6 @@ import {
   DataType,
   SortingMode,
   PagingPosition,
-  EditingMode,
-  ActionType,
 } from "ka-table/enums"
 import { kaPropsUtils } from "ka-table/utils"
 import { usePage } from "@inertiajs/inertia-react"
@@ -20,16 +18,13 @@ import {
 import FilterControl from "react-filter-control"
 import { filterData } from "../filterData"
 import "ka-table/style.scss"
-import search from "../../../images/search.svg"
-import eyeIcon from "../../../images/eyeIcon.svg"
-import closeNav from "../../../images/closeNav.svg"
-import Cancel from "../../../images/cancel.svg"
-import { hideColumn, showColumn } from "ka-table/actionCreators"
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import Edit from '@/Components/Icons/Edit.jsx'
 import Tooltip from "@material-ui/core/Tooltip"
 import DeleteIcon from "@material-ui/icons/Delete"
 import IconButton from "@material-ui/core/IconButton"
-import Edit from "../../../images/edit1.svg"
 import Checkbox from "@material-ui/core/Checkbox"
 import {
   Button,
@@ -40,14 +35,14 @@ import {
 import Grid from "@material-ui/core/Grid"
 import axios from "axios"
 import { Helmet } from "react-helmet"
-import SnackBar from "../../Shared/SnackBar"
-import ConfirmModal from "../../Shared/ConfirmModal"
-import NormalModal from "../../Shared/NormalModal"
+import ConfirmModal from "@/Shared/ConfirmModal"
+import NormalModal from "@/Shared/NormalModal"
 import toast from "react-hot-toast"
 import * as FileSaver from "file-saver"
 import * as XLSX from "xlsx"
 import { DateTimeFormat } from "../../Helpers/DateTimeFormat";
-
+import ColumnSettings from '@/Components/ColumnSettings'
+import addTableDetails from '@/Helpers/AddTableDetails'
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -192,20 +187,17 @@ const AffiliateIndex = () => {
     consumerExp_fee: "",
   }
   const classes = useStyles()
-  const { ecommerceAffiliates, affiliates, campaigns, customers } =
+  const { ecommerceAffiliates, affiliates, campaigns, customers ,columnsData} =
     usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
-  const [open, setOpen] = useState(false)
-  const [response, setResponse] = useState()
   const [responseType, setResponseType] = useState("success")
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState(defaultState)
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const showColumnRef = useRef()
   const [importModal, setImportModal] = useState({ open: false })
-  const [exportModal, setExportModal] = useState({ open: false })
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -290,14 +282,12 @@ const AffiliateIndex = () => {
         setImportModal({ open: false })
         setLoading(false)
         setResponseType("success")
-        setResponse(res.data.msg)
-        setOpen(true)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
         setLoading(false)
         setResponseType("error")
-        setResponse("Import failed")
-        setOpen(true)
+        toast.error("Import failed")
       })
   }
 
@@ -394,90 +384,113 @@ const AffiliateIndex = () => {
     })
     setShowEditModal({ open: true })
   }
+  const columns= [
+    {
+      key: "edit",
+      style: { width: 20 },
+      visible: true,
+    },
+    {
+      key: "selection-cell",
+      style: { width: 60 },
+      visible: true,
+    },
+    {
+      key: "sl",
+      title: "SL",
+      dataType: DataType.Number,
+      style: { width: 40 },
+      visible: false,
+    },
+    {
+      key: "campaign",
+      title: "Campaign",
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: "customer",
+      title: "Customer",
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: "affiliate",
+      title: "Affiliate",
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: "order_type",
+      title: "Order Type",
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: "coupon_code",
+      title: "Coupon Code",
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: "dialed",
+      title: "Dialed",
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: "revenue",
+      title: "Payout",
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: "affiliate_fee",
+      title: "Affiliate Fee",
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: "percentage",
+      title: "Commission",
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: "created_at",
+      title: "Created At",
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+     {
+      key: "updated_at",
+      title: "Last Updated",
+      dataType: DataType.Date,
+      style: { width: 100 },
+      visible: true,
+    },
+  ]
+
+  const optionKey = 'affiliate-index'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
 
   const tablePropsInit = {
-    columns: [
-      {
-        key: "edit",
-        style: { width: 20 },
-      },
-      {
-        key: "selection-cell",
-        style: { width: 60 },
-      },
-      {
-        key: "sl",
-        title: "SL",
-        dataType: DataType.Number,
-        style: { width: 40 },
-      },
-      {
-        key: "campaign",
-        title: "Campaign",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "customer",
-        title: "Customer",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "affiliate",
-        title: "Affiliate",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "order_type",
-        title: "Order Type",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "coupon_code",
-        title: "Coupon Code",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "dialed",
-        title: "Dialed",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "revenue",
-        title: "Payout",
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: "affiliate_fee",
-        title: "Affiliate Fee",
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: "percentage",
-        title: "Commission",
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: "created_at",
-        title: "Created At",
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-       {
-        key: "updated_at",
-        title: "Last Updated",
-        dataType: DataType.Date,
-        style: { width: 100 },
-      },
-    ],
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -494,7 +507,7 @@ const AffiliateIndex = () => {
       if (column.key === "edit") {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <Edit />
           </div>
         )
       }
@@ -510,18 +523,15 @@ const AffiliateIndex = () => {
     },
   }
 
-  const OPTION_KEY = "affiliate-index"
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  }
-  const [tableProps, changeTableProps] = useState(stateStore)
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+      }
       return newState
     })
   }
@@ -579,21 +589,16 @@ const AffiliateIndex = () => {
           setSelectedRowIds([])
           setTableToolbar(false)
           setResponseType("success")
-          setOpen(true)
-          setResponse(res.data.msg)
+          toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox()
         } else {
-          setOpen(true)
           setResponseType("error")
-          setResponse(res.data.msg)
+          toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox()
         }
       })
       .catch((err) => {
         setShowDeleteModal({ open: false })
-        emptyCheckbox()
       })
   }
 
@@ -601,7 +606,6 @@ const AffiliateIndex = () => {
     setOpenModal({ open: false })
     setTableToolbar(false)
     setSelectedRowIds([])
-    emptyCheckbox()
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -621,28 +625,9 @@ const AffiliateIndex = () => {
 
     document.addEventListener("mousedown", checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener("mousedown", checkIfClickedOutside)
     }
   }, [showColumns])
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem("affiliate-index"))
-    storedData.selectedRows = []
-    localStorage.setItem("affiliate-index", JSON.stringify(storedData))
-    let filteredData = { ...tableProps }
-    filteredData.selectedRows = []
-    changeTableProps(filteredData)
-  }
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem("affiliate-index"))
-      if (storedData != null) {
-        emptyCheckbox()
-      }
-    }
-  }, [])
 
 
   const TableToolbar = () => {
@@ -663,67 +648,11 @@ const AffiliateIndex = () => {
     )
   }
 
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: "key",
-      columns: [
-        {
-          key: "visible",
-          title: "Visible",
-          isEditable: false,
-          style: { textAlign: "center" },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: "title",
-          isEditable: false,
-          title: "Fields",
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    }
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value
-            ? showColumn(action.rowKeyValue)
-            : hideColumn(action.rowKeyValue)
-        )
-      }
-    }
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "visible":
-                  return <CellEditorBoolean {...props} />
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
-    )
-  }
+
 
   return (
     <>
       <Helmet title="E-commerce Affiliate Index" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -731,7 +660,7 @@ const AffiliateIndex = () => {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
-                <img src={eyeIcon} alt="search"></img>
+                <Eye />
               </div>
               <Button
                 variant="contained"
@@ -758,7 +687,7 @@ const AffiliateIndex = () => {
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -768,7 +697,7 @@ const AffiliateIndex = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -998,7 +927,7 @@ const AffiliateIndex = () => {
             onClick={() => handleCloseModal(setShowEditModal)}
             className="close-modal-icon"
           >
-            <img src={Cancel} alt="close-modal-icon"></img>
+            <Cancel />
           </div>
         </div>
       </NormalModal>
@@ -1034,12 +963,6 @@ const AffiliateIndex = () => {
         </form>
       </NormalModal>
 
-      <SnackBar
-        open={open}
-        setOpen={setOpen}
-        severity={responseType}
-        response={response}
-      />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}

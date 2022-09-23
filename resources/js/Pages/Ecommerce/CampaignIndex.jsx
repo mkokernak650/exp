@@ -20,7 +20,7 @@ import Cancel from '@/Components/Icons/Cancel.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import Edit from '../../../images/edit1.svg'
+import Edit from '@/Components/Icons/Edit.jsx'
 import Checkbox from '@material-ui/core/Checkbox'
 import Switch from '@material-ui/core/Switch'
 import { Button, TextField, makeStyles } from '@material-ui/core'
@@ -296,7 +296,7 @@ const CampaignIndex = () => {
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <Edit />
           </div>
         )
       }
