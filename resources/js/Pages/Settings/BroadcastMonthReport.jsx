@@ -125,7 +125,7 @@ const BroadcastMonthReport = () => {
   const { BroadCastMonths } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [showEditModal, setShowEditModal] = useState({ open: false });
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
   const [editData, setEditData] = useState();
@@ -388,7 +388,7 @@ const BroadcastMonthReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
   }
 
@@ -407,13 +407,13 @@ const BroadcastMonthReport = () => {
           );
           filteredData.data = newData;
           changeTableProps(filteredData);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false })
         } else {
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);

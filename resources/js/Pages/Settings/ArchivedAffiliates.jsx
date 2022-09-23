@@ -277,7 +277,7 @@ const ArchivedAffiliates = () => {
   const { allAffiliates } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
@@ -489,13 +489,13 @@ const ArchivedAffiliates = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setTableToolbar(false);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           emptyCheckbox();
           setShowActiveModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           emptyCheckbox();
           setShowActiveModal({ open: false })
 
@@ -539,7 +539,7 @@ const ArchivedAffiliates = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
   }
 

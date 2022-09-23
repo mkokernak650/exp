@@ -203,7 +203,7 @@ const CustomerReport = () => {
   const { allTVHouseholds } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [editData, setEditData] = useState()
   const [response, setResponse] = useState()
   const [open, setOpen] = useState(false)
@@ -405,7 +405,7 @@ const CustomerReport = () => {
           )
           filteredData.data = newData
           changeTableProps(filteredData)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           setOpen(true)
           setResponse(res.data.msg)
@@ -472,7 +472,7 @@ const CustomerReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
     emptyCheckbox()
   }
 

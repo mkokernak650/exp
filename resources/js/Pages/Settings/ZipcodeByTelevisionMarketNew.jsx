@@ -19,7 +19,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '../../Helpers/HandleSelect'
+import handleSelects from '@/Helpers/HandleSelects'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
 
@@ -169,7 +169,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   const { allZipcodesByTelevisionMarket, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [loading, setLoading] = useState(false)
   const showColumnRef = useRef()
   const [zipcodeTelMarket, setZipcodeTelMarket] = useState(allZipcodesByTelevisionMarket)
@@ -336,7 +336,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({action, selectedRowIds, setselectedRowIds, tableProps, setTableToolbar})
+    handleSelects({action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar})
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState

@@ -198,7 +198,7 @@ const CustomerReport = () => {
   const { allCustomers } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
@@ -391,7 +391,7 @@ const CustomerReport = () => {
           );
           filteredData.data = newData;
           changeTableProps(filteredData);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
@@ -433,14 +433,14 @@ const CustomerReport = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setTableToolbar(false);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setShowArchivedModal({ open: false })
           emptyCheckbox();
 
         } else {
           setResponse(res.data.msg);
           setOpen(true);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setShowArchivedModal({ open: false })
           emptyCheckbox();
 
@@ -486,7 +486,7 @@ const CustomerReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
   }
 

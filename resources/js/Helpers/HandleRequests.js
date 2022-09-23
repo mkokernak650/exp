@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 export function deleteHandler(
   uri,
   selectedRowIds,
-  setselectedRowIds,
+  setSelectedRowIds,
   tableProps,
   changeTableProps,
   setDeleteLoading,
@@ -24,7 +24,7 @@ export function deleteHandler(
         filteredData.data = newData;
         setDeleteLoading(false);
         changeTableProps(filteredData);
-        setselectedRowIds([]);
+        setSelectedRowIds([]);
         setInbounIds([]);
         setTableToolbar(false);
         toast.success(res.data.msg);
@@ -33,7 +33,7 @@ export function deleteHandler(
       } else {
         setDeleteLoading(false);
         toast.error(res.data.msg);
-        setselectedRowIds([]);
+        setSelectedRowIds([]);
         setInbounIds([]);
         setShowDeleteModal({ open: false });
         emptyCheckbox(optionKey, tableProps, changeTableProps);
@@ -42,7 +42,7 @@ export function deleteHandler(
     .catch((err) => {
       setDeleteLoading(false);
       setTableToolbar(false);
-      setselectedRowIds([]);
+      setSelectedRowIds([]);
       setInbounIds([]);
       setShowDeleteModal({ open: false });
       emptyCheckbox(optionKey, tableProps, changeTableProps);

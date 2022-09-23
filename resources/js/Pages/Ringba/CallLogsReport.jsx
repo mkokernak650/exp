@@ -3,13 +3,6 @@ import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
 import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
@@ -23,7 +16,6 @@ import {
   makeStyles,
   CircularProgress,
   IconButton,
-  Checkbox,
   Tooltip,
   TextField,
 } from '@material-ui/core'
@@ -39,7 +31,10 @@ import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -51,7 +46,7 @@ const useStyles = makeStyles(() => ({
 
 const CallLogsReport = () => {
   const classes = useStyles()
-  const { allCallLogs, campaignsWithAnnotations, columnsData  } = usePage().props
+  const { allCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -84,29 +79,6 @@ const CallLogsReport = () => {
   }
 
   const [filteredData, setFilteredData] = useState(filterData(allCallLogs, filterValue))
-
-  const updateAnnotation = (e, tableIndex) => {
-    e.preventDefault()
-    axios
-      .post(route('change.annotation', 'ringbaCallLog'), {
-        indexId: tableIndex,
-        annotation_id: e.target.value,
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          toast.success(res.data.msg)
-          const result = produce(tableProps, (draft) => {
-            draft.data.filter((item, indx) => {
-              if (item.id == tableIndex) {
-                draft.data[indx].Has_Annotation = res.data.has_annotation
-              }
-            })
-          })
-          changeTableProps(result)
-        }
-      })
-      .catch((err) => {})
-  }
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
@@ -460,79 +432,49 @@ const CallLogsReport = () => {
 
   const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            inboundIds.push(selectedRowData[0].Inbound_Id)
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
-            inboundIds.splice(inboundIndx, 1)
-          }
-        }}
-      />
-    )
-  }
-
-  const allSelect = (event, dispatch) => {
-    if (event.currentTarget.checked) {
-      dispatch(selectAllFilteredRows())
-      setTableToolbar(true)
-      setInbounIds(tableProps.data.map((item) => item.Inbound_Id))
-      setSelectedRowIds(tableProps.data.map((item) => item.id))
-    } else {
-      dispatch(deselectAllFilteredRows())
-      selectedRowIds.splice(0, selectedRowIds.length)
-      inboundIds.splice(0, inboundIds.length)
-      if (selectedRowIds.length < 1) {
-        setTableToolbar(false)
-      }
-    }
-  }
-
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => allSelect(event, dispatch)}
-      />
-    )
-  }
 
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+      inboundIds,
+      setInbounIds,
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
 
       if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData,optionKey)
-
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
       }
       return newState
     })
   }
 
+  const updateAnnotation = (e, tableIndex) => {
+    e.preventDefault()
+    axios
+      .post(route('change.annotation', 'ringbaCallLog'), {
+        indexId: tableIndex,
+        annotation_id: e.target.value,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success(res.data.msg)
+          const tmpTableProps={...tableProps}
+            tmpTableProps.data.filter((item) => {
+              if (item.id == tableIndex) {
+                item.Has_Annotation = res.data.has_annotation
+              }
+            })
+          changeTableProps(tmpTableProps)
+        }
+      })
+      .catch((err) => {})
+  }
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -749,7 +691,7 @@ const CallLogsReport = () => {
         if (res.status === 200) {
           setRevenueLoading(false)
           toast.success('Successfully Updated')
-          let columnsData = produce(tableProps, (draft) => {
+          const columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
               if (item.Inbound_Id === editData[0]) {
                 item.Revenue = ''

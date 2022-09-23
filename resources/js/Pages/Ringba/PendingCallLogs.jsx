@@ -32,7 +32,10 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import produce from 'immer'
 import toast from 'react-hot-toast'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -47,7 +50,7 @@ const PendingCallLogsReport = () => {
   const { pendingCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [open, setOpen] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -75,14 +78,13 @@ const PendingCallLogsReport = () => {
       .then((res) => {
         if (res.status === 200) {
           toast.success(res.data.msg)
-          const result = produce(tableProps, (draft) => {
-            draft.data.filter((item, indx) => {
-              if (item.id == tableIndex) {
-                draft.data[indx].Has_Annotation = res.data.has_annotation
-              }
-            })
+          const tmpTableProps = { ...tableProps }
+          tmpTableProps.data.filter((item) => {
+            if (item.id == tableIndex) {
+              item.Has_Annotation = res.data.has_annotation
+            }
           })
-          changeTableProps(result)
+          changeTableProps(tmpTableProps)
         }
       })
       .catch((err) => {})
@@ -380,70 +382,21 @@ const PendingCallLogsReport = () => {
   const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            inboundIds.push(selectedRowData[0].Inbound_Id)
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
-            inboundIds.splice(inboundIndx, 1)
-          }
-        }}
-      />
-    )
-  }
-
-  const allSelect = (event, dispatch) => {
-    if (event.currentTarget.checked) {
-      dispatch(selectAllFilteredRows())
-      setTableToolbar(true)
-      setInbounIds(tableProps.data.map((item) => item.Inbound_Id))
-      setselectedRowIds(tableProps.data.map((item) => item.id))
-    } else {
-      dispatch(deselectAllFilteredRows())
-      selectedRowIds.splice(0, selectedRowIds.length)
-      inboundIds.splice(0, inboundIds.length)
-      if (selectedRowIds.length < 1) {
-        setTableToolbar(false)
-      }
-    }
-  }
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => allSelect(event, dispatch)}
-      />
-    )
-  }
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+      inboundIds,
+      setInbounIds,
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
       if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData,optionKey)
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
       }
       return newState
     })
@@ -472,20 +425,20 @@ const PendingCallLogsReport = () => {
           filteredData.data = newData
           setDeleteLoading(false)
           changeTableProps(filteredData)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
           setDeleteLoading(false)
           toast.error(res.data.msg)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
         setDeleteLoading(false)
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setShowDeleteModal({ open: false })
       })
   }
@@ -506,7 +459,7 @@ const PendingCallLogsReport = () => {
           setInbounIds([])
           setShowCallLogModal({ open: false })
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
         } else {
           setcallLogsLoading(false)
           changeTableProps(filteredData)
@@ -514,7 +467,7 @@ const PendingCallLogsReport = () => {
           setInbounIds([])
           setShowCallLogModal({ open: false })
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
         }
       })
       .catch((err) => {
@@ -524,7 +477,7 @@ const PendingCallLogsReport = () => {
         setInbounIds([])
         setShowCallLogModal({ open: false })
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
       })
   }
 
@@ -542,20 +495,20 @@ const PendingCallLogsReport = () => {
           changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setShowBilledModal({ open: false })
         } else {
           setBilledLoading(false)
           toast.error(res.data.msg)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setShowBilledModal({ open: false })
         }
       })
       .catch((err) => {
         setBilledLoading(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setShowBilledModal({ open: false })
       })
   }
@@ -567,7 +520,7 @@ const PendingCallLogsReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
   }
 
   useEffect(() => {
@@ -714,7 +667,6 @@ const PendingCallLogsReport = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
       </div>
 
       <ConfirmModal

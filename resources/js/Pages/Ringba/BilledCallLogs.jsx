@@ -31,8 +31,11 @@ import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -47,7 +50,7 @@ const BilledCallLogs = () => {
   const { billedCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({
     open: false,
@@ -82,14 +85,13 @@ const BilledCallLogs = () => {
       .then((res) => {
         if (res.status === 200) {
           toast.success(res.data.msg)
-          const result = produce(tableProps, (draft) => {
-            draft.data.filter((item, indx) => {
-              if (item.id == tableIndex) {
-                draft.data[indx].Has_Annotation = res.data.has_annotation
-              }
-            })
+          const tmpTableProps = { ...tableProps }
+          tmpTableProps.data.filter((item) => {
+            if (item.id == tableIndex) {
+              item.Has_Annotation = res.data.has_annotation
+            }
           })
-          changeTableProps(result)
+          changeTableProps(tmpTableProps)
         }
       })
       .catch((err) => {})
@@ -448,79 +450,21 @@ const BilledCallLogs = () => {
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            inboundIds.push(selectedRowData[0].Inbound_Id)
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
-            inboundIds.splice(inboundIndx, 1)
-          }
-        }}
-      />
-    )
-  }
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true)
-            let i = 0
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id)
-                inboundIds.push(tableProps.data[i].Inbound_Id)
-                continue
-              }
-              i++
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
-            // if (selectedRowIds) {
-            selectedRowIds.splice(0, selectedRowIds.length)
-            inboundIds.splice(0, inboundIds.length)
-
-            // }
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+      inboundIds,
+      setInbounIds,
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
       if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData,optionKey)
-
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
       }
       return newState
     })
@@ -538,6 +482,7 @@ const BilledCallLogs = () => {
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     setDeleteLoading(true)
     axios
@@ -550,14 +495,14 @@ const BilledCallLogs = () => {
           setDeleteLoading(false)
           changeTableProps(filteredData)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
           setDeleteLoading(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -566,7 +511,7 @@ const BilledCallLogs = () => {
       .catch((err) => {
         setDeleteLoading(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
       })
@@ -609,14 +554,14 @@ const BilledCallLogs = () => {
   //           toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
   //           setTableToolbar(false)
   //           setInbounIds([])
-  //           setselectedRowIds([])
+  //           setSelectedRowIds([])
   //           setOpenRowFunctionalities(false)
   //         }
   //       } else {
   //         setAnnotationLoading(false)
   //         toast.success(res.data.msg)
   //         setInbounIds([])
-  //         setselectedRowIds([])
+  //         setSelectedRowIds([])
   //         setOpenRowFunctionalities(false)
   //         emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
   //       }
@@ -625,7 +570,7 @@ const BilledCallLogs = () => {
   //       emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
   //       setAnnotationLoading(false)
   //       setInbounIds([])
-  //       setselectedRowIds([])
+  //       setSelectedRowIds([])
   //     })
   // }
 
@@ -649,14 +594,14 @@ const BilledCallLogs = () => {
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
         } else {
           setRevenueLoading(false)
           toast.success(res.data.msg)
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
         }
       })
       .catch((err) => {
@@ -664,7 +609,7 @@ const BilledCallLogs = () => {
         setShowRevenueClearModal({ open: false })
         setOpenRowFunctionalities(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
       })
   }
 
@@ -680,10 +625,11 @@ const BilledCallLogs = () => {
       setShowRevenueClearModal({ open: true })
     }
   }
+  
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
     emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
   }
 
@@ -767,8 +713,6 @@ const BilledCallLogs = () => {
     editData.push(tempData[0].Inbound_Id)
   }
 
-
-
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
@@ -777,7 +721,7 @@ const BilledCallLogs = () => {
             <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
-{/* 
+        {/* 
         <Button
           variant="contained"
           type="submit"

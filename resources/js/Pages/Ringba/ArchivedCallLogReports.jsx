@@ -29,8 +29,11 @@ import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
-import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
+import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -45,7 +48,7 @@ const ArchivedCallLogReports = () => {
   const { archivedCallLogs, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [showCallLogModal, setShowCallLogModal] = useState({
@@ -303,65 +306,16 @@ const ArchivedCallLogReports = () => {
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            inboundIds.push(selectedRowData[0].Inbound_Id)
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
-            inboundIds.splice(inboundIndx, 1)
-          }
-        }}
-      />
-    )
-  }
-
-  const allSelect = (event, dispatch) => {
-    if (event.currentTarget.checked) {
-      dispatch(selectAllFilteredRows())
-      setTableToolbar(true)
-      setInbounIds(tableProps.data.map((item) => item.Inbound_Id))
-      setselectedRowIds(tableProps.data.map((item) => item.id))
-    } else {
-      dispatch(deselectAllFilteredRows())
-      selectedRowIds.splice(0, selectedRowIds.length)
-      inboundIds.splice(0, inboundIds.length)
-      if (selectedRowIds.length < 1) {
-        setTableToolbar(false)
-      }
-    }
-  }
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => allSelect(event, dispatch)}
-      />
-    )
-  }
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+      inboundIds,
+      setInbounIds,
+    })  
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -397,7 +351,7 @@ const ArchivedCallLogReports = () => {
 
           changeTableProps(filteredData)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -405,14 +359,14 @@ const ArchivedCallLogReports = () => {
           setDeleteLoading(false)
           toast.error(res.data.msg)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
         setDeleteLoading(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setShowDeleteModal({ open: false })
       })
   }
@@ -431,7 +385,7 @@ const ArchivedCallLogReports = () => {
           changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setInbounIds([])
           setShowCallLogModal({ open: false })
         } else {
@@ -439,7 +393,7 @@ const ArchivedCallLogReports = () => {
           toast.error(res.data.msg)
           setTableToolbar(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setInbounIds([])
           setShowCallLogModal({ open: false })
         }
@@ -448,7 +402,7 @@ const ArchivedCallLogReports = () => {
         setArchiveLoading(false)
         setTableToolbar(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setInbounIds([])
         setShowCallLogModal({ open: false })
       })
@@ -460,7 +414,7 @@ const ArchivedCallLogReports = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
   }
 
   useEffect(() => {

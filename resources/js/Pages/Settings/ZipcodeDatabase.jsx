@@ -19,7 +19,7 @@ import {
   FormControlLabel,
   FormLabel,
 } from '@material-ui/core'
-import NormalModal from '../../Shared/NormalModal'
+import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
@@ -27,7 +27,7 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '../../Helpers/HandleSelect'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -1243,7 +1243,7 @@ const ZipcodeDatabase = () => {
   const classes = useStyles()
   const { allZipcodes, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [importModal, setImportModal] = useState({ open: false })
@@ -1542,7 +1542,7 @@ const ZipcodeDatabase = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({action, selectedRowIds, setselectedRowIds, tableProps, setTableToolbar})
+    handleSelects({action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar})
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState

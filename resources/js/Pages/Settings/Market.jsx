@@ -155,7 +155,7 @@ const Market = () => {
   const [market, setMarket] = useState(test);
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const dataArray = market.map((item, index) => ({
     sl: index + 1,
     customer: item.customer_id,
@@ -312,7 +312,7 @@ const Market = () => {
           );
           filteredData.data = newData;
           changeTableProps(filteredData);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
         } else {
           console.log(res.data.msg);

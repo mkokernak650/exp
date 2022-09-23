@@ -197,7 +197,7 @@ const ArchivedCustomers = () => {
   const { allCustomers } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [showEditModal, setShowEditModal] = useState({ open: false });
   const [showActiveModal, setShowActiveModal] = useState({
     open: false,
@@ -401,12 +401,12 @@ const ArchivedCustomers = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setTableToolbar(false);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setShowActiveModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setShowActiveModal({ open: false })
 
         }
@@ -449,7 +449,7 @@ const ArchivedCustomers = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
   }
 

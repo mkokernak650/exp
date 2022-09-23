@@ -33,7 +33,10 @@ import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -48,7 +51,7 @@ const Exceptions = () => {
   const { Exceptions, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [updateLoading, setUpdateLoading] = useState(false)
   const [annotationLoading, setAnnotationLoading] = useState(false)
@@ -364,9 +367,9 @@ const Exceptions = () => {
   )
   const tablePropsInit = {
     columns:
-    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-      ? JSON.parse(columnsData[0])?.[optionKey]
-      : columns,
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -416,71 +419,16 @@ const Exceptions = () => {
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            inboundIds.push(selectedRowData[0].Inbound_Id)
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-            const selectedRowData = tableProps.data.filter((item) => item.id == id)
-            const inboundIndx = selectedRowData.indexOf(selectedRowData.Inbound_Id)
-            inboundIds.splice(inboundIndx, 1)
-          }
-        }}
-      />
-    )
-  }
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true)
-            let i = 0
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id)
-                inboundIds.push(tableProps.data[i].Inbound_Id)
-                continue
-              }
-              i++
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
-            selectedRowIds.splice(0, selectedRowIds.length)
-            inboundIds.splice(0, inboundIds.length)
-
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+      inboundIds,
+      setInbounIds,
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -514,7 +462,7 @@ const Exceptions = () => {
           filteredData.data = newData
           setDeleteLoading(false)
           changeTableProps(filteredData)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setInbounIds([])
           setTableToolbar(false)
           toast.success(res.data.msg)
@@ -522,7 +470,7 @@ const Exceptions = () => {
           emptyCheckbox('exception-report', tableProps, changeTableProps)
         } else {
           setDeleteLoading(false)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setInbounIds([])
           setTableToolbar(false)
           toast.error(res.data.msg)
@@ -532,7 +480,7 @@ const Exceptions = () => {
       })
       .catch((err) => {
         setDeleteLoading(false)
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setInbounIds([])
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
@@ -555,16 +503,16 @@ const Exceptions = () => {
           })
           changeTableProps(columnsData)
           setTableToolbar(false)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         } else {
           setPendingLoading(false)
           toast.error(res.data.msg)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         }
@@ -572,7 +520,7 @@ const Exceptions = () => {
       .catch((err) => {
         setPendingLoading(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setOpenRowFunctionalities(false)
       })
   }
@@ -593,14 +541,14 @@ const Exceptions = () => {
           changeTableProps(columnsData)
           setTableToolbar(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setOpenRowFunctionalities(false)
           setShowArchivedModal({ open: false })
         } else {
           setArchiveLoading(false)
           toast.error(res.data.msg)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setShowArchivedModal({ open: false })
         }
       })
@@ -608,7 +556,7 @@ const Exceptions = () => {
         setArchiveLoading(false)
         setTableToolbar(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setOpenRowFunctionalities(false)
       })
   }
@@ -654,7 +602,7 @@ const Exceptions = () => {
             setUpdateLoading(false)
             setTableToolbar(false)
             setInbounIds([])
-            setselectedRowIds([])
+            setSelectedRowIds([])
             setOpenRowFunctionalities(false)
             emptyCheckbox('exception-report', columnsData, changeTableProps)
           }
@@ -662,14 +610,14 @@ const Exceptions = () => {
           toast.error("The record isn't exist in Ringba")
           setUpdateLoading(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setOpenRowFunctionalities(false)
           emptyCheckbox('exception-report', tableProps, changeTableProps)
         } else {
           toast.error('Updating failed')
           setUpdateLoading(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setOpenRowFunctionalities(false)
           emptyCheckbox('exception-report', tableProps, changeTableProps)
         }
@@ -678,7 +626,7 @@ const Exceptions = () => {
         toast.error('Updating failed')
         setUpdateLoading(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setOpenRowFunctionalities(false)
         emptyCheckbox('exception-report', tableProps, changeTableProps)
       })
@@ -726,21 +674,21 @@ const Exceptions = () => {
   //           setAnnotationLoading(false)
   //           setTableToolbar(false)
   //           setInbounIds([])
-  //           setselectedRowIds([])
+  //           setSelectedRowIds([])
   //           setOpenRowFunctionalities(false)
   //         }
   //       } else {
   //         setAnnotationLoading(false)
   //         toast.error(res.data.msg)
   //         setInbounIds([])
-  //         setselectedRowIds([])
+  //         setSelectedRowIds([])
   //         setOpenRowFunctionalities(false)
   //       }
   //     })
   //     .catch((err) => {
   //       setAnnotationLoading(false)
   //       setInbounIds([])
-  //       setselectedRowIds([])
+  //       setSelectedRowIds([])
   //     })
   // }
 
@@ -764,20 +712,20 @@ const Exceptions = () => {
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
         } else {
           setRevenueLoading(false)
           toast.error(res.data.msg)
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
           setInbounIds([])
-          setselectedRowIds([])
+          setSelectedRowIds([])
         }
       })
       .catch((err) => {
         setRevenueLoading(false)
         setInbounIds([])
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setOpenRowFunctionalities(false)
         emptyCheckbox('exception-report', tableProps, changeTableProps)
       })
@@ -799,7 +747,7 @@ const Exceptions = () => {
     setOpenModal({ open: false })
     setOpenRowFunctionalities(false)
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
     setInbounIds([])
   }
 

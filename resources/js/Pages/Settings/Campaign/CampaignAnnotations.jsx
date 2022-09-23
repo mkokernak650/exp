@@ -152,7 +152,7 @@ const CampaignAnnotations = () => {
   const { annotation, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [open, setOpen] = useState(false)
   const [response, setResponse] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
@@ -363,7 +363,7 @@ const CampaignAnnotations = () => {
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
           changeTableProps(filteredData)
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -380,7 +380,7 @@ const CampaignAnnotations = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
   }
 
   const handleOpenModal = (setOpenModal) => {

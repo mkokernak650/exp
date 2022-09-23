@@ -274,7 +274,7 @@ const AffiliateReport = () => {
   const { allAffiliates } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [editData, setEditData] = useState();
   const [response, setResponse] = useState();
   const [open, setOpen] = useState(false);
@@ -473,14 +473,14 @@ const AffiliateReport = () => {
           );
           filteredData.data = newData;
           changeTableProps(filteredData);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
           emptyCheckbox();
         } else {
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
@@ -489,7 +489,7 @@ const AffiliateReport = () => {
         }
       })
       .catch((err) => {
-        setselectedRowIds([]);
+        setSelectedRowIds([]);
         setTableToolbar(false);
         setShowDeleteModal({ open: false });
         emptyCheckbox();
@@ -519,13 +519,13 @@ const AffiliateReport = () => {
           filteredData.data = newData;
           changeTableProps(filteredData);
           setTableToolbar(false);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           emptyCheckbox();
           setShowArchivedModal({ open: false })
         } else {
           setResponse(res.data.msg);
           setOpen(true);
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           emptyCheckbox();
           setShowArchivedModal({ open: false })
 
@@ -570,7 +570,7 @@ const AffiliateReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
   }
 

@@ -191,7 +191,7 @@ const Targets = () => {
   const { allTargets, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setselectedRowIds] = useState([])
+  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [editData, setEditData] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -419,20 +419,20 @@ const Targets = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
-          setselectedRowIds([])
+          setSelectedRowIds([])
           changeTableProps(filteredData)
           setTableToolbar(false)
           setShowDeleteModal({ open: false })
           toast.success(res.data.msg)
         } else {
-          setselectedRowIds([])
+          setSelectedRowIds([])
           setTableToolbar(false)
           setShowDeleteModal({ open: false })
           toast.error(res.data.msg)
         }
       })
       .catch((err) => {
-        setselectedRowIds([])
+        setSelectedRowIds([])
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
       })
@@ -465,12 +465,12 @@ const Targets = () => {
           setEditData()
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
-          setselectedRowIds([])
+          setSelectedRowIds([])
         } else {
           setEditData()
           setShowEditModal({ open: false })
           toast.error(res.data.msg)
-          setselectedRowIds([])
+          setSelectedRowIds([])
         }
       })
       .catch((err) => {
@@ -481,7 +481,7 @@ const Targets = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setselectedRowIds([])
+    setSelectedRowIds([])
   }
 
   const handleOpenModal = (setOpenModal) => {

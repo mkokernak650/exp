@@ -568,7 +568,7 @@ const WebFormReport = () => {
   const { allReports } = usePage().props;
   const [showColumns, setShowColumns] = useState(false);
   const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setselectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const dataArray = allReports.map((item, index) => ({
     sl: index + 1,
     Company: item.company,
@@ -811,13 +811,13 @@ const WebFormReport = () => {
             (item) => !selectedRowIds.includes(item.id)
           );
           filteredData.data = newData;
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
           setShowDeleteModal({ open: false });
         } else {
-          setselectedRowIds([]);
+          setSelectedRowIds([]);
           setTableToolbar(false);
           setOpen(true);
           setResponse(res.data.msg);
@@ -832,7 +832,7 @@ const WebFormReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
     setTableToolbar(false);
-    setselectedRowIds([]);
+    setSelectedRowIds([]);
     emptyCheckbox();
   }
 
