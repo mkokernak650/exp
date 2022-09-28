@@ -569,15 +569,16 @@ const Exceptions = () => {
               tmpTableProps.data[i] = mappedData[0]
             }
           }
-          tmpTableProps.selectedRows = []
+          if (id === inboundIdsParam.length - 1) {
+            toast.success(`${inboundIdsParam.length} Record Updated`)
+            setSelectedRowIds([])
+            setUpdateLoading(false)
+            setTableToolbar(false)
+            setInbounIds([])
+            setOpenRowFunctionalities(false)
+            tmpTableProps.selectedRows = []
+          }
           changeTableProps(tmpTableProps)
-          toast.remove()
-          toast.success(`${inboundIdsParam.length} Record Updated`)
-          setSelectedRowIds([])
-          setUpdateLoading(false)
-          setTableToolbar(false)
-          setInbounIds([])
-          setOpenRowFunctionalities(false)
         } else if (res.status === 204) {
           toast.error("The record isn't exist in Ringba")
           setUpdateLoading(false)
