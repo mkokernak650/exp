@@ -76,13 +76,46 @@ class Controller extends BaseController
         }
     }
 
+    public function findBetweenQuery($field, $val, $dataType)
+    {
+        if (isset($val->from) && isset($val->to)) {
+            if ($dataType === 'date') {
+                return [[$field, '>=', $val->from], [$field, '<=', $val->to]];
+            } else {
+                return [[$field, '>=', $val->from], [$field, '<=', $val->to]];
+            }
+        }
+    }
+
     public function makeConditionQuery($dataQuery, $condType, $field, $operator, $val)
     {
         if ($operator === 'isEmpty') {
-            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator),null);
+            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), null);
         } elseif ($operator === 'isNotEmpty') {
-            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator),null);
+            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), null);
         }
         return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), $this->findValue($operator, $val));
+    }
+
+    public function RingbaMakeConditionQuery($dataQuery, $condType, $field, $operator, $val, $dataType, $valueIndx, $type)
+    {
+        if ($type !== '') {
+            if ($valueIndx === 0) {
+                return $dataQuery->where($field, $this->getSearchOperator($operator), $this->findValue($operator, $val));
+            } else {
+                return $dataQuery->orWhere($field, $this->getSearchOperator($operator), $this->findValue($operator, $val));
+            }
+        } else {
+            if ($operator === 'isEmpty') {
+                return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), null);
+            } elseif ($operator === 'isNotEmpty') {
+                return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), null);
+            }
+
+            if ($operator === 'between' || $operator === 'dateBetween') {
+                return  $dataQuery->{$this->condTypes[$condType]}($this->findBetweenQuery($field, $val, $dataType));
+            }
+            return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), $this->findValue($operator, $val));
+        }
     }
 }

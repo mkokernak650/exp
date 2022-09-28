@@ -64,13 +64,33 @@ class ExceptionController extends Controller
 
     public function index()
     {
-        $allExceptions = self::$Exception::orderBy('id', 'asc')->get();
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $ExceptionDataQuery = Exception::query();
+            $groupName = $conditions->groupName;
+            foreach ($conditions->items as $cond) {
+                $ExceptionDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
+                    if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
+                        foreach ($cond->value as $key=>$value) {
+                            $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
+                        }
+                    } else {
+                        $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $cond->value, $cond->dataType, 0, '');
+                    }
+                });
+            }
+            return $ExceptionDataQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $allExceptions = self::$Exception::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $allExceptions;
+        }
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Ringba/Exception', [
             'Exceptions'               => $allExceptions,
             'columnsData'              => $columnsData
-
         ]);
     }
 
@@ -174,14 +194,23 @@ class ExceptionController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return void
      */
-    public function updateExceptionReport(Request $request)
+    public function updateByInboundIds(Request $request)
     {
-        $inboundIds = $request->inboundIds;
-        $apiResposnse = self::$RingbaApiHelpers->getUpdateData($inboundIds);
+        $inboundId = $request->inboundId;
+        $result = $this->updateExceptionReport($inboundId);
 
-        if (!empty($apiResposnse->getData())) {
-            $this->insertCallLogs($apiResposnse->report->records);
-            $getDataById = findDataByInboundId(self::$Exception, $inboundIds);
+        $updatedData = Exception::where('inbound_id', $inboundId)->get();
+        return response()->json($updatedData, $result->getStatusCode());
+    }
+
+    public function updateExceptionReport($inboundId)
+    {
+        $response = self::$RingbaApiHelpers->getUpdateData($inboundId);
+
+        if (!empty($response->getData())) {
+            $row = $response->getData();
+            $this->insertCallLogs($row[0]);
+            $getDataById = findDataByInboundId(self::$Exception, $inboundId);
 
             $getDataById->Call_Date_Time = date('d-M-y H:i:s', $this->get_dtStamp / 1000);
             $getDataById->Recording_Url = $this->get_recordingUrl;
@@ -212,11 +241,9 @@ class ExceptionController extends Controller
             $getDataById->Zipcode = $this->get_zipcode;
             $getDataById->save();
 
-            $allData = Exception::all();
-            return response()->json($allData, $apiResposnse->getStatusCode());
+            return $response;
         } else {
-            $allData = Exception::all();
-            return response()->json($allData, $apiResposnse->getStatusCode());
+            return $response;
         }
     }
 

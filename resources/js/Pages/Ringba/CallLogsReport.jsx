@@ -1,8 +1,9 @@
 import Layout from '../Layout/Layout'
 import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { DataType, SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
 import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
@@ -25,7 +26,6 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import { deleteHandler } from '@/Helpers/HandleRequests'
 import CustomFilter from '@/Components/CustomFilter'
-import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
@@ -35,6 +35,7 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
+import { Pagination } from 'react-laravel-paginex'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -71,25 +72,25 @@ const CallLogsReport = () => {
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
-  const [count, setCount] = useState(0)
+  const [ringbaData, setRingbaData] = useState(allCallLogs)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setcurrentPage] = useState(1)
 
   const style = {
-    top: position.y < 650 ? position.y - 79 : position.y - 275,
+    top: position.y < 650 ? position.y - 137 : position.y - 298,
     left: drawerWidth,
   }
-
-  const [filteredData, setFilteredData] = useState(filterData(allCallLogs, filterValue))
 
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
       setPosition({ x: e.screenX, y: e.screenY })
     }
   }
+
   const mapDataArr = (data) => {
     return data.map((item, index) => {
       return {
-        edit: item.id,
-        sl: index + 1,
+        edit: item.Inbound_Id,
         SN: item.SN,
         Call_Date: item.Call_Date,
         Call_Date_Time: item.Call_Date_Time,
@@ -125,7 +126,7 @@ const CallLogsReport = () => {
       }
     })
   }
-  const dataArray = mapDataArr(filteredData)
+  const dataArray = mapDataArr(allCallLogs.data)
 
   const columns = [
     {
@@ -137,13 +138,6 @@ const CallLogsReport = () => {
       key: 'selection-cell',
       style: { width: 80 },
       visible: true,
-    },
-    {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 100 },
-      visible: false,
     },
     {
       key: 'SN',
@@ -358,13 +352,6 @@ const CallLogsReport = () => {
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
         ? JSON.parse(columnsData[0])?.[optionKey]
         : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
@@ -379,7 +366,7 @@ const CallLogsReport = () => {
         )
       }
       if (column.key === 'Annotation_Tag') {
-        let arrayValue = value.split(',')
+        let arrayValue = value?.split(',')
         return (
           <TextField
             id="annotation_id"
@@ -432,6 +419,7 @@ const CallLogsReport = () => {
 
   const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps)
 
   const dispatch = (action) => {
     handleSelects({
@@ -464,17 +452,19 @@ const CallLogsReport = () => {
       .then((res) => {
         if (res.status === 200) {
           toast.success(res.data.msg)
-          const tmpTableProps={...tableProps}
-            tmpTableProps.data.filter((item) => {
-              if (item.id == tableIndex) {
-                item.Has_Annotation = res.data.has_annotation
-              }
-            })
+          const tmpTableProps = { ...tableProps }
+          tablePropsRef.current.filter((item) => {
+            if (item.id == tableIndex) {
+              item.Has_Annotation = res.data.has_annotation
+            }
+          })
+          tmpTableProps.data = tablePropsRef.current
           changeTableProps(tmpTableProps)
         }
       })
       .catch((err) => {})
   }
+
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -563,49 +553,37 @@ const CallLogsReport = () => {
   }
 
   const handleUpdate = (inboundIds) => {
-    const response = []
     let i = 0
     while (i < inboundIds.length) {
-      updatePostRequest(inboundIds, i, response)
+      updatePostRequest(inboundIds, i)
       i = i + 1
     }
   }
 
-  const updatePostRequest = (inboundIdsParam, id, response) => {
+  const updatePostRequest = (inboundIdsParam, id) => {
     setUpdateLoading(true)
     axios
-      .post(route('update.data'), { inboundIds: inboundIdsParam[id] })
+      .post(route('update.data'), { inboundId: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          let updateState
-          setCount((prevState) => {
-            updateState = prevState + 1
-            return prevState + 1
-          })
-          response.push(res.data)
-          if (updateState < inboundIdsParam.length) {
-            toast.success(`${updateState}  Record Updated`)
+          if (!res.data[0].edit) res.data[0].edit = ''
+          res.data[0].edit = res.data[0].id
+          const tmpTableProps = { ...tableProps }
+          const mappedData = mapDataArr(res.data)
+          for (let i = 0; i < tmpTableProps.data.length; i++) {
+            if (tmpTableProps.data[i].id === res.data[0].id) {
+              tmpTableProps.data[i] = mappedData[0]
+            }
           }
-          if (updateState == inboundIdsParam.length) {
-            let columnsData = produce(tableProps, (draft) => {
-              for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = ''
-                res.data[i].edit = res.data[i].id
-                if (!res.data[i].sl) res.data.sl = ''
-                res.data[i].sl = i + 1
-              }
-              draft.selectedRows = []
-              draft.data = mapDataArr(res.data)
-            })
-            setCount(0)
-            setSelectedRowIds([])
-            changeTableProps(columnsData)
-            toast.success(`${inboundIdsParam.length} Record Updated`)
-            setUpdateLoading(false)
-            setTableToolbar(false)
-            setInbounIds([])
-            setOpenRowFunctionalities(false)
-          }
+          tmpTableProps.selectedRows = []
+          changeTableProps(tmpTableProps)
+          toast.remove()
+          toast.success(`${inboundIdsParam.length} Record Updated`)
+          setSelectedRowIds([])
+          setUpdateLoading(false)
+          setTableToolbar(false)
+          setInbounIds([])
+          setOpenRowFunctionalities(false)
         } else if (res.status === 204) {
           toast.error("The record isn't exist in Ringba")
           setUpdateLoading(false)
@@ -627,61 +605,6 @@ const CallLogsReport = () => {
         setSelectedRowIds([])
       })
   }
-
-  // const handleAnnotation = (inboundIds) => {
-  //   const response = []
-  //   let i = 0
-  //   while (i < inboundIds.length) {
-  //     annotationPostRequest(inboundIds, i, response)
-  //     i = i + 1
-  //   }
-  // }
-  // const annotationPostRequest = (inboundIdsParam, id, response) => {
-  //   setAnnotationLoading(true)
-  //   axios
-  //     .post(route('update.annotation'), { inboundIds: inboundIdsParam[id] })
-  //     .then((res) => {
-  //       if (res.status === 200) {
-  //         let updateState
-  //         setCount((prevState) => {
-  //           updateState = prevState + 1
-  //           return prevState + 1
-  //         })
-  //         response.push(res.data)
-  //         if (updateState < inboundIdsParam.length) {
-  //           toast.success(`${updateState}  Record Updated`)
-  //         }
-  //         if (updateState == inboundIdsParam.length) {
-  //           let columnsData = produce(tableProps, (draft) => {
-  //             for (let i = 0; i < res.data.length; i++) {
-  //               if (!res.data[i].edit) res.data.edit = ''
-  //               res.data[i].edit = res.data[i].id
-  //               if (!res.data[i].sl) res.data.sl = ''
-  //               res.data[i].sl = i + 1
-  //             }
-  //             draft.data = res.data
-  //           })
-  //           setCount(0)
-  //           changeTableProps(columnsData)
-  //           toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-  //           setAnnotationLoading(false)
-  //           setTableToolbar(false)
-  //           setInbounIds([])
-  //           setSelectedRowIds([])
-  //           setOpenRowFunctionalities(false)
-  //         }
-  //       } else {
-  //         setAnnotationLoading(false)
-  //         toast.error(res.data.msg)
-  //         setInbounIds([])
-  //         setSelectedRowIds([])
-  //         setOpenRowFunctionalities(false)
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       setAnnotationLoading(false)
-  //     })
-  // }
 
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)
@@ -741,6 +664,35 @@ const CallLogsReport = () => {
     setSelectedRowIds([])
     setInbounIds([])
   }
+
+  const getSearchingData = async (data) => {
+    setcurrentPage(data)
+    dispatch(showLoading())
+    await axios
+      .get(
+        'call-logs-report?page=' +
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data.data)
+        changeTableProps(tmpTableProps)
+        tablePropsRef.current = mapDataArr(res.data.data)
+        setRingbaData(res.data)
+        dispatch(hideLoading())
+      })
+  }
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(currentPage)
+  }, [itemPerPage, filterValue])
 
   const TableToolbar = () => {
     return (
@@ -847,25 +799,20 @@ const CallLogsReport = () => {
           <span onClick={() => handleUpdate(editData)}>
             Update <PulseLoader color={color} loading={updateLoading} size={5} />
           </span>
-          {/* <span onClick={() => handleAnnotation(editData)}>
-            Get Annotation <PulseLoader color={color} loading={annotationLoading} size={5} />
-          </span> */}
           <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
         </div>
       </div>
     )
   }
 
-  const handleRowFunctionalities = (id) => {
+  const handleRowFunctionalities = (inbound_id) => {
     setOpenRowFunctionalities(true)
     setShowColumns(false)
-    if (editData.length > 0) {
-      const itemIndx = editData.indexOf(id)
+    if (editData.length) {
+      const itemIndx = editData.indexOf(inbound_id)
       editData.splice(itemIndx, 1)
     }
-    const tempData = tableProps.data.filter((item) => item.id == id)
-
-    editData.push(tempData[0].Inbound_Id)
+    editData.push(inbound_id)
   }
 
   return (
@@ -902,7 +849,8 @@ const CallLogsReport = () => {
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
-                    setFilteredData={setFilteredData}
+                    currentPage={currentPage}
+                    getSearchingData={getSearchingData}
                   />
                 </div>
               </div>
@@ -988,8 +936,22 @@ const CallLogsReport = () => {
             },
           }}
           dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          extendedFilter={() => tableProps.data}
         />
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            value={itemPerPage}
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={ringbaData} />
+        </div>
       </div>
 
       <ConfirmModal

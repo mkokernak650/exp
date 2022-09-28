@@ -22,11 +22,33 @@ class ArchivedCallLogController extends Controller
      */
     public function index()
     {
-        $results = ArchivedCallLog::orderBy('id', 'asc')->get();
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $ringbaDataQuery = ArchivedCallLog::query();
+            $groupName = $conditions->groupName;
+            foreach ($conditions->items as $cond) {
+                $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
+                    if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
+                        foreach ($cond->value as $key=>$value) {
+                            $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
+                        }
+                    } else {
+                        $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $cond->value, $cond->dataType, 0, '');
+                    }
+                });
+            }
+
+            return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $archivedCallLogs = ArchivedCallLog::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $archivedCallLogs;
+        }
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Ringba/ArchivedCallLogReports', [
-            'archivedCallLogs'         => $results,
+            'archivedCallLogs'         => $archivedCallLogs,
             'columnsData'              => $columnsData
 
         ]);

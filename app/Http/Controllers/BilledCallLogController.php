@@ -29,13 +29,35 @@ class BilledCallLogController extends Controller
      */
     public function index()
     {
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $ringbaDataQuery = BilledCallLog::query();
+            $groupName = $conditions->groupName;
+            foreach ($conditions->items as $cond) {
+                $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
+                    if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
+                        foreach ($cond->value as $key=>$value) {
+                            $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
+                        }
+                    } else {
+                        $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $cond->value, $cond->dataType, 0, '');
+                    }
+                });
+            }
+            return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $billedCallLogs = BilledCallLog::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $billedCallLogs;
+        }
         $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
         }])->get();
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Ringba/BilledCallLogs', [
-            'billedCallLogs'           => self::$billedCallLog::orderBy('id', 'asc')->get(),
+            'billedCallLogs'           => $billedCallLogs,
             'campaignsWithAnnotations' => $campaignsWithAnnotations,
             'columnsData'              => $columnsData
 

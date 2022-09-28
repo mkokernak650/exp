@@ -357,9 +357,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
-  const hideCoumnSettings = () => {
-    setShowColumns(false)
-  }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
@@ -421,6 +419,7 @@ const ZipcodeByTelevisionMarketNew = () => {
     )
   }
 
+
   const getSearchingData = async (data) => {
     setCurerentPage(data)
     dispatch(showLoading())
@@ -435,7 +434,6 @@ const ZipcodeByTelevisionMarketNew = () => {
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
-        console.log(res)
         tmpTableProps.data = res.data.data
         changeTableProps(tmpTableProps)
         setZipcodeTelMarket(res.data)

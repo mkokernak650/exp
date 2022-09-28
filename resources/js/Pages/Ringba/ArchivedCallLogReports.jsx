@@ -3,14 +3,8 @@ import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -18,7 +12,6 @@ import Cancel from '@/Components/Icons/Cancel.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import Checkbox from '@material-ui/core/Checkbox'
 import { Button, makeStyles } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -34,6 +27,7 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
+import { Pagination } from 'react-laravel-paginex'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -60,39 +54,44 @@ const ArchivedCallLogReports = () => {
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
+  const [archivedData, setArchivedDataData] = useState(archivedCallLogs)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setcurrentPage] = useState(1)
 
-  const [filteredData, setFilteredData] = useState(filterData(archivedCallLogs, filterValue))
-
-  const dataArray = filteredData.map((item, index) => ({
-    sl: index + 1,
-    SN: item.SN,
-    Campaign: item.Campaign,
-    Call_Date: item.Call_Date,
-    Call_Date_Time: item.Call_Date_Time,
-    Conn_Duration: item.Conn_Duration,
-    Call_Length_In_Seconds: item.call_Length_In_Seconds,
-    Customer: item.Customer,
-    Target: item.Target,
-    Target_Number: item.Target_Number,
-    Target_Description: item.Target_Description,
-    Affiliate: item.Affiliate,
-    Market: item.Market,
-    Revenue: item.Revenue,
-    Payout: item.payoutAmount,
-    Total_Cost: item.Total_Cost,
-    Profit: item.Profit,
-    Inbound_Id: item.Inbound_Id,
-    Inbound: item.Inbound,
-    Time: item.Call_Date_Time,
-    Dialed: item.Dialed,
-    Type: item.Type,
-    City: item.City,
-    State: item.State,
-    Zipcode: item.Zipcode,
-    id: item.id,
-    key: index,
-  }))
-
+  const mapDataArr = (data) => {
+    return data.map((item, index) => {
+      return {
+        sl: index + 1,
+        SN: item.SN,
+        Campaign: item.Campaign,
+        Call_Date: item.Call_Date,
+        Call_Date_Time: item.Call_Date_Time,
+        Conn_Duration: item.Conn_Duration,
+        Call_Length_In_Seconds: item.call_Length_In_Seconds,
+        Customer: item.Customer,
+        Target: item.Target,
+        Target_Number: item.Target_Number,
+        Target_Description: item.Target_Description,
+        Affiliate: item.Affiliate,
+        Market: item.Market,
+        Revenue: item.Revenue,
+        Payout: item.payoutAmount,
+        Total_Cost: item.Total_Cost,
+        Profit: item.Profit,
+        Inbound_Id: item.Inbound_Id,
+        Inbound: item.Inbound,
+        Time: item.Call_Date_Time,
+        Dialed: item.Dialed,
+        Type: item.Type,
+        City: item.City,
+        State: item.State,
+        Zipcode: item.Zipcode,
+        id: item.id,
+        key: index,
+      }
+    })
+  }
+  const dataArray = mapDataArr(archivedCallLogs.data)
   const columns = [
     {
       key: 'selection-cell',
@@ -116,7 +115,7 @@ const ArchivedCallLogReports = () => {
     {
       key: 'Call_Date_Time',
       title: 'Call Time (EST)',
-      dataType: DataType.String,
+      dataType: DataType.Date,
       style: { width: 230 },
       visible: true,
     },
@@ -272,13 +271,6 @@ const ArchivedCallLogReports = () => {
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
         ? JSON.parse(columnsData[0])?.[optionKey]
         : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
@@ -315,7 +307,7 @@ const ArchivedCallLogReports = () => {
       setTableToolbar,
       inboundIds,
       setInbounIds,
-    })  
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -417,6 +409,34 @@ const ArchivedCallLogReports = () => {
     setSelectedRowIds([])
   }
 
+  const getSearchingData = async (data) => {
+    setcurrentPage(data)
+    dispatch(showLoading())
+    await axios
+      .get(
+        'archived-call-log-report?page=' +
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data.data)
+        changeTableProps(tmpTableProps)
+        setArchivedDataData(res.data)
+        dispatch(hideLoading())
+      })
+  }
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(currentPage)
+  }, [itemPerPage, filterValue])
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
@@ -499,7 +519,8 @@ const ArchivedCallLogReports = () => {
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
-                    setFilteredData={setFilteredData}
+                    currentPage={currentPage}
+                    getSearchingData={getSearchingData}
                   />
                 </div>
               </div>
@@ -562,35 +583,48 @@ const ArchivedCallLogReports = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
-        <ConfirmModal
-          open={showCallLogModal.open}
-          setOpen={setShowCallLogModal}
-          btnAction={() => handleMoveCallLog(inboundIds)}
-          closeAction={() => handleCloseModal(setShowCallLogModal)}
-          width={'450px'}
-          title={`${
-            inboundIds.length > 1
-              ? 'Do you want to move these records to Call Log?'
-              : 'Do you want to move this record to Call Log?'
-          }`}
-          loading={archiveLoading}
-        ></ConfirmModal>
-
-        <ConfirmModal
-          open={showDeleteModal.open}
-          setOpen={setShowDeleteModal}
-          btnAction={deleteHandler}
-          closeAction={() => handleCloseModal(setShowDeleteModal)}
-          width={'400px'}
-          title={`${
-            inboundIds.length > 1
-              ? 'Do you want to delete these records?'
-              : 'Do you want to delete this record?'
-          }`}
-          loading={deleteLoading}
-        ></ConfirmModal>
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            value={itemPerPage}
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={archivedData} />
+        </div>
       </div>
+      <ConfirmModal
+        open={showCallLogModal.open}
+        setOpen={setShowCallLogModal}
+        btnAction={() => handleMoveCallLog(inboundIds)}
+        closeAction={() => handleCloseModal(setShowCallLogModal)}
+        width={'450px'}
+        title={`${
+          inboundIds.length > 1
+            ? 'Do you want to move these records to Call Log?'
+            : 'Do you want to move this record to Call Log?'
+        }`}
+        loading={archiveLoading}
+      ></ConfirmModal>
+
+      <ConfirmModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={'400px'}
+        title={`${
+          inboundIds.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
+        loading={deleteLoading}
+      ></ConfirmModal>
     </>
   )
 }

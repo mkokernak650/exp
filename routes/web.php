@@ -167,7 +167,7 @@ Route::post('move-exception-to-pending', [ExceptionController::class, 'moveToPen
 
 Route::post('/exception-get-annotation', [ExceptionController::class, 'getAnnotation'])->name('exception.get.annotation');
 Route::post('/exception-delete', [ExceptionController::class, 'delete'])->name('exception.delete');
-Route::post('/update-exception-report', [ExceptionController::class, 'updateExceptionReport'])->name('update.exception.report');
+Route::post('/update-exception-report', [ExceptionController::class, 'updateByInboundIds'])->name('update.exception.report');
 
 Route::get('/add-broadcast-month', [BroadCastMonthController::class, 'index'])->name('add.broadcast.month');
 Route::post('/broadcast-month-store', [BroadCastMonthController::class, 'store'])->name('broadcast.month.store');

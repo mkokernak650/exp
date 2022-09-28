@@ -24,12 +24,32 @@ class PendingBillCallLogController extends Controller
      */
     public function index()
     {
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $ringbaDataQuery = PendingBillCallLog::query();
+            $groupName = $conditions->groupName;
+            foreach ($conditions->items as $cond) {
+                $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
+                    if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
+                        foreach ($cond->value as $key=>$value) {
+                            $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
+                        }
+                    } else {
+                        $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $cond->value, $cond->dataType, 0, '');
+                    }
+                });
+            }
+            return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $pendingCallLogs = PendingBillCallLog::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $pendingCallLogs;
+        }
         $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
         }])->get();
         $columnsData = TableDetails::all()->pluck('column_details');
-
-        $pendingCallLogs = PendingBillCallLog::orderBy('id', 'asc')->get();
         return Inertia::render('Ringba/PendingCallLogs', [
             'pendingCallLogs'                  => $pendingCallLogs,
             'campaignsWithAnnotations'         => $campaignsWithAnnotations,

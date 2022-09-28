@@ -1,15 +1,9 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { DataType, SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
 import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
@@ -20,7 +14,6 @@ import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import produce from 'immer'
 import IconButton from '@material-ui/core/IconButton'
-import Checkbox from '@material-ui/core/Checkbox'
 import { Button, makeStyles, CircularProgress } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -37,6 +30,7 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
+import { Pagination } from 'react-laravel-paginex'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -54,7 +48,6 @@ const Exceptions = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [updateLoading, setUpdateLoading] = useState(false)
-  const [annotationLoading, setAnnotationLoading] = useState(false)
   const [revenueLoading, setRevenueLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [pendingLoading, setPendingLoading] = useState(false)
@@ -80,10 +73,12 @@ const Exceptions = () => {
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
-  const [count, setCount] = useState(0)
+  const [exceptionData, setExceptionData] = useState(Exceptions)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setcurrentPage] = useState(1)
 
   const style = {
-    top: position.y < 650 ? position.y - 79 : position.y - 275,
+    top: position.y < 650 ? position.y - 137 : position.y - 298,
     left: drawerWidth,
   }
 
@@ -92,7 +87,6 @@ const Exceptions = () => {
       setPosition({ x: e.screenX, y: e.screenY })
     }
   }
-  const [filteredData, setFilteredData] = useState(filterData(Exceptions, filterValue))
 
   const mapDataArr = (data) => {
     return data.map((item, index) => {
@@ -136,7 +130,7 @@ const Exceptions = () => {
     })
   }
 
-  const dataArray = mapDataArr(filteredData)
+  const dataArray = mapDataArr(Exceptions.data)
 
   const columns = [
     {
@@ -166,7 +160,7 @@ const Exceptions = () => {
     {
       key: 'Call_Date_Time',
       title: 'Call Time (EST)',
-      dataType: DataType.String,
+      dataType: DataType.Date,
       style: { width: 230 },
       visible: true,
     },
@@ -370,13 +364,6 @@ const Exceptions = () => {
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
         ? JSON.parse(columnsData[0])?.[optionKey]
         : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
@@ -418,6 +405,7 @@ const Exceptions = () => {
   const fields = SearchedFields(tablePropsInit.columns)
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps)
 
   const dispatch = (action) => {
     handleSelects({
@@ -467,7 +455,6 @@ const Exceptions = () => {
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox('exception-report', tableProps, changeTableProps)
         } else {
           setDeleteLoading(false)
           setSelectedRowIds([])
@@ -475,7 +462,6 @@ const Exceptions = () => {
           setTableToolbar(false)
           toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox('exception-report', tableProps, changeTableProps)
         }
       })
       .catch((err) => {
@@ -484,7 +470,6 @@ const Exceptions = () => {
         setInbounIds([])
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
-        emptyCheckbox('exception-report', tableProps, changeTableProps)
       })
   }
 
@@ -562,64 +547,49 @@ const Exceptions = () => {
   }
 
   const handleUpdate = (inboundIds) => {
-    const response = []
     let i = 0
     while (i < inboundIds.length) {
-      updatePostRequest(inboundIds, i, response)
+      updatePostRequest(inboundIds, i)
       i = i + 1
     }
   }
 
-  const updatePostRequest = (inboundIdsParam, id, response) => {
+  const updatePostRequest = (inboundIdsParam, id) => {
     setUpdateLoading(true)
     axios
-      .post(route('update.exception.report'), { inboundIds: inboundIdsParam[id] })
+      .post(route('update.exception.report'), { inboundId: inboundIdsParam[id] })
       .then((res) => {
         if (res.status === 200) {
-          let updateState
-          setCount((prevState) => {
-            updateState = prevState + 1
-            return prevState + 1
-          })
-          response.push(res.data)
-          if (updateState < inboundIdsParam.length) {
-            toast.success(`${updateState}  Record Updated`)
+          if (!res.data[0].edit) res.data[0].edit = ''
+          res.data[0].edit = res.data[0].id
+          const tmpTableProps = { ...tableProps }
+          const mappedData = mapDataArr(res.data)
+          for (let i = 0; i < tmpTableProps.data.length; i++) {
+            if (tmpTableProps.data[i].id === res.data[0].id) {
+              tmpTableProps.data[i] = mappedData[0]
+            }
           }
-          if (updateState == inboundIdsParam.length) {
-            let columnsData = produce(tableProps, (draft) => {
-              for (let i = 0; i < res.data.length; i++) {
-                if (!res.data[i].edit) res.data.edit = ''
-                res.data[i].edit = res.data[i].id
-                if (!res.data[i].sl) res.data.sl = ''
-                res.data[i].sl = i + 1
-              }
-              draft.selectedRows = []
-              draft.data = res.data
-            })
-            setCount(0)
-            changeTableProps(columnsData)
-            toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-            setUpdateLoading(false)
-            setTableToolbar(false)
-            setInbounIds([])
-            setSelectedRowIds([])
-            setOpenRowFunctionalities(false)
-            emptyCheckbox('exception-report', columnsData, changeTableProps)
-          }
+          tmpTableProps.selectedRows = []
+          changeTableProps(tmpTableProps)
+          toast.remove()
+          toast.success(`${inboundIdsParam.length} Record Updated`)
+          setSelectedRowIds([])
+          setUpdateLoading(false)
+          setTableToolbar(false)
+          setInbounIds([])
+          setOpenRowFunctionalities(false)
         } else if (res.status === 204) {
           toast.error("The record isn't exist in Ringba")
           setUpdateLoading(false)
           setInbounIds([])
           setSelectedRowIds([])
           setOpenRowFunctionalities(false)
-          emptyCheckbox('exception-report', tableProps, changeTableProps)
         } else {
           toast.error('Updating failed')
           setUpdateLoading(false)
           setInbounIds([])
           setSelectedRowIds([])
           setOpenRowFunctionalities(false)
-          emptyCheckbox('exception-report', tableProps, changeTableProps)
         }
       })
       .catch((err) => {
@@ -627,70 +597,8 @@ const Exceptions = () => {
         setUpdateLoading(false)
         setInbounIds([])
         setSelectedRowIds([])
-        setOpenRowFunctionalities(false)
-        emptyCheckbox('exception-report', tableProps, changeTableProps)
       })
   }
-
-  // const handleAnnotation = (inboundIds) => {
-  //   const response = []
-  //   let i = 0
-  //   while (i < inboundIds.length) {
-  //     annotationPostRequest(inboundIds, i, response)
-  //     i = i + 1
-  //   }
-  // }
-
-  // const annotationPostRequest = (inboundIdsParam, id, response) => {
-  //   setAnnotationLoading(true)
-  //   axios
-  //     .post(route('exception.get.annotation'), { inboundIds: inboundIdsParam[id] })
-  //     .then((res) => {
-  //       if (res.status === 200) {
-  //         let updateState
-  //         setCount((prevState) => {
-  //           updateState = prevState + 1
-  //           return prevState + 1
-  //         })
-  //         response.push(res.data)
-  //         if (updateState < inboundIdsParam.length) {
-  //           toast.success(`${updateState}  Record Updated`)
-  //         }
-  //         if (updateState == inboundIdsParam.length) {
-  //           let columnsData = produce(tableProps, (draft) => {
-  //             for (let i = 0; i < res.data.length; i++) {
-  //               if (!res.data[i].edit) res.data.edit = ''
-  //               res.data[i].edit = res.data[i].id
-  //               if (!res.data[i].sl) res.data.sl = ''
-  //               res.data[i].sl = i + 1
-  //             }
-  //             draft.selectedRows = []
-  //             draft.data = res.data
-  //           })
-  //           setCount(0)
-
-  //           changeTableProps(columnsData)
-  //           toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-  //           setAnnotationLoading(false)
-  //           setTableToolbar(false)
-  //           setInbounIds([])
-  //           setSelectedRowIds([])
-  //           setOpenRowFunctionalities(false)
-  //         }
-  //       } else {
-  //         setAnnotationLoading(false)
-  //         toast.error(res.data.msg)
-  //         setInbounIds([])
-  //         setSelectedRowIds([])
-  //         setOpenRowFunctionalities(false)
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       setAnnotationLoading(false)
-  //       setInbounIds([])
-  //       setSelectedRowIds([])
-  //     })
-  // }
 
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)
@@ -818,6 +726,35 @@ const Exceptions = () => {
     )
   }
 
+  const getSearchingData = async (data) => {
+    setcurrentPage(data)
+    dispatch(showLoading())
+    await axios
+      .get(
+        'exceptions?page=' +
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data.data)
+        changeTableProps(tmpTableProps)
+        tablePropsRef.current = mapDataArr(res.data.data)
+        setExceptionData(res.data)
+        dispatch(hideLoading())
+      })
+  }
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(currentPage)
+  }, [itemPerPage, filterValue])
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -911,9 +848,8 @@ const Exceptions = () => {
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
-                    filteredData={filteredData}
-                    setFilteredData={setFilteredData}
-                    filterData={filterData}
+                    currentPage={currentPage}
+                    getSearchingData={getSearchingData}
                   />
                 </div>
               </div>
@@ -1002,6 +938,20 @@ const Exceptions = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            value={itemPerPage}
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={exceptionData} />
+        </div>
       </div>
 
       <ConfirmModal

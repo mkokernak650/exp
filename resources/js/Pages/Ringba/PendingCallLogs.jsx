@@ -1,16 +1,10 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { DataType, SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -18,24 +12,22 @@ import Cancel from '@/Components/Icons/Cancel.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import Checkbox from '@material-ui/core/Checkbox'
 import { Button, makeStyles, TextField } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
-import SnackBar from '@/Shared/SnackBar'
 import CustomFilter from '@/Components/CustomFilter'
 import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
-import produce from 'immer'
 import toast from 'react-hot-toast'
 import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
+import { Pagination } from 'react-laravel-paginex'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -65,8 +57,9 @@ const PendingCallLogsReport = () => {
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
-
-  const [filteredData, setFilteredData] = useState(filterData(pendingCallLogs, filterValue))
+  const [pendingData, setPendingData] = useState(pendingCallLogs)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setcurrentPage] = useState(1)
 
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
@@ -79,48 +72,54 @@ const PendingCallLogsReport = () => {
         if (res.status === 200) {
           toast.success(res.data.msg)
           const tmpTableProps = { ...tableProps }
-          tmpTableProps.data.filter((item) => {
+          tablePropsRef.current.filter((item) => {
             if (item.id == tableIndex) {
               item.Has_Annotation = res.data.has_annotation
             }
           })
+          tmpTableProps.data = tablePropsRef.current
           changeTableProps(tmpTableProps)
         }
       })
       .catch((err) => {})
   }
 
-  const dataArray = filteredData.map((item, index) => ({
-    sl: index + 1,
-    SN: item.SN,
-    Call_Date: item.Call_Date,
-    Call_Date_Time: item.Call_Date_Time,
-    Duplicate_Call: item.Duplicate_Call,
-    Call_Status: item.call_Logs_status,
-    Inbound_Id: item.Inbound_Id,
-    Affiliate: item.Affiliate,
-    Market: item.Market,
-    Campaign: item.Campaign,
-    Inbound: item.Inbound,
-    Dialed: item.Dialed,
-    Type: item.Type,
-    Target: item.Target,
-    Target_Number: item.Target_Number,
-    Customer: item.Customer,
-    Source_Hangup: item.Source_Hangup,
-    Conn_Duration: item.Conn_Duration,
-    Time_To_Call: item.Time_To_Call,
-    Call_Length_In_Seconds: item.call_Length_In_Seconds,
-    Revenue: item.Revenue,
-    Payout: item.payoutAmount,
-    Total_Cost: item.Total_Cost,
-    Profit: item.Profit,
-    City: item.City,
-    Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
-    Has_Annotation: item.Has_Annotation,
-    id: item.id,
-    key: index,
-  }))
+  const mapDataArr = (data) => {
+    return data.map((item, index) => {
+      return {
+        sl: index + 1,
+        SN: item.SN,
+        Call_Date: item.Call_Date,
+        Call_Date_Time: item.Call_Date_Time,
+        Duplicate_Call: item.Duplicate_Call,
+        Call_Status: item.call_Logs_status,
+        Inbound_Id: item.Inbound_Id,
+        Affiliate: item.Affiliate,
+        Market: item.Market,
+        Campaign: item.Campaign,
+        Inbound: item.Inbound,
+        Dialed: item.Dialed,
+        Type: item.Type,
+        Target: item.Target,
+        Target_Number: item.Target_Number,
+        Customer: item.Customer,
+        Source_Hangup: item.Source_Hangup,
+        Conn_Duration: item.Conn_Duration,
+        Time_To_Call: item.Time_To_Call,
+        Call_Length_In_Seconds: item.call_Length_In_Seconds,
+        Revenue: item.Revenue,
+        Payout: item.payoutAmount,
+        Total_Cost: item.Total_Cost,
+        Profit: item.Profit,
+        City: item.City,
+        Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
+        Has_Annotation: item.Has_Annotation,
+        id: item.id,
+        key: index,
+      }
+    })
+  }
+  const dataArray = mapDataArr(pendingCallLogs.data)
 
   const columns = [
     {
@@ -145,7 +144,7 @@ const PendingCallLogsReport = () => {
     {
       key: 'Call_Date_Time',
       title: 'Call Time (EST)',
-      dataType: DataType.String,
+      dataType: DataType.Date,
       style: { width: 230 },
       visible: true,
     },
@@ -324,13 +323,6 @@ const PendingCallLogsReport = () => {
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
         ? JSON.parse(columnsData[0])?.[optionKey]
         : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
@@ -381,6 +373,7 @@ const PendingCallLogsReport = () => {
   }
   const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps)
 
   const dispatch = (action) => {
     handleSelects({
@@ -522,6 +515,34 @@ const PendingCallLogsReport = () => {
     setTableToolbar(false)
     setSelectedRowIds([])
   }
+  const getSearchingData = async (data) => {
+    setcurrentPage(data)
+    dispatch(showLoading())
+    await axios
+      .get(
+        'pending-call-log-report?page=' +
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data.data)
+        changeTableProps(tmpTableProps)
+        tablePropsRef.current = mapDataArr(res.data.data)
+        setPendingData(res.data)
+        dispatch(hideLoading())
+      })
+  }
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(currentPage)
+  }, [itemPerPage, filterValue])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -601,9 +622,8 @@ const PendingCallLogsReport = () => {
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
-                    filteredData={filteredData}
-                    setFilteredData={setFilteredData}
-                    filterData={filterData}
+                    currentPage={currentPage}
+                    getSearchingData={getSearchingData}
                   />
                 </div>
               </div>
@@ -667,6 +687,20 @@ const PendingCallLogsReport = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            value={itemPerPage}
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={pendingData} />
+        </div>
       </div>
 
       <ConfirmModal

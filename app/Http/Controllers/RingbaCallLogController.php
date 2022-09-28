@@ -265,11 +265,6 @@ class RingbaCallLogController extends Controller
                 $this->get_duplicated_status = 'No';
             }
         }
-        // if (isset($item->hasAnnotations)) {
-        //     $this->has_annotations = 'Yes';
-        // } else {
-        //     $this->has_annotations = 'No';
-        // }
     }
 
     /**
@@ -311,10 +306,11 @@ class RingbaCallLogController extends Controller
      */
     public function updateByInboundIds(Request $request)
     {
-        $inboundIds = $request->inboundIds;
-        $result = $this->updateData($inboundIds);
-        $allData = RingbaCallLog::all();
-        return response()->json($allData, $result->getStatusCode());
+        $inboundId = $request->inboundId;
+        $result = $this->updateData($inboundId);
+
+        $updatedData = RingbaCallLog::where('inbound_id', $inboundId)->get();
+        return response()->json($updatedData, $result->getStatusCode());
     }
 
     /**
@@ -325,12 +321,12 @@ class RingbaCallLogController extends Controller
     private function updateData($inboundId)
     {
         $response = self::$RingbaApiHelpers->getUpdateData($inboundId);
+
         if (!empty($response->getData())) {
             $row = $response->getData();
-            $this->columns($row->columns);
-            $this->events($row->events);
-            $this->tags($row->tags);
-            $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $this->get_inboundCallId);
+            $this->insertCallLogs($row[0]);
+
+            $ringbaCallLogs = findDataByInboundId(self::$RingbaCallLog, $inboundId);
             $ringbaCallLogs->call_Logs_status = $this->get_call_log_status;
             $this->ringbaDataObject($ringbaCallLogs);
             return $response;
@@ -377,7 +373,6 @@ class RingbaCallLogController extends Controller
         $instance->Recording_Url = $this->get_recordingUrl;
         $instance->Customer = $this->get_customer_name_id;
         $instance->Has_Annotation = $this->has_annotations;
-        // $instance->Annotation_Tag = $this->get_annotations_tag;
         $instance->save();
     }
 
@@ -417,7 +412,6 @@ class RingbaCallLogController extends Controller
      */
     private function insertExceptions($insertId)
     {
-        // $insertedData = RingbaCallLog::find($insertId);
         $insertedData = self::$RingbaCallLog::find($insertId);
         $instance = new Exception();
         $instance->call_Logs_status = 'Exceptions';
@@ -442,7 +436,6 @@ class RingbaCallLogController extends Controller
     {
         $get_affiliate = RingbaCallLog::distinct()->get(['Affiliate', 'Affiliate_Id']);
         $results = Affiliate::all();
-        // $affiliate_api = self::$RingbaApiHelpers->getAffiliate();
 
         $aff_key = [];
         $aff_val = [];
@@ -459,15 +452,6 @@ class RingbaCallLogController extends Controller
                 $affiliateModel->save();
             }
         }
-        // affiliate data insert from Ringba Api
-        // foreach ($affiliate_api as $api_aff_item) {
-        //     if (!in_array($api_aff_item->name, $aff_val) || !in_array($api_aff_item->id, $aff_key)) {
-        //         $affiliateModel = new Affiliate();
-        //         $affiliateModel->affiliate_id = $api_aff_item->id;
-        //         $affiliateModel->affiliate_name = $api_aff_item->name;
-        //         $affiliateModel->save();
-        //     }
-        // }
     }
 
     // for get Customer
@@ -538,13 +522,36 @@ class RingbaCallLogController extends Controller
 
     public function callLogsReport()
     {
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $ringbaDataQuery = self::$RingbaCallLog::query();
+            $groupName = $conditions->groupName;
+            foreach ($conditions->items as $cond) {
+                $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
+                    if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
+                        foreach ($cond->value as $key=>$value) {
+                            $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
+                        }
+                    } else {
+                        $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $cond->value, $cond->dataType, 0, '');
+                    }
+                });
+            }
+            return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $allCallLogs = self::$RingbaCallLog::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $allCallLogs;
+        }
+
         $campaignsWithAnnotations = Campaign::with(['annotations' => function ($query) {
             $query->orderBy('annotations.order');
         }])->get();
-        $columnsData = TableDetails::all()->pluck('column_details');
 
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Ringba/CallLogsReport', [
-            'allCallLogs'              => self::$RingbaCallLog::orderBy('id', 'asc')->get(),
+            'allCallLogs'              => $allCallLogs,
             'campaignsWithAnnotations' => $campaignsWithAnnotations,
             'columnsData'              => $columnsData
 
@@ -631,4 +638,10 @@ class RingbaCallLogController extends Controller
     {
         RingbaCallLog::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue' => '', 'payoutAmount' => '']);
     }
+
+        /**
+     * @method for convert and assign value from String to Array
+     * @param mixed $row
+     * @return void
+     */
 }

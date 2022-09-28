@@ -20,7 +20,7 @@ class AffiliateController extends Controller
 
     public function all()
     {
-        $results = Affiliate::all();
+        Affiliate::all();
     }
 
     public function getAffiliate(Request $request)

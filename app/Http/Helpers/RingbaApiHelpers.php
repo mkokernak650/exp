@@ -108,7 +108,7 @@ class RingbaApiHelpers
         if (empty($response)) {
             return response()->json([], 204);
         } else {
-            return response()->json([], 200);
+            return response()->json($response, 200);
         }
     }
 
