@@ -126,7 +126,9 @@ class ReportGeneratorController extends Controller
         $condition = [];
         $whereIn = [];
         $whereInOr = [];
-        $call_summary['Customer Name'] = $customer_name;
+        if (isset($request->customer_name)) {
+            $call_summary['Customer Name'] = $customer_name;
+        }
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
@@ -136,8 +138,8 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date <= '$end_date'";
         }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            $allYears=implode(",", $year);
-            $whereIn[]="year(Call_Date) IN ($allYears)";
+            $allYears = implode(',', $year);
+            $whereIn[] = "year(Call_Date) IN ($allYears)";
         }
 
         if ($campaign !== null) {
@@ -262,14 +264,14 @@ class ReportGeneratorController extends Controller
                 if ($record->call_Length_In_Seconds >= $item['minLength'] && $record->call_Length_In_Seconds <= $item['maxLength']) {
                     $finalArray[$item['minLength'] . '_' . $item['maxLength']]->$total_calls++;
                     $finalArray[$item['minLength'] . '_' . $item['maxLength']]->$total_seconds += $record->call_Length_In_Seconds;
-                    $finalArray[$item['minLength'] . '_' . $item['maxLength']]->$total_payouts += $record->payoutAmount;
-                    $summary_total_payouts += $record->payoutAmount;
+                    $finalArray[$item['minLength'] . '_' . $item['maxLength']]->$total_payouts += (int) $record->payoutAmount;
+                    $summary_total_payouts += (int) $record->payoutAmount;
                     $sum_of_total_calls += 1;
                 }
             }
         }
         if (empty($sum_of_total_calls)) {
-            return response()->json(['status' => 500, 'msg' => 'No data found for the selected criteria']);
+            return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
         foreach ($call_length_array as $item) {
             $finalArray[$item['minLength'] . '_' . $item['maxLength']]->$percent_of_calls = round(($finalArray[$item['minLength'] . '_' . $item['maxLength']]->$total_calls * 100) /
@@ -287,13 +289,21 @@ class ReportGeneratorController extends Controller
                 }
             }
         }
-
-        $call_summary['Campaign Name'] = $request->campaign_name;
-        $call_summary['Date Range'] = $request->campaign_name;
+        if (isset($request->campaign)) {
+            $campaignNameById = Campaign::find($request->campaign)->value('campaign_name');
+            $call_summary['Campaign Name'] = $campaignNameById;
+        }
+        if (isset($request->start_date)) {
+            $call_summary['Date Range'] = $request->start_date . ' - ' . $request->end_date;
+        }
         $call_summary['Total Calls'] = count($total_call_records);
         $call_summary['Total Payout'] = $summary_total_payouts;
-        $call_summary['Destination Number'] = $request->destination_number;
-        $call_summary['Affiliates'] = implode(',', $call_summary_affiliates);
+        if (isset($request->destination_number)) {
+            $call_summary['Destination Number'] = $request->destination_number;
+        }
+        if (isset($request->$request->affiliate_id)) {
+            $call_summary['Affiliates'] = implode(',', $call_summary_affiliates);
+        }
         $columns = ['Range - Call Length in Seconds', 'Min Length', 'Max Length', 'Total Calls', '% of all calls', 'Total seconds', 'Total Payout'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary = [];
@@ -383,8 +393,8 @@ class ReportGeneratorController extends Controller
         }
 
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            $allYears=implode(",", $year);
-            $whereIn[]="year(Call_Date) IN ($allYears)";
+            $allYears = implode(',', $year);
+            $whereIn[] = "year(Call_Date) IN ($allYears)";
         }
 
         if ($campaign !== null) {
@@ -578,8 +588,8 @@ class ReportGeneratorController extends Controller
         }
 
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            $allYears=implode(",", $year);
-            $whereIn[]="year(Call_Date) IN ($allYears)";
+            $allYears = implode(',', $year);
+            $whereIn[] = "year(Call_Date) IN ($allYears)";
         }
 
         if ($campaign) {
@@ -761,7 +771,7 @@ class ReportGeneratorController extends Controller
         $call_summary['Total payout amount'] = (float)number_format($total_revenue, 2, '.', '');
         $call_summary['Average payout per call'] = (float)number_format($avg_revenue_amount, 2, '.', '');
         if (empty($newData)) {
-            return response()->json(['status' => 500, 'msg' => 'No data found for the selected criteria']);
+            return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
         $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Payout', 'Call Status', 'Call Type'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
@@ -853,8 +863,8 @@ class ReportGeneratorController extends Controller
         //     $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
         // }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            $allYears=implode(",", $year);
-            $whereIn[]="year(Call_Date) IN ($allYears)";
+            $allYears = implode(',', $year);
+            $whereIn[] = "year(Call_Date) IN ($allYears)";
         }
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
@@ -1124,8 +1134,8 @@ class ReportGeneratorController extends Controller
             $call_summary['Date Range'] = $date_range;
         }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            $allYears=implode(",", $year);
-            $whereIn[]="year(Call_Date) IN ($allYears)";
+            $allYears = implode(',', $year);
+            $whereIn[] = "year(Call_Date) IN ($allYears)";
         }
 
         if (!empty($broad_cast_month) && count($broad_cast_month) > 0 && $broad_cast_month[0] !== null) {
@@ -1203,7 +1213,7 @@ class ReportGeneratorController extends Controller
         $call_summary['Avg Revenue Per Call'] = (float)number_format($avg_revenue_amount, 2, '.', '');
 
         if (empty($newData)) {
-            return response()->json(['status' => 500, 'msg' => 'No data found for the selected criteria']);
+            return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
         $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {

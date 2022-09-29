@@ -263,7 +263,7 @@ const GenerateReportTarget = () => {
         }
         if (res.status == 200) {
           if (reportType.report_type === 'export-report') {
-            // ExportReportWithTag(res.data, fileName)
+            ExportReportWithTag(res.data, fileName)
           } else {
             toast.success('Email send successfully')
           }

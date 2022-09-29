@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition} from 'ka-table/enums'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import {
@@ -460,7 +460,6 @@ const MarketExceptionReport = () => {
     },
   }
 
-
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
@@ -547,8 +546,6 @@ const MarketExceptionReport = () => {
     }
   }, [showColumns])
 
-
-
   const handleExportTypeChange = (e) => {
     setType(e.target.value)
   }
@@ -569,6 +566,9 @@ const MarketExceptionReport = () => {
       .get(`${baseUrl}/market-exception-export/${type}/${campaignId}`)
       .then((res) => {
         setLoading(false)
+        if (res.status === 204) {
+          toast.error('No data found for the selected criteria')
+        }
         if (res.status === 200) {
           setExportModal({ open: false })
           triggerExportLink(res.request.responseURL)
@@ -583,7 +583,6 @@ const MarketExceptionReport = () => {
       })
   }
 
-
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
@@ -597,8 +596,6 @@ const MarketExceptionReport = () => {
     )
   }
 
- 
-
   return (
     <>
       <Helmet title="Market Exception Report" />
@@ -609,7 +606,7 @@ const MarketExceptionReport = () => {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
-               <Eye />
+                <Eye />
               </div>
               <Button
                 variant="contained"
