@@ -304,7 +304,7 @@ class ReportGeneratorController extends Controller
         if (isset($request->destination_number)) {
             $call_summary['Destination Number'] = $request->destination_number;
         }
-        if (isset($request->$request->affiliate_id)) {
+        if (isset($request->affiliate_id)) {
             $call_summary['Affiliates'] = implode(',', $call_summary_affiliates);
         }
         $columns = ['Range - Call Length in Seconds', 'Min Length', 'Max Length', 'Total Calls', '% of all calls', 'Total seconds', 'Total Payout'];
@@ -428,7 +428,6 @@ class ReportGeneratorController extends Controller
         }
         if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
             $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, $whereInHouseholds, 'state');
-            dd($billed);
         } elseif (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
             $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, $whereInHouseholds, 'market');
         }
@@ -511,6 +510,7 @@ class ReportGeneratorController extends Controller
 
         $con = rtrim($con, ' AND ');
         $con = rtrim($con, ' OR ');
+
         $householdsCon = rtrim($householdsCon, ' AND ');
         if ($type === 'state') {
             $query1 = "SELECT State, COUNT(State) AS Billed,SUM(Revenue) AS Revenue FROM billed_call_logs LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id Where {$con}
@@ -811,7 +811,6 @@ class ReportGeneratorController extends Controller
 
     public function targetReport(Request $request)
     {
-        // dd($request);
         $campaign = Campaign::find($request->input('campaign'));
 
         $newData = [];
