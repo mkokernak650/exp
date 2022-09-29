@@ -1,5 +1,5 @@
-import { React, useState } from "react"
-import Layout from "../Layout/Layout"
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
 import {
   CircularProgress,
   Paper,
@@ -10,26 +10,26 @@ import {
   FormGroup,
   Checkbox,
   Radio,
-  RadioGroup
-} from "@material-ui/core"
-import { makeStyles } from "@material-ui/core/styles"
-import Grid from "@material-ui/core/Grid"
-import { usePage } from "@inertiajs/inertia-react"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import { currentDate } from "@/Helpers/CurrentDate"
-import { ExportReportWithoutTag } from "@/Helpers/ExportReport"
-import MultiSelect from "react-multiple-select-dropdown-lite"
-import "react-multiple-select-dropdown-lite/dist/index.css"
-import toast from "react-hot-toast"
+  RadioGroup,
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import { currentDate } from '@/Helpers/CurrentDate'
+import { ExportReportWithoutTag } from '@/Helpers/ExportReport'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
+    display: 'grid',
+    width: '500px',
+    margin: 'auto',
+    marginTop: '2rem',
+    padding: '40px',
     flexGrow: 1,
   },
   paper: {
@@ -37,29 +37,36 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   title: {
-    textAlign: "center",
-    marginBottom: "35px",
-  }
+    textAlign: 'center',
+    marginBottom: '35px',
+  },
 }))
-
 
 const GenerateReportMarketTarget = () => {
   const classes = useStyles()
   const [loading, setLoading] = useState(false)
-  const { affiliates, broadCastMonths, broadCastWeeks, markets, states, targets, campaigns, customers } =
-    usePage().props
+  const {
+    affiliates,
+    broadCastMonths,
+    broadCastWeeks,
+    markets,
+    states,
+    targets,
+    campaigns,
+    customers,
+  } = usePage().props
   const [customer, setCustomer] = useState()
-  const [target, setTarget] = useState("")
+  const [target, setTarget] = useState('')
   const [targetByCustomer, setTargetByCustomer] = useState([])
   const [monthByYear, setMonthByYear] = useState(broadCastMonths)
   const [affiliate, setAffiliate] = useState()
-  const [month, setMonth] = useState("")
+  const [month, setMonth] = useState('')
   const [year, setYear] = useState([])
-  const [week, setWeek] = useState("")
-  const [startDate, setStartDate] = useState({ start_date: "" })
-  const [endDate, setEndDate] = useState({ end_date: "" })
-  const [campaign, setCampaign] = useState("")
-  const [annotation, setAnnotation] = useState("")
+  const [week, setWeek] = useState('')
+  const [startDate, setStartDate] = useState({ start_date: '' })
+  const [endDate, setEndDate] = useState({ end_date: '' })
+  const [campaign, setCampaign] = useState('')
+  const [annotation, setAnnotation] = useState('')
   const [market, setMarket] = useState()
   const [state, setState] = useState()
   const [selectAllmarkets, setSelectAllmarkets] = useState(false)
@@ -68,8 +75,6 @@ const GenerateReportMarketTarget = () => {
   const [disableMarketCheckbox, setDisableMarketCheckbox] = useState(false)
   const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
-
-
 
   const reportTypeHandleChange = (e) => {
     const { name, value } = e.target
@@ -81,14 +86,14 @@ const GenerateReportMarketTarget = () => {
     setCustomer({ [name]: value })
     targets.filter((item) => {
       if (item.Customer === value) {
-        const targetNames = item.Ringba_Targets_Name.split(",")
+        const targetNames = item.Ringba_Targets_Name.split(',')
         setTargetByCustomer(targetNames)
       }
     })
-    if (value === "") {
+    if (value === '') {
       setCustomerEmails([])
     }
-    const customerData = customers.find(customer => customer.customer_name === value)
+    const customerData = customers.find((customer) => customer.customer_name === value)
     if (customerData !== undefined && customerData.email) {
       const array = [customerData.email]
       setCustomerEmails(array)
@@ -97,7 +102,7 @@ const GenerateReportMarketTarget = () => {
 
   const marketHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1)
-    const marketsName = val.split(",,")
+    const marketsName = val.split(',,')
     if (val) {
       setMarket({ [key]: marketsName })
       setDisableMarketCheckbox(true)
@@ -108,17 +113,14 @@ const GenerateReportMarketTarget = () => {
   }
   const stateHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1)
-    const statesName = val.split(",,")
+    const statesName = val.split(',,')
     if (val) {
       setState({ [key]: statesName })
       setDisableStateCheckbox(true)
-    }
-    else {
+    } else {
       setState('')
       setDisableStateCheckbox(false)
-
     }
-
   }
 
   const targetOptions = targetByCustomer.map((item) => ({
@@ -140,18 +142,15 @@ const GenerateReportMarketTarget = () => {
     value: item.affiliate_id,
   }))
 
-
-
   const targetHandleChange = (val, key) => {
-    const targetNames = val.split(",")
+    const targetNames = val.split(',')
     setTarget({ [key]: targetNames })
   }
 
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(",")
+    const affiliate_ids = val.split(',')
     setAffiliate({ [key]: affiliate_ids })
   }
-
 
   const monthHandleChange = (e) => {
     const { name, value } = e.target
@@ -177,10 +176,10 @@ const GenerateReportMarketTarget = () => {
   }
 
   const yearHandleChange = (val, key) => {
-    const years = val.split(",")
+    const years = val.split(',')
     setYear({ [key]: years })
     for (let i = 0; i < years.length; i++) {
-      const filteredData = broadCastMonths.filter(item => {
+      const filteredData = broadCastMonths.filter((item) => {
         if (new Date(item.start_date).getFullYear().toString() === years[i]) {
           return item
         }
@@ -189,12 +188,9 @@ const GenerateReportMarketTarget = () => {
     }
   }
 
-
-
-
-  const yearOptions = yearsArray.map(year => ({
+  const yearOptions = yearsArray.map((year) => ({
     label: year,
-    value: year
+    value: year,
   }))
 
   const weekHandleChange = (e) => {
@@ -206,9 +202,9 @@ const GenerateReportMarketTarget = () => {
         setEndDate({ ...endDate, end_date: item.end_date })
       }
     })
-    if (value === "") {
-      setStartDate({ ...startDate, start_date: "" })
-      setEndDate({ ...endDate, end_date: "" })
+    if (value === '') {
+      setStartDate({ ...startDate, start_date: '' })
+      setEndDate({ ...endDate, end_date: '' })
     }
   }
 
@@ -246,7 +242,7 @@ const GenerateReportMarketTarget = () => {
 
   const affiliatesEmail = []
   if (values?.affiliate_id) {
-    affiliates.filter(item => {
+    affiliates.filter((item) => {
       let i = 0
       for (i; i < values.affiliate_id.length; i++) {
         if (item.affiliate_id === values.affiliate_id[i]) {
@@ -258,7 +254,6 @@ const GenerateReportMarketTarget = () => {
     })
   }
 
-
   const mergeEmail = [...customerEmails, ...affiliatesEmail]
   if (mergeEmail.length) {
     values.emails = mergeEmail
@@ -268,19 +263,17 @@ const GenerateReportMarketTarget = () => {
     let newDate = new Date(dataParam)
     let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
     let format_date = newDate
-    let dd = String(format_date.getDate()).padStart(2, "0")
+    let dd = String(format_date.getDate()).padStart(2, '0')
     let yyyy = format_date.getFullYear()
-    format_date = dd + "-" + shortMonth + "-" + yyyy
+    format_date = dd + '-' + shortMonth + '-' + yyyy
     return format_date
   }
-
-
 
   const getCampaignNames = (id) => {
     const campaignNames = []
     if (values?.campaign) {
       const campaign = campaigns.find((campaign) => campaign.id == id)
-      campaignNames.push(campaign ? campaign.campaign_name : "")
+      campaignNames.push(campaign ? campaign.campaign_name : '')
     }
     return campaignNames
   }
@@ -288,77 +281,90 @@ const GenerateReportMarketTarget = () => {
     const affiliateNames = []
     if (values?.affiliate_id) {
       for (let i = 0; i < values.affiliate_id.length; i++) {
-        const affiliate = affiliates.find((affiliate) => affiliate.affiliate_id == values.affiliate_id[i])
-        affiliateNames.push(affiliate ? affiliate.affiliate_name : "")
+        const affiliate = affiliates.find(
+          (affiliate) => affiliate.affiliate_id == values.affiliate_id[i]
+        )
+        affiliateNames.push(affiliate ? affiliate.affiliate_name : '')
       }
     }
     return affiliateNames
   }
 
-
-  const fileName = `MarketTarget_Report${selectAllmarkets ? `_For_Markets(AllMarkets)` : ""}${(values?.market && !selectAllmarkets) ? `_For_Markets(${values.market})` : ""}${values.customer_name ? `_For_Customers(${values.customer_name})` : ""}${selectAllStates ? `_For_States(AllStates)` : ""}${(values?.state && !selectAllStates) ? `_For_States(${values.state})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
+  const fileName = `MarketTarget_Report${selectAllmarkets ? `_For_Markets(AllMarkets)` : ''}${
+    values?.market && !selectAllmarkets ? `_For_Markets(${values.market})` : ''
+  }${values.customer_name ? `_For_Customers(${values.customer_name})` : ''}${
+    selectAllStates ? `_For_States(AllStates)` : ''
+  }${values?.state && !selectAllStates ? `_For_States(${values.state})` : ''}${
+    values?.annotation ? `_For_Annotations(${values.annotation})` : ''
+  }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${
+    values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
+  }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${
+    year?.year ? `_For_Years(${year.year.toString()})` : ''
+  }${
+    values?.start_date
+      ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
+      : ''
+  }_Created@${currentDate()}`
   values.file_name = fileName
 
   const handleSubmit = () => {
     setLoading(true)
     if (market || state) {
-      axios.post(route("market.target.report.generator"), values).then((r) => {
-        if (r.data.status == 500) {
+      axios
+        .post(route('market.target.report.generator'), values)
+        .then((res) => {
           setLoading(false)
-          toast.error(r.data.msg)
-
-        }
-        setLoading(false)
-        if (reportType.report_type === "export-report") {
-          ExportReportWithoutTag(r.data, fileName)
-        } else {
-          toast.success("Email send successfully")
-        }
-
-      })
-        .catch((e) => {
-          setLoading(false)
-          toast.error("Error while generating report")
+          if (res.status === 204) {
+            toast.error('No data found for the selected criteria')
+          }
+          if (res.status === 200) {
+            if (reportType.report_type === 'export-report') {
+              ExportReportWithoutTag(res.data, fileName)
+            } else {
+              toast.success('Email send successfully')
+            }
+          }
         })
-    }
-    else {
+        .catch((err) => {
+          setLoading(false)
+          toast.error('Error while generating report')
+        })
+    } else {
       setLoading(false)
-      toast.error("The market or the state must be the one to choose")
+      toast.error('The market or the state must be the one to choose')
     }
   }
 
   const stateSelectAll = (e) => {
-    setSelectAllStates(prevState => !prevState)
+    setSelectAllStates((prevState) => !prevState)
     if (e.target.checked) {
       let newData = []
       for (let i = 0; i < states.length; i++) {
         newData.push(states[i].state)
       }
-      setState({ 'state': newData })
+      setState({ state: newData })
     } else {
-      setState("")
+      setState('')
     }
   }
   const marketSelectAll = (e) => {
-    setSelectAllmarkets(prevState => !prevState)
+    setSelectAllmarkets((prevState) => !prevState)
     if (e.target.checked) {
       let newData = []
       for (let i = 0; i < markets.length; i++) {
         newData.push(markets[i].market)
       }
-      setMarket({ 'market': newData })
+      setMarket({ market: newData })
     } else {
-      setMarket("")
+      setMarket('')
     }
   }
-
-
 
   return (
     <>
       <Helmet title="Generate Report Homes Per Call" />
       <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title} >
+        <Typography variant="h5" className={classes.title}>
           Generate Report Homes Per Call
         </Typography>
         <form validate="true" className="generate-report">
@@ -382,47 +388,64 @@ const GenerateReportMarketTarget = () => {
                 />
               </RadioGroup>
             </Grid>
-            {!market &&
+            {!market && (
               <>
-                {!disableStateCheckbox &&
+                {!disableStateCheckbox && (
                   <FormGroup>
-                    <FormControlLabel control={<Checkbox onChange={stateSelectAll} checked={selectAllStates} color="primary" />} label="All States" />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          onChange={stateSelectAll}
+                          checked={selectAllStates}
+                          color="primary"
+                        />
+                      }
+                      label="All States"
+                    />
                   </FormGroup>
-                }
-                {!selectAllStates &&
+                )}
+                {!selectAllStates && (
                   <Grid item xs={12}>
                     <MultiSelect
                       name="state"
-                      onChange={(val) => stateHandleChange(val, "state")}
+                      onChange={(val) => stateHandleChange(val, 'state')}
                       options={stateOptions}
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                       placeholder="Select State"
                     />
                   </Grid>
-                }
+                )}
               </>
-            }
-            {!state &&
+            )}
+            {!state && (
               <>
-                {!disableMarketCheckbox &&
+                {!disableMarketCheckbox && (
                   <FormGroup>
-                    <FormControlLabel control={<Checkbox onChange={marketSelectAll} checked={selectAllmarkets} color="primary" />} label="All Markets" />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          onChange={marketSelectAll}
+                          checked={selectAllmarkets}
+                          color="primary"
+                        />
+                      }
+                      label="All Markets"
+                    />
                   </FormGroup>
-                }
-                {!selectAllmarkets &&
+                )}
+                {!selectAllmarkets && (
                   <Grid item xs={12}>
                     <MultiSelect
                       name="market"
-                      onChange={(val) => marketHandleChange(val, "market")}
+                      onChange={(val) => marketHandleChange(val, 'market')}
                       options={marketOptions}
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                       placeholder="Select Market"
                     />
                   </Grid>
-
-                }
+                )}
               </>
-            }
+            )}
 
             <Grid item xs={12}>
               <TextField
@@ -468,9 +491,9 @@ const GenerateReportMarketTarget = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="target_name"
-                onChange={(val) => targetHandleChange(val, "target_name")}
+                onChange={(val) => targetHandleChange(val, 'target_name')}
                 options={targetOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Targets"
               />
             </Grid>
@@ -494,20 +517,19 @@ const GenerateReportMarketTarget = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
-                onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
+                onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
                 options={affiliateOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Affiliates"
               />
             </Grid>
-
 
             <Grid item xs={12}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Years"
               />
             </Grid>
@@ -521,7 +543,7 @@ const GenerateReportMarketTarget = () => {
                   native: true,
                 }}
                 fullWidth
-              // required={true}
+                // required={true}
               >
                 <option value="">Select Broadcast Month</option>
                 {monthByYear.map((option, indx) => (
@@ -542,7 +564,7 @@ const GenerateReportMarketTarget = () => {
                   native: true,
                 }}
                 fullWidth
-              // required={true}
+                // required={true}
               >
                 <option value="">Select Broadcast Week</option>
                 {broadCastWeeks.map((option, indx) => (
@@ -566,7 +588,7 @@ const GenerateReportMarketTarget = () => {
                   shrink: true,
                 }}
                 fullWidth
-              // required={true}
+                // required={true}
               />
             </Grid>
             <Grid item xs={12}>
@@ -582,22 +604,21 @@ const GenerateReportMarketTarget = () => {
                   shrink: true,
                 }}
                 fullWidth
-              // required={true}
+                // required={true}
               />
             </Grid>
             <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={(e) => handleSubmit()}
-              >
-                {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : "Generate"}
+              <Button variant="contained" color="primary" onClick={(e) => handleSubmit()}>
+                {loading ? (
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
+                ) : (
+                  'Generate'
+                )}
               </Button>
             </Grid>
           </Grid>
         </form>
       </Paper>
-
     </>
   )
 }

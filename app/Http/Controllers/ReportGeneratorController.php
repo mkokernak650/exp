@@ -451,7 +451,7 @@ class ReportGeneratorController extends Controller
                 'Total Revenue'                          => $bill->Revenue,
                 'Average Homes Per Call'                 => number_format(ceil($bill->households / $bill->Billed), 0, '.', ','),
             ];
-            $totalNielsenTVHouseholds = $bill->households;
+            $totalNielsenTVHouseholds += $bill->households;
             $totalBilledCalls += $bill->Billed;
             $totalRevenue += $bill->Revenue;
         }
