@@ -853,9 +853,11 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date <= '$end_date'";
         }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            for ($i = 0; $i < count($year); $i++) {
-                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-            }
+            $allYears=implode(",", $year);
+            $whereIn[]="year(Call_Date) IN ($allYears)";
+            // for ($i = 0; $i < count($year); $i++) {
+            //     $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
+            // }
         }
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
@@ -899,7 +901,6 @@ class ReportGeneratorController extends Controller
 
         // for billed
         foreach ($billed as $bill) {
-            $TargetDescription = $bill->$target_description;
             $annotationTag = $bill->annotation_name;
             $bill->$annotation_tag = $bill->annotation_name;
             unset($bill->annotation_name, $bill->$target_description);
@@ -928,7 +929,6 @@ class ReportGeneratorController extends Controller
         // for callLogs
         if (!empty($callLogs)) {
             foreach ($callLogs as $callLog) {
-                $TargetDescription = $callLog->$target_description;
                 $annotationTag = $callLog->annotation_name;
                 $callLog->$annotation_tag = $callLog->annotation_name;
                 unset($callLog->annotation_name, $callLog->$target_description);
@@ -1076,6 +1076,7 @@ class ReportGeneratorController extends Controller
                 $con .= $value . ' OR ';
             }
         }
+
         $con = rtrim($con, ' AND ');
         $con = rtrim($con, ' OR ');
 
@@ -1083,7 +1084,6 @@ class ReportGeneratorController extends Controller
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
         WHERE {$con}";
-
         return DB::select($sql);
     }
 

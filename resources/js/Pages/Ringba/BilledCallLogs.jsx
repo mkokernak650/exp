@@ -367,13 +367,6 @@ const BilledCallLogs = () => {
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
         ? JSON.parse(columnsData[0])?.[optionKey]
         : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,

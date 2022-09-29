@@ -226,9 +226,9 @@ const GenerateReportTarget = () => {
           (affiliate) => affiliate.affiliate_id == values.affiliate_id[i]
         )
         affiliateNames.push(affiliate ? affiliate.affiliate_name : '')
-        if (item.email) {
-          affiliatesEmail.push(item.email)
-        }
+        // if (item.email) {
+        //   affiliatesEmail.push(item.email)
+        // }
       }
     }
     return affiliateNames
@@ -263,7 +263,7 @@ const GenerateReportTarget = () => {
         }
         if (res.status == 200) {
           if (reportType.report_type === 'export-report') {
-            ExportReportWithTag(res.data, fileName)
+            // ExportReportWithTag(res.data, fileName)
           } else {
             toast.success('Email send successfully')
           }
