@@ -85,7 +85,7 @@ const GenerateReportMarketTarget = () => {
     const { name, value } = e.target
     setCustomer({ [name]: value })
     targets.filter((item) => {
-      if (item.Customer === value) {
+      if (item.Customer === value && item.Ringba_Targets_Name !=='') {
         const targetNames = item.Ringba_Targets_Name.split(',')
         setTargetByCustomer(targetNames)
       }
@@ -307,7 +307,9 @@ const GenerateReportMarketTarget = () => {
   }_Created@${currentDate()}`
   values.file_name = fileName
 
+  console.log(values)
   const handleSubmit = () => {
+
     setLoading(true)
     if (market || state) {
       axios
