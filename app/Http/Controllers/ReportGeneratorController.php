@@ -136,9 +136,8 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date <= '$end_date'";
         }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            for ($i = 0; $i < count($year); $i++) {
-                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-            }
+            $allYears=implode(",", $year);
+            $whereIn[]="year(Call_Date) IN ($allYears)";
         }
 
         if ($campaign !== null) {
@@ -384,9 +383,8 @@ class ReportGeneratorController extends Controller
         }
 
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            for ($i = 0; $i < count($year); $i++) {
-                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-            }
+            $allYears=implode(",", $year);
+            $whereIn[]="year(Call_Date) IN ($allYears)";
         }
 
         if ($campaign !== null) {
@@ -580,9 +578,8 @@ class ReportGeneratorController extends Controller
         }
 
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            for ($i = 0; $i < count($year); $i++) {
-                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-            }
+            $allYears=implode(",", $year);
+            $whereIn[]="year(Call_Date) IN ($allYears)";
         }
 
         if ($campaign) {
@@ -852,12 +849,12 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date >='$start_date'";
             $condition[] = "Call_Date <= '$end_date'";
         }
+        // for ($i = 0; $i < count($year); $i++) {
+        //     $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
+        // }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
             $allYears=implode(",", $year);
             $whereIn[]="year(Call_Date) IN ($allYears)";
-            // for ($i = 0; $i < count($year); $i++) {
-            //     $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-            // }
         }
         if ($campaign !== null) {
             $condition[] = "Campaign='{$campaign}'";
@@ -1127,9 +1124,8 @@ class ReportGeneratorController extends Controller
             $call_summary['Date Range'] = $date_range;
         }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
-            for ($i = 0; $i < count($year); $i++) {
-                $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-            }
+            $allYears=implode(",", $year);
+            $whereIn[]="year(Call_Date) IN ($allYears)";
         }
 
         if (!empty($broad_cast_month) && count($broad_cast_month) > 0 && $broad_cast_month[0] !== null) {
