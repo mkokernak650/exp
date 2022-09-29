@@ -428,6 +428,7 @@ class ReportGeneratorController extends Controller
         }
         if (!empty($state_name) && count($state_name) > 0 && $state_name[0] !== null) {
             $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, $whereInHouseholds, 'state');
+            dd($billed);
         } elseif (!empty($market_name) && count($market_name) > 0 && $market_name[0] !== null) {
             $billed = $this->marketTargetReportData('billed_call_logs', $condition, $whereIn, $whereInOr, $whereInHouseholds, 'market');
         }
