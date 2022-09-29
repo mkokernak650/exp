@@ -457,7 +457,7 @@ class ReportGeneratorController extends Controller
         }
 
         if (empty($billed)) {
-            return response()->json(['status' => 500, 'msg' => 'No data found for the selected criteria']);
+            return response()->json(['msg' => 'No data found for the selected criteria'],204);
         }
 
         $call_summary['Total Nielsen TV Homes:'] = number_format($totalNielsenTVHouseholds, 0, '.', ',');
