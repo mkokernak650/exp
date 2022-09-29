@@ -819,6 +819,7 @@ class ReportGeneratorController extends Controller
 
     public function targetReport(Request $request)
     {
+        // dd($request);
         $campaign = Campaign::find($request->input('campaign'));
 
         $newData = [];
@@ -1033,7 +1034,7 @@ class ReportGeneratorController extends Controller
         $call_summary['Avg Revenue Amount'] = (float)number_format($avg_revenue_amount, 2, '.', '');
 
         if (empty($newData)) {
-            return response()->json(['status' => 500, 'msg' => 'No data found for the selected criteria']);
+            return response()->json(['msg'=>'No data found for the selected criteria'], 204);
         }
         $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation', 'Recording Url'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {

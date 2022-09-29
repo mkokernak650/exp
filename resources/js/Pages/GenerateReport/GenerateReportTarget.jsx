@@ -1,5 +1,5 @@
-import { React, useState } from "react"
-import Layout from "../Layout/Layout"
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
 import {
   CircularProgress,
   Paper,
@@ -9,26 +9,25 @@ import {
   Radio,
   FormControlLabel,
   RadioGroup,
-} from "@material-ui/core"
-import { makeStyles } from "@material-ui/core/styles"
-import Grid from "@material-ui/core/Grid"
-import { usePage } from "@inertiajs/inertia-react"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import { currentDate } from "@/Helpers/CurrentDate"
-import MultiSelect from "react-multiple-select-dropdown-lite"
-import "react-multiple-select-dropdown-lite/dist/index.css"
-import { ExportReportWithTag } from "@/Helpers/ExportReport"
-import toast from "react-hot-toast"
-
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import { currentDate } from '@/Helpers/CurrentDate'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
+import { ExportReportWithTag } from '@/Helpers/ExportReport'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
+    display: 'grid',
+    width: '500px',
+    margin: 'auto',
+    marginTop: '2rem',
+    padding: '40px',
     flexGrow: 1,
   },
   paper: {
@@ -36,39 +35,36 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   title: {
-    textAlign: "center",
-    marginBottom: "35px",
-  }
+    textAlign: 'center',
+    marginBottom: '35px',
+  },
 }))
-
 
 const GenerateReportTarget = () => {
   const classes = useStyles()
   const [loading, setLoading] = useState(false)
   const { affiliates, broadCastMonths, broadCastWeeks, targets, campaigns, customers } =
     usePage().props
-  const [type, setType] = useState({ type: "billed" })
+  const [type, setType] = useState({ type: 'billed' })
   const [customer, setCustomer] = useState()
-  const [target, setTarget] = useState("")
+  const [target, setTarget] = useState('')
   const [targetByCustomer, setTargetByCustomer] = useState([])
   const [monthByYear, setMonthByYear] = useState(broadCastMonths)
   const [affiliate, setAffiliate] = useState()
-  const [month, setMonth] = useState("")
+  const [month, setMonth] = useState('')
   const [year, setYear] = useState([])
-  const [week, setWeek] = useState("")
-  const [startDate, setStartDate] = useState({ start_date: "" })
-  const [endDate, setEndDate] = useState({ end_date: "" })
-  const [campaign, setCampaign] = useState("")
-  const [annotation, setAnnotation] = useState("")
+  const [week, setWeek] = useState('')
+  const [startDate, setStartDate] = useState({ start_date: '' })
+  const [endDate, setEndDate] = useState({ end_date: '' })
+  const [campaign, setCampaign] = useState('')
+  const [annotation, setAnnotation] = useState('')
   const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
-
 
   const typeHandleChange = (e) => {
     const { name, value } = e.target
     setType({ [name]: value })
   }
-
 
   const reportTypeHandleChange = (e) => {
     const { name, value } = e.target
@@ -84,15 +80,15 @@ const GenerateReportTarget = () => {
     targets.filter((item) => {
       if (item.Customer === value) {
         if (item.Ringba_Targets_Name !== null) {
-          const targetNames = item.Ringba_Targets_Name.split(",")
+          const targetNames = item.Ringba_Targets_Name.split(',')
           setTargetByCustomer(targetNames)
         }
       }
     })
-    if (value === "") {
+    if (value === '') {
       setCustomerEmails([])
     }
-    const customerData = customers.find(customer => customer.customer_name === value)
+    const customerData = customers.find((customer) => customer.customer_name === value)
     if (customerData !== undefined && customerData.email) {
       const array = [customerData.email]
       setCustomerEmails(array)
@@ -109,12 +105,12 @@ const GenerateReportTarget = () => {
   }))
 
   const targetHandleChange = (val, key) => {
-    const targetNames = val.split(",")
+    const targetNames = val.split(',')
     setTarget({ [key]: targetNames })
   }
 
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(",")
+    const affiliate_ids = val.split(',')
     setAffiliate({ [key]: affiliate_ids })
   }
   const monthHandleChange = (e) => {
@@ -141,10 +137,10 @@ const GenerateReportTarget = () => {
   }
 
   const yearHandleChange = (val, key) => {
-    const years = val.split(",")
+    const years = val.split(',')
     setYear({ [key]: years })
     for (let i = 0; i < years.length; i++) {
-      const filteredData = broadCastMonths.filter(item => {
+      const filteredData = broadCastMonths.filter((item) => {
         if (new Date(item.start_date).getFullYear().toString() === years[i]) {
           return item
         }
@@ -153,10 +149,9 @@ const GenerateReportTarget = () => {
     }
   }
 
-
-  const yearOptions = yearsArray.map(year => ({
+  const yearOptions = yearsArray.map((year) => ({
     label: year,
-    value: year
+    value: year,
   }))
   const weekHandleChange = (e) => {
     const { name, value } = e.target
@@ -167,9 +162,9 @@ const GenerateReportTarget = () => {
         setEndDate({ ...endDate, end_date: item.end_date })
       }
     })
-    if (value === "") {
-      setStartDate({ ...startDate, start_date: "" })
-      setEndDate({ ...endDate, end_date: "" })
+    if (value === '') {
+      setStartDate({ ...startDate, start_date: '' })
+      setEndDate({ ...endDate, end_date: '' })
     }
   }
   const startDateHandleChange = (e) => {
@@ -201,24 +196,23 @@ const GenerateReportTarget = () => {
     ...endDate,
     ...campaign,
     ...annotation,
-    ...reportType
+    ...reportType,
   }
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
     let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
     let format_date = newDate
-    let dd = String(format_date.getDate()).padStart(2, "0")
+    let dd = String(format_date.getDate()).padStart(2, '0')
     let yyyy = format_date.getFullYear()
-    format_date = dd + "-" + shortMonth + "-" + yyyy
+    format_date = dd + '-' + shortMonth + '-' + yyyy
     return format_date
   }
-
 
   const getCampaignNames = (id) => {
     const campaignNames = []
     if (values?.campaign) {
       const campaign = campaigns.find((campaign) => campaign.id == id)
-      campaignNames.push(campaign ? campaign.campaign_name : "")
+      campaignNames.push(campaign ? campaign.campaign_name : '')
     }
     return campaignNames
   }
@@ -228,8 +222,10 @@ const GenerateReportTarget = () => {
   const getAffiliateNames = () => {
     if (values?.affiliate_id) {
       for (let i = 0; i < values.affiliate_id.length; i++) {
-        const affiliate = affiliates.find((affiliate) => affiliate.affiliate_id == values.affiliate_id[i])
-        affiliateNames.push(affiliate ? affiliate.affiliate_name : "")
+        const affiliate = affiliates.find(
+          (affiliate) => affiliate.affiliate_id == values.affiliate_id[i]
+        )
+        affiliateNames.push(affiliate ? affiliate.affiliate_name : '')
         if (item.email) {
           affiliatesEmail.push(item.email)
         }
@@ -242,33 +238,42 @@ const GenerateReportTarget = () => {
     values.emails = mergeEmail
   }
 
-
-  const fileName = `${values?.type}_Target_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${values?.annotation ? `_For_Annotations(${values.annotation})` : ""}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ""}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ""}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ""}${year?.year ? `_For_Years(${year.year.toString()})` : ""}${values?.start_date ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})` : ""}_Created@${currentDate()}`
+  const fileName = `${values?.type}_Target_Report${
+    values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
+  }${values?.annotation ? `_For_Annotations(${values.annotation})` : ''}${
+    values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''
+  }${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''}${
+    values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''
+  }${year?.year ? `_For_Years(${year.year.toString()})` : ''}${
+    values?.start_date
+      ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
+      : ''
+  }_Created@${currentDate()}`
   values.file_name = fileName
 
   const handleSubmit = () => {
     setLoading(true)
-    axios.post(route("target.report.generator"), values).then((r) => {
-      if (r.data.status == 500) {
+    axios
+      .post(route('target.report.generator'), values)
+      .then((res) => {
+        console.log(res)
         setLoading(false)
-        toast.error(r.data.msg)
-      }
-      setLoading(false)
-      if (reportType.report_type === "export-report") {
-        ExportReportWithTag(r.data, fileName)
-      } else {
-        toast.success("Email send successfully")
-      }
-
-    })
-      .catch((e) => {
+        if (res.status === 204) {
+          toast.error('No data found for the selected criteria')
+        }
+        if (res.status == 200) {
+          if (reportType.report_type === 'export-report') {
+            ExportReportWithTag(res.data, fileName)
+          } else {
+            toast.success('Email send successfully')
+          }
+        }
+      })
+      .catch((err) => {
         setLoading(false)
-        toast.error("Error while generating report")
+        toast.error('Error while generating report')
       })
   }
-
-
-
 
   return (
     <>
@@ -362,9 +367,9 @@ const GenerateReportTarget = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="target_name"
-                onChange={(val) => targetHandleChange(val, "target_name")}
+                onChange={(val) => targetHandleChange(val, 'target_name')}
                 options={targetOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Targets"
               />
             </Grid>
@@ -388,9 +393,9 @@ const GenerateReportTarget = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
-                onChange={(val) => affiliateHandleChange(val, "affiliate_id")}
+                onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
                 options={affiliateOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Affiliates"
               />
             </Grid>
@@ -399,7 +404,7 @@ const GenerateReportTarget = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Years"
               />
             </Grid>
@@ -474,12 +479,12 @@ const GenerateReportTarget = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={(e) => handleSubmit()}
-              >
-                {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : "Generate"}
+              <Button variant="contained" color="primary" onClick={(e) => handleSubmit()}>
+                {loading ? (
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
+                ) : (
+                  'Generate'
+                )}
               </Button>
             </Grid>
           </Grid>
@@ -489,8 +494,5 @@ const GenerateReportTarget = () => {
   )
 }
 
-GenerateReportTarget.layout = (page) => (
-  <Layout title="Generate Report Target">{page}</Layout>
-)
+GenerateReportTarget.layout = (page) => <Layout title="Generate Report Target">{page}</Layout>
 export default GenerateReportTarget
-
