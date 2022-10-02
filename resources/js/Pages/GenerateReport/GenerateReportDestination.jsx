@@ -1,5 +1,5 @@
-import { React, useState } from "react"
-import Layout from "../Layout/Layout"
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
 import {
   CircularProgress,
   Paper,
@@ -8,27 +8,26 @@ import {
   Button,
   Radio,
   FormControlLabel,
-  RadioGroup
-} from "@material-ui/core"
-import { makeStyles } from "@material-ui/core/styles"
-import Grid from "@material-ui/core/Grid"
-import { usePage } from "@inertiajs/inertia-react"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import { currentDate } from "../../Helpers/CurrentDate"
-import MultiSelect from "react-multiple-select-dropdown-lite"
-import "react-multiple-select-dropdown-lite/dist/index.css"
-import { ExportReportWithoutTag } from "../../Helpers/ExportReport"
-import toast from "react-hot-toast"
-
+  RadioGroup,
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import { currentDate } from '../../Helpers/CurrentDate'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
+import { ExportReportWithoutTag } from '../../Helpers/ExportReport'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
+    display: 'grid',
+    width: '500px',
+    margin: 'auto',
+    marginTop: '2rem',
+    padding: '40px',
     flexGrow: 1,
   },
   paper: {
@@ -36,11 +35,10 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   title: {
-    textAlign: "center",
-    marginBottom: "35px",
-  }
+    textAlign: 'center',
+    marginBottom: '35px',
+  },
 }))
-
 
 const GenerateReportDestination = () => {
   const classes = useStyles()
@@ -50,11 +48,10 @@ const GenerateReportDestination = () => {
   const [customer, setCustomer] = useState()
   const [year, setYear] = useState([])
   const [monthByYear, setMonthByYear] = useState(broadCastMonths)
-  const [month, setMonth] = useState("")
-  const [campaign, setCampaign] = useState("")
+  const [month, setMonth] = useState('')
+  const [campaign, setCampaign] = useState('')
   const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
-
 
   const reportTypeHandleChange = (e) => {
     const { name, value } = e.target
@@ -63,10 +60,10 @@ const GenerateReportDestination = () => {
   const customerHandleChange = (e) => {
     const { name, value } = e.target
     setCustomer({ [name]: value })
-    if (value === "") {
+    if (value === '') {
       setCustomerEmails([])
     }
-    const customerData = customers.find(customer => customer.customer_name === value)
+    const customerData = customers.find((customer) => customer.customer_name === value)
     if (customerData !== undefined && customerData.email) {
       const array = [customerData.email]
       setCustomerEmails(array)
@@ -80,7 +77,7 @@ const GenerateReportDestination = () => {
 
   const monthHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1)
-    const monthsName = val.split(",,")
+    const monthsName = val.split(',,')
     setMonth({ [key]: monthsName })
   }
 
@@ -95,9 +92,6 @@ const GenerateReportDestination = () => {
     }
     yearsArray.push(date)
   }
-
-
-
 
   const campaignHandleChange = (e) => {
     const { name, value } = e.target
@@ -118,35 +112,37 @@ const GenerateReportDestination = () => {
 
   let campaignName = []
   if (values.campaign_id) {
-    campaignName = campaigns.filter(item => item.id == values.campaign_id)
+    campaignName = campaigns.filter((item) => item.id == values.campaign_id)
   }
-  const fileName = `Destination_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ""}${campaignName.length > 0 ? `_For_Campaigns(${campaignName[0]?.campaign_name})` : ""}${values?.broad_cast_month ? `_For_BroadCastMonths(${values.broad_cast_month.toString()})` : ""}_Created@${currentDate()}`
+  const fileName = `Destination_Report${
+    values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
+  }${campaignName.length > 0 ? `_For_Campaigns(${campaignName[0]?.campaign_name})` : ''}${
+    values?.broad_cast_month ? `_For_BroadCastMonths(${values.broad_cast_month.toString()})` : ''
+  }_Created@${currentDate()}`
   values.file_name = fileName
-
-
-
 
   const handleSubmit = () => {
     setLoading(true)
-    axios.post(route("destination.report.generator"), values).then((r) => {
-      if (r.data.status == 500) {
+    axios
+      .post(route('destination.report.generator'), values)
+      .then((res) => {
         setLoading(false)
-        toast.error(r.data.msg)
-      }
-      setLoading(false)
-      if (reportType.report_type === "export-report") {
-        ExportReportWithoutTag(r.data, fileName)
-      } else {
-        toast.success("Email send successfully")
-      }
-
-    })
+        if (res.data.status == 204) {
+          toast.error(res.data.msg)
+        }
+        if (res.data.status == 500) {
+          if (reportType.report_type === 'export-report') {
+            ExportReportWithoutTag(res.data, fileName)
+          } else {
+            toast.success('Email send successfully')
+          }
+        }
+      })
       .catch((e) => {
         setLoading(false)
-        toast.error("Error while generating report")
+        toast.error('Error while generating report')
       })
   }
-
 
   return (
     <>
@@ -157,7 +153,6 @@ const GenerateReportDestination = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-
             <Grid item xs={12}>
               <RadioGroup
                 aria-label="report-type"
@@ -197,7 +192,6 @@ const GenerateReportDestination = () => {
               </TextField>
             </Grid>
 
-
             <Grid item xs={12}>
               <TextField
                 id="standard-select-currency-native"
@@ -224,21 +218,20 @@ const GenerateReportDestination = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="broad_cast_month"
-                onChange={(val) => monthHandleChange(val, "broad_cast_month")}
+                onChange={(val) => monthHandleChange(val, 'broad_cast_month')}
                 options={broadCastMonthOptions}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 placeholder="Select Broadcast Month"
               />
             </Grid>
 
-
             <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={(e) => handleSubmit()}
-              >
-                {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : "Generate"}
+              <Button variant="contained" color="primary" onClick={(e) => handleSubmit()}>
+                {loading ? (
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
+                ) : (
+                  'Generate'
+                )}
               </Button>
             </Grid>
           </Grid>
@@ -252,54 +245,3 @@ GenerateReportDestination.layout = (page) => (
   <Layout title="Generate Report Destination">{page}</Layout>
 )
 export default GenerateReportDestination
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
