@@ -62,7 +62,6 @@ const GenerateReportAffiliate = () => {
   const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
 
-  console.log(customers)
 
   const typeHandleChange = (e) => {
     const { name, value } = e.target
@@ -216,6 +215,7 @@ const GenerateReportAffiliate = () => {
   if (mergeEmail.length) {
     values.emails = mergeEmail
   }
+  
 
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)

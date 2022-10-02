@@ -85,18 +85,14 @@ class ReportGeneratorController extends Controller
             $call_summary['Billable Calls'] += $destinationData->Billable_Calls;
             $call_summary['Total Charges'] += $destinationData->Total_Charge;
         }
-        $columns = ['Month', 'Destination_Number', 'Affiliate', 'Billable_Calls', 'Per_Call_Rate', 'Total_Charge'];
+        // $columns = ['Month', 'Destination_Number', 'Affiliate', 'Billable_Calls', 'Per_Call_Rate', 'Total_Charge'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
             $newSummary['Summary of Calls'] = '   ';
             $newSummary['Billable Calls'] = $call_summary['Billable Calls'];
             $newSummary['Total Charges'] = $call_summary['Total Charges'];
             $newSummary['Non-revenue Calls'] = $call_summary['Non-revenue Calls'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $request->file_name, $request->emails);
             return;
         }
         return [
@@ -307,21 +303,25 @@ class ReportGeneratorController extends Controller
         if (isset($request->affiliate_id)) {
             $call_summary['Affiliates'] = implode(',', $call_summary_affiliates);
         }
-        $columns = ['Range - Call Length in Seconds', 'Min Length', 'Max Length', 'Total Calls', '% of all calls', 'Total seconds', 'Total Payout'];
+        // $columns = ['Range - Call Length in Seconds', 'Min Length', 'Max Length', 'Total Calls', '% of all calls', 'Total seconds', 'Total Payout'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
             $newSummary['Summary of Calls'] = '   ';
-            $newSummary['Customer Name'] = $call_summary['Customer Name'];
-            $newSummary['Campaign Name'] = $call_summary['Campaign Name'];
+            if (isset($request->customer_name)) {
+                $newSummary['Customer Name'] = $call_summary['Customer Name'];
+            }
+            if (isset($request->campaign)) {
+                $newSummary['Campaign Name'] = $call_summary['Campaign Name'];
+            }
             $newSummary['Total Calls'] = $call_summary['Total Calls'];
             $newSummary['Total Payout'] = $call_summary['Total Payout'];
-            $newSummary['Destination Number'] = $call_summary['Destination Number'];
-            $newSummary['Affiliates'] = $call_summary['Affiliates'];
+            if (isset($request->destination_number)) {
+                $newSummary['Destination Number'] = $call_summary['Destination Number'];
+            }
+            if (isset($request->affiliate_id)) {
+                $newSummary['Affiliates'] = $call_summary['Affiliates'];
+            }
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $request->file_name, $request->emails);
             return;
         }
         return [
@@ -376,9 +376,6 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
         $call_summary = [];
-        $call_summary[' '] = ' ';
-        $call_summary['  '] = '  ';
-        $call_summary['   '] = '   ';
         $condition = [];
         $whereIn = [];
         $whereInOr = [];
@@ -457,7 +454,7 @@ class ReportGeneratorController extends Controller
         }
 
         if (empty($billed)) {
-            return response()->json(['msg' => 'No data found for the selected criteria'],204);
+            return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
         $call_summary['Total Nielsen TV Homes:'] = number_format($totalNielsenTVHouseholds, 0, '.', ',');
@@ -465,18 +462,13 @@ class ReportGeneratorController extends Controller
         $call_summary['Average Homes Per call:'] = number_format(ceil($totalNielsenTVHouseholds / $totalBilledCalls), 0, '.', ',');
         $call_summary['Total Revenue:'] = $totalRevenue;
         $collection = collect($newData)->sortBy('Average Homes Per Call');
-        $columns = ['Date Range', $market_name ? 'Market' : 'State', 'Nielsen TV Households', 'Billed', 'Total Revenue', 'Average Homes Per Call'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
             $newSummary['Total Nielsen TV Homes:'] = $call_summary['Total Nielsen TV Homes:'];
             $newSummary['Total Billed Calls:'] = $call_summary['Total Billed Calls:'];
             $newSummary['Average Homes Per call:'] = $call_summary['Average Homes Per call:'];
             $newSummary['Total Revenue:'] = $call_summary['Total Revenue:'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail($collection, $newSummary, [], $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail($collection, $newSummary, [],  $request->file_name, $request->emails);
             return;
         }
         return [
@@ -666,7 +658,7 @@ class ReportGeneratorController extends Controller
 
                 if (empty($annotationTag)) {
                     $archive_call['qty'] += 1;
-                    $archive_call['revenue'] += $callLog->$payout_amount;
+                    $archive_call['revenue'] += (int) $callLog->$payout_amount;
                 }
                 if (!empty($annotationTag)) {
                     array_push($annotation_tags_array, $annotationTag);
@@ -758,13 +750,10 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
-        $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Payout', 'Call Status', 'Call Type'];
+        // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Payout', 'Call Status', 'Call Type'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
             $newSummary['Summary of Calls'] = '';
+
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
             $newSummary['Targets'] = $call_summary['Targets'];
             $newSummary['Total number of calls'] = $call_summary['Total number of calls'];
@@ -772,7 +761,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total payout amount'] = $call_summary['Total payout amount'];
             $newSummary['Average payout per call'] = $call_summary['Average payout per call'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
             return;
         }
         return [
@@ -1027,12 +1016,8 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg'=>'No data found for the selected criteria'], 204);
         }
-        $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation', 'Recording Url'];
+        // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation', 'Recording Url'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
             $newSummary['Total number of calls'] = $call_summary['Total number of calls'];
@@ -1040,7 +1025,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Amount'] = $call_summary['Avg Revenue Amount'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
             return;
         }
 
@@ -1082,11 +1067,13 @@ class ReportGeneratorController extends Controller
     {
         $campaign = Campaign::find($request->input('campaign'));
         $newData = [];
-        if (in_array('allMarkets', $request->market)) {
-            $all_markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
-            $market_name = $all_markets->pluck('market')->toArray();
-        } else {
-            $market_name = $request->market;
+        if (isset($request->market)) {
+            if (in_array('allMarkets', $request->market)) {
+                $all_markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+                $market_name = $all_markets->pluck('market')->toArray();
+            } else {
+                $market_name = $request->market;
+            }
         }
         $customer_name = $request->customer_name;
         $affiliate_ids = $request->affiliate_id; // array
@@ -1199,18 +1186,15 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
-        $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation'];
+        // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation'];
+
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
-            $newSummary = [];
-            $newSummary[' '] = ' ';
-            $newSummary['  '] = '  ';
-            $newSummary['   '] = '   ';
             $newSummary['Total Number of Calls'] = $call_summary['Total Number of Calls'];
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Per Call'] = $call_summary['Avg Revenue Per Call'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $columns, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
             return;
         }
         return [

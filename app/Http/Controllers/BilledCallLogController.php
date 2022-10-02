@@ -6,7 +6,6 @@ use App\Models\BilledCallLog;
 use App\Models\Campaign;
 use App\Models\PendingBillCallLog;
 use App\Models\TableDetails;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

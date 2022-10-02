@@ -85,7 +85,7 @@ const GenerateReportMarketTarget = () => {
     const { name, value } = e.target
     setCustomer({ [name]: value })
     targets.filter((item) => {
-      if (item.Customer === value && item.Ringba_Targets_Name !=='') {
+      if (item.Customer === value && item.Ringba_Targets_Name !== '') {
         const targetNames = item.Ringba_Targets_Name.split(',')
         setTargetByCustomer(targetNames)
       }
@@ -111,6 +111,7 @@ const GenerateReportMarketTarget = () => {
       setDisableMarketCheckbox(false)
     }
   }
+
   const stateHandleChange = (val, key) => {
     val = val.substring(0, val.length - 1)
     const statesName = val.split(',,')
@@ -308,8 +309,8 @@ const GenerateReportMarketTarget = () => {
   values.file_name = fileName
 
   console.log(values)
-  const handleSubmit = () => {
 
+  const handleSubmit = () => {
     setLoading(true)
     if (market || state) {
       axios
@@ -349,6 +350,7 @@ const GenerateReportMarketTarget = () => {
       setState('')
     }
   }
+
   const marketSelectAll = (e) => {
     setSelectAllmarkets((prevState) => !prevState)
     if (e.target.checked) {
@@ -566,7 +568,6 @@ const GenerateReportMarketTarget = () => {
                   native: true,
                 }}
                 fullWidth
-                // required={true}
               >
                 <option value="">Select Broadcast Week</option>
                 {broadCastWeeks.map((option, indx) => (
@@ -606,7 +607,6 @@ const GenerateReportMarketTarget = () => {
                   shrink: true,
                 }}
                 fullWidth
-                // required={true}
               />
             </Grid>
             <Grid item xs={12}>

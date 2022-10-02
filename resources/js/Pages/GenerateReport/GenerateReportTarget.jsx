@@ -217,7 +217,6 @@ const GenerateReportTarget = () => {
     return campaignNames
   }
   const affiliateNames = []
-  const affiliatesEmail = []
 
   const getAffiliateNames = () => {
     if (values?.affiliate_id) {
@@ -226,13 +225,25 @@ const GenerateReportTarget = () => {
           (affiliate) => affiliate.affiliate_id == values.affiliate_id[i]
         )
         affiliateNames.push(affiliate ? affiliate.affiliate_name : '')
-        // if (item.email) {
-        //   affiliatesEmail.push(item.email)
-        // }
       }
     }
     return affiliateNames
   }
+
+  const affiliatesEmail = []
+  if (values?.affiliate_id) {
+    affiliates.filter((item) => {
+      let i = 0
+      for (i; i < values.affiliate_id.length; i++) {
+        if (item.affiliate_id === values.affiliate_id[i]) {
+          if (item.email) {
+            affiliatesEmail.push(item.email)
+          }
+        }
+      }
+    })
+  }
+
   const mergeEmail = [...customerEmails, ...affiliatesEmail]
   if (mergeEmail.length) {
     values.emails = mergeEmail
