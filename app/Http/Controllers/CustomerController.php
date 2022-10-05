@@ -7,6 +7,7 @@ use App\Imports\CustomerImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Customer;
+use App\Models\TableDetails;
 use Inertia\Inertia;
 
 class CustomerController extends Controller
@@ -24,16 +25,20 @@ class CustomerController extends Controller
     public function customerReport()
     {
         $allCustomers = Customer::where('status', '=', '1')->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/CustomerReport', [
             'allCustomers' =>  $allCustomers,
+            'columnsData'    => $columnsData
         ]);
     }
 
     public function archivedCustomers()
     {
         $allCustomers = Customer::where('status', '=', '0')->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/ArchivedCustomers', [
             'allCustomers' => $allCustomers,
+            'columnsData'    => $columnsData
         ]);
     }
 
