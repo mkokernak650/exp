@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\TvHouseholdsExport;
 use App\Imports\TVHouseholdsImport;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\TVHouseholds;
@@ -24,8 +25,10 @@ class TVHouseholdsController extends Controller
     public function TVHouseholdsReport()
     {
         $allTVHouseholds = TVHouseholds::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/TVHouseholdsReport', [
             'allTVHouseholds' => $allTVHouseholds,
+            'columnsData'    => $columnsData,
         ]);
     }
 
@@ -66,7 +69,7 @@ class TVHouseholdsController extends Controller
         $result = $data->save();
 
         if ($result) {
-            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, ]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200,]);
         } else {
             return response()->json(['msg' => 'Editing Failed', 'status_code' => 500]);
         }

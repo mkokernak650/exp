@@ -1,177 +1,167 @@
-import Layout from "../Layout/Layout"
-import React, { useEffect, useState, useRef } from "react"
-import { kaReducer, Table } from "ka-table"
-import {
-  DataType,
-  SortingMode,
-  PagingPosition,
-  EditingMode,
-  ActionType,
-} from "ka-table/enums"
-import { kaPropsUtils } from "ka-table/utils"
-import { usePage } from "@inertiajs/inertia-react"
+import Layout from '../Layout/Layout'
+import React, { useEffect, useState, useRef } from 'react'
+import { kaReducer, Table } from 'ka-table'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { kaPropsUtils } from 'ka-table/utils'
+import { usePage } from '@inertiajs/inertia-react'
 import {
   deselectAllFilteredRows,
   deselectRow,
   selectAllFilteredRows,
   selectRow,
   selectRowsRange,
-} from "ka-table/actionCreators"
-import FilterControl from "react-filter-control"
-import { filterData } from "../filterData"
-import "ka-table/style.scss"
-import search from "../../../images/search.svg"
-import eyeIcon from "../../../images/eyeIcon.svg"
-import closeNav from "../../../images/closeNav.svg"
-import Edit from "../../../images/edit1.svg"
-import Cancel from "../../../images/cancel.svg"
-import { hideColumn, showColumn } from "ka-table/actionCreators"
-import CellEditorBoolean from "ka-table/Components/CellEditorBoolean/CellEditorBoolean"
-import Tooltip from "@material-ui/core/Tooltip"
-import DeleteIcon from "@material-ui/icons/Delete"
-import IconButton from "@material-ui/core/IconButton"
-import Checkbox from "@material-ui/core/Checkbox"
-import TextField from "@material-ui/core/TextField"
-import { Button, makeStyles } from "@material-ui/core"
-import axios from "axios"
-import { Helmet } from "react-helmet"
-import SnackBar from "../../Shared/SnackBar"
-import ConfirmModal from "../../Shared/ConfirmModal"
-import NormalModal from "../../Shared/NormalModal"
-import {
-  CircularProgress
-} from "@material-ui/core"
-import { DateTimeFormat } from "../../Helpers/DateTimeFormat"
-import { date } from "yup"
-
-
+} from 'ka-table/actionCreators'
+import FilterControl from 'react-filter-control'
+import { filterData } from '../filterData'
+import 'ka-table/style.scss'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import Edit from '@/Components/Icons/Edit.jsx'
+import Tooltip from '@material-ui/core/Tooltip'
+import DeleteIcon from '@material-ui/icons/Delete'
+import IconButton from '@material-ui/core/IconButton'
+import Checkbox from '@material-ui/core/Checkbox'
+import TextField from '@material-ui/core/TextField'
+import { Button, makeStyles } from '@material-ui/core'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import NormalModal from '@/Shared/NormalModal'
+import { CircularProgress } from '@material-ui/core'
+import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
+import ColumnSettings from '@/Components/ColumnSettings'
+import addTableDetails from '@/Helpers/AddTableDetails'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles(() => ({
   topBtn: {
-    display: "flex",
-    gap: "10px",
-    marginLeft: "10px",
+    display: 'flex',
+    gap: '10px',
+    marginLeft: '10px',
   },
   button: {
-    textTransform: "capitalize",
-    fontSize: "14px",
+    textTransform: 'capitalize',
+    fontSize: '14px',
   },
   editButton: {
-    marginTop: "15px",
+    marginTop: '15px',
   },
 }))
 
-
 export const fields = [
   {
-    caption: "market",
-    name: "market",
+    caption: 'market',
+    name: 'market',
     operators: [
       {
-        caption: "Contains",
-        name: "contains",
+        caption: 'Contains',
+        name: 'contains',
       },
       {
-        caption: "Not Contains",
-        name: "doesNotContain",
+        caption: 'Not Contains',
+        name: 'doesNotContain',
       },
       {
-        caption: "Is Empty",
-        name: "isEmpty",
+        caption: 'Is Empty',
+        name: 'isEmpty',
       },
       {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
       },
       {
-        caption: "Starts With",
-        name: "startswith",
+        caption: 'Starts With',
+        name: 'startswith',
       },
       {
-        caption: "Ends With",
-        name: "endsWith",
+        caption: 'Ends With',
+        name: 'endsWith',
       },
       {
-        caption: "Is",
-        name: "is",
+        caption: 'Is',
+        name: 'is',
       },
       {
-        caption: "Is Not",
-        name: "isnot",
+        caption: 'Is Not',
+        name: 'isnot',
       },
     ],
   },
   {
-    caption: "state",
-    name: "state",
+    caption: 'state',
+    name: 'state',
     operators: [
       {
-        caption: "Contains",
-        name: "contains",
+        caption: 'Contains',
+        name: 'contains',
       },
       {
-        caption: "Not Contains",
-        name: "doesNotContain",
+        caption: 'Not Contains',
+        name: 'doesNotContain',
       },
       {
-        caption: "Is Empty",
-        name: "isEmpty",
+        caption: 'Is Empty',
+        name: 'isEmpty',
       },
       {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
       },
       {
-        caption: "Starts With",
-        name: "startswith",
+        caption: 'Starts With',
+        name: 'startswith',
       },
       {
-        caption: "Ends With",
-        name: "endsWith",
+        caption: 'Ends With',
+        name: 'endsWith',
       },
       {
-        caption: "Is",
-        name: "is",
+        caption: 'Is',
+        name: 'is',
       },
       {
-        caption: "Is Not",
-        name: "isnot",
+        caption: 'Is Not',
+        name: 'isnot',
       },
     ],
   },
   {
-    caption: "TV Households",
-    name: "tv_households",
+    caption: 'TV Households',
+    name: 'tv_households',
     operators: [
       {
         caption: 'Equals',
         name: '=',
-      }, {
+      },
+      {
         caption: 'Does not Equal',
         name: '<>',
-      }, {
+      },
+      {
         caption: 'More than',
         name: '>',
-      }, {
+      },
+      {
         caption: 'Less than',
         name: '<',
       },
       {
-        caption: "Is Empty",
-        name: "isEmpty",
+        caption: 'Is Empty',
+        name: 'isEmpty',
       },
       {
-        caption: "Is Not Empty",
-        name: "isNotEmpty",
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
       },
 
       {
-        caption: "Is",
-        name: "is",
+        caption: 'Is',
+        name: 'is',
       },
       {
-        caption: "Is Not",
-        name: "isnot",
+        caption: 'Is Not',
+        name: 'isnot',
       },
     ],
   },
@@ -179,34 +169,33 @@ export const fields = [
 
 export const groups = [
   {
-    caption: "And",
-    name: "and",
+    caption: 'And',
+    name: 'and',
   },
   {
-    caption: "Or",
-    name: "or",
+    caption: 'Or',
+    name: 'or',
   },
 ]
+
 export const filter = {
-  groupName: "and",
+  groupName: 'and',
   items: [
     {
-      field: "market",
-      operator: "isNotEmpty",
-      value:""
+      field: 'market',
+      operator: 'isNotEmpty',
+      value: '',
     },
   ],
 }
 
 const CustomerReport = () => {
   const classes = useStyles()
-  const { allTVHouseholds } = usePage().props
+  const { allTVHouseholds, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
   const [editData, setEditData] = useState()
-  const [response, setResponse] = useState()
-  const [open, setOpen] = useState(false)
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [importModal, setImportModal] = useState({ open: false })
@@ -226,12 +215,8 @@ const CustomerReport = () => {
     id: item.id,
     key: index,
   }))
-  const SelectionCell = ({
-    rowKeyValue,
-    dispatch,
-    isSelectedRow,
-    selectedRows,
-  }) => {
+
+  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
     return (
       <Checkbox
         checked={isSelectedRow}
@@ -259,6 +244,7 @@ const CustomerReport = () => {
       />
     )
   }
+
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -290,53 +276,71 @@ const CustomerReport = () => {
     )
   }
 
-  const tablePropsInit = {
-    columns: [
-      {
-        key: "edit",
-        style: { width: 20 },
-      },
-      {
-        key: "selection-cell",
-        style: { width: 80 },
-      },
-      {
-        key: "sl",
-        title: "SL",
-        dataType: DataType.Number,
-        style: { width: 20 },
-      },
-      {
-        key: "market",
-        title: "Market",
-        dataType: DataType.String,
-        style: { width: 150 },
-      },
-      {
-        key: "state",
-        title: "State",
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: "tv_households",
-        title: "TV Households",
-        dataType: DataType.Number,
-        style: { width: 100 },
-      },
-      {
-        key: "created_at",
-        title: "Created At",
-        dataType: DataType.String,
-        style: { width: 100 },
-      }, {
-        key: "updated_at",
-        title: "Last Updated",
-        dataType: DataType.Date,
-        style: { width: 100 },
-      },
+  const columns = [
+    {
+      key: 'edit',
+      style: { width: 20 },
+      visible: true,
+    },
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'sl',
+      title: 'SL',
+      dataType: DataType.Number,
+      style: { width: 20 },
+      visible: false,
+    },
+    {
+      key: 'market',
+      title: 'Market',
+      dataType: DataType.String,
+      style: { width: 150 },
+      visible: true,
+    },
+    {
+      key: 'state',
+      title: 'State',
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'tv_households',
+      title: 'TV Households',
+      dataType: DataType.Number,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'created_at',
+      title: 'Created At',
+      dataType: DataType.String,
+      style: { width: 100 },
+      visible: true,
+    },
+    {
+      key: 'updated_at',
+      title: 'Last Updated',
+      dataType: DataType.Date,
+      style: { width: 100 },
+      visible: true,
+    },
+  ]
 
-    ],
+  const optionKey = 'tv-household-report'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
+
+  const tablePropsInit = {
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -345,38 +349,37 @@ const CustomerReport = () => {
       position: PagingPosition.Bottom,
     },
     data: dataArray,
-    rowKeyField: "id",
+    rowKeyField: 'id',
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
-      if (column.key === "edit") {
+      if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <Edit />
           </div>
         )
       }
-      if (column.key === "created_at" || column.key === "updated_at") {
+      if (column.key === 'created_at' || column.key === 'updated_at') {
         return DateTimeFormat(value)
       }
     },
   }
 
-  const OPTION_KEY = "tv-households-report"
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || "0"),
-  }
-  const [tableProps, changeTableProps] = useState(stateStore)
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
+
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData))
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+      }
       return newState
     })
   }
+
   const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
@@ -391,36 +394,31 @@ const CustomerReport = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     axios
-      .post(route("tv.households.delete"), { selectedRowIds })
+      .post(route('tv.households.delete'), { selectedRowIds })
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps
-          const newData = filteredData.data.filter(
-            (item) => !selectedRowIds.includes(item.id)
-          )
+          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
           changeTableProps(filteredData)
           setSelectedRowIds([])
           setTableToolbar(false)
-          setOpen(true)
-          setResponse(res.data.msg)
+          toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox()
         } else {
-          setOpen(true)
-          setResponse(res.data.msg)
+          toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
-          emptyCheckbox()
         }
       })
       .catch((err) => {
         setShowDeleteModal({ open: false })
-        emptyCheckbox()
       })
   }
 
@@ -433,14 +431,13 @@ const CustomerReport = () => {
     setShowEditModal({ open: true })
   }
 
-
-
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
   }
+
   const handleEditSubmit = () => {
     axios
-      .post(route("tv.households.edit"), editData)
+      .post(route('tv.households.edit'), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps
@@ -454,13 +451,11 @@ const CustomerReport = () => {
           })
           setEditData()
           setShowEditModal({ open: false })
-          setOpen(true)
-          setResponse(res.data.msg)
+          toast.success(res.data.msg)
         } else {
           setEditData()
           setShowEditModal({ open: false })
-          setOpen(true)
-          setResponse(res.data.msg)
+          toast.error(res.data.msg)
         }
       })
       .catch((err) => {
@@ -468,14 +463,11 @@ const CustomerReport = () => {
       })
   }
 
-
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
     setSelectedRowIds([])
-    emptyCheckbox()
   }
-
 
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
@@ -493,21 +485,20 @@ const CustomerReport = () => {
     e.preventDefault()
     setLoading(true)
     const formData = new FormData()
-    formData.append("importfile", selectedFile)
+    formData.append('importfile', selectedFile)
     axios
-      .post(route("tv.households.import"), formData)
+      .post(route('tv.households.import'), formData)
       .then((res) => {
         setSelectedFile(null)
         setLoading(false)
         if (res.status === 200) {
           setImportModal({ open: false })
-          setResponse("Imported Successfully")
-          setOpen(true)
+          toast.success('Imported Successfully')
         } else {
-          setResponse("Import failed")
+          toast.error('Import failed')
         }
       })
-      .catch((err) => { })
+      .catch((err) => {})
   }
 
   const triggerExportLink = (link) => {
@@ -524,122 +515,40 @@ const CustomerReport = () => {
         if (res.status === 200) {
           console.log(res)
           triggerExportLink(res.request.responseURL)
-          setOpen(true)
         } else {
-          toast.error("Error while importing file")
+          toast.error('Error while importing file')
         }
       })
       .catch((err) => {
         setLoading(false)
       })
   }
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      if (
-        showColumns &&
-        showColumnRef.current &&
-        !showColumnRef.current.contains(e.target)
-      ) {
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
         setShowColumns(false)
       }
     }
 
-    document.addEventListener("mousedown", checkIfClickedOutside)
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside)
+      document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem(OPTION_KEY))
-    if (storedData?.selectedRows) storedData.selectedRows = []
-    localStorage.setItem(OPTION_KEY, JSON.stringify(storedData))
-    let filteredData = { ...tableProps }
-    if (filteredData?.selectedRows) filteredData.selectedRows = []
-    changeTableProps(filteredData)
-  }
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem(OPTION_KEY))
-      if (storedData != null) {
-        emptyCheckbox()
-      }
-    }
-  }, [])
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: "#031b4e" }} />
+            <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
 
-        <div className="selection-rows">
-          {selectedRowIds.length} Row Selected
-        </div>
-
+        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    )
-  }
-
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: "key",
-      columns: [
-        {
-          key: "visible",
-          title: "Visible",
-          isEditable: false,
-          style: { textAlign: "center" },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: "title",
-          isEditable: false,
-          title: "Fields",
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    }
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value
-            ? showColumn(action.rowKeyValue)
-            : hideColumn(action.rowKeyValue)
-        )
-      }
-    }
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case "visible":
-                  return <CellEditorBoolean {...props} />
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
     )
   }
 
@@ -653,10 +562,8 @@ const CustomerReport = () => {
         ) : (
           <div className="table-top">
             <div className="top-left">
-
               <div className="columns-show-hide" onClick={handleColumns}>
-                <img src={eyeIcon} alt="search"></img>
-
+                <Eye />
               </div>
               <Button
                 variant="contained"
@@ -674,18 +581,18 @@ const CustomerReport = () => {
                 color="primary"
                 className={classes.button}
                 onClick={exportHandler}
-                disabled={allTVHouseholds == ""}
+                disabled={allTVHouseholds == ''}
               >
                 {loading ? (
                   <CircularProgress color="inherit" thickness={3} size="1.5rem" />
                 ) : (
-                  "Searched Export"
+                  'Searched Export'
                 )}
               </Button>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -695,7 +602,7 @@ const CustomerReport = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                    <img src={closeNav} alt="file not found"></img>
+                    <Cancel />
                   </a>
                 </div>
 
@@ -711,14 +618,14 @@ const CustomerReport = () => {
                 </div>
               </div>
             ) : (
-              ""
+              ''
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
               </div>
             ) : (
-              ""
+              ''
             )}
           </div>
         )}
@@ -727,27 +634,25 @@ const CustomerReport = () => {
           childComponents={{
             cellText: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return <SelectionCell {...props} />
                 }
               },
             },
             filterRowCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return <></>
                 }
               },
             },
             headCell: {
               content: (props) => {
-                if (props.column.key === "selection-cell") {
+                if (props.column.key === 'selection-cell') {
                   return (
                     <SelectionHeader
                       {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(
-                        tableProps
-                      )}
+                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
                   )
                 }
@@ -756,10 +661,10 @@ const CustomerReport = () => {
             cell: {
               content: (props) => {
                 switch (props.column.key) {
-                  case "drag":
+                  case 'drag':
                     return (
                       <img
-                        style={{ cursor: "move" }}
+                        style={{ cursor: 'move' }}
                         src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
                         alt="draggable"
                       />
@@ -771,20 +676,19 @@ const CustomerReport = () => {
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
         />
-
       </div>
-      <SnackBar open={open} setOpen={setOpen} response={response} />
+
       <NormalModal
         open={showEditModal.open}
         setOpen={setShowEditModal}
-        width={"600px"}
-        title={"Edit TV Households"}
+        width={'600px'}
+        title={'Edit TV Households'}
       >
         <div className="edit_target">
           <form className={classes.form}>
             <span>Market:</span>
             <TextField
-              value={editData ? editData.market : ""}
+              value={editData ? editData.market : ''}
               fullWidth
               margin="normal"
               name="market"
@@ -794,7 +698,7 @@ const CustomerReport = () => {
             />
             <span>State:</span>
             <TextField
-              value={editData ? editData.state : ""}
+              value={editData ? editData.state : ''}
               fullWidth
               margin="normal"
               name="state"
@@ -804,7 +708,7 @@ const CustomerReport = () => {
             />
             <span>TV Households:</span>
             <TextField
-              value={editData ? editData.tv_households : ""}
+              value={editData ? editData.tv_households : ''}
               fullWidth
               margin="normal"
               name="tv_households"
@@ -823,35 +727,21 @@ const CustomerReport = () => {
           </form>
 
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <img src={Cancel} alt="close-modal-icon"></img>
+            <Cancel />
           </div>
         </div>
       </NormalModal>
 
-      <NormalModal
-        open={importModal.open}
-        setOpen={setImportModal}
-        width={"500px"}
-        title={""}
-      >
+      <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>
         <div className={classes.import}>
-          <input
-            id="importfile"
-            type="file"
-            name="importfile"
-            onChange={handleImportChange}
-          />
+          <input id="importfile" type="file" name="importfile" onChange={handleImportChange} />
           <Button
             variant="contained"
             color="primary"
             onClick={importHandler}
             disabled={!selectedFile}
           >
-            {loading ? (
-              <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-            ) : (
-              "Next"
-            )}
+            {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : 'Next'}
           </Button>
         </div>
       </NormalModal>
@@ -861,18 +751,16 @@ const CustomerReport = () => {
         setOpen={setShowDeleteModal}
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
-        width={"400px"}
-        title={`${selectedRowIds.length > 1
-          ? "Do you want to delete these records?"
-          : "Do you want to delete this record?"
-          }`}
+        width={'400px'}
+        title={`${
+          selectedRowIds.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
-
     </>
   )
 }
 
-CustomerReport.layout = (page) => (
-  <Layout title="Customer Report">{page}</Layout>
-)
+CustomerReport.layout = (page) => <Layout title="Customer Report">{page}</Layout>
 export default CustomerReport
