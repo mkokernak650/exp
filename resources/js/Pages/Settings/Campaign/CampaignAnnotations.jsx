@@ -1,7 +1,7 @@
 import Layout from '../../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition} from 'ka-table/enums'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import {
@@ -153,8 +153,6 @@ const CampaignAnnotations = () => {
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
-  const [open, setOpen] = useState(false)
-  const [response, setResponse] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -219,6 +217,7 @@ const CampaignAnnotations = () => {
       />
     )
   }
+
   const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
     return (
       <Checkbox
@@ -271,6 +270,7 @@ const CampaignAnnotations = () => {
       visible: true,
     },
   ]
+
   const optionKey = 'campaign-annotation-report'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
@@ -321,7 +321,6 @@ const CampaignAnnotations = () => {
     })
   }
 
-
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const ordering = []
@@ -351,9 +350,11 @@ const CampaignAnnotations = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     axios
       .post(route('annotation.delete'), { selectedRowIds })
@@ -401,7 +402,6 @@ const CampaignAnnotations = () => {
     }
   }, [showColumns])
 
-
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
@@ -414,8 +414,6 @@ const CampaignAnnotations = () => {
       </div>
     )
   }
-
-
 
   return (
     <>
@@ -443,7 +441,7 @@ const CampaignAnnotations = () => {
                     <span>Search</span>
                   </div>
                   <a className="close-nav" onClick={closeSidebar}>
-                   <Cancel />
+                    <Cancel />
                   </a>
                 </div>
 
