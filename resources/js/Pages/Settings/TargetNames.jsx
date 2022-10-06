@@ -4,13 +4,6 @@ import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
 import FilterControl from 'react-filter-control'
 import { filterData } from '../filterData'
 import 'ka-table/style.scss'
@@ -22,7 +15,6 @@ import Switch from '@material-ui/core/Switch'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import Checkbox from '@material-ui/core/Checkbox'
 import TextField from '@material-ui/core/TextField'
 import { Button, makeStyles } from '@material-ui/core'
 import axios from 'axios'
@@ -32,6 +24,9 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
+import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -100,6 +95,7 @@ export const groups = [
     name: 'or',
   },
 ]
+
 export const filter = {
   groupName: 'and',
   items: [
@@ -119,6 +115,7 @@ const Targets = () => {
   const [editData, setEditData] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const [inboundIds, setInbounIds] = useState([])
   const showColumnRef = useRef()
 
   const dataArray = allTargetNames.map((item, index) => ({
@@ -129,65 +126,6 @@ const Targets = () => {
     id: item.id,
     key: index,
   }))
-
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            } 
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows())
-            setTableToolbar(true)
-            let i = 0
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id)
-                continue
-              }
-              i++
-            }
-          } else {
-            dispatch(deselectAllFilteredRows())
-            if (selectedRowIds) {
-              selectedRowIds.splice(0, selectedRowIds.length)
-            }
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
 
   const columns = [
     {
@@ -266,7 +204,6 @@ const Targets = () => {
     },
   }
 
-
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const handleStatus = (e, value, rowId) => {
@@ -291,6 +228,15 @@ const Targets = () => {
   }
 
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+      inboundIds,
+      setInbounIds,
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -352,9 +298,11 @@ const Targets = () => {
     })
     setShowEditModal({ open: true })
   }
+
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
   }
+
   const handleEditSubmit = () => {
     axios
       .post(route('target_name.edit'), editData)
