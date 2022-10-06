@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition, EditingMode, ActionType } from 'ka-table/enums'
+import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import {
@@ -18,8 +18,6 @@ import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import { hideColumn, showColumn } from 'ka-table/actionCreators'
-import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
@@ -29,9 +27,9 @@ import { Button, makeStyles } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import SnackBar from '@/Shared/SnackBar'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
 
@@ -388,7 +386,7 @@ const BroadcastWeekReport = () => {
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
   }
-  
+
   const deleteHandler = () => {
     axios
       .post(route('broadcast.week.delete'), { selectedRowIds })
@@ -437,62 +435,6 @@ const BroadcastWeekReport = () => {
         </Tooltip>
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    )
-  }
-
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: 'key',
-      columns: [
-        {
-          key: 'visible',
-          title: 'Visible',
-          isEditable: false,
-          style: { textAlign: 'center' },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: 'title',
-          isEditable: false,
-          title: 'Fields',
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    }
-
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value ? showColumn(action.rowKeyValue) : hideColumn(action.rowKeyValue)
-        )
-      }
-    }
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case 'visible':
-                  return <CellEditorBoolean {...props} />
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
     )
   }
 
