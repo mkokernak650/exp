@@ -221,7 +221,7 @@ const BroadcastMonthReport = () => {
 
   const handleStatus = (e, value, rowId) => {
     axios
-      .post(route('target.status.update'), { value: value, rowId: rowId })
+      .post(route('broadcast.month.status.update'), { value: value, rowId: rowId })
       .then((res) => {
         let tmpData = { ...tableProps }
         tmpData.data.filter((item, indx) => {
@@ -234,6 +234,7 @@ const BroadcastMonthReport = () => {
           }
         })
         changeTableProps(tmpData)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
         console.log(err)

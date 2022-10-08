@@ -235,6 +235,7 @@ const BroadcastWeekReport = () => {
           }
         })
         changeTableProps(tmpData)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
         console.log(err)
