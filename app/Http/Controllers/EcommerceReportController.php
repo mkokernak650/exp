@@ -64,7 +64,6 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
-
         $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
         if (isset($request->campaign_id)) {
             $summary = array_reverse($summary);
@@ -88,6 +87,7 @@ class EcommerceReportController extends Controller
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
+        
         return response()->json([
             'data'    => $salesData,
             'summary' => $summary,

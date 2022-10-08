@@ -11,10 +11,10 @@ class SendMailController extends Controller
 {
     public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails)
     {
-        $mergedEmails = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com', 'mdshakhawathosen122@gmail.com']);
+        $mergedEmails = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com', 'hitmanagent800@gmail.com']);
         $michaelEmails = array_unique($mergedEmails);
         if (app()->environment('local')) {
-            $michaelEmails = ['mdshakhawathosen122@gmail.com'];
+            $michaelEmails = ['hitmanagent800@gmail.com'];
         }
 
         Excel::download(new ReportExport($sheetData, $callSummary, $tagData), $fileName . '.xlsx');

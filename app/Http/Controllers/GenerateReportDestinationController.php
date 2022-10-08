@@ -20,12 +20,12 @@ class GenerateReportDestinationController extends Controller
 
     public function GenerateReportDestination(): Response
     {
-        $allTargets = Target::where('status', '=', '1')->get();
-        $affiliates = Affiliate::where('status', '=', '1')->get();
-        $broadCastMonths = BroadCastMonth::where('status', '=', '1')->get();
-        $broadCastWeeks = BroadCastWeeks::where('status', '=', '1')->get();
+        $allTargets = Target::active()->get();
+        $affiliates = Affiliate::active()->get();
+        $broadCastMonths = BroadCastMonth::active()->get();
+        $broadCastWeeks = BroadCastWeeks::active()->get();
         $campaigns = Campaign::active()->get();
-        $customers = Customer::where('status', '=', '1')->get();
+        $customers = Customer::active()->get();
 
         return Inertia::render('GenerateReport/GenerateReportDestination', [
             'targets'         => $allTargets,

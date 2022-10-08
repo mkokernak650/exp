@@ -10,6 +10,7 @@ use App\Models\Affiliate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\SendMailController;
+use App\Models\BroadCastWeeks;
 use App\Models\ZipcodeByTelevisionMarket;
 
 class ReportGeneratorController extends Controller
@@ -22,31 +23,67 @@ class ReportGeneratorController extends Controller
     public function destinationReport(Request $request)
     {
         $campaign = Campaign::find($request->input('campaign_id'));
+        $year = $request->year;
         $broadCastMonths = [];
+        $broadCastWeeks = [];
+
         if ($request->input('broad_cast_month')) {
             $broadCastMonths = BroadCastMonth::whereIn('broad_cast_month', $request->input('broad_cast_month'))
                 ->select(['end_date', 'start_date', 'broad_cast_month'])
                 ->get();
         }
 
+        if ($request->input('broad_cast_week')) {
+            $broadCastWeeks = BroadCastWeeks::whereIn('broad_cast_week', $request->input('broad_cast_week'))
+                ->select(['end_date', 'start_date', 'broad_cast_week'])
+                ->get();
+        }
+
         $destinationReport = BilledCallLog::query()
-            ->where([
-                'Campaign' => $campaign->campaign_name,
-                'Customer' => $request->input('customer_name'),
-            ])->where(function ($query) use ($broadCastMonths) {
-                if (count($broadCastMonths)) {
-                    $query->where([
-                        ['Call_Date', '>=', $broadCastMonths->first()->start_date],
-                        ['Call_Date', '<=', $broadCastMonths->first()->end_date]
-                    ]);
-                }
-                if (count($broadCastMonths) > 1) {
-                    foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
-                        $query->orWhere([
-                            ['Call_Date', '>=', $broadCastMonth->start_date],
-                            ['Call_Date', '<=', $broadCastMonth->end_date]
-                        ]);
-                    }
+          ->when(!empty($request->input('campaign_id')), fn ($q) =>$q->where([
+              'Campaign' => $campaign->campaign_name,
+          ]))->when(!empty($request->input('customer_name')), fn ($q) =>$q->where([
+              'Customer' => $request->input('customer_name'),
+          ]))->where(function ($query) use ($broadCastMonths) {
+              if (count($broadCastMonths)) {
+                  $query->where([
+                      ['Call_Date', '>=', $broadCastMonths->first()->start_date],
+                      ['Call_Date', '<=', $broadCastMonths->first()->end_date]
+                  ]);
+              }
+              if (count($broadCastMonths) > 1) {
+                  foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
+                      $query->orWhere([
+                          ['Call_Date', '>=', $broadCastMonth->start_date],
+                          ['Call_Date', '<=', $broadCastMonth->end_date]
+                      ]);
+                  }
+              }
+          })->where(function ($query) use ($broadCastWeeks) {
+              if (count($broadCastWeeks)) {
+                  $query->where([
+                      ['Call_Date', '>=', $broadCastWeeks->first()->start_date],
+                      ['Call_Date', '<=', $broadCastWeeks->first()->end_date]
+                  ]);
+              }
+              if (count($broadCastWeeks) > 1) {
+                  foreach ($broadCastWeeks->skip(1) as $broadCastWeek) {
+                      $query->orWhere([
+                          ['Call_Date', '>=', $broadCastWeek->start_date],
+                          ['Call_Date', '<=', $broadCastWeek->end_date]
+                      ]);
+                  }
+              }
+          })
+            ->when(!empty($year), function ($q) use ($year) {
+                if (is_array($year)) {
+                    $q->where(function ($q) use ($year) {
+                        foreach ($year as $yr) {
+                            $q->where('Call_Date', 'like', '%' . $yr . '%', 'or');
+                        }
+                    });
+                } else {
+                    $q->whereYear('Call_Date', $year);
                 }
             })
             ->groupByRaw('extract(year from Call_Date), extract(month from Call_Date), Target_Number, Affiliate')
@@ -57,44 +94,73 @@ class ReportGeneratorController extends Controller
         $call_summary['Billable Calls'] = 0;
         $call_summary['Total Charges'] = 0;
         $call_summary['Non-revenue Calls'] = ArchivedCallLog::query()
-            ->where([
-                'Campaign' => $campaign->campaign_name,
-                'Customer' => $request->input('customer_name'),
-            ])->where(function ($query) use ($broadCastMonths) {
-                if (count($broadCastMonths)) {
-                    $query->where([
-                        ['Call_Date', '>=', $broadCastMonths->first()->start_date],
-                        ['Call_Date', '<=', $broadCastMonths->first()->end_date]
+        ->when(!empty($request->input('campaign_id')), fn ($q) =>$q->where([
+            'Campaign' => $campaign->campaign_name,
+        ]))->when(!empty($request->input('customer_name')), fn ($q) =>$q->where([
+            'Customer' => $request->input('customer_name'),
+        ]))->where(function ($query) use ($broadCastMonths) {
+            if (count($broadCastMonths)) {
+                $query->where([
+                    ['Call_Date', '>=', $broadCastMonths->first()->start_date],
+                    ['Call_Date', '<=', $broadCastMonths->first()->end_date]
+                ]);
+            }
+            if (count($broadCastMonths) > 1) {
+                foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
+                    $query->orWhere([
+                        ['Call_Date', '>=', $broadCastMonth->start_date],
+                        ['Call_Date', '<=', $broadCastMonth->end_date]
                     ]);
                 }
-                if (count($broadCastMonths) > 1) {
-                    foreach ($broadCastMonths->skip(1) as $broadCastMonth) {
-                        $query->orWhere([
-                            ['Call_Date', '>=', $broadCastMonth->start_date],
-                            ['Call_Date', '<=', $broadCastMonth->end_date]
-                        ]);
-                    }
+            }
+        })->where(function ($query) use ($broadCastWeeks) {
+            if (count($broadCastWeeks)) {
+                $query->where([
+                    ['Call_Date', '>=', $broadCastWeeks->first()->start_date],
+                    ['Call_Date', '<=', $broadCastWeeks->first()->end_date]
+                ]);
+            }
+            if (count($broadCastWeeks) > 1) {
+                foreach ($broadCastWeeks->skip(1) as $broadCastWeek) {
+                    $query->orWhere([
+                        ['Call_Date', '>=', $broadCastWeek->start_date],
+                        ['Call_Date', '<=', $broadCastWeek->end_date]
+                    ]);
                 }
-            })
-            ->get()->count();
+            }
+        })->when(!empty($year), function ($q) use ($year) {
+            if (is_array($year)) {
+                $q->where(function ($q) use ($year) {
+                    foreach ($year as $yr) {
+                        $q->where('Call_Date', 'like', '%' . $yr . '%', 'or');
+                    }
+                });
+            } else {
+                $q->whereYear('Call_Date', $year);
+            }
+        })->get()->count();
+        // dd($destinationReport);
 
         if ($destinationReport->count() < 1) {
-            return response()->json(['status' => 500, 'msg' => 'No data found for the selected criteria']);
+            return response()->json(['success' => false], 204);
         }
         foreach ($destinationReport as $destinationData) {
             $call_summary['Billable Calls'] += $destinationData->Billable_Calls;
             $call_summary['Total Charges'] += $destinationData->Total_Charge;
         }
-        // $columns = ['Month', 'Destination_Number', 'Affiliate', 'Billable_Calls', 'Per_Call_Rate', 'Total_Charge'];
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['success' => false, 'message' => 'No email found.'], 422);
+            }
             $newSummary['Summary of Calls'] = '   ';
             $newSummary['Billable Calls'] = $call_summary['Billable Calls'];
             $newSummary['Total Charges'] = $call_summary['Total Charges'];
             $newSummary['Non-revenue Calls'] = $call_summary['Non-revenue Calls'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($destinationReport), $newSummary, [], $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail($destinationReport, $newSummary, [], $request->file_name, $request->emails);
             return;
         }
+
         return [
             'data'         => $destinationReport,
             'call_summary' => $call_summary,
@@ -468,7 +534,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Average Homes Per call:'] = $call_summary['Average Homes Per call:'];
             $newSummary['Total Revenue:'] = $call_summary['Total Revenue:'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail($collection, $newSummary, [],  $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail($collection, $newSummary, [], $request->file_name, $request->emails);
             return;
         }
         return [
@@ -750,10 +816,10 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
+        
         // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Payout', 'Call Status', 'Call Type'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary['Summary of Calls'] = '';
-
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
             $newSummary['Targets'] = $call_summary['Targets'];
             $newSummary['Total number of calls'] = $call_summary['Total number of calls'];
