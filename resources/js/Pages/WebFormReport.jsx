@@ -4,13 +4,6 @@ import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
 import FilterControl from 'react-filter-control'
 import { filterData } from './filterData'
 import 'ka-table/style.scss'
@@ -20,12 +13,15 @@ import Cancel from '@/Components/Icons/Cancel.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import Checkbox from '@material-ui/core/Checkbox'
 import { makeStyles } from '@material-ui/core'
 import axios from 'axios'
+import { Helmet } from 'react-helmet'
 import ConfirmModal from '../Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
+import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 
 const useStyles = makeStyles(() => ({
@@ -586,66 +582,6 @@ const WebFormReport = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const showColumnRef = useRef()
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
-
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true)
-            let i = 0
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id)
-                continue
-              }
-              i++
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
-            if (selectedRowIds) {
-              selectedRowIds.splice(0, selectedRowIds.length)
-            }
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
-
   const columns = [
     {
       key: 'selection-cell',
@@ -788,6 +724,13 @@ const WebFormReport = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+    })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -880,6 +823,7 @@ const WebFormReport = () => {
 
   return (
     <>
+    <Helmet title="WebForm Report" />
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
