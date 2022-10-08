@@ -190,7 +190,6 @@ const Targets = () => {
   const [editData, setEditData] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
-  const [inboundIds, setInbounIds] = useState([])
   const showColumnRef = useRef()
 
   const dataArray = allTargets.map((item, index) => ({
@@ -325,8 +324,6 @@ const Targets = () => {
       setSelectedRowIds,
       tableProps,
       setTableToolbar,
-      inboundIds,
-      setInbounIds,
     })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)

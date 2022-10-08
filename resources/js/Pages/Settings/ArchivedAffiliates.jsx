@@ -265,7 +265,6 @@ const ArchivedAffiliates = () => {
   const [showActiveModal, setShowActiveModal] = useState({
     open: false,
   })
-  const [inboundIds, setInbounIds] = useState([])
   const showColumnRef = useRef()
 
   const dataArray = allAffiliates.map((item, index) => ({
@@ -377,8 +376,6 @@ const ArchivedAffiliates = () => {
       setSelectedRowIds,
       tableProps,
       setTableToolbar,
-      inboundIds,
-      setInbounIds,
     })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)

@@ -186,7 +186,6 @@ const AffiliateIndex = () => {
   const [importModal, setImportModal] = useState({ open: false })
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [inboundIds, setInbounIds] = useState([])
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -455,8 +454,6 @@ const AffiliateIndex = () => {
       setSelectedRowIds,
       tableProps,
       setTableToolbar,
-      inboundIds,
-      setInbounIds,
     })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)

@@ -269,7 +269,6 @@ const AffiliateReport = () => {
   const [showArchivedModal, setShowArchivedModal] = useState({
     open: false,
   })
-  const [inboundIds, setInbounIds] = useState([])
   const showColumnRef = useRef()
 
   const dataArray = allAffiliates.map((item, index) => ({
@@ -381,8 +380,6 @@ const AffiliateReport = () => {
       setSelectedRowIds,
       tableProps,
       setTableToolbar,
-      inboundIds,
-      setInbounIds,
     })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)

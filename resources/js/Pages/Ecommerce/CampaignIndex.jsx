@@ -134,7 +134,6 @@ const CampaignIndex = () => {
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
-  const [inboundIds, setInbounIds] = useState([])
   const showColumnRef = useRef()
 
   const handleEditChange = (e) => {
@@ -267,8 +266,6 @@ const CampaignIndex = () => {
       setSelectedRowIds,
       tableProps,
       setTableToolbar,
-      inboundIds,
-      setInbounIds,
     })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
