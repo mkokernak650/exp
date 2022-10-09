@@ -2,11 +2,10 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
 import 'ka-table/style.scss'
-import {hideLoading, showLoading } from 'ka-table/actionCreators'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
@@ -23,8 +22,6 @@ import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
@@ -1257,8 +1254,6 @@ const ZipcodeDatabase = () => {
   const [searchedData, setSearchData] = useState([])
   const [tableToolbar, setTableToolbar] = useState(false)
 
-
-
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
       sl: index + 1,
@@ -1301,11 +1296,6 @@ const ZipcodeDatabase = () => {
   const dataArray = mapDataArr(allZipcodes)
 
   const columns = [
-    {
-      key: 'selection-cell',
-      style: { width: 80 },
-      visible: true,
-    },
     {
       key: 'NPA',
       title: 'NPA',
@@ -1542,7 +1532,7 @@ const ZipcodeDatabase = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar})
+    handleSelects({ action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -1563,9 +1553,11 @@ const ZipcodeDatabase = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const hideCoumnSettings = () => {
     setShowColumns(false)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
@@ -1736,41 +1728,6 @@ const ZipcodeDatabase = () => {
         <Table
           {...tableProps}
           childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionCell
-                      {...props}
-                      selectedRowIds={selectedRowIds}
-                      setTableToolbar={setTableToolbar}
-                    />
-                  )
-                }
-              },
-            },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      selectedRowIds={selectedRowIds}
-                      setTableToolbar={setTableToolbar}
-                      searchedData={searchedData}
-                    />
-                  )
-                }
-              },
-            },
             cell: {
               content: (props) => {
                 switch (props.column.key) {

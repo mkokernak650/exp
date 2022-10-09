@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\BroadCastWeeks;
+use App\Models\TableDetails;
 
 class BroadCastWeeksController extends Controller
 {
@@ -39,10 +40,11 @@ class BroadCastWeeksController extends Controller
 
     public function broadCastWeekReport()
     {
-
         $BroadCastWeeks = BroadCastWeeks::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/BroadcastWeekReport', [
             'BroadCastWeeks'    => $BroadCastWeeks,
+            'columnsData'       => $columnsData
         ]);
     }
 
@@ -82,15 +84,19 @@ class BroadCastWeeksController extends Controller
         }
     }
 
-    
+
     public function statusUpdate(Request $request)
     {
         $data = BroadCastWeeks::find($request->rowId);
-        if ($request->value ==1) {
-            $data->status =0;
+        if ($request->value == 1) {
+            $data->status = 0;
         } else {
-            $data->status =1;
+            $data->status = 1;
         }
         $result = $data->save();
+        
+        if ($result) {
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
     }
 }

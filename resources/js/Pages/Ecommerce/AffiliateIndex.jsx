@@ -170,6 +170,7 @@ const AffiliateIndex = () => {
     affiliate_fee: '',
     consumerExp_fee: '',
   }
+
   const classes = useStyles()
   const { ecommerceAffiliates, affiliates, campaigns, customers, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
@@ -485,6 +486,7 @@ const AffiliateIndex = () => {
     FileSaver.saveAs(data, 'Ecommerce Affiliates' + '.xlsx')
     toast.success('Report Exported Successfully')
   }
+
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -494,6 +496,7 @@ const AffiliateIndex = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }

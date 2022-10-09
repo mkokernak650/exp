@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\BroadCastMonth;
+use App\Models\TableDetails;
 
 class BroadCastMonthController extends Controller
 {
@@ -38,8 +39,10 @@ class BroadCastMonthController extends Controller
     public function broadCastMonthReport()
     {
         $BroadCastMonths = BroadCastMonth::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/BroadcastMonthReport', [
             'BroadCastMonths'   => $BroadCastMonths,
+            'columnsData'       => $columnsData
         ]);
     }
 
@@ -72,24 +75,28 @@ class BroadCastMonthController extends Controller
         $data->start_date  = $request->start_date;
         $data->end_date  = $request->end_date;
         $result = $data->save();
-        $allData= BroadCastMonth::all();
+        $allData = BroadCastMonth::all();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,"allData" => $allData]);
+            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "allData" => $allData]);
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
     }
 
-    
+
     public function statusUpdate(Request $request)
     {
         $data = BroadCastMonth::find($request->rowId);
-        if ($request->value ==1) {
-            $data->status =0;
+        if ($request->value == 1) {
+            $data->status = 0;
         } else {
-            $data->status =1;
+            $data->status = 1;
         }
         $result = $data->save();
+
+        if ($result) {
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
     }
 }

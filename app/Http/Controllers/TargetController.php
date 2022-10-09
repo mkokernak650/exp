@@ -184,6 +184,10 @@ class TargetController extends Controller
             $data->status = 1;
         }
         $result = $data->save();
+
+        if ($result) {
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
     }
 
     public function targetNamesStatusUpdate(Request $request)
@@ -195,5 +199,9 @@ class TargetController extends Controller
             $data->status = 1;
         }
         $result = $data->save();
+
+        if ($result) {
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
     }
 }

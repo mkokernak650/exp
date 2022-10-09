@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use App\Models\WebForm;
 use Inertia\Inertia;
@@ -17,21 +18,23 @@ class WebFormController extends Controller
     public function index()
     {
         $allData = WebForm::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('WebFormReport', [
-            'allReports' => $allData
+            'allReports'  => $allData,
+            'columnsData' => $columnsData
         ]);
     }
     public function store(Request $request)
     {
         $result = WebForm::create([
             'company' => $request->company,
-            'lname' => $request->lname,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'skype' => $request->skype,
-            'street' => $request->street,
-            'city' => $request->city,
-            'state' => $request->state,
+            'lname'   => $request->lname,
+            'email'   => $request->email,
+            'phone'   => $request->phone,
+            'skype'   => $request->skype,
+            'street'  => $request->street,
+            'city'    => $request->city,
+            'state'   => $request->state,
             'zipcode' => $request->zipcode,
             'country' => $request->country,
             'website' => $request->website,

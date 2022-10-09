@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\Affiliate;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -90,16 +92,20 @@ class AffiliateController extends Controller
     public function affiliateReport()
     {
         $allAffiliates = Affiliate::where('status', '=', '1')->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/AffiliateReport', [
             'allAffiliates' => $allAffiliates,
+            'columnsData'    => $columnsData
         ]);
     }
 
     public function archivedAffiliates()
     {
         $allAffiliates = Affiliate::where('status', '=', '0')->get();
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/ArchivedAffiliates', [
             'allAffiliates' => $allAffiliates,
+            'columnsData'    => $columnsData
         ]);
     }
 
@@ -114,7 +120,7 @@ class AffiliateController extends Controller
         $result = $data->save();
 
         if ($result) {
-            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, ]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200,]);
         } else {
             return response()->json(['msg' => 'Editing Failed', 'status_code' => 500]);
         }
