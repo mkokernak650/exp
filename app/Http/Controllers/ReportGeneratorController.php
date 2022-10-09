@@ -39,7 +39,7 @@ class ReportGeneratorController extends Controller
                 ->get();
         }
 
-        $destinationReport = BilledCallLog::query()
+        $destinationReport = DB::table('billed_call_logs')
           ->when(!empty($request->input('campaign_id')), fn ($q) =>$q->where([
               'Campaign' => $campaign->campaign_name,
           ]))->when(!empty($request->input('customer_name')), fn ($q) =>$q->where([
@@ -139,7 +139,6 @@ class ReportGeneratorController extends Controller
                 $q->whereYear('Call_Date', $year);
             }
         })->get()->count();
-
 
         if ($destinationReport->count() < 1) {
             return response()->json(['success' => false], 204);

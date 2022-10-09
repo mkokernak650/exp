@@ -287,7 +287,7 @@ div::-webkit-scrollbar-thumb {
     color: #fff;
     opacity: 0.8;
     cursor: pointer;
-    background-color: #ccc;
+    /* background-color: #ccc; */
 }
 
 
