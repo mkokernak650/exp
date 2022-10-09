@@ -23,7 +23,9 @@ const handleSelects = ({
     case 'DeselectRow':
       const itemIndx = tmpRowIds.indexOf(id)
       tmpRowIds.splice(itemIndx, 1)
-      setTableToolbar(false)
+      if (selectedRowIds.length === 1) {
+        setTableToolbar(false)
+      }
       if (rest?.inboundIds) {
         const tmpInboundIds = [...rest.inboundIds]
         const selectedRowData = tableProps.data.filter((item) => item.id == id)

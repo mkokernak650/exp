@@ -77,7 +77,7 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                // required={true}
+                required={true}
               >
                 <option value="">Select Campaign</option>
                 {allCampaigns.map((option, indx) => (
