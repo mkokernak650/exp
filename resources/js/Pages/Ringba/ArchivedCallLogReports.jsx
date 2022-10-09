@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { DataType, SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'

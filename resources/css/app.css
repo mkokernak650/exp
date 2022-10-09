@@ -349,21 +349,6 @@ div::-webkit-scrollbar-thumb {
     background-color: #ededed !important;
 }
 
-.selection-demo .pagination {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 0 15px;
-    font-size: 18px;
-}
-
-.selection-demo .pagination .page-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-}
-
 /*conditon-style*/
 .top-element {
     padding: 0 15px;
@@ -1248,4 +1233,31 @@ div::-webkit-scrollbar-thumb {
 
 .table-bottom select:hover {
     border-color: #545582;
+}
+
+.selection-demo .pagination {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    padding: 0 10px;
+    margin: 0;
+}
+.pagination .page-item{
+    cursor: pointer;
+    padding: 5px;
+    margin: 10px 5px;
+    min-width: 18px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    text-align: center;
+    color: #747D86;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.page-item.active{
+    font-weight: bold;
+    background-color: #ededed !important;
 }
