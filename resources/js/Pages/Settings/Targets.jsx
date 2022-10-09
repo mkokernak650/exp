@@ -311,6 +311,7 @@ const Targets = () => {
           }
         })
         changeTableProps(tmpData)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
         console.log(err)

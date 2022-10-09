@@ -134,7 +134,7 @@ const Targets = () => {
     },
     {
       key: 'selection-cell',
-      style: { width: 80 },
+      style: { width: 50 },
       visible: true,
     },
     {
@@ -148,14 +148,14 @@ const Targets = () => {
       key: 'target_name',
       title: 'Target Name',
       dataType: DataType.String,
-      style: { width: 360 },
+      style: { width: 460 },
       visible: true,
     },
 
     {
       key: 'status',
       title: 'Status',
-      style: { width: 240 },
+      style: { width: 340 },
       visible: true,
     },
   ]
@@ -220,6 +220,7 @@ const Targets = () => {
           }
         })
         changeTableProps(tmpData)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
         console.log(err)
