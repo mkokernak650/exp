@@ -14,6 +14,7 @@ use App\Models\EcommerceAffiliate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\EcommerceAffiliatesImport;
 use App\Http\Requests\EcommerceAffiliateRequest;
+use App\Models\Campaign;
 use App\Models\TableDetails;
 
 class EcommerceAffiliateController extends Controller
@@ -30,12 +31,92 @@ class EcommerceAffiliateController extends Controller
         $customers = Customer::active()->get();
         $columnsData = TableDetails::all()->pluck('column_details');
 
-        $ecommerceAffiliates = EcommerceAffiliate::query()
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $eAffiliatesQuery = EcommerceAffiliate::query()
             ->with('affiliate:id,affiliate_name')
             ->with('campaign:id,campaign_name')
-            ->with('customer:id,customer_name')
-            ->get();
+            ->with('customer:id,customer_name');
+
+            $firstCond = $conditions->items[0];
+            $field = $this->fieldName($firstCond->field);
+            $val = $this->valueCehckById($firstCond->field, $firstCond->value);
+
+            $this->makeConditionQuery($eAffiliatesQuery, 'where', $field, $firstCond->operator, $val);
+            for ($i = 1; $i < count($conditions->items); $i++) {
+                $cond = $conditions->items[$i];
+                $multiConField = $this->fieldName($cond->field);
+                $multiConVal = $this->valueCehckById($cond->field, $cond->value);
+
+                $this->makeConditionQuery($eAffiliatesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
+            }
+
+            return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $ecommerceAffiliates = EcommerceAffiliate::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $ecommerceAffiliates;
+        }
+        $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Ecommerce/AffiliateIndex', compact('ecommerceAffiliates', 'affiliates', 'campaigns', 'customers', 'columnsData'));
+    }
+
+    public function valueCehckById($key, $val)
+    {
+        switch($key) {
+            case 'campaign':
+                $result = EcommerceCampaign::where('campaign_name', $val)->pluck('id');
+                if (count($result)) {
+                    return $result[0];
+                } else {
+                    return $val;
+                }
+                // no break
+            case 'affiliate':
+                $result = Affiliate::where('affiliate_name', $val)->pluck('id');
+                if (count($result)) {
+                    return $result[0];
+                } else {
+                    return $val;
+                }
+                // no break
+            case 'customer':
+                $result = Customer::where('customer_name', $val)->pluck('id');
+                if (count($result)) {
+                    return $result[0];
+                } else {
+                    return $val;
+                }
+                // no break
+            case 'order_type':
+                if ($val === 'E-commerce') {
+                    return 1;
+                } elseif ($val === 'Phone') {
+                    return 2;
+                } else {
+                    return $val;
+                }
+                // no break
+            default:
+                return $val;
+        }
+    }
+
+    public function fieldName($key)
+    {
+        switch($key) {
+            case 'campaign':
+                return 'campaign_id';
+            case 'affiliate':
+                return 'affiliate_id';
+
+            case 'customer':
+                return 'customer_id';
+            default:
+                return $key;
+        }
     }
 
     /**

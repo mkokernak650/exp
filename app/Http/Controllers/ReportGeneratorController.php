@@ -139,7 +139,7 @@ class ReportGeneratorController extends Controller
                 $q->whereYear('Call_Date', $year);
             }
         })->get()->count();
-        // dd($destinationReport);
+
 
         if ($destinationReport->count() < 1) {
             return response()->json(['success' => false], 204);
@@ -816,7 +816,7 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
-        
+
         // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Payout', 'Call Status', 'Call Type'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary['Summary of Calls'] = '';
