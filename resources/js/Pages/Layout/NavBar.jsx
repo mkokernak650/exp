@@ -145,7 +145,6 @@ export default function PersistentDrawerLeft(props) {
   const [open, setOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
-  const [showlStorageModal, setShowlStorageModal] = useState({ open: false });
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -169,11 +168,6 @@ export default function PersistentDrawerLeft(props) {
 
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false });
-  };
-
-  const clearLocalStorage = () => {
-    window.localStorage.clear();
-    setShowlStorageModal({ open: false });
   };
 
   const menuId = 'primary-search-account-menu';
@@ -572,14 +566,6 @@ export default function PersistentDrawerLeft(props) {
           ) : (
             ''
           )}
-          <Button
-            variant="contained"
-            type="submit"
-            color="primary"
-            onClick={() => handleOpenModal(setShowlStorageModal)}
-          >
-            Clear LocalStorage
-          </Button>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton
@@ -754,14 +740,6 @@ export default function PersistentDrawerLeft(props) {
         {props.main}
       </main>
 
-      <ConfirmModal
-        open={showlStorageModal.open}
-        setOpen={setShowlStorageModal}
-        btnAction={clearLocalStorage}
-        closeAction={() => handleCloseModal(setShowlStorageModal)}
-        width={'400px'}
-        title={'Do you want to clear LocalStorage'}
-      ></ConfirmModal>
     </div>
   );
 }

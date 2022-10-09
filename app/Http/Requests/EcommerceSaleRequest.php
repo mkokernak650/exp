@@ -28,7 +28,7 @@ class EcommerceSaleRequest extends FormRequest
             'campaign_id'    => ['nullable', Rule::exists('ecommerce_campaigns', 'id')],
             'customer_id'    => ['nullable', Rule::exists('customers', 'id')],
             'order_type'     => ['required', Rule::in(['E-commerce', 'Phone'])],
-            'order_no'       => ['required', 'string', 'max:255'],
+            'order_no'       => ['nullable', 'string', 'max:255'],
             'coupon_code'    => ['max:255', Rule::requiredIf($this->order_type === 'E-commerce')],
             'dialed'         => ['max:255', Rule::requiredIf($this->order_type === 'Phone')],
             'user_ip'        => ['nullable', 'max:255'],

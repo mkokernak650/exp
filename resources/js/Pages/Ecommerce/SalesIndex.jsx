@@ -1,39 +1,34 @@
-import Layout from '../Layout/Layout';
-import React, { useEffect, useState, useRef } from 'react';
-import { kaReducer, Table } from 'ka-table';
-import { DataType, SortingMode, PagingPosition, EditingMode, ActionType } from 'ka-table/enums';
-import { kaPropsUtils } from 'ka-table/utils';
-import { usePage } from '@inertiajs/inertia-react';
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators';
-import FilterControl from 'react-filter-control';
-import { filterData } from '../filterData';
-import 'ka-table/style.scss';
-import search from '../../../images/search.svg';
-import eyeIcon from '../../../images/eyeIcon.svg';
+import Layout from '../Layout/Layout'
+import React, { useEffect, useState, useRef } from 'react'
+import { kaReducer, Table } from 'ka-table'
+import { DataType, SortingMode } from 'ka-table/enums'
+import { kaPropsUtils } from 'ka-table/utils'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
+import { usePage } from '@inertiajs/inertia-react'
+import FilterControl from 'react-filter-control'
+import 'ka-table/style.scss'
+import Search from '@/Components/Icons/Search.jsx'
+import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import { hideColumn, showColumn } from 'ka-table/actionCreators';
-import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean';
-import Tooltip from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/Delete';
-import IconButton from '@material-ui/core/IconButton';
-import Edit from '../../../images/edit1.svg';
-import Checkbox from '@material-ui/core/Checkbox';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import TextField from '@material-ui/core/TextField';
-import { Button, makeStyles } from '@material-ui/core';
-import axios from 'axios';
-import { Helmet } from 'react-helmet';
-import SnackBar from '../../Shared/SnackBar';
-import ConfirmModal from '../../Shared/ConfirmModal';
-import NormalModal from '../../Shared/NormalModal';
-import toast from 'react-hot-toast';
-import { DateTimeFormat } from '../../Helpers/DateTimeFormat';
+import Edit from '@/Components/Icons/Edit.jsx'
+import Tooltip from '@material-ui/core/Tooltip'
+import DeleteIcon from '@material-ui/icons/Delete'
+import IconButton from '@material-ui/core/IconButton'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import TextField from '@material-ui/core/TextField'
+import { Button, makeStyles } from '@material-ui/core'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import NormalModal from '@/Shared/NormalModal'
+import toast from 'react-hot-toast'
+import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
+import ColumnSettings from '@/Components/ColumnSettings'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
+import addTableDetails from '@/Helpers/AddTableDetails'
+import handleSelects from '@/Helpers/HandleSelects'
+import { Pagination } from 'react-laravel-paginex'
 
 const useStyles = makeStyles(() => ({
   topBtn: {
@@ -48,7 +43,7 @@ const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}));
+}))
 
 const operators = [
   {
@@ -83,7 +78,7 @@ const operators = [
     caption: 'Is Not',
     name: 'isnot',
   },
-];
+]
 
 export const fields = [
   {
@@ -171,7 +166,7 @@ export const fields = [
     name: 'order_at',
     operators,
   },
-];
+]
 
 export const groups = [
   {
@@ -182,7 +177,7 @@ export const groups = [
     caption: 'Or',
     name: 'or',
   },
-];
+]
 
 export const filter = {
   groupName: 'and',
@@ -193,311 +188,289 @@ export const filter = {
       value: '',
     },
   ],
-};
+}
 
 const SalesIndex = () => {
-  const classes = useStyles();
-  const { sales, campaigns, customers } = usePage().props;
-  const [showColumns, setShowColumns] = useState(false);
-  const [tableToolbar, setTableToolbar] = useState(false);
-  const [selectedRowIds, setSelectedRowIds] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
-  const [responseType, setResponseType] = useState('success');
-  const [showEditModal, setShowEditModal] = useState({ open: false });
-  const [editData, setEditData] = useState();
-  const [showDeleteModal, setShowDeleteModal] = useState({ open: false });
-  const [loading, setLoading] = useState(false);
-  const showColumnRef = useRef();
+  const classes = useStyles()
+  const { sales, campaigns, customers, columnsData } = usePage().props
+  const [showColumns, setShowColumns] = useState(false)
+  const [tableToolbar, setTableToolbar] = useState(false)
+  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [showEditModal, setShowEditModal] = useState({ open: false })
+  const [editData, setEditData] = useState()
+  const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const [loading, setLoading] = useState(false)
+  const [salesData, seteSalesData] = useState(sales)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setcurrentPage] = useState(1)
+  const showColumnRef = useRef()
 
   const handleEditChange = ({ target: { name, value } }) => {
-    setEditData((oldEditData) => ({ ...oldEditData, [name]: value }));
-  };
+    setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
+  }
 
   const headers = {
     headers: { Accept: 'application/json' },
-  };
+  }
 
   const getCustomerNameById = (id) => {
-    const customer = customers.find((customer) => customer.id == id);
-    return customer ? customer.customer_name : '';
-  };
+    const customer = customers.find((customer) => customer.id == id)
+    return customer ? customer.customer_name : ''
+  }
 
   const getCampaignNameById = (id) => {
-    const campaign = campaigns.find((campaign) => campaign.id == id);
-    return campaign ? campaign.campaign_name : '';
-  };
+    const campaign = campaigns.find((campaign) => campaign.id == id)
+    return campaign ? campaign.campaign_name : ''
+  }
 
   const handleEditSubmit = () => {
     axios
       .put(route('ecommerce-sales.update', editData?.id), editData, headers)
       .then((res) => {
-        let campaignName = getCampaignNameById(editData?.campaign_id);
-        let customerName = getCustomerNameById(editData?.customer_id);
-        let filteredData = tableProps;
-        filteredData.data[editData?.sl - 1] = {
-          ...editData,
-          campaign: campaignName,
-          customer: customerName,
-          coupon_code: res.data.data.coupon_code,
-          user_ip: res.data.data.user_ip,
-          dialed: res.data.data.dialed,
-          inbound: res.data.data.inbound,
-          updated_at: res.data.updated_at,
-        };
+        console.log(res)
+        let campaignName = getCampaignNameById(editData?.campaign_id)
+        let customerName = getCustomerNameById(editData?.customer_id)
+        const tmpTableProps = { ...tableProps }
+        tablePropsRef.current.filter((item) => {
+          if (item.id === editData.id) {
+            item.campaign = campaignName
+            item.campaign_id = editData.campaign_id
+            item.customer = customerName
+            item.customer_id = editData.customer_id
+            item.coupon_code = res.data.data.coupon_code
+            item.user_ip = res.data.data.user_ip
+            item.order_no = res.data.data.order_no
+            item.subtotal = res.data.data.subtotal
+            item.total = res.data.data.total
+            item.shipping_cost = res.data.data.shipping_cost
+            item.shipping_zip = res.data.data.shipping_zip
+            item.shipping_state = res.data.data.shipping_state
+            item.shipping_city = res.data.data.shipping_city
+            item.billing_zip = res.data.data.billing_zip
+            item.dialed = res.data.data.dialed
+            item.inbound = res.data.data.inbound
+            item.updated_at = res.data.updated_at
+          }
+        })
 
-        setEditData();
-        setShowEditModal({ open: false });
-        toast.success(res.data.msg);
+        tmpTableProps.data = tablePropsRef.current
+        changeTableProps(tmpTableProps)
+        setEditData()
+        setShowEditModal({ open: false })
+        toast.success(res.data.msg)
       })
       .catch((err) => {
-        let errors = '';
+        let errors = ''
         if (err.response.data?.errors) {
           Object.values(err.response.data?.errors).map((error) => {
-            errors += error[0] + '\n';
-          });
+            errors += error[0] + '\n'
+          })
         } else if (err.response.data?.msg) {
-          errors = err.response.data.msg;
+          errors = err.response.data.msg
         }
-        toast.error(errors);
-      });
-  };
+        toast.error(errors)
+      })
+  }
 
-  const dataArray = sales.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    campaign_id: item?.campaign_id,
-    customer_id: item?.customer_id,
-    campaign: item?.campaign?.campaign_name,
-    customer: item?.customer?.customer_name,
-    order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
-    dialed: item?.dialed,
-    inbound: item?.inbound,
-    revenue: item?.revenue,
-    order_no: item.order_no,
-    coupon_code: item.coupon_code,
-    user_ip: item.user_ip,
-    shipping_city: item.shipping_city,
-    shipping_state: item.shipping_state,
-    shipping_zip: item.shipping_zip,
-    billing_zip: item.billing_zip,
-    quantity: item.quantity,
-    subtotal: item.subtotal,
-    shipping_cost: item.shipping_cost,
-    total: item.total,
-    order_at: item.formatted_order_at,
-    created_at: item.created_at,
-    updated_at: item.updated_at,
-    id: item.id,
-    key: index,
-  }));
+  const mapDataArr = (data) => {
+    return data.map((item, index) => {
+      return {
+        edit: item.id,
+        campaign_id: item?.campaign_id,
+        customer_id: item?.customer_id,
+        campaign: item?.campaign?.campaign_name,
+        customer: item?.customer?.customer_name,
+        order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
+        dialed: item?.dialed,
+        inbound: item?.inbound,
+        revenue: item?.revenue,
+        order_no: item.order_no,
+        coupon_code: item.coupon_code,
+        user_ip: item.user_ip,
+        shipping_city: item.shipping_city,
+        shipping_state: item.shipping_state,
+        shipping_zip: item.shipping_zip,
+        billing_zip: item.billing_zip,
+        quantity: item.quantity,
+        subtotal: item.subtotal,
+        shipping_cost: item.shipping_cost,
+        total: item.total,
+        order_at: item.formatted_order_at,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        id: item.id,
+        key: index,
+      }
+    })
+  }
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()));
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue));
-            setTableToolbar(true);
-            const id = parseInt(rowKeyValue);
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id);
-            }
-          } else {
-            dispatch(deselectRow(rowKeyValue));
-            const id = parseInt(rowKeyValue);
-            const itemIndx = selectedRowIds.indexOf(id);
-            selectedRowIds.splice(itemIndx, 1);
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
-            }
-          }
-        }}
-      />
-    );
-  };
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()); // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true);
-            let i = 0;
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id);
-                continue;
-              }
-              i++;
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()); // also available: deselectAllVisibleRows(), deselectAllRows()
-            if (selectedRowIds) {
-              selectedRowIds.splice(0, selectedRowIds.length);
-            }
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false);
-            }
-          }
-        }}
-      />
-    );
-  };
+  const dataArray = mapDataArr(sales.data)
 
   const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
+    tablePropsRef.current.filter((item) => {
       if (item.id == itemId) {
-        setEditData(item);
+        setEditData(item)
       }
-    });
-    setShowEditModal({ open: true });
-  };
+    })
+    setShowEditModal({ open: true })
+  }
+
+  const columns = [
+    {
+      key: 'edit',
+      style: { width: 40 },
+      visible: true,
+    },
+    {
+      key: 'selection-cell',
+      style: { width: 80 },
+      visible: true,
+    },
+    {
+      key: 'campaign',
+      title: 'Campaign',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'customer',
+      title: 'Customer',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'order_at',
+      title: 'Order AT',
+      dataType: DataType.Date,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'order_type',
+      title: 'Order Type',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'order_no',
+      title: 'Order No',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'coupon_code',
+      title: 'Coupon Code',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'dialed',
+      title: 'Dialed',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'user_ip',
+      title: 'User IP',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'inbound',
+      title: 'Inbound',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'shipping_city',
+      title: 'Shipping City',
+      dataType: DataType.String,
+      style: { width: 160 },
+      visible: true,
+    },
+    {
+      key: 'shipping_state',
+      title: 'Shipping State',
+      dataType: DataType.String,
+      style: { width: 140 },
+      visible: true,
+    },
+    {
+      key: 'shipping_zip',
+      title: 'Shipping Zip',
+      dataType: DataType.String,
+      style: { width: 140 },
+      visible: true,
+    },
+    {
+      key: 'billing_zip',
+      title: 'Billing Zip',
+      dataType: DataType.String,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'quantity',
+      title: 'Quantity',
+      dataType: DataType.String,
+      style: { width: 120 },
+      visible: true,
+    },
+    {
+      key: 'subtotal',
+      title: 'Subtotal',
+      dataType: DataType.String,
+      style: { width: 140 },
+      visible: true,
+    },
+    {
+      key: 'shipping_cost',
+      title: 'Shipping Cost',
+      dataType: DataType.String,
+      style: { width: 140 },
+      visible: true,
+    },
+    {
+      key: 'total',
+      title: 'Total',
+      dataType: DataType.String,
+      style: { width: 140 },
+      visible: true,
+    },
+    {
+      key: 'created_at',
+      title: 'Created At',
+      dataType: DataType.String,
+      style: { width: 200 },
+      visible: true,
+    },
+    {
+      key: 'updated_at',
+      title: 'Last Updated',
+      dataType: DataType.Date,
+      style: { width: 200 },
+      visible: true,
+    },
+  ]
+
+  const optionKey = 'sales-index'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
 
   const tablePropsInit = {
-    columns: [
-      {
-        key: 'edit',
-        style: { width: 40 },
-      },
-      {
-        key: 'selection-cell',
-        style: { width: 80 },
-      },
-      {
-        key: 'sl',
-        title: 'SL',
-        dataType: DataType.Number,
-        style: { width: 60 },
-      },
-      {
-        key: 'campaign',
-        title: 'Campaign',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'customer',
-        title: 'Customer',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'order_at',
-        title: 'Order AT',
-        dataType: DataType.Date,
-        style: { width: 160 },
-      },
-      {
-        key: 'order_type',
-        title: 'Order Type',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'order_no',
-        title: 'Order No',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'coupon_code',
-        title: 'Coupon Code',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'dialed',
-        title: 'Dialed',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'user_ip',
-        title: 'User IP',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'inbound',
-        title: 'Inbound',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'shipping_city',
-        title: 'Shipping City',
-        dataType: DataType.String,
-        style: { width: 160 },
-      },
-      {
-        key: 'shipping_state',
-        title: 'Shipping State',
-        dataType: DataType.String,
-        style: { width: 140 },
-      },
-      {
-        key: 'shipping_zip',
-        title: 'Shipping Zip',
-        dataType: DataType.String,
-        style: { width: 140 },
-      },
-      {
-        key: 'billing_zip',
-        title: 'Billing Zip',
-        dataType: DataType.String,
-        style: { width: 120 },
-      },
-      {
-        key: 'quantity',
-        title: 'Quantity',
-        dataType: DataType.String,
-        style: { width: 120 },
-      },
-      {
-        key: 'subtotal',
-        title: 'Subtotal',
-        dataType: DataType.String,
-        style: { width: 140 },
-      },
-      {
-        key: 'shipping_cost',
-        title: 'Shipping Cost',
-        dataType: DataType.String,
-        style: { width: 140 },
-      },
-      {
-        key: 'total',
-        title: 'Total',
-        dataType: DataType.String,
-        style: { width: 140 },
-      },
-      {
-        key: 'created_at',
-        title: 'Created At',
-        dataType: DataType.String,
-        style: { width: 100 },
-      },
-      {
-        key: 'updated_at',
-        title: 'Last Updated',
-        dataType: DataType.Date,
-        style: { width: 100 },
-      },
-    ],
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
+    columns:
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
@@ -507,23 +480,20 @@ const SalesIndex = () => {
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <img src={Edit} alt="edit-icon"></img>
+            <Edit />
           </div>
-        );
+        )
       }
-      // if (column.key === "order_type") {
-      //   return value == 1 ? "E-commerce" : "Phone";
-      // }
       if (column.key === 'order_at') {
         if (value !== undefined) {
-          let d = new Date(value);
-          let hours = d.getHours();
-          let minutes = d.getMinutes();
-          let ampm = hours >= 12 ? 'PM' : 'AM';
-          hours = hours % 12;
-          hours = hours ? hours : 12; // the hour "0" should be "12"
-          minutes = minutes < 10 ? '0' + minutes : minutes;
-          let strTime = hours + ':' + minutes + ' ' + ampm;
+          let d = new Date(value)
+          let hours = d.getHours()
+          let minutes = d.getMinutes()
+          let ampm = hours >= 12 ? 'PM' : 'AM'
+          hours = hours % 12
+          hours = hours ? hours : 12 // the hour "0" should be "12"
+          minutes = minutes < 10 ? '0' + minutes : minutes
+          let strTime = hours + ':' + minutes + ' ' + ampm
           return (
             d.getDate() +
             '-' +
@@ -532,116 +502,128 @@ const SalesIndex = () => {
             d.getFullYear().toString() +
             ' ' +
             strTime
-          );
+          )
         }
       }
       if (column.key === 'created_at' || column.key === 'updated_at') {
         if (value !== undefined) {
-          return DateTimeFormat(value);
+          return DateTimeFormat(value)
         }
       }
     },
-  };
+  }
 
-  const OPTION_KEY = 'sales-index';
-  const stateStore = {
-    ...tablePropsInit,
-    ...JSON.parse(localStorage.getItem(OPTION_KEY) || '0'),
-  };
-  const [tableProps, changeTableProps] = useState(stateStore);
+  const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps.data)
+
   const dispatch = (action) => {
+    handleSelects({
+      action,
+      selectedRowIds,
+      setSelectedRowIds,
+      tableProps,
+      setTableToolbar,
+    })
     changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action);
-      const { data, ...settingsWithoutData } = newState;
-      localStorage.setItem(OPTION_KEY, JSON.stringify(settingsWithoutData));
-      return newState;
-    });
-  };
-  const [filterValue, changeFilter] = useState(filter);
+      const newState = kaReducer(prevState, action)
+      const { data, ...settingsWithoutData } = newState
+      if (action?.type === 'ReorderColumns') {
+        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+      }
+      return newState
+    })
+  }
+  const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue);
-  };
+    changeFilter(newFilterValue)
+  }
 
-  const [serachSidebar, setSearchSidebar] = useState(false);
+  const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState);
-  };
+    setSearchSidebar((prevState) => !prevState)
+  }
 
   const handleColumns = () => {
-    setShowColumns(true);
-  };
+    setShowColumns(true)
+  }
   const closeSidebar = () => {
-    setSearchSidebar(false);
-  };
+    setSearchSidebar(false)
+  }
 
   const deleteHandler = () => {
     axios
       .post(route('ecommerce-sales.deleteSelected'), { selectedRowIds })
       .then((res) => {
-        let filteredData = tableProps;
-        const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id));
-        filteredData.data = newData;
-        changeTableProps(filteredData);
-        setSelectedRowIds([]);
-        setTableToolbar(false);
-        setResponseType('success');
-        setOpen(true);
-        setResponse(res.data.msg);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
+        let filteredData = tableProps
+        const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
+        filteredData.data = newData
+        changeTableProps(filteredData)
+        tablePropsRef.current = filteredData?.data
+        setSelectedRowIds([])
+        setTableToolbar(false)
+        toast.success(res.data.msg)
+        setShowDeleteModal({ open: false })
       })
       .catch((err) => {
-        setOpen(true);
-        setResponseType('error');
-        setResponse(err.response.data.msg);
-        setShowDeleteModal({ open: false });
-        emptyCheckbox();
-      });
-  };
+        toast.error(err.response.data.msg)
+        setShowDeleteModal({ open: false })
+      })
+  }
 
   const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-    setTableToolbar(false);
-    setSelectedRowIds([]);
-    emptyCheckbox();
-  };
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setSelectedRowIds([])
+  }
 
   const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
+    setOpenModal({ open: true })
+  }
+
+  const getSearchingData = async (data) => {
+    setcurrentPage(data)
+    dispatch(showLoading())
+    await axios
+      .get(
+        'ecommerce-sales?page=' +
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data.data)
+        changeTableProps(tmpTableProps)
+        tablePropsRef.current = mapDataArr(res.data.data)
+        seteSalesData(res.data)
+        dispatch(hideLoading())
+      })
+  }
+
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(currentPage)
+  }, [itemPerPage, filterValue])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
-        setShowColumns(false);
+        setShowColumns(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
       // Cleanup the event listener
-      document.removeEventListener('mousedown', checkIfClickedOutside);
-    };
-  }, [showColumns]);
-
-  const emptyCheckbox = () => {
-    const storedData = JSON.parse(localStorage.getItem('sales-index'));
-    storedData.selectedRows = [];
-    localStorage.setItem('sales-index', JSON.stringify(storedData));
-    let filteredData = { ...tableProps };
-    filteredData.selectedRows = [];
-    changeTableProps(filteredData);
-  };
-
-  useEffect(() => {
-    window.onload = function () {
-      const storedData = JSON.parse(localStorage.getItem('sales-index'));
-      if (storedData != null) {
-        emptyCheckbox();
-      }
-    };
-  }, []);
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [showColumns])
 
   const TableToolbar = () => {
     return (
@@ -653,92 +635,35 @@ const SalesIndex = () => {
         </Tooltip>
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
-    );
-  };
-
-  const ColumnSettings = (tableProps) => {
-    const columnsSettingsProps = {
-      data: tableProps.columns.map((c) => ({
-        ...c,
-        visible: c.visible !== false,
-      })),
-      rowKeyField: 'key',
-      columns: [
-        {
-          key: 'visible',
-          title: 'Visible',
-          isEditable: false,
-          style: { textAlign: 'center' },
-          width: 80,
-          dataType: DataType.Boolean,
-        },
-        {
-          key: 'title',
-          isEditable: false,
-          title: 'Fields',
-          dataType: DataType.String,
-        },
-      ],
-      editingMode: EditingMode.None,
-    };
-    const dispatchSettings = (action) => {
-      if (action.type === ActionType.UpdateCellValue) {
-        tableProps.dispatch(
-          action.value ? showColumn(action.rowKeyValue) : hideColumn(action.rowKeyValue)
-        );
-      }
-    };
-    return (
-      <Table
-        {...columnsSettingsProps}
-        childComponents={{
-          rootDiv: {
-            elementAttributes: () => ({
-              style: { width: 400, marginBottom: 20 },
-            }),
-          },
-          cell: {
-            content: (props) => {
-              switch (props.column.key) {
-                case 'visible':
-                  return <CellEditorBoolean {...props} />;
-              }
-            },
-          },
-        }}
-        dispatch={dispatchSettings}
-      />
-    );
-  };
+    )
+  }
 
   const triggerExportLink = (link) => {
-    return window.open(link);
-  };
+    return window.open(link)
+  }
 
   const exportHandler = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
       .get('ecommerce-sales-export?filterValue=' + JSON.stringify(filterValue))
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          console.log(res);
-          triggerExportLink(res.request.responseURL);
-          setOpen(true);
+          console.log(res)
+          triggerExportLink(res.request.responseURL)
         } else {
-          toast.error('Error while importing file');
+          toast.error('Error while importing file')
         }
       })
       .catch((err) => {
-        setLoading(false);
-      });
-  };
+        setLoading(false)
+      })
+  }
 
   return (
     <>
       <Helmet title="Sales Index" />
-
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -746,7 +671,7 @@ const SalesIndex = () => {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
-                <img src={eyeIcon} alt="search"></img>
+                <Eye />
               </div>
               <Button
                 variant="contained"
@@ -765,7 +690,7 @@ const SalesIndex = () => {
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
-              <img src={search} alt="search"></img>
+              <Search />
             </div>
 
             {serachSidebar ? (
@@ -808,14 +733,7 @@ const SalesIndex = () => {
             cellText: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />;
-                }
-              },
-            },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>;
+                  return <SelectionCell {...props} />
                 }
               },
             },
@@ -826,30 +744,30 @@ const SalesIndex = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
-                  );
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    );
+                  )
                 }
               },
             },
           }}
           dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          extendedFilter={() => tableProps.data}
         />
+
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            value={itemPerPage}
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={salesData} />
+        </div>
       </div>
 
       <NormalModal
@@ -1051,7 +969,6 @@ const SalesIndex = () => {
         </div>
       </NormalModal>
 
-      <SnackBar open={open} setOpen={setOpen} severity={responseType} response={response} />
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
@@ -1065,8 +982,8 @@ const SalesIndex = () => {
         }`}
       ></ConfirmModal>
     </>
-  );
-};
+  )
+}
 
-SalesIndex.layout = (page) => <Layout title="Sales Index">{page}</Layout>;
-export default SalesIndex;
+SalesIndex.layout = (page) => <Layout title="Sales Index">{page}</Layout>
+export default SalesIndex

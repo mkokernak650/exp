@@ -10,6 +10,7 @@ use App\Imports\EcommerceSaleImport;
 use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
+use App\Models\TableDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -26,7 +27,82 @@ class EcommerceSaleController extends Controller
             ->with('customer:id,customer_name')
             ->lazy();
 
-        return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers'));
+        $conditions = json_decode(request('filteredValue'));
+        if (request('filteredValue') && count($conditions->items)) {
+            $salesQuery = EcommerceSale::query()
+            ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
+            ->with('campaign:id,campaign_name')
+            ->with('customer:id,customer_name');
+
+            $firstCond = $conditions->items[0];
+            $field = $this->fieldName($firstCond->field);
+            $val = $this->valueCehckById($firstCond->field, $firstCond->value);
+
+            $this->makeConditionQuery($salesQuery, 'where', $field, $firstCond->operator, $val);
+            for ($i = 1; $i < count($conditions->items); $i++) {
+                $cond = $conditions->items[$i];
+                $multiConField = $this->fieldName($cond->field);
+                $multiConVal = $this->valueCehckById($cond->field, $cond->value);
+
+                $this->makeConditionQuery($salesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
+            }
+
+            return $salesQuery->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $sales = EcommerceSale::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $sales;
+        }
+        $columnsData = TableDetails::all()->pluck('column_details');
+
+        return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers', 'columnsData'));
+    }
+
+    public function valueCehckById($key, $val)
+    {
+        switch($key) {
+            case 'campaign':
+                $result = EcommerceCampaign::where('campaign_name', $val)->pluck('id');
+                if (count($result)) {
+                    return $result[0];
+                } else {
+                    return $val;
+                }
+
+                // no break
+            case 'customer':
+                $result = Customer::where('customer_name', $val)->pluck('id');
+                if (count($result)) {
+                    return $result[0];
+                } else {
+                    return $val;
+                }
+                // no break
+            case 'order_type':
+                if ($val === 'E-commerce') {
+                    return 1;
+                } elseif ($val === 'Phone') {
+                    return 2;
+                } else {
+                    return $val;
+                }
+                // no break
+            default:
+                return $val;
+        }
+    }
+
+    public function fieldName($key)
+    {
+        switch($key) {
+            case 'campaign':
+                return 'campaign_id';
+            case 'customer':
+                return 'customer_id';
+            default:
+                return $key;
+        }
     }
 
     public function update(EcommerceSaleRequest $request, EcommerceSale $ecommerceSale)
@@ -142,7 +218,7 @@ class EcommerceSaleController extends Controller
 
     public function export(Request $request)
     {
-        return Excel::download(new EcommerceSalesExport($request->filterValue), 'ZipCodeTelevisionByMarket.' . 'xlsx');
+        return Excel::download(new EcommerceSalesExport($request->filterValue), 'E-Commerce-Sales.' . 'xlsx');
     }
 
     public function deleteSelected(Request $request)

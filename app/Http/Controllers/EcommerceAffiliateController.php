@@ -7,7 +7,6 @@ use App\Models\Customer;
 use App\Models\Affiliate;
 use Illuminate\Http\Request;
 use App\Models\EcommerceSale;
-use Illuminate\Validation\Rule;
 use App\Models\EcommerceCampaign;
 use Illuminate\Http\jsonResponse;
 use App\Models\EcommerceAffiliate;
