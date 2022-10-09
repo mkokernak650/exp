@@ -2,7 +2,6 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { DataType, SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
 import Search from '@/Components/Icons/Search.jsx'
@@ -14,8 +13,6 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import toast from 'react-hot-toast'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
@@ -206,11 +203,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   )
   const columns = [
     {
-      key: 'selection-cell',
-      style: { width: 80 },
-      visible: true,
-    },
-    {
       key: 'market',
       title: 'Market',
       dataType: DataType.String,
@@ -336,7 +328,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar})
+    handleSelects({ action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -418,7 +410,6 @@ const ZipcodeByTelevisionMarketNew = () => {
       </div>
     )
   }
-
 
   const getSearchingData = async (data) => {
     setCurerentPage(data)
@@ -533,41 +524,6 @@ const ZipcodeByTelevisionMarketNew = () => {
         <Table
           {...tableProps}
           childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionCell
-                      {...props}
-                      selectedRowIds={selectedRowIds}
-                      setTableToolbar={setTableToolbar}
-                    />
-                  )
-                }
-              },
-            },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      selectedRowIds={selectedRowIds}
-                      setTableToolbar={setTableToolbar}
-                      searchedData={searchedData}
-                    />
-                  )
-                }
-              },
-            },
             cell: {
               content: (props) => {
                 switch (props.column.key) {
