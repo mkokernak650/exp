@@ -429,6 +429,7 @@ const ArchivedCallLogReports = () => {
         dispatch(hideLoading())
       })
   }
+  
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -584,6 +585,12 @@ const ArchivedCallLogReports = () => {
           extendedFilter={() => tableProps.data}
         />
         <div className="table-bottom">
+          {/* <ul className="ka-paging-sizes">
+            <li className={`ka-paging-size ${itemPerPage === 10 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(10)}>10</a></li>
+            <li className={`ka-paging-size ${itemPerPage === 20 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(20)}>20</a></li>
+            <li className={`ka-paging-size ${itemPerPage === 50 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(50)}>50</a></li>
+            <li className={`ka-paging-size ${itemPerPage === 100 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(100)}>100</a></li>
+          </ul> */}
           <select
             name="item-per-page"
             id="item-per-page"
