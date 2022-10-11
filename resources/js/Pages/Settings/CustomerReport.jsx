@@ -460,7 +460,7 @@ const CustomerReport = () => {
                   )
                 }
               },
-            }
+            },
           }}
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import emptyCheckbox from './EmptyCheckbox';
 import toast from 'react-hot-toast';
 
 export function deleteHandler(
@@ -12,7 +11,8 @@ export function deleteHandler(
   setInbounIds,
   setTableToolbar,
   setShowDeleteModal,
-  optionKey
+  itemPerPage,
+  getSearchingData
 ) {
   setDeleteLoading(true);
   axios
@@ -26,17 +26,16 @@ export function deleteHandler(
         changeTableProps(filteredData);
         setSelectedRowIds([]);
         setInbounIds([]);
+        getSearchingData(itemPerPage)
         setTableToolbar(false);
         toast.success(res.data.msg);
         setShowDeleteModal({ open: false });
-        emptyCheckbox(optionKey, tableProps, changeTableProps);
       } else {
         setDeleteLoading(false);
         toast.error(res.data.msg);
         setSelectedRowIds([]);
         setInbounIds([]);
         setShowDeleteModal({ open: false });
-        emptyCheckbox(optionKey, tableProps, changeTableProps);
       }
     })
     .catch((err) => {
@@ -45,7 +44,6 @@ export function deleteHandler(
       setSelectedRowIds([]);
       setInbounIds([]);
       setShowDeleteModal({ open: false });
-      emptyCheckbox(optionKey, tableProps, changeTableProps);
     });
 }
 

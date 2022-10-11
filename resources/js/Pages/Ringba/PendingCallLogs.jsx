@@ -378,15 +378,21 @@ const PendingCallLogsReport = () => {
   const tablePropsRef = useRef(tableProps)
 
   const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-      inboundIds,
-      setInbounIds,
-    })
+    if (
+      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
+        action?.type
+      )
+    ) {
+      handleSelects({
+        action,
+        selectedRowIds,
+        setSelectedRowIds,
+        tableProps,
+        setTableToolbar,
+        inboundIds,
+        setInbounIds,
+      })
+    }
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -423,6 +429,7 @@ const PendingCallLogsReport = () => {
           setDeleteLoading(false)
           changeTableProps(filteredData)
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -454,6 +461,7 @@ const PendingCallLogsReport = () => {
           changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
+          getSearchingData(currentPage)
           setShowCallLogModal({ open: false })
           setInbounIds([])
           setSelectedRowIds([])
@@ -493,6 +501,7 @@ const PendingCallLogsReport = () => {
           setTableToolbar(false)
           setInbounIds([])
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setShowBilledModal({ open: false })
         } else {
           setBilledLoading(false)
@@ -519,7 +528,6 @@ const PendingCallLogsReport = () => {
     setTableToolbar(false)
     setSelectedRowIds([])
   }
-
   const getSearchingData = async (data) => {
     setcurrentPage(data)
     dispatch(showLoading())

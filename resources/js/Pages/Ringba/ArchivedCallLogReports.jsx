@@ -302,15 +302,21 @@ const ArchivedCallLogReports = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-      inboundIds,
-      setInbounIds,
-    })
+    if (
+      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
+        action?.type
+      )
+    ) {
+      handleSelects({
+        action,
+        selectedRowIds,
+        setSelectedRowIds,
+        tableProps,
+        setTableToolbar,
+        inboundIds,
+        setInbounIds,
+      })
+    }
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -345,10 +351,10 @@ const ArchivedCallLogReports = () => {
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
           setDeleteLoading(false)
-
           changeTableProps(filteredData)
           setInbounIds([])
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -383,6 +389,7 @@ const ArchivedCallLogReports = () => {
           setTableToolbar(false)
           setInbounIds([])
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setInbounIds([])
           setShowCallLogModal({ open: false })
         } else {
