@@ -1245,8 +1245,15 @@ div::-webkit-scrollbar-thumb {
     align-items: center;
     justify-content: center;
 }
+
 .pagination .page-item .page-link{
     color: #000;
+    min-width: 18px;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .page-item.active{
