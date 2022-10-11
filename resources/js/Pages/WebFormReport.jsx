@@ -823,7 +823,7 @@ const WebFormReport = () => {
 
   return (
     <>
-    <Helmet title="WebForm Report" />
+      <Helmet title="WebForm Report" />
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />
@@ -876,15 +876,8 @@ const WebFormReport = () => {
           childComponents={{
             cellText: {
               content: (props) => {
-                if (props.column.key === 'selection-cell') {
+                if (props.column.key === 'selection-cell') {  
                   return <SelectionCell {...props} />
-                }
-              },
-            },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
                 }
               },
             },
@@ -895,23 +888,8 @@ const WebFormReport = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

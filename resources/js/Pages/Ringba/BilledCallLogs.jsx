@@ -129,6 +129,7 @@ const BilledCallLogs = () => {
       }
     })
   }
+
   const dataArray = mapDataArr(billedCallLogs.data)
 
   const columns = [
@@ -430,8 +431,8 @@ const BilledCallLogs = () => {
       }
     },
   }
-  const fields = SearchedFields(tablePropsInit.columns)
 
+  const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
   const tablePropsRef = useRef(tableProps)
 
@@ -570,6 +571,7 @@ const BilledCallLogs = () => {
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true })
   }
+
   const getSearchingData = async (data) => {
     setcurrentPage(data)
     dispatch(showLoading())
@@ -591,6 +593,7 @@ const BilledCallLogs = () => {
         dispatch(hideLoading())
       })
   }
+
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -683,24 +686,6 @@ const BilledCallLogs = () => {
             <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
-        {/* 
-        <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-          onClick={() => handleAnnotation(inboundIds)}
-        >
-          {'Get Annotation'}
-          {annotationLoading && (
-            <CircularProgress
-              color="inherit"
-              size="1rem"
-              thickness={2}
-              style={{ marginLeft: '5px' }}
-            />
-          )}
-        </Button> */}
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     )
@@ -767,13 +752,6 @@ const BilledCallLogs = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -783,20 +761,6 @@ const BilledCallLogs = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

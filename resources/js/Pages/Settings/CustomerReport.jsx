@@ -106,6 +106,7 @@ export const groups = [
     name: 'or',
   },
 ]
+
 export const filter = {
   groupName: 'and',
   items: [
@@ -459,7 +460,7 @@ const CustomerReport = () => {
                   )
                 }
               },
-            }
+            },
           }}
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}

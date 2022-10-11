@@ -422,7 +422,6 @@ const AffiliateReport = () => {
               <span>Search Here</span>
               <Search />
             </div>
-
             {serachSidebar ? (
               <div className="search-sidebar">
                 <div className="search-top">

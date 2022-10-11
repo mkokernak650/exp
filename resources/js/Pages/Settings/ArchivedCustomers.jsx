@@ -253,6 +253,7 @@ const ArchivedCustomers = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }

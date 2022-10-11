@@ -108,7 +108,7 @@ export const filter = {
 
 const Targets = () => {
   const classes = useStyles()
-  const { allTargetNames,columnsData } = usePage().props
+  const { allTargetNames, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -246,11 +246,13 @@ const Targets = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
   }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
+
   const handleSearch = () => {
     setSearchSidebar((prevState) => !prevState)
   }
@@ -258,9 +260,11 @@ const Targets = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     axios
       .post(route('target_names.delete'), { selectedRowIds })
@@ -424,13 +428,6 @@ const Targets = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -440,20 +437,6 @@ const Targets = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

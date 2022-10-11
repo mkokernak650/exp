@@ -18,7 +18,6 @@ import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import CustomFilter from '@/Components/CustomFilter'
-import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
@@ -91,7 +90,9 @@ const ArchivedCallLogReports = () => {
       }
     })
   }
+
   const dataArray = mapDataArr(archivedCallLogs.data)
+
   const columns = [
     {
       key: 'selection-cell',
@@ -261,6 +262,7 @@ const ArchivedCallLogReports = () => {
       visible: true,
     },
   ]
+
   const optionKey = 'archived-call-logs'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
@@ -294,6 +296,7 @@ const ArchivedCallLogReports = () => {
       }
     },
   }
+
   const fields = SearchedFields(tablePropsInit.columns)
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
@@ -333,9 +336,11 @@ const ArchivedCallLogReports = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     setDeleteLoading(true)
     axios
@@ -410,6 +415,7 @@ const ArchivedCallLogReports = () => {
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
   }
+  
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
@@ -554,13 +560,6 @@ const ArchivedCallLogReports = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -572,32 +571,12 @@ const ArchivedCallLogReports = () => {
                   )
                 }
               },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
-                }
-              },
-            },
+            }
           }}
           dispatch={dispatch}
           extendedFilter={() => tableProps.data}
         />
         <div className="table-bottom">
-          {/* <ul className="ka-paging-sizes">
-            <li className={`ka-paging-size ${itemPerPage === 10 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(10)}>10</a></li>
-            <li className={`ka-paging-size ${itemPerPage === 20 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(20)}>20</a></li>
-            <li className={`ka-paging-size ${itemPerPage === 50 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(50)}>50</a></li>
-            <li className={`ka-paging-size ${itemPerPage === 100 && 'ka-paging-size-active'}`}><a onClick={() =>setItemPerPage(100)}>100</a></li>
-          </ul> */}
           <select
             name="item-per-page"
             id="item-per-page"

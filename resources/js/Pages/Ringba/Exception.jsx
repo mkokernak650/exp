@@ -359,6 +359,7 @@ const Exceptions = () => {
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+
   const tablePropsInit = {
     columns:
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
@@ -402,8 +403,8 @@ const Exceptions = () => {
       }
     },
   }
-  const fields = SearchedFields(tablePropsInit.columns)
 
+  const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
   const tablePropsRef = useRef(tableProps)
 
@@ -442,9 +443,11 @@ const Exceptions = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     setDeleteLoading(true)
     axios
@@ -661,6 +664,7 @@ const Exceptions = () => {
       setShowRevenueClearModal({ open: true })
     }
   }
+
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setOpenRowFunctionalities(false)
@@ -713,24 +717,6 @@ const Exceptions = () => {
             />
           )}
         </Button>
-        {/* <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-          onClick={() => handleAnnotation(inboundIds)}
-        >
-          {'Get Annotation'}
-          {annotationLoading && (
-            <CircularProgress
-              color="inherit"
-              size="1rem"
-              thickness={2}
-              style={{ marginLeft: '5px' }}
-            />
-          )}
-        </Button> */}
-
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     )
@@ -757,6 +743,7 @@ const Exceptions = () => {
         dispatch(hideLoading())
       })
   }
+
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -885,13 +872,6 @@ const Exceptions = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -918,19 +898,6 @@ const Exceptions = () => {
               },
             },
             cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
-                }
-              },
-
               elementAttributes: (props) => {
                 if (props.column.key === 'edit') {
                   return {
