@@ -40,120 +40,56 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
+const operators = [
+  {
+    caption: 'Contains',
+    name: 'contains',
+  },
+  {
+    caption: 'Not Contains',
+    name: 'doesNotContain',
+  },
+  {
+    caption: 'Is Empty',
+    name: 'isEmpty',
+  },
+  {
+    caption: 'Is Not Empty',
+    name: 'isNotEmpty',
+  },
+  {
+    caption: 'Starts With',
+    name: 'startswith',
+  },
+  {
+    caption: 'Ends With',
+    name: 'endsWith',
+  },
+  {
+    caption: 'Is',
+    name: 'is',
+  },
+  {
+    caption: 'Is Not',
+    name: 'isnot',
+  },
+]
+
 export const fields = [
   {
     caption: 'customer',
     name: 'customer',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
   {
     caption: 'email',
     name: 'email',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
   {
     caption: 'telephone',
     name: 'telephone',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
 ]
 
@@ -483,13 +419,6 @@ const ArchivedCustomers = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -500,20 +429,6 @@ const ArchivedCustomers = () => {
                       // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },
