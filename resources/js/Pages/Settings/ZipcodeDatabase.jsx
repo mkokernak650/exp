@@ -24,7 +24,6 @@ import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -1225,6 +1224,7 @@ export const groups = [
     name: 'or',
   },
 ]
+
 export const filter = {
   groupName: 'and',
   items: [
@@ -1240,7 +1240,6 @@ const ZipcodeDatabase = () => {
   const classes = useStyles()
   const { allZipcodes, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [importModal, setImportModal] = useState({ open: false })
@@ -1252,7 +1251,6 @@ const ZipcodeDatabase = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [searchedData, setSearchData] = useState([])
-  const [tableToolbar, setTableToolbar] = useState(false)
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -1532,7 +1530,6 @@ const ZipcodeDatabase = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({ action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -1728,20 +1725,6 @@ const ZipcodeDatabase = () => {
         <Table
           {...tableProps}
           childComponents={{
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
-                }
-              },
-            },
             noDataRow: {
               content: () => 'No Data Found',
             },

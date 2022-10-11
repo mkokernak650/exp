@@ -217,6 +217,7 @@ export const groups = [
     name: 'or',
   },
 ]
+
 export const filter = {
   groupName: 'and',
   items: [
@@ -246,6 +247,7 @@ const MarketExceptionReport = () => {
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
   }
+
   const handleEditSubmit = () => {
     axios
       .post(route('market.exception.edit'), editData)
@@ -415,7 +417,9 @@ const MarketExceptionReport = () => {
       return newState
     })
   }
+
   const [filterValue, changeFilter] = useState(filter)
+
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
   }
@@ -429,9 +433,11 @@ const MarketExceptionReport = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     axios
       .post(route('market.exception.delete'), { selectedRowIds })
@@ -611,13 +617,6 @@ const MarketExceptionReport = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -625,23 +624,8 @@ const MarketExceptionReport = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

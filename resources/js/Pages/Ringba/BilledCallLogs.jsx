@@ -31,8 +31,6 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
 
-
-
 const BilledCallLogs = () => {
   const { billedCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
@@ -131,6 +129,7 @@ const BilledCallLogs = () => {
       }
     })
   }
+
   const dataArray = mapDataArr(billedCallLogs.data)
 
   const columns = [
@@ -432,8 +431,8 @@ const BilledCallLogs = () => {
       }
     },
   }
-  const fields = SearchedFields(tablePropsInit.columns)
 
+  const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
   const tablePropsRef = useRef(tableProps)
 
@@ -504,63 +503,6 @@ const BilledCallLogs = () => {
       })
   }
 
-  // const handleAnnotation = (inboundIds) => {
-  //   const response = []
-  //   let i = 0
-  //   while (i < inboundIds.length) {
-  //     annotationPostRequest(inboundIds, i, response)
-  //     i = i + 1
-  //   }
-  // }
-  // const annotationPostRequest = (inboundIdsParam, id, response) => {
-  //   setAnnotationLoading(true)
-  //   axios
-  //     .post(route('billed.get.annotation'), { inboundIds: inboundIdsParam[id] })
-  //     .then((res) => {
-  //       setAnnotationLoading(false)
-  //       if (res.status === 200) {
-  //         console.log(res)
-  //         let updateState
-
-  //         response.push(res.data)
-  //         if (updateState < inboundIdsParam.length) {
-  //           toast.success(`${updateState}  Record Updated`)
-  //         }
-  //         if (updateState == inboundIdsParam.length) {
-  //           let columnsData = produce(tableProps, (draft) => {
-  //             for (let i = 0; i < res.data.length; i++) {
-  //               if (!res.data[i].edit) res.data.edit = ''
-  //               res.data[i].edit = res.data[i].id
-  //               if (!res.data[i].sl) res.data.sl = ''
-  //               res.data[i].sl = i + 1
-  //             }
-  //             draft.selectedRows = []
-  //             draft.data = res.data
-  //           })
-  //           changeTableProps(columnsData)
-  //           toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-  //           setTableToolbar(false)
-  //           setInbounIds([])
-  //           setSelectedRowIds([])
-  //           setOpenRowFunctionalities(false)
-  //         }
-  //       } else {
-  //         setAnnotationLoading(false)
-  //         toast.success(res.data.msg)
-  //         setInbounIds([])
-  //         setSelectedRowIds([])
-  //         setOpenRowFunctionalities(false)
-  //         emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
-  //       setAnnotationLoading(false)
-  //       setInbounIds([])
-  //       setSelectedRowIds([])
-  //     })
-  // }
-
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)
     axios
@@ -622,6 +564,7 @@ const BilledCallLogs = () => {
   const handleDeleteOpenModal = () => {
     setShowDeleteModal({ open: true })
   }
+
   const getSearchingData = async (data) => {
     setcurrentPage(data)
     dispatch(showLoading())
@@ -643,6 +586,7 @@ const BilledCallLogs = () => {
         dispatch(hideLoading())
       })
   }
+
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -735,24 +679,6 @@ const BilledCallLogs = () => {
             <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
-        {/* 
-        <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-          onClick={() => handleAnnotation(inboundIds)}
-        >
-          {'Get Annotation'}
-          {annotationLoading && (
-            <CircularProgress
-              color="inherit"
-              size="1rem"
-              thickness={2}
-              style={{ marginLeft: '5px' }}
-            />
-          )}
-        </Button> */}
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     )
@@ -819,13 +745,6 @@ const BilledCallLogs = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -835,20 +754,6 @@ const BilledCallLogs = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

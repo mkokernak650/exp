@@ -170,6 +170,7 @@ export const groups = [
     name: 'or',
   },
 ]
+
 export const filter = {
   groupName: 'and',
   items: [
@@ -520,13 +521,6 @@ const CustomerReport = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -536,20 +530,6 @@ const CustomerReport = () => {
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

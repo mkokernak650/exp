@@ -119,6 +119,7 @@ const PendingCallLogsReport = () => {
       }
     })
   }
+
   const dataArray = mapDataArr(pendingCallLogs.data)
 
   const columns = [
@@ -371,6 +372,7 @@ const PendingCallLogsReport = () => {
       }
     },
   }
+
   const fields = SearchedFields(tablePropsInit.columns)
   const [tableProps, changeTableProps] = useState(tablePropsInit)
   const tablePropsRef = useRef(tableProps)
@@ -404,9 +406,11 @@ const PendingCallLogsReport = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
   const deleteHandler = () => {
     setDeleteLoading(true)
     axios
@@ -515,6 +519,7 @@ const PendingCallLogsReport = () => {
     setTableToolbar(false)
     setSelectedRowIds([])
   }
+
   const getSearchingData = async (data) => {
     setcurrentPage(data)
     dispatch(showLoading())
@@ -536,6 +541,7 @@ const PendingCallLogsReport = () => {
         dispatch(hideLoading())
       })
   }
+
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -649,13 +655,6 @@ const PendingCallLogsReport = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -663,23 +662,8 @@ const PendingCallLogsReport = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
                 }
               },
             },

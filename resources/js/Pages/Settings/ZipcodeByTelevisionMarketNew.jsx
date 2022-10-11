@@ -16,7 +16,6 @@ import toast from 'react-hot-toast'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
 
@@ -140,6 +139,7 @@ export const fields = [
     operators,
   },
 ]
+
 export const groups = [
   {
     caption: 'And',
@@ -150,6 +150,7 @@ export const groups = [
     name: 'or',
   },
 ]
+
 export const filter = {
   groupName: 'and',
   items: [
@@ -165,8 +166,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   const classes = useStyles()
   const { allZipcodesByTelevisionMarket, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
-  const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
   const [loading, setLoading] = useState(false)
   const showColumnRef = useRef()
   const [zipcodeTelMarket, setZipcodeTelMarket] = useState(allZipcodesByTelevisionMarket)
@@ -195,12 +194,14 @@ const ZipcodeByTelevisionMarketNew = () => {
       key: index,
     }))
   }
+
   const dataArray = mapDataArr(allZipcodesByTelevisionMarket)
 
   const optionKey = 'zipcode-television-by-market'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+
   const columns = [
     {
       key: 'market',
@@ -328,7 +329,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
   const dispatch = (action) => {
-    handleSelects({ action, selectedRowIds, setSelectedRowIds, tableProps, setTableToolbar })
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -340,6 +340,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -403,14 +404,6 @@ const ZipcodeByTelevisionMarketNew = () => {
     }
   }, [showColumns])
 
-  const TableToolbar = () => {
-    return (
-      <div className="table-toolbar">
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
-      </div>
-    )
-  }
-
   const getSearchingData = async (data) => {
     setCurerentPage(data)
     dispatch(showLoading())
@@ -449,9 +442,7 @@ const ZipcodeByTelevisionMarketNew = () => {
     <>
       <Helmet title="Zipcode By Television Market Report" />
       <div className="selection-demo">
-        {tableToolbar ? (
-          <TableToolbar />
-        ) : (
+        {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
@@ -520,24 +511,10 @@ const ZipcodeByTelevisionMarketNew = () => {
               </div>
             )}
           </div>
-        )}
+        }
         <Table
           {...tableProps}
           childComponents={{
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
-                }
-              },
-            },
             noDataRow: {
               content: () => 'No Data Found',
             },

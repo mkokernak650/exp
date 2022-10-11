@@ -533,6 +533,7 @@ const SalesIndex = () => {
       return newState
     })
   }
+
   const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
