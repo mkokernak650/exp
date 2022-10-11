@@ -31,8 +31,6 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
 
-
-
 const BilledCallLogs = () => {
   const { billedCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
@@ -438,15 +436,21 @@ const BilledCallLogs = () => {
   const tablePropsRef = useRef(tableProps)
 
   const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-      inboundIds,
-      setInbounIds,
-    })
+    if (
+      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
+        action?.type
+      )
+    ) {
+      handleSelects({
+        action,
+        selectedRowIds,
+        setSelectedRowIds,
+        tableProps,
+        setTableToolbar,
+        inboundIds,
+        setInbounIds,
+      })
+    }
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -483,6 +487,7 @@ const BilledCallLogs = () => {
           changeTableProps(filteredData)
           setInbounIds([])
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -503,63 +508,6 @@ const BilledCallLogs = () => {
         setShowDeleteModal({ open: false })
       })
   }
-
-  // const handleAnnotation = (inboundIds) => {
-  //   const response = []
-  //   let i = 0
-  //   while (i < inboundIds.length) {
-  //     annotationPostRequest(inboundIds, i, response)
-  //     i = i + 1
-  //   }
-  // }
-  // const annotationPostRequest = (inboundIdsParam, id, response) => {
-  //   setAnnotationLoading(true)
-  //   axios
-  //     .post(route('billed.get.annotation'), { inboundIds: inboundIdsParam[id] })
-  //     .then((res) => {
-  //       setAnnotationLoading(false)
-  //       if (res.status === 200) {
-  //         console.log(res)
-  //         let updateState
-
-  //         response.push(res.data)
-  //         if (updateState < inboundIdsParam.length) {
-  //           toast.success(`${updateState}  Record Updated`)
-  //         }
-  //         if (updateState == inboundIdsParam.length) {
-  //           let columnsData = produce(tableProps, (draft) => {
-  //             for (let i = 0; i < res.data.length; i++) {
-  //               if (!res.data[i].edit) res.data.edit = ''
-  //               res.data[i].edit = res.data[i].id
-  //               if (!res.data[i].sl) res.data.sl = ''
-  //               res.data[i].sl = i + 1
-  //             }
-  //             draft.selectedRows = []
-  //             draft.data = res.data
-  //           })
-  //           changeTableProps(columnsData)
-  //           toast.success(`${inboundIdsParam.length} Record Updated and Updating Completed`)
-  //           setTableToolbar(false)
-  //           setInbounIds([])
-  //           setSelectedRowIds([])
-  //           setOpenRowFunctionalities(false)
-  //         }
-  //       } else {
-  //         setAnnotationLoading(false)
-  //         toast.success(res.data.msg)
-  //         setInbounIds([])
-  //         setSelectedRowIds([])
-  //         setOpenRowFunctionalities(false)
-  //         emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       emptyCheckbox('billed-call-logs', tableProps, changeTableProps)
-  //       setAnnotationLoading(false)
-  //       setInbounIds([])
-  //       setSelectedRowIds([])
-  //     })
-  // }
 
   const handleClear = (inboundIds) => {
     setRevenueLoading(true)

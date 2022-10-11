@@ -422,15 +422,21 @@ const CallLogsReport = () => {
   const tablePropsRef = useRef(tableProps)
 
   const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-      inboundIds,
-      setInbounIds,
-    })
+    if (
+      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
+        action?.type
+      )
+    ) {
+      handleSelects({
+        action,
+        selectedRowIds,
+        setSelectedRowIds,
+        tableProps,
+        setTableToolbar,
+        inboundIds,
+        setInbounIds,
+      })
+    }
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -486,7 +492,7 @@ const CallLogsReport = () => {
         if (res.data.status_code === 200) {
           setPendingLoading(false)
           toast.success(res.data.msg)
-          let columnsData = produce(tableProps, (draft) => {
+          const columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
             draft.selectedRows = []
             draft.data = filteredData
@@ -495,6 +501,7 @@ const CallLogsReport = () => {
           setTableToolbar(false)
           setInbounIds([])
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         } else {
@@ -532,6 +539,7 @@ const CallLogsReport = () => {
           setTableToolbar(false)
           setInbounIds([])
           setSelectedRowIds([])
+          getSearchingData(currentPage)
           setOpenRowFunctionalities(false)
           setShowArchivedModal({ open: false })
         } else {
@@ -659,6 +667,7 @@ const CallLogsReport = () => {
       setShowRevenueClearModal({ open: true })
     }
   }
+
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setOpenRowFunctionalities(false)
@@ -688,6 +697,7 @@ const CallLogsReport = () => {
         dispatch(hideLoading())
       })
   }
+
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -740,23 +750,6 @@ const CallLogsReport = () => {
             />
           )}
         </Button>
-        {/* <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-          onClick={() => handleAnnotation(inboundIds)}
-        >
-          {'Get Annotation'}
-          {annotationLoading && (
-            <CircularProgress
-              color="inherit"
-              size="1rem"
-              thickness={2}
-              style={{ marginLeft: '5px' }}
-            />
-          )}
-        </Button> */}
 
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
@@ -877,13 +870,6 @@ const CallLogsReport = () => {
                 }
               },
             },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
             headCell: {
               content: (props) => {
                 if (props.column.key === 'selection-cell') {
@@ -910,19 +896,6 @@ const CallLogsReport = () => {
               },
             },
             cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
-                }
-              },
-
               elementAttributes: (props) => {
                 if (props.column.key === 'edit') {
                   return {
@@ -1013,7 +986,8 @@ const CallLogsReport = () => {
             setInbounIds,
             setTableToolbar,
             setShowDeleteModal,
-            optionKey
+            itemPerPage,
+            getSearchingData
           )
         }
         closeAction={() => handleCloseModal(setShowDeleteModal)}
