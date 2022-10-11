@@ -40,120 +40,56 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
+const operators = [
+  {
+    caption: 'Contains',
+    name: 'contains',
+  },
+  {
+    caption: 'Not Contains',
+    name: 'doesNotContain',
+  },
+  {
+    caption: 'Is Empty',
+    name: 'isEmpty',
+  },
+  {
+    caption: 'Is Not Empty',
+    name: 'isNotEmpty',
+  },
+  {
+    caption: 'Starts With',
+    name: 'startswith',
+  },
+  {
+    caption: 'Ends With',
+    name: 'endsWith',
+  },
+  {
+    caption: 'Is',
+    name: 'is',
+  },
+  {
+    caption: 'Is Not',
+    name: 'isnot',
+  },
+]
+
 export const fields = [
   {
     caption: 'customer',
     name: 'customer',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
   {
     caption: 'email',
     name: 'email',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
   {
     caption: 'telephone',
     name: 'telephone',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
 ]
 

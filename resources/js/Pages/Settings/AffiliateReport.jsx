@@ -43,196 +43,66 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
+const operators = [
+  {
+    caption: 'Contains',
+    name: 'contains',
+  },
+  {
+    caption: 'Not Contains',
+    name: 'doesNotContain',
+  },
+  {
+    caption: 'Is Empty',
+    name: 'isEmpty',
+  },
+  {
+    caption: 'Is Not Empty',
+    name: 'isNotEmpty',
+  },
+  {
+    caption: 'Starts With',
+    name: 'startswith',
+  },
+  {
+    caption: 'Ends With',
+    name: 'endsWith',
+  },
+  {
+    caption: 'Is',
+    name: 'is',
+  },
+  {
+    caption: 'Is Not',
+    name: 'isnot',
+  },
+]
+
 export const fields = [
   {
     caption: 'affiliate_id',
-    name: 'Affiliate Id',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    name: 'affiliate_id',
+    operators,
   },
   {
     caption: 'affiliate_name',
-    name: 'Affiliate Name',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    name: 'affiliate_name',
+    operators,
   },
   {
     caption: 'email',
-    name: 'Email',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    name: 'email',
+    operators,
   },
   {
     caption: 'telephone',
-    name: 'Telephone',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    name: 'telephone',
+    operators,
   },
   {
     caption: 'address',
-    name: 'Address',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    name: 'address',
+    operators,
   },
 ]
 
@@ -251,7 +121,7 @@ export const filter = {
   groupName: 'and',
   items: [
     {
-      field: 'Affiliate Id',
+      field: 'affiliate_id',
       operator: 'isNotEmpty',
     },
   ],
@@ -273,7 +143,6 @@ const AffiliateReport = () => {
 
   const dataArray = allAffiliates.map((item, index) => ({
     edit: item.id,
-    sl: index + 1,
     affiliate_id: item.affiliate_id,
     affiliate_name: item.affiliate_name,
     email: item.email,
@@ -295,13 +164,6 @@ const AffiliateReport = () => {
       visible: true,
     },
     {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 40 },
-      visible: false,
-    },
-    {
       key: 'affiliate_id',
       title: 'Affiliate Id',
       dataType: DataType.String,
@@ -319,7 +181,7 @@ const AffiliateReport = () => {
       key: 'email',
       title: 'Email',
       dataType: DataType.String,
-      style: { width: 240 },
+      style: { width: 350 },
       visible: true,
     },
     {
@@ -518,7 +380,6 @@ const AffiliateReport = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
@@ -612,7 +473,6 @@ const AffiliateReport = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
                 }

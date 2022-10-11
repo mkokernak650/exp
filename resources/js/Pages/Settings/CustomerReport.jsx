@@ -43,120 +43,56 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
+const operators = [
+  {
+    caption: 'Contains',
+    name: 'contains',
+  },
+  {
+    caption: 'Not Contains',
+    name: 'doesNotContain',
+  },
+  {
+    caption: 'Is Empty',
+    name: 'isEmpty',
+  },
+  {
+    caption: 'Is Not Empty',
+    name: 'isNotEmpty',
+  },
+  {
+    caption: 'Starts With',
+    name: 'startswith',
+  },
+  {
+    caption: 'Ends With',
+    name: 'endsWith',
+  },
+  {
+    caption: 'Is',
+    name: 'is',
+  },
+  {
+    caption: 'Is Not',
+    name: 'isnot',
+  },
+]
+
 export const fields = [
   {
     caption: 'customer',
     name: 'customer',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
   {
     caption: 'email',
     name: 'email',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
   {
     caption: 'telephone',
     name: 'telephone',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators,
   },
 ]
 
@@ -197,7 +133,6 @@ const CustomerReport = () => {
 
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
-    sl: index + 1,
     customer: item.customer_name,
     email: item.email,
     telephone: item.telephone,
@@ -216,13 +151,6 @@ const CustomerReport = () => {
       key: 'selection-cell',
       style: { width: 80 },
       visible: true,
-    },
-    {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 20 },
-      visible: false,
     },
     {
       key: 'customer',
@@ -532,7 +460,7 @@ const CustomerReport = () => {
                   )
                 }
               },
-            },
+            }
           }}
           dispatch={dispatch}
           extendedFilter={(data) => filterData(data, filterValue)}
