@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArchivedCallLog;
-use App\Models\BilledCallLog;
 use App\Models\BroadCastMonth;
 use App\Models\Campaign;
 use App\Models\Affiliate;
@@ -351,8 +350,7 @@ class ReportGeneratorController extends Controller
             }
         }
         if (isset($request->campaign)) {
-            $campaignNameById = Campaign::find($request->campaign)->value('campaign_name');
-            $call_summary['Campaign Name'] = $campaignNameById;
+            $call_summary['Campaign Name'] = $campaign;
         }
         if (isset($request->start_date)) {
             $call_summary['Date Range'] = $request->start_date . ' - ' . $request->end_date;
@@ -816,7 +814,6 @@ class ReportGeneratorController extends Controller
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
-        // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Payout', 'Call Status', 'Call Type'];
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
@@ -897,9 +894,7 @@ class ReportGeneratorController extends Controller
             $condition[] = "Call_Date >='$start_date'";
             $condition[] = "Call_Date <= '$end_date'";
         }
-        // for ($i = 0; $i < count($year); $i++) {
-        //     $whereInOr[] = "Call_Date Like '%{$year[$i]}%'";
-        // }
+
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
             $allYears = implode(',', $year);
             $whereIn[] = "year(Call_Date) IN ($allYears)";
@@ -1081,7 +1076,7 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg'=>'No data found for the selected criteria'], 204);
         }
-        // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation', 'Recording Url'];
+
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
@@ -1209,7 +1204,6 @@ class ReportGeneratorController extends Controller
         $total_call = 0;
         $total_seconds = 0;
         $total_revenue = 0;
-        $target = '';
         $archive_call = ['name' => 'Archive Call', 'qty' => 0, 'revenue' => (float)0.00];
 
         // category of calls
@@ -1251,7 +1245,6 @@ class ReportGeneratorController extends Controller
         if (empty($newData)) {
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
-        // $columns = ['Call Date(EST)', 'Call Time', 'Campaign', 'Affiliate', 'Target', 'Target Description', 'City', 'Market', 'State', 'Zipcode', 'Caller ID', 'Type', 'Connection Duration', 'Duplicate Call', 'Hangup', 'Revenue', 'Call Status', 'Annotation'];
 
         if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
             $newSummary['Total Number of Calls'] = $call_summary['Total Number of Calls'];
