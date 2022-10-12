@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { DataType, SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import { hideLoading, showLoading } from 'ka-table/actionCreators'
@@ -41,8 +41,10 @@ const BilledCallLogs = () => {
     open: false,
   })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
-  const [revenueLoading, setRevenueLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState({
+    revenue: false,
+    delete: false,
+  })
   const showColumnRef = useRef()
   const editData = []
   const [filterValue, setFilterValue] = useState(
@@ -56,7 +58,7 @@ const BilledCallLogs = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const style = {
-    top: position.y < 650 ? position.y - 79 : position.y - 275,
+    top: position.y < 650 ? position.y - 137 : position.y - 298,
     left: 350,
   }
 
@@ -476,7 +478,7 @@ const BilledCallLogs = () => {
   }
 
   const deleteHandler = () => {
-    setDeleteLoading(true)
+    setIsLoading({ ...isLoading, delete: true })
     axios
       .post(route('billed.delete'), { selectedRowIds })
       .then((res) => {
@@ -484,7 +486,7 @@ const BilledCallLogs = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           changeTableProps(filteredData)
           setInbounIds([])
           setSelectedRowIds([])
@@ -493,7 +495,7 @@ const BilledCallLogs = () => {
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           setInbounIds([])
           setSelectedRowIds([])
           setTableToolbar(false)
@@ -502,7 +504,7 @@ const BilledCallLogs = () => {
         }
       })
       .catch((err) => {
-        setDeleteLoading(false)
+        setIsLoading({ ...isLoading, delete: false })
         setInbounIds([])
         setSelectedRowIds([])
         setTableToolbar(false)
@@ -511,12 +513,12 @@ const BilledCallLogs = () => {
   }
 
   const handleClear = (inboundIds) => {
-    setRevenueLoading(true)
+    setIsLoading({ ...isLoading, revenue: true })
     axios
       .post(route('bill.calllogs.revenue.update'), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
-          setRevenueLoading(false)
+          setIsLoading({ ...isLoading, revenue: false })
           toast.success('Successfully Updated')
           let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
@@ -532,7 +534,7 @@ const BilledCallLogs = () => {
           setInbounIds([])
           setSelectedRowIds([])
         } else {
-          setRevenueLoading(false)
+          setIsLoading({ ...isLoading, revenue: false })
           toast.success(res.data.msg)
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
@@ -541,7 +543,7 @@ const BilledCallLogs = () => {
         }
       })
       .catch((err) => {
-        setRevenueLoading(false)
+        setIsLoading({ ...isLoading, revenue: false })
         setShowRevenueClearModal({ open: false })
         setOpenRowFunctionalities(false)
         setInbounIds([])
@@ -796,8 +798,7 @@ const BilledCallLogs = () => {
             Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
           </>
         }
-        loading={revenueLoading}
-        setLoading={setRevenueLoading}
+        loading={isLoading.revenue}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -811,7 +812,7 @@ const BilledCallLogs = () => {
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}
-        loading={deleteLoading}
+        loading={isLoading.delete}
       ></ConfirmModal>
     </>
   )

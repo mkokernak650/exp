@@ -51,15 +51,17 @@ const PendingCallLogsReport = () => {
   })
   const [showBilledModal, setShowBilledModal] = useState({ open: false })
   const showColumnRef = useRef()
-  const [callLogsLoading, setcallLogsLoading] = useState(false)
-  const [billedLoading, setBilledLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
   const [pendingData, setPendingData] = useState(pendingCallLogs)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState({
+    callLog: false,
+    billed: false,
+    delete: false,
+  })
 
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
@@ -418,7 +420,7 @@ const PendingCallLogsReport = () => {
   }
 
   const deleteHandler = () => {
-    setDeleteLoading(true)
+    setIsLoading({ ...isLoading, delete: true })
     axios
       .post(route('pending.delete'), { selectedRowIds })
       .then((res) => {
@@ -426,7 +428,7 @@ const PendingCallLogsReport = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           changeTableProps(filteredData)
           setSelectedRowIds([])
           getSearchingData(currentPage)
@@ -434,21 +436,21 @@ const PendingCallLogsReport = () => {
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           toast.error(res.data.msg)
           setSelectedRowIds([])
           setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
-        setDeleteLoading(false)
+        setIsLoading({ ...isLoading, delete: false })
         setSelectedRowIds([])
         setShowDeleteModal({ open: false })
       })
   }
 
   const handleMoveCallLog = () => {
-    setcallLogsLoading(true)
+    setIsLoading({ ...isLoading, callLog: true })
     axios
       .post(route('move.from.pending.bill.to.ringba.call.log'), { inboundIds })
       .then((res) => {
@@ -457,7 +459,7 @@ const PendingCallLogsReport = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
           filteredData.data = newData
-          setcallLogsLoading(false)
+          setIsLoading({ ...isLoading, callLog: false })
           changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
@@ -466,7 +468,7 @@ const PendingCallLogsReport = () => {
           setInbounIds([])
           setSelectedRowIds([])
         } else {
-          setcallLogsLoading(false)
+          setIsLoading({ ...isLoading, callLog: false })
           changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
@@ -476,7 +478,7 @@ const PendingCallLogsReport = () => {
         }
       })
       .catch((err) => {
-        setcallLogsLoading(false)
+        setIsLoading({ ...isLoading, callLog: false })
         changeTableProps(filteredData)
         setTableToolbar(false)
         setInbounIds([])
@@ -487,7 +489,7 @@ const PendingCallLogsReport = () => {
   }
 
   const handleBilledCallLog = () => {
-    setBilledLoading(true)
+    setIsLoading({ ...isLoading, billed: true })
     axios
       .post(route('store.bill.call.logs'), { inboundIds })
       .then((res) => {
@@ -496,7 +498,7 @@ const PendingCallLogsReport = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
           filteredData.data = newData
-          setBilledLoading(false)
+          setIsLoading({ ...isLoading, billed: false })
           changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
@@ -504,7 +506,7 @@ const PendingCallLogsReport = () => {
           getSearchingData(currentPage)
           setShowBilledModal({ open: false })
         } else {
-          setBilledLoading(false)
+          setIsLoading({ ...isLoading, billed: false })
           toast.error(res.data.msg)
           setInbounIds([])
           setSelectedRowIds([])
@@ -512,7 +514,7 @@ const PendingCallLogsReport = () => {
         }
       })
       .catch((err) => {
-        setBilledLoading(false)
+        setIsLoading({ ...isLoading, billed: false })
         setInbounIds([])
         setSelectedRowIds([])
         setShowBilledModal({ open: false })
@@ -706,7 +708,7 @@ const PendingCallLogsReport = () => {
             ? 'Do you want to move these records to Call Log?'
             : 'Do you want to move this record to Call Log?'
         }`}
-        loading={callLogsLoading}
+        loading={isLoading.callLog}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -720,7 +722,7 @@ const PendingCallLogsReport = () => {
             ? 'Do you want to move these records to Billed?'
             : 'Do you want to move this record to Billed?'
         }`}
-        loading={billedLoading}
+        loading={isLoading.billed}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -734,7 +736,7 @@ const PendingCallLogsReport = () => {
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}
-        loading={deleteLoading}
+        loading={isLoading.delete}
       ></ConfirmModal>
     </>
   )

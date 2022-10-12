@@ -47,11 +47,6 @@ const Exceptions = () => {
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
-  const [updateLoading, setUpdateLoading] = useState(false)
-  const [revenueLoading, setRevenueLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [pendingLoading, setPendingLoading] = useState(false)
-  const [archiveLoading, setArchiveLoading] = useState(false)
   const [editData, setEditData] = useState([])
   const [sn, setSn] = useState('')
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({
@@ -76,6 +71,13 @@ const Exceptions = () => {
   const [exceptionData, setExceptionData] = useState(Exceptions)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState({
+    update: false,
+    revenue: false,
+    pending: false,
+    archive: false,
+    delete: false,
+  })
 
   const style = {
     top: position.y < 650 ? position.y - 137 : position.y - 298,
@@ -449,7 +451,7 @@ const Exceptions = () => {
   }
 
   const deleteHandler = () => {
-    setDeleteLoading(true)
+    setIsLoading({ ...isLoading, delete: true })
     axios
       .post(route('exception.delete'), { selectedRowIds })
       .then((res) => {
@@ -457,7 +459,7 @@ const Exceptions = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           changeTableProps(filteredData)
           setSelectedRowIds([])
           setInbounIds([])
@@ -466,7 +468,7 @@ const Exceptions = () => {
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           setSelectedRowIds([])
           setInbounIds([])
           setTableToolbar(false)
@@ -475,7 +477,7 @@ const Exceptions = () => {
         }
       })
       .catch((err) => {
-        setDeleteLoading(false)
+        setIsLoading({ ...isLoading, delete: false })
         setSelectedRowIds([])
         setInbounIds([])
         setTableToolbar(false)
@@ -484,12 +486,12 @@ const Exceptions = () => {
   }
 
   const handlePending = (inboundIds) => {
-    setPendingLoading(true)
+    setIsLoading({ ...isLoading, pending: true })
     axios
       .post(route('move.exception.to.pending'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setPendingLoading(false)
+          setIsLoading({ ...isLoading, pending: false })
           toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
@@ -505,7 +507,7 @@ const Exceptions = () => {
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         } else {
-          setPendingLoading(false)
+          setIsLoading({ ...isLoading, pending: false })
           toast.error(res.data.msg)
           setInbounIds([])
           setSelectedRowIds([])
@@ -514,7 +516,7 @@ const Exceptions = () => {
         }
       })
       .catch((err) => {
-        setPendingLoading(false)
+        setIsLoading({ ...isLoading, pending: false })
         setInbounIds([])
         setSelectedRowIds([])
         setOpenRowFunctionalities(false)
@@ -522,12 +524,12 @@ const Exceptions = () => {
   }
 
   const handleArchived = (inboundIds) => {
-    setArchiveLoading(true)
+    setIsLoading({ ...isLoading, archive: true })
     axios
       .post(route('move.exception.to.arhived'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setArchiveLoading(false)
+          setIsLoading({ ...isLoading, archive: false })
           toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
@@ -542,7 +544,7 @@ const Exceptions = () => {
           setOpenRowFunctionalities(false)
           setShowArchivedModal({ open: false })
         } else {
-          setArchiveLoading(false)
+          setIsLoading({ ...isLoading, archive: false })
           toast.error(res.data.msg)
           setInbounIds([])
           setSelectedRowIds([])
@@ -550,7 +552,7 @@ const Exceptions = () => {
         }
       })
       .catch((err) => {
-        setArchiveLoading(false)
+        setIsLoading({ ...isLoading, archive: false })
         setTableToolbar(false)
         setInbounIds([])
         setSelectedRowIds([])
@@ -567,7 +569,7 @@ const Exceptions = () => {
   }
 
   const updatePostRequest = (inboundIdsParam, id) => {
-    setUpdateLoading(true)
+    setIsLoading({ ...isLoading, update: true })
     axios
       .post(route('update.exception.report'), { inboundId: inboundIdsParam[id] })
       .then((res) => {
@@ -584,7 +586,7 @@ const Exceptions = () => {
           if (id === inboundIdsParam.length - 1) {
             toast.success(`${inboundIdsParam.length} Record Updated`)
             setSelectedRowIds([])
-            setUpdateLoading(false)
+            setIsLoading({ ...isLoading, update: false })
             setTableToolbar(false)
             setInbounIds([])
             setOpenRowFunctionalities(false)
@@ -593,13 +595,13 @@ const Exceptions = () => {
           changeTableProps(tmpTableProps)
         } else if (res.status === 204) {
           toast.error("The record isn't exist in Ringba")
-          setUpdateLoading(false)
+          setIsLoading({ ...isLoading, update: false })
           setInbounIds([])
           setSelectedRowIds([])
           setOpenRowFunctionalities(false)
         } else {
           toast.error('Updating failed')
-          setUpdateLoading(false)
+          setIsLoading({ ...isLoading, update: false })
           setInbounIds([])
           setSelectedRowIds([])
           setOpenRowFunctionalities(false)
@@ -614,12 +616,12 @@ const Exceptions = () => {
   }
 
   const handleClear = (inboundIds) => {
-    setRevenueLoading(true)
+    setIsLoading({ ...isLoading, revenue: true })
     axios
       .post(route('exception.revenue.update'), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
-          setRevenueLoading(false)
+          setIsLoading({ ...isLoading, revenue: false })
           toast.success('Successfully Updated')
           let columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
@@ -635,7 +637,7 @@ const Exceptions = () => {
           setInbounIds([])
           setSelectedRowIds([])
         } else {
-          setRevenueLoading(false)
+          setIsLoading({ ...isLoading, revenue: false })
           toast.error(res.data.msg)
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
@@ -644,7 +646,7 @@ const Exceptions = () => {
         }
       })
       .catch((err) => {
-        setRevenueLoading(false)
+        setIsLoading({ ...isLoading, revenue: false })
         setInbounIds([])
         setSelectedRowIds([])
         setOpenRowFunctionalities(false)
@@ -943,7 +945,7 @@ const Exceptions = () => {
             Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
           </>
         }
-        loading={revenueLoading}
+        loading={isLoading.revenue}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -957,7 +959,7 @@ const Exceptions = () => {
             ? 'Do you want to move these records to pending?'
             : 'Do you want to move this record to pending?'
         }`}
-        loading={pendingLoading}
+        loading={isLoading.pending}
       ></ConfirmModal>
       <ConfirmModal
         open={showArchivedModal.open}
@@ -971,7 +973,7 @@ const Exceptions = () => {
             ? 'Do you want to move these records to archive?'
             : 'Do you want to move this record to archive?'
         }`}
-        loading={archiveLoading}
+        loading={isLoading.archive}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -985,7 +987,7 @@ const Exceptions = () => {
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}
-        loading={deleteLoading}
+        loading={isLoading.delete}
       ></ConfirmModal>
     </>
   )

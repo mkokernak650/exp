@@ -52,11 +52,6 @@ const CallLogsReport = () => {
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
   const [inboundIds, setInbounIds] = useState([])
-  const [updateLoading, setUpdateLoading] = useState(false)
-  const [revenueLoading, setRevenueLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [pendingLoading, setPendingLoading] = useState(false)
-  const [archiveLoading, setArchiveLoading] = useState(false)
   const [editData, setEditData] = useState([])
   const [sn, setSn] = useState('')
   const [showRevenueClearModal, setShowRevenueClearModal] = useState({ open: false })
@@ -74,7 +69,14 @@ const CallLogsReport = () => {
   )
   const [ringbaData, setRingbaData] = useState(allCallLogs)
   const [itemPerPage, setItemPerPage] = useState(10)
-  const [currentPage, setcurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState({
+    update: false,
+    revenue: false,
+    pending: false,
+    archive: false,
+    delete: false,
+  })
 
   const style = {
     top: position.y < 650 ? position.y - 137 : position.y - 298,
@@ -485,12 +487,12 @@ const CallLogsReport = () => {
   }
 
   const handlePending = (inboundIds) => {
-    setPendingLoading(true)
+    setIsLoading({ ...isLoading, pending: true })
     axios
       .post(route('add.pending.bill.call'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setPendingLoading(false)
+          setIsLoading({ ...isLoading, pending: false })
           toast.success(res.data.msg)
           const columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
@@ -505,7 +507,7 @@ const CallLogsReport = () => {
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         } else {
-          setPendingLoading(false)
+          setIsLoading({ ...isLoading, pending: false })
           toast.error(res.data.msg)
           setInbounIds([])
           setSelectedRowIds([])
@@ -514,7 +516,7 @@ const CallLogsReport = () => {
         }
       })
       .catch((err) => {
-        setPendingLoading(false)
+        setIsLoading({ ...isLoading, pending: false })
         setOpenRowFunctionalities(false)
         setShowPendingModal({ open: false })
         setSelectedRowIds([])
@@ -523,12 +525,12 @@ const CallLogsReport = () => {
   }
 
   const handleArchived = (inboundIds) => {
-    setArchiveLoading(true)
+    setIsLoading({ ...isLoading, archive: true })
     axios
       .post(route('add.arichived.bill.call'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setArchiveLoading(false)
+          setIsLoading({ ...isLoading, archive: false })
           toast.success(res.data.msg)
           let columnsData = produce(tableProps, (draft) => {
             const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
@@ -543,7 +545,7 @@ const CallLogsReport = () => {
           setOpenRowFunctionalities(false)
           setShowArchivedModal({ open: false })
         } else {
-          setArchiveLoading(false)
+          setIsLoading({ ...isLoading, archive: false })
           toast.error(res.data.msg)
           setInbounIds([])
           setSelectedRowIds([])
@@ -552,7 +554,7 @@ const CallLogsReport = () => {
         }
       })
       .catch((err) => {
-        setArchiveLoading(false)
+        setIsLoading({ ...isLoading, archive: false })
         setInbounIds([])
         setSelectedRowIds([])
         setOpenRowFunctionalities(false)
@@ -569,7 +571,7 @@ const CallLogsReport = () => {
   }
 
   const updatePostRequest = (inboundIdsParam, id) => {
-    setUpdateLoading(true)
+    setIsLoading({ ...isLoading, update: true })
     axios
       .post(route('update.data'), { inboundId: inboundIdsParam[id] })
       .then((res) => {
@@ -587,7 +589,7 @@ const CallLogsReport = () => {
           if (id === inboundIdsParam.length - 1) {
             toast.success(`${inboundIdsParam.length} Record Updated`)
             setSelectedRowIds([])
-            setUpdateLoading(false)
+            setIsLoading({ ...isLoading, update: false })
             setTableToolbar(false)
             setInbounIds([])
             setOpenRowFunctionalities(false)
@@ -596,13 +598,15 @@ const CallLogsReport = () => {
           changeTableProps(tmpTableProps)
         } else if (res.status === 204) {
           toast.error("The record isn't exist in Ringba")
-          setUpdateLoading(false)
+          setIsLoading({ ...isLoading, update: false })
+
           setInbounIds([])
           setSelectedRowIds([])
           setOpenRowFunctionalities(false)
         } else {
           toast.error('Updating failed')
-          setUpdateLoading(false)
+          setIsLoading({ ...isLoading, update: false })
+
           setInbounIds([])
           setSelectedRowIds([])
           setOpenRowFunctionalities(false)
@@ -610,19 +614,20 @@ const CallLogsReport = () => {
       })
       .catch((err) => {
         toast.error('Updating failed')
-        setUpdateLoading(false)
+        setIsLoading({ ...isLoading, update: false })
         setInbounIds([])
         setSelectedRowIds([])
       })
   }
 
+
   const handleClear = (inboundIds) => {
-    setRevenueLoading(true)
+    setIsLoading({ ...isLoading, revenue: true })
     axios
       .post(route('calllogs.revenue.update'), { inboundIds })
       .then((res) => {
         if (res.status === 200) {
-          setRevenueLoading(false)
+          setIsLoading({ ...isLoading, revenue: false })
           toast.success('Successfully Updated')
           const columnsData = produce(tableProps, (draft) => {
             draft.data.filter((item) => {
@@ -638,7 +643,7 @@ const CallLogsReport = () => {
           setInbounIds([])
           setSelectedRowIds([])
         } else {
-          setRevenueLoading(false)
+          setIsLoading({ ...isLoading, revenue: false })
           toast.error(res.data.msg)
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
@@ -647,7 +652,7 @@ const CallLogsReport = () => {
         }
       })
       .catch((err) => {
-        setRevenueLoading(false)
+        setIsLoading({ ...isLoading, revenue: false })
         setShowRevenueClearModal({ open: false })
         setOpenRowFunctionalities(false)
         setInbounIds([])
@@ -677,7 +682,7 @@ const CallLogsReport = () => {
   }
 
   const getSearchingData = async (data) => {
-    setcurrentPage(data)
+    setCurrentPage(data)
     dispatch(showLoading())
     await axios
       .get(
@@ -741,7 +746,7 @@ const CallLogsReport = () => {
           onClick={() => handleUpdate(inboundIds)}
         >
           {'Update'}
-          {updateLoading && (
+          {isLoading.update && (
             <CircularProgress
               color="inherit"
               size="1rem"
@@ -792,7 +797,7 @@ const CallLogsReport = () => {
           <span onClick={() => handleOpenModal(setShowPendingModal)}>Pending </span>
           <span onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</span>
           <span onClick={() => handleUpdate(editData)}>
-            Update <PulseLoader color={color} loading={updateLoading} size={5} />
+            Update <PulseLoader color={color} loading={isLoading.update} size={5} />
           </span>
           <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
         </div>
@@ -941,8 +946,7 @@ const CallLogsReport = () => {
             Do you want clear <b>revenue</b> and <b>payout</b> for - <b>{sn}</b>
           </>
         }
-        loading={revenueLoading}
-        setLoading={setRevenueLoading}
+        loading={isLoading.revenue}
       ></ConfirmModal>
       <ConfirmModal
         open={showPendingModal.open}
@@ -955,7 +959,7 @@ const CallLogsReport = () => {
             ? 'Do you want to move these records to pending?'
             : 'Do you want to move this record to pending?'
         }`}
-        loading={pendingLoading}
+        loading={isLoading.pending}
       ></ConfirmModal>
       <ConfirmModal
         open={showArchivedModal.open}
@@ -969,7 +973,7 @@ const CallLogsReport = () => {
             ? 'Do you want to move these records to archive?'
             : 'Do you want to move this record to archive?'
         }`}
-        loading={archiveLoading}
+        loading={isLoading.archive}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -982,7 +986,8 @@ const CallLogsReport = () => {
             setSelectedRowIds,
             tableProps,
             changeTableProps,
-            setDeleteLoading,
+            isLoading,
+            setIsLoading,
             setInbounIds,
             setTableToolbar,
             setShowDeleteModal,
@@ -997,7 +1002,7 @@ const CallLogsReport = () => {
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}
-        loading={deleteLoading}
+        loading={isLoading.delete}
       ></ConfirmModal>
     </>
   )

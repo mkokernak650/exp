@@ -184,6 +184,7 @@ class BilledCallLogController extends Controller
 
     public function updateRevenue(Request $request)
     {
+        dd($request->all());
         BilledCallLog::where('Inbound_Id', '=', $request->inboundIds[0])->update(['Revenue' => '', 'payoutAmount' => '']);
     }
 }

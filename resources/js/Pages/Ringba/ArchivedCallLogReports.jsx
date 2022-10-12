@@ -48,14 +48,17 @@ const ArchivedCallLogReports = () => {
     open: false,
   })
   const showColumnRef = useRef()
-  const [archiveLoading, setArchiveLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
+
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
   const [archivedData, setArchivedDataData] = useState(archivedCallLogs)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState({
+    archive: false,
+    delete: false,
+  })
 
   const mapDataArr = (data) => {
     return data.map((item, index) => {
@@ -342,7 +345,7 @@ const ArchivedCallLogReports = () => {
   }
 
   const deleteHandler = () => {
-    setDeleteLoading(true)
+    setIsLoading({ ...isLoading, delete: true })
     axios
       .post('archive-delete', { selectedRowIds })
       .then((res) => {
@@ -350,7 +353,7 @@ const ArchivedCallLogReports = () => {
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           changeTableProps(filteredData)
           setInbounIds([])
           setSelectedRowIds([])
@@ -359,7 +362,7 @@ const ArchivedCallLogReports = () => {
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setDeleteLoading(false)
+          setIsLoading({ ...isLoading, delete: false })
           toast.error(res.data.msg)
           setInbounIds([])
           setSelectedRowIds([])
@@ -367,7 +370,7 @@ const ArchivedCallLogReports = () => {
         }
       })
       .catch((err) => {
-        setDeleteLoading(false)
+        setIsLoading({ ...isLoading, delete: false })
         setInbounIds([])
         setSelectedRowIds([])
         setShowDeleteModal({ open: false })
@@ -375,12 +378,12 @@ const ArchivedCallLogReports = () => {
   }
 
   const handleMoveCallLog = (inboundIds) => {
-    setArchiveLoading(true)
+    setIsLoading({ ...isLoading, archive: true })
     axios
       .post(route('archived.to.call.log'), { inboundIds })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setArchiveLoading(false)
+          setIsLoading({ ...isLoading, archive: false })
           toast.success(res.data.msg)
           let filteredData = tableProps
           const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
@@ -393,7 +396,7 @@ const ArchivedCallLogReports = () => {
           setInbounIds([])
           setShowCallLogModal({ open: false })
         } else {
-          setArchiveLoading(false)
+          setIsLoading({ ...isLoading, archive: false })
           toast.error(res.data.msg)
           setTableToolbar(false)
           setInbounIds([])
@@ -403,7 +406,7 @@ const ArchivedCallLogReports = () => {
         }
       })
       .catch((err) => {
-        setArchiveLoading(false)
+        setIsLoading({ ...isLoading, archive: false })
         setTableToolbar(false)
         setInbounIds([])
         setSelectedRowIds([])
@@ -415,7 +418,7 @@ const ArchivedCallLogReports = () => {
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
   }
-  
+
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
@@ -571,7 +574,7 @@ const ArchivedCallLogReports = () => {
                   )
                 }
               },
-            }
+            },
           }}
           dispatch={dispatch}
           extendedFilter={() => tableProps.data}
@@ -602,7 +605,7 @@ const ArchivedCallLogReports = () => {
             ? 'Do you want to move these records to Call Log?'
             : 'Do you want to move this record to Call Log?'
         }`}
-        loading={archiveLoading}
+        loading={isLoading.archive}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -616,7 +619,7 @@ const ArchivedCallLogReports = () => {
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}
-        loading={deleteLoading}
+        loading={isLoading.delete}
       ></ConfirmModal>
     </>
   )

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 export function deleteHandler(
   uri,
@@ -7,43 +7,43 @@ export function deleteHandler(
   setSelectedRowIds,
   tableProps,
   changeTableProps,
-  setDeleteLoading,
+  isLoading,
+  setIsLoading,
   setInbounIds,
   setTableToolbar,
   setShowDeleteModal,
   itemPerPage,
   getSearchingData
 ) {
-  setDeleteLoading(true);
+  setIsLoading({ ...isLoading, delete: true })
   axios
     .post(route(uri), { selectedRowIds: selectedRowIds })
     .then((res) => {
       if (res.data.status_code === 200) {
-        let filteredData = tableProps;
-        const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id));
-        filteredData.data = newData;
-        setDeleteLoading(false);
-        changeTableProps(filteredData);
-        setSelectedRowIds([]);
-        setInbounIds([]);
+        let filteredData = tableProps
+        const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
+        filteredData.data = newData
+        setIsLoading({ ...isLoading, delete: false })
+        changeTableProps(filteredData)
+        setSelectedRowIds([])
+        setInbounIds([])
         getSearchingData(itemPerPage)
-        setTableToolbar(false);
-        toast.success(res.data.msg);
-        setShowDeleteModal({ open: false });
+        setTableToolbar(false)
+        toast.success(res.data.msg)
+        setShowDeleteModal({ open: false })
       } else {
-        setDeleteLoading(false);
-        toast.error(res.data.msg);
-        setSelectedRowIds([]);
-        setInbounIds([]);
-        setShowDeleteModal({ open: false });
+        setIsLoading({ ...isLoading, delete: false })
+        toast.error(res.data.msg)
+        setSelectedRowIds([])
+        setInbounIds([])
+        setShowDeleteModal({ open: false })
       }
     })
     .catch((err) => {
-      setDeleteLoading(false);
-      setTableToolbar(false);
-      setSelectedRowIds([]);
-      setInbounIds([]);
-      setShowDeleteModal({ open: false });
-    });
+      setIsLoading({ ...isLoading, delete: false })
+      setTableToolbar(false)
+      setSelectedRowIds([])
+      setInbounIds([])
+      setShowDeleteModal({ open: false })
+    })
 }
-
