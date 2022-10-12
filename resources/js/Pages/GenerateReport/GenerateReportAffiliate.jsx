@@ -62,7 +62,6 @@ const GenerateReportAffiliate = () => {
   const [reportType, setReportType] = useState({ report_type: 'export-report' })
   const [customerEmails, setCustomerEmails] = useState([])
 
-
   const typeHandleChange = (e) => {
     const { name, value } = e.target
     setType({ [name]: value })
@@ -84,6 +83,7 @@ const GenerateReportAffiliate = () => {
     })
     if (value === '') {
       setCustomerEmails([])
+      setCustomer([])
     }
     const customerData = customers.find((customer) => customer.customer_name === value)
     if (customerData !== undefined && customerData.email) {
@@ -101,13 +101,35 @@ const GenerateReportAffiliate = () => {
     value: item.affiliate_id,
   }))
 
-  const targetHandleChange = (val, key) => {
-    const targetNames = val.split(',')
-    setTarget({ [key]: targetNames })
+  const targetHandleChange = (val) => {
+    let targetNames = []
+    if (val.includes(',')) {
+      targetNames = val.split(',')
+      setTarget({ ['target_name']: targetNames })
+    } else {
+      if (val !== '') {
+        targetNames.push(val)
+        setTarget({ ['target_name']: [val] })
+      } else {
+        setTarget([])
+      }
+    }
   }
+
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(',')
-    setAffiliate({ [key]: affiliate_ids })
+    let affiliate_ids = []
+    if (val.includes(',')) {
+      affiliate_ids = val.split(',')
+      setAffiliate({ ['affiliate_id']: affiliate_ids })
+    } else {
+      if (val !== '') {
+        affiliate_ids.push(val)
+        setAffiliate({ ['affiliate_id']: [val] })
+      } else {
+        setAffiliate([])
+      }
+    }
+    console.log(affiliate_ids)
   }
 
   const monthHandleChange = (e) => {
@@ -119,6 +141,11 @@ const GenerateReportAffiliate = () => {
         setEndDate({ ...endDate, end_date: item.end_date })
       }
     })
+    if (value === '') {
+      setMonth([])
+      setStartDate({ ...startDate, start_date: '' })
+      setEndDate({ ...endDate, end_date: '' })
+    }
   }
 
   let yearsArray = []
@@ -133,9 +160,19 @@ const GenerateReportAffiliate = () => {
     yearsArray.push(date)
   }
 
-  const yearHandleChange = (val, key) => {
-    const years = val.split(',')
-    setYear({ [key]: years })
+  const yearHandleChange = (val) => {
+    let years = []
+    if (val.includes(',')) {
+      years = val.split(',')
+      setYear({ ['year']: years })
+    } else {
+      if (val !== '') {
+        years.push(val)
+        setYear({ ['year']: [val] })
+      } else {
+        setYear([])
+      }
+    }
     for (let i = 0; i < years.length; i++) {
       const filteredData = broadCastMonths.filter((item) => {
         if (new Date(item.start_date).getFullYear().toString() === years[i]) {
@@ -161,6 +198,7 @@ const GenerateReportAffiliate = () => {
       }
     })
     if (value === '') {
+      setWeek([])
       setStartDate({ ...startDate, start_date: '' })
       setEndDate({ ...endDate, end_date: '' })
     }
@@ -170,18 +208,28 @@ const GenerateReportAffiliate = () => {
     const { name, value } = e.target
     setStartDate({ [name]: value })
   }
+
   const endDateHandleChange = (e) => {
     const { name, value } = e.target
     setEndDate({ [name]: value })
   }
+
   const campaignHandleChange = (e) => {
     const { name, value } = e.target
     setCampaign({ [name]: value })
+    if (value === '') {
+      setCampaign([])
+    }
   }
+
   const annotationHandleChange = (e) => {
     const { name, value } = e.target
     setAnnotation({ [name]: value })
+    if (value === '') {
+      setAnnotation([])
+    }
   }
+
   const values = {
     ...type,
     ...affiliate,
@@ -215,7 +263,6 @@ const GenerateReportAffiliate = () => {
   if (mergeEmail.length) {
     values.emails = mergeEmail
   }
-  
 
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
@@ -376,7 +423,7 @@ const GenerateReportAffiliate = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="target_name"
-                onChange={(val) => targetHandleChange(val, 'target_name')}
+                onChange={(val) => targetHandleChange(val)}
                 options={targetOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Targets"
@@ -402,7 +449,7 @@ const GenerateReportAffiliate = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
-                onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
+                onChange={(val) => affiliateHandleChange(val)}
                 options={affiliateOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
@@ -412,7 +459,7 @@ const GenerateReportAffiliate = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="year"
-                onChange={(val) => yearHandleChange(val, 'year')}
+                onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Years"
