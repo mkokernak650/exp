@@ -90,6 +90,7 @@ const GenerateReportMarketException = () => {
       setCustomerEmails(array)
     }
   }
+  
   const targetOptions = targetByCustomer.map((item) => ({
     label: item,
     value: item,
@@ -115,20 +116,50 @@ const GenerateReportMarketException = () => {
     value: item.broad_cast_month + ',',
   }))
 
-  const targetHandleChange = (val, key) => {
-    const targetNames = val.split(',')
-    setTarget({ [key]: targetNames })
+  const targetHandleChange = (val) => {
+    let targetNames = []
+    if (val.includes(',')) {
+      targetNames = val.split(',')
+      setTarget({ ['target_name']: targetNames })
+    } else {
+      if (val !== '') {
+        targetNames.push(val)
+        setTarget({ ['target_name']: [val] })
+      } else {
+        setTarget([])
+      }
+    }
   }
 
-  const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(',')
-    setAffiliate({ [key]: affiliate_ids })
+  const affiliateHandleChange = (val) => {
+    let affiliate_ids = []
+    if (val.includes(',')) {
+      affiliate_ids = val.split(',')
+      setAffiliate({ ['affiliate_id']: affiliate_ids })
+    } else {
+      if (val !== '') {
+        affiliate_ids.push(val)
+        setAffiliate({ ['affiliate_id']: [val] })
+      } else {
+        setAffiliate([])
+      }
+    }
   }
 
-  const monthHandleChange = (val, key) => {
+  const monthHandleChange = (val) => {
     val = val.substring(0, val.length - 1)
-    const monthsName = val.split(',,')
-    setMonth({ [key]: monthsName })
+    let monthsName = []
+    if (val.includes(',')) {
+      monthsName = val.split(',,')
+      setMonth({ ['broad_cast_month']: monthsName })
+    } else {
+      if (val !== '') {
+        monthsName.push(val)
+        setMonth({ ['broad_cast_month']: [val] })
+      } else {
+        setMonth([])
+      }
+    }
   }
 
   let yearsArray = []
@@ -143,9 +174,19 @@ const GenerateReportMarketException = () => {
     yearsArray.push(date)
   }
 
-  const yearHandleChange = (val, key) => {
-    const years = val.split(',')
-    setYear({ [key]: years })
+  const yearHandleChange = (val) => {
+    let years = []
+    if (val.includes(',')) {
+      years = val.split(',')
+      setYear({ ['year']: years })
+    } else {
+      if (val !== '') {
+        years.push(val)
+        setYear({ ['year']: [val] })
+      } else {
+        setYear([])
+      }
+    }
     for (let i = 0; i < years.length; i++) {
       const filteredData = broadCastMonths.filter((item) => {
         if (new Date(item.start_date).getFullYear().toString() === years[i]) {
@@ -164,11 +205,24 @@ const GenerateReportMarketException = () => {
   const campaignHandleChange = (e) => {
     const { name, value } = e.target
     setCampaign({ [name]: value })
+    if (value === '') {
+      setCampaign([])
+    }
   }
 
-  const annotationHandleChange = (val, key) => {
-    const annotationsName = val.split(',')
-    setAnnotation({ [key]: annotationsName })
+  const annotationHandleChange = (val) => {
+    let annotationsName = []
+    if (val.includes(',')) {
+      annotationsName = val.split(',')
+      setAnnotation({ ['annotation']: annotationsName })
+    } else {
+      if (val !== '') {
+        annotationsName.push(val)
+        setAnnotation({ ['annotation']: [val] })
+      } else {
+        setAnnotation([])
+      }
+    }
   }
 
   const values = {
@@ -342,7 +396,7 @@ const GenerateReportMarketException = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="target_name"
-                onChange={(val) => targetHandleChange(val, 'target_name')}
+                onChange={(val) => targetHandleChange(val)}
                 options={targetOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Targets"
@@ -352,7 +406,7 @@ const GenerateReportMarketException = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="annotation"
-                onChange={(val) => annotationHandleChange(val, 'annotation')}
+                onChange={(val) => annotationHandleChange(val)}
                 options={annotationOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Annotation"
@@ -361,7 +415,7 @@ const GenerateReportMarketException = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
-                onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
+                onChange={(val) => affiliateHandleChange(val)}
                 options={affiliateOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
@@ -371,7 +425,7 @@ const GenerateReportMarketException = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="year"
-                onChange={(val) => yearHandleChange(val, 'year')}
+                onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Years"
@@ -381,7 +435,7 @@ const GenerateReportMarketException = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="broad_cast_month"
-                onChange={(val) => monthHandleChange(val, 'broad_cast_month')}
+                onChange={(val) => monthHandleChange(val)}
                 options={broadCastMonthOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Broadcast Month"
