@@ -517,13 +517,19 @@ const SalesIndex = () => {
   const tablePropsRef = useRef(tableProps.data)
 
   const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-    })
+    if (
+      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
+        action?.type
+      )
+    ) {
+      handleSelects({
+        action,
+        selectedRowIds,
+        setSelectedRowIds,
+        tableProps,
+        setTableToolbar,
+      })
+    }
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
       const { data, ...settingsWithoutData } = newState
@@ -562,6 +568,7 @@ const SalesIndex = () => {
         changeTableProps(filteredData)
         tablePropsRef.current = filteredData?.data
         setSelectedRowIds([])
+        getSearchingData(currentPage)
         setTableToolbar(false)
         toast.success(res.data.msg)
         setShowDeleteModal({ open: false })
