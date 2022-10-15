@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode } from 'ka-table/enums'
+import { SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import 'ka-table/style.scss'
@@ -12,14 +12,7 @@ import Cancel from '@/Components/Icons/Cancel.jsx'
 import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
 import DeleteIcon from '@material-ui/icons/Delete'
 import produce from 'immer'
-import {
-  Button,
-  makeStyles,
-  CircularProgress,
-  IconButton,
-  Tooltip,
-  TextField,
-} from '@material-ui/core'
+import { Button, CircularProgress, IconButton, Tooltip, TextField } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -36,14 +29,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-
-const useStyles = makeStyles(() => ({
-  button: {
-    width: 'auto',
-    textTransform: 'capitalize',
-    fontSize: '14px',
-  },
-}))
+import { columns, useStyles } from './Helpers/CallLogsReportProps'
 
 const CallLogsReport = () => {
   const classes = useStyles()
@@ -128,222 +114,9 @@ const CallLogsReport = () => {
       }
     })
   }
+
   const dataArray = mapDataArr(allCallLogs.data)
 
-  const columns = [
-    {
-      key: 'edit',
-      style: { width: 10 },
-      visible: true,
-    },
-    {
-      key: 'selection-cell',
-      style: { width: 80 },
-      visible: true,
-    },
-    {
-      key: 'SN',
-      title: 'SN',
-      dataType: DataType.String,
-      style: { width: 130 },
-      visible: false,
-    },
-    {
-      key: 'Call_Date_Time',
-      title: 'Call Time (EST)',
-      dataType: DataType.Date,
-      style: { width: 230 },
-      visible: true,
-    },
-    {
-      key: 'Has_Annotation',
-      title: 'Has Annotation',
-      dataType: DataType.String,
-      style: { width: 160 },
-      visible: true,
-    },
-    {
-      key: 'Annotation_Tag',
-      title: 'Annotation Tag',
-      dataType: DataType.String,
-      style: { width: 350 },
-      visible: true,
-    },
-    {
-      key: 'call_Logs_status',
-      title: 'Call Status',
-      dataType: DataType.String,
-      style: { width: 130 },
-      visible: true,
-    },
-    {
-      key: 'Duplicate_Call',
-      title: 'Duplicate Call',
-      dataType: DataType.String,
-      style: { width: 150 },
-      visible: true,
-    },
-    {
-      key: 'Recording_Url',
-      title: 'Recording_Url',
-      style: { width: 360 },
-      visible: true,
-    },
-    {
-      key: 'Inbound_Id',
-      title: 'Inbound Id',
-      dataType: DataType.String,
-      style: { width: 600 },
-      visible: true,
-    },
-    {
-      key: 'Affiliate',
-      title: 'Affiliate',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Market',
-      title: 'Market',
-      dataType: DataType.String,
-      style: { width: 350 },
-      visible: true,
-    },
-    {
-      key: 'Campaign',
-      title: 'Campaign',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Inbound',
-      title: 'Inbound',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Dialed',
-      title: 'Dialed',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Type',
-      title: 'Type',
-      dataType: DataType.String,
-      style: { width: 100 },
-      visible: true,
-    },
-    {
-      key: 'Customer',
-      title: 'Customer',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Target',
-      title: 'Target',
-      dataType: DataType.String,
-      style: { width: 350 },
-      visible: true,
-    },
-    {
-      key: 'Target_Number',
-      title: 'Target Number',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Target_Description',
-      title: 'Target Description',
-      dataType: DataType.String,
-      style: { width: 400 },
-      visible: true,
-    },
-    {
-      key: 'Source_Hangup',
-      title: 'Source/Hangup',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Time_To_Call',
-      title: 'Time To Call',
-      dataType: DataType.Number,
-      style: { width: 130 },
-      visible: true,
-    },
-    {
-      key: 'call_Length_In_Seconds',
-      title: 'Call Length In Seconds',
-      dataType: DataType.Number,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Revenue',
-      title: 'Revenue',
-      dataType: DataType.Number,
-      style: { width: 120 },
-      visible: true,
-    },
-    {
-      key: 'Conn_Duration',
-      title: 'Conn.Duration',
-      dataType: DataType.Number,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'payoutAmount',
-      title: 'Payout',
-      dataType: DataType.Number,
-      style: { width: 100 },
-      visible: true,
-    },
-    {
-      key: 'Total_Cost',
-      title: 'Total Cost',
-      dataType: DataType.Number,
-      style: { width: 120 },
-      visible: true,
-    },
-    {
-      key: 'Profit',
-      title: 'Profit',
-      dataType: DataType.Number,
-      style: { width: 120 },
-      visible: true,
-    },
-    {
-      key: 'City',
-      title: 'City',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'State',
-      title: 'State',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Zipcode',
-      title: 'Zipcode',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-  ]
   const optionKey = 'call-logs-report'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
@@ -478,10 +251,12 @@ const CallLogsReport = () => {
   const handleSearch = () => {
     setSearchSidebar((prevState) => !prevState)
   }
+
   const handleColumns = () => {
     setShowColumns(true)
     setOpenRowFunctionalities(false)
   }
+  
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
@@ -619,7 +394,6 @@ const CallLogsReport = () => {
         setSelectedRowIds([])
       })
   }
-
 
   const handleClear = (inboundIds) => {
     setIsLoading({ ...isLoading, revenue: true })

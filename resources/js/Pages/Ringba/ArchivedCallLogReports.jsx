@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode } from 'ka-table/enums'
+import { SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'
@@ -12,7 +12,7 @@ import Cancel from '@/Components/Icons/Cancel.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import { Button, makeStyles } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -27,14 +27,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-
-const useStyles = makeStyles(() => ({
-  button: {
-    width: 'auto',
-    textTransform: 'capitalize',
-    fontSize: '14px',
-  },
-}))
+import { columns, useStyles } from './Helpers/ArchivedCallLogReportsProps'
 
 const ArchivedCallLogReports = () => {
   const classes = useStyles()
@@ -95,176 +88,6 @@ const ArchivedCallLogReports = () => {
   }
 
   const dataArray = mapDataArr(archivedCallLogs.data)
-
-  const columns = [
-    {
-      key: 'selection-cell',
-      style: { width: 80 },
-      visible: true,
-    },
-    {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 100 },
-      visible: false,
-    },
-    {
-      key: 'SN',
-      title: 'SN',
-      dataType: DataType.String,
-      style: { width: 130 },
-      visible: true,
-    },
-    {
-      key: 'Call_Date_Time',
-      title: 'Call Time (EST)',
-      dataType: DataType.Date,
-      style: { width: 230 },
-      visible: true,
-    },
-
-    {
-      key: 'Inbound_Id',
-      title: 'Inbound Id',
-      dataType: DataType.String,
-      style: { width: 600 },
-      visible: true,
-    },
-    {
-      key: 'Affiliate',
-      title: 'Affiliate',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Market',
-      title: 'Market',
-      dataType: DataType.String,
-      style: { width: 350 },
-      visible: true,
-    },
-    {
-      key: 'Campaign',
-      title: 'Campaign',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Inbound',
-      title: 'Inbound',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Dialed',
-      title: 'Dialed',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Type',
-      title: 'Type',
-      dataType: DataType.String,
-      style: { width: 100 },
-      visible: true,
-    },
-    {
-      key: 'Customer',
-      title: 'Customer',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Target',
-      title: 'Target',
-      dataType: DataType.String,
-      style: { width: 350 },
-      visible: true,
-    },
-    {
-      key: 'Target_Number',
-      title: 'Target Number',
-      dataType: DataType.String,
-      style: { width: 200 },
-      visible: true,
-    },
-    {
-      key: 'Target_Description',
-      title: 'Target Description',
-      dataType: DataType.String,
-      style: { width: 400 },
-      visible: true,
-    },
-    {
-      key: 'Call_Length_In_Seconds',
-      title: 'Call Length In Seconds',
-      dataType: DataType.Number,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Revenue',
-      title: 'Revenue',
-      dataType: DataType.Number,
-      style: { width: 120 },
-      visible: true,
-    },
-    {
-      key: 'Conn_Duration',
-      title: 'Conn.Duration',
-      dataType: DataType.Number,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Payout',
-      title: 'Payout',
-      dataType: DataType.Number,
-      style: { width: 100 },
-      visible: true,
-    },
-    {
-      key: 'Total_Cost',
-      title: 'Total Cost',
-      dataType: DataType.Number,
-      style: { width: 120 },
-      visible: true,
-    },
-    {
-      key: 'Profit',
-      title: 'Profit',
-      dataType: DataType.Number,
-      style: { width: 120 },
-      visible: true,
-    },
-    {
-      key: 'City',
-      title: 'City',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'State',
-      title: 'State',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'Zipcode',
-      title: 'Zipcode',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-  ]
 
   const optionKey = 'archived-call-logs'
   const [columnDetails, setColumnDetails] = useState(
