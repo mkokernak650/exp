@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
@@ -15,7 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
-import { Button, makeStyles } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -27,84 +27,7 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
-
-const useStyles = makeStyles(() => ({
-  topBtn: {
-    display: 'flex',
-    gap: '10px',
-    marginLeft: '10px',
-  },
-  button: {
-    width: 130,
-    textTransform: 'capitalize',
-    fontSize: '14px',
-  },
-  editButton: {
-    marginTop: '15px',
-  },
-}))
-
-export const fields = [
-  {
-    caption: 'Broadcast Month',
-    name: 'broadcast_month',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
-  },
-]
-
-export const groups = [
-  {
-    caption: 'And',
-    name: 'and',
-  },
-  {
-    caption: 'Or',
-    name: 'or',
-  },
-]
-
-export const filter = {
-  groupName: 'and',
-  items: [
-    {
-      field: 'broadcast_month',
-      operator: 'isNotEmpty',
-    },
-  ],
-}
+import { useStyles, fields, groups, filter, columns } from './Helpers/BroadcastMonthReportProps'
 
 const BroadcastMonthReport = () => {
   const classes = useStyles()
@@ -127,53 +50,6 @@ const BroadcastMonthReport = () => {
     id: item.id,
     key: index,
   }))
-
-  const columns = [
-    {
-      key: 'edit',
-      style: { width: 20 },
-      visible: true,
-    },
-    {
-      key: 'selection-cell',
-      style: { width: 80 },
-      visible: true,
-    },
-    {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 100 },
-      visible: false,
-    },
-    {
-      key: 'broad_cast_month',
-      title: 'Broadcast Month',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'start_date',
-      title: 'Start Date',
-      dataType: DataType.String,
-      style: { width: 350 },
-      visible: true,
-    },
-    {
-      key: 'end_date',
-      title: 'End Date',
-      dataType: DataType.String,
-      style: { minWidth: 100 },
-      visible: true,
-    },
-    {
-      key: 'status',
-      title: 'Status',
-      style: { width: 240 },
-      visible: true,
-    },
-  ]
 
   const optionKey = 'broadcast-month-report'
   const [columnDetails, setColumnDetails] = useState(
