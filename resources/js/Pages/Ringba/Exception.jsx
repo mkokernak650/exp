@@ -609,7 +609,7 @@ const Exceptions = () => {
       })
       .catch((err) => {
         toast.error('Updating failed')
-        setUpdateLoading(false)
+        setIsLoading({ ...isLoading, update: false })
         setInbounIds([])
         setSelectedRowIds([])
       })
