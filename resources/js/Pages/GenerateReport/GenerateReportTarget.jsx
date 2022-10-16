@@ -73,10 +73,11 @@ const GenerateReportTarget = () => {
 
   const customerHandleChange = (e) => {
     const { name, value } = e.target
+    setCustomer({ [name]: value })
     if (value === '') {
       setTargetByCustomer([])
+      setCustomer([])
     }
-    setCustomer({ [name]: value })
     targets.filter((item) => {
       if (item.Customer === value) {
         if (item.Ringba_Targets_Name !== null) {
@@ -94,6 +95,7 @@ const GenerateReportTarget = () => {
       setCustomerEmails(array)
     }
   }
+
   const targetOptions = targetByCustomer.map((item) => ({
     label: item,
     value: item,
@@ -104,15 +106,36 @@ const GenerateReportTarget = () => {
     value: item.affiliate_id,
   }))
 
-  const targetHandleChange = (val, key) => {
-    const targetNames = val.split(',')
-    setTarget({ [key]: targetNames })
+  const targetHandleChange = (val) => {
+    let targetNames = []
+    if (val.includes(',')) {
+      targetNames = val.split(',')
+      setTarget({ ['target_name']: targetNames })
+    } else {
+      if (val !== '') {
+        targetNames.push(val)
+        setTarget({ ['target_name']: [val] })
+      } else {
+        setTarget([])
+      }
+    }
   }
 
   const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(',')
-    setAffiliate({ [key]: affiliate_ids })
+    let affiliate_ids = []
+    if (val.includes(',')) {
+      affiliate_ids = val.split(',')
+      setAffiliate({ ['affiliate_id']: affiliate_ids })
+    } else {
+      if (val !== '') {
+        affiliate_ids.push(val)
+        setAffiliate({ ['affiliate_id']: [val] })
+      } else {
+        setAffiliate([])
+      }
+    }
   }
+
   const monthHandleChange = (e) => {
     const { name, value } = e.target
     setMonth({ [name]: value })
@@ -122,6 +145,11 @@ const GenerateReportTarget = () => {
         setEndDate({ ...endDate, end_date: item.end_date })
       }
     })
+    if (value === '') {
+      setMonth([])
+      setStartDate({ ...startDate, start_date: '' })
+      setEndDate({ ...endDate, end_date: '' })
+    }
   }
 
   let yearsArray = []
@@ -137,8 +165,18 @@ const GenerateReportTarget = () => {
   }
 
   const yearHandleChange = (val, key) => {
-    const years = val.split(',')
-    setYear({ [key]: years })
+    let years = []
+    if (val.includes(',')) {
+      years = val.split(',')
+      setYear({ ['year']: years })
+    } else {
+      if (val !== '') {
+        years.push(val)
+        setYear({ ['year']: [val] })
+      } else {
+        setYear([])
+      }
+    }
     for (let i = 0; i < years.length; i++) {
       const filteredData = broadCastMonths.filter((item) => {
         if (new Date(item.start_date).getFullYear().toString() === years[i]) {
@@ -153,6 +191,7 @@ const GenerateReportTarget = () => {
     label: year,
     value: year,
   }))
+
   const weekHandleChange = (e) => {
     const { name, value } = e.target
     setWeek({ [name]: value })
@@ -163,25 +202,36 @@ const GenerateReportTarget = () => {
       }
     })
     if (value === '') {
+      setWeek([])
       setStartDate({ ...startDate, start_date: '' })
       setEndDate({ ...endDate, end_date: '' })
     }
   }
+
   const startDateHandleChange = (e) => {
     const { name, value } = e.target
     setStartDate({ [name]: value })
   }
+
   const endDateHandleChange = (e) => {
     const { name, value } = e.target
     setEndDate({ [name]: value })
   }
+
   const campaignHandleChange = (e) => {
     const { name, value } = e.target
     setCampaign({ [name]: value })
+    if (value === '') {
+      setCampaign([])
+    }
   }
+
   const annotationHandleChange = (e) => {
     const { name, value } = e.target
     setAnnotation({ [name]: value })
+    if (value === '') {
+      setAnnotation([])
+    }
   }
 
   const values = {
@@ -198,6 +248,7 @@ const GenerateReportTarget = () => {
     ...annotation,
     ...reportType,
   }
+
   const dateFormat = (dataParam) => {
     let newDate = new Date(dataParam)
     let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
@@ -378,7 +429,7 @@ const GenerateReportTarget = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="target_name"
-                onChange={(val) => targetHandleChange(val, 'target_name')}
+                onChange={(val) => targetHandleChange(val)}
                 options={targetOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Targets"

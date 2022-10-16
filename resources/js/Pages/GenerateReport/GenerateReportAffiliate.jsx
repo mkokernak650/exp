@@ -116,7 +116,7 @@ const GenerateReportAffiliate = () => {
     }
   }
 
-  const affiliateHandleChange = (val, key) => {
+  const affiliateHandleChange = (val) => {
     let affiliate_ids = []
     if (val.includes(',')) {
       affiliate_ids = val.split(',')
@@ -129,7 +129,6 @@ const GenerateReportAffiliate = () => {
         setAffiliate([])
       }
     }
-    console.log(affiliate_ids)
   }
 
   const monthHandleChange = (e) => {

@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
@@ -16,7 +16,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
-import { Button, makeStyles } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import NormalModal from '../../Shared/NormalModal'
@@ -27,84 +27,7 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
-
-const useStyles = makeStyles(() => ({
-  topBtn: {
-    display: 'flex',
-    gap: '10px',
-    marginLeft: '10px',
-  },
-  button: {
-    width: '130',
-    textTransform: 'capitalize',
-    fontSize: '14px',
-  },
-  editButton: {
-    marginTop: '15px',
-  },
-}))
-
-export const fields = [
-  {
-    caption: 'Target Name',
-    name: 'target_name',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
-  },
-]
-
-export const groups = [
-  {
-    caption: 'And',
-    name: 'and',
-  },
-  {
-    caption: 'Or',
-    name: 'or',
-  },
-]
-
-export const filter = {
-  groupName: 'and',
-  items: [
-    {
-      field: 'target_name',
-      operator: 'isNotEmpty',
-    },
-  ],
-}
+import { useStyles, fields, groups, filter, columns } from './Helpers/TargetNamesProps'
 
 const Targets = () => {
   const classes = useStyles()
@@ -125,40 +48,6 @@ const Targets = () => {
     id: item.id,
     key: index,
   }))
-
-  const columns = [
-    {
-      key: 'edit',
-      style: { width: 20 },
-      visible: true,
-    },
-    {
-      key: 'selection-cell',
-      style: { width: 50 },
-      visible: true,
-    },
-    {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 100 },
-      visible: false,
-    },
-    {
-      key: 'target_name',
-      title: 'Target Name',
-      dataType: DataType.String,
-      style: { width: 460 },
-      visible: true,
-    },
-
-    {
-      key: 'status',
-      title: 'Status',
-      style: { width: 340 },
-      visible: true,
-    },
-  ]
 
   const optionKey = 'target-names-report'
   const [columnDetails, setColumnDetails] = useState(

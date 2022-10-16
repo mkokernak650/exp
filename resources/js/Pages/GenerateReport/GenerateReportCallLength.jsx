@@ -17,8 +17,8 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
-import { currentDate } from '../../Helpers/CurrentDate'
-import { ExportReportWithoutTag } from '../../Helpers/ExportReport'
+import { currentDate } from '@/Helpers/CurrentDate'
+import { ExportReportWithoutTag } from '@/Helpers/ExportReport'
 import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
@@ -79,6 +79,7 @@ const GenerateReportAffiliate = () => {
     })
     if (value === '') {
       setCustomerEmails([])
+      setCustomer([])
     }
     const customerData = customers.find((customer) => customer.customer_name === value)
     if (customerData !== undefined && customerData.email) {
@@ -92,9 +93,19 @@ const GenerateReportAffiliate = () => {
     value: item.affiliate_id,
   }))
 
-  const affiliateHandleChange = (val, key) => {
-    const affiliate_ids = val.split(',')
-    setAffiliate({ [key]: affiliate_ids })
+  const affiliateHandleChange = (val) => {
+    let affiliate_ids = []
+    if (val.includes(',')) {
+      affiliate_ids = val.split(',')
+      setAffiliate({ ['affiliate_id']: affiliate_ids })
+    } else {
+      if (val !== '') {
+        affiliate_ids.push(val)
+        setAffiliate({ ['affiliate_id']: [val] })
+      } else {
+        setAffiliate([])
+      }
+    }
   }
 
   const monthHandleChange = (e) => {
@@ -106,6 +117,11 @@ const GenerateReportAffiliate = () => {
         setEndDate({ ...endDate, end_date: item.end_date })
       }
     })
+    if (value === '') {
+      setMonth([])
+      setStartDate({ ...startDate, start_date: '' })
+      setEndDate({ ...endDate, end_date: '' })
+    }
   }
 
   let yearsArray = []
@@ -120,9 +136,19 @@ const GenerateReportAffiliate = () => {
     yearsArray.push(date)
   }
 
-  const yearHandleChange = (val, key) => {
-    const years = val.split(',')
-    setYear({ [key]: years })
+  const yearHandleChange = (val) => {
+    let years = []
+    if (val.includes(',')) {
+      years = val.split(',')
+      setYear({ ['year']: years })
+    } else {
+      if (val !== '') {
+        years.push(val)
+        setYear({ ['year']: [val] })
+      } else {
+        setYear([])
+      }
+    }
     for (let i = 0; i < years.length; i++) {
       const filteredData = broadCastMonths.filter((item) => {
         if (new Date(item.start_date).getFullYear().toString() === years[i]) {
@@ -148,6 +174,7 @@ const GenerateReportAffiliate = () => {
       }
     })
     if (value === '') {
+      setWeek([])
       setStartDate({ ...startDate, start_date: '' })
       setEndDate({ ...endDate, end_date: '' })
     }
@@ -157,22 +184,36 @@ const GenerateReportAffiliate = () => {
     const { name, value } = e.target
     setStartDate({ [name]: value })
   }
+
   const endDateHandleChange = (e) => {
     const { name, value } = e.target
     setEndDate({ [name]: value })
   }
+
   const campaignHandleChange = (e) => {
     const { name, value } = e.target
     setCampaign({ [name]: value })
+    if (value === '') {
+      setCampaign([])
+    }
   }
+
   const annotationHandleChange = (e) => {
     const { name, value } = e.target
     setAnnotation({ [name]: value })
+    if (value === '') {
+      setAnnotation([])
+    }
   }
+
   const handleDestinationNumberChange = (e) => {
     const { name, value } = e.target
     setDestinationNumber({ [name]: value })
+    if (value === '') {
+      setDestinationNumber([])
+    }
   }
+
   const values = {
     ...type,
     ...affiliate,
@@ -396,7 +437,7 @@ const GenerateReportAffiliate = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="affiliate_id"
-                onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
+                onChange={(val) => affiliateHandleChange(val)}
                 options={affiliateOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
@@ -406,7 +447,7 @@ const GenerateReportAffiliate = () => {
             <Grid item xs={12}>
               <MultiSelect
                 name="year"
-                onChange={(val) => yearHandleChange(val, 'year')}
+                onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Years"

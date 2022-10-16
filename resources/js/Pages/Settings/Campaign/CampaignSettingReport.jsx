@@ -1,7 +1,7 @@
 import Layout from '../../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
+import { SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { InertiaLink, usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
@@ -14,7 +14,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
-import { Button, makeStyles } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -26,159 +26,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { Switch } from '@material-ui/core'
-
-const useStyles = makeStyles(() => ({
-  topBtn: {
-    display: 'flex',
-    gap: '10px',
-    marginLeft: '10px',
-  },
-  button: {
-    width: 130,
-    textTransform: 'capitalize',
-    fontSize: '14px',
-  },
-  editButton: {
-    marginTop: '15px',
-  },
-}))
-
-export const fields = [
-  {
-    caption: 'campaign',
-    name: 'campaign',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
-  },
-  {
-    caption: 'duration',
-    name: 'duration',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
-  },
-  {
-    caption: 'status',
-    name: 'status',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
-  },
-]
-
-export const groups = [
-  {
-    caption: 'And',
-    name: 'and',
-  },
-  {
-    caption: 'Or',
-    name: 'or',
-  },
-]
-export const filter = {
-  groupName: 'and',
-  items: [
-    {
-      field: 'campaign',
-      operator: 'isNotEmpty',
-    },
-  ],
-}
+import { columns, useStyles, fields, groups, filter } from './Helpers/CampaignSettingReportProps'
 
 const CampaignSettingReport = () => {
   const classes = useStyles()
@@ -223,48 +71,6 @@ const CampaignSettingReport = () => {
     id: item.id,
     key: index,
   }))
-
-  const columns = [
-    {
-      key: 'selection-cell',
-      style: { width: 60 },
-      visible: true,
-    },
-    {
-      key: 'sl',
-      title: 'SL',
-      dataType: DataType.Number,
-      style: { width: 40 },
-      visible: false,
-    },
-    {
-      key: 'campaign',
-      title: 'Campaign',
-      dataType: DataType.String,
-      style: { width: 240 },
-      visible: true,
-    },
-    {
-      key: 'duration',
-      title: 'Connection Duration',
-      dataType: DataType.String,
-      style: { width: 100 },
-      visible: true,
-    },
-    {
-      key: 'status',
-      title: 'Status',
-      dataType: DataType.String,
-      style: { width: 100 },
-      visible: true,
-    },
-    {
-      key: 'actions',
-      title: 'Actions',
-      style: { width: 250 },
-      visible: true,
-    },
-  ]
 
   const optionKey = 'campaign-setting-report'
   const [columnDetails, setColumnDetails] = useState(
