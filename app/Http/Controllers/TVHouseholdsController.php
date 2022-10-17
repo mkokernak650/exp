@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\TVHouseholds;
 use Inertia\Inertia;
+use Spatie\Activitylog\Models\Activity;
 
 class TVHouseholdsController extends Controller
 {
@@ -77,13 +78,20 @@ class TVHouseholdsController extends Controller
 
     public function delete(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = TVHouseholds::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = TVHouseholds::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('TV Households Report')->event('deleted')
+                ->log("{$idsCount} {$itemsCount} has been deleted by {$userFullName}");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
