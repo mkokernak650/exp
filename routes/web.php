@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use inertia\inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -226,3 +227,6 @@ Route::get('custom-filter', function () {
 });
 
 Route::get('send-mail', [SendMailController::class, 'SendMail'])->name('send.mail');
+
+// ActivityLog
+Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.log');
