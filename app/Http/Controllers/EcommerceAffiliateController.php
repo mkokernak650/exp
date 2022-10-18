@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
@@ -13,7 +14,6 @@ use App\Models\EcommerceAffiliate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\EcommerceAffiliatesImport;
 use App\Http\Requests\EcommerceAffiliateRequest;
-use App\Models\Campaign;
 use App\Models\TableDetails;
 
 class EcommerceAffiliateController extends Controller
@@ -33,9 +33,9 @@ class EcommerceAffiliateController extends Controller
         $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
             $eAffiliatesQuery = EcommerceAffiliate::query()
-            ->with('affiliate:id,affiliate_name')
-            ->with('campaign:id,campaign_name')
-            ->with('customer:id,customer_name');
+                ->with('affiliate:id,affiliate_name')
+                ->with('campaign:id,campaign_name')
+                ->with('customer:id,customer_name');
 
             $firstCond = $conditions->items[0];
             $field = $this->fieldName($firstCond->field);
@@ -64,7 +64,7 @@ class EcommerceAffiliateController extends Controller
 
     public function valueCehckById($key, $val)
     {
-        switch($key) {
+        switch ($key) {
             case 'campaign':
                 $result = EcommerceCampaign::where('campaign_name', $val)->pluck('id');
                 if (count($result)) {
@@ -105,7 +105,7 @@ class EcommerceAffiliateController extends Controller
 
     public function fieldName($key)
     {
-        switch($key) {
+        switch ($key) {
             case 'campaign':
                 return 'campaign_id';
             case 'affiliate':
@@ -211,7 +211,7 @@ class EcommerceAffiliateController extends Controller
 
         try {
             $ecommerceAffiliate->update($validated);
-            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated, 'updated_at'=>$ecommerceAffiliate->updated_at], 201);
+            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated, 'updated_at' => $ecommerceAffiliate->updated_at], 201);
         } catch (\Throwable $th) {
             return response()->json(['msg' => 'Try Again!'], 422);
         }
@@ -231,8 +231,20 @@ class EcommerceAffiliateController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        EcommerceAffiliate::whereIn('id', $request->selectedRowIds)->delete();
-        return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+
+        $result = EcommerceAffiliate::whereIn('id', $ids)->delete();
+
+        if ($result) {
+            activity('Ecommerce Affiliate')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
+        }
     }
 
     public function import(Request $request)

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Exports\EcommerceSalesExport;
@@ -30,9 +31,9 @@ class EcommerceSaleController extends Controller
         $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
             $salesQuery = EcommerceSale::query()
-            ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
-            ->with('campaign:id,campaign_name')
-            ->with('customer:id,customer_name');
+                ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
+                ->with('campaign:id,campaign_name')
+                ->with('customer:id,customer_name');
 
             $firstCond = $conditions->items[0];
             $field = $this->fieldName($firstCond->field);
@@ -61,7 +62,7 @@ class EcommerceSaleController extends Controller
 
     public function valueCehckById($key, $val)
     {
-        switch($key) {
+        switch ($key) {
             case 'campaign':
                 $result = EcommerceCampaign::where('campaign_name', $val)->pluck('id');
                 if (count($result)) {
@@ -95,7 +96,7 @@ class EcommerceSaleController extends Controller
 
     public function fieldName($key)
     {
-        switch($key) {
+        switch ($key) {
             case 'campaign':
                 return 'campaign_id';
             case 'customer':
@@ -107,6 +108,10 @@ class EcommerceSaleController extends Controller
 
     public function update(EcommerceSaleRequest $request, EcommerceSale $ecommerceSale)
     {
+        $id           = $request->id;
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+
         $validated = $request->validated();
 
         if ($validated['order_type'] === 'E-commerce') {
@@ -148,7 +153,10 @@ class EcommerceSaleController extends Controller
 
         try {
             $ecommerceSale->update($validated);
-            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated, 'updated_at'=>$ecommerceSale->updated_at], 201);
+            activity('Ecommerce Sales')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+                ->log("An item has been updated");
+            return response()->json(['msg' => 'Updated Successfully.', 'data' => $validated, 'updated_at' => $ecommerceSale->updated_at], 201);
         } catch (\Throwable $th) {
             return response()->json(['msg' => 'Try Again!'], 422);
         }
@@ -213,7 +221,7 @@ class EcommerceSaleController extends Controller
             $msg .= "\n" . count($existSales) . ' Rows Already Exist.';
             $data = $existSales;
         }
-        return response()->json(['msg'=> $msg, 'alreadyExists' => $data], 201);
+        return response()->json(['msg' => $msg, 'alreadyExists' => $data], 201);
     }
 
     public function export(Request $request)
@@ -223,7 +231,19 @@ class EcommerceSaleController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        EcommerceSale::whereIn('id', $request->selectedRowIds)->delete();
-        return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 204]);
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+
+        $result = EcommerceSale::whereIn('id', $ids)->delete();
+
+        if ($result) {
+            activity('Ecommerce Sales')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
+            return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 204]);
+        }
     }
 }
