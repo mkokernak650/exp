@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
@@ -46,6 +47,10 @@ class CampaignController extends Controller
 
     public function campaignSettingUpdate(Request $request): JsonResponse
     {
+        $id           = $request->campaign_id;
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+
         $campaign = Campaign::findOrFail($request->input('campaign_id'));
         $campaign->update([
             'connection_duration' => $request->input('connection_duration')
@@ -54,11 +59,16 @@ class CampaignController extends Controller
         $ringbaCallLogs = RingbaCallLog::where('Campaign', $campaign->campaign_name)
             ->where('call_Length_In_Seconds', '<', (int)$request->input('connection_duration'))
             ->get();
+
         foreach ($ringbaCallLogs as $ringbaCallLog) {
             $instance = new ArchivedCallLog();
             $instance->call_Logs_status = 'Archived';
             dataMoveHelper($instance, $ringbaCallLog);
         }
+
+        activity('Campaign')->event('updated')
+            ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+            ->log("Campaign duration updated");
 
         return response()->json(['msg' => 'Duration Updated.']);
     }
@@ -139,19 +149,37 @@ class CampaignController extends Controller
 
     public function statusUpdate(Request $request, Campaign $campaign)
     {
-        $campaign->update(['status' => $request->status]);
-        return response()->json(['msg' => 'Updated Successfully.'], 201);
+        $id           = $campaign->id;
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+
+        $result = $campaign->update(['status' => $request->status]);
+        if ($result) {
+            activity('Campaign')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+                ->log("Campaign status updated");
+            return response()->json(['msg' => 'Updated Successfully.'], 201);
+        }
     }
 
     public function delete(Request $request)
     {
-        $result = true;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = Campaign::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = true;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = Campaign::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Campaign')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);

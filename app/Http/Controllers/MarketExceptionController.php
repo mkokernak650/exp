@@ -107,14 +107,22 @@ class MarketExceptionController extends Controller
 
     public function delete(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            // $result =  DB::table('market_excptions')->where('id', $request->selectedRowIds[$i])->delete();
-            $result = MarketExcptions::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = MarketExcptions::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Market Exceptions')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);

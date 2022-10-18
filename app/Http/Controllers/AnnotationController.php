@@ -49,10 +49,23 @@ class AnnotationController extends Controller
         ]);
 
         $msg = 'Annotation Added.';
+
         if (Annotation::where($validated)->first()) {
             $msg = 'Annotation Already Exist in this Campaign.';
+            return response()->json(['msg' => $msg]);
         }
-        Annotation::create($validated);
+
+        $result = Annotation::create($validated);
+
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $id           = $result->id;
+
+        if ($result) {
+            activity('Campaign')->event('created')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+                ->log("annotation created");
+        }
 
         return response()->json(['msg' => $msg]);
     }
