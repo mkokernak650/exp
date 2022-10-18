@@ -50,13 +50,22 @@ class BroadCastWeeksController extends Controller
 
     public function delete(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result =  BroadCastWeeks::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result =  BroadCastWeeks::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Broadcast Weeks')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json([
                 "msg"           => "Successfully Deleted",
                 "status_code"   => 200
@@ -94,7 +103,7 @@ class BroadCastWeeksController extends Controller
             $data->status = 1;
         }
         $result = $data->save();
-        
+
         if ($result) {
             return response()->json(['msg' => 'Updated Successfully.'], 201);
         }

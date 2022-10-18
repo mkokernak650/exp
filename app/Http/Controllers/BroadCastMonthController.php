@@ -48,14 +48,22 @@ class BroadCastMonthController extends Controller
 
     public function delete(Request $request)
     {
-        $result = false;
-        $ids = $request->selectedRowIds;
-        $i = 0;
-        while ($i < count($ids)) {
-            $result =  BroadCastMonth::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result =  BroadCastMonth::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Broadcast Months')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json([
                 "msg"           => "Successfully Deleted",
                 "status_code"   => 200

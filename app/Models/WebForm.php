@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class WebForm extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     protected $guarded = [];
 
     public function tapActivity(Activity $activity)
