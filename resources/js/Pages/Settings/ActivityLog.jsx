@@ -71,7 +71,10 @@ const ActivityLog = () => {
       if (column.key === 'created_at' || column.key === 'updated_at') {
         return DateTimeFormat(value)
       }
-    }
+      if (column.key === 'properties.ids') {
+        return value.replace(/,/g, ', ')
+      }
+    },
   }
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
