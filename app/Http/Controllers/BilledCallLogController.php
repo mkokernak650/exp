@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
@@ -35,7 +36,7 @@ class BilledCallLogController extends Controller
             foreach ($conditions->items as $cond) {
                 $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
                     if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
-                        foreach ($cond->value as $key=>$value) {
+                        foreach ($cond->value as $key => $value) {
                             $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
                         }
                     } else {
@@ -70,7 +71,12 @@ class BilledCallLogController extends Controller
      */
     public function store(Request $request)
     {
-        $Inbound_Ids = $request->inboundIds;
+        $ids          = [];
+        $Inbound_Ids  = $request->inboundIds;
+        $idsCount     = count($Inbound_Ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
 
         $result = false;
 
@@ -84,47 +90,59 @@ class BilledCallLogController extends Controller
             }
             $ringbaCallLog = new PendingBillCallLog();
             // get for store data
-            $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
+            $data   = findDataByInboundId($ringbaCallLog, $Inbound_Id);
+            if (!empty($data)) {
+                $ids[]  = $data->id;
+            } else {
+                return response()->json([
+                    'msg'         => 'Data Moving failed',
+                    'status_code' => 500
+                ]);
+            }
+
             // $result = dataMoveHelper(self::$billedCallLog, $data);
 
-            $billedCallLog->SN = $data->SN;
-            $billedCallLog->Recording_Url = $data->Recording_Url;
-            $billedCallLog->Call_Date_Time = $data->Call_Date_Time;
-            $billedCallLog->Call_Date = dateFormat($data->Call_Date);
-            $billedCallLog->Duplicate_Call = $data->Duplicate_Call;
-            $billedCallLog->Affiliate = $data->Affiliate;
-            $billedCallLog->Affiliate_Id = $data->Affiliate_Id;
-            $billedCallLog->Market = $data->Market;
-            $billedCallLog->Campaign = $data->Campaign;
-            $billedCallLog->Campaign_Id = $data->Campaign_Id;
-            $billedCallLog->Inbound = $data->Inbound;
-            $billedCallLog->Inbound_Id = $data->Inbound_Id;
-            $billedCallLog->Dialed = $data->Dialed;
-            $billedCallLog->Type = $data->Type;
-            $billedCallLog->Target = $data->Target;
-            $billedCallLog->Target_Number = $data->Target_Number;
-            $billedCallLog->Target_Description = $data->Target_Description;
-            $billedCallLog->Source_Hangup = $data->Source_Hangup;
-            $billedCallLog->Conn_Duration = $data->Conn_Duration;
-            $billedCallLog->Time_To_Call = $data->Time_To_Call;
+            $billedCallLog->SN                     = $data->SN;
+            $billedCallLog->Recording_Url          = $data->Recording_Url;
+            $billedCallLog->Call_Date_Time         = $data->Call_Date_Time;
+            $billedCallLog->Call_Date              = dateFormat($data->Call_Date);
+            $billedCallLog->Duplicate_Call         = $data->Duplicate_Call;
+            $billedCallLog->Affiliate              = $data->Affiliate;
+            $billedCallLog->Affiliate_Id           = $data->Affiliate_Id;
+            $billedCallLog->Market                 = $data->Market;
+            $billedCallLog->Campaign               = $data->Campaign;
+            $billedCallLog->Campaign_Id            = $data->Campaign_Id;
+            $billedCallLog->Inbound                = $data->Inbound;
+            $billedCallLog->Inbound_Id             = $data->Inbound_Id;
+            $billedCallLog->Dialed                 = $data->Dialed;
+            $billedCallLog->Type                   = $data->Type;
+            $billedCallLog->Target                 = $data->Target;
+            $billedCallLog->Target_Number          = $data->Target_Number;
+            $billedCallLog->Target_Description     = $data->Target_Description;
+            $billedCallLog->Source_Hangup          = $data->Source_Hangup;
+            $billedCallLog->Conn_Duration          = $data->Conn_Duration;
+            $billedCallLog->Time_To_Call           = $data->Time_To_Call;
             $billedCallLog->call_Length_In_Seconds = $data->call_Length_In_Seconds;
-            $billedCallLog->Revenue = $data->Revenue;
-            $billedCallLog->payoutAmount = $data->payoutAmount;
-            $billedCallLog->Total_Cost = $data->Total_Cost;
-            $billedCallLog->Profit = $data->Profit;
-            $billedCallLog->call_Logs_status = 'Billed';
-            $billedCallLog->City = $data->City;
-            $billedCallLog->State = $data->State;
-            $billedCallLog->Zipcode = $data->Zipcode;
-            $billedCallLog->Has_Annotation = $data->Has_Annotation;
-            $billedCallLog->Annotation_Tag = $data->Annotation_Tag;
-            $billedCallLog->Customer = $data->Customer;
-            $result = $billedCallLog->save();
+            $billedCallLog->Revenue                = $data->Revenue;
+            $billedCallLog->payoutAmount           = $data->payoutAmount;
+            $billedCallLog->Total_Cost             = $data->Total_Cost;
+            $billedCallLog->Profit                 = $data->Profit;
+            $billedCallLog->call_Logs_status       = 'Billed';
+            $billedCallLog->City                   = $data->City;
+            $billedCallLog->State                  = $data->State;
+            $billedCallLog->Zipcode                = $data->Zipcode;
+            $billedCallLog->Has_Annotation         = $data->Has_Annotation;
+            $billedCallLog->Annotation_Tag         = $data->Annotation_Tag;
+            $billedCallLog->Customer               = $data->Customer;
+            $result                                = $billedCallLog->save();
 
             // delete Record from Ringa Call log after transfer Billed call log table;
             $data->delete();
         }
         if ($result) {
+            activity('Pending Call Logs')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been moved to billed call logs");
             return response()->json([
                 'msg'         => 'Data moved to Billed successfully',
                 'status_code' => 200
@@ -168,14 +186,22 @@ class BilledCallLogController extends Controller
 
     public function delete(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            // $result =  DB::table('billed_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
-            $result = BilledCallLog::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = BilledCallLog::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Billed Call Logs')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);

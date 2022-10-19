@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
@@ -31,7 +32,7 @@ class PendingBillCallLogController extends Controller
             foreach ($conditions->items as $cond) {
                 $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
                     if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
-                        foreach ($cond->value as $key=>$value) {
+                        foreach ($cond->value as $key => $value) {
                             $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
                         }
                     } else {
@@ -64,8 +65,13 @@ class PendingBillCallLogController extends Controller
      */
     public function store(Request $request)
     {
-        $Inbound_Ids = $request->inboundIds;
-        $result = false;
+        $ids          = [];
+        $Inbound_Ids  = $request->inboundIds;
+        $idsCount     = count($Inbound_Ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
 
         foreach ($Inbound_Ids as $Inbound_Id) {
             $pendingBillCallLog = new PendingBillCallLog();
@@ -78,12 +84,20 @@ class PendingBillCallLogController extends Controller
             $ringbaCallLog = new RingbaCallLog();
 
             // get data for store db
-            $data = findDataByInboundId($ringbaCallLog, $Inbound_Id);
+            $data   = findDataByInboundId($ringbaCallLog, $Inbound_Id);
+            if (!empty($data)) {
+                $ids[]  = $data->id;
+            } else {
+                return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
+            }
 
             $pendingBillCallLog->call_Logs_status = 'Pending';
             $result = dataMoveHelper($pendingBillCallLog, $data);
         }
         if ($result) {
+            activity('Ringba Call Logs')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been moved to pending");
             return response()->json(['msg' => 'Data moved to pending successfully', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
@@ -97,13 +111,24 @@ class PendingBillCallLogController extends Controller
      */
     public function moveToCallLog(Request $request)
     {
-        $inboundIds = $request->inboundIds;
-        $result = false;
+        $ids          = [];
+        $inboundIds   = $request->inboundIds;
+        $idsCount     = count($inboundIds);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+
         if (is_array($inboundIds)) {
             $i = 0;
+            while ($i < $idsCount) {
+                $dataById   = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
+                if (!empty($dataById)) {
+                    $ids[] = $dataById->id;
+                } else {
+                    return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
+                }
 
-            while ($i < count($inboundIds)) {
-                $dataById = findDataByInboundId(new PendingBillCallLog(), $inboundIds[$i]);
                 $ringbaCallLog = new RingbaCallLog();
                 $ringbaCallLog->call_Logs_status = 'Active';
                 $result = dataMoveHelper($ringbaCallLog, $dataById);
@@ -111,6 +136,9 @@ class PendingBillCallLogController extends Controller
             }
         }
         if ($result) {
+            activity('Pending Call Logs')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been moved to Call Logs");
             return response()->json(['msg' => 'Data moved to Call Logs successfully', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
@@ -119,13 +147,23 @@ class PendingBillCallLogController extends Controller
 
     public function delete(Request $request)
     {
-        $result = true;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = DB::table('pending_bill_call_logs')->where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = DB::table('pending_bill_call_logs')->where('id', $ids[$i])->delete();
             $i++;
         }
+
         if ($result) {
+            activity('Pending Call Logs')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         }
         if ($result) {

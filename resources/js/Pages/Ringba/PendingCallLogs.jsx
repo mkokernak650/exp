@@ -58,7 +58,7 @@ const PendingCallLogsReport = () => {
   const updateAnnotation = (e, tableIndex) => {
     e.preventDefault()
     axios
-      .post(route('change.annotation', 'pendingBillCallLog'), {
+      .post(route('change.annotation', 'PendingCallLogs'), {
         indexId: tableIndex,
         annotation_id: e.target.value,
       })
