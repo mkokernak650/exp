@@ -23,8 +23,8 @@ class TargetController extends Controller
         $allTargetNames = TargetNames::select('target_name')->active()->distinct()->get();
 
         return Inertia::render('Settings/AddTargets', [
-            'allTargetNames'=> $allTargetNames,
-            'allCustomers'  => $allCustomers,
+            'allTargetNames' => $allTargetNames,
+            'allCustomers'   => $allCustomers,
         ]);
     }
 
@@ -98,13 +98,22 @@ class TargetController extends Controller
 
     public function targetDelete(Request $request)
     {
-        $result = true;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = Target::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = true;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = Target::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Target')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
@@ -113,13 +122,22 @@ class TargetController extends Controller
 
     public function targetNamesDelete(Request $request)
     {
-        $result = true;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = TargetNames::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = true;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = TargetNames::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Target Names')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);

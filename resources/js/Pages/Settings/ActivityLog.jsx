@@ -73,7 +73,7 @@ const ActivityLog = () => {
         return DateTimeFormat(value)
       }
       if (column.key === 'properties.ids') {
-        return value.replace(/,/g, ', ')
+        return value.toString().replace(/,/g, ', ')
       }
     },
   }
