@@ -25,8 +25,8 @@ class EcommerceAffiliate extends Model
         'affiliate_fee',
         'percentage',
         'status',
-        'cash_buy',
-        'cash_buy_affiliate_fee'
+        // 'cash_buy',
+        // 'cash_buy_affiliate_fee'
     ];
 
     protected static function booted()
@@ -42,9 +42,9 @@ class EcommerceAffiliate extends Model
 
     public function tapActivity(Activity $activity)
     {
-        $subjectId    = $this->id;
+        $subjectId = $this->id;
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-        $userEmail    = auth()->user()->email;
+        $userEmail = auth()->user()->email;
 
         $activity->properties = ['name' => $userFullName, 'email' => $userEmail, 'ids' => $subjectId];
     }
