@@ -305,9 +305,18 @@ class RingbaCallLogController extends Controller
      */
     public function updateByInboundIds(Request $request)
     {
-        $inboundId   = $request->inboundId;
-        $result      = $this->updateData($inboundId);
-        $updatedData = RingbaCallLog::where('inbound_id', $inboundId)->get();
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $inboundId    = $request->inboundId;
+        $result       = $this->updateData($inboundId);
+        $updatedData  = RingbaCallLog::where('inbound_id', $inboundId)->get();
+
+        if (!empty($updatedData)) {
+            $id = $updatedData[0]->id;
+            activity('Ringba Call Logs')->event('updated')
+            ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+            ->log("An item has been updated");
+        }
 
         return response()->json($updatedData, $result->getStatusCode());
     }

@@ -226,10 +226,19 @@ class ExceptionController extends Controller
      */
     public function updateByInboundIds(Request $request)
     {
-        $inboundId = $request->inboundId;
-        $result = $this->updateExceptionReport($inboundId);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $inboundId    = $request->inboundId;
+        $result       = $this->updateExceptionReport($inboundId);
+        $updatedData  = Exception::where('inbound_id', $inboundId)->get();
 
-        $updatedData = Exception::where('inbound_id', $inboundId)->get();
+        if (!empty($updatedData)) {
+            $id = $updatedData[0]->id;
+            activity('Ringba Exceptions')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+                ->log("An item has been updated");
+        }
+
         return response()->json($updatedData, $result->getStatusCode());
     }
 

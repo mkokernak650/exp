@@ -41,6 +41,7 @@ const ActivityLog = () => {
       properties: item.properties,
       name: item.properties.name,
       email: item.properties.email,
+      ids: item.properties.ids,
       id: item.id,
       key: index,
     }))
@@ -136,9 +137,17 @@ const ActivityLog = () => {
       delete item.subject_type
       delete item.subject_id
       delete item.causer_id
-      delete item.properties
+      item.effected_ids = item.properties.ids.toString()
+      item.module = item.log_name
+      delete item.log_name
+      item.user_name = item.properties.name
+      item.user_email = item.properties.email
+      item.activity_time = DateTimeFormat(item.created_at)
+      delete item.created_at
       delete item.batch_uuid
       delete item.updated_at
+      delete item.causer_type
+      delete item.properties
       return item
     })
     const fileType =
