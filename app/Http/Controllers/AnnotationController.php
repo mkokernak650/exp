@@ -49,10 +49,23 @@ class AnnotationController extends Controller
         ]);
 
         $msg = 'Annotation Added.';
+
         if (Annotation::where($validated)->first()) {
             $msg = 'Annotation Already Exist in this Campaign.';
+            return response()->json(['msg' => $msg]);
         }
-        Annotation::create($validated);
+
+        $result = Annotation::create($validated);
+
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $id           = $result->id;
+
+        if ($result) {
+            activity('Campaign annotations')->event('created')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+                ->log("annotation created");
+        }
 
         return response()->json(['msg' => $msg]);
     }
@@ -82,13 +95,22 @@ class AnnotationController extends Controller
 
     public function delete(Request $request)
     {
-        $result = true;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = Annotation::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = true;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = Annotation::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Campaign annotations')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);

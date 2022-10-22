@@ -23,7 +23,7 @@ class EcommerceCampaignController extends Controller
             'Ecommerce/CampaignIndex',
             [
                 'campaigns'  => $campaigns,
-                'columnsData'=> $columnsData
+                'columnsData' => $columnsData
             ]
         );
     }
@@ -68,7 +68,7 @@ class EcommerceCampaignController extends Controller
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')->ignore($ecommerceCampaign->id)],
         ]);
         if ($ecommerceCampaign->update($validated)) {
-            return response()->json(['msg' => 'Updated Successfully.', 'updated_at'=>$ecommerceCampaign->updated_at], 201);
+            return response()->json(['msg' => 'Updated Successfully.', 'updated_at' => $ecommerceCampaign->updated_at], 201);
         }
         return response()->json(['msg' => 'Try Again!'], 422);
     }
@@ -87,8 +87,20 @@ class EcommerceCampaignController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        EcommerceCampaign::whereIn('id', $request->selectedRowIds)->delete();
-        return response()->json(['msg' => 'Successfully Deleted']);
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+
+        $result = EcommerceCampaign::whereIn('id', $ids)->delete();
+
+        if ($result) {
+            activity('Ecommerce Campaign')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
+            return response()->json(['msg' => 'Successfully Deleted']);
+        }
     }
 
     public function statusUpdate(Request $request, EcommerceCampaign $ecommerceCampaign)

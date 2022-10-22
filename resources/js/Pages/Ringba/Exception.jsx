@@ -480,7 +480,7 @@ const Exceptions = () => {
           onClick={() => handleUpdate(inboundIds)}
         >
           {'Update'}
-          {updateLoading && (
+          {isLoading.update && (
             <CircularProgress
               color="inherit"
               size="1rem"
@@ -561,7 +561,7 @@ const Exceptions = () => {
           <span onClick={() => handleOpenModal(setShowPendingModal)}>Pending </span>
           <span onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</span>
           <span onClick={() => handleUpdate(editData)}>
-            Update <PulseLoader color={color} loading={updateLoading} size={5} />
+            Update <PulseLoader color={color} loading={isLoading.update} size={5} />
           </span>
           {/* <span onClick={() => handleAnnotation(editData)}>
             Get Annotation <PulseLoader color={color} loading={annotationLoading} size={5} />

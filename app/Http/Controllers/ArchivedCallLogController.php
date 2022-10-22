@@ -29,7 +29,7 @@ class ArchivedCallLogController extends Controller
             foreach ($conditions->items as $cond) {
                 $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
                     if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
-                        foreach ($cond->value as $key=>$value) {
+                        foreach ($cond->value as $key => $value) {
                             $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
                         }
                     } else {
@@ -62,7 +62,12 @@ class ArchivedCallLogController extends Controller
     public function store(Request $request)
     {
         // static data
-        $Inbound_Ids = $request->inboundIds;
+        $ids          = [];
+        $Inbound_Ids  = $request->inboundIds;
+        $idsCount     = count($Inbound_Ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
 
         $result = false;
 
@@ -76,12 +81,22 @@ class ArchivedCallLogController extends Controller
             }
 
             // get data for store data
-            $data = findDataByInboundId(new RingbaCallLog(), $Inbound_Id);
+            $data   = findDataByInboundId(new RingbaCallLog(), $Inbound_Id);
+            if (!empty($data)) {
+                $ids[]  = $data->id;
+            } else {
+                return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
+            }
+
+
             $archivedCallLog->call_Logs_status = 'Archived';
             $result = dataMoveHelper($archivedCallLog, $data);
         }
 
         if ($result) {
+            activity('Ringba Call Logs')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been moved to arichive");
             return response()->json(['msg' => 'Data moved to Arichive successfully', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
@@ -95,19 +110,35 @@ class ArchivedCallLogController extends Controller
 
     public function moveToCallLog(Request $request)
     {
-        $inboundIds = $request->inboundIds;
-        $result = false;
+        $ids          = [];
+        $inboundIds   = $request->inboundIds;
+        $idsCount     = count($inboundIds);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+
         if (is_array($inboundIds)) {
             $i = 0;
             while ($i < count($inboundIds)) {
-                $dataById = findDataByInboundId(new ArchivedCallLog(), $inboundIds[$i]);
+                $dataById   = findDataByInboundId(new ArchivedCallLog(), $inboundIds[$i]);
+                if (!empty($dataById)) {
+                    $ids[]      = $dataById->id;
+                } else {
+                    return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
+                }
+
                 $ringbaCallLog = new RingbaCallLog();
                 $ringbaCallLog->call_Logs_status = 'Active';
                 $result = dataMoveHelper($ringbaCallLog, $dataById);
                 $i++;
             }
         }
+
         if ($result) {
+            activity('Archived Call Logs')->event('updated')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been moved to Call Logs");
             return response()->json(['msg' => 'Data moved to Call Logs successfully', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'moving failed', 'status_code' => 500]);
@@ -116,13 +147,22 @@ class ArchivedCallLogController extends Controller
 
     public function delete(Request $request)
     {
-        $result = false;
-        $i = 0;
-        while ($i < count($request->selectedRowIds)) {
-            $result = ArchivedCallLog::where('id', $request->selectedRowIds[$i])->delete();
+        $ids          = $request->selectedRowIds;
+        $idsCount     = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail    = auth()->user()->email;
+        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $result       = false;
+        $i            = 0;
+
+        while ($i < $idsCount) {
+            $result = ArchivedCallLog::where('id', $ids[$i])->delete();
             $i++;
         }
         if ($result) {
+            activity('Archived Call Logs')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 200]);
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);

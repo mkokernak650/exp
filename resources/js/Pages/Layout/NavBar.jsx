@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -12,8 +11,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import StoreIcon from '@material-ui/icons/Store';
 import DialpadIcon from '@material-ui/icons/Dialpad';
-import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import SettingsIcon from '@material-ui/icons/Settings';
+import PeopleIcon from '@material-ui/icons/People';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -25,12 +24,11 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { User as UserIcon, Minus as MinusIcon } from 'react-feather';
-import { ExpandLess, ExpandMore } from '@material-ui/icons';
+import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage } from '@material-ui/icons';
 import { InertiaLink } from '@inertiajs/inertia-react';
 import { useState } from 'react';
 import Logo from '../../../images/webform/logo.png';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import ConfirmModal from '../../Shared/ConfirmModal';
 
 const drawerWidth = 280;
 
@@ -193,7 +191,7 @@ export default function PersistentDrawerLeft(props) {
   const items = [
     {
       id: 2,
-      Icon: <PeopleAltIcon size="20" />,
+      Icon: <Language  size="20" />,
       title: 'Ringba',
       active: false,
       collapse: true,
@@ -399,7 +397,7 @@ export default function PersistentDrawerLeft(props) {
     },
     {
       id: 8,
-      Icon: <SettingsIcon size="20" />,
+      Icon: <PeopleIcon size="20" />,
       title: 'Customers',
       active: false,
       collapse: true,
@@ -423,7 +421,7 @@ export default function PersistentDrawerLeft(props) {
     },
     {
       id: 9,
-      Icon: <SettingsIcon size="20" />,
+      Icon: <Storage size="20" />,
       title: 'Database',
       active: false,
       collapse: true,
@@ -452,7 +450,7 @@ export default function PersistentDrawerLeft(props) {
     },
     {
       id: 10,
-      Icon: <SettingsIcon size="20" />,
+      Icon: <CalendarToday size="20" />,
       title: 'Calendar',
       active: false,
       collapse: true,
@@ -484,6 +482,14 @@ export default function PersistentDrawerLeft(props) {
       href: 'webform.reports',
       Icon: <AssessmentIcon size="20" />,
       title: 'Webform Reports',
+      active: false,
+      collapse: false,
+    },
+    {
+      id: 12,
+      href: 'activity.log',
+      Icon: <History size="20" />,
+      title: 'Activity Log',
       active: false,
       collapse: false,
     },
