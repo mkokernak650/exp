@@ -47,6 +47,9 @@ const AffiliateCreate = () => {
     affiliate_id: "",
     affiliate_fee: "",
     consumerExp_fee: "",
+    // cash_buy: "",
+    // cash_buy_affiliate_fee: "",
+
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
@@ -257,6 +260,36 @@ const AffiliateCreate = () => {
                 disabled
               />
             </Grid>
+
+
+            {/* <Grid item xs={12}>
+              <TextField
+                value={values?.cash_buy}
+                id="cash_buy"
+                label="Cash Buy"
+                type="text"
+                name="cash_buy"
+                placeholder="10000"
+                onChange={handleChange}
+                className={classes.textField}
+                fullWidth
+              />
+            </Grid>
+
+
+            <Grid item xs={12}>
+              <TextField
+                value={values?.cash_buy_affiliate_fee}
+                id="cash_buy_affiliate_fee"
+                label="Cash Buy Affiliate Fee"
+                type="text"
+                name="cash_buy_affiliate_fee"
+                placeholder="100"
+                onChange={handleChange}
+                className={classes.textField}
+                fullWidth
+              />
+            </Grid> */}
 
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
