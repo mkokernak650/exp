@@ -25,7 +25,7 @@ export const columns = [
     title: 'SN',
     dataType: DataType.String,
     style: { width: 130 },
-    visible: false,
+    visible: true,
   },
   {
     key: 'Call_Date_Time',
