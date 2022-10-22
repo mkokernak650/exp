@@ -314,8 +314,8 @@ class RingbaCallLogController extends Controller
         if (!empty($updatedData)) {
             $id = $updatedData[0]->id;
             activity('Ringba Call Logs')->event('updated')
-            ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
-            ->log("An item has been updated");
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $id])
+                ->log("An item has been updated");
         }
 
         return response()->json($updatedData, $result->getStatusCode());
@@ -489,6 +489,8 @@ class RingbaCallLogController extends Controller
      */
     public function dateWiseData(Request $request)
     {
+        $userFullName   = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail      = auth()->user()->email;
         $totalDataCount = 0;
         $startDate      = $request->start_date;
         $endDate        = $request->end_date;
@@ -510,7 +512,9 @@ class RingbaCallLogController extends Controller
                 }
             }
             $this->ringbaCallLogs($data);
-            // FetchRingbaData::dispatch($data);
+            activity('Get Ringba Data')->event('created')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => []])
+                ->log("Ringba data fetched ({$startDate} to {$endDate}) ");
             return response()->json(['msg' => 'Data fetched Successfully'], 200);
         } elseif (isset($response->isSuccessful) && !$response->isSuccessful) {
             return response()->json(['msg' => 'End date must be later than Start date'], 201);
