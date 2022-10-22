@@ -15,9 +15,9 @@ class WebForm extends Model
 
     public function tapActivity(Activity $activity)
     {
-        $subjectId    = $this->id;
+        $subjectId = $this->id;
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-        $userEmail    = auth()->user()->email;
+        $userEmail = auth()->user()->email;
 
         $activity->properties = ['name' => $userFullName, 'email' => $userEmail, 'ids' => $subjectId];
     }
