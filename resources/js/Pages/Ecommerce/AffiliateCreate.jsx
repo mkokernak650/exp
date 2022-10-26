@@ -1,26 +1,20 @@
-import { React, useEffect, useState } from "react";
-import Layout from "../Layout/Layout";
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import { usePage } from "@inertiajs/inertia-react";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import toast from "react-hot-toast";
+import { React, useEffect, useState } from 'react'
+import Layout from '../Layout/Layout'
+import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
+    display: 'grid',
+    width: '500px',
+    margin: 'auto',
+    marginTop: '2rem',
+    padding: '40px',
     flexGrow: 1,
   },
   paper: {
@@ -28,70 +22,72 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   title: {
-    textAlign: "center",
-    marginBottom: "35px",
+    textAlign: 'center',
+    marginBottom: '35px',
   },
   snackbar: {
-    maxWidth: "500px",
+    maxWidth: '500px',
   },
-}));
+}))
 
 const AffiliateCreate = () => {
   const defaultState = {
-    revenue: "",
-    order_type: "",
-    coupon_code: "",
-    dialed: "",
-    campaign_id: "",
-    customer_id: "",
-    affiliate_id: "",
-    affiliate_fee: "",
-    consumerExp_fee: "",
-    // cash_buy: "",
-    // cash_buy_affiliate_fee: "",
-
-  };
-  const classes = useStyles();
-  const [values, setValues] = useState(defaultState);
-  const [loading, setLoading] = useState(false);
-  const { affiliates, campaigns, customers } = usePage().props;
+    revenue: 0,
+    order_type: '',
+    coupon_code: '',
+    dialed: '',
+    campaign_id: '',
+    customer_id: '',
+    affiliate_id: '',
+    affiliate_fee: 0,
+    consumerExp_fee: '',
+    affiliate_fee_type: '',
+    cash_buy: '',
+  }
+  const classes = useStyles()
+  const [values, setValues] = useState(defaultState)
+  const [loading, setLoading] = useState(false)
+  const { affiliates, campaigns, customers } = usePage().props
 
   useEffect(() => {
-    setValues((oldValue) => ({ ...oldValue, consumerExp_fee: (oldValue.revenue - oldValue.affiliate_fee) }));
-  }, [values.revenue, values.affiliate_fee]);
+    setValues((oldValue) => ({
+      ...oldValue,
+      consumerExp_fee: oldValue.revenue - oldValue.affiliate_fee,
+    }))
+  }, [values.revenue, values.affiliate_fee])
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((oldValues) => ({ ...oldValues, [name]: value }));
-  };
+    const { name, value } = e.target
+    setValues((oldValues) => ({ ...oldValues, [name]: value }))
+  }
 
   const headers = {
-    headers: { Accept: "application/json" },
-  };
+    headers: { Accept: 'application/json' },
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
-      .post(route("ecommerce-affiliates.store"), values, headers)
+      .post(route('ecommerce-affiliates.store'), values, headers)
       .then((res) => {
-        setLoading(false);
-        setValues(defaultState);
-        toast.success(res.data.msg);
+        setLoading(false)
+        setValues(defaultState)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
-        let errors = "";
+        let errors = ''
         if (err.response.data?.errors) {
           Object.values(err.response.data?.errors).map((error) => {
-            errors += error[0] + "\n";
-          });
+            errors += error[0] + '\n'
+          })
         } else if (err.response.data?.msg) {
-          errors = err.response.data.msg;
+          errors = err.response.data.msg
         }
-        setLoading(false);
-        toast.error(errors);
-      });
-  };
+        setLoading(false)
+        toast.error(errors)
+      })
+  }
 
   return (
     <>
@@ -219,88 +215,93 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
-                value={values?.revenue}
-                id="revenue"
-                label="Payout Per Order"
-                type="text"
-                name="revenue"
-                placeholder="Exp: 100"
+                value={values?.affiliate_fee_type}
+                id="affiliate_fee_type"
+                select
+                name="affiliate_fee_type"
                 onChange={handleChange}
-                className={classes.textField}
+                SelectProps={{
+                  native: true,
+                }}
                 fullWidth
                 required={true}
-              />
+              >
+                <option value="">Select Affiliate Fee Type</option>
+                <option value="1">Payout Per Order</option>
+                <option value="2">Cash Buy</option>
+              </TextField>
             </Grid>
 
-            <Grid item xs={12}>
-              <TextField
-                value={values?.affiliate_fee}
-                id="affiliate_fee"
-                label="Affiliate Fee"
-                type="text"
-                name="affiliate_fee"
-                placeholder="Exp: 100"
-                onChange={handleChange}
-                className={classes.textField}
-                fullWidth
-                required={true}
-              />
-            </Grid>
+            {values?.affiliate_fee_type && values.affiliate_fee_type == 1 && (
+              <>
+                <Grid item xs={12}>
+                  <TextField
+                    value={values?.revenue}
+                    id="revenue"
+                    label="Payout Per Order"
+                    type="text"
+                    name="revenue"
+                    placeholder="Exp: 100"
+                    onChange={handleChange}
+                    className={classes.textField}
+                    fullWidth
+                    required={true}
+                  />
+                </Grid>
 
-            <Grid item xs={12}>
-              <TextField
-                value={values?.consumerExp_fee}
-                id="consumerExp_fee"
-                label="ConsumerEXP Fee"
-                type="text"
-                name="consumerExp_fee"
-                className={classes.textField}
-                fullWidth
-                aria-readonly="true"
-                disabled
-              />
-            </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    value={values?.affiliate_fee}
+                    id="affiliate_fee"
+                    label="Affiliate Fee"
+                    type="text"
+                    name="affiliate_fee"
+                    placeholder="Exp: 100"
+                    onChange={handleChange}
+                    className={classes.textField}
+                    fullWidth
+                    required={true}
+                  />
+                </Grid>
 
+                <Grid item xs={12}>
+                  <TextField
+                    value={values?.consumerExp_fee}
+                    id="consumerExp_fee"
+                    label="ConsumerEXP Fee"
+                    type="text"
+                    name="consumerExp_fee"
+                    className={classes.textField}
+                    fullWidth
+                    aria-readonly="true"
+                    disabled
+                  />
+                </Grid>
+              </>
+            )}
 
-            {/* <Grid item xs={12}>
-              <TextField
-                value={values?.cash_buy}
-                id="cash_buy"
-                label="Cash Buy"
-                type="text"
-                name="cash_buy"
-                placeholder="10000"
-                onChange={handleChange}
-                className={classes.textField}
-                fullWidth
-              />
-            </Grid>
-
-
-            <Grid item xs={12}>
-              <TextField
-                value={values?.cash_buy_affiliate_fee}
-                id="cash_buy_affiliate_fee"
-                label="Cash Buy Affiliate Fee"
-                type="text"
-                name="cash_buy_affiliate_fee"
-                placeholder="100"
-                onChange={handleChange}
-                className={classes.textField}
-                fullWidth
-              />
-            </Grid> */}
+            {values.affiliate_fee_type == 2 && (
+              <Grid item xs={12}>
+                <TextField
+                  value={values?.cash_buy}
+                  id="cash_buy"
+                  label="Cash Buy"
+                  type="text"
+                  name="cash_buy"
+                  placeholder="10000"
+                  onChange={handleChange}
+                  className={classes.textField}
+                  fullWidth
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
                 {loading ? (
-                  <CircularProgress
-                    color="inherit"
-                    thickness={3}
-                    size="1.5rem"
-                  />
+                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
                 ) : (
-                  "Save"
+                  'Save'
                 )}
               </Button>
             </Grid>
@@ -308,10 +309,8 @@ const AffiliateCreate = () => {
         </form>
       </Paper>
     </>
-  );
-};
+  )
+}
 
-AffiliateCreate.layout = (page) => (
-  <Layout title="E-commerce Affiliate Create">{page}</Layout>
-);
-export default AffiliateCreate;
+AffiliateCreate.layout = (page) => <Layout title="E-commerce Affiliate Create">{page}</Layout>
+export default AffiliateCreate

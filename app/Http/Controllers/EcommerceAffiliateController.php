@@ -231,11 +231,11 @@ class EcommerceAffiliateController extends Controller
 
     public function deleteSelected(Request $request)
     {
-        $ids          = $request->selectedRowIds;
-        $idsCount     = count($ids);
+        $ids = $request->selectedRowIds;
+        $idsCount = count($ids);
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-        $userEmail    = auth()->user()->email;
-        $itemsCount   = $idsCount > 1 ? 'items' : 'item';
+        $userEmail = auth()->user()->email;
+        $itemsCount = $idsCount > 1 ? 'items' : 'item';
 
         $result = EcommerceAffiliate::whereIn('id', $ids)->delete();
 

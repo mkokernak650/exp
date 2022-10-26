@@ -64,6 +64,9 @@ const EcommerceReport = () => {
   const [customer, setCustomer] = useState([])
   const [reportType, setReportType] = useState({ type: 'customer' })
   const [reportFor, setReportFor] = useState({ reportFor: 'sales' })
+  const [affiliateFeeType, setAffiliateFeeType] = useState({
+    affiliate_fee_type: 'payout_per_order',
+  })
   const [ecommerceReportType, setEcommerceReportType] = useState({
     report_type: 'export-report',
   })
@@ -339,6 +342,11 @@ const EcommerceReport = () => {
     setReportType({ [name]: value })
   }
 
+  const affiliateFeeTypeHandleChange = (e) => {
+    const { name, value } = e.target
+    setAffiliateFeeType({ [name]: value })
+  }
+
   const reportForHandleChange = (e) => {
     const { name, value } = e.target
     setReportFor({ [name]: value })
@@ -360,6 +368,7 @@ const EcommerceReport = () => {
 
   const values = {
     ...orderType,
+    ...affiliateFeeType,
     ...campaign,
     ...customer,
     ...state,
@@ -456,8 +465,6 @@ const EcommerceReport = () => {
       })
   }
 
-  console.log(values)
-
   return (
     <>
       <Helmet title="E-Commerce - Phone Report" />
@@ -476,21 +483,23 @@ const EcommerceReport = () => {
                 onChange={reportForHandleChange}
               >
                 <FormControlLabel value="sales" control={<Radio color="primary" />} label="Sales" />
-                <FormControlLabel
-                  value="marketTarget"
-                  control={<Radio color="primary" />}
-                  label="Market Target"
-                />
-                <FormControlLabel
-                  value="summary"
-                  control={<Radio color="primary" />}
-                  label="Summary"
-                />
-                {/* <FormControlLabel
-                  value="cash_buy"
-                  control={<Radio color="primary" />}
-                  label="Cash Buy"
-                /> */}
+                <>
+                  <FormControlLabel
+                    value="marketTarget"
+                    control={<Radio color="primary" />}
+                    label="Market Target"
+                  />
+                  <FormControlLabel
+                    value="summary"
+                    control={<Radio color="primary" />}
+                    label="Summary"
+                  />
+                  <FormControlLabel
+                    value="cash_buy"
+                    control={<Radio color="primary" />}
+                    label="Cash Buy"
+                  />
+                </>
               </RadioGroup>
             </Grid>
             <Grid item xs={12} style={{ paddingTop: 0 }}>
@@ -585,7 +594,6 @@ const EcommerceReport = () => {
                 />
               </Grid>
             )}
-
             <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="year"
@@ -665,70 +673,31 @@ const EcommerceReport = () => {
                 </Grid>
               </>
             )}
-
-            {reportFor.reportFor === 'sales' && (
+            {(reportFor.reportFor === 'sales' ||
+              reportFor.reportFor === 'marketTarget' ||
+              reportFor.reportFor === 'cash_buy') && (
               <Grid item xs={12}>
-                <Grid item xs={12}>
-                  <RadioGroup
-                    aria-label="type"
-                    name="type"
-                    value={reportType.type}
-                    onChange={reportTypeHandleChange}
-                  >
-                    <FormControlLabel
-                      value="customer"
-                      control={<Radio color="primary" />}
-                      label="For Customer"
-                    />
-                    <FormControlLabel
-                      value="affiliate"
-                      control={<Radio color="primary" />}
-                      label="For Affiliate"
-                    />
-                  </RadioGroup>
-                </Grid>
-
-                <RadioGroup
-                  aria-label="report-type"
-                  name="report_type"
-                  value={ecommerceReportType.report_type}
-                  onChange={ecommerceReportTypeHandleChange}
-                >
-                  <FormControlLabel
-                    value="export-report"
-                    control={<Radio color="primary" />}
-                    label="Export Report"
-                  />
-                  <FormControlLabel
-                    value="email-report"
-                    control={<Radio color="primary" />}
-                    label="Email Report"
-                  />
-                </RadioGroup>
-              </Grid>
-            )}
-
-            {reportFor.reportFor === 'marketTarget' && (
-              <Grid item xs={12}>
-                <Grid item xs={12}>
-                  <RadioGroup
-                    aria-label="type"
-                    name="type"
-                    value={reportType.type}
-                    onChange={reportTypeHandleChange}
-                  >
-                    <FormControlLabel
-                      value="customer"
-                      control={<Radio color="primary" />}
-                      label="For Customer"
-                    />
-                    <FormControlLabel
-                      value="affiliate"
-                      control={<Radio color="primary" />}
-                      label="For Affiliate"
-                    />
-                  </RadioGroup>
-                </Grid>
+                {reportFor.reportFor !== 'cash_buy' && (
+                  <Grid item xs={12}>
+                    <RadioGroup
+                      aria-label="type"
+                      name="type"
+                      value={reportType.type}
+                      onChange={reportTypeHandleChange}
+                    >
+                      <FormControlLabel
+                        value="customer"
+                        control={<Radio color="primary" />}
+                        label="For Customer"
+                      />
+                      <FormControlLabel
+                        value="affiliate"
+                        control={<Radio color="primary" />}
+                        label="For Affiliate"
+                      />
+                    </RadioGroup>
+                  </Grid>
+                )}
                 <RadioGroup
                   aria-label="report-type"
                   name="report_type"

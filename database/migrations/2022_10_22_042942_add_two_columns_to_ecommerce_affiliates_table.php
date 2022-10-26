@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\EcommerceSale;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,8 +14,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
-            $table->string('cash_buy')->nullable();
-            $table->string('cash_buy_affiliate_fee')->nullable();
+            $table->string('cash_buy')->nullable()->after('percentage');
         });
     }
 
@@ -27,7 +27,6 @@ return new class extends Migration {
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
             $table->dropColumn('cash_buy');
-            $table->dropColumn('cash_buy_affiliate_fee');
         });
     }
 };

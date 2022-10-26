@@ -94,13 +94,13 @@ export const fields = [
     operators,
   },
   {
-    caption: 'Affiliate Fee',
-    name: 'affiliate_fee',
+    caption: 'Commission',
+    name: 'percentage',
     operators,
   },
   {
-    caption: 'Commission',
-    name: 'percentage',
+    caption: 'Cash Buy',
+    name: 'cash_buy',
     operators,
   },
 ]
@@ -167,6 +167,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'affiliate_fee_type',
+    title: 'Affiliate Fee Type',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
     key: 'coupon_code',
     title: 'Coupon Code',
     dataType: DataType.String,
@@ -197,6 +204,13 @@ export const columns = [
   {
     key: 'percentage',
     title: 'Commission',
+    dataType: DataType.String,
+    style: { width: 120 },
+    visible: true,
+  },
+  {
+    key: 'cash_buy',
+    title: 'Cash Buy',
     dataType: DataType.String,
     style: { width: 120 },
     visible: true,

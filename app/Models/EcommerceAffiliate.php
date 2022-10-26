@@ -25,8 +25,7 @@ class EcommerceAffiliate extends Model
         'affiliate_fee',
         'percentage',
         'status',
-        // 'cash_buy',
-        // 'cash_buy_affiliate_fee'
+        'cash_buy',
     ];
 
     protected static function booted()

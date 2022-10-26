@@ -13,6 +13,10 @@ class EcommerceSale extends Model
         'e-commerce' => 1,
         'phone'      => 2,
     ];
+    const AFFILIATE_FEE_TYPE = [
+        'payout_per_order' => 1,
+        'cash_buy'         => 2,
+    ];
 
     protected $fillable = [
         'campaign_id',

@@ -161,18 +161,6 @@ class EcommerceReportController extends Controller
                     ->orderBy('ecommerce_sales.order_at')
             )
             ->when(
-                $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
-                fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
-                ->groupBy('ecommerce_sales.coupon_code')
-            )
-            ->when(
-                $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
-                fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
-                ->groupBy('ecommerce_sales.dialed')
-            )
-            ->when(
                 $reportFor === 'marketTarget',
                 fn ($q) => $q
                     ->whereNotNull('zipcode_by_television_markets.market')
@@ -264,18 +252,6 @@ class EcommerceReportController extends Controller
         return $selectRows;
     }
 
-    protected function selectColumnSalesCashBuyReport($orderType)
-    {
-        $selectRows = [
-            'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_affiliates.cash_buy AS Cash Buy',
-            DB::raw('count(ecommerce_sales.id) AS `Total Order`'),
-            DB::raw('ROUND(ecommerce_affiliates.cash_buy /count(ecommerce_sales.id),2) AS `Average Order Cost`'),
-        ];
-
-        return $this->addColumnToArray($selectRows, $orderType, 1);
-    }
-
     protected function getReportSummary($reportFor, $type, $salesData)
     {
         if ($reportFor === 'sales') {
@@ -288,13 +264,11 @@ class EcommerceReportController extends Controller
         } elseif ($reportFor === 'summary') {
             return $this->summarySummary($salesData);
         }
-        return [];
     }
 
     protected function customerSummary($salesData)
     {
         $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
-
         $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
             $summary['Total Amount'] += $item->{'Total Amount'};

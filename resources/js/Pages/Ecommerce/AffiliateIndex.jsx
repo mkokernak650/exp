@@ -15,7 +15,7 @@ import Edit from '@/Components/Icons/Edit.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import { Button, TextField, makeStyles, CircularProgress } from '@material-ui/core'
+import { Button, TextField, CircularProgress } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -44,6 +44,8 @@ const AffiliateIndex = () => {
     affiliate_id: '',
     affiliate_fee: '',
     consumerExp_fee: '',
+    affiliate_fee_type: '',
+    cash_buy: '',
   }
 
   const classes = useStyles()
@@ -104,6 +106,8 @@ const AffiliateIndex = () => {
             item.percentage = editData.revenue - editData.affiliate_fee
             item.coupon_code = res.data.data.coupon_code
             item.dialed = res.data.data.dialed
+            item.affiliate_fee_type = res.data.data.affiliate_fee_type
+            item.cash_buy = res.data.data.cash_buy
             item.updated_at = res.data.updated_at
           }
           return tablePropsRef.current
@@ -170,6 +174,7 @@ const AffiliateIndex = () => {
         revenue: item?.revenue,
         affiliate_fee: item?.affiliate_fee,
         percentage: item?.percentage,
+        cash_buy: item?.cash_buy,
         created_at: item.created_at,
         updated_at: item.updated_at,
         id: item.id,
@@ -217,6 +222,9 @@ const AffiliateIndex = () => {
       }
       if (column.key === 'order_type') {
         return value == 1 ? 'E-commerce' : 'Phone'
+      }
+      if (column.key === 'affiliate_fee_type') {
+        return value == 1 ? 'Payout Per Order' : 'Cash Buy'
       }
       if (column.key === 'created_at' || column.key === 'updated_at') {
         return DateTimeFormat(value)
@@ -266,6 +274,7 @@ const AffiliateIndex = () => {
       delete item.id
       delete item.key
       item.order_type = item.order_type == 1 ? 'E-commerce' : 'Phone'
+      item.affiliate_fee_type = item.affiliate_fee_type == 1 ? 'Payout Per Order' : 'Cash Buy'
       return item
     })
     const fileType =
@@ -609,29 +618,67 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  value={editData?.revenue}
-                  label="Revenue"
-                  type="text"
-                  name="revenue"
-                  placeholder="Exp: 100"
+                  value={editData?.affiliate_fee_type}
+                  id="affiliate_fee_type"
+                  select
+                  name="affiliate_fee_type"
                   onChange={handleEditChange}
+                  SelectProps={{
+                    native: true,
+                  }}
                   fullWidth
                   required={true}
-                />
+                >
+                  <option value="">Select Affiliate Fee Type</option>
+                  <option value="1">Payout Per Order</option>
+                  <option value="2">Cash Buy</option>
+                </TextField>
               </Grid>
 
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.affiliate_fee}
-                  label="Affiliate Fee"
-                  type="text"
-                  name="affiliate_fee"
-                  placeholder="Exp: 100"
-                  onChange={handleEditChange}
-                  fullWidth
-                  required={true}
-                />
-              </Grid>
+              {editData?.affiliate_fee_type && editData.affiliate_fee_type == 1 && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      value={editData?.revenue}
+                      label="Revenue"
+                      type="text"
+                      name="revenue"
+                      placeholder="Exp: 100"
+                      onChange={handleEditChange}
+                      fullWidth
+                      required={true}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      value={editData?.affiliate_fee}
+                      label="Affiliate Fee"
+                      type="text"
+                      name="affiliate_fee"
+                      placeholder="Exp: 100"
+                      onChange={handleEditChange}
+                      fullWidth
+                      required={true}
+                    />
+                  </Grid>
+                </>
+              ) }
+               {editData?.affiliate_fee_type && editData.affiliate_fee_type == 2 && (
+                <Grid item xs={12}>
+                  <TextField
+                    value={editData?.cash_buy}
+                    id="cash_buy"
+                    label="Cash Buy"
+                    type="text"
+                    name="cash_buy"
+                    placeholder="10000"
+                    onChange={handleEditChange}
+                    className={classes.textField}
+                    fullWidth
+                  />
+                </Grid>
+              )}
 
               <Grid item xs={12}>
                 <Button
