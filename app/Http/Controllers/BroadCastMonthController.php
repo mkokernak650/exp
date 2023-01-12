@@ -38,10 +38,14 @@ class BroadCastMonthController extends Controller
 
     public function broadCastMonthReport()
     {
-        $BroadCastMonths = BroadCastMonth::all();
+        // dd(request('itemPerPage'));
+        $allBroadCastMonths = BroadCastMonth::paginate(request('itemPerPage') ?? 10);
+        if (request('page')) {
+            return $allBroadCastMonths;
+        }
         $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/BroadcastMonthReport', [
-            'BroadCastMonths'   => $BroadCastMonths,
+            'allBroadCastMonths'   => $allBroadCastMonths,
             'columnsData'       => $columnsData
         ]);
     }
@@ -104,7 +108,7 @@ class BroadCastMonthController extends Controller
         $result = $data->save();
 
         if ($result) {
-            return response()->json(['msg' => 'Updated Successfully.'], 201);
+            return response()->json(['msg' => 'Status updated successfully.', 'status_code' => 200]);
         }
     }
 }

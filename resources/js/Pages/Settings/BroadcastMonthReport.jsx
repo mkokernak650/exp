@@ -1,11 +1,10 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
-import { SortingMode, PagingPosition } from 'ka-table/enums'
+import { SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
-import { filterData } from '../filterData'
 import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -21,6 +20,7 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
@@ -28,10 +28,12 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import { useStyles, fields, groups, filter, columns } from './Helpers/BroadcastMonthReportProps'
+import { hideLoading, showColumn, showLoading } from 'ka-table/actionCreators'
+import { Pagination } from 'react-laravel-paginex'
 
 const BroadcastMonthReport = () => {
   const classes = useStyles()
-  const { BroadCastMonths, columnsData } = usePage().props
+  const { allBroadCastMonths, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -39,17 +41,28 @@ const BroadcastMonthReport = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const showColumnRef = useRef()
+  const [broadCastMonths, setBroadCastMonths] = useState(allBroadCastMonths)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [curerentPage, setCurerentPage] = useState(1)
+  const [searchedData, setSearchData] = useState([])
 
-  const dataArray = BroadCastMonths.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    broad_cast_month: item.broad_cast_month,
-    start_date: item.start_date,
-    end_date: item.end_date,
-    status: [item.status, item.id],
-    id: item.id,
-    key: index,
-  }))
+
+  const mapDataArr = (data) => {
+    return data.map((item, index) => ({
+      edit: item.id,
+      sl: index + 1,
+      broad_cast_month: item.broad_cast_month,
+      start_date: item.start_date,
+      end_date: item.end_date,
+      status: [item.status, item.id],
+      id: item.id,
+      key: index,
+    }))
+  }
+
+  const dataArray = mapDataArr(allBroadCastMonths.data)
+  // console.log(dataArray)
+
 
   const optionKey = 'broadcast-month-report'
   const [columnDetails, setColumnDetails] = useState(
@@ -61,12 +74,9 @@ const BroadcastMonthReport = () => {
       columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
         ? JSON.parse(columnsData[0])?.[optionKey]
         : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
+    loading: {
+      enabled: false,
+      text: 'Loading...',
     },
     data: dataArray,
     rowKeyField: 'id',
@@ -74,6 +84,8 @@ const BroadcastMonthReport = () => {
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
+      // console.log(column)
+      // console.log(value)
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
@@ -82,11 +94,12 @@ const BroadcastMonthReport = () => {
         )
       }
       if (column.key === 'status') {
+        // console.log(value)
         return (
           <Switch
             checked={value[0] === 1 && true}
             color="primary"
-            onChange={() => handleStatus(event, value[0], value[1])}
+            onChange={() => handleStatus(value[0], value[1])}
           />
         )
       }
@@ -94,22 +107,29 @@ const BroadcastMonthReport = () => {
   }
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps.data)
+  // console.log(tableProps)
 
-  const handleStatus = (e, value, rowId) => {
+  const handleStatus = (value, rowId) => {
     axios
       .post(route('broadcast.month.status.update'), { value: value, rowId: rowId })
       .then((res) => {
         let tmpData = { ...tableProps }
-        tmpData.data.filter((item, indx) => {
+        tablePropsRef.current.filter((item, indx) => {
+          // console.log(item.id)
+          // console.log(rowId)
           if (item.id === rowId) {
-            if (tmpData.data[indx].status[0] == 1) {
-              tmpData.data[indx].status = [0, rowId]
+            // console.log(item.status[0], 'okkkk')
+            if (item.status[0] == 1) {
+              item.status = [0, rowId]
             } else {
-              tmpData.data[indx].status = [1, rowId]
+              item.status = [1, rowId]
             }
           }
         })
+        tmpData.data = tablePropsRef.current
         changeTableProps(tmpData)
+        // changeTableProps(tmpData)
         toast.success(res.data.msg)
       })
       .catch((err) => {
@@ -136,6 +156,7 @@ const BroadcastMonthReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
   }
@@ -154,7 +175,7 @@ const BroadcastMonthReport = () => {
   }
 
   const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
+    tablePropsRef.current.filter((item) => {
       if (item.id == itemId) {
         setEditData(item)
       }
@@ -229,17 +250,37 @@ const BroadcastMonthReport = () => {
   }
 
   useEffect(() => {
-    const checkIfClickedOutside = (e) => {
-      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
-        setShowColumns(false)
-      }
+    const closeColumnSetting = (e) => {
+      CheckOutsideClick(e, showColumn, setShowColumns, showColumnRef)
     }
-
-    document.addEventListener('mousedown', checkIfClickedOutside)
+    document.addEventListener('mousedown', closeColumnSetting)
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside)
+      document.removeEventListener('mousedown', closeColumnSetting)
     }
   }, [showColumns])
+
+
+  const getSearchingData = async (data) => {
+    setCurerentPage(data)
+    dispatch(showLoading())
+    await axios
+      .get(
+        'broadcast-month-report?page=' +
+        data.page +
+        '&itemPerPage=' +
+        itemPerPage +
+        '&filteredValue=' +
+        JSON.stringify(filterValue)
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data.data)
+        changeTableProps(tmpTableProps)
+        tablePropsRef.current = mapDataArr(res.data.data)
+        setBroadCastMonths(res.data)
+        dispatch(hideLoading())
+      })
+  }
 
   const TableToolbar = () => {
     return (
@@ -253,6 +294,14 @@ const BroadcastMonthReport = () => {
       </div>
     )
   }
+
+  const itemPerPageHandleChange = (e) => {
+    setItemPerPage(e.target.value)
+  }
+
+  useEffect(() => {
+    getSearchingData(curerentPage)
+  }, [itemPerPage, filterValue])
 
   return (
     <>
@@ -329,8 +378,22 @@ const BroadcastMonthReport = () => {
             },
           }}
           dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          extendedFilter={() => tableProps.data}
         />
+        <div className="table-bottom">
+          <select
+            name="item-per-page"
+            id="item-per-page"
+            value={itemPerPage}
+            onChange={(e) => itemPerPageHandleChange(e)}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+          <Pagination changePage={getSearchingData} data={broadCastMonths} />
+        </div>
       </div>
 
       <NormalModal
@@ -395,11 +458,10 @@ const BroadcastMonthReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
     </>
   )
