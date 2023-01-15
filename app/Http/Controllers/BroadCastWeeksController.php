@@ -23,27 +23,52 @@ class BroadCastWeeksController extends Controller
     public function store(Request $request)
     {
         $existData = BroadCastWeeks::where([
-            'broad_cast_week'   => $request->broad_cast_week,
-            'start_date'        => $request->start_date,
-            'end_date'          => $request->end_date
+            'broad_cast_week' => $request->broad_cast_week,
+            'start_date'      => $request->start_date,
+            'end_date'        => $request->end_date
         ])->count();
+
         if ($existData > 0) {
             return response()->json(["msg" => "Data already exists"]);
         }
+
         BroadCastWeeks::create([
-            'broad_cast_week'   => $request->broad_cast_week,
-            'start_date'        => $request->start_date,
-            'end_date'          => $request->end_date,
+            'broad_cast_week' => $request->broad_cast_week,
+            'start_date'      => $request->start_date,
+            'end_date'        => $request->end_date,
         ]);
+
         return response()->json(["msg" => "Successfully Added"]);
     }
 
     public function broadCastWeekReport()
     {
-        $BroadCastWeeks = BroadCastWeeks::all();
+        $conditions = json_decode(request('filteredValue'));
+
+        if (request('filteredValue') && count($conditions->items) && isset($conditions->items[0]->value)) {
+            $broadCastWeeksData = BroadCastWeeks::query();
+            $firstCond          = $conditions->items[0];
+
+            $this->makeConditionQuery($broadCastWeeksData, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+
+            for ($i = 1; $i < count($conditions->items); $i++) {
+                $cond = $conditions->items[$i];
+                $this->makeConditionQuery($broadCastWeeksData, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+            }
+
+            return $broadCastWeeksData->paginate(request('itemPerPage') ?? 10);
+        }
+
+        $allBroadCastWeeks = BroadCastWeeks::paginate(request('itemPerPage') ?? 10);
+
+        if (request('page')) {
+            return $allBroadCastWeeks;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Settings/BroadcastWeekReport', [
-            'BroadCastWeeks'    => $BroadCastWeeks,
+            'allBroadCastWeeks' => $allBroadCastWeeks,
             'columnsData'       => $columnsData
         ]);
     }
@@ -59,9 +84,10 @@ class BroadCastWeeksController extends Controller
         $i            = 0;
 
         while ($i < $idsCount) {
-            $result =  BroadCastWeeks::where('id', $ids[$i])->delete();
+            $result = BroadCastWeeks::where('id', $ids[$i])->delete();
             $i++;
         }
+
         if ($result) {
             activity('Broadcast Weeks')->event('deleted')
                 ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
@@ -71,6 +97,7 @@ class BroadCastWeeksController extends Controller
                 "status_code"   => 200
             ]);
         }
+
         if ($result) {
             return response()->json([
                 "msg"           => "Deleting Failed",
@@ -78,13 +105,14 @@ class BroadCastWeeksController extends Controller
             ]);
         }
     }
+
     public function edit(Request $request)
     {
-        $data = BroadCastWeeks::find($request->id);
-        $data->broad_cast_week  = $request->broad_cast_week;
-        $data->start_date  = $request->start_date;
-        $data->end_date  = $request->end_date;
-        $result = $data->save();
+        $data                  = BroadCastWeeks::find($request->id);
+        $data->broad_cast_week = $request->broad_cast_week;
+        $data->start_date      = $request->start_date;
+        $data->end_date        = $request->end_date;
+        $result                = $data->save();
 
         if ($result) {
             return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
@@ -97,11 +125,13 @@ class BroadCastWeeksController extends Controller
     public function statusUpdate(Request $request)
     {
         $data = BroadCastWeeks::find($request->rowId);
+
         if ($request->value == 1) {
             $data->status = 0;
         } else {
             $data->status = 1;
         }
+
         $result = $data->save();
 
         if ($result) {
