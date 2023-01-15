@@ -44,7 +44,6 @@ const BroadcastMonthReport = () => {
   const [broadCastMonths, setBroadCastMonths] = useState(allBroadCastMonths)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
-  const [searchedData, setSearchData] = useState([])
 
 
   const mapDataArr = (data) => {
@@ -61,8 +60,6 @@ const BroadcastMonthReport = () => {
   }
 
   const dataArray = mapDataArr(allBroadCastMonths.data)
-  // console.log(dataArray)
-
 
   const optionKey = 'broadcast-month-report'
   const [columnDetails, setColumnDetails] = useState(
@@ -84,8 +81,6 @@ const BroadcastMonthReport = () => {
     columnResizing: true,
     columnReordering: true,
     format: ({ column, value }) => {
-      // console.log(column)
-      // console.log(value)
       if (column.key === 'edit') {
         return (
           <div className="edit-icon" onClick={() => handleEdit(value)}>
@@ -94,7 +89,6 @@ const BroadcastMonthReport = () => {
         )
       }
       if (column.key === 'status') {
-        // console.log(value)
         return (
           <Switch
             checked={value[0] === 1 && true}
@@ -108,18 +102,14 @@ const BroadcastMonthReport = () => {
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
   const tablePropsRef = useRef(tableProps.data)
-  // console.log(tableProps)
 
   const handleStatus = (value, rowId) => {
     axios
       .post(route('broadcast.month.status.update'), { value: value, rowId: rowId })
       .then((res) => {
         let tmpData = { ...tableProps }
-        tablePropsRef.current.filter((item, indx) => {
-          // console.log(item.id)
-          // console.log(rowId)
+        tablePropsRef.current.filter((item) => {
           if (item.id === rowId) {
-            // console.log(item.status[0], 'okkkk')
             if (item.status[0] == 1) {
               item.status = [0, rowId]
             } else {
@@ -129,7 +119,6 @@ const BroadcastMonthReport = () => {
         })
         tmpData.data = tablePropsRef.current
         changeTableProps(tmpData)
-        // changeTableProps(tmpData)
         toast.success(res.data.msg)
       })
       .catch((err) => {
