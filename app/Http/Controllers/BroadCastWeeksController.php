@@ -135,7 +135,7 @@ class BroadCastWeeksController extends Controller
         $result = $data->save();
 
         if ($result) {
-            return response()->json(['msg' => 'Updated Successfully.'], 201);
+            return response()->json(['msg' => 'Status updated successfully.'], 201);
         }
     }
 }
