@@ -13,6 +13,7 @@ class BroadCastMonthController extends Controller
     {
         $this->middleware('auth');
     }
+
     public function index()
     {
         return Inertia::render('Settings/AddBroadcastMonth');
@@ -25,24 +26,46 @@ class BroadCastMonthController extends Controller
             'start_date'       => $request->start_date,
             'end_date'         => $request->end_date
         ])->count();
+
         if ($existData > 0) {
             return response()->json(["msg" => "Data already exists"]);
         }
+
         BroadCastMonth::create([
             'broad_cast_month' => $request->broad_cast_month,
             'start_date'       => $request->start_date,
             'end_date'         => $request->end_date,
         ]);
+
         return response()->json(["msg" => "Successfully Added"]);
     }
 
     public function broadCastMonthReport()
     {
+        $conditions = json_decode(request('filteredValue'));
+
+        if (request('filteredValue') && count($conditions->items) && isset($conditions->items[0]->value)) {
+            $broadCastMonthData = BroadCastMonth::query();
+            $firstCond          = $conditions->items[0];
+
+            $this->makeConditionQuery($broadCastMonthData, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+
+            for ($i = 1; $i < count($conditions->items); $i++) {
+                $cond = $conditions->items[$i];
+                $this->makeConditionQuery($broadCastMonthData, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+            }
+
+            return $broadCastMonthData->paginate(request('itemPerPage') ?? 10);
+        }
+
         $allBroadCastMonths = BroadCastMonth::paginate(request('itemPerPage') ?? 10);
+
         if (request('page')) {
             return $allBroadCastMonths;
         }
+
         $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render('Settings/BroadcastMonthReport', [
             'allBroadCastMonths' => $allBroadCastMonths,
             'columnsData'        => $columnsData
@@ -63,6 +86,7 @@ class BroadCastMonthController extends Controller
             $result = BroadCastMonth::where('id', $ids[$i])->delete();
             $i++;
         }
+
         if ($result) {
             activity('Broadcast Months')->event('deleted')
                 ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
@@ -99,11 +123,13 @@ class BroadCastMonthController extends Controller
     public function statusUpdate(Request $request)
     {
         $data = BroadCastMonth::find($request->rowId);
+
         if ($request->value == 1) {
             $data->status = 0;
         } else {
             $data->status = 1;
         }
+
         $result = $data->save();
 
         if ($result) {
