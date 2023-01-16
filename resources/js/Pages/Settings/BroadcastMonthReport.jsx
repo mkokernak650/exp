@@ -222,6 +222,7 @@ const BroadcastMonthReport = () => {
           const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
           filteredData.data = newData
           changeTableProps(filteredData)
+          tablePropsRef.current = newData
           setSelectedRowIds([])
           setTableToolbar(false)
           toast.success(res.data.msg)
