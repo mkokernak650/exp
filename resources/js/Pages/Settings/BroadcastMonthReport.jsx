@@ -190,6 +190,7 @@ const BroadcastMonthReport = () => {
             }
           })
           setEditData([])
+          tablePropsRef.current = filteredData.data
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
         } else {
