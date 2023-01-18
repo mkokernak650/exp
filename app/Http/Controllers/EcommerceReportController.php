@@ -47,6 +47,7 @@ class EcommerceReportController extends Controller
 
     public function ecommerceReportGenerate(Request $request)
     {
+        // dd($this->queryReport($request));
         $salesData = $this->queryReport($request);
         $summaryCampaigns = [];
         if (isset($request->campaign_id)) {
@@ -87,6 +88,7 @@ class EcommerceReportController extends Controller
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
+        // dd($salesData);
 
         return response()->json([
             'data'    => $salesData,
@@ -122,6 +124,8 @@ class EcommerceReportController extends Controller
                     }
                 })
             )
+            ->when($reportFor === 'sales', fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
+            ->when($reportFor === 'sales', fn ($q) => $q->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id'))
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
@@ -163,14 +167,14 @@ class EcommerceReportController extends Controller
             ->when(
                 $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
                 fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
-                ->groupBy('ecommerce_sales.coupon_code')
+                    ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
+                    ->groupBy('ecommerce_sales.coupon_code')
             )
             ->when(
                 $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
                 fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
-                ->groupBy('ecommerce_sales.dialed')
+                    ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
+                    ->groupBy('ecommerce_sales.dialed')
             )
             ->when(
                 $reportFor === 'marketTarget',
@@ -243,6 +247,8 @@ class EcommerceReportController extends Controller
 
         $selectRows = [
             DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
+            'ecommerce_campaigns.campaign_name AS Campaign Name',
+            'customers.customer_name AS Customer Name',
             'affiliates.affiliate_name AS Affiliate Name',
             'ecommerce_sales.shipping_state AS State',
             'ecommerce_sales.shipping_city AS City',
@@ -261,6 +267,7 @@ class EcommerceReportController extends Controller
                 DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
             ]);
         }
+        // dd($selectRows);
         return $selectRows;
     }
 
