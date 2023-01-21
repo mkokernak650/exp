@@ -65,12 +65,12 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
-        $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
-        if (isset($request->campaign_id)) {
-            $summary = array_reverse($summary);
-            $summary['Campaign Name'] = implode(', ', $summaryCampaigns);
-            $summary = array_reverse($summary);
-        }
+        $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData, $summaryCampaigns);
+        // if (isset($request->campaign_id)) {
+        // $summary = array_reverse($summary);
+        // $summary['Campaign Name'] = implode(', ', $summaryCampaigns);
+        // $summary = array_reverse($summary);
+        // }
         if (isset($request->start_date) && isset($request->end_date)) {
             $summary['From'] = $request->start_date;
             $summary['To'] = $request->end_date;
@@ -283,11 +283,15 @@ class EcommerceReportController extends Controller
         return $this->addColumnToArray($selectRows, $orderType, 1);
     }
 
-    protected function getReportSummary($reportFor, $type, $salesData)
+    protected function getReportSummary($reportFor, $type, $salesData, $summaryCampaigns)
     {
         if ($reportFor === 'sales') {
             if ($type === 'customer') {
-                return $this->customerSummary($salesData);
+                if (!empty($summaryCampaigns)) {
+                    return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns);
+                } else {
+                    return $this->customerSummary($salesData);
+                }
             }
             return $this->affiliateSummary($salesData);
         } elseif ($reportFor === 'marketTarget') {
@@ -311,6 +315,37 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
+    protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns)
+    {
+        foreach ($summaryCampaigns as $summaryCampaign) {
+            $summary       = [];
+            $i             = 1;
+            $totalQuantity = 0;
+            $totalAmount   = 0;
+            $netAmount     = 0;
+            $totalFee      = 0;
+
+            foreach ($salesData as $data) {
+                if ($summaryCampaign == $data->{'Campaign Name'}) {
+                    $totalQuantity += $data->{'Total Quantity'};
+                    $totalAmount   += $data->{'Total Amount'};
+                    $netAmount     += $data->{'Net Amount'};
+                    $totalFee      += $data->{'Total Fee'};
+
+                    $summary["{$summaryCampaign} Total Order"]    = $i++;
+                    $summary["{$summaryCampaign} Total Quantity"] = $totalQuantity;
+                    $summary["{$summaryCampaign} Total Amount"]   = $totalAmount;
+                    $summary["{$summaryCampaign} Net Amount"]     = $netAmount;
+                    $summary["{$summaryCampaign} Total Fee"]      = $totalFee;
+                }
+            }
+            $allSummary[] = $summary;
+        }
+        $campaignSeparatedSummary = array_merge(...$allSummary);
+
+        return $campaignSeparatedSummary;
+    }
+    
     protected function affiliateSummary($salesData)
     {
         $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Affiliate Fee' => 0];
