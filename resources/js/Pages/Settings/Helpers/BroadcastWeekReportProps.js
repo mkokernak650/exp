@@ -20,7 +20,7 @@ export const useStyles = makeStyles(() => ({
 export const fields = [
   {
     caption: 'Broadcast Week',
-    name: 'broadcast_week',
+    name: 'broad_cast_week',
     operators: [
       {
         caption: 'Contains',
@@ -73,7 +73,7 @@ export const filter = {
   groupName: 'and',
   items: [
     {
-      field: 'broadcast_week',
+      field: 'broad_cast_week',
       operator: 'isNotEmpty',
     },
   ],

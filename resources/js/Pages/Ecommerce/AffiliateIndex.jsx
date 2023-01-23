@@ -169,6 +169,7 @@ const AffiliateIndex = () => {
         customer: item?.customer?.customer_name,
         affiliate: item?.affiliate?.affiliate_name,
         order_type: item?.order_type,
+        affiliate_fee_type: item?.affiliate_fee_type,
         coupon_code: item?.coupon_code,
         dialed: item?.dialed,
         revenue: item?.revenue,
