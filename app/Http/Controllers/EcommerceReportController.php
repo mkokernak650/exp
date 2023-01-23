@@ -29,9 +29,9 @@ class EcommerceReportController extends Controller
         $campaigns       = EcommerceCampaign::active()->get();
         $customers       = Customer::active()->get();
         $broadCastMonths = BroadCastMonth::active()->get();
-        $broadCastWeeks = BroadCastWeeks::active()->get();
-        $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
-        $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+        $broadCastWeeks  = BroadCastWeeks::active()->get();
+        $states          = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
+        $markets         = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
         $acesMarketingId = self::$acesMarketingId;
 
         return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'acesMarketingId'));
@@ -61,12 +61,12 @@ class EcommerceReportController extends Controller
         if (in_array(self::$acesMarketingId,$request->affiliate_id)) {
             $aMarketingData = [];
             foreach ($salesData as $sale) {
-                $sale->{'Vendor Code'} = 'unkknown field';
-                $sale->{'Product Code'} = 'unkknown field';
+                $sale->{'Vendor Code'}    = 'unkknown field';
+                $sale->{'Product Code'}   = 'unkknown field';
                 $sale->{'Caller Country'} = 'USA';
-                $sale->{'Call Length'} = 'irrelevant';
-                $sale->{'R1 Calls'} = '1';
-                $sale->{'R2 Orders'} = '0';
+                $sale->{'Call Length'}    = 'irrelevant';
+                $sale->{'R1 Calls'}       = '1';
+                $sale->{'R2 Orders'}      = '0';
                 array_push(
                     $aMarketingData,
                     $sale
@@ -75,7 +75,6 @@ class EcommerceReportController extends Controller
             $salesData = collect($aMarketingData);
         }
     
-
         $summaryCampaigns = [];
 
         if (isset($request->campaign_id)) {
@@ -97,7 +96,7 @@ class EcommerceReportController extends Controller
             $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData, $summaryCampaigns);
             if (isset($request->start_date) && isset($request->end_date)) {
                 $summary['From'] = $request->start_date;
-                $summary['To'] = $request->end_date;
+                $summary['To']   = $request->end_date;
             }
         }
 
@@ -127,16 +126,16 @@ class EcommerceReportController extends Controller
     protected function queryReport($request)
     {
         $couponCodes = $request->couponCodes;
-        $dialed = $request->dialed;
-        $year = $request->year;
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-        $type = $request->type;
-        $states = $request->states;
-        $markets = $request->markets;
-        $reportFor = $request->reportFor;
-        $orderType = $request->orderType;
-        $affiliate = $request->affiliate_id;
+        $dialed      = $request->dialed;
+        $year        = $request->year;
+        $startDate   = $request->start_date;
+        $endDate     = $request->end_date;
+        $type        = $request->type;
+        $states      = $request->states;
+        $markets     = $request->markets;
+        $reportFor   = $request->reportFor;
+        $orderType   = $request->orderType;
+        $affiliate   = $request->affiliate_id;
 
         $queryData = DB::table('ecommerce_sales')
             ->when(
@@ -279,10 +278,10 @@ class EcommerceReportController extends Controller
     {
         if ($type === 'customer') {
             $column = 'revenue';
-            $alias = 'Total Fee';
+            $alias  = 'Total Fee';
         } else {
             $column = 'affiliate_fee';
-            $alias = 'Affiliate Fee';
+            $alias  = 'Affiliate Fee';
         }
 
         if (in_array(self::$acesMarketingId,$affiliate)) {
@@ -341,13 +340,13 @@ class EcommerceReportController extends Controller
     {
         if ($reportFor === 'sales') {
             if ($type === 'customer') {
-                if (!empty($summaryCampaigns)) {
+                if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
                     return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns);
                 } else {
                     return $this->customerSummary($salesData);
                 }
             }
-            if (!empty($summaryCampaigns)) {
+            if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
                 return $this->affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns);
             } else {
                 return $this->affiliateSummary($salesData);
@@ -420,6 +419,7 @@ class EcommerceReportController extends Controller
     protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
+            $summary       = [];
             $i             = 1;
             $totalQuantity = 0;
             $totalAmount   = 0;
