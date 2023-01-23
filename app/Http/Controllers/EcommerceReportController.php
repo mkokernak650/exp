@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Affiliate;
 use Illuminate\Http\Request;
 use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
@@ -15,6 +16,14 @@ use Inertia\Inertia;
 
 class EcommerceReportController extends Controller
 {
+    private static $acesMarketingId;
+
+    public function __construct()
+    {
+        $aId = Affiliate::where('affiliate_name', 'Aces Marketing')->get('id');
+        self::$acesMarketingId = $aId[0]->id;
+    }
+
     public function ecommerceReport()
     {
         $campaigns = EcommerceCampaign::active()->get();
@@ -23,8 +32,9 @@ class EcommerceReportController extends Controller
         $broadCastWeeks = BroadCastWeeks::active()->get();
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+        $acesMarketingId = self::$acesMarketingId;
 
-        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets'));
+        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'acesMarketingId'));
     }
 
     public function selectionWiseData(Request $request)
@@ -48,6 +58,24 @@ class EcommerceReportController extends Controller
     public function ecommerceReportGenerate(Request $request)
     {
         $salesData = $this->queryReport($request);
+        if (in_array(self::$acesMarketingId,$request->affiliate_id)) {
+            $aMarketingData = [];
+            foreach ($salesData as $sale) {
+                $sale->{'Vendor Code'} = 'unkknown field';
+                $sale->{'Product Code'} = 'unkknown field';
+                $sale->{'Caller Country'} = 'USA';
+                $sale->{'Call Length'} = 'irrelevant';
+                $sale->{'R1 Calls'} = '1';
+                $sale->{'R2 Orders'} = '0';
+                array_push(
+                    $aMarketingData,
+                    $sale
+                );
+            }
+            $salesData = collect($aMarketingData);
+        }
+    
+
         $summaryCampaigns = [];
         if (isset($request->campaign_id)) {
             $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
@@ -64,15 +92,17 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
-        $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
-        if (isset($request->campaign_id)) {
-            $summary = array_reverse($summary);
-            $summary['Campaign Name'] = implode(', ', $summaryCampaigns);
-            $summary = array_reverse($summary);
-        }
-        if (isset($request->start_date) && isset($request->end_date)) {
-            $summary['From'] = $request->start_date;
-            $summary['To'] = $request->end_date;
+        if (!in_array(self::$acesMarketingId,$request->affiliate_id)) {
+            $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData);
+            if (isset($request->campaign_id)) {
+                $summary = array_reverse($summary);
+                $summary['Campaign Name'] = implode(', ', $summaryCampaigns);
+                $summary = array_reverse($summary);
+            }
+            if (isset($request->start_date) && isset($request->end_date)) {
+                $summary['From'] = $request->start_date;
+                $summary['To'] = $request->end_date;
+            }
         }
 
         if ($request->report_type === 'email-report') {
@@ -86,6 +116,10 @@ class EcommerceReportController extends Controller
             $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $request->emails);
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
+        }
+
+        if (in_array(self::$acesMarketingId,$request->affiliate_id)) {
+            $summary = [];
         }
 
         return response()->json([
@@ -106,6 +140,7 @@ class EcommerceReportController extends Controller
         $markets = $request->markets;
         $reportFor = $request->reportFor;
         $orderType = $request->orderType;
+        $affiliate = $request->affiliate_id;
 
         $queryData = DB::table('ecommerce_sales')
             ->when(
@@ -127,7 +162,7 @@ class EcommerceReportController extends Controller
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
             ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
             ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
-            ->when(!empty($request->affiliate_id) && !in_array('allAffiliates', $request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $request->affiliate_id))
+            ->when(in_array(self::$acesMarketingId,$request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliate))
             ->when(!empty($states) && !in_array('allStates', $states), fn ($q) => $q->whereIn('zipcode_by_television_markets.state', $states))
             ->when(!empty($markets) && !in_array('allMarkets', $markets), fn ($q) => $q->whereIn('zipcode_by_television_markets.market', $markets))
             ->when(!empty($couponCodes) && empty($dialed), fn ($q) => $q->whereIn('ecommerce_sales.coupon_code', $couponCodes))
@@ -157,19 +192,19 @@ class EcommerceReportController extends Controller
                 $reportFor === 'sales',
                 fn ($q) => $q
                     ->groupBy('ecommerce_sales.id')
-                    ->select($this->selectColumnSalesReport($type, $orderType))
+                    ->select($this->selectColumnSalesReport($type, $orderType, $affiliate))
                     ->orderBy('ecommerce_sales.order_at')
             )
             ->when(
                 $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
                 fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
+                ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
                 ->groupBy('ecommerce_sales.coupon_code')
             )
             ->when(
                 $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
                 fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $reportFor))
+                ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
                 ->groupBy('ecommerce_sales.dialed')
             )
             ->when(
@@ -218,20 +253,31 @@ class EcommerceReportController extends Controller
     }
 
     // add new column for detailed sales report depending on order type
-    protected function addColumnToArray($array, $orderType, $offset)
+    protected function addColumnToArray($array, $orderType, $offset, $affiliate)
     {
-        if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
-            $dialedColumn = ['ecommerce_sales.dialed AS Dialed'];
-            array_splice($array, $offset, 0, $dialedColumn);
-        }
-        if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['e-commerce']) {
-            $couponCodeColumn = ['ecommerce_sales.coupon_code AS Coupon Code'];
-            array_splice($array, $offset, 0, $couponCodeColumn);
+        if (in_array(self::$acesMarketingId,$affiliate)) {
+            if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
+                $dialedColumn = ['ecommerce_sales.dialed AS 800#'];
+                array_splice($array, $offset, 0, $dialedColumn);
+            }
+            if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['e-commerce']) {
+                $couponCodeColumn = ['ecommerce_sales.coupon_code AS Station Code'];
+                array_splice($array, $offset, 0, $couponCodeColumn);
+            }
+        } else {
+            if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
+                $dialedColumn = ['ecommerce_sales.dialed AS Dialed'];
+                array_splice($array, $offset, 0, $dialedColumn);
+            }
+            if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['e-commerce']) {
+                $couponCodeColumn = ['ecommerce_sales.coupon_code AS Coupon Code'];
+                array_splice($array, $offset, 0, $couponCodeColumn);
+            }
         }
         return $array;
     }
 
-    protected function selectColumnSalesReport($type, $orderType)
+    protected function selectColumnSalesReport($type, $orderType, $affiliate)
     {
         if ($type === 'customer') {
             $column = 'revenue';
@@ -241,22 +287,37 @@ class EcommerceReportController extends Controller
             $alias = 'Affiliate Fee';
         }
 
-        $selectRows = [
-            DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
-            'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_sales.shipping_state AS State',
-            'ecommerce_sales.shipping_city AS City',
-            'ecommerce_sales.shipping_zip AS Zip Code',
-            'zipcode_by_television_markets.market AS Market',
-            't_v_households.tv_households AS TV Market Households',
-            'ecommerce_sales.quantity AS Total Quantity',
-            'ecommerce_sales.total AS Total Amount',
-            DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) AS `' . $alias . '`'),
-        ];
+        if (in_array(self::$acesMarketingId,$affiliate)) {
+            $selectRows = [
+                DB::raw(
+                    'DATE_FORMAT(ecommerce_sales.order_at, "%d/%m/%y") AS `Date of call`'
+                ),
+                DB::raw(
+                    'DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'
+                ),
+                'affiliates.affiliate_name AS Affiliate Name',
+                'ecommerce_sales.shipping_state AS Caller State',
+                'ecommerce_sales.shipping_city AS Caller City',
+                'ecommerce_sales.shipping_zip AS Caller Zip',
+            ];
+        } else {
+            $selectRows = [
+                DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
+                'affiliates.affiliate_name AS Affiliate Name',
+                'ecommerce_sales.shipping_state AS State',
+                'ecommerce_sales.shipping_city AS City',
+                'ecommerce_sales.shipping_zip AS Zip Code',
+                'zipcode_by_television_markets.market AS Market',
+                't_v_households.tv_households AS TV Market Households',
+                'ecommerce_sales.quantity AS Total Quantity',
+                'ecommerce_sales.total AS Total Amount',
+                DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) AS `' . $alias . '`'),
+            ];
+        }
 
-        $selectRows = $this->addColumnToArray($selectRows, $orderType, 2);
+        $selectRows = $this->addColumnToArray($selectRows, $orderType, 2, $affiliate);
 
-        if ($type === 'customer') {
+        if ($type === 'customer' && !in_array(self::$acesMarketingId,$affiliate)) {
             return array_merge($selectRows, [
                 DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
             ]);
@@ -264,7 +325,7 @@ class EcommerceReportController extends Controller
         return $selectRows;
     }
 
-    protected function selectColumnSalesCashBuyReport($orderType)
+    protected function selectColumnSalesCashBuyReport($orderType,$affiliate)
     {
         $selectRows = [
             'affiliates.affiliate_name AS Affiliate Name',
@@ -273,7 +334,7 @@ class EcommerceReportController extends Controller
             DB::raw('ROUND(ecommerce_affiliates.cash_buy /count(ecommerce_sales.id),2) AS `Average Order Cost`'),
         ];
 
-        return $this->addColumnToArray($selectRows, $orderType, 1);
+        return $this->addColumnToArray($selectRows, $orderType, 1,$affiliate);
     }
 
     protected function getReportSummary($reportFor, $type, $salesData)

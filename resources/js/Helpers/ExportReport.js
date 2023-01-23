@@ -43,8 +43,9 @@ export const ExportReportWithTag = (apiData, fileName) => {
 }
 
 export const exportReportEcommerce = (apiData, fileName, reportFor) => {
+  console.log(apiData)
   const ws = XLSX.utils.json_to_sheet(apiData.data, fileName)
-  if (Object.keys(apiData.summary).length) {
+  if (apiData?.summary && Object.keys(apiData.summary).length) {
     const secondData = apiData.data.length + 5
     const summary = []
     summary.push(['Summary', ''])

@@ -43,11 +43,10 @@ const useStyles = makeStyles((theme) => ({
 const EcommerceReport = () => {
   const classes = useStyles()
   const [loading, setLoading] = useState(false)
-  const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets } = usePage().props
+  const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, acesMarketingId } = usePage().props
   const [affiliateList, setAffiliateList] = useState([])
   const [couponCodeList, setCouponCodeList] = useState([])
   const [dialedPhoneList, setDialedPhoneList] = useState([])
-  const [monthByYear, setMonthByYear] = useState(broadCastMonths)
   const [affiliate, setAffiliate] = useState()
   const [affiliatesEmail, setAffiliatesEmail] = useState([])
   const [month, setMonth] = useState('')
@@ -414,19 +413,17 @@ const EcommerceReport = () => {
     return format_date
   }
 
-  const fileName = `Report${
-    reportType.type === 'customer'
-      ? values?.customer_id
-        ? `_For_(${getCustomerNames().toString()})`
-        : ''
-      : values?.affiliate_id.length
+  const fileName = `Report${reportType.type === 'customer'
+    ? values?.customer_id
+      ? `_For_(${getCustomerNames().toString()})`
+      : ''
+    : values?.affiliate_id.length
       ? `_For_(${getAffiliateNames().toString()})`
       : ''
-  }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${
-    values?.start_date
+    }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${values?.start_date
       ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
       : ''
-  }`
+    }`
   values.file_name = fileName
 
   const handleSubmit = () => {
@@ -442,6 +439,8 @@ const EcommerceReport = () => {
     axios
       .post(route('ecommerce.report.generate'), { ...values, affiliatesEmail })
       .then((r) => {
+        console.log(r)
+
         setLoading(false)
         if (r?.status === 204) {
           setLoading(false)
@@ -563,11 +562,11 @@ const EcommerceReport = () => {
             <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="affiliate_id"
-                defaultValue={affiliate?.affiliate_id}
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
-                options={[{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]}
+                options={[{ label: 'All Affiliates', value: 'allAffiliates' }, { label: 'Aces Marketing', value: acesMarketingId }, ...affiliateList]}
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
+                singleSelect
               />
             </Grid>
             {(orderType.orderType === 'both' || orderType.orderType == 1) && (
@@ -616,7 +615,7 @@ const EcommerceReport = () => {
                     fullWidth
                   >
                     <option value="">Select Broadcast Month</option>
-                    {monthByYear.map((option, indx) => (
+                    {broadCastMonths.map((option, indx) => (
                       <option key={indx} value={option.broad_cast_month}>
                         {option.broad_cast_month}
                       </option>
@@ -676,47 +675,47 @@ const EcommerceReport = () => {
             {(reportFor.reportFor === 'sales' ||
               reportFor.reportFor === 'marketTarget' ||
               reportFor.reportFor === 'cash_buy') && (
-              <Grid item xs={12}>
-                {reportFor.reportFor !== 'cash_buy' && (
-                  <Grid item xs={12}>
-                    <RadioGroup
-                      aria-label="type"
-                      name="type"
-                      value={reportType.type}
-                      onChange={reportTypeHandleChange}
-                    >
-                      <FormControlLabel
-                        value="customer"
-                        control={<Radio color="primary" />}
-                        label="For Customer"
-                      />
-                      <FormControlLabel
-                        value="affiliate"
-                        control={<Radio color="primary" />}
-                        label="For Affiliate"
-                      />
-                    </RadioGroup>
-                  </Grid>
-                )}
-                <RadioGroup
-                  aria-label="report-type"
-                  name="report_type"
-                  value={ecommerceReportType.report_type}
-                  onChange={ecommerceReportTypeHandleChange}
-                >
-                  <FormControlLabel
-                    value="export-report"
-                    control={<Radio color="primary" />}
-                    label="Export Report"
-                  />
-                  <FormControlLabel
-                    value="email-report"
-                    control={<Radio color="primary" />}
-                    label="Email Report"
-                  />
-                </RadioGroup>
-              </Grid>
-            )}
+                <Grid item xs={12}>
+                  {reportFor.reportFor !== 'cash_buy' && (
+                    <Grid item xs={12}>
+                      <RadioGroup
+                        aria-label="type"
+                        name="type"
+                        value={reportType.type}
+                        onChange={reportTypeHandleChange}
+                      >
+                        <FormControlLabel
+                          value="customer"
+                          control={<Radio color="primary" />}
+                          label="For Customer"
+                        />
+                        <FormControlLabel
+                          value="affiliate"
+                          control={<Radio color="primary" />}
+                          label="For Affiliate"
+                        />
+                      </RadioGroup>
+                    </Grid>
+                  )}
+                  <RadioGroup
+                    aria-label="report-type"
+                    name="report_type"
+                    value={ecommerceReportType.report_type}
+                    onChange={ecommerceReportTypeHandleChange}
+                  >
+                    <FormControlLabel
+                      value="export-report"
+                      control={<Radio color="primary" />}
+                      label="Export Report"
+                    />
+                    <FormControlLabel
+                      value="email-report"
+                      control={<Radio color="primary" />}
+                      label="Email Report"
+                    />
+                  </RadioGroup>
+                </Grid>
+              )}
 
             <Grid item xs={12}>
               <Button
