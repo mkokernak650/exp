@@ -61,12 +61,11 @@ class EcommerceReportController extends Controller
         if (in_array(self::$acesMarketingId,$request->affiliate_id)) {
             $aMarketingData = [];
             foreach ($salesData as $sale) {
-                $sale->{'Vendor Code'} = 'unkknown field';
-                $sale->{'Product Code'} = 'unkknown field';
+                $sale->{'Vendor Code'} = 'new field';
+                $sale->{'Product Code'} = 'new field';
                 $sale->{'Caller Country'} = 'USA';
-                $sale->{'Call Length'} = 'irrelevant';
-                $sale->{'R1 Calls'} = '1';
-                $sale->{'R2 Orders'} = '0';
+                $sale->{'Call Length'} = 'new field';
+                $sale->{'R1 Calls'} = '0';
                 array_push(
                     $aMarketingData,
                     $sale
@@ -297,6 +296,8 @@ class EcommerceReportController extends Controller
                 'ecommerce_sales.shipping_state AS Caller State',
                 'ecommerce_sales.shipping_city AS Caller City',
                 'ecommerce_sales.shipping_zip AS Caller Zip',
+                'ecommerce_sales.inbound AS ANI',
+                'ecommerce_sales.quantity AS R2 Orders',
             ];
         } else {
             $selectRows = [
