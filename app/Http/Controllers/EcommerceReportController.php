@@ -26,8 +26,8 @@ class EcommerceReportController extends Controller
 
     public function ecommerceReport()
     {
-        $campaigns       = EcommerceCampaign::active()->get();
-        $customers       = Customer::active()->get();
+        $campaigns = EcommerceCampaign::active()->get();
+        $customers = Customer::active()->get();
         $broadCastMonths = BroadCastMonth::active()->get();
         $broadCastWeeks = BroadCastWeeks::active()->get();
         $states = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
@@ -45,9 +45,9 @@ class EcommerceReportController extends Controller
                 ->when($request->customer_ids, fn ($q) => $q->whereIn('customer_id', $request->customer_ids))
                 ->get(['coupon_code', 'dialed', 'affiliate_id']);
 
-            $couponCodes  = array_filter($selectionWiseData->pluck('coupon_code')->unique()->toArray());
+            $couponCodes = array_filter($selectionWiseData->pluck('coupon_code')->unique()->toArray());
             $dialedPhones = array_filter($selectionWiseData->pluck('dialed')->unique()->toArray());
-            $affiliates   = $selectionWiseData->map(fn ($item) => [$item?->affiliate?->id, $item?->affiliate?->affiliate_name, $item?->affiliate?->email])->unique()->toArray();
+            $affiliates = $selectionWiseData->map(fn ($item) => [$item?->affiliate?->id, $item?->affiliate?->affiliate_name, $item?->affiliate?->email])->unique()->toArray();
 
             return response()->json(['success' => true, 'affiliates' => $affiliates, 'couponCodes' => $couponCodes, 'dialedPhones' => $dialedPhones]);
         } catch (\Throwable $th) {
@@ -58,7 +58,7 @@ class EcommerceReportController extends Controller
     public function ecommerceReportGenerate(Request $request)
     {
         $salesData = $this->queryReport($request);
-        if (in_array(self::$acesMarketingId,$request->affiliate_id)) {
+        if (in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $aMarketingData = [];
             foreach ($salesData as $sale) {
                 $sale->{'Vendor Code'} = 'new field';
@@ -73,7 +73,6 @@ class EcommerceReportController extends Controller
             }
             $salesData = collect($aMarketingData);
         }
-    
 
         $summaryCampaigns = [];
 
@@ -92,7 +91,7 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
-        if (!in_array(self::$acesMarketingId,$request->affiliate_id)) {
+        if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData, $summaryCampaigns);
             if (isset($request->start_date) && isset($request->end_date)) {
                 $summary['From'] = $request->start_date;
@@ -113,7 +112,7 @@ class EcommerceReportController extends Controller
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
 
-        if (in_array(self::$acesMarketingId,$request->affiliate_id)) {
+        if (in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = [];
         }
 
@@ -159,7 +158,7 @@ class EcommerceReportController extends Controller
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
             ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
             ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
-            ->when(in_array(self::$acesMarketingId,$request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliate))
+            ->when(in_array(self::$acesMarketingId, $request->affiliate_id), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliate))
             ->when(!empty($states) && !in_array('allStates', $states), fn ($q) => $q->whereIn('zipcode_by_television_markets.state', $states))
             ->when(!empty($markets) && !in_array('allMarkets', $markets), fn ($q) => $q->whereIn('zipcode_by_television_markets.market', $markets))
             ->when(!empty($couponCodes) && empty($dialed), fn ($q) => $q->whereIn('ecommerce_sales.coupon_code', $couponCodes))
@@ -195,14 +194,14 @@ class EcommerceReportController extends Controller
             ->when(
                 $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
                 fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
-                ->groupBy('ecommerce_sales.coupon_code')
+                    ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
+                    ->groupBy('ecommerce_sales.coupon_code')
             )
             ->when(
                 $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
                 fn ($q) => $q
-                ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
-                ->groupBy('ecommerce_sales.dialed')
+                    ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
+                    ->groupBy('ecommerce_sales.dialed')
             )
             ->when(
                 $reportFor === 'marketTarget',
@@ -252,7 +251,7 @@ class EcommerceReportController extends Controller
     // add new column for detailed sales report depending on order type
     protected function addColumnToArray($array, $orderType, $offset, $affiliate)
     {
-        if (in_array(self::$acesMarketingId,$affiliate)) {
+        if (in_array(self::$acesMarketingId, $affiliate)) {
             if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
                 $dialedColumn = ['ecommerce_sales.dialed AS 800#'];
                 array_splice($array, $offset, 0, $dialedColumn);
@@ -284,7 +283,7 @@ class EcommerceReportController extends Controller
             $alias = 'Affiliate Fee';
         }
 
-        if (in_array(self::$acesMarketingId,$affiliate)) {
+        if (in_array(self::$acesMarketingId, $affiliate)) {
             $selectRows = [
                 DB::raw(
                     'DATE_FORMAT(ecommerce_sales.order_at, "%d/%m/%y") AS `Date of call`'
@@ -318,7 +317,7 @@ class EcommerceReportController extends Controller
 
         $selectRows = $this->addColumnToArray($selectRows, $orderType, 2, $affiliate);
 
-        if ($type === 'customer' && !in_array(self::$acesMarketingId,$affiliate)) {
+        if ($type === 'customer' && !in_array(self::$acesMarketingId, $affiliate)) {
             return array_merge($selectRows, [
                 DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
             ]);
@@ -326,7 +325,7 @@ class EcommerceReportController extends Controller
         return $selectRows;
     }
 
-    protected function selectColumnSalesCashBuyReport($orderType,$affiliate)
+    protected function selectColumnSalesCashBuyReport($orderType, $affiliate)
     {
         $selectRows = [
             'affiliates.affiliate_name AS Affiliate Name',
@@ -335,20 +334,20 @@ class EcommerceReportController extends Controller
             DB::raw('ROUND(ecommerce_affiliates.cash_buy /count(ecommerce_sales.id),2) AS `Average Order Cost`'),
         ];
 
-        return $this->addColumnToArray($selectRows, $orderType, 1,$affiliate);
+        return $this->addColumnToArray($selectRows, $orderType, 1, $affiliate);
     }
 
     protected function getReportSummary($reportFor, $type, $salesData, $summaryCampaigns)
     {
         if ($reportFor === 'sales') {
             if ($type === 'customer') {
-                if (!empty($summaryCampaigns)) {
+                if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
                     return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns);
                 } else {
                     return $this->customerSummary($salesData);
                 }
             }
-            if (!empty($summaryCampaigns)) {
+            if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
                 return $this->affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns);
             } else {
                 return $this->affiliateSummary($salesData);
@@ -367,9 +366,9 @@ class EcommerceReportController extends Controller
 
         $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
-            $summary['Total Amount']   += $item->{'Total Amount'};
-            $summary['Net Amount']     += $item->{'Net Amount'};
-            $summary['Total Fee']      += $item->{'Total Fee'};
+            $summary['Total Amount'] += $item->{'Total Amount'};
+            $summary['Net Amount'] += $item->{'Net Amount'};
+            $summary['Total Fee'] += $item->{'Total Fee'};
         });
         return $summary;
     }
@@ -377,25 +376,25 @@ class EcommerceReportController extends Controller
     protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
-            $summary       = [];
-            $i             = 1;
+            $summary = [];
+            $i = 1;
             $totalQuantity = 0;
-            $totalAmount   = 0;
-            $netAmount     = 0;
-            $totalFee      = 0;
+            $totalAmount = 0;
+            $netAmount = 0;
+            $totalFee = 0;
 
             foreach ($salesData as $data) {
                 if ($summaryCampaign == $data->{'Campaign Name'}) {
                     $totalQuantity += $data->{'Total Quantity'};
-                    $totalAmount   += $data->{'Total Amount'};
-                    $netAmount     += $data->{'Net Amount'};
-                    $totalFee      += $data->{'Total Fee'};
+                    $totalAmount += $data->{'Total Amount'};
+                    $netAmount += $data->{'Net Amount'};
+                    $totalFee += $data->{'Total Fee'};
 
-                    $summary["{$summaryCampaign} Total Order"]    = $i++;
+                    $summary["{$summaryCampaign} Total Order"] = $i++;
                     $summary["{$summaryCampaign} Total Quantity"] = $totalQuantity;
-                    $summary["{$summaryCampaign} Total Amount"]   = $totalAmount;
-                    $summary["{$summaryCampaign} Total Fee"]      = $totalFee;
-                    $summary["{$summaryCampaign} Net Amount"]     = $netAmount;
+                    $summary["{$summaryCampaign} Total Amount"] = $totalAmount;
+                    $summary["{$summaryCampaign} Total Fee"] = $totalFee;
+                    $summary["{$summaryCampaign} Net Amount"] = $netAmount;
                     $summary[''] = '';
                 }
             }
@@ -411,31 +410,31 @@ class EcommerceReportController extends Controller
         $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Affiliate Fee' => 0];
         $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
-            $summary['Total Amount']   += $item->{'Total Amount'};
-            $summary['Affiliate Fee']  += $item->{'Affiliate Fee'};
+            $summary['Total Amount'] += $item->{'Total Amount'};
+            $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
         });
         return $summary;
     }
 
-
     protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
-            $i             = 1;
+            $summary = [];
+            $i = 1;
             $totalQuantity = 0;
-            $totalAmount   = 0;
-            $AffiliateFee  = 0;
+            $totalAmount = 0;
+            $AffiliateFee = 0;
 
             foreach ($salesData as $data) {
                 if ($summaryCampaign == $data->{'Campaign Name'}) {
                     $totalQuantity += $data->{'Total Quantity'};
-                    $totalAmount   += $data->{'Total Amount'};
-                    $AffiliateFee  += $data->{'Affiliate Fee'};
+                    $totalAmount += $data->{'Total Amount'};
+                    $AffiliateFee += $data->{'Affiliate Fee'};
 
-                    $summary["{$summaryCampaign} Total Order"]    = $i++;
+                    $summary["{$summaryCampaign} Total Order"] = $i++;
                     $summary["{$summaryCampaign} Total Quantity"] = $totalQuantity;
-                    $summary["{$summaryCampaign} Total Amount"]   = $totalAmount;
-                    $summary["{$summaryCampaign} Affiliate Fee"]  = $AffiliateFee;
+                    $summary["{$summaryCampaign} Total Amount"] = $totalAmount;
+                    $summary["{$summaryCampaign} Affiliate Fee"] = $AffiliateFee;
                     $summary[''] = '';
                 }
             }
