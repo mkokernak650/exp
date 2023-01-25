@@ -101,9 +101,9 @@ class EcommerceReportController extends Controller
 
         if ($request->report_type === 'email-report') {
             $emails = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
-            // if (empty($emails)) {
-            //     return response()->json(['success' => false, 'message' => 'No email found.'], 422);
-            // }
+            if (empty($emails)) {
+                return response()->json(['success' => false, 'message' => 'No email found.'], 422);
+            }
 
             $summary = ['Summary' => ''] + $summary;
             $sendMailCtrl = new SendMailController();
