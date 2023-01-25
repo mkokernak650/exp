@@ -673,27 +673,25 @@ const EcommerceReport = () => {
               </>
             )}
             <Grid item xs={12}>
-              {reportFor.reportFor !== 'cash_buy' && (
-                <Grid item xs={12}>
-                  <RadioGroup
-                    aria-label="type"
-                    name="type"
-                    value={reportType.type}
-                    onChange={reportTypeHandleChange}
-                  >
-                    <FormControlLabel
-                      value="customer"
-                      control={<Radio color="primary" />}
-                      label="For Customer"
-                    />
-                    <FormControlLabel
-                      value="affiliate"
-                      control={<Radio color="primary" />}
-                      label="For Affiliate"
-                    />
-                  </RadioGroup>
-                </Grid>
-              )}
+              <Grid item xs={12}>
+                <RadioGroup
+                  aria-label="type"
+                  name="type"
+                  value={reportType.type}
+                  onChange={reportTypeHandleChange}
+                >
+                  <FormControlLabel
+                    value="customer"
+                    control={<Radio color="primary" />}
+                    label="For Customer"
+                  />
+                  <FormControlLabel
+                    value="affiliate"
+                    control={<Radio color="primary" />}
+                    label="For Affiliate"
+                  />
+                </RadioGroup>
+              </Grid>
               <RadioGroup
                 aria-label="report-type"
                 name="report_type"
