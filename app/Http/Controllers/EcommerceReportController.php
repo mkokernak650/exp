@@ -301,8 +301,8 @@ class EcommerceReportController extends Controller
         } else {
             $selectRows = [
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
-                'ecommerce_campaigns.campaign_name AS Campaign Name',
                 'customers.customer_name AS Customer Name',
+                'ecommerce_campaigns.campaign_name AS Campaign Name',
                 'affiliates.affiliate_name AS Affiliate Name',
                 'ecommerce_sales.shipping_state AS State',
                 'ecommerce_sales.shipping_city AS City',
@@ -314,9 +314,9 @@ class EcommerceReportController extends Controller
                 DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) AS `' . $alias . '`'),
             ];
         }
-
-        $selectRows = $this->addColumnToArray($selectRows, $orderType, 2, $affiliate);
-
+        
+        $selectRows = $this->addColumnToArray($selectRows, $orderType, 4, $affiliate);
+        
         if ($type === 'customer' && !in_array(self::$acesMarketingId, $affiliate)) {
             return array_merge($selectRows, [
                 DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
