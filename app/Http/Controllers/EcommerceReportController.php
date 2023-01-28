@@ -457,7 +457,8 @@ class EcommerceReportController extends Controller
 
     protected function summarySummary($salesData)
     {
-        $summary = ['Total Coupon Sales' => 0, 'Total Coupon Sales Count' => 0, 'Total Phone Sales' => 0, 'Total Phone Sales Count' => 0, 'Net Amount' => 0];
+        $summary = ['Total Coupon Sales' => 0, 'Total Coupon Sales Count' => 0, 'Total Phone Sales' => 0, 'Total Phone Sales Count' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
+        
         $salesData->each(function ($item) use (&$summary) {
             if (!empty($item->{'Coupon Code'})) {
                 $summary['Total Coupon Sales'] += $item->{'Total Amount'};
@@ -467,6 +468,7 @@ class EcommerceReportController extends Controller
                 $summary['Total Phone Sales'] += $item->{'Total Amount'};
                 $summary['Total Phone Sales Count'] += $item->{'Total Quantity'};
             }
+            $summary['Total Fee'] += $item->{'Total Fee'};
             $summary['Net Amount'] += $item->{'Net Amount'};
         });
         return $summary;
