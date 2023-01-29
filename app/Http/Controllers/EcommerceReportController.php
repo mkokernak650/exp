@@ -100,7 +100,10 @@ class EcommerceReportController extends Controller
         }
 
         if ($request->report_type === 'email-report') {
-            $emails = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
+            $emailCriteria = $this->getEmailCriteria($request);
+            dd($emailCriteria);
+            $emails        = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
+
             if (empty($emails)) {
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
@@ -314,9 +317,9 @@ class EcommerceReportController extends Controller
                 DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) AS `' . $alias . '`'),
             ];
         }
-        
+
         $selectRows = $this->addColumnToArray($selectRows, $orderType, 4, $affiliate);
-        
+
         if ($type === 'customer' && !in_array(self::$acesMarketingId, $affiliate)) {
             return array_merge($selectRows, [
                 DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
@@ -458,7 +461,7 @@ class EcommerceReportController extends Controller
     protected function summarySummary($salesData)
     {
         $summary = ['Total Coupon Sales' => 0, 'Total Coupon Sales Count' => 0, 'Total Phone Sales' => 0, 'Total Phone Sales Count' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
-        
+
         $salesData->each(function ($item) use (&$summary) {
             if (!empty($item->{'Coupon Code'})) {
                 $summary['Total Coupon Sales'] += $item->{'Total Amount'};
@@ -472,5 +475,41 @@ class EcommerceReportController extends Controller
             $summary['Net Amount'] += $item->{'Net Amount'};
         });
         return $summary;
+    }
+
+    protected function getEmailCriteria($requestData)
+    {
+        $reportOrderType = $requestData->orderType === 'both' ? 'E-Commerce & Phone' : ($requestData->orderType === '1' ? 'E-Commerce' : 'Phone');
+        $reportOn        = $reportOrderType . ' - ' . ucwords(str_replace('_', ' ', $requestData->reportFor)) . ' Report';
+
+        if (!empty($requestData->customer_id)) {
+            $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
+            $customers    = implode(', ', $getCustomers->toArray());
+
+            if (!empty($customers) && $requestData->type === "customer") {
+                $reportOn .= " For Customers({$customers})";
+            }
+        }
+
+        if (!empty($requestData->affiliate_id)) {
+            $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
+            $affiliates    = implode(', ', $getAffiliates->toArray());
+
+            if (!empty($affiliates) && $requestData->type === 'affiliate') {
+                $reportOn .= " For Affiliate({$affiliates})";
+            }
+        }
+
+        if (!empty($requestData->campaign_id)) {
+            $getCampaigns = EcommerceCampaign::toBase()->whereIn('id', $requestData->campaign_id)->pluck('campaign_name');
+            $campaigns    = implode(', ', $getCampaigns->toArray());
+
+            if (!empty($campaigns)) {
+                $reportOn .= ($requestData->type === "customer" && empty($customers)) ? ' For' : (($requestData->type === "affiliate" && empty($affiliates)) ? ' For' : ',');
+                $reportOn .= " Campaigns({$campaigns})";
+            }
+        }
+
+        return $reportOn;
     }
 }
