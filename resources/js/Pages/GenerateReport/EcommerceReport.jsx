@@ -359,10 +359,6 @@ const EcommerceReport = () => {
   const reportForHandleChange = (e) => {
     const { name, value } = e.target
     setReportFor({ [name]: value })
-
-    if (value !== 'sales') {
-      setEcommerceReportType({ report_type: 'export-report' })
-    }
   }
 
   const orderTypeHandleChange = (val) => {

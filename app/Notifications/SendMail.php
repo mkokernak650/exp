@@ -13,15 +13,17 @@ class SendMail extends Notification implements ShouldQueue
     use Queueable;
 
     protected $fileName;
+    protected $emailCriteria;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($fileName)
+    public function __construct($fileName, $emailCriteria)
     {
-        $this->fileName = $fileName;
+        $this->fileName      = $fileName;
+        $this->emailCriteria = $emailCriteria;
     }
 
     /**
@@ -55,11 +57,12 @@ class SendMail extends Notification implements ShouldQueue
             }
             $filePath = $latest_filename->getPathname();
             return (new MailMessage)
-                        ->subject('ConsumerEXP Results Report')
-                        ->line('Please find the attached results report for the campaign.')
-                        ->line('Thank you')->attach($filePath, [
-                            'as' => $this->fileName . '.xlsx',
-                        ]);
+                ->subject('ConsumerEXP Results Report')
+                ->line($this->emailCriteria != null ? "**Report on:** {$this->emailCriteria}" : '')
+                ->line('Please find the attached results report for the campaign.')
+                ->line('Thank you')->attach($filePath, [
+                    'as' => $this->fileName . '.xlsx',
+                ]);
         }
     }
 
