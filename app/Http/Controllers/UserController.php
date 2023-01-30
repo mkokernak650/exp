@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -14,7 +17,6 @@ class UserController extends Controller
      */
     public function index()
     {
-
     }
 
     /**
@@ -24,7 +26,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Settings/User/AddUser');
     }
 
     /**
@@ -33,9 +35,14 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        //
+        $userData = $request->validated();
+        $userData['password'] = Hash::make($request->password);
+        $response = User::create($userData);
+        if ($response) {
+            return response()->json(['msg'=>'User Created Succesfully', 'status_code'=>201]);
+        }
     }
 
     /**
