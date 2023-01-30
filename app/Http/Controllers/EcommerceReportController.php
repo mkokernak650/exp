@@ -135,7 +135,6 @@ class EcommerceReportController extends Controller
         $reportFor = $request->reportFor;
         $orderType = $request->orderType;
         $affiliate = $request->affiliate_id;
-
         $queryData = DB::table('ecommerce_sales')
             ->when(
                 $orderType,
@@ -220,7 +219,6 @@ class EcommerceReportController extends Controller
                     ->orderBy('ecommerce_sales.coupon_code')
             )
             ->get();
-
         return $queryData;
     }
 
@@ -253,7 +251,7 @@ class EcommerceReportController extends Controller
     {
         if (in_array(self::$acesMarketingId, $affiliate)) {
             if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
-                $dialedColumn = ['ecommerce_sales.dialed AS 800#'];
+                $dialedColumn = ['ecommerce_sales.dialed AS 800#', 'ecommerce_sales.coupon_code AS Station Code'];
                 array_splice($array, $offset, 0, $dialedColumn);
             }
             if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['e-commerce']) {
@@ -286,7 +284,7 @@ class EcommerceReportController extends Controller
         if (in_array(self::$acesMarketingId, $affiliate)) {
             $selectRows = [
                 DB::raw(
-                    'DATE_FORMAT(ecommerce_sales.order_at, "%d/%m/%y") AS `Date of call`'
+                    'DATE_FORMAT(ecommerce_sales.order_at, "%Y/%m/%d") AS `Date of call`'
                 ),
                 DB::raw(
                     'DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'

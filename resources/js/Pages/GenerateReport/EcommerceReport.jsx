@@ -108,7 +108,7 @@ const EcommerceReport = () => {
   }))
 
   const setSelectionWiseData = (affiliates, couponCodes, dialedPhones) => {
-    const affiliateOptions = Object.values(affiliates)?.map((item) => ({
+    const activeAffiliates = Object.values(affiliates)?.map((item) => ({
       label: item?.[1],
       value: item?.[0].toString(),
       email: item?.[2],
@@ -122,7 +122,10 @@ const EcommerceReport = () => {
       value: item,
     }))
 
-    setAffiliateList([...affiliateOptions])
+
+
+
+    setAffiliateList([...activeAffiliates])
     setCouponCodeList([...couponOptions])
     setDialedPhoneList([...dialedOptions])
 
@@ -131,14 +134,14 @@ const EcommerceReport = () => {
     if (affiliate?.affiliate_id.includes('allAffiliates')) {
       filteredAffiliates = 'allAffiliates'
     } else {
-      filteredAffiliates = affiliateOptions
+      filteredAffiliates = activeAffiliates
         .filter((item) => {
           return affiliate?.affiliate_id?.includes(item.value)
         })
         .map((item) => item.value)
         .join(',')
     }
-    affiliateHandleChange(filteredAffiliates, 'affiliate_id', affiliateOptions)
+    affiliateHandleChange(filteredAffiliates, 'affiliate_id', activeAffiliates)
 
     setCouponCode({
       couponCodes: couponOptions
@@ -207,6 +210,13 @@ const EcommerceReport = () => {
     }
   }
 
+  let affiliateOptions = []
+  affiliateOptions = [{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]
+  if (orderType.orderType === '2') {
+    affiliateOptions.push({ label: 'Aces Marketing', value: acesMarketingId })
+  }
+
+
   useEffect(() => {
     if (
       typeof campaign?.campaign_id === 'undefined' &&
@@ -234,16 +244,16 @@ const EcommerceReport = () => {
       })
   }, [campaign?.campaign_id, customer?.customer_id])
 
-  const affiliateHandleChange = (val, key, affiliateOptions = false) => {
+  const affiliateHandleChange = (val, key, activeAffiliates = false) => {
     let affiliate_ids = val ? val.split(',') : []
     if (affiliate_ids.includes('allAffiliates')) {
       affiliate_ids = ['allAffiliates']
     }
 
-    const affiliateOptionsList = affiliateOptions || affiliateList
+    const activeAffiliatesList = activeAffiliates || affiliateList
 
     const emails = []
-    Object.values(affiliateOptionsList).map((item) => {
+    Object.values(activeAffiliatesList).map((item) => {
       if (affiliate_ids.includes('allAffiliates') || affiliate_ids.includes(item.value)) {
         emails.push(item.email)
       }
@@ -357,13 +367,16 @@ const EcommerceReport = () => {
 
   const orderTypeHandleChange = (val) => {
     setOrderType({ orderType: val })
-
+    if (val !== '2' && affiliate?.affiliate_id?.[0] === '25') {
+      setAffiliate([])
+    }
     if (val == 1) {
       setDialed([])
     } else if (val == 2) {
       setCouponCode([])
     }
   }
+  console.log(affiliate)
 
   const values = {
     ...orderType,
@@ -563,7 +576,7 @@ const EcommerceReport = () => {
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
-                options={[{ label: 'All Affiliates', value: 'allAffiliates' }, { label: 'Aces Marketing', value: acesMarketingId }, ...affiliateList]}
+                options={affiliateOptions}
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
                 singleSelect
