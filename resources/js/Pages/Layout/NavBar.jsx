@@ -24,7 +24,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { User as UserIcon, Minus as MinusIcon } from 'react-feather';
-import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage } from '@material-ui/icons';
+import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage ,GroupAddOutlined} from '@material-ui/icons';
 import { InertiaLink } from '@inertiajs/inertia-react';
 import { useState } from 'react';
 import Logo from '../../../images/webform/logo.png';
@@ -492,6 +492,26 @@ export default function PersistentDrawerLeft(props) {
       title: 'Activity Log',
       active: false,
       collapse: false,
+    },
+
+    {
+      id: 13,
+      Icon: <GroupAddOutlined size="20" />,
+      title: 'Users',
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: 'Add User',
+          href: 'user.create',
+          Icon: <UserIcon />,
+        },
+        {
+          title: 'Show User',
+          href: 'user.index',
+          Icon: <UserIcon />,
+        }
+      ],
     },
   ];
 

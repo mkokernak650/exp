@@ -37,6 +37,7 @@ use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\SendMailController;
+use App\Http\Controllers\UserController;
 
 Route::middleware('auth')->group(function () {
     // Ringba Campaign
@@ -230,3 +231,6 @@ Route::get('send-mail', [SendMailController::class, 'SendMail'])->name('send.mai
 
 // ActivityLog
 Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.log');
+
+//Users
+Route::resource('user', UserController::class);
