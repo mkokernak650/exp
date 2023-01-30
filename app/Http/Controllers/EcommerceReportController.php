@@ -101,7 +101,6 @@ class EcommerceReportController extends Controller
 
         if ($request->report_type === 'email-report') {
             $emailCriteria = $this->getEmailCriteria($request);
-            dd($emailCriteria);
             $emails        = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
 
             if (empty($emails)) {
@@ -110,7 +109,7 @@ class EcommerceReportController extends Controller
 
             $summary = ['Summary' => ''] + $summary;
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails);
+            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria);
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
@@ -495,7 +494,7 @@ class EcommerceReportController extends Controller
             $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
             $affiliates    = implode(', ', $getAffiliates->toArray());
 
-            if (!empty($affiliates) && $requestData->type === 'affiliate') {
+            if (!empty($affiliates) && $requestData->type === "affiliate") {
                 $reportOn .= " For Affiliate({$affiliates})";
             }
         }

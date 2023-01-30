@@ -9,7 +9,7 @@ use App\Notifications\SendMail;
 
 class SendMailController extends Controller
 {
-    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails)
+    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null)
     {
         $mergedEmails = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com', 'hitmanagent800@gmail.com']);
         $michaelEmails = array_unique($mergedEmails);
@@ -20,7 +20,7 @@ class SendMailController extends Controller
         Excel::download(new ReportExport($sheetData, $callSummary, $tagData), $fileName . '.xlsx');
         if (count($michaelEmails)) {
             foreach ($michaelEmails as $email) {
-                Notification::route('mail', $email)->notify(new SendMail($fileName));
+                Notification::route('mail', $email)->notify(new SendMail($fileName, $emailCriteria));
             }
         }
     }
