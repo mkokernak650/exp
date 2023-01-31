@@ -13,7 +13,7 @@ class SendMailController extends Controller
     {
         // $mergedEmails = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com', 'shoen@bitcode.pro']);
         // $michaelEmails = array_unique($mergedEmails);
-        $michaelEmails = ['shoen@bitcode.pro', 'fahim@bitcode.pro'];
+        $michaelEmails = ['shosen@bitcode.pro', 'fahim@bitcode.pro'];
         if (app()->environment('local')) {
             $michaelEmails = ['hitmanagent800@gmail.com'];
         }
