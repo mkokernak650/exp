@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,9 @@ class UserController extends Controller
      */
     public function index()
     {
+        $users = User::all();
+        $columnsData = TableDetails::all()->pluck('column_details');
+        return Inertia::render('Settings/User/UserIndex', compact('users', 'columnsData'));
     }
 
     /**

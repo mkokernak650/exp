@@ -494,25 +494,25 @@ export default function PersistentDrawerLeft(props) {
       collapse: false,
     },
 
-    // {
-    //   id: 13,
-    //   Icon: <GroupAddOutlined size="20" />,
-    //   title: 'Users',
-    //   active: false,
-    //   collapse: true,
-    //   submenu: [
-    //     {
-    //       title: 'Add User',
-    //       href: 'user.create',
-    //       Icon: <UserIcon />,
-    //     },
-    //     {
-    //       title: 'Show User',
-    //       href: 'user.index',
-    //       Icon: <UserIcon />,
-    //     }
-    //   ],
-    // },
+    {
+      id: 13,
+      Icon: <GroupAddOutlined size="20" />,
+      title: 'Users',
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: 'Add User',
+          href: 'user.create',
+          Icon: <UserIcon />,
+        },
+        {
+          title: 'Show User',
+          href: 'user.index',
+          Icon: <UserIcon />,
+        }
+      ],
+    },
   ];
 
   const [activeItems, setActiveItems] = useState({
