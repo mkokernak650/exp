@@ -832,14 +832,14 @@ class ReportGeneratorController extends Controller
         }
 
         if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
             $emailCriteria  = 'Pay Per Call Affiliate<br> ';
             $emailCriteria .= str_replace('_For_', '<br>', $request->file_name);
             $emailCriteria  = ucwords(str_replace('_', ' ', $emailCriteria));
             $emailCriteria  = str_replace('Created@', '<br>Created@', $emailCriteria);
-            
-            if (empty($request->emails)) {
-                return response()->json(['msg' => 'No email found.'], 422);
-            }
 
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
@@ -1112,7 +1112,17 @@ class ReportGeneratorController extends Controller
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $separatedFileName  = explode('_Target_Report', $request->file_name);
+            $reportType         = ucwords($separatedFileName[0]);
+            $reportTitle        = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $separatedFileName[1]);
+            $emailCriteria      = "Target Report<br>{$reportType}{$reportTitle}";
+
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
             $newSummary['Total number of calls'] = $call_summary['Total number of calls'];
@@ -1120,7 +1130,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Amount'] = $call_summary['Avg Revenue Amount'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria);
             return;
         }
 
