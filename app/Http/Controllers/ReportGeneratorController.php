@@ -1299,13 +1299,19 @@ class ReportGeneratorController extends Controller
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $emailCriteria = str_replace(['MarketException_Report', '_For_', '_Created@'], ['Market Exception Report', '<br>', '<br>Created@'], $request->file_name);
+
             $newSummary['Total Number of Calls'] = $call_summary['Total Number of Calls'];
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Per Call'] = $call_summary['Avg Revenue Per Call'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria);
             return;
         }
         return [
