@@ -476,15 +476,16 @@ class EcommerceReportController extends Controller
 
     protected function getEmailCriteria($requestData)
     {
-        $reportOrderType = $requestData->orderType === 'both' ? 'E-Commerce & Phone' : ($requestData->orderType === '1' ? 'E-Commerce' : 'Phone');
-        $reportOn        = $reportOrderType . ' - ' . ucwords(str_replace('_', ' ', $requestData->reportFor)) . ' Report';
+        $reportOn         = ucwords(str_replace('_', ' ', $requestData->reportFor)) . ' Report<br>';
+        $reportOrderType  = $requestData->orderType === 'both' ? 'E-Commerce & Phone' : ($requestData->orderType === '1' ? 'E-Commerce' : 'Phone');
+        $reportOn        .= $reportOrderType . ' ' . ucwords(str_replace('_', ' ', $requestData->reportFor)) . ' Report';
 
         if (!empty($requestData->customer_id)) {
             $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
             $customers    = implode(', ', $getCustomers->toArray());
 
             if (!empty($customers) && $requestData->type === "customer") {
-                $reportOn .= " For Customers({$customers})";
+                $reportOn .= "<br>Customers ({$customers})";
             }
         }
 
@@ -493,7 +494,7 @@ class EcommerceReportController extends Controller
             $affiliates    = implode(', ', $getAffiliates->toArray());
 
             if (!empty($affiliates) && $requestData->type === "affiliate") {
-                $reportOn .= " For Affiliate({$affiliates})";
+                $reportOn .= "<br>Affiliate ({$affiliates})";
             }
         }
 
@@ -502,9 +503,12 @@ class EcommerceReportController extends Controller
             $campaigns    = implode(', ', $getCampaigns->toArray());
 
             if (!empty($campaigns)) {
-                $reportOn .= ($requestData->type === "customer" && empty($customers)) ? ' For' : (($requestData->type === "affiliate" && empty($affiliates)) ? ' For' : ',');
-                $reportOn .= " Campaigns({$campaigns})";
+                $reportOn .= "<br>Campaigns ({$campaigns})";
             }
+        }
+
+        if (!empty($requestData->start_date) && !empty($requestData->end_date)) {
+            $reportOn .= "<br>{$requestData->start_date} To {$requestData->end_date}";
         }
 
         return $reportOn;
