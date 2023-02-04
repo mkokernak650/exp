@@ -56,7 +56,7 @@
        </div>
 
         <div class="action-btn">
-            <a href="http://consumerexp-ringba.test/">Log In</a>
+            <a href="https://consumer-test.bitcode.pro/">Log In</a>
         </div>
         <p>Regards,</p>
         <p>ConsumerExp</p>
