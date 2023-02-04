@@ -836,10 +836,8 @@ class ReportGeneratorController extends Controller
                 return response()->json(['msg' => 'No email found.'], 422);
             }
 
-            $emailCriteria  = 'Pay Per Call Affiliate<br> ';
-            $emailCriteria .= str_replace('_For_', '<br>', $request->file_name);
-            $emailCriteria  = ucwords(str_replace('_', ' ', $emailCriteria));
-            $emailCriteria  = str_replace('Created@', '<br>Created@', $emailCriteria);
+            $emailCriteria  = 'Pay Per Call Affiliate<br>';
+            $emailCriteria .= ucwords(str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->file_name));
 
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
