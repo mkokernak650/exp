@@ -372,7 +372,6 @@ const EcommerceReport = () => {
       setCouponCode([])
     }
   }
-  console.log(affiliate)
 
   const values = {
     ...orderType,
