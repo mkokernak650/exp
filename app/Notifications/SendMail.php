@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\HtmlString;
 
 class SendMail extends Notification implements ShouldQueue
 {
@@ -58,7 +59,7 @@ class SendMail extends Notification implements ShouldQueue
             $filePath = $latest_filename->getPathname();
             return (new MailMessage)
                 ->subject('ConsumerEXP Results Report')
-                ->line($this->emailCriteria != null ? "**Report on:** {$this->emailCriteria}" : '')
+                ->line(new HtmlString($this->emailCriteria != null ? "**Report on:**<br><br> {$this->emailCriteria}" : ''))
                 ->line('Please find the attached results report for the campaign.')
                 ->line('Thank you')->attach($filePath, [
                     'as' => $this->fileName . '.xlsx',

@@ -142,6 +142,7 @@ class ReportGeneratorController extends Controller
         if ($destinationReport->count() < 1) {
             return response()->json(['success' => false], 204);
         }
+
         foreach ($destinationReport as $destinationData) {
             $call_summary['Billable Calls'] += $destinationData->Billable_Calls;
             $call_summary['Total Charges'] += $destinationData->Total_Charge;
@@ -150,12 +151,15 @@ class ReportGeneratorController extends Controller
             if (empty($request->emails)) {
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
+
+            $emailCriteria = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->file_name);
+
             $newSummary['Summary of Calls'] = '   ';
             $newSummary['Billable Calls'] = $call_summary['Billable Calls'];
             $newSummary['Total Charges'] = $call_summary['Total Charges'];
             $newSummary['Non-revenue Calls'] = $call_summary['Non-revenue Calls'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail($destinationReport, $newSummary, [], $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail($destinationReport, $newSummary, [], $request->file_name, $request->emails, $emailCriteria);
             return;
         }
 
@@ -831,7 +835,14 @@ class ReportGeneratorController extends Controller
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $emailCriteria  = 'Pay Per Call Affiliate<br>';
+            $emailCriteria .= ucwords(str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->file_name));
+
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
             $newSummary['Targets'] = $call_summary['Targets'];
@@ -840,7 +851,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total payout amount'] = $call_summary['Total payout amount'];
             $newSummary['Average payout per call'] = $call_summary['Average payout per call'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria);
             return;
         }
         return [
@@ -1103,7 +1114,17 @@ class ReportGeneratorController extends Controller
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $separatedFileName  = explode('_Target_Report', $request->file_name);
+            $reportType         = ucwords($separatedFileName[0]);
+            $reportTitle        = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $separatedFileName[1]);
+            $emailCriteria      = "Target Report<br>{$reportType}{$reportTitle}";
+
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
             $newSummary['Total number of calls'] = $call_summary['Total number of calls'];
@@ -1111,7 +1132,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Amount'] = $call_summary['Avg Revenue Amount'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria);
             return;
         }
 
@@ -1280,13 +1301,19 @@ class ReportGeneratorController extends Controller
             return response()->json(['msg' => 'No data found for the selected criteria'], 204);
         }
 
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $emailCriteria = str_replace(['MarketException_Report', '_For_', '_Created@'], ['Market Exception Report', '<br>', '<br>Created@'], $request->file_name);
+
             $newSummary['Total Number of Calls'] = $call_summary['Total Number of Calls'];
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Per Call'] = $call_summary['Avg Revenue Per Call'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria);
             return;
         }
         return [

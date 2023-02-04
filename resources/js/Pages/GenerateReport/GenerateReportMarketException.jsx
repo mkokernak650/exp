@@ -90,7 +90,7 @@ const GenerateReportMarketException = () => {
       setCustomerEmails(array)
     }
   }
-  
+
   const targetOptions = targetByCustomer.map((item) => ({
     label: item,
     value: item,
@@ -278,19 +278,14 @@ const GenerateReportMarketException = () => {
     return affiliateNames
   }
 
-  const fileName = `MarketException_Report${
-    values?.market ? `_For_Markets(${values.market})` : ''
-  }${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''}${
-    values?.annotation ? `_For_Annotations(${values.annotation})` : ''
-  }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${
-    values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
-  }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${
-    year?.year ? `_For_Years(${year.year.toString()})` : ''
-  }${
-    values?.start_date
+  const fileName = `MarketException_Report${values?.market ? `_For_Markets(${values.market})` : ''
+    }${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''}${values?.annotation ? `_For_Annotations(${values.annotation})` : ''
+    }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
+    }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${year?.year ? `_For_Years(${year.year.toString()})` : ''
+    }${values?.start_date
       ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
       : ''
-  }_Created@${currentDate()}`
+    }_Created@${currentDate()}`
   values.file_name = fileName
   const handleSubmit = () => {
     setLoading(true)
@@ -311,6 +306,10 @@ const GenerateReportMarketException = () => {
       })
       .catch((err) => {
         setLoading(false)
+        if (err.response?.status === 422) {
+          toast.error(err.response?.data?.msg)
+          return
+        }
         toast.error('Error while generating report')
       })
   }

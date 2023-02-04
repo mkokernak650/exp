@@ -372,7 +372,6 @@ const EcommerceReport = () => {
       setCouponCode([])
     }
   }
-  console.log(affiliate)
 
   const values = {
     ...orderType,
@@ -448,8 +447,6 @@ const EcommerceReport = () => {
     axios
       .post(route('ecommerce.report.generate'), { ...values, affiliatesEmail })
       .then((r) => {
-        console.log(r)
-
         setLoading(false)
         if (r?.status === 204) {
           setLoading(false)
