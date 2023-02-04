@@ -60,7 +60,11 @@ const UserProfile = () => {
                 if (res.data.status_code === 201) {
                     setLoading(false)
                     toast.success(res.data.msg)
-                }else{
+                }
+                else if(res.data.status_code === 403){
+                    setLoading(false)
+                    toast.error(res.data.msg)
+                } else {
                     setLoading(false)
                     toast.error(res.data.msg)
                 }
@@ -132,7 +136,7 @@ const UserProfile = () => {
                                 <>
                                     <TextField
                                         fullWidth
-                                        label="Old Password*"
+                                        label="Old Password"
                                         margin="normal"
                                         name="password"
                                         onChange={handleChange}
@@ -156,7 +160,7 @@ const UserProfile = () => {
                                     />
                                     <TextField
                                         fullWidth
-                                        label="New Password*"
+                                        label="New Password"
                                         margin="normal"
                                         name="new_password"
                                         onChange={handleChange}
@@ -180,7 +184,7 @@ const UserProfile = () => {
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Confirm Password*"
+                                        label="Confirm Password"
                                         margin="normal"
                                         name="password_confirmation"
                                         onChange={handleChange}
