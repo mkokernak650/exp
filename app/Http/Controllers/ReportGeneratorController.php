@@ -552,13 +552,19 @@ class ReportGeneratorController extends Controller
         $call_summary['Total Revenue:'] = $totalRevenue;
         $collection = collect($newData)->sortBy('Average Homes Per Call');
 
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $emailCriteria = str_replace(['_For_', '_', 'Created@', 'MarketTarget'], ['<br>', ' ', '<br>Created@', 'Market Target'], $request->file_name);
+
             $newSummary['Total Nielsen TV Homes:'] = $call_summary['Total Nielsen TV Homes:'];
             $newSummary['Total Billed Calls:'] = $call_summary['Total Billed Calls:'];
             $newSummary['Average Homes Per call:'] = $call_summary['Average Homes Per call:'];
             $newSummary['Total Revenue:'] = $call_summary['Total Revenue:'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail($collection, $newSummary, [], $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail($collection, $newSummary, [], $request->file_name, $request->emails, $emailCriteria);
             return;
         }
         return [
