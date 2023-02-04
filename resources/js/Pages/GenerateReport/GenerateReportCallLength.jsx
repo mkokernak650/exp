@@ -279,19 +279,14 @@ const GenerateReportAffiliate = () => {
     return affiliateNames
   }
 
-  const fileName = `${values?.type ? values.type : ''}_CallLength_Report${
-    values?.market ? `_For_Markets(${values.market})` : ''
-  }${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''}${
-    values?.annotation ? `_For_Annotations(${values.annotation})` : ''
-  }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${
-    values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
-  }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${
-    year?.year ? `_For_Years(${year.year.toString()})` : ''
-  }${
-    values?.start_date
-      ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
+  const fileName = `${values?.type ? values.type : ''}_CallLength_Report${values?.market ? `_For_Markets(${values.market})` : ''
+    }${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''}${values?.annotation ? `_For_Annotations(${values.annotation})` : ''
+    }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
+    }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${year?.year ? `_For_Years(${year.year.toString()})` : ''
+    }${values?.start_date
+      ? `_For_Date_Range(${values.start_date.toString()}_To_${values?.end_date.toString()})`
       : ''
-  }_Created@${currentDate()}`
+    }_Created@${currentDate()}`
   values.file_name = fileName
 
   const handleSubmit = () => {
@@ -313,6 +308,10 @@ const GenerateReportAffiliate = () => {
       })
       .catch((err) => {
         setLoading(false)
+        if (err.response?.status === 422) {
+          toast.error(err.response?.data?.msg)
+          return
+        }
         toast.error('Error while generating report')
       })
   }
@@ -506,7 +505,7 @@ const GenerateReportAffiliate = () => {
                   shrink: true,
                 }}
                 fullWidth
-                // required={true}
+              // required={true}
               />
             </Grid>
             <Grid item xs={12}>

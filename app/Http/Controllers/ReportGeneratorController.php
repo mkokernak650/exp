@@ -374,7 +374,16 @@ class ReportGeneratorController extends Controller
             $call_summary['Affiliates'] = implode(',', $call_summary_affiliates);
         }
         // $columns = ['Range - Call Length in Seconds', 'Min Length', 'Max Length', 'Total Calls', '% of all calls', 'Total seconds', 'Total Payout'];
-        if ($request->report_type === 'email-report' && $request->emails && count($request->emails)) {
+        if ($request->report_type === 'email-report') {
+            if (empty($request->emails)) {
+                return response()->json(['msg' => 'No email found.'], 422);
+            }
+
+            $separatedFileName = explode('_CallLength_Report', $request->file_name);
+            $reportType        = ucwords($separatedFileName[0]);
+            $reportTitle       = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $separatedFileName[1]);
+            $emailCriteria     = "Call Length Report<br>{$reportType}{$reportTitle}";
+
             $newSummary['Summary of Calls'] = '   ';
             if (isset($request->customer_name)) {
                 $newSummary['Customer Name'] = $call_summary['Customer Name'];
@@ -391,7 +400,7 @@ class ReportGeneratorController extends Controller
                 $newSummary['Affiliates'] = $call_summary['Affiliates'];
             }
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $request->file_name, $request->emails);
+            $sendMailCtrl->SendMail(collect($finalArray), $newSummary, [], $request->file_name, $request->emails, $emailCriteria);
             return;
         }
         return [
