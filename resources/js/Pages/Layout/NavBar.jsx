@@ -138,6 +138,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function PersistentDrawerLeft(props) {
+  console.log(props)
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(true);
@@ -179,7 +180,9 @@ export default function PersistentDrawerLeft(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem>Profile</MenuItem>
+      <InertiaLink href={route('user.profile.index')} className={classes.link} as="div">
+        <MenuItem onClick={handleMenuClose}> My Profile</MenuItem>
+      </InertiaLink>
       <InertiaLink method="post" href={route('logout')} className={classes.link} as="div">
         <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
       </InertiaLink>

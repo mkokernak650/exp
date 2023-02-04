@@ -6,6 +6,7 @@ use App\Http\Requests\UserRequest;
 use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -41,12 +42,11 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $userData = $request->validated();
-        $userData['password'] = Hash::make($request->password);
-        $response = User::create($userData);
-        if ($response) {
-            return response()->json(['msg'=>'User Created Succesfully', 'status_code'=>201]);
-        }
+        $userData = array_merge($request->validated(), ['password'=>Hash::make($request->password)]);
+        User::create($userData);
+        $sendCredential= new SendCredentialsController();
+        $sendCredential->sendMail($request->all());
+        return back()->with('success', 'User created successfully.');
     }
 
     /**
@@ -90,8 +90,51 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($ids)
     {
-        //
+        $ids = explode(',', $ids);
+        $i = 0;
+        $response = '';
+
+        while ($i < count($ids)) {
+            $response = User::where('id', $ids[$i])->delete();
+            $i++;
+        }
+        if ($response) {
+            return response()->json(['msg' => 'User Deleted Successfully!', 'status_code' => 200]);
+        } else {
+            return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
+        }
+    }
+
+    public function userProfileIndex()
+    {
+        $user = User::where('id', Auth::id())->get();
+        return Inertia::render('Settings/User/UserProfile', compact('user'));
+    }
+
+    public function userProfileUpdate(Request $request)
+    {
+        $user = User::findOrFail(Auth::id());
+        if (isset($request->password)) {
+            if (Hash::check($request->password, $user->password)) {
+                $request->validate([
+                    'password'             => ['required'],
+                    'new_password'         => ['required', 'min:6', 'string'],
+                    'password_confirmation'=> ['required', 'same:new_password']
+
+                ]);
+                $changedData = $request->all();
+                $changedData['password'] = Hash::make($request->new_password);
+
+                $user->update($changedData);
+                return response()->json(['msg' => 'User Updated Successfully!', 'status_code' => 201]);
+            }{
+                return response()->json(['msg'=>"Old password doesn't match!", 'status_code'=>403]);
+            }
+        } else {
+            $user->update($request->all());
+            return response()->json(['msg' => 'User Updated Successfully!', 'status_code' => 201]);
+        }
     }
 }

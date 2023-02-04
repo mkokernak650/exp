@@ -6,9 +6,14 @@ import {
   Typography,
   Paper,
   makeStyles,
-} from "@material-ui/core";
-import backgroundImage from "../../../images/background_image_compress.jpg";
-import { useForm } from "@inertiajs/inertia-react";
+  InputAdornment,
+  IconButton,
+} from "@material-ui/core"
+import backgroundImage from "../../../images/background_image_compress.jpg"
+import { useForm } from "@inertiajs/inertia-react"
+import { VisibilityOff } from "@material-ui/icons"
+import { Visibility } from "@material-ui/icons"
+import { useState } from "react"
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -56,24 +61,27 @@ const useStyles = makeStyles((theme) => ({
   errorMessage: {
     color: "#f71328",
   },
-}));
+}))
 
 const Login = () => {
-  const classes = useStyles();
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const classes = useStyles()
+  const { data, setData, post, errors } = useForm({
     email: '',
     password: '',
-});
+  })
+
+  const [showPassword, setShowPassword] = useState(false)
+  const handleClickShowPassword = () => setShowPassword((show) => !show)
 
   const onHandleChange = (event) => {
-    setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value);
-};
+    setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value)
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    post(route("login.attempt"));
-  };
+    post(route("login.attempt"))
+  }
 
   return (
     <div className={classes.loginForm}>
@@ -116,10 +124,23 @@ const Login = () => {
                 margin="normal"
                 name="password"
                 onChange={onHandleChange}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={data.password}
                 variant="outlined"
                 required={true}
+                InputProps={{
+                  endAdornment:
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+
+                }}
               />
               {errors.password && (
                 <div className={classes.errorMessage}>{errors.password}</div>
@@ -141,7 +162,7 @@ const Login = () => {
         </Box>
       </Paper>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

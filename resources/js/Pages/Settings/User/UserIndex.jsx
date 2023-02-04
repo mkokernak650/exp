@@ -37,16 +37,13 @@ const UserIndex = () => {
   const [editData, setEditData] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
-  const [showArchivedModal, setShowArchivedModal] = useState({
-    open: false,
-  })
+
   const showColumnRef = useRef()
   const dataArray = users.map((item, index) => ({
     edit: item.id,
     firstname: item.firstname,
     lastname: item.lastname,
     email: item.email,
-    password: item.password,
     role: item.role,
     id: item.id,
     key: index,
@@ -125,9 +122,10 @@ const UserIndex = () => {
     setSearchSidebar(false)
   }
 
+  console.log(selectedRowIds)
   const deleteHandler = () => {
     axios
-      .post(route('affiliate.delete'), { selectedRowIds })
+      .delete(`user/${selectedRowIds}`)
       .then((res) => {
         if (res.data.status_code === 200) {
           let filteredData = tableProps
@@ -162,27 +160,7 @@ const UserIndex = () => {
     setShowEditModal({ open: true })
   }
 
-  const handleArchived = () => {
-    axios
-      .post(route('move.affiliate.archive'), { selectedRowIds })
-      .then((res) => {
-        if (res.data.status_code === 200) {
-          toast.success(res.data.msg)
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          setTableToolbar(false)
-          setSelectedRowIds([])
-          setShowArchivedModal({ open: false })
-        } else {
-          toast.error(res.data.msg)
-          setSelectedRowIds([])
-          setShowArchivedModal({ open: false })
-        }
-      })
-      .catch((err) => { })
-  }
+
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
@@ -246,16 +224,6 @@ const UserIndex = () => {
             <DeleteIcon style={{ color: '#031b4e' }} />
           </IconButton>
         </Tooltip>
-
-        <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
-          onClick={() => handleOpenModal(setShowArchivedModal)}
-        >
-          Archived
-        </Button>
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     )
@@ -346,21 +314,6 @@ const UserIndex = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Role:</span>
-            <TextField
-              id="standard-select-currency-native"
-              select
-              name="role"
-              onChange={handleEditChange}
-              SelectProps={{
-                native: true,
-              }}
-              fullWidth
-            >
-              <option value="">Select Role</option>
-              <option value="affiliate">Affiliate</option>
-              <option value="user">User</option>
-            </TextField>
             <span>First Name:</span>
             <TextField
               value={editData ? editData.firstname : ''}
@@ -394,18 +347,6 @@ const UserIndex = () => {
               onChange={handleEditChange}
               required={true}
             />
-            <span>Password:</span>
-            <TextField
-              value={editData ? editData.password : ''}
-              fullWidth
-              margin="normal"
-              name="password"
-              type="password"
-              variant="outlined"
-              onChange={handleEditChange}
-              required={true}
-            />
-
             <Button
               variant="contained"
               color="primary"
@@ -431,18 +372,6 @@ const UserIndex = () => {
         title={`${selectedRowIds.length > 1
           ? 'Do you want to delete these records?'
           : 'Do you want to delete this record?'
-          }`}
-      ></ConfirmModal>
-
-      <ConfirmModal
-        open={showArchivedModal.open}
-        setOpen={setShowArchivedModal}
-        btnAction={handleArchived}
-        closeAction={() => handleCloseModal(setShowArchivedModal)}
-        width={'450px'}
-        title={`${selectedRowIds.length > 1
-          ? 'Do you want to move these records to archive?'
-          : 'Do you want to move this record to archive?'
           }`}
       ></ConfirmModal>
     </>

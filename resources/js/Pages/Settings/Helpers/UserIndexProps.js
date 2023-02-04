@@ -67,11 +67,6 @@ export const fields = [
     caption: 'email',
     name: 'email',
     operators,
-  },
-  {
-    caption: 'role',
-    name: 'role',
-    operators,
   }
 ]
 
@@ -97,11 +92,11 @@ export const filter = {
 }
 
 export const columns = [
-  {
-    key: 'edit',
-    style: { width: 20 },
-    visible: true,
-  },
+  // {
+  //   key: 'edit',
+  //   style: { width: 20 },
+  //   visible: true,
+  // },
   {
     key: 'selection-cell',
     style: { width: 80 },
@@ -126,20 +121,6 @@ export const columns = [
     title: 'Email',
     dataType: DataType.String,
     style: { width: 350 },
-    visible: true,
-  },
-  {
-    key: 'password',
-    title: 'Password',
-    dataType: DataType.String,
-    style: { width: 240 },
-    visible: true,
-  },
-  {
-    key: 'role',
-    title: 'Role',
-    dataType: DataType.String,
-    style: { width: 150 },
     visible: true,
   }
 ]
