@@ -237,6 +237,16 @@ const GenerateReportMarketException = () => {
     ...reportType,
   }
 
+  const dateFormat = (dataParam) => {
+    let newDate = new Date(dataParam)
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
+    let format_date = newDate
+    let dd = String(format_date.getDate()).padStart(2, '0')
+    let yyyy = format_date.getFullYear()
+    format_date = dd + '-' + shortMonth + '-' + yyyy
+    return format_date
+  }
+
   const affiliatesEmail = []
   if (values?.affiliate_id) {
     affiliates.filter((item) => {
@@ -283,7 +293,7 @@ const GenerateReportMarketException = () => {
     }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
     }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${year?.year ? `_For_Years(${year.year.toString()})` : ''
     }${values?.start_date
-      ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
+      ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
     }_Created@${currentDate()}`
   values.file_name = fileName

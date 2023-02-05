@@ -1231,7 +1231,7 @@ class ReportGeneratorController extends Controller
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-            $date_range = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $date_range = date('d-M-Y', strtotime($start_date)) . ' - ' . date('d-M-Y', strtotime($end_date));
             $call_summary['Date Range'] = $date_range;
         }
         if (!empty($year) && count($year) > 0 && $year[0] !== null) {
