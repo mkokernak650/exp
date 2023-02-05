@@ -429,7 +429,7 @@ const EcommerceReport = () => {
       ? `_For_(${getAffiliateNames().toString()})`
       : ''
     }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${values?.start_date
-      ? `_For_(${values.start_date.toString()}_To_${dateFormat(values?.end_date)})`
+      ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
     }`
   values.file_name = fileName

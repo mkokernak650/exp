@@ -94,8 +94,8 @@ class EcommerceReportController extends Controller
         if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData, $summaryCampaigns);
             if (isset($request->start_date) && isset($request->end_date)) {
-                $summary['From'] = $request->start_date;
-                $summary['To'] = $request->end_date;
+                $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
+                $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
             }
         }
 
@@ -508,7 +508,9 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($requestData->start_date) && !empty($requestData->end_date)) {
-            $reportOn .= " <br> Date Range ({$requestData->start_date} To {$requestData->end_date})";
+            $startingDate  = date_format(date_create($requestData->start_date), 'd-M-Y');
+            $endingDate    = date_format(date_create($requestData->end_date), 'd-M-Y');
+            $reportOn     .= " <br> Date Range ({$startingDate} To {$endingDate})";
         }
 
         return $reportOn;
