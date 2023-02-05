@@ -472,7 +472,7 @@ class ReportGeneratorController extends Controller
         if ($request->start_date !== null && $request->end_date !== null) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
-            $date_range = date('d-M-y', strtotime($start_date)) . ' - ' . date('d-M-y', strtotime($end_date));
+            $date_range = date('d-M-Y', strtotime($start_date)) . ' - ' . date('d-M-Y', strtotime($end_date));
             $call_summary['Date Range'] = $date_range;
             $condition[] = "Call_Date >='$start_date'";
             $condition[] = "Call_Date <= '$end_date'";
@@ -519,7 +519,7 @@ class ReportGeneratorController extends Controller
         $totalRevenue = 0;
 
         if ($request->start_date !== null) {
-            $summaryDateRange = $request->start_date . ' - ' . $request->end_date;
+            $summaryDateRange = date('d-M-Y', strtotime($request->start_date)) . ' - ' . date('d-M-Y', strtotime($request->end_date));
         } elseif (isset($request->year) && $request->start_date === null) {
             $summaryDateRange = 'Years(' . implode(',', $request->year) . ')';
         } else {

@@ -297,7 +297,7 @@ const GenerateReportMarketTarget = () => {
     }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
     }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${year?.year ? `_For_Years(${year.year.toString()})` : ''
     }${values?.start_date
-      ? `_For_Date_Range(${values.start_date.toString()}_To_${values?.end_date.toString()})`
+      ? `_For_Date_Range(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
     }_Created@${currentDate()}`
   values.file_name = fileName
