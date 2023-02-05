@@ -138,7 +138,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function PersistentDrawerLeft(props) {
-  console.log(props)
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(true);

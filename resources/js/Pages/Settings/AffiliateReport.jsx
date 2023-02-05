@@ -27,6 +27,7 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import { useStyles, fields, groups, filter, columns } from './Helpers/AffiliateReportProps'
+import TextInput from '@/Components/Global/TextInput'
 
 const AffiliateReport = () => {
   const classes = useStyles()
@@ -347,54 +348,37 @@ const AffiliateReport = () => {
         <div className="edit_target">
           <form className={classes.form}>
             <span>Affiliate Id:</span>
-            <TextField
-              value={editData ? editData.affiliate_id : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="affiliate_id"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              required={true}
+              handleChange={handleEditChange}
+              value={editData ? editData.affiliate_id : ''}
             />
             <span>Affiliate Name:</span>
-            <TextField
-              value={editData ? editData.affiliate_name : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="affiliate_name"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              required={true}
+              handleChange={handleEditChange}
+              value={editData ? editData.affiliate_name : ''}
             />
             <span>Email:</span>
-            <TextField
-              value={editData ? editData.email : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="email"
               type="email"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.email : ''}
             />
             <span>Telephone:</span>
-            <TextField
-              value={editData ? editData.telephone : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="telephone"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.telephone : ''}
             />
             <span>Address:</span>
-            <TextField
-              value={editData ? editData.address : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="address"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.address : ''}
             />
 
             <Button

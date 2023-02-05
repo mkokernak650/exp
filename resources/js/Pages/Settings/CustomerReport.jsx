@@ -27,6 +27,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import { useStyles, fields, groups, filter, columns } from './Helpers/CustomerReportProps'
+import TextInput from '../../Components/Global/TextInput'
 
 const CustomerReport = () => {
   const classes = useStyles()
@@ -176,7 +177,7 @@ const CustomerReport = () => {
           setShowArchivedModal({ open: false })
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   const handleEditChange = (e) => {
@@ -345,44 +346,29 @@ const CustomerReport = () => {
         <div className="edit_target">
           <form className={classes.form}>
             <span>Customer:</span>
-            <TextField
-              value={editData ? editData.customer : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="customer"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.customer : ''}
             />
             <span>Email:</span>
-            <TextField
-              value={editData ? editData.email : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="email"
               type="email"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.email : ''}
             />
             <span>Telephone:</span>
-            <TextField
-              value={editData ? editData.telephone : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="telephone"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.telephone : ''}
             />
             <span>Address:</span>
-            <TextField
-              value={editData ? editData.address : ''}
-              fullWidth
-              margin="normal"
+            <TextInput
               name="address"
-              type="text"
-              variant="outlined"
-              onChange={handleEditChange}
+              handleChange={handleEditChange}
+              value={editData ? editData.address : ''}
             />
 
             <Button
@@ -406,11 +392,10 @@ const CustomerReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -419,11 +404,10 @@ const CustomerReport = () => {
         btnAction={handleArchived}
         closeAction={() => handleCloseModal(setShowArchivedModal)}
         width={'450px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to move these records to archive?'
-            : 'Do you want to move this record to archive?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to move these records to archive?'
+          : 'Do you want to move this record to archive?'
+          }`}
       ></ConfirmModal>
     </>
   )

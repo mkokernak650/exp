@@ -1,50 +1,25 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button, InputAdornment, IconButton } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import { InputAdornment, IconButton } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { VisibilityOff } from '@material-ui/icons'
 import { Visibility } from '@material-ui/icons'
+import TextInput from '@/Components/Global/TextInput'
+import Card from '@/Components/Global/Card'
+import FormHeading from '@/Components/Global/FormHeading'
+import PrimaryButton from '@/Components/Global/PrimaryButton'
+import handleChange from '@/Helpers/handleChange'
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-        width: '500px',
-        margin: 'auto',
-        marginTop: '2rem',
-        padding: '40px',
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing(2),
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '35px',
-    },
-    snackbar: {
-        maxWidth: '500px',
-    },
-}))
+
 
 const AddUser = () => {
-    const classes = useStyles()
     const [values, setValues] = useState()
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({})
     const [showPassword, setShowPassword] = useState({ password: false, cpassword: false })
-
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setValues((oldValues) => ({
-            ...oldValues,
-            [name]: value,
-        }))
-    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -52,7 +27,6 @@ const AddUser = () => {
         axios
             .post(route('user.store'), values)
             .then((res) => {
-                console.log(res)
                 setLoading(false)
                 if (res.status === 200) {
                     setLoading(false)
@@ -72,54 +46,38 @@ const AddUser = () => {
     return (
         <>
             <Helmet title="Add User" />
-            <Paper className={classes.root}>
-                <Typography variant="h5" className={classes.title}>
-                    Add User
-                </Typography>
+            <Card>
+                <FormHeading title="Add User" />
                 <form validate="true" onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <TextField
-                                fullWidth
+                            <TextInput
                                 label="First Name*"
-                                margin="normal"
                                 name="firstname"
-                                onChange={handleChange}
-                                type="text"
-                                variant="outlined"
+                                handleChange={(e) => handleChange(e, setValues)}
                                 error={errors?.firstname}
                                 helperText={errors?.firstname?.[0]}
                             />
-                            <TextField
-                                fullWidth
+                            <TextInput
                                 label="Last Name*"
-                                margin="normal"
                                 name="lastname"
-                                onChange={handleChange}
-                                type="text"
-                                variant="outlined"
+                                handleChange={(e) => handleChange(e, setValues)}
                                 error={errors?.lastname}
                                 helperText={errors?.lastname?.[0]}
                             />
-                            <TextField
-                                fullWidth
+                            <TextInput
                                 label="Email*"
-                                margin="normal"
                                 name="email"
-                                onChange={handleChange}
+                                handleChange={(e) => handleChange(e, setValues)}
                                 type="email"
-                                variant="outlined"
                                 error={errors?.email}
                                 helperText={errors?.email?.[0]}
                             />
-                            <TextField
-                                fullWidth
+                            <TextInput
                                 label="Password*"
-                                margin="normal"
                                 name="password"
-                                onChange={handleChange}
+                                handleChange={(e) => handleChange(e, setValues)}
                                 type={showPassword?.password ? 'text' : 'password'}
-                                variant="outlined"
                                 error={errors?.password}
                                 helperText={errors?.password?.[0]}
                                 InputProps={{
@@ -136,14 +94,11 @@ const AddUser = () => {
 
                                 }}
                             />
-                            <TextField
-                                fullWidth
+                            <TextInput
                                 label="Confirm Password*"
-                                margin="normal"
                                 name="password_confirmation"
-                                onChange={handleChange}
+                                handleChange={(e) => handleChange(e, setValues)}
                                 type={showPassword?.cpassword ? 'text' : 'password'}
-                                variant="outlined"
                                 error={errors?.password}
                                 helperText={errors?.password?.[0]}
                                 InputProps={{
@@ -163,20 +118,16 @@ const AddUser = () => {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <Button variant="contained" color="primary" type="submit">
-                                {loading ? (
-                                    <CircularProgress color="secondary" thickness={3} size="2rem" />
-                                ) : (
-                                    'Submit'
-                                )}
-                            </Button>
+                            <PrimaryButton
+                                btnText="Submit" loading={loading} type="submit"
+                            />
                         </Grid>
                     </Grid>
                 </form>
-            </Paper>
+            </Card>
         </>
     )
 }
 
-AddUser.layout = (page) => <Layout title="Add User">{page}</Layout>
+AddUser.layout = (page) => <Layout>{page}</Layout>
 export default AddUser
