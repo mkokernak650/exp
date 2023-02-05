@@ -44,7 +44,7 @@ class UserController extends Controller
     {
         $userData = array_merge($request->validated(), ['password'=>Hash::make($request->password)]);
         User::create($userData);
-        $sendCredential= new SendCredentialsController();
+        $sendCredential = new SendCredentialsController();
         $sendCredential->sendMail($request->all());
         return back()->with('success', 'User created successfully.');
     }

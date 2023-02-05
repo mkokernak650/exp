@@ -1,11 +1,12 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core'
+import { CircularProgress, Paper, Typography, Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import TextInput from '@/Components/Global/TextInput'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,10 +16,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '2rem',
     padding: '40px',
     flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
   },
   title: {
     textAlign: 'center',
@@ -54,7 +51,7 @@ const AddAffiliate = () => {
           e.target.reset()
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   return (
@@ -67,52 +64,32 @@ const AddAffiliate = () => {
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
+              <TextInput
                 label="Affiliate Id"
-                margin="normal"
                 name="affiliate_id"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
                 required={true}
+                handleChange={handleChange}
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Affiliate Name"
-                margin="normal"
                 name="affiliate_name"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
                 required={true}
+                handleChange={handleChange}
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Email"
-                margin="normal"
                 name="email"
-                onChange={handleChange}
-                type="email"
-                variant="outlined"
+                handleChange={handleChange}
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Telephone"
-                margin="normal"
                 name="telephone"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
+                handleChange={handleChange}
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Address"
-                margin="normal"
                 name="address"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
+                handleChange={handleChange}
               />
             </Grid>
 

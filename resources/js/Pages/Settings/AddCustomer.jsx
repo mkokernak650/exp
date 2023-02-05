@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import TextInput from '@/Components/Global/TextInput'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,42 +68,27 @@ const AddCustomer = () => {
         <form validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
+              <TextInput
                 label="Customer Name"
-                margin="normal"
                 name="customer"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
+                handleChange={handleChange}
                 required={true}
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Email"
-                margin="normal"
                 name="email"
-                onChange={handleChange}
+                handleChange={handleChange}
                 type="email"
-                variant="outlined"
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Telephone"
-                margin="normal"
                 name="telephone"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
+                handleChange={handleChange}
               />
-              <TextField
-                fullWidth
+              <TextInput
                 label="Address"
-                margin="normal"
                 name="address"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
+                handleChange={handleChange}
               />
             </Grid>
 
