@@ -15,8 +15,8 @@ class SendMailController extends Controller
         $michaelEmails = array_unique($mergedEmails);
         // $michaelEmails = ['fahim@bitcode.pro'];
         if (app()->environment('local')) {
-            $michaelEmails = ['shosen@bitcode.pro'];
-            // $michaelEmails = ['fahimikbal97@gmail.com'];
+            // $michaelEmails = ['shosen@bitcode.pro'];
+            $michaelEmails = ['fahimikbal97@gmail.com'];
         }
 
         Excel::download(new ReportExport($sheetData, $callSummary, $tagData), $fileName . '.xlsx');
