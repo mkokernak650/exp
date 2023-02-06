@@ -217,8 +217,7 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
                     ->select($this->selectColumnSummaryReport())
-                    ->orderBy('ecommerce_sales.dialed')
-                    ->orderBy('ecommerce_sales.coupon_code')
+                    ->orderByDesc('Total Amount')
             )
             ->get();
         return $queryData;
