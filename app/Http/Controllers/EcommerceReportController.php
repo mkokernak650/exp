@@ -210,7 +210,7 @@ class EcommerceReportController extends Controller
                     ->whereNotNull('zipcode_by_television_markets.market')
                     ->groupBy('zipcode_by_television_markets.market')
                     ->select($this->selectColumnMarketTargetReport())
-                    ->orderByDesc('Total Quantity')
+                    ->orderBy('Homes Per Sales')
             )
             ->when(
                 $reportFor === 'summary',
