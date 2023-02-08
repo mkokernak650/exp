@@ -100,15 +100,16 @@ class EcommerceReportController extends Controller
         }
 
         if ($request->report_type === 'email-report') {
-            $emailCriteria = $this->getEmailCriteria($request);
-            $emails        = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
+            $emails = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
 
             if (empty($emails)) {
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
-            $summary = ['Summary' => ''] + $summary;
-            $sendMailCtrl = new SendMailController();
+            $emailCriteria = $this->getEmailCriteria($request);
+            $summary       = ['Summary' => ''] + $summary;
+            $sendMailCtrl  = new SendMailController();
+
             $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria);
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
@@ -475,9 +476,9 @@ class EcommerceReportController extends Controller
 
     protected function getEmailCriteria($requestData)
     {
-        $reportOn         = ucwords(str_replace('_', ' ', $requestData->reportFor)) . ' Report <br> ';
+        $reportOn         = ucwords(str_replace(['_', 'marketTarget'], [' ', 'Market Target'], $requestData->reportFor)) . ' Report';
         $reportOrderType  = $requestData->orderType === 'both' ? 'E-Commerce & Phone' : ($requestData->orderType === '1' ? 'E-Commerce' : 'Phone');
-        $reportOn        .= $reportOrderType . ' ' . ucwords(str_replace('_', ' ', $requestData->reportFor)) . ' Report';
+        $reportOn        .= " <br> {$reportOrderType} {$reportOn}";
 
         if (!empty($requestData->customer_id)) {
             $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
