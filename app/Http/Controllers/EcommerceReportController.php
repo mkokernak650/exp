@@ -196,12 +196,14 @@ class EcommerceReportController extends Controller
             ->when(
                 $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
                 fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
                     ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
                     ->groupBy('ecommerce_sales.coupon_code')
             )
             ->when(
                 $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
                 fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
                     ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
                     ->groupBy('ecommerce_sales.dialed')
             )
@@ -330,8 +332,8 @@ class EcommerceReportController extends Controller
         $selectRows = [
             'affiliates.affiliate_name AS Affiliate Name',
             'ecommerce_affiliates.cash_buy AS Cash Buy',
-            DB::raw('count(ecommerce_sales.id) AS `Total Order`'),
-            DB::raw('ROUND(ecommerce_affiliates.cash_buy /count(ecommerce_sales.id),2) AS `Average Order Cost`'),
+            DB::raw('sum(ecommerce_sales.quantity) AS `Total Order`'),
+            DB::raw('ROUND(ecommerce_affiliates.cash_buy /sum(ecommerce_sales.quantity),2) AS `Average Order Cost`'),
         ];
 
         return $this->addColumnToArray($selectRows, $orderType, 1, $affiliate);
