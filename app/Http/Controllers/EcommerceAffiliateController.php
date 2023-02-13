@@ -166,7 +166,7 @@ class EcommerceAffiliateController extends Controller
         }
 
         if ($request->affiliate_fee_type === "1") {
-            unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy']);
+            unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy'], $validated['consumerEXP_cash_buy_fee_type']);
         }
 
         if ($request->affiliate_fee_type === "2") {
@@ -218,6 +218,17 @@ class EcommerceAffiliateController extends Controller
             $validated['dialed'] = null;
         } else {
             $validated['coupon_code'] = null;
+        }
+
+        if ($request->affiliate_fee_type === "1") {
+            unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy'], $validated['consumerEXP_cash_buy_fee_type']);
+        }
+
+        if ($request->affiliate_fee_type === "2") {
+            unset($validated['revenue'], $validated['affiliate_fee']);
+            if ($request->consumerEXP_cash_buy_fee_type === "1") {
+                $validated['consumerEXP_cash_buy_fee'] = (($request->consumerEXP_cash_buy_fee / 100) * $request->cash_buy);
+            }
         }
 
         try {

@@ -46,6 +46,8 @@ const AffiliateIndex = () => {
     consumerExp_fee: '',
     affiliate_fee_type: '',
     cash_buy: '',
+    consumerEXP_cash_buy_fee_type: '',
+    consumerEXP_cash_buy_fee: '',
   }
 
   const classes = useStyles()
@@ -86,6 +88,7 @@ const AffiliateIndex = () => {
     const affiliate = affiliates.find((affiliate) => affiliate.id == id)
     return affiliate ? affiliate.affiliate_name : ''
   }
+  console.log(editData, 'ok')
 
   const handleEditSubmit = () => {
     axios
@@ -176,6 +179,7 @@ const AffiliateIndex = () => {
         affiliate_fee: item?.affiliate_fee,
         percentage: item?.percentage,
         cash_buy: item?.cash_buy,
+        
         created_at: item.created_at,
         updated_at: item.updated_at,
         id: item.id,
@@ -343,11 +347,11 @@ const AffiliateIndex = () => {
     await axios
       .get(
         'ecommerce-affiliates?page=' +
-          data.page +
-          '&itemPerPage=' +
-          itemPerPage +
-          '&filteredValue=' +
-          JSON.stringify(filterValue)
+        data.page +
+        '&itemPerPage=' +
+        itemPerPage +
+        '&filteredValue=' +
+        JSON.stringify(filterValue)
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -664,21 +668,57 @@ const AffiliateIndex = () => {
                     />
                   </Grid>
                 </>
-              ) }
-               {editData?.affiliate_fee_type && editData.affiliate_fee_type == 2 && (
+              )}
+              {editData?.affiliate_fee_type && editData.affiliate_fee_type == 2 && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      value={editData?.cash_buy}
+                      id="cash_buy"
+                      label="Cash Buy"
+                      type="text"
+                      name="cash_buy"
+                      placeholder="10000"
+                      onChange={handleEditChange}
+                      className={classes.textField}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                  <TextField
+                    value={editData?.consumerEXP_cash_buy_fee_type}
+                    id="consumerEXP_cash_buy_fee_type"
+                    select
+                    name="consumerEXP_cash_buy_fee_type"
+                    onChange={handleEditChange}
+                    SelectProps={{
+                      native: true,
+                    }}
+                    fullWidth
+                    required={true}
+                  >
+                    <option value="">Select ConsumerEXP Fee Type</option>
+                    <option value="1">Percentage</option>
+                    <option value="2">Fixed</option>
+                  </TextField>
+                </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    value={editData?.cash_buy}
-                    id="cash_buy"
-                    label="Cash Buy"
-                    type="text"
-                    name="cash_buy"
-                    placeholder="10000"
+                    value={editData?.consumerEXP_cash_buy_fee}
+                    id="consumerEXP_cash_buy_fee"
+                    label={editData?.consumerEXP_cash_buy_fee_type === "1" ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    name="consumerEXP_cash_buy_fee"
+                    placeholder="consumerEXP Cash Buy Fee"
                     onChange={handleEditChange}
                     className={classes.textField}
                     fullWidth
+                    required
+                    disabled={!editData?.consumerEXP_cash_buy_fee_type}
                   />
                 </Grid>
+                </>
               )}
 
               <Grid item xs={12}>
@@ -723,11 +763,10 @@ const AffiliateIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
     </>
   )

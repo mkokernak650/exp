@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
             $table->float('consumerEXP_cash_buy_fee')->nullable()->after('cash_buy');
+            $table->tinyInteger('consumerEXP_cash_buy_fee_type')->nullable()->after('consumerEXP_cash_buy_fee');
         });
     }
 
@@ -26,7 +27,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('ecommerce_affiliates', function (Blueprint $table) {
-            $table->dropColumn('consumerEXP_cash_buy_fee');
+            $table->dropColumn(['consumerEXP_cash_buy_fee', 'consumerEXP_cash_buy_fee_type']);
         });
     }
 };
