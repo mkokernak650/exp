@@ -43,6 +43,8 @@ const AffiliateCreate = () => {
     consumerExp_fee: '',
     affiliate_fee_type: '',
     cash_buy: '',
+    consumerEXP_cash_buy_fee_type: '',
+    consumerEXP_cash_buy_fee: '',
   }
   const classes = useStyles()
   const [values, setValues] = useState(defaultState)
@@ -281,19 +283,57 @@ const AffiliateCreate = () => {
             )}
 
             {values.affiliate_fee_type == 2 && (
-              <Grid item xs={12}>
-                <TextField
-                  value={values?.cash_buy}
-                  id="cash_buy"
-                  label="Cash Buy"
-                  type="text"
-                  name="cash_buy"
-                  placeholder="10000"
-                  onChange={handleChange}
-                  className={classes.textField}
-                  fullWidth
-                />
-              </Grid>
+              <>
+                <Grid item xs={12}>
+                  <TextField
+                    value={values?.cash_buy}
+                    id="cash_buy"
+                    label="Cash Buy"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    name="cash_buy"
+                    placeholder="10000"
+                    onChange={handleChange}
+                    className={classes.textField}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    value={values?.consumerEXP_cash_buy_fee_type}
+                    id="consumerEXP_cash_buy_fee_type"
+                    select
+                    name="consumerEXP_cash_buy_fee_type"
+                    onChange={handleChange}
+                    SelectProps={{
+                      native: true,
+                    }}
+                    fullWidth
+                    required={true}
+                  >
+                    <option value="">Select ConsumerEXP Fee Type</option>
+                    <option value="1">Percentage</option>
+                    <option value="2">Fixed</option>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    value={values?.consumerEXP_cash_buy_fee}
+                    id="consumerEXP_cash_buy_fee"
+                    label={values?.consumerEXP_cash_buy_fee_type === "1" ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    name="consumerEXP_cash_buy_fee"
+                    placeholder="consumerEXP Cash Buy Fee"
+                    onChange={handleChange}
+                    className={classes.textField}
+                    fullWidth
+                    required
+                    disabled={!values?.consumerEXP_cash_buy_fee_type}
+                  />
+                </Grid>
+              </>
             )}
 
             <Grid item xs={12}>

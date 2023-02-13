@@ -27,16 +27,25 @@ class EcommerceAffiliate extends Model
         'percentage',
         'status',
         'cash_buy',
+        'consumerEXP_cash_buy_fee'
     ];
 
     protected static function booted()
     {
         static::creating(function ($item) {
-            $item->percentage = $item->revenue - $item->affiliate_fee;
+            if ($item->affiliate_fee_type === "1") {
+                $item->percentage = $item->revenue - $item->affiliate_fee;
+            } elseif ($item->affiliate_fee_type === "2") {
+                $item->percentage = $item->consumerEXP_cash_buy_fee;
+            }
         });
 
         static::updating(function ($item) {
-            $item->percentage = $item->revenue - $item->affiliate_fee;
+            if ($item->affiliate_fee_type === "1") {
+                $item->percentage = $item->revenue - $item->affiliate_fee;
+            } elseif ($item->affiliate_fee_type === "2") {
+                $item->percentage = $item->consumerEXP_cash_buy_fee;
+            }
         });
     }
 

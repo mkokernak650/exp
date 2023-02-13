@@ -165,8 +165,19 @@ class EcommerceAffiliateController extends Controller
             unset($validated['coupon_code']);
         }
 
+        if ($request->affiliate_fee_type === "1") {
+            unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy']);
+        }
+
+        if ($request->affiliate_fee_type === "2") {
+            unset($validated['revenue'], $validated['affiliate_fee']);
+            if ($request->consumerEXP_cash_buy_fee_type === "1") {
+                $validated['consumerEXP_cash_buy_fee'] = (($request->consumerEXP_cash_buy_fee / 100) * $request->cash_buy);
+            }
+        }
+
         try {
-            EcommerceAffiliate::create($request->validated());
+            EcommerceAffiliate::create($validated);
             return response()->json(['msg' => 'Created Successfully.'], 201);
         } catch (\Throwable $th) {
             return response()->json(['msg' => 'Try Again!'], 422);
