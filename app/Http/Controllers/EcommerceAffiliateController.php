@@ -139,7 +139,7 @@ class EcommerceAffiliateController extends Controller
      */
     public function store(EcommerceAffiliateRequest $request)
     {
-        $validated = $request->validated();
+        $validated          = $request->validated();
         $eCommerceAffiliate = EcommerceAffiliate::query()
             ->where('affiliate_id', $request->affiliate_id)
             ->where('customer_id', $request->customer_id)
@@ -167,6 +167,7 @@ class EcommerceAffiliateController extends Controller
 
         if ($request->affiliate_fee_type === "1") {
             unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy'], $validated['consumerEXP_cash_buy_fee_type']);
+            $validated['percentage'] = $validated['revenue'] - $validated['affiliate_fee'];
         }
 
         if ($request->affiliate_fee_type === "2") {
@@ -174,6 +175,7 @@ class EcommerceAffiliateController extends Controller
             if ($request->consumerEXP_cash_buy_fee_type === "1") {
                 $validated['consumerEXP_cash_buy_fee'] = (($request->consumerEXP_cash_buy_fee / 100) * $request->cash_buy);
             }
+            $validated['percentage'] = $validated['consumerEXP_cash_buy_fee'];
         }
 
         try {
@@ -193,7 +195,7 @@ class EcommerceAffiliateController extends Controller
      */
     public function update(EcommerceAffiliateRequest $request, EcommerceAffiliate $ecommerceAffiliate)
     {
-        $validated = $request->validated();
+        $validated          = $request->validated();
         $eCommerceAffiliate = EcommerceAffiliate::query()
             ->where('id', '!=', $ecommerceAffiliate->id)
             ->where('affiliate_id', $request->affiliate_id)
@@ -220,15 +222,20 @@ class EcommerceAffiliateController extends Controller
             $validated['coupon_code'] = null;
         }
 
-        if ($request->affiliate_fee_type === "1") {
-            unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy'], $validated['consumerEXP_cash_buy_fee_type']);
+        if ($request->affiliate_fee_type == 1) {
+            $validated['consumerEXP_cash_buy_fee']      = null;
+            $validated['cash_buy']                      = null;
+            $validated['consumerEXP_cash_buy_fee_type'] = null;
+            $validated['percentage']                    = $validated['revenue'] - $validated['affiliate_fee'];
         }
 
-        if ($request->affiliate_fee_type === "2") {
-            unset($validated['revenue'], $validated['affiliate_fee']);
-            if ($request->consumerEXP_cash_buy_fee_type === "1") {
+        if ($request->affiliate_fee_type == 2) {
+            $validated['revenue'] = null;
+            $validated['affiliate_fee'] = null;
+            if ($request->consumerEXP_cash_buy_fee_type == 1) {
                 $validated['consumerEXP_cash_buy_fee'] = (($request->consumerEXP_cash_buy_fee / 100) * $request->cash_buy);
             }
+            $validated['percentage'] = $validated['consumerEXP_cash_buy_fee'];
         }
 
         try {

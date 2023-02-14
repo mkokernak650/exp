@@ -31,25 +31,6 @@ class EcommerceAffiliate extends Model
         'consumerEXP_cash_buy_fee_type'
     ];
 
-    protected static function booted()
-    {
-        static::creating(function ($item) {
-            if ($item->affiliate_fee_type === "1") {
-                $item->percentage = $item->revenue - $item->affiliate_fee;
-            } elseif ($item->affiliate_fee_type === "2") {
-                $item->percentage = $item->consumerEXP_cash_buy_fee;
-            }
-        });
-
-        static::updating(function ($item) {
-            if ($item->affiliate_fee_type === "1") {
-                $item->percentage = $item->revenue - $item->affiliate_fee;
-            } elseif ($item->affiliate_fee_type === "2") {
-                $item->percentage = $item->consumerEXP_cash_buy_fee;
-            }
-        });
-    }
-
     public function tapActivity(Activity $activity)
     {
         $subjectId = $this->id;

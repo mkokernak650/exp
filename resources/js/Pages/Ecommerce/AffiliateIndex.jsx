@@ -88,7 +88,6 @@ const AffiliateIndex = () => {
     const affiliate = affiliates.find((affiliate) => affiliate.id == id)
     return affiliate ? affiliate.affiliate_name : ''
   }
-  console.log(editData, 'ok')
 
   const handleEditSubmit = () => {
     axios
@@ -106,11 +105,20 @@ const AffiliateIndex = () => {
             item.customer_id = editData.customer_id
             item.affiliate = affiliateName
             item.affiliate_id = editData.affiliate_id
-            item.percentage = editData.revenue - editData.affiliate_fee
+            item.revenue = res.data.data.revenue
+            item.affiliate_fee = res.data.data.affiliate_fee
+            item.order_type = res.data.data.order_type
             item.coupon_code = res.data.data.coupon_code
             item.dialed = res.data.data.dialed
             item.affiliate_fee_type = res.data.data.affiliate_fee_type
             item.cash_buy = res.data.data.cash_buy
+            if (res.data.data.affiliate_fee_type == "2") {
+              item.percentage = res.data.data.consumerEXP_cash_buy_fee
+              item.consumerEXP_cash_buy_fee_type = res.data.data.consumerEXP_cash_buy_fee_type
+              item.consumerEXP_cash_buy_fee = `${res.data.data.consumerEXP_cash_buy_fee_type == "1" ? ((res.data.data.consumerEXP_cash_buy_fee / item?.cash_buy) * 100) : res.data.data.consumerEXP_cash_buy_fee}`
+            } else {
+              item.percentage = editData.revenue - editData.affiliate_fee
+            }
             item.updated_at = res.data.updated_at
           }
           return tablePropsRef.current
@@ -179,7 +187,8 @@ const AffiliateIndex = () => {
         affiliate_fee: item?.affiliate_fee,
         percentage: item?.percentage,
         cash_buy: item?.cash_buy,
-        
+        consumerEXP_cash_buy_fee_type: item?.consumerEXP_cash_buy_fee_type,
+        consumerEXP_cash_buy_fee: `${item?.consumerEXP_cash_buy_fee_type === 1 ? ((item?.consumerEXP_cash_buy_fee / item?.cash_buy) * 100) : item?.consumerEXP_cash_buy_fee}`,
         created_at: item.created_at,
         updated_at: item.updated_at,
         id: item.id,
@@ -278,6 +287,8 @@ const AffiliateIndex = () => {
       delete item.edit
       delete item.id
       delete item.key
+      delete item.consumerEXP_cash_buy_fee_type
+      delete item.consumerEXP_cash_buy_fee
       item.order_type = item.order_type == 1 ? 'E-commerce' : 'Phone'
       item.affiliate_fee_type = item.affiliate_fee_type == 1 ? 'Payout Per Order' : 'Cash Buy'
       return item
@@ -685,39 +696,39 @@ const AffiliateIndex = () => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                  <TextField
-                    value={editData?.consumerEXP_cash_buy_fee_type}
-                    id="consumerEXP_cash_buy_fee_type"
-                    select
-                    name="consumerEXP_cash_buy_fee_type"
-                    onChange={handleEditChange}
-                    SelectProps={{
-                      native: true,
-                    }}
-                    fullWidth
-                    required={true}
-                  >
-                    <option value="">Select ConsumerEXP Fee Type</option>
-                    <option value="1">Percentage</option>
-                    <option value="2">Fixed</option>
-                  </TextField>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    value={editData?.consumerEXP_cash_buy_fee}
-                    id="consumerEXP_cash_buy_fee"
-                    label={editData?.consumerEXP_cash_buy_fee_type === "1" ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}
-                    type="number"
-                    InputProps={{ inputProps: { min: 0 } }}
-                    name="consumerEXP_cash_buy_fee"
-                    placeholder="consumerEXP Cash Buy Fee"
-                    onChange={handleEditChange}
-                    className={classes.textField}
-                    fullWidth
-                    required
-                    disabled={!editData?.consumerEXP_cash_buy_fee_type}
-                  />
-                </Grid>
+                    <TextField
+                      value={editData?.consumerEXP_cash_buy_fee_type}
+                      id="consumerEXP_cash_buy_fee_type"
+                      select
+                      name="consumerEXP_cash_buy_fee_type"
+                      onChange={handleEditChange}
+                      SelectProps={{
+                        native: true,
+                      }}
+                      fullWidth
+                      required={true}
+                    >
+                      <option value="">Select ConsumerEXP Fee Type</option>
+                      <option value="1">Percentage</option>
+                      <option value="2">Fixed</option>
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      value={editData?.consumerEXP_cash_buy_fee}
+                      id="consumerEXP_cash_buy_fee"
+                      label={editData?.consumerEXP_cash_buy_fee_type == 1 ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}
+                      type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
+                      name="consumerEXP_cash_buy_fee"
+                      placeholder="consumerEXP Cash Buy Fee"
+                      onChange={handleEditChange}
+                      className={classes.textField}
+                      fullWidth
+                      required
+                      disabled={!editData?.consumerEXP_cash_buy_fee_type}
+                    />
+                  </Grid>
                 </>
               )}
 
