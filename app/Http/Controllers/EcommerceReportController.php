@@ -155,9 +155,9 @@ class EcommerceReportController extends Controller
             )
             ->when($reportFor === 'sales', fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
             ->when($reportFor === 'sales', fn ($q) => $q->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id'))
-            ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
+            ->when($reportFor != 'cash_buy', fn ($q) => $q->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id'))
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
-            ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
+            ->when($reportFor != 'cash_buy', fn ($q) => $q->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market'))
             ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
             ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
             ->when(!empty($affiliate) && !in_array('allAffiliates', $affiliate), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliate))
@@ -195,16 +195,14 @@ class EcommerceReportController extends Controller
             )
             ->when(
                 $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
-                fn ($q) => $q
-                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
-                    ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
-                    ->groupBy('ecommerce_sales.coupon_code')
+                fn ($q) => $this->cashBuyFn($q, $orderType, $affiliate, $type)
             )
             ->when(
                 $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
-                    ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate))
+                    ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate, $type))
+                    ->groupBy('ecommerce_sales.id')
                     ->groupBy('ecommerce_sales.dialed')
             )
             ->when(
@@ -327,16 +325,27 @@ class EcommerceReportController extends Controller
         return $selectRows;
     }
 
-    protected function selectColumnSalesCashBuyReport($orderType, $affiliate)
+    protected function selectColumnSalesCashBuyReport($orderType, $affiliate, $type)
     {
         $selectRows = [
+            DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
+            'customers.customer_name AS Customer Name',
+            'ecommerce_campaigns.campaign_name AS Campaign Name',
             'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_affiliates.cash_buy AS Cash Buy',
-            DB::raw('sum(ecommerce_sales.quantity) AS `Total Order`'),
-            DB::raw('ROUND(ecommerce_affiliates.cash_buy /sum(ecommerce_sales.quantity),2) AS `Average Order Cost`'),
+            'ecommerce_sales.shipping_state AS State',
+            'ecommerce_sales.shipping_city AS City',
+            'ecommerce_sales.shipping_zip AS Zip Code',
+            'zipcode_by_television_markets.market AS Market',
+            't_v_households.tv_households AS TV Market Households',
+            DB::raw('ecommerce_affiliates.cash_buy / sub.total_quantity as Payout'),
+            DB::raw('(ecommerce_affiliates.cash_buy / sub.total_quantity) - (ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity) as "Affiliate Fee"'),
         ];
 
-        return $this->addColumnToArray($selectRows, $orderType, 1, $affiliate);
+        if ($type === 'customer') {
+            $selectRows[] = DB::raw('ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity as "ConsumerEXP Fee"');
+        }
+
+        return $this->addColumnToArray($selectRows, $orderType, 4, $affiliate);
     }
 
     protected function getReportSummary($reportFor, $type, $salesData, $summaryCampaigns)
@@ -516,5 +525,26 @@ class EcommerceReportController extends Controller
         }
 
         return $reportOn;
+    }
+
+    public function cashBuyFn($q, $orderType, $affiliate, $type)
+    {
+        $subQuery = $q->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
+            ->select('ecommerce_sales.coupon_code', DB::raw('SUM(ecommerce_sales.quantity) as total_quantity'))
+            ->groupBy('ecommerce_sales.coupon_code');
+
+        $finalQuery = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+            ->join('ecommerce_sales', 'sub.coupon_code', '=', 'ecommerce_sales.coupon_code')
+            ->join('ecommerce_affiliates', 'ecommerce_sales.coupon_code', '=', 'ecommerce_affiliates.coupon_code')
+            ->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id')
+            ->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id')
+            ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
+            ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
+            ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
+            ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate, $type))
+            ->mergeBindings($subQuery)
+            ->orderBy('ecommerce_sales.order_at');
+
+        return $finalQuery;
     }
 }
