@@ -337,12 +337,12 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.shipping_zip AS Zip Code',
             'zipcode_by_television_markets.market AS Market',
             't_v_households.tv_households AS TV Market Households',
-            DB::raw('ecommerce_affiliates.cash_buy / sub.total_quantity as Payout'),
-            DB::raw('(ecommerce_affiliates.cash_buy / sub.total_quantity) - (ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity) as "Affiliate Fee"'),
+            DB::raw('ROUND(ecommerce_affiliates.cash_buy / sub.total_quantity, 2) as Payout'),
+            DB::raw('ROUND((ecommerce_affiliates.cash_buy / sub.total_quantity) - (ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity), 2) as "Affiliate Fee"'),
         ];
 
         if ($type === 'customer') {
-            $selectRows[] = DB::raw('ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity as "ConsumerEXP Fee"');
+            $selectRows[] = DB::raw('ROUND(ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity, 2) as "ConsumerEXP Fee"');
         }
 
         return $this->addColumnToArray($selectRows, $orderType, 4, $affiliate);
