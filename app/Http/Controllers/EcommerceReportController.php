@@ -189,21 +189,14 @@ class EcommerceReportController extends Controller
             ->when(
                 $reportFor === 'sales',
                 fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.id')
                     ->select($this->selectColumnSalesReport($type, $orderType, $affiliate))
                     ->orderBy('ecommerce_sales.order_at')
             )
             ->when(
-                $reportFor === 'cash_buy' && ($orderType == EcommerceSale::ORDER_TYPE['e-commerce'] || $orderType == 'both'),
+                $reportFor === 'cash_buy',
                 fn ($q) => $this->cashBuyFn($q, $orderType, $affiliate, $type)
-            )
-            ->when(
-                $reportFor === 'cash_buy' && $orderType == EcommerceSale::ORDER_TYPE['phone'],
-                fn ($q) => $q
-                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
-                    ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate, $type))
-                    ->groupBy('ecommerce_sales.id')
-                    ->groupBy('ecommerce_sales.dialed')
             )
             ->when(
                 $reportFor === 'marketTarget',
@@ -529,13 +522,54 @@ class EcommerceReportController extends Controller
 
     public function cashBuyFn($q, $orderType, $affiliate, $type)
     {
+        if ($orderType === 'both') {
+            $subQueryColumns = [
+                DB::raw('CASE WHEN ecommerce_sales.coupon_code = "" OR ecommerce_sales.coupon_code IS NULL THEN ecommerce_sales.dialed ELSE ecommerce_sales.coupon_code END AS coupon_code'),
+                'ecommerce_sales.dialed',
+                DB::raw('SUM(ecommerce_sales.quantity) as total_quantity')
+            ];
+        } elseif ($orderType === '1') {
+            $subQueryColumns = [
+                'ecommerce_sales.coupon_code',
+                DB::raw('SUM(ecommerce_sales.quantity) as total_quantity')
+            ];
+        } else {
+            $subQueryColumns = [
+                'ecommerce_sales.dialed',
+                DB::raw('SUM(ecommerce_sales.quantity) as total_quantity')
+            ];
+        }
+
         $subQuery = $q->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
-            ->select('ecommerce_sales.coupon_code', DB::raw('SUM(ecommerce_sales.quantity) as total_quantity'))
-            ->groupBy('ecommerce_sales.coupon_code');
+            ->select($subQueryColumns)
+            ->when($orderType === 'both', fn ($q) => $q->groupBy('coupon_code'))
+            ->when($orderType === '1', fn ($q) => $q->groupBy('ecommerce_sales.coupon_code'))
+            ->when($orderType === '2', fn ($q) => $q->groupBy('ecommerce_sales.dialed'));
 
         $finalQuery = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
-            ->join('ecommerce_sales', 'sub.coupon_code', '=', 'ecommerce_sales.coupon_code')
-            ->join('ecommerce_affiliates', 'ecommerce_sales.coupon_code', '=', 'ecommerce_affiliates.coupon_code')
+            ->join(
+                'ecommerce_sales',
+                function ($join) use ($orderType) {
+                    if ($orderType === 'both') {
+                        $join->on('sub.coupon_code', '=', 'ecommerce_sales.coupon_code');
+                        $join->orOn('sub.coupon_code', '=', 'ecommerce_sales.dialed');
+                    } elseif ($orderType === '1') {
+                        $join->on('sub.coupon_code', '=', 'ecommerce_sales.coupon_code');
+                    } elseif ($orderType === '2') {
+                        $join->on('sub.dialed', '=', 'ecommerce_sales.dialed');
+                    }
+                }
+            )
+            ->join('ecommerce_affiliates', function ($join) use ($orderType) {
+                if ($orderType === 'both') {
+                    $join->on('ecommerce_sales.coupon_code', '=', 'ecommerce_affiliates.coupon_code')
+                        ->orOn('ecommerce_sales.dialed', '=', 'ecommerce_affiliates.dialed');
+                } elseif ($orderType === '1') {
+                    $join->on('ecommerce_sales.coupon_code', '=', 'ecommerce_affiliates.coupon_code');
+                } else {
+                    $join->on('ecommerce_sales.dialed', '=', 'ecommerce_affiliates.dialed');
+                }
+            })
             ->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id')
             ->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id')
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
@@ -543,7 +577,8 @@ class EcommerceReportController extends Controller
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
             ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate, $type))
             ->mergeBindings($subQuery)
-            ->orderBy('ecommerce_sales.order_at');
+            ->orderBy('ecommerce_sales.order_at')
+            ->groupBy('ecommerce_sales.id');
 
         return $finalQuery;
     }
