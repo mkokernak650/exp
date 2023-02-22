@@ -93,7 +93,12 @@ class EcommerceReportController extends Controller
         }
         if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData, $summaryCampaigns);
-            if (isset($request->start_date) && isset($request->end_date)) {
+
+            if (!empty($request->year)) {
+                $selectedYears        = implode(', ', $request->year);
+                $yearNaming           = (count($request->year) > 1) ? 'Years' : 'Year';
+                $summary[$yearNaming] = $selectedYears;
+            } elseif (isset($request->start_date) && isset($request->end_date)) {
                 $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
                 $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
             }
@@ -441,6 +446,8 @@ class EcommerceReportController extends Controller
             return $this->marketTargetSummary($salesData);
         } elseif ($reportFor === 'summary') {
             return $this->summarySummary($salesData);
+        } elseif ($reportFor === 'cash_buy') {
+            return $this->cashBuySummary($salesData, $type);
         }
         return [];
     }
@@ -556,6 +563,27 @@ class EcommerceReportController extends Controller
             $summary['Total Fee'] += $item->{'Total Fee'};
             $summary['Net Amount'] += $item->{'Net Amount'};
         });
+        return $summary;
+    }
+
+    protected function cashBuySummary($salesData, $type)
+    {
+        $summary        = [];
+        $cashBuy        = 0;
+        $ConsumerEXPFee = 0;
+
+        foreach ($salesData as $data) {
+            if ($type === 'customer') {
+                $cashBuy                    += $data->Payout;
+                $ConsumerEXPFee             += $data->{'ConsumerEXP Fee'};
+                $summary['Cash Buy']         = $cashBuy;
+                $summary['ConsumerEXP Fee']  = $ConsumerEXPFee;
+            } else {
+                $cashBuy             += $data->Payout;
+                $summary['Cash Buy']  = $cashBuy;
+            }
+        }
+
         return $summary;
     }
 
