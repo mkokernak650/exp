@@ -414,6 +414,7 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.shipping_zip AS Zip Code',
             'zipcode_by_television_markets.market AS Market',
             't_v_households.tv_households AS TV Market Households',
+            'ecommerce_sales.quantity AS Quantity',
             DB::raw('YEAR(ecommerce_sales.order_at) AS orderYear'),
             DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%Y-%m-%d") AS formattedOrderDate'),
             DB::raw('ROUND(ecommerce_affiliates.cash_buy / sub.total_quantity, 2) AS Payout'),
@@ -568,21 +569,38 @@ class EcommerceReportController extends Controller
 
     protected function cashBuySummary($salesData, $type)
     {
-        $summary        = [];
-        $cashBuy        = 0;
-        $ConsumerEXPFee = 0;
+        // dd($salesData);
+        $summary          = [];
+        $cashBuy          = 0;
+        $ConsumerEXPFee   = 0;
+        $phoneOrders      = 0;
+        $phonePayouts     = 0;
+        $ecommerceOrders  = 0;
+        $ecommercePayouts = 0;
 
         foreach ($salesData as $data) {
+            if ($data->Dialed != "") {
+                $phoneOrders  += (int) $data->Quantity;
+                $phonePayouts += $data->Payout * ((int) $data->Quantity);
+            } elseif ($data->{'Coupon Code'} != "") {
+                $ecommerceOrders  += (int) $data->Quantity;
+                $ecommercePayouts += $data->Payout * ((int) $data->Quantity);
+            }
+
+            $summary['Phone Orders']       = $phoneOrders;
+            $summary['Phone Payouts']      = $phonePayouts;
+            $summary['E-commerce Orders']  = $ecommerceOrders;
+            $summary['E-commerce Payouts'] = $ecommercePayouts;
+
+            $cashBuy             += $data->Payout * ((int) $data->Quantity);
+            $summary['Cash Buy']  = $cashBuy;
+
             if ($type === 'customer') {
-                $cashBuy                    += $data->Payout;
-                $ConsumerEXPFee             += $data->{'ConsumerEXP Fee'};
-                $summary['Cash Buy']         = $cashBuy;
+                $ConsumerEXPFee             += $data->{'ConsumerEXP Fee'} * ((int) $data->Quantity);
                 $summary['ConsumerEXP Fee']  = $ConsumerEXPFee;
-            } else {
-                $cashBuy             += $data->Payout;
-                $summary['Cash Buy']  = $cashBuy;
             }
         }
+        // dd($summary);
 
         return $summary;
     }
