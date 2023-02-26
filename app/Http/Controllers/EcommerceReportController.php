@@ -569,7 +569,6 @@ class EcommerceReportController extends Controller
 
     protected function cashBuySummary($salesData, $type)
     {
-        // dd($salesData);
         $summary          = [];
         $cashBuy          = 0;
         $ConsumerEXPFee   = 0;
@@ -579,12 +578,12 @@ class EcommerceReportController extends Controller
         $ecommercePayouts = 0;
 
         foreach ($salesData as $data) {
-            if ($data->Dialed != "") {
-                $phoneOrders  += (int) $data->Quantity;
-                $phonePayouts += $data->Payout * ((int) $data->Quantity);
-            } elseif ($data->{'Coupon Code'} != "") {
+            if (isset($data->{'Coupon Code'}) && $data->{'Coupon Code'} != "") {
                 $ecommerceOrders  += (int) $data->Quantity;
                 $ecommercePayouts += $data->Payout * ((int) $data->Quantity);
+            } elseif (isset($data->Dialed) && $data->Dialed != "") {
+                $phoneOrders  += (int) $data->Quantity;
+                $phonePayouts += $data->Payout * ((int) $data->Quantity);
             }
 
             $summary['Phone Orders']       = $phoneOrders;
@@ -600,7 +599,6 @@ class EcommerceReportController extends Controller
                 $summary['ConsumerEXP Fee']  = $ConsumerEXPFee;
             }
         }
-        // dd($summary);
 
         return $summary;
     }
