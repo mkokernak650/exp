@@ -428,10 +428,10 @@ const EcommerceReport = () => {
     : values?.affiliate_id.length
       ? `_For_(${getAffiliateNames().toString()})`
       : ''
-    }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${values?.start_date
+    }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
       ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }`
+    }${values?.year ? `_For_(${values.year.toString()})` : ''}`
   values.file_name = fileName
 
   const handleSubmit = () => {

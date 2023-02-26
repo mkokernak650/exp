@@ -636,7 +636,11 @@ class EcommerceReportController extends Controller
             }
         }
 
-        if (!empty($requestData->start_date) && !empty($requestData->end_date)) {
+        if (!empty($requestData->year)) {
+            $selectedYears  = implode(', ', $requestData->year);
+            $yearNaming     = (count($requestData->year) > 1) ? 'Years' : 'Year';
+            $reportOn      .= " <br> {$yearNaming} ({$selectedYears})";
+        } elseif (!empty($requestData->start_date) && !empty($requestData->end_date)) {
             $startingDate  = date_format(date_create($requestData->start_date), 'd-M-Y');
             $endingDate    = date_format(date_create($requestData->end_date), 'd-M-Y');
             $reportOn     .= " <br> Date Range ({$startingDate} To {$endingDate})";
