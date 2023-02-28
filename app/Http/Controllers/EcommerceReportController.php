@@ -226,7 +226,7 @@ class EcommerceReportController extends Controller
             }
 
             if (!empty($states) && !in_array('allStates', $states)) {
-                $queryData = $queryData->whereIn('State', $states);
+                $queryData = $queryData->whereIn('stateForFilter', $states);
             }
 
             if (!empty($year)) {
@@ -236,7 +236,7 @@ class EcommerceReportController extends Controller
             }
 
             $filteredQueryData = $queryData->map(function ($item) {
-                unset($item->orderYear, $item->formattedOrderDate);
+                unset($item->orderYear, $item->formattedOrderDate, $item->stateForFilter);
                 return $item;
             });
 
@@ -421,6 +421,7 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.shipping_city AS City',
             'ecommerce_sales.shipping_zip AS Zip Code',
             'zipcode_by_television_markets.market AS Market',
+            'zipcode_by_television_markets.state AS stateForFilter',
             't_v_households.tv_households AS TV Market Households',
             'ecommerce_sales.quantity AS Quantity',
             DB::raw('YEAR(ecommerce_sales.order_at) AS orderYear'),
