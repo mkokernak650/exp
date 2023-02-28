@@ -221,6 +221,14 @@ class EcommerceReportController extends Controller
             ->get();
 
         if ($reportFor === 'cash_buy') {
+            if (!empty($markets) && !in_array('allMarkets', $markets)) {
+                $queryData = $queryData->whereIn('Market', $markets);
+            }
+
+            if (!empty($states) && !in_array('allStates', $states)) {
+                $queryData = $queryData->whereIn('State', $states);
+            }
+
             if (!empty($year)) {
                 $queryData = $queryData->whereIn('orderYear', $year);
             } elseif (!empty($startDate) && !empty($endDate)) {
