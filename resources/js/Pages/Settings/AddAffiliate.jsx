@@ -1,12 +1,13 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, Button } from '@material-ui/core'
+import { CircularProgress, Paper, Typography, Button, Select, InputLabel, FormControl, MenuItem, FormHelperText } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import TextInput from '@/Components/Global/TextInput'
+import { usePage } from '@inertiajs/inertia-react'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,6 +31,8 @@ const AddAffiliate = () => {
   const classes = useStyles()
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({})
+  const { allMarkets } = usePage().props
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -49,9 +52,14 @@ const AddAffiliate = () => {
           setLoading(false)
           toast.success(res.data.msg)
           e.target.reset()
+          setErrors({})
+          setValues()
         }
       })
-      .catch((err) => { })
+      .catch((err) => {
+        setLoading(false)
+        setErrors(err.response.data.errors)
+      })
   }
 
   return (
@@ -67,14 +75,16 @@ const AddAffiliate = () => {
               <TextInput
                 label="Affiliate Id"
                 name="affiliate_id"
-                required={true}
                 handleChange={handleChange}
+                error={errors?.affiliate_id}
+                helperText={errors?.affiliate_id?.[0]}
               />
               <TextInput
                 label="Affiliate Name"
                 name="affiliate_name"
-                required={true}
                 handleChange={handleChange}
+                error={errors?.affiliate_name}
+                helperText={errors?.affiliate_name?.[0]}
               />
               <TextInput
                 label="Email"
@@ -91,6 +101,29 @@ const AddAffiliate = () => {
                 name="address"
                 handleChange={handleChange}
               />
+              <Grid item style={{ paddingTop: 18 }}>
+                <FormControl variant="outlined" className={classes.formControl} fullWidth>
+                  <InputLabel id="market-label">Select Market</InputLabel>
+                  <Select
+                    labelId="market-label"
+                    id="market"
+                    name="market"
+                    value={values?.market ?? ""}
+                    defaultValue=""
+                    onChange={handleChange}
+                    label="Select Market"
+                    error={errors?.market}
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {allMarkets.map((item) => (
+                      <MenuItem key={item.market} value={item.market}>{item.market}</MenuItem>
+                    ))}
+                  </Select>
+                  {errors?.market && <FormHelperText style={{ color: 'red' }}>{errors?.market?.[0]}</FormHelperText>}
+                </FormControl>
+              </Grid>
             </Grid>
 
             <Grid item xs={12}>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\Affiliate;
 use App\Models\TableDetails;
+use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,7 +18,17 @@ class AffiliateController extends Controller
 
     public function addAffiliateForm()
     {
-        return Inertia::render('Settings/AddAffiliate');
+        $customMarkets = [
+            (object) ['market' => 'Connected TV'],
+            (object) ['market' => 'International'],
+            (object) ['market' => 'Nationwide'],
+            (object) ['market' => 'Regional']
+        ];
+
+        $markets    = ZipcodeByTelevisionMarket::select('market')->distinct()->orderBy('market')->get();
+        $allMarkets = array_merge($customMarkets, $markets->toarray());
+
+        return Inertia::render('Settings/AddAffiliate', compact('allMarkets'));
     }
 
     public function all()
@@ -76,16 +87,22 @@ class AffiliateController extends Controller
             ['telephone', '=', $request->telephone],
             ['address', '=', $request->address]
         ])->count();
+
         if ($existData > 0) {
             return response()->json(['msg' => 'Cutomer already exists']);
         }
-        Affiliate::create([
-            'affiliate_id'   => $request->affiliate_id,
-            'affiliate_name' => $request->affiliate_name,
-            'email'          => $request->email,
-            'telephone'      => $request->telephone,
-            'address'        => $request->address,
+
+        $request->validate([
+            'affiliate_id'   => 'required',
+            'affiliate_name' => 'required',
+            'email'          => 'nullable',
+            'telephone'      => 'nullable',
+            'address'        => 'nullable',
+            'market'         => 'required',
         ]);
+
+        Affiliate::create($request->all());
+
         return response()->json(['msg' => 'Successfully Added']);
     }
 
