@@ -42,7 +42,7 @@ export const ExportReportWithTag = (apiData, fileName) => {
   toast.success('Report Generated Successfully')
 }
 
-export const exportReportEcommerce = (apiData, fileName, reportFor) => {
+export const exportReportEcommerce = (apiData, fileName, reportOn) => {
   const ws = XLSX.utils.json_to_sheet(apiData.data, fileName)
   if (apiData?.summary && Object.keys(apiData.summary).length) {
     const secondData = apiData.data.length + 5
@@ -53,7 +53,7 @@ export const exportReportEcommerce = (apiData, fileName, reportFor) => {
     })
 
     XLSX.utils.sheet_add_aoa(ws, summary, {
-      origin: reportFor.reportFor === 'sales' ? `E${secondData}` : `B${secondData}`,
+      origin: reportOn.reportOn === 'detail' ? `E${secondData}` : `B${secondData}`,
     })
   }
 

@@ -80,7 +80,7 @@ class EcommerceReportController extends Controller
             $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
         }
 
-        if ($request->reportFor === 'marketTarget') {
+        if ($request->reportFor === 'payPerOrder' && $request->reportOn === 'marketTarget') {
             $salesData->transform(function ($item) {
                 if (isset($item->{'TV Households'})) {
                     $item->{'TV Households'} = number_format($item->{'TV Households'}, 0, '.', ',');
@@ -92,7 +92,7 @@ class EcommerceReportController extends Controller
             });
         }
         if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
-            $summary = $this->getReportSummary($request->reportFor, $request->type, $salesData, $summaryCampaigns);
+            $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns);
 
             if (!empty($request->year)) {
                 $selectedYears        = implode(', ', $request->year);
@@ -132,18 +132,20 @@ class EcommerceReportController extends Controller
 
     protected function queryReport($request)
     {
+        // dd($request->all());
         $couponCodes = $request->couponCodes;
-        $dialed = $request->dialed;
-        $year = $request->year;
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-        $type = $request->type;
-        $states = $request->states;
-        $markets = $request->markets;
-        $reportFor = $request->reportFor;
-        $orderType = $request->orderType;
-        $affiliate = $request->affiliate_id;
-        $queryData = DB::table('ecommerce_sales')
+        $dialed      = $request->dialed;
+        $year        = $request->year;
+        $startDate   = $request->start_date;
+        $endDate     = $request->end_date;
+        $type        = $request->type;
+        $states      = $request->states;
+        $markets     = $request->markets;
+        $reportFor   = $request->reportFor;
+        $reportGenOn = $request->reportOn;
+        $orderType   = $request->orderType;
+        $affiliate   = $request->affiliate_id;
+        $queryData   = DB::table('ecommerce_sales')
             ->when(
                 $orderType,
                 fn ($q) => $q->join('ecommerce_affiliates', function ($join) use ($orderType) {
@@ -158,11 +160,11 @@ class EcommerceReportController extends Controller
                     }
                 })
             )
-            ->when($reportFor === 'sales', fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
-            ->when($reportFor === 'sales', fn ($q) => $q->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id'))
-            ->when($reportFor != 'cash_buy', fn ($q) => $q->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id'))
+            ->when(($reportFor === 'payPerOrder' && $reportGenOn === 'detail'), fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
+            ->when(($reportFor === 'payPerOrder' && $reportGenOn === 'detail'), fn ($q) => $q->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id'))
+            ->when(($reportFor != 'cashBuy'), fn ($q) => $q->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id'))
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
-            ->when($reportFor != 'cash_buy', fn ($q) => $q->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market'))
+            ->when(($reportFor != 'cashBuy'), fn ($q) => $q->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market'))
             ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
             ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
             ->when(!empty($affiliate) && !in_array('allAffiliates', $affiliate), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliate))
@@ -192,7 +194,7 @@ class EcommerceReportController extends Controller
                     ->whereDate('ecommerce_sales.order_at', '<=', $endDate)
             )
             ->when(
-                $reportFor === 'sales',
+                ($reportFor === 'payPerOrder' && $reportGenOn === 'detail'),
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.id')
@@ -200,11 +202,11 @@ class EcommerceReportController extends Controller
                     ->orderBy('ecommerce_sales.order_at')
             )
             ->when(
-                $reportFor === 'cash_buy',
+                ($reportFor === 'cashBuy' && $reportGenOn === 'detail'),
                 fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type)
             )
             ->when(
-                $reportFor === 'marketTarget',
+                ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget'),
                 fn ($q) => $q
                     ->whereNotNull('zipcode_by_television_markets.market')
                     ->groupBy('zipcode_by_television_markets.market')
@@ -212,7 +214,7 @@ class EcommerceReportController extends Controller
                     ->orderBy('Homes Per Sales')
             )
             ->when(
-                $reportFor === 'summary',
+                ($reportFor === 'payPerOrder' && $reportGenOn === 'summary'),
                 fn ($q) => $q
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
                     ->select($this->selectColumnSummaryReport())
@@ -220,7 +222,7 @@ class EcommerceReportController extends Controller
             )
             ->get();
 
-        if ($reportFor === 'cash_buy') {
+        if ($reportFor === 'cashBuy') {
             if (!empty($markets) && !in_array('allMarkets', $markets)) {
                 $queryData = $queryData->whereIn('Market', $markets);
             }
@@ -439,9 +441,9 @@ class EcommerceReportController extends Controller
         return $this->addColumnToArray($selectRows, $orderType, 5, $affiliate);
     }
 
-    protected function getReportSummary($reportFor, $type, $salesData, $summaryCampaigns)
+    protected function getReportSummary($reportFor, $reportGenOn, $type, $salesData, $summaryCampaigns)
     {
-        if ($reportFor === 'sales') {
+        if ($reportFor === 'payPerOrder' && $reportGenOn === 'detail') {
             if ($type === 'customer') {
                 if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
                     return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns);
@@ -454,11 +456,11 @@ class EcommerceReportController extends Controller
             } else {
                 return $this->affiliateSummary($salesData);
             }
-        } elseif ($reportFor === 'marketTarget') {
+        } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget') {
             return $this->marketTargetSummary($salesData);
-        } elseif ($reportFor === 'summary') {
+        } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'summary') {
             return $this->summarySummary($salesData);
-        } elseif ($reportFor === 'cash_buy') {
+        } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             return $this->cashBuySummary($salesData, $type);
         }
         return [];

@@ -62,7 +62,8 @@ const EcommerceReport = () => {
   const [orderType, setOrderType] = useState({ orderType: 'both' })
   const [customer, setCustomer] = useState([])
   const [reportType, setReportType] = useState({ type: 'customer' })
-  const [reportFor, setReportFor] = useState({ reportFor: 'sales' })
+  const [reportFor, setReportFor] = useState({ reportFor: 'payPerOrder' })
+  const [reportOn, setReportOn] = useState({ reportOn: 'detail' })
   const [affiliateFeeType, setAffiliateFeeType] = useState({
     affiliate_fee_type: 'payout_per_order',
   })
@@ -356,9 +357,12 @@ const EcommerceReport = () => {
     setAffiliateFeeType({ [name]: value })
   }
 
-  const reportForHandleChange = (e) => {
-    const { name, value } = e.target
-    setReportFor({ [name]: value })
+  const reportForHandleChange = (val) => {
+    setReportFor({ reportFor: val })
+  }
+
+  const reportOnHandleChange = (val) => {
+    setReportOn({ reportOn: val })
   }
 
   const orderTypeHandleChange = (val) => {
@@ -390,6 +394,7 @@ const EcommerceReport = () => {
     ...endDate,
     ...reportType,
     ...reportFor,
+    ...reportOn,
     ...ecommerceReportType,
   }
 
@@ -435,14 +440,26 @@ const EcommerceReport = () => {
   values.file_name = fileName
 
   const handleSubmit = () => {
+    if (reportFor.reportFor === '') {
+      toast.error('Please select report for')
+      return
+    }
+
+    if (reportOn.reportOn === '') {
+      toast.error('Please select report on')
+      return
+    }
+
     if (orderType.orderType === '') {
       toast.error('Please select order type')
       return
     }
-    if (reportFor.reportFor === 'marketTarget' && state.length < 1 && market.length < 1) {
+
+    if (reportOn.reportOn === 'marketTarget' && state.length < 1 && market.length < 1) {
       toast.error('Please select state or market')
       return
     }
+
     setLoading(true)
     axios
       .post(route('ecommerce.report.generate'), { ...values, affiliatesEmail })
@@ -454,7 +471,7 @@ const EcommerceReport = () => {
         } else {
           setLoading(false)
           if (ecommerceReportType.report_type === 'export-report') {
-            exportReportEcommerce(r.data, fileName, reportFor)
+            exportReportEcommerce(r.data, fileName, reportOn)
           } else {
             toast.success(r?.data?.message)
           }
@@ -479,7 +496,7 @@ const EcommerceReport = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <h4 style={{ margin: 0 }}>Report For</h4>
               <RadioGroup
                 aria-label="reportFor"
@@ -506,25 +523,20 @@ const EcommerceReport = () => {
                   />
                 </>
               </RadioGroup>
-            </Grid>
-            {/* <Grid item xs={12} style={{ paddingBottom: 5 }}>
+            </Grid> */}
+            <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 singleSelect
                 name="reportFor"
                 defaultValue={reportFor.reportFor}
                 onChange={(val) => reportForHandleChange(val)}
                 options={[
-                  { label: 'Detail Report', value: 'sales' },
-                  { label: 'Market Target', value: 'marketTarget' },
-                  { label: 'Summary Report', value: 'summary' },
-                  { label: 'Cash Buy', value: 'cash_buy' },
+                  { label: 'Pay Per Order', value: 'payPerOrder' },
+                  { label: 'Cash Buy', value: 'cashBuy' },
                 ]}
                 style={{ width: '100%' }}
                 placeholder="Select Report For"
               />
-            </Grid> */}
-            <Grid item xs={12} style={{ paddingTop: 0 }}>
-              <Divider />
             </Grid>
             <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
@@ -540,6 +552,24 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Order Type"
               />
+            </Grid>
+            <Grid item xs={12} style={{ paddingBottom: 5, marginBottom: 15 }}>
+              <MultiSelect
+                singleSelect
+                name="reportOn"
+                defaultValue={reportOn.reportOn}
+                onChange={(val) => reportOnHandleChange(val)}
+                options={[
+                  { label: 'Detail Report', value: 'detail' },
+                  { label: 'Market Target', value: 'marketTarget' },
+                  { label: 'Summary Report', value: 'summary' },
+                ]}
+                style={{ width: '100%' }}
+                placeholder="Select Report On"
+              />
+            </Grid>
+            <Grid item xs={12} style={{ paddingTop: 0 }}>
+              <Divider />
             </Grid>
             {market.length < 1 && (
               <Grid item xs={12} style={{ paddingBottom: 5 }}>
