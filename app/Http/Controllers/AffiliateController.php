@@ -108,11 +108,22 @@ class AffiliateController extends Controller
 
     public function affiliateReport()
     {
+        $customMarkets = [
+            (object) ['market' => 'Connected TV'],
+            (object) ['market' => 'International'],
+            (object) ['market' => 'Nationwide'],
+            (object) ['market' => 'Regional']
+        ];
+
+        $markets    = ZipcodeByTelevisionMarket::select('market')->distinct()->orderBy('market')->get();
+        $allMarkets = array_merge($customMarkets, $markets->toarray());
+
         $allAffiliates = Affiliate::where('status', '=', '1')->get();
         $columnsData   = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/AffiliateReport', [
             'allAffiliates' => $allAffiliates,
-            'columnsData'   => $columnsData
+            'columnsData'   => $columnsData,
+            'allMarkets'    => $allMarkets,
         ]);
     }
 
@@ -137,6 +148,7 @@ class AffiliateController extends Controller
         $data->email          = $request->email;
         $data->telephone      = $request->telephone;
         $data->address        = $request->address;
+        $data->market         = $request->market;
         $result               = $data->save();
 
         if ($result) {

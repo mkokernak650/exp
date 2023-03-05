@@ -14,8 +14,7 @@ import Edit from '@/Components/Icons/Edit.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import TextField from '@material-ui/core/TextField'
-import { Button } from '@material-ui/core'
+import { Button, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -31,7 +30,7 @@ import TextInput from '@/Components/Global/TextInput'
 
 const AffiliateReport = () => {
   const classes = useStyles()
-  const { allAffiliates, columnsData } = usePage().props
+  const { allAffiliates, columnsData, allMarkets } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -47,6 +46,7 @@ const AffiliateReport = () => {
     edit: item.id,
     affiliate_id: item.affiliate_id,
     affiliate_name: item.affiliate_name,
+    market: item.market,
     email: item.email,
     telephone: item.telephone,
     address: item.address,
@@ -122,7 +122,7 @@ const AffiliateReport = () => {
   const handleColumns = () => {
     setShowColumns(true)
   }
-  
+
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
@@ -182,7 +182,7 @@ const AffiliateReport = () => {
           setShowArchivedModal({ open: false })
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   const handleEditChange = (e) => {
@@ -202,6 +202,7 @@ const AffiliateReport = () => {
               filteredData.data[indx].email = editData.email
               filteredData.data[indx].telephone = editData.telephone
               filteredData.data[indx].address = editData.address
+              filteredData.data[indx].market = editData.market
             }
           })
           setEditData()
@@ -380,6 +381,24 @@ const AffiliateReport = () => {
               handleChange={handleEditChange}
               value={editData ? editData.address : ''}
             />
+            <FormControl variant="outlined" className={classes.formControl} fullWidth>
+              <InputLabel id="market-label">Select Market</InputLabel>
+              <Select
+                labelId="market-label"
+                id="market"
+                name="market"
+                value={editData ? editData.market : ''}
+                onChange={handleEditChange}
+                label="Select Market"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {allMarkets.map((item) => (
+                  <MenuItem key={item.market} value={item.market}>{item.market}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <Button
               variant="contained"
@@ -403,11 +422,10 @@ const AffiliateReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
 
       <ConfirmModal
@@ -416,11 +434,10 @@ const AffiliateReport = () => {
         btnAction={handleArchived}
         closeAction={() => handleCloseModal(setShowArchivedModal)}
         width={'450px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to move these records to archive?'
-            : 'Do you want to move this record to archive?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to move these records to archive?'
+          : 'Do you want to move this record to archive?'
+          }`}
       ></ConfirmModal>
     </>
   )

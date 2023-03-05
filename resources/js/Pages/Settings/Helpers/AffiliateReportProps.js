@@ -127,6 +127,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'market',
+    title: 'Market',
+    dataType: DataType.String,
+    style: { width: 240 },
+    visible: true,
+  },
+  {
     key: 'email',
     title: 'Email',
     dataType: DataType.String,
