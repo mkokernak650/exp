@@ -129,11 +129,22 @@ class AffiliateController extends Controller
 
     public function archivedAffiliates()
     {
+        $customMarkets = [
+            (object) ['market' => 'Connected TV'],
+            (object) ['market' => 'International'],
+            (object) ['market' => 'Nationwide'],
+            (object) ['market' => 'Regional']
+        ];
+
+        $markets    = ZipcodeByTelevisionMarket::select('market')->distinct()->orderBy('market')->get();
+        $allMarkets = array_merge($customMarkets, $markets->toarray());
+
         $allAffiliates = Affiliate::where('status', '=', '0')->get();
         $columnsData   = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/ArchivedAffiliates', [
             'allAffiliates' => $allAffiliates,
-            'columnsData'   => $columnsData
+            'columnsData'   => $columnsData,
+            'allMarkets'    => $allMarkets,
         ]);
     }
 

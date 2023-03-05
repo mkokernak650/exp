@@ -12,7 +12,7 @@ import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
 import TextField from '@material-ui/core/TextField'
-import { Button } from '@material-ui/core'
+import { Button, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import NormalModal from '@/Shared/NormalModal'
@@ -27,7 +27,7 @@ import { useStyles, fields, groups, filter, columns } from './Helpers/ArchivedAf
 
 const ArchivedAffiliates = () => {
   const classes = useStyles()
-  const { allAffiliates, columnsData } = usePage().props
+  const { allAffiliates, columnsData, allMarkets } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -42,6 +42,7 @@ const ArchivedAffiliates = () => {
     edit: item.id,
     affiliate_id: item.affiliate_id,
     affiliate_name: item.affiliate_name,
+    market: item.market,
     email: item.email,
     telephone: item.telephone,
     address: item.address,
@@ -150,7 +151,7 @@ const ArchivedAffiliates = () => {
           setShowActiveModal({ open: false })
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   const handleEditChange = (e) => {
@@ -167,6 +168,7 @@ const ArchivedAffiliates = () => {
             if (item.id === editData.id) {
               filteredData.data[indx].affiliate_id = editData.affiliate_id
               filteredData.data[indx].affiliate_name = editData.affiliate_name
+              filteredData.data[indx].market = editData.market
               filteredData.data[indx].email = editData.email
               filteredData.data[indx].telephone = editData.telephone
               filteredData.data[indx].address = editData.address
@@ -361,6 +363,24 @@ const ArchivedAffiliates = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
+            <FormControl variant="outlined" className={classes.formControl} fullWidth>
+              <InputLabel id="market-label">Select Market</InputLabel>
+              <Select
+                labelId="market-label"
+                id="market"
+                name="market"
+                value={editData ? editData.market : ''}
+                onChange={handleEditChange}
+                label="Select Market"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {allMarkets.map((item) => (
+                  <MenuItem key={item.market} value={item.market}>{item.market}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <Button
               variant="contained"
@@ -384,11 +404,10 @@ const ArchivedAffiliates = () => {
         btnAction={handleActive}
         closeAction={() => handleCloseModal(setShowActiveModal)}
         width={'450px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to active these affiliate?'
-            : 'Do you want to active this affiliate?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to active these affiliate?'
+          : 'Do you want to active this affiliate?'
+          }`}
       ></ConfirmModal>
     </>
   )
