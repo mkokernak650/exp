@@ -389,10 +389,11 @@ class EcommerceReportController extends Controller
                 'customers.customer_name AS Customer Name',
                 'ecommerce_campaigns.campaign_name AS Campaign Name',
                 'affiliates.affiliate_name AS Affiliate Name',
+                'affiliates.market AS Affiliate Market',
                 'ecommerce_sales.shipping_state AS State',
                 'ecommerce_sales.shipping_city AS City',
                 'ecommerce_sales.shipping_zip AS Zip Code',
-                'zipcode_by_television_markets.market AS Market',
+                'zipcode_by_television_markets.market AS Customer Market',
                 't_v_households.tv_households AS TV Market Households',
                 'ecommerce_sales.quantity AS Total Quantity',
                 'ecommerce_sales.total AS Total Amount',
@@ -400,7 +401,7 @@ class EcommerceReportController extends Controller
             ];
         }
 
-        $selectRows = $this->addColumnToArray($selectRows, $orderType, 4, $affiliate);
+        $selectRows = $this->addColumnToArray($selectRows, $orderType, 5, $affiliate);
 
         if ($type === 'customer' && !in_array(self::$acesMarketingId, $affiliate)) {
             return array_merge($selectRows, [
@@ -417,10 +418,11 @@ class EcommerceReportController extends Controller
             'customers.customer_name AS Customer Name',
             'ecommerce_campaigns.campaign_name AS Campaign Name',
             'affiliates.affiliate_name AS Affiliate Name',
+            'affiliates.market AS Affiliate Market',
             'ecommerce_sales.shipping_state AS State',
             'ecommerce_sales.shipping_city AS City',
             'ecommerce_sales.shipping_zip AS Zip Code',
-            'zipcode_by_television_markets.market AS Market',
+            'zipcode_by_television_markets.market AS Customer Market',
             'zipcode_by_television_markets.state AS stateForFilter',
             't_v_households.tv_households AS TV Market Households',
             'ecommerce_sales.quantity AS Quantity',
@@ -434,7 +436,7 @@ class EcommerceReportController extends Controller
             $selectRows[] = DB::raw('ROUND(ecommerce_affiliates.consumerEXP_cash_buy_fee / sub.total_quantity, 2) AS "ConsumerEXP Fee"');
         }
 
-        return $this->addColumnToArray($selectRows, $orderType, 4, $affiliate);
+        return $this->addColumnToArray($selectRows, $orderType, 5, $affiliate);
     }
 
     protected function getReportSummary($reportFor, $type, $salesData, $summaryCampaigns)

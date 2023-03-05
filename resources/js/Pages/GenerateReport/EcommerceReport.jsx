@@ -472,10 +472,10 @@ const EcommerceReport = () => {
 
   return (
     <>
-      <Helmet title="E-Commerce - Phone Report" />
+      <Helmet title="Reports" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          E-Commerce - Phone Report
+          Reports
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
@@ -507,6 +507,22 @@ const EcommerceReport = () => {
                 </>
               </RadioGroup>
             </Grid>
+            {/* <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <MultiSelect
+                singleSelect
+                name="reportFor"
+                defaultValue={reportFor.reportFor}
+                onChange={(val) => reportForHandleChange(val)}
+                options={[
+                  { label: 'Detail Report', value: 'sales' },
+                  { label: 'Market Target', value: 'marketTarget' },
+                  { label: 'Summary Report', value: 'summary' },
+                  { label: 'Cash Buy', value: 'cash_buy' },
+                ]}
+                style={{ width: '100%' }}
+                placeholder="Select Report For"
+              />
+            </Grid> */}
             <Grid item xs={12} style={{ paddingTop: 0 }}>
               <Divider />
             </Grid>
