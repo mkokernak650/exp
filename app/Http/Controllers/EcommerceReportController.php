@@ -132,7 +132,6 @@ class EcommerceReportController extends Controller
 
     protected function queryReport($request)
     {
-        // dd($request->all());
         $couponCodes = $request->couponCodes;
         $dialed      = $request->dialed;
         $year        = $request->year;
@@ -198,27 +197,29 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.id')
-                    ->select($this->selectColumnSalesReport($type, $orderType, $affiliate))
+                    ->select($this->payPerOrderDetailReportColumns($type, $orderType, $affiliate))
                     ->orderBy('ecommerce_sales.order_at')
-            )
-            ->when(
-                ($reportFor === 'cashBuy' && $reportGenOn === 'detail'),
-                fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type)
             )
             ->when(
                 ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget'),
                 fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->whereNotNull('zipcode_by_television_markets.market')
                     ->groupBy('zipcode_by_television_markets.market')
-                    ->select($this->selectColumnMarketTargetReport())
+                    ->select($this->payPerOrderMarketTargetReportColumns())
                     ->orderBy('Homes Per Sales')
             )
             ->when(
                 ($reportFor === 'payPerOrder' && $reportGenOn === 'summary'),
                 fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
-                    ->select($this->selectColumnSummaryReport())
+                    ->select($this->payPerOrderSummaryReportColumns())
                     ->orderByDesc('Total Amount')
+            )
+            ->when(
+                ($reportFor === 'cashBuy' && $reportGenOn === 'detail'),
+                fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type)
             )
             ->get();
 
@@ -311,10 +312,11 @@ class EcommerceReportController extends Controller
         return $finalQuery;
     }
 
-    protected function selectColumnSummaryReport()
+    protected function payPerOrderSummaryReportColumns()
     {
         return [
             'affiliates.affiliate_name AS Affiliate Name',
+            'affiliates.market AS Affiliate Market',
             'ecommerce_sales.coupon_code AS Coupon Code',
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
@@ -324,7 +326,7 @@ class EcommerceReportController extends Controller
         ];
     }
 
-    protected function selectColumnMarketTargetReport()
+    protected function payPerOrderMarketTargetReportColumns()
     {
         return [
             'zipcode_by_television_markets.market AS Market',
@@ -360,7 +362,7 @@ class EcommerceReportController extends Controller
         return $array;
     }
 
-    protected function selectColumnSalesReport($type, $orderType, $affiliate)
+    protected function payPerOrderDetailReportColumns($type, $orderType, $affiliate)
     {
         if ($type === 'customer') {
             $column = 'revenue';
