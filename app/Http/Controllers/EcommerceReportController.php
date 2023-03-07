@@ -111,6 +111,10 @@ class EcommerceReportController extends Controller
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
+            if ($request->reportFor === 'cashBuy' && $request->reportOn === 'detail') {
+                $salesData = collect($salesData);
+            }
+
             $emailCriteria = $this->getEmailCriteria($request);
             $summary       = ['Summary' => ''] + $summary;
             $sendMailCtrl  = new SendMailController();
@@ -161,9 +165,9 @@ class EcommerceReportController extends Controller
             )
             ->when(($reportFor === 'payPerOrder' && $reportGenOn === 'detail'), fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
             ->when(($reportFor === 'payPerOrder' && $reportGenOn === 'detail'), fn ($q) => $q->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id'))
-            ->when(($reportFor != 'cashBuy'), fn ($q) => $q->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id'))
+            ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
-            ->when(($reportFor != 'cashBuy'), fn ($q) => $q->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market'))
+            ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
             ->when(!empty($request->campaign_id), fn ($q) => $q->whereIn('ecommerce_affiliates.campaign_id', $request->campaign_id))
             ->when(!empty($request->customer_id), fn ($q) => $q->whereIn('ecommerce_affiliates.customer_id', $request->customer_id))
             ->when(!empty($affiliate) && !in_array('allAffiliates', $affiliate), fn ($q) => $q->whereIn('ecommerce_affiliates.affiliate_id', $affiliate))
@@ -221,9 +225,25 @@ class EcommerceReportController extends Controller
                 ($reportFor === 'cashBuy' && $reportGenOn === 'detail'),
                 fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type)
             )
+            ->when(
+                ($reportFor === 'cashBuy' && $reportGenOn === 'marketTarget'),
+                fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
+                    ->whereNotNull('zipcode_by_television_markets.market')
+                    ->groupBy('zipcode_by_television_markets.market')
+                    ->select($this->cashBuyMarketTargetReportColumns())
+                // ->orderBy('Homes Per Sales')
+            )
+            ->when(
+                ($reportFor === 'cashBuy' && $reportGenOn === 'summary'),
+                fn ($q) => $q
+                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
+                    ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
+                    ->select($this->cashBuySummaryReportColumns())
+            )
             ->get();
 
-        if ($reportFor === 'cashBuy') {
+        if ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             if (!empty($markets) && !in_array('allMarkets', $markets)) {
                 $queryData = $queryData->whereIn('Market', $markets);
             }
@@ -326,6 +346,20 @@ class EcommerceReportController extends Controller
         ];
     }
 
+    protected function cashBuySummaryReportColumns()
+    {
+        return [
+            'affiliates.affiliate_name AS Affiliate Name',
+            'affiliates.market AS Affiliate Market',
+            'ecommerce_sales.coupon_code AS Coupon Code',
+            'ecommerce_sales.dialed AS Dialed',
+            DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+            // DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+            // DB::raw('ROUND(ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity), 2) AS `Total Fee`'),
+            // DB::raw('ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) AS `Net Amount`'),
+        ];
+    }
+
     protected function payPerOrderMarketTargetReportColumns()
     {
         return [
@@ -334,6 +368,17 @@ class EcommerceReportController extends Controller
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
             DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
+        ];
+    }
+
+    protected function cashBuyMarketTargetReportColumns()
+    {
+        return [
+            'zipcode_by_television_markets.market AS Market',
+            't_v_households.tv_households AS TV Households',
+            DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+            DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
+            // DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
         ];
     }
 

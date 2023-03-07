@@ -568,7 +568,7 @@ const EcommerceReport = () => {
                 placeholder="Select Report On"
               />
             </Grid>
-            <Grid item xs={12} style={{ paddingTop: 0 }}>
+            <Grid item xs={12} style={{ paddingTop: 0, marginBottom: -10 }}>
               <Divider />
             </Grid>
             {market.length < 1 && (
