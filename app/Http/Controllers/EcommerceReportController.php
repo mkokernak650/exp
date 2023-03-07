@@ -665,7 +665,8 @@ class EcommerceReportController extends Controller
 
     protected function getEmailCriteria($requestData)
     {
-        $reportOn         = ucwords(str_replace(['_', 'marketTarget'], [' ', 'Market Target'], $requestData->reportFor)) . ' Report';
+        // $reportOn         = str_replace(['payPerOrder', 'cashBuy'], ['Pay Per Order', 'Cash Buy'], $requestData->reportFor);
+        $reportOn         = ucwords(str_replace('marketTarget', 'Market Target', $requestData->reportOn)) . ' Report';
         $reportOrderType  = $requestData->orderType === 'both' ? 'E-Commerce & Phone' : ($requestData->orderType === '1' ? 'E-Commerce' : 'Phone');
         $reportOn        .= " <br> {$reportOrderType} {$reportOn}";
 
