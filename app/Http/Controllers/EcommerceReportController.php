@@ -354,9 +354,9 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.coupon_code AS Coupon Code',
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-            // DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-            // DB::raw('ROUND(ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity), 2) AS `Total Fee`'),
-            // DB::raw('ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) AS `Net Amount`'),
+            'ecommerce_affiliates.cash_buy AS Total Amount',
+            'ecommerce_affiliates.consumerEXP_cash_buy_fee AS Total Fee',
+            DB::raw('ecommerce_affiliates.cash_buy - ecommerce_affiliates.consumerEXP_cash_buy_fee AS "Net Amount"'),
         ];
     }
 
@@ -509,6 +509,8 @@ class EcommerceReportController extends Controller
             return $this->summarySummary($salesData);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             return $this->cashBuySummary($salesData, $type);
+        } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'summary') {
+            return $this->cashBuySummarySummary($salesData);
         }
         return [];
     }
@@ -659,6 +661,39 @@ class EcommerceReportController extends Controller
                 $summary['ConsumerEXP Fee']  = $ConsumerEXPFee;
             }
         }
+
+        return $summary;
+    }
+
+    protected function cashBuySummarySummary($salesData)
+    {
+        $summary          = [];
+        $phoneOrders      = 0;
+        $phonePayouts     = 0;
+        $ecommerceOrders  = 0;
+        $ecommercePayouts = 0;
+        $totalOrders      = 0;
+        $totalPayouts     = 0;
+
+        foreach ($salesData as $data) {
+            if (isset($data->{'Coupon Code'}) && $data->{'Coupon Code'} != "") {
+                $ecommerceOrders  += (int) $data->{'Total Quantity'};
+                $ecommercePayouts += $data->{'Total Amount'};
+            } elseif (isset($data->Dialed) && $data->Dialed != "") {
+                $phoneOrders  += (int) $data->{'Total Quantity'};
+                $phonePayouts += $data->{'Total Amount'};
+            }
+
+            $totalOrders  += $data->{'Total Quantity'};
+            $totalPayouts += $data->{'Total Amount'};
+        }
+
+        $summary['Phone Orders']       = $phoneOrders . ' (' . (($phoneOrders / $totalOrders) * 100) . '%)';
+        $summary['Phone Payouts']      = (string) $phonePayouts;
+        $summary['E-commerce Orders']  = $ecommerceOrders . ' (' . (($ecommerceOrders / $totalOrders) * 100) . '%)';
+        $summary['E-commerce Payouts'] = (string) $ecommercePayouts;
+        $summary['Total Orders']       = (string) $totalOrders;
+        $summary['Total Payouts']      = (string) $totalPayouts;
 
         return $summary;
     }
