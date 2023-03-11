@@ -223,15 +223,16 @@ class EcommerceReportController extends Controller
             )
             ->when(
                 ($reportFor === 'cashBuy' && $reportGenOn === 'detail'),
-                fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type)
+                fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type, $reportGenOn)
             )
             ->when(
                 ($reportFor === 'cashBuy' && $reportGenOn === 'marketTarget'),
-                fn ($q) => $q
-                    ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
-                    ->whereNotNull('zipcode_by_television_markets.market')
-                    ->groupBy('zipcode_by_television_markets.market')
-                    ->select($this->cashBuyMarketTargetReportColumns())
+                fn ($q) => $this->queryForCashBuy($q, $orderType, $affiliate, $type, $reportGenOn)
+                // $q
+                //     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 2)
+                //     ->whereNotNull('zipcode_by_television_markets.market')
+                //     ->groupBy('zipcode_by_television_markets.market')
+                //     ->select($this->cashBuyMarketTargetReportColumns())
                 // ->orderBy('Homes Per Sales')
             )
             ->when(
@@ -265,11 +266,36 @@ class EcommerceReportController extends Controller
 
             return [...$filteredQueryData];
         }
+        $market = $queryData->groupBy('Market')->map(function ($items, $key) {
+            // varDump($key);
+            // $tr = 0;
+            $totalQuantity = 0;
+            $totalRevenue  = 0;
+
+            foreach ($items as $item) {
+                $data = [
+                    'Market'          => $item->Market,
+                    'TV Households'   => $item->{'TV Households'},
+                    'Total Quantity'  => $totalQuantity += $item->{'Total Quantity'}
+                ];
+                $totalRevenue += $item->Quantity * $item->TR;
+            }
+            $data['Homes Per Sales'] = ($data['TV Households'] / $data['Total Quantity']);
+            $data['Total Revenue'] = $totalRevenue;
+            // varDump($data);
+            // varDump('end');
+            // varDump($items);
+            return $data;
+        });
+        dd($market);
+        return [...$market->values()];
+        dd([...$market->values()]);
+        dd($queryData->groupBy('Market'));
 
         return $queryData;
     }
 
-    protected function queryForCashBuy($q, $orderType, $affiliate, $type)
+    protected function queryForCashBuy($q, $orderType, $affiliate, $type, $reportGenOn)
     {
         if ($orderType === 'both') {
             $subQueryColumns = [
@@ -324,10 +350,12 @@ class EcommerceReportController extends Controller
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
             ->leftJoin('t_v_households', 't_v_households.market', '=', 'zipcode_by_television_markets.market')
-            ->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate, $type))
+            ->when($reportGenOn === 'detail', fn ($q) => $q->select($this->selectColumnSalesCashBuyReport($orderType, $affiliate, $type)))
+            ->when($reportGenOn === 'marketTarget', fn ($q) => $q->select($this->cashBuyMarketTargetReportColumns()))
             ->mergeBindings($subQuery)
-            ->orderBy('ecommerce_sales.order_at')
-            ->groupBy('ecommerce_sales.id');
+            ->when($reportGenOn === 'detail', fn ($q) => $q->orderBy('ecommerce_sales.order_at'))
+            ->when(true, fn ($q) => $q->groupBy('ecommerce_sales.id'));
+        // ->when($reportGenOn === 'marketTarget', fn ($q) => $q->groupBy('zipcode_by_television_markets.market'));
 
         return $finalQuery;
     }
@@ -378,6 +406,8 @@ class EcommerceReportController extends Controller
             't_v_households.tv_households AS TV Households',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
+            'ecommerce_sales.quantity AS Quantity',
+            DB::raw('SUM(ecommerce_affiliates.cash_buy / sub.total_quantity) AS TR'),
             // DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
         ];
     }
