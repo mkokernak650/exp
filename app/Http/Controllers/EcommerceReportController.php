@@ -58,6 +58,7 @@ class EcommerceReportController extends Controller
     public function ecommerceReportGenerate(Request $request)
     {
         $salesData = $this->queryReport($request);
+
         if (in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $aMarketingData = [];
             foreach ($salesData as $sale) {
@@ -91,6 +92,7 @@ class EcommerceReportController extends Controller
                 return $item;
             });
         }
+
         if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns);
 
@@ -111,7 +113,7 @@ class EcommerceReportController extends Controller
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
-            if ($request->reportFor === 'cashBuy' && $request->reportOn === 'detail') {
+            if ($request->reportFor === 'cashBuy' && $request->reportOn != 'summary') {
                 $salesData = collect($salesData);
             }
 
