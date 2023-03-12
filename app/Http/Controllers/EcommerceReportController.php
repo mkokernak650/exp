@@ -673,18 +673,21 @@ class EcommerceReportController extends Controller
                 $phonePayouts += $data->Payout * ((int) $data->Quantity);
             }
 
-            $summary['Phone Orders']       = $phoneOrders;
-            $summary['Phone Payouts']      = $phonePayouts;
-            $summary['E-commerce Orders']  = $ecommerceOrders;
-            $summary['E-commerce Payouts'] = $ecommercePayouts;
-
-            $cashBuy             += $data->Payout * ((int) $data->Quantity);
-            $summary['Cash Buy']  = $cashBuy;
+            $cashBuy += $data->Payout * ((int) $data->Quantity);
 
             if ($type === 'customer') {
-                $ConsumerEXPFee             += $data->{'ConsumerEXP Fee'} * ((int) $data->Quantity);
-                $summary['ConsumerEXP Fee']  = $ConsumerEXPFee;
+                $ConsumerEXPFee += $data->{'ConsumerEXP Fee'} * ((int) $data->Quantity);
             }
+        }
+
+        $summary['Phone Orders']       = $phoneOrders;
+        $summary['Phone Payouts']      = round($phonePayouts);
+        $summary['E-commerce Orders']  = $ecommerceOrders;
+        $summary['E-commerce Payouts'] = round($ecommercePayouts);
+        $summary['Cash Buy']           = round($cashBuy);
+
+        if ($type === 'customer') {
+            $summary['ConsumerEXP Fee'] = round($ConsumerEXPFee);
         }
 
         return $summary;
