@@ -532,6 +532,8 @@ class EcommerceReportController extends Controller
             return $this->summarySummary($salesData);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             return $this->cashBuySummary($salesData, $type);
+        } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'marketTarget') {
+            return $this->cashBuyMarketTargetSummary($salesData);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'summary') {
             return $this->cashBuySummarySummary($salesData);
         }
@@ -684,6 +686,23 @@ class EcommerceReportController extends Controller
                 $summary['ConsumerEXP Fee']  = $ConsumerEXPFee;
             }
         }
+
+        return $summary;
+    }
+
+    protected function cashBuyMarketTargetSummary($salesData)
+    {
+        $summary       = [];
+        $totalQuantity = 0;
+        $totalAmount   = 0;
+
+        foreach ($salesData as $data) {
+            $totalQuantity += $data['Total Quantity'];
+            $totalAmount   += $data['Total Revenue'];
+        }
+
+        $summary['Total Quantity'] = $totalQuantity;
+        $summary['Total Amount']   = round($totalAmount);
 
         return $summary;
     }
