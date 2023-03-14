@@ -40,14 +40,18 @@ class EcommerceReportController extends Controller
     public function selectionWiseData(Request $request)
     {
         try {
-            $selectionWiseData = EcommerceAffiliate::with('affiliate:id,affiliate_name,email')
+            $selectionWiseData = EcommerceAffiliate::with('affiliate:id,affiliate_name,email,market')
                 ->when($request->campaign_ids, fn ($q) => $q->whereIn('campaign_id', $request->campaign_ids))
                 ->when($request->customer_ids, fn ($q) => $q->whereIn('customer_id', $request->customer_ids))
                 ->get(['coupon_code', 'dialed', 'affiliate_id']);
 
             $couponCodes = array_filter($selectionWiseData->pluck('coupon_code')->unique()->toArray());
             $dialedPhones = array_filter($selectionWiseData->pluck('dialed')->unique()->toArray());
-            $affiliates = $selectionWiseData->map(fn ($item) => [$item?->affiliate?->id, $item?->affiliate?->affiliate_name, $item?->affiliate?->email])->unique()->toArray();
+            $affiliates = $selectionWiseData->map(fn ($item) => [
+                $item?->affiliate?->id,
+                $item?->affiliate?->affiliate_name . (!empty($item->affiliate->market) ? ' (' . $item?->affiliate?->market . ')' : ''),
+                $item?->affiliate?->email
+            ])->unique()->toArray();
 
             return response()->json(['success' => true, 'affiliates' => $affiliates, 'couponCodes' => $couponCodes, 'dialedPhones' => $dialedPhones]);
         } catch (\Throwable $th) {
