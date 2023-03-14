@@ -77,6 +77,9 @@ const EcommerceReport = () => {
     let months = new Date().getMonth()
     let day = new Date().getDate()
     let date = new Date(years + i, months, day).getFullYear()
+    if (!yearsArray.includes(new Date(years - 2, months, day).getFullYear())) {
+      yearsArray.push(new Date(years - 2, months, day).getFullYear())
+    }
     if (!yearsArray.includes(new Date(years - 1, months, day).getFullYear())) {
       yearsArray.push(new Date(years - 1, months, day).getFullYear())
     }
