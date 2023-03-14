@@ -19,6 +19,7 @@ class AffiliateController extends Controller
     public function addAffiliateForm()
     {
         $customMarkets = [
+            (object) ['market' => 'Third Party Provider'],
             (object) ['market' => 'Connected TV'],
             (object) ['market' => 'International'],
             (object) ['market' => 'Nationwide'],
@@ -109,6 +110,7 @@ class AffiliateController extends Controller
     public function affiliateReport()
     {
         $customMarkets = [
+            (object) ['market' => 'Third Party Provider'],
             (object) ['market' => 'Connected TV'],
             (object) ['market' => 'International'],
             (object) ['market' => 'Nationwide'],
@@ -130,6 +132,7 @@ class AffiliateController extends Controller
     public function archivedAffiliates()
     {
         $customMarkets = [
+            (object) ['market' => 'Third Party Provider'],
             (object) ['market' => 'Connected TV'],
             (object) ['market' => 'International'],
             (object) ['market' => 'Nationwide'],
