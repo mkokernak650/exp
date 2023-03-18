@@ -11,6 +11,7 @@ use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
 use App\Models\ZipcodeByTelevisionMarket;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -98,6 +99,10 @@ class EcommerceReportController extends Controller
         }
 
         if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
+            $header = $this->getHeader($request);
+        }
+
+        if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns);
 
             if (!empty($request->year)) {
@@ -131,10 +136,15 @@ class EcommerceReportController extends Controller
         }
 
         if (in_array(self::$acesMarketingId, $request->affiliate_id)) {
+            $header = [];
+        }
+
+        if (in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $summary = [];
         }
 
         return response()->json([
+            'header'  => $header,
             'data'    => $salesData,
             'summary' => $summary,
         ], 200);
@@ -801,5 +811,42 @@ class EcommerceReportController extends Controller
         }
 
         return $reportOn;
+    }
+
+    protected function getHeader($requestData)
+    {
+        $header = [];
+
+        if ($requestData->reportFor === 'payPerOrder' && $requestData->reportOn === 'summary') {
+            if (!empty($requestData->customer_id)) {
+                $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
+                $customers    = implode(', ', $getCustomers->toArray());
+
+                if (!empty($customers) && $requestData->type === "customer") {
+                    $header['Summary Report'] = $customers;
+                }
+            }
+
+            if (!empty($requestData->affiliate_id)) {
+                $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
+                $affiliates    = implode(', ', $getAffiliates->toArray());
+
+                if (!empty($affiliates) && $requestData->type === "affiliate") {
+                    $header['Summary Report'] = $affiliates;
+                }
+            }
+
+            if (empty($requestData->customer_id) && empty($requestData->affiliate_id)) {
+                $header['Summary Report'] = '';
+            }
+
+            $userFullName            = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+            $preparedTime            = Carbon::now('America/New_York')->format('F d, Y h:iA');
+            $header['Prepared by']   = $userFullName;
+            $header['ConsumerEXP']   = 'www.consumerexp.com';
+            $header['Prepared Time'] = $preparedTime;
+        }
+
+        return $header;
     }
 }

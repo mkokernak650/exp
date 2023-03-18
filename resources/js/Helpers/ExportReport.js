@@ -43,9 +43,28 @@ export const ExportReportWithTag = (apiData, fileName) => {
 }
 
 export const exportReportEcommerce = (apiData, fileName, reportOn) => {
-  const ws = XLSX.utils.json_to_sheet(apiData.data, fileName)
+  let mainDataOrigin, headerLength = 0
+
+  if (Object.keys(apiData.header).length) {
+    mainDataOrigin = `A${Object.keys(apiData.header).length + 2}`
+    headerLength = Object.keys(apiData.header).length
+  } else {
+    mainDataOrigin = 'A1'
+  }
+
+  const ws = XLSX.utils.json_to_sheet(apiData.data, { origin: mainDataOrigin })
+
+  if (apiData.header && Object.keys(apiData.header).length) {
+    const header = []
+    Object.keys(apiData.header).forEach(headerKey => {
+      header.push([headerKey, apiData.header[headerKey]])
+    })
+    XLSX.utils.sheet_add_aoa(ws, header)
+  }
+
+
   if (apiData?.summary && Object.keys(apiData.summary).length) {
-    const secondData = apiData.data.length + 5
+    const secondData = apiData.data.length + 5 + headerLength
     const summary = []
     summary.push(['Summary', ''])
     Object.keys(apiData.summary).forEach((cf) => {
