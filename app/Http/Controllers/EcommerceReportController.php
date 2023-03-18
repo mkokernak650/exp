@@ -63,6 +63,8 @@ class EcommerceReportController extends Controller
     public function ecommerceReportGenerate(Request $request)
     {
         $salesData = $this->queryReport($request);
+        $summary   = [];
+        $header    = [];
 
         if (in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $aMarketingData = [];
@@ -130,7 +132,7 @@ class EcommerceReportController extends Controller
             $summary       = ['Summary' => ''] + $summary;
             $sendMailCtrl  = new SendMailController();
 
-            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria);
+            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria, $header);
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }

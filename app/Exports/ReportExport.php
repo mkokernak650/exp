@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -8,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeSheet;
 
 class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAutoSize, WithEvents
 {
@@ -15,13 +17,15 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
     protected $headings;
     protected $callSummary;
     protected $tagData;
+    protected $header;
 
-    public function __construct($data, $callSummary, $tagData)
+    public function __construct($data, $callSummary, $tagData, $header)
     {
-        $this->headings = isset($data[0]) ? array_keys((array)$data[0]) : [];
-        $this->sheetData = $data;
+        $this->header      = $header;
+        $this->headings    = isset($data[0]) ? array_keys((array)$data[0]) : [];
+        $this->sheetData   = $data;
         $this->callSummary = $callSummary;
-        $this->tagData = $tagData;
+        $this->tagData     = $tagData;
     }
 
     public function collection()
@@ -40,25 +44,43 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
             return [];
         }
 
+        if (!empty($this->header)) {
+            $rowNo = count($this->header) + 2;
+        } else {
+            $rowNo = 1;
+        }
+
         return [
-            1 => ['font' => ['bold' => true, 'size' => 12]],
+            $rowNo => ['font' => ['bold' => true, 'size' => 12]],
         ];
     }
 
     public function registerEvents(): array
     {
-        return [
-            AfterSheet::class => function (AfterSheet $event) {
-                for ($i = 0; $i < 3; $i++) {
-                    $event->sheet->appendRows([[' ', ' ']], $event);
+        if (!empty($this->header)) {
+            $events[BeforeSheet::class] = function (BeforeSheet $event) {
+                foreach ($this->header as $key => $header) {
+                    $data[] = [$key, $header];
                 }
 
-                foreach ($this->callSummary as $key => $value) {
-                    $event->sheet->appendRows([[$key, (string)$value]], $event);
-                }
+                $data[] = [' ', ' '];
 
-                $event->sheet->getDelegate();
+                $event->sheet->getDelegate()->fromArray($data, null, 'A1', false, false);
+            };
+        }
+
+        $events[AfterSheet::class] = function (AfterSheet $event) {
+            for ($i = 0; $i < 3; $i++) {
+                $event->sheet->appendRows([[' ', ' ']], $event);
             }
-        ];
+
+            foreach ($this->callSummary as $key => $value) {
+                $event->sheet->appendRows([[$key, (string)$value]], $event);
+            }
+
+            $event->sheet->getDelegate();
+        };
+
+        return $events;
     }
 }
