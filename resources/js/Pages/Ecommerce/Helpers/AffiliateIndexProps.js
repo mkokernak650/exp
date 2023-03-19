@@ -188,6 +188,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'lengths',
+    title: 'Lengths',
+    dataType: DataType.String,
+    style: { width: 150 },
+    visible: true,
+  },
+  {
     key: 'revenue',
     title: 'Payout',
     dataType: DataType.String,

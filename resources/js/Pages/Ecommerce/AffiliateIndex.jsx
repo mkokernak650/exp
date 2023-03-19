@@ -32,6 +32,8 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
 import { columns, useStyles, fields, groups, filter } from './Helpers/AffiliateIndexProps'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const AffiliateIndex = () => {
   const defaultState = {
@@ -39,6 +41,7 @@ const AffiliateIndex = () => {
     order_type: '',
     coupon_code: '',
     dialed: '',
+    lengths: '',
     campaign_id: '',
     customer_id: '',
     affiliate_id: '',
@@ -106,6 +109,7 @@ const AffiliateIndex = () => {
             item.affiliate = affiliateName
             item.affiliate_id = editData.affiliate_id
             item.revenue = res.data.data.revenue
+            item.lengths = res.data.data.lengths
             item.affiliate_fee = res.data.data.affiliate_fee
             item.order_type = res.data.data.order_type
             item.coupon_code = res.data.data.coupon_code
@@ -183,6 +187,7 @@ const AffiliateIndex = () => {
         affiliate_fee_type: item?.affiliate_fee_type,
         coupon_code: item?.coupon_code,
         dialed: item?.dialed,
+        lengths: item?.lengths,
         revenue: item?.revenue,
         affiliate_fee: item?.affiliate_fee,
         percentage: item?.percentage,
@@ -242,6 +247,11 @@ const AffiliateIndex = () => {
       }
       if (column.key === 'created_at' || column.key === 'updated_at') {
         return DateTimeFormat(value)
+      }
+      if (column.key === 'lengths') {
+        if (value != null) {
+          return value.toString().replace(/,/g, ', ')
+        }
       }
     },
   }
@@ -350,6 +360,17 @@ const AffiliateIndex = () => {
 
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
+  }
+
+  const lengths = [':15', ':30', ':60', ':120', '28:30']
+
+  const lengthOptions = lengths.map((length) => ({
+    label: length,
+    value: length,
+  }))
+
+  const lengthHandleChange = (val) => {
+    setEditData((oldEditData) => ({ ...oldEditData, lengths: val }))
   }
 
   const getSearchingData = async (data) => {
@@ -631,6 +652,18 @@ const AffiliateIndex = () => {
                   />
                 </Grid>
               )}
+
+              <Grid item xs={12}>
+                <MultiSelect
+                  className='multiselect-for-affiliate-create'
+                  name="lengths"
+                  defaultValue={editData?.lengths}
+                  onChange={(val) => lengthHandleChange(val)}
+                  options={lengthOptions}
+                  style={{ width: '100%' }}
+                  placeholder="Select Length"
+                />
+              </Grid>
 
               <Grid item xs={12}>
                 <TextField
