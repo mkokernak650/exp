@@ -375,6 +375,7 @@ class EcommerceReportController extends Controller
         return [
             'affiliates.affiliate_name AS Affiliate Name',
             'affiliates.market AS Affiliate Market',
+            DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
             'ecommerce_sales.coupon_code AS Coupon Code',
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
