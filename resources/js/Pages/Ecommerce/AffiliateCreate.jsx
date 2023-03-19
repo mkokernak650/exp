@@ -7,6 +7,8 @@ import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import toast from 'react-hot-toast'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,6 +38,7 @@ const AffiliateCreate = () => {
     order_type: '',
     coupon_code: '',
     dialed: '',
+    lengths: '',
     campaign_id: '',
     customer_id: '',
     affiliate_id: '',
@@ -65,6 +68,17 @@ const AffiliateCreate = () => {
 
   const headers = {
     headers: { Accept: 'application/json' },
+  }
+
+  const lengths = [':15', ':30', ':60', ':120', '28:30']
+
+  const lengthOptions = lengths.map((length) => ({
+    label: length,
+    value: length,
+  }))
+
+  const lengthHandleChange = (val) => {
+    setValues((oldValues) => ({ ...oldValues, lengths: val }))
   }
 
   const handleSubmit = (e) => {
@@ -214,6 +228,18 @@ const AffiliateCreate = () => {
                   />
                 </Grid>
               ))}
+
+            <Grid item xs={12}>
+              <MultiSelect
+                className='multiselect-for-affiliate-create'
+                name="lengths"
+                defaultValue={values?.lengths}
+                onChange={(val) => lengthHandleChange(val)}
+                options={lengthOptions}
+                style={{ width: '100%' }}
+                placeholder="Select Length"
+              />
+            </Grid>
 
             <Grid item xs={12}>
               <TextField

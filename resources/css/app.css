@@ -1260,3 +1260,9 @@ div::-webkit-scrollbar-thumb {
     font-weight: bold;
     background-color: #ededed !important;
 }
+
+.multiselect-for-affiliate-create .msl{
+    border: none;
+    border-bottom: 1px solid #7a7a7a;
+    border-radius: 0%;
+}

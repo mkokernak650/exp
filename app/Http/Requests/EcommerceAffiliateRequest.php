@@ -32,6 +32,7 @@ class EcommerceAffiliateRequest extends FormRequest
             'order_type'                    => ['required', Rule::in(EcommerceSale::ORDER_TYPE)],
             'coupon_code'                   => ['max:255', Rule::requiredIf($this->input('order_type') == EcommerceSale::ORDER_TYPE['e-commerce'])],
             'dialed'                        => ['max:255', Rule::requiredIf($this->input('order_type') == EcommerceSale::ORDER_TYPE['phone'])],
+            'lengths'                       => ['nullable'],
             'cash_buy'                      => ['nullable', 'numeric', 'min:0'],
             'affiliate_fee_type'            => ['required', Rule::in(EcommerceSale::AFFILIATE_FEE_TYPE)],
             'consumerEXP_cash_buy_fee'      => ['nullable'],
