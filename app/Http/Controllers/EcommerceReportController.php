@@ -390,6 +390,7 @@ class EcommerceReportController extends Controller
         return [
             'affiliates.affiliate_name AS Affiliate Name',
             'affiliates.market AS Affiliate Market',
+            DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
             'ecommerce_sales.coupon_code AS Coupon Code',
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
@@ -759,9 +760,12 @@ class EcommerceReportController extends Controller
             $totalPayouts += $data->{'Total Amount'};
         }
 
-        $summary['Phone Orders']       = $phoneOrders . ' (' . round((($phoneOrders / $totalOrders) * 100), 2) . '%)';
+        $phoneOrdersPercentage         = $totalOrders != 0 ? (round((($phoneOrders / $totalOrders) * 100), 2)) : 0;
+        $ecommerceOrdersPercentage     = $totalOrders != 0 ? (round((($ecommerceOrders / $totalOrders) * 100), 2)) : 0;
+
+        $summary['Phone Orders']       = $phoneOrders . ' (' . $phoneOrdersPercentage . '%)';
         $summary['Phone Payouts']      = (string) $phonePayouts;
-        $summary['E-commerce Orders']  = $ecommerceOrders . ' (' . round((($ecommerceOrders / $totalOrders) * 100), 2) . '%)';
+        $summary['E-commerce Orders']  = $ecommerceOrders . ' (' . $ecommerceOrdersPercentage . '%)';
         $summary['E-commerce Payouts'] = (string) $ecommercePayouts;
         $summary['Total Orders']       = (string) $totalOrders;
         $summary['Total Payouts']      = (string) $totalPayouts;
@@ -820,7 +824,7 @@ class EcommerceReportController extends Controller
     {
         $header = [];
 
-        if ($requestData->reportFor === 'payPerOrder' && $requestData->reportOn === 'summary') {
+        if ($requestData->reportOn === 'summary') {
             if (!empty($requestData->customer_id)) {
                 $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
                 $customers    = implode(', ', $getCustomers->toArray());
