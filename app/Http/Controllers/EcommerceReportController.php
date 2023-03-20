@@ -822,7 +822,55 @@ class EcommerceReportController extends Controller
 
     protected function getHeader($requestData)
     {
-        $header = [];
+        $header       = [];
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
+
+        if ($requestData->reportOn === 'detail') {
+            $header = [
+                'Detail Report' => '',
+                'Criteria'      => ''
+            ];
+
+            if (!empty($requestData->customer_id)) {
+                $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
+                $customers    = implode(', ', $getCustomers->toArray());
+
+                if (!empty($customers)) {
+                    $header['Criteria'] = $customers;
+                }
+            }
+
+            if (!empty($requestData->campaign_id)) {
+                if (!empty($header['Criteria'])) {
+                    $header['Criteria'] .= ', ';
+                }
+
+                $getCampaigns = EcommerceCampaign::toBase()->whereIn('id', $requestData->campaign_id)->pluck('campaign_name');
+                $campaigns    = implode(', ', $getCampaigns->toArray());
+
+                if (!empty($campaigns)) {
+                    $header['Criteria'] .= $campaigns;
+                }
+            }
+
+            if (!empty($requestData->affiliate_id)) {
+                if (!empty($header['Criteria'])) {
+                    $header['Criteria'] .= ', ';
+                }
+
+                $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
+                $affiliates    = implode(', ', $getAffiliates->toArray());
+
+                if (!empty($affiliates)) {
+                    $header['Criteria'] .= $affiliates;
+                }
+            }
+
+            $header['Prepared by'] = $userFullName;
+            $header['Prepared on'] = $preparedTime;
+            $header['ConsumerEXP'] = 'www.consumerexp.com';
+        }
 
         if ($requestData->reportOn === 'summary') {
             $header['Summary Report'] = '';
@@ -843,8 +891,6 @@ class EcommerceReportController extends Controller
                 }
             }
 
-            $userFullName            = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-            $preparedTime            = Carbon::now('America/New_York')->format('F d, Y h:iA');
             $header['Prepared by']   = $userFullName;
             $header['ConsumerEXP']   = 'www.consumerexp.com';
             $header['Prepared Time'] = $preparedTime;
