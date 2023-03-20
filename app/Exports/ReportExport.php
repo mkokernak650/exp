@@ -65,7 +65,7 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
 
                 $data[] = [' ', ' '];
 
-                $event->sheet->getDelegate()->fromArray($data, null, 'A1', false, false);
+                $event->sheet->getDelegate()->fromArray($data, null, 'A1', false);
             };
         }
 

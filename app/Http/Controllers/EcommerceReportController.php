@@ -825,26 +825,22 @@ class EcommerceReportController extends Controller
         $header = [];
 
         if ($requestData->reportOn === 'summary') {
-            if (!empty($requestData->customer_id)) {
+            $header['Summary Report'] = '';
+
+            if ($requestData->type === "customer" && !empty($requestData->customer_id)) {
                 $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
                 $customers    = implode(', ', $getCustomers->toArray());
 
-                if (!empty($customers) && $requestData->type === "customer") {
+                if (!empty($customers)) {
                     $header['Summary Report'] = $customers;
                 }
-            }
-
-            if (!empty($requestData->affiliate_id)) {
+            } elseif ($requestData->type === "affiliate" && !empty($requestData->affiliate_id)) {
                 $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
                 $affiliates    = implode(', ', $getAffiliates->toArray());
 
-                if (!empty($affiliates) && $requestData->type === "affiliate") {
+                if (!empty($affiliates)) {
                     $header['Summary Report'] = $affiliates;
                 }
-            }
-
-            if (empty($requestData->customer_id) && empty($requestData->affiliate_id)) {
-                $header['Summary Report'] = '';
             }
 
             $userFullName            = auth()->user()->firstname . ' ' . auth()->user()->lastname;
