@@ -578,30 +578,52 @@ class EcommerceReportController extends Controller
     protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
-            $summary = [];
-            $i = 1;
+            $summary       = [];
             $totalQuantity = 0;
-            $totalAmount = 0;
-            $netAmount = 0;
-            $totalFee = 0;
+            $totalCoupons  = 0;
+            $totalPhones   = 0;
+            $totalOrders   = 0;
+            $totalAmount   = 0;
+            $netAmount     = 0;
+            $totalFee      = 0;
 
             foreach ($salesData as $data) {
                 if ($summaryCampaign == $data->{'Campaign Name'}) {
-                    $totalQuantity += $data->{'Total Quantity'};
-                    $totalAmount += $data->{'Total Amount'};
-                    $netAmount += $data->{'Net Amount'};
-                    $totalFee += $data->{'Total Fee'};
+                    if (!empty($data->{'Coupon Code'})) {
+                        $totalCoupons += (int) $data->{'Total Quantity'};
+                    }
 
-                    $summary["{$summaryCampaign} Total Order"] = $i++;
-                    $summary["{$summaryCampaign} Total Quantity"] = $totalQuantity;
-                    $summary["{$summaryCampaign} Total Amount"] = $totalAmount;
-                    $summary["{$summaryCampaign} Total Fee"] = $totalFee;
-                    $summary["{$summaryCampaign} Net Amount"] = $netAmount;
-                    $summary[''] = '';
+                    if (!empty($data->{'Dialed'})) {
+                        $totalPhones += (int) $data->{'Total Quantity'};
+                    }
+
+                    $totalQuantity += $data->{'Total Quantity'};
+                    $totalAmount   += $data->{'Total Amount'};
+                    $netAmount     += $data->{'Net Amount'};
+                    $totalFee      += $data->{'Total Fee'};
+                    $totalOrders   += (int) $data->{'Total Quantity'};
                 }
             }
+
+            $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
+            $phoneOrdersPercentage   = $totalOrders != 0 ? (round((($totalPhones / $totalOrders) * 100), 2)) : 0;
+            $totalFeePercentage      = $totalAmount != 0 ? (round((($totalFee / $totalAmount) * 100), 2)) : 0;
+            $netAmountPercentage     = $totalAmount != 0 ? (round((($netAmount / $totalAmount) * 100), 2)) : 0;
+            $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
+            $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
+
+
+            $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+            $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+            $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+            $summary["{$summaryCampaign} Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
+            $summary["{$summaryCampaign} Total Fee"]          = round($totalFee, 2) . " ({$totalFeePercentage}%)";
+            $summary["{$summaryCampaign} Net Amount"]         = round($netAmount, 2) . " ({$netAmountPercentage}%)";
+            $summary[' ']                                     = ' ';
+
             $allSummary[] = $summary;
         }
+
         $campaignSeparatedSummary = array_merge(...$allSummary);
 
         return $campaignSeparatedSummary;
