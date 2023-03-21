@@ -564,14 +564,46 @@ class EcommerceReportController extends Controller
 
     protected function customerSummary($salesData)
     {
-        $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Total Fee' => 0, 'Net Amount' => 0];
+        $summary       = [];
+        $totalCoupons  = 0;
+        $totalPhones   = 0;
+        $totalOrders   = 0;
+        $totalQuantity = 0;
+        $totalAmount   = 0;
+        $totalFee      = 0;
+        $netAmount     = 0;
 
-        $salesData->each(function ($item) use (&$summary) {
-            $summary['Total Quantity'] += $item->{'Total Quantity'};
-            $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Net Amount'] += $item->{'Net Amount'};
-            $summary['Total Fee'] += $item->{'Total Fee'};
-        });
+        foreach ($salesData as $data) {
+            if (!empty($data->{'Coupon Code'})) {
+                $totalCoupons += (int) $data->{'Total Quantity'};
+            }
+
+            if (!empty($data->{'Dialed'})) {
+                $totalPhones += (int) $data->{'Total Quantity'};
+            }
+
+            $totalQuantity += $data->{'Total Quantity'};
+            $totalAmount   += $data->{'Total Amount'};
+            $netAmount     += $data->{'Net Amount'};
+            $totalFee      += $data->{'Total Fee'};
+            $totalOrders   += (int) $data->{'Total Quantity'};
+        }
+
+        $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
+        $phoneOrdersPercentage   = $totalOrders != 0 ? (round((($totalPhones / $totalOrders) * 100), 2)) : 0;
+        $totalFeePercentage      = $totalAmount != 0 ? (round((($totalFee / $totalAmount) * 100), 2)) : 0;
+        $netAmountPercentage     = $totalAmount != 0 ? (round((($netAmount / $totalAmount) * 100), 2)) : 0;
+        $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
+        $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
+
+
+        $summary['Total Coupon']       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+        $summary['Total Phone']        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+        $summary['Total Quantity']     = "{$totalQuantity} {$totalQuantityPercentage}";
+        $summary['Total Sales Amount'] = round($totalAmount, 2) . $totalAmountPercentage;
+        $summary['Total Fee']          = round($totalFee, 2) . " ({$totalFeePercentage}%)";
+        $summary['Net Amount']         = round($netAmount, 2) . " ({$netAmountPercentage}%)";
+
         return $summary;
     }
 
