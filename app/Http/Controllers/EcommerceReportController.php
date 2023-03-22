@@ -88,18 +88,6 @@ class EcommerceReportController extends Controller
             $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
         }
 
-        if ($request->reportFor === 'payPerOrder' && $request->reportOn === 'marketTarget') {
-            $salesData->transform(function ($item) {
-                if (isset($item->{'TV Households'})) {
-                    $item->{'TV Households'} = number_format($item->{'TV Households'}, 0, '.', ',');
-                }
-                if (isset($item->{'Homes Per Sales'})) {
-                    $item->{'Homes Per Sales'} = number_format($item->{'Homes Per Sales'}, 0, '.', ',');
-                }
-                return $item;
-            });
-        }
-
         if (!in_array(self::$acesMarketingId, $request->affiliate_id)) {
             $header = $this->getHeader($request);
         }
@@ -115,6 +103,22 @@ class EcommerceReportController extends Controller
                 $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
                 $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
             }
+        }
+
+        if ($request->reportFor === 'payPerOrder' && $request->reportOn === 'marketTarget') {
+            $salesData->transform(function ($item) {
+                if (isset($item->{'TV Households'})) {
+                    $item->{'TV Households'} = number_format($item->{'TV Households'}, 0, '.', ',');
+                }
+
+                if (isset($item->{'Homes Per Sales'})) {
+                    $item->{'Homes Per Sales'} = number_format($item->{'Homes Per Sales'}, 0, '.', ',');
+                }
+
+                unset($item->TotalFees);
+
+                return $item;
+            });
         }
 
         if ($request->report_type === 'email-report') {
@@ -408,6 +412,7 @@ class EcommerceReportController extends Controller
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
             DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
+            DB::raw('ROUND(ecommerce_affiliates.affiliate_fee * ecommerce_sales.quantity, 2) AS `TotalFees`'),
         ];
     }
 
@@ -752,11 +757,14 @@ class EcommerceReportController extends Controller
 
     protected function marketTargetSummary($salesData)
     {
-        $summary = ['Total Quantity' => 0, 'Total Amount' => 0];
+        $summary = ['Total Quantity' => 0, 'Total Revenue' => 0, 'Total Fees' => 0];
+
         $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
-            $summary['Total Amount'] += $item->{'Total Revenue'};
+            $summary['Total Revenue']  += $item->{'Total Revenue'};
+            $summary['Total Fees']     += $item->{'TotalFees'};
         });
+
         return $summary;
     }
 
