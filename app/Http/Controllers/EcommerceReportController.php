@@ -254,7 +254,7 @@ class EcommerceReportController extends Controller
 
         if ($reportFor === 'cashBuy' && $reportGenOn != 'summary') {
             if (!empty($markets) && !in_array('allMarkets', $markets)) {
-                $queryData = $queryData->whereIn(($reportGenOn === 'detail' ? 'Customer Market' : 'Market'), $markets);
+                $queryData = $queryData->whereIn('Customer Market', $markets);
             }
 
             if (!empty($states) && !in_array('allStates', $states)) {
@@ -268,13 +268,13 @@ class EcommerceReportController extends Controller
             }
 
             if ($reportGenOn === 'marketTarget') {
-                $marketTargetQuery = $queryData->groupBy('Market')->map(function ($items) {
+                $marketTargetQuery = $queryData->groupBy('Customer Market')->map(function ($items) {
                     $totalQuantity = 0;
                     $totalRevenue  = 0;
 
                     foreach ($items as $item) {
                         $data = [
-                            'Market'         => $item->Market,
+                            'Market'         => $item->{'Customer Market'},
                             'TV Households'  => number_format($item->{'TV Households'}, 0, '.', ','),
                             'Total Quantity' => $totalQuantity += $item->{'Total Quantity'}
                         ];
@@ -403,7 +403,7 @@ class EcommerceReportController extends Controller
     protected function payPerOrderMarketTargetReportColumns()
     {
         return [
-            'zipcode_by_television_markets.market AS Market',
+            'zipcode_by_television_markets.market AS Customer Market',
             't_v_households.tv_households AS TV Households',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
@@ -414,7 +414,7 @@ class EcommerceReportController extends Controller
     protected function cashBuyMarketTargetReportColumns()
     {
         return [
-            'zipcode_by_television_markets.market AS Market',
+            'zipcode_by_television_markets.market AS Customer Market',
             't_v_households.tv_households AS TV Households',
             'ecommerce_sales.quantity AS Quantity',
             'zipcode_by_television_markets.state AS stateForFilter',
