@@ -812,14 +812,18 @@ class EcommerceReportController extends Controller
             }
         }
 
-        $summary['Phone Orders']       = $phoneOrders;
-        $summary['Phone Payouts']      = round($phonePayouts);
-        $summary['E-commerce Orders']  = $ecommerceOrders;
-        $summary['E-commerce Payouts'] = round($ecommercePayouts);
-        $summary['Cash Buy']           = round($cashBuy);
+        $phonePayoutsPercentage     = round($cashBuy) != 0 ? (round((($phonePayouts) / round($cashBuy) * 100), 2)) : 0;
+        $ecommercePayoutsPercentage = round($cashBuy) != 0 ? (round((($ecommercePayouts) / round($cashBuy) * 100), 2)) : 0;
+        $cashBuyPercentage          = round($cashBuy) != 0 ? '(100%)' : '(0%)';
+
+        $summary['Phone Orders']       = (string) $phoneOrders;
+        $summary['Phone Payouts']      = round($phonePayouts) . " ({$phonePayoutsPercentage}%)";
+        $summary['E-commerce Orders']  = (string) $ecommerceOrders;
+        $summary['E-commerce Payouts'] = round($ecommercePayouts) . " ({$ecommercePayoutsPercentage}%)";
+        $summary['Cash Buy']           = round($cashBuy) . " {$cashBuyPercentage}";
 
         if ($type === 'customer') {
-            $summary['ConsumerEXP Fee'] = round($ConsumerEXPFee);
+            $summary['ConsumerEXP Fee'] = (string) round($ConsumerEXPFee);
         }
 
         return $summary;
