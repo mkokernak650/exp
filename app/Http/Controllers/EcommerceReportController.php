@@ -663,39 +663,88 @@ class EcommerceReportController extends Controller
 
     protected function affiliateSummary($salesData)
     {
-        $summary = ['Total Order' => $salesData->count(), 'Total Quantity' => 0, 'Total Amount' => 0, 'Affiliate Fee' => 0];
-        $salesData->each(function ($item) use (&$summary) {
-            $summary['Total Quantity'] += $item->{'Total Quantity'};
-            $summary['Total Amount'] += $item->{'Total Amount'};
-            $summary['Affiliate Fee'] += $item->{'Affiliate Fee'};
-        });
+        $summary       = [];
+        $totalQuantity = 0;
+        $totalCoupons  = 0;
+        $totalPhones   = 0;
+        $totalOrders   = 0;
+        $totalAmount   = 0;
+        $affiliateFee  = 0;
+
+        foreach ($salesData as $data) {
+            if (!empty($data->{'Coupon Code'})) {
+                $totalCoupons += (int) $data->{'Total Quantity'};
+            }
+
+            if (!empty($data->{'Dialed'})) {
+                $totalPhones += (int) $data->{'Total Quantity'};
+            }
+
+            $totalQuantity += $data->{'Total Quantity'};
+            $totalAmount   += $data->{'Total Amount'};
+            $affiliateFee  += $data->{'Affiliate Fee'};
+            $totalOrders   += $data->{'Total Quantity'};
+        }
+
+        $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
+        $phoneOrdersPercentage   = $totalOrders != 0 ? (round((($totalPhones / $totalOrders) * 100), 2)) : 0;
+        $affiliateFeePercentage  = $totalAmount != 0 ? (round((($affiliateFee / $totalAmount) * 100), 2)) : 0;
+        $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
+        $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
+
+        $summary["Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+        $summary["Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+        $summary["Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+        $summary["Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
+        $summary["Affiliate Fee"]      = round($affiliateFee, 2) . " ({$affiliateFeePercentage}%)";
+
         return $summary;
     }
 
     protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
-            $summary = [];
-            $i = 1;
+            $summary       = [];
             $totalQuantity = 0;
-            $totalAmount = 0;
-            $AffiliateFee = 0;
+            $totalCoupons  = 0;
+            $totalPhones   = 0;
+            $totalOrders   = 0;
+            $totalAmount   = 0;
+            $affiliateFee  = 0;
 
             foreach ($salesData as $data) {
                 if ($summaryCampaign == $data->{'Campaign Name'}) {
-                    $totalQuantity += $data->{'Total Quantity'};
-                    $totalAmount += $data->{'Total Amount'};
-                    $AffiliateFee += $data->{'Affiliate Fee'};
+                    if (!empty($data->{'Coupon Code'})) {
+                        $totalCoupons += (int) $data->{'Total Quantity'};
+                    }
 
-                    $summary["{$summaryCampaign} Total Order"] = $i++;
-                    $summary["{$summaryCampaign} Total Quantity"] = $totalQuantity;
-                    $summary["{$summaryCampaign} Total Amount"] = $totalAmount;
-                    $summary["{$summaryCampaign} Affiliate Fee"] = $AffiliateFee;
-                    $summary[''] = '';
+                    if (!empty($data->{'Dialed'})) {
+                        $totalPhones += (int) $data->{'Total Quantity'};
+                    }
+
+                    $totalQuantity += $data->{'Total Quantity'};
+                    $totalAmount   += $data->{'Total Amount'};
+                    $affiliateFee  += $data->{'Affiliate Fee'};
+                    $totalOrders   += $data->{'Total Quantity'};
                 }
             }
+
+            $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
+            $phoneOrdersPercentage   = $totalOrders != 0 ? (round((($totalPhones / $totalOrders) * 100), 2)) : 0;
+            $affiliateFeePercentage  = $totalAmount != 0 ? (round((($affiliateFee / $totalAmount) * 100), 2)) : 0;
+            $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
+            $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
+
+            $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+            $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+            $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+            $summary["{$summaryCampaign} Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
+            $summary["{$summaryCampaign} Affiliate Fee"]      = round($affiliateFee, 2) . " ({$affiliateFeePercentage}%)";
+            $summary[' ']                                     = ' ';
+
             $allSummary[] = $summary;
         }
+
         $campaignSeparatedSummary = array_merge(...$allSummary);
 
         return $campaignSeparatedSummary;
