@@ -943,45 +943,49 @@ class EcommerceReportController extends Controller
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
         $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
 
+        if (!empty($requestData->campaign_id)) {
+            $getCampaigns = EcommerceCampaign::toBase()->whereIn('id', $requestData->campaign_id)->pluck('campaign_name');
+            $campaigns    = implode(', ', $getCampaigns->toArray());
+        } else {
+            $campaigns = '';
+        }
+
+        if (!empty($requestData->customer_id)) {
+            $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
+            $customers    = implode(', ', $getCustomers->toArray());
+        } else {
+            $customers = '';
+        }
+
+        if (!empty($requestData->affiliate_id)) {
+            $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
+            $affiliates    = implode(', ', $getAffiliates->toArray());
+        } else {
+            $affiliates = '';
+        }
+
         if ($requestData->reportOn === 'detail') {
             $header = [
                 'Detail Report' => '',
                 'Criteria'      => ''
             ];
 
-            if (!empty($requestData->customer_id)) {
-                $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
-                $customers    = implode(', ', $getCustomers->toArray());
-
-                if (!empty($customers)) {
-                    $header['Criteria'] = $customers;
-                }
+            if (!empty($customers)) {
+                $header['Criteria'] = $customers;
             }
 
-            if (!empty($requestData->campaign_id)) {
+            if (!empty($campaigns)) {
                 if (!empty($header['Criteria'])) {
                     $header['Criteria'] .= ', ';
                 }
-
-                $getCampaigns = EcommerceCampaign::toBase()->whereIn('id', $requestData->campaign_id)->pluck('campaign_name');
-                $campaigns    = implode(', ', $getCampaigns->toArray());
-
-                if (!empty($campaigns)) {
-                    $header['Criteria'] .= $campaigns;
-                }
+                $header['Criteria'] .= $campaigns;
             }
 
-            if (!empty($requestData->affiliate_id)) {
+            if (!empty($affiliates)) {
                 if (!empty($header['Criteria'])) {
                     $header['Criteria'] .= ', ';
                 }
-
-                $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
-                $affiliates    = implode(', ', $getAffiliates->toArray());
-
-                if (!empty($affiliates)) {
-                    $header['Criteria'] .= $affiliates;
-                }
+                $header['Criteria'] .= $affiliates;
             }
 
             $header['Prepared by'] = $userFullName;
@@ -992,25 +996,23 @@ class EcommerceReportController extends Controller
         if ($requestData->reportOn === 'summary') {
             $header['Summary Report'] = '';
 
-            if ($requestData->type === "customer" && !empty($requestData->customer_id)) {
-                $getCustomers = Customer::Tobase()->whereIn('id', $requestData->customer_id)->pluck('customer_name');
-                $customers    = implode(', ', $getCustomers->toArray());
-
-                if (!empty($customers)) {
-                    $header['Summary Report'] = $customers;
-                }
-            } elseif ($requestData->type === "affiliate" && !empty($requestData->affiliate_id)) {
-                $getAffiliates = Affiliate::toBase()->whereIn('id', $requestData->affiliate_id)->pluck('affiliate_name');
-                $affiliates    = implode(', ', $getAffiliates->toArray());
-
-                if (!empty($affiliates)) {
-                    $header['Summary Report'] = $affiliates;
-                }
+            if ($requestData->type === "customer" && !empty($customers)) {
+                $header['Summary Report'] = $customers;
+            } elseif ($requestData->type === "affiliate" && !empty($affiliates)) {
+                $header['Summary Report'] = $affiliates;
             }
 
             $header['Prepared by']   = $userFullName;
             $header['ConsumerEXP']   = 'www.consumerexp.com';
             $header['Prepared Time'] = $preparedTime;
+        }
+
+        if ($requestData->reportOn === 'marketTarget') {
+            $header['Market Target Report'] = '';
+            $header['Campaign']             = $campaigns;
+            $header['Prepared by']          = $userFullName;
+            $header['ConsumerEXP']          = 'www.consumerexp.com';
+            $header['Prepared Date']        = $preparedTime;
         }
 
         return $header;
