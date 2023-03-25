@@ -436,7 +436,7 @@ const EcommerceReport = () => {
   } else if (reportOn.reportOn === 'summary') {
     reportName = 'Summary Report'
   } else {
-    reportName = 'Report'
+    reportName = 'Detail Report'
   }
 
   const fileName = `${reportName}${reportType.type === 'customer'
