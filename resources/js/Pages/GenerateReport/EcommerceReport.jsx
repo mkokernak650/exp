@@ -429,7 +429,17 @@ const EcommerceReport = () => {
     return format_date
   }
 
-  const fileName = `Report${reportType.type === 'customer'
+  let reportName
+
+  if (reportOn.reportOn === 'marketTarget') {
+    reportName = 'Market Report'
+  } else if (reportOn.reportOn === 'summary') {
+    reportName = 'Summary Report'
+  } else {
+    reportName = 'Report'
+  }
+
+  const fileName = `${reportName}${reportType.type === 'customer'
     ? values?.customer_id
       ? `_For_(${getCustomerNames().toString()})`
       : ''
