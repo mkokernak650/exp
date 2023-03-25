@@ -237,7 +237,7 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
-                    ->select($this->payPerOrderSummaryReportColumns())
+                    ->select($this->payPerOrderSummaryReportColumns($type))
                     ->orderByDesc('Total Amount')
             )
             ->when(
@@ -371,9 +371,17 @@ class EcommerceReportController extends Controller
         return $finalQuery;
     }
 
-    protected function payPerOrderSummaryReportColumns()
+    protected function payPerOrderSummaryReportColumns($type)
     {
-        return [
+        if ($type === 'customer') {
+            $column = 'revenue';
+            $alias = 'Total Fee';
+        } else {
+            $column = 'affiliate_fee';
+            $alias = 'Affiliate Fee';
+        }
+
+        $columns = [
             'affiliates.affiliate_name AS Affiliate Name',
             'affiliates.market AS Affiliate Market',
             DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
@@ -381,9 +389,14 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-            DB::raw('ROUND(ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity), 2) AS `Total Fee`'),
-            DB::raw('ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) AS `Net Amount`'),
+            DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) AS `' . $alias . '`'),
         ];
+
+        if ($type === 'customer') {
+            $columns[] = DB::raw('ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) AS `Net Amount`');
+        }
+
+        return $columns;
     }
 
     protected function cashBuySummaryReportColumns()
@@ -552,7 +565,7 @@ class EcommerceReportController extends Controller
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget') {
             return $this->marketTargetSummary($salesData);
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'summary') {
-            return $this->summarySummary($salesData);
+            return $this->summarySummary($salesData, $type);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             return $this->cashBuySummary($salesData, $type);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'marketTarget') {
@@ -763,28 +776,50 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
-    protected function summarySummary($salesData)
+    protected function summarySummary($salesData, $type)
     {
+        $totalCouponsSales = 0;
+        $totalCoupons      = 0;
+        $totalPhonesSales  = 0;
+        $totalPhones       = 0;
+        $totalFee          = 0;
+        $affiliateFee      = 0;
+        $netAmount         = 0;
+
+        foreach ($salesData as $data) {
+            if (!empty($data->{'Coupon Code'})) {
+                $totalCouponsSales += $data->{'Total Amount'};
+                $totalCoupons      += $data->{'Total Quantity'};
+            }
+
+            if (!empty($data->{'Dialed'})) {
+                $totalPhonesSales += $data->{'Total Amount'};
+                $totalPhones      += $data->{'Total Quantity'};
+            }
+
+            if ($type === 'customer') {
+                $totalFee  += $data->{'Total Fee'};
+                $netAmount += $data->{'Net Amount'};
+            } else {
+                $affiliateFee += $data->{'Affiliate Fee'};
+            }
+        }
+
         $summary = [
-            'Total Coupon Sales' => 0, 'Total Coupon Sales Count' => 0, 'Total Phone Sales' => 0, 'Total Phone Sales Count' => 0,
-            'Total Coupon & Phone' => 0, 'Total Coupon & Phone Sales' => 0, 'Total Fee' => 0, 'Net Amount' => 0
+            'Total Coupon Sales'         => $totalCouponsSales,
+            'Total Coupon Sales Count'   => $totalCoupons,
+            'Total Phone Sales'          => $totalPhonesSales,
+            'Total Phone Sales Count'    => $totalPhones,
+            'Total Coupon & Phone'       => ($totalCoupons + $totalPhones),
+            'Total Coupon & Phone Sales' => ($totalCouponsSales + $totalPhonesSales),
         ];
 
-        $salesData->each(function ($item) use (&$summary) {
-            if (!empty($item->{'Coupon Code'})) {
-                $summary['Total Coupon Sales'] += $item->{'Total Amount'};
-                $summary['Total Coupon Sales Count'] += $item->{'Total Quantity'};
-            }
-            if (!empty($item->{'Dialed'})) {
-                $summary['Total Phone Sales'] += $item->{'Total Amount'};
-                $summary['Total Phone Sales Count'] += $item->{'Total Quantity'};
-            }
-            $summary['Total Fee'] += $item->{'Total Fee'};
-            $summary['Net Amount'] += $item->{'Net Amount'};
-        });
-
-        $summary['Total Coupon & Phone']       = $summary['Total Coupon Sales Count'] + $summary['Total Phone Sales Count'];
-        $summary['Total Coupon & Phone Sales'] = $summary['Total Coupon Sales'] + $summary['Total Phone Sales'];
+        if ($type === 'customer') {
+            $summary['Total Fee']  = $totalFee;
+            $summary['Net Amount'] = $netAmount;
+        } else {
+            $summary['Affiliate Fee'] = $affiliateFee;
+        }
 
         return $summary;
     }
