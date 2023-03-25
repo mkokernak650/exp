@@ -114,9 +114,6 @@ class EcommerceReportController extends Controller
                 if (isset($item->{'Homes Per Sales'})) {
                     $item->{'Homes Per Sales'} = number_format($item->{'Homes Per Sales'}, 0, '.', ',');
                 }
-
-                unset($item->TotalFees);
-
                 return $item;
             });
         }
@@ -412,7 +409,6 @@ class EcommerceReportController extends Controller
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
             DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
-            DB::raw('ROUND(ecommerce_affiliates.affiliate_fee * ecommerce_sales.quantity, 2) AS `TotalFees`'),
         ];
     }
 
@@ -757,12 +753,11 @@ class EcommerceReportController extends Controller
 
     protected function marketTargetSummary($salesData)
     {
-        $summary = ['Total Quantity' => 0, 'Total Revenue' => 0, 'Total Fees' => 0];
+        $summary = ['Total Quantity' => 0, 'Total Revenue' => 0];
 
         $salesData->each(function ($item) use (&$summary) {
             $summary['Total Quantity'] += $item->{'Total Quantity'};
             $summary['Total Revenue']  += $item->{'Total Revenue'};
-            $summary['Total Fees']     += $item->{'TotalFees'};
         });
 
         return $summary;
