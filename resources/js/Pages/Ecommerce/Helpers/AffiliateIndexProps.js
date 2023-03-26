@@ -174,6 +174,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'product_code',
+    title: 'Product Code',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
     key: 'coupon_code',
     title: 'Coupon Code',
     dataType: DataType.String,

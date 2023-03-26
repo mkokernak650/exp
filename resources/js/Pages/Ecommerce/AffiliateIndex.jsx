@@ -42,6 +42,7 @@ const AffiliateIndex = () => {
     coupon_code: '',
     dialed: '',
     lengths: '',
+    product_code: '',
     campaign_id: '',
     customer_id: '',
     affiliate_id: '',
@@ -108,6 +109,7 @@ const AffiliateIndex = () => {
             item.customer_id = editData.customer_id
             item.affiliate = affiliateName
             item.affiliate_id = editData.affiliate_id
+            item.product_code = res.data.data.product_code
             item.revenue = res.data.data.revenue
             item.lengths = res.data.data.lengths
             item.affiliate_fee = res.data.data.affiliate_fee
@@ -185,6 +187,7 @@ const AffiliateIndex = () => {
         affiliate: item?.affiliate?.affiliate_name,
         order_type: item?.order_type,
         affiliate_fee_type: item?.affiliate_fee_type,
+        product_code: item?.product_code,
         coupon_code: item?.coupon_code,
         dialed: item?.dialed,
         lengths: item?.lengths,
@@ -607,7 +610,19 @@ const AffiliateIndex = () => {
                   ))}
                 </TextField>
               </Grid>
-
+              <Grid item xs={12}>
+                <TextField
+                  value={editData?.product_code}
+                  id="product_code"
+                  label="Product Code"
+                  type="text"
+                  name="product_code"
+                  placeholder="Product Code"
+                  onChange={handleEditChange}
+                  className={classes.textField}
+                  fullWidth
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   select
