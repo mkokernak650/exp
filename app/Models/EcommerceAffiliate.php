@@ -18,6 +18,7 @@ class EcommerceAffiliate extends Model
         'campaign_id',
         'customer_id',
         'affiliate_id',
+        'product_code',
         'order_type',
         'coupon_code',
         'dialed',

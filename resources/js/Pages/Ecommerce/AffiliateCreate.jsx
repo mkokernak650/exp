@@ -39,6 +39,7 @@ const AffiliateCreate = () => {
     coupon_code: '',
     dialed: '',
     lengths: '',
+    product_code: '',
     campaign_id: '',
     customer_id: '',
     affiliate_id: '',
@@ -176,6 +177,19 @@ const AffiliateCreate = () => {
                   </option>
                 ))}
               </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                value={values?.product_code}
+                id="product_code"
+                label="Product Code"
+                type="text"
+                name="product_code"
+                placeholder="Product Code"
+                onChange={handleChange}
+                className={classes.textField}
+                fullWidth
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField
