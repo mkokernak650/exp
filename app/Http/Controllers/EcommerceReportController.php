@@ -383,6 +383,7 @@ class EcommerceReportController extends Controller
 
         $columns = [
             'affiliates.affiliate_name AS Affiliate Name',
+            'ecommerce_affiliates.product_code AS Product Code',
             'affiliates.market AS Affiliate Market',
             DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
             'ecommerce_sales.coupon_code AS Coupon Code',
@@ -495,6 +496,7 @@ class EcommerceReportController extends Controller
                 'customers.customer_name AS Customer Name',
                 'ecommerce_campaigns.campaign_name AS Campaign Name',
                 'affiliates.affiliate_name AS Affiliate Name',
+                'ecommerce_affiliates.product_code AS Product Code',
                 'affiliates.market AS Affiliate Market',
                 DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
                 'ecommerce_sales.shipping_state AS State',
@@ -508,7 +510,7 @@ class EcommerceReportController extends Controller
             ];
         }
 
-        $selectRows = $this->addColumnToArray($selectRows, $orderType, 6, $affiliate);
+        $selectRows = $this->addColumnToArray($selectRows, $orderType, 7, $affiliate);
 
         if ($type === 'customer' && !in_array(self::$acesMarketingId, $affiliate)) {
             return array_merge($selectRows, [
