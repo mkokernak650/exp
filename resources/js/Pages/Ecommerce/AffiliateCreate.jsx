@@ -182,10 +182,10 @@ const AffiliateCreate = () => {
               <TextField
                 value={values?.product_code}
                 id="product_code"
-                label="Product Code"
+                label="Product Code (ISCI Code)"
                 type="text"
                 name="product_code"
-                placeholder="Product Code"
+                placeholder="ISCI Code"
                 onChange={handleChange}
                 className={classes.textField}
                 fullWidth

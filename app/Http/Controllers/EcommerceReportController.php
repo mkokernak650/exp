@@ -383,7 +383,7 @@ class EcommerceReportController extends Controller
 
         $columns = [
             'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_affiliates.product_code AS Product Code',
+            'ecommerce_affiliates.product_code AS ISCI Code',
             'affiliates.market AS Affiliate Market',
             DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
             'ecommerce_sales.coupon_code AS Coupon Code',
@@ -404,7 +404,7 @@ class EcommerceReportController extends Controller
     {
         return [
             'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_affiliates.product_code AS Product Code',
+            'ecommerce_affiliates.product_code AS ISCI Code',
             'affiliates.market AS Affiliate Market',
             DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
             'ecommerce_sales.coupon_code AS Coupon Code',
@@ -497,7 +497,7 @@ class EcommerceReportController extends Controller
                 'customers.customer_name AS Customer Name',
                 'ecommerce_campaigns.campaign_name AS Campaign Name',
                 'affiliates.affiliate_name AS Affiliate Name',
-                'ecommerce_affiliates.product_code AS Product Code',
+                'ecommerce_affiliates.product_code AS ISCI Code',
                 'affiliates.market AS Affiliate Market',
                 DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
                 'ecommerce_sales.shipping_state AS State',
@@ -528,7 +528,7 @@ class EcommerceReportController extends Controller
             'customers.customer_name AS Customer Name',
             'ecommerce_campaigns.campaign_name AS Campaign Name',
             'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_affiliates.product_code AS Product Code',
+            'ecommerce_affiliates.product_code AS ISCI Code',
             'affiliates.market AS Affiliate Market',
             DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
             'ecommerce_sales.shipping_state AS State',
