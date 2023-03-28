@@ -70,7 +70,6 @@ class EcommerceReportController extends Controller
             $aMarketingData = [];
             foreach ($salesData as $sale) {
                 $sale->{'Vendor Code'} = 'new field';
-                $sale->{'Product Code'} = 'new field';
                 $sale->{'Caller Country'} = 'USA';
                 $sale->{'Call Length'} = 'new field';
                 $sale->{'R1 Calls'} = '0';
@@ -485,6 +484,7 @@ class EcommerceReportController extends Controller
                     'DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'
                 ),
                 'affiliates.affiliate_name AS Affiliate Name',
+                'ecommerce_affiliates.product_code AS ISCI Code',
                 'ecommerce_sales.shipping_state AS Caller State',
                 'ecommerce_sales.shipping_city AS Caller City',
                 'ecommerce_sales.shipping_zip AS Caller Zip',
