@@ -175,7 +175,7 @@ export const columns = [
   },
   {
     key: 'product_code',
-    title: 'Product Code',
+    title: 'ISCI Code',
     dataType: DataType.String,
     style: { width: 200 },
     visible: true,
