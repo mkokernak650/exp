@@ -255,7 +255,11 @@ const AffiliateIndex = () => {
         return DateTimeFormat(value)
       }
       if (column.key === 'pay_on_multiple_orders') {
-        return value == '0' ? 'No' : 'Yes'
+        if (value == '0') {
+          return 'No'
+        } else if (value == '1') {
+          return 'Yes'
+        }
       }
       if (column.key === 'lengths') {
         if (value != null) {

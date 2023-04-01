@@ -389,11 +389,15 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-            DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) AS `' . $alias . '`'),
+            DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                ROUND(ecommerce_affiliates.' . $column . ' * COUNT(ecommerce_sales.id), 2) ELSE
+                ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) END AS `' . $alias . '`'),
         ];
 
         if ($type === 'customer') {
-            $columns[] = DB::raw('ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) AS `Net Amount`');
+            $columns[] = DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * COUNT(ecommerce_sales.id)), 2) ELSE
+                ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) END AS `Net Amount`');
         }
 
         return $columns;
