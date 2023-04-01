@@ -195,6 +195,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'pay_on_multiple_orders',
+    title: 'Pay on multiple orders',
+    dataType: DataType.String,
+    style: { width: 150 },
+    visible: true,
+  },
+  {
     key: 'lengths',
     title: 'Lengths',
     dataType: DataType.String,

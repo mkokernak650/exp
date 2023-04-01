@@ -41,6 +41,7 @@ const AffiliateIndex = () => {
     order_type: '',
     coupon_code: '',
     dialed: '',
+    pay_on_multiple_orders: '',
     lengths: '',
     product_code: '',
     campaign_id: '',
@@ -112,6 +113,7 @@ const AffiliateIndex = () => {
             item.product_code = res.data.data.product_code
             item.revenue = res.data.data.revenue
             item.lengths = res.data.data.lengths
+            item.pay_on_multiple_orders = res.data.data.pay_on_multiple_orders
             item.affiliate_fee = res.data.data.affiliate_fee
             item.order_type = res.data.data.order_type
             item.coupon_code = res.data.data.coupon_code
@@ -190,6 +192,7 @@ const AffiliateIndex = () => {
         product_code: item?.product_code,
         coupon_code: item?.coupon_code,
         dialed: item?.dialed,
+        pay_on_multiple_orders: item?.pay_on_multiple_orders,
         lengths: item?.lengths,
         revenue: item?.revenue,
         affiliate_fee: item?.affiliate_fee,
@@ -251,6 +254,9 @@ const AffiliateIndex = () => {
       if (column.key === 'created_at' || column.key === 'updated_at') {
         return DateTimeFormat(value)
       }
+      if (column.key === 'pay_on_multiple_orders') {
+        return value == '0' ? 'No' : 'Yes'
+      }
       if (column.key === 'lengths') {
         if (value != null) {
           return value.toString().replace(/,/g, ', ')
@@ -304,6 +310,7 @@ const AffiliateIndex = () => {
       delete item.consumerEXP_cash_buy_fee
       item.order_type = item.order_type == 1 ? 'E-commerce' : 'Phone'
       item.affiliate_fee_type = item.affiliate_fee_type == 1 ? 'Payout Per Order' : 'Cash Buy'
+      item.pay_on_multiple_orders = item.pay_on_multiple_orders == '0' ? 'No' : 'Yes'
       return item
     })
     const fileType =
@@ -667,6 +674,25 @@ const AffiliateIndex = () => {
                   />
                 </Grid>
               )}
+
+              <Grid item xs={12}>
+                <TextField
+                  value={editData?.pay_on_multiple_orders}
+                  id="pay_on_multiple_orders"
+                  select
+                  name="pay_on_multiple_orders"
+                  onChange={handleEditChange}
+                  SelectProps={{
+                    native: true,
+                  }}
+                  fullWidth
+                  required={true}
+                >
+                  <option value="">Pay on multiple orders</option>
+                  <option value="1">Yes</option>
+                  <option value="0">No</option>
+                </TextField>
+              </Grid>
 
               <Grid item xs={12}>
                 <MultiSelect
