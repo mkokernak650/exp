@@ -507,7 +507,8 @@ class EcommerceReportController extends Controller
                 't_v_households.tv_households AS TV Market Households',
                 'ecommerce_sales.quantity AS Total Quantity',
                 'ecommerce_sales.total AS Total Amount',
-                DB::raw('ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) AS `' . $alias . '`'),
+                DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN ROUND(ecommerce_affiliates.' . $column . ', 2)
+                ELSE ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END AS `' . $alias . '`'),
             ];
         }
 
@@ -515,7 +516,9 @@ class EcommerceReportController extends Controller
 
         if ($type === 'customer' && !in_array(self::$acesMarketingId, $affiliate)) {
             return array_merge($selectRows, [
-                DB::raw('ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) AS `Net Amount`'),
+                DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                ROUND(ecommerce_sales.total - ecommerce_affiliates.revenue, 2)
+                ELSE ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) END AS `Net Amount`'),
             ]);
         }
         return $selectRows;
