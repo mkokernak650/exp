@@ -22,6 +22,7 @@ class EcommerceAffiliate extends Model
         'order_type',
         'coupon_code',
         'dialed',
+        'pay_on_multiple_orders',
         'lengths',
         'affiliate_fee_type',
         'revenue',

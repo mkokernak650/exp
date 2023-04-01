@@ -38,6 +38,7 @@ const AffiliateCreate = () => {
     order_type: '',
     coupon_code: '',
     dialed: '',
+    pay_on_multiple_orders: '',
     lengths: '',
     product_code: '',
     campaign_id: '',
@@ -242,6 +243,25 @@ const AffiliateCreate = () => {
                   />
                 </Grid>
               ))}
+
+            <Grid item xs={12}>
+              <TextField
+                value={values?.pay_on_multiple_orders}
+                id="pay_on_multiple_orders"
+                select
+                name="pay_on_multiple_orders"
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                }}
+                fullWidth
+                required={true}
+              >
+                <option value="">Pay on multiple orders</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+              </TextField>
+            </Grid>
 
             <Grid item xs={12}>
               <MultiSelect
