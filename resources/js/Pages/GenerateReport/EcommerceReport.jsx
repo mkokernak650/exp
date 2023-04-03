@@ -435,6 +435,8 @@ const EcommerceReport = () => {
     reportName = 'Market Report'
   } else if (reportOn.reportOn === 'summary') {
     reportName = 'Summary Report'
+  } else if (reportOn.reportOn === 'exportCSV') {
+    reportName = 'Export CSV Report'
   } else {
     reportName = 'Detail Report'
   }
@@ -470,6 +472,11 @@ const EcommerceReport = () => {
 
     if (reportOn.reportOn === 'marketTarget' && state.length < 1 && market.length < 1) {
       toast.error('Please select state or market')
+      return
+    }
+
+    if (reportOn.reportOn === 'exportCSV' && reportFor.reportFor != 'payPerOrder') {
+      toast.error('Export CSV is only for pay per order')
       return
     }
 
@@ -509,34 +516,6 @@ const EcommerceReport = () => {
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
-            {/* <Grid item xs={12}>
-              <h4 style={{ margin: 0 }}>Report For</h4>
-              <RadioGroup
-                aria-label="reportFor"
-                name="reportFor"
-                value={reportFor.reportFor}
-                onChange={reportForHandleChange}
-              >
-                <FormControlLabel value="sales" control={<Radio color="primary" />} label="Sales" />
-                <>
-                  <FormControlLabel
-                    value="marketTarget"
-                    control={<Radio color="primary" />}
-                    label="Market Target"
-                  />
-                  <FormControlLabel
-                    value="summary"
-                    control={<Radio color="primary" />}
-                    label="Summary"
-                  />
-                  <FormControlLabel
-                    value="cash_buy"
-                    control={<Radio color="primary" />}
-                    label="Cash Buy"
-                  />
-                </>
-              </RadioGroup>
-            </Grid> */}
             <Grid item xs={12} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 singleSelect
@@ -576,6 +555,7 @@ const EcommerceReport = () => {
                   { label: 'Detail Report', value: 'detail' },
                   { label: 'Market Target', value: 'marketTarget' },
                   { label: 'Summary Report', value: 'summary' },
+                  { label: 'Export CSV Report', value: 'exportCSV' },
                 ]}
                 style={{ width: '100%' }}
                 placeholder="Select Report On"
