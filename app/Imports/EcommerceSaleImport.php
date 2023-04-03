@@ -90,12 +90,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
                     $this->reqCustomerId == $this->customerIds[$key] &&
                     $this->reqOrderType == $this->orderTypes[$key] &&
                     (
-                        (
-                            $this->reqOrderType == EcommerceSale::ORDER_TYPE['phone'] &&
+                        ($this->reqOrderType == EcommerceSale::ORDER_TYPE['phone'] &&
                             trim($this->getValue($row, 'dialed')) == $this->dialed[$key] &&
                             $this->getValue($row, 'inbound') == $this->inbounds[$key]
-                        ) || (
-                            $this->reqOrderType == EcommerceSale::ORDER_TYPE['e-commerce'] &&
+                        ) || ($this->reqOrderType == EcommerceSale::ORDER_TYPE['e-commerce'] &&
                             trim($this->getValue($row, 'coupon_code')) == $this->couponCodes[$key] &&
                             substr($this->getValue($row, 'shipping_zip'), 0, 5) == $this->shippingZips[$key]
                         )
@@ -125,6 +123,12 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
             'shipping_cost'  => $this->getValue($row, 'shipping_cost'),
             'total'          => $this->getValue($row, 'total'),
             'order_at'       => $orderDate,
+            'vendor_code'    => $this->getValue($row, 'vendor_code'),
+            'product_code'   => $this->getValue($row, 'product_code'),
+            'ani'            => $this->getValue($row, 'ani'),
+            'call_length'    => $this->getValue($row, 'call_length'),
+            'payment_type'   => $this->getValue($row, 'payment_type'),
+            'r1'             => $this->getValue($row, 'r1'),
         ]);
     }
 
@@ -158,7 +162,17 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
                 $date = Date::excelToTimestamp($date, config('app.timezone'));
                 $time = Date::excelToTimestamp($time, config('app.timezone'));
             }
-            $order_at = !empty($time) ? Carbon::parse(date('d-m-Y', $date))->toDateString() . ' ' . Carbon::parse(date('H:i:s', $time))->toTimeString() : Carbon::parse(date('d-m-Y', $date))->toDateString();
+
+            if (gettype($time) === 'string') {
+                $formattedTime = Carbon::parse($time)->toTimeString();
+                $formattedDate = Carbon::parse($date)->format('d-m-Y');
+            } else {
+                $formattedTime = Carbon::parse(date('H:i:s', $time))->toTimeString();
+                $formattedDate = Carbon::parse(date('d-m-Y', $date))->toDateString();
+            }
+
+            $order_at = !empty($time) ? $formattedDate . ' ' . $formattedTime : Carbon::parse(date('d-m-Y', $date))->toDateString();
+
             return $order_at;
         }
 

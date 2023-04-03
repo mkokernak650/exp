@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,6 +37,12 @@ class EcommerceSale extends Model
         'shipping_cost',
         'total',
         'order_at',
+        'vendor_code',
+        'product_code',
+        'ani',
+        'call_length',
+        'payment_type',
+        'r1',
     ];
 
     public $casts = [

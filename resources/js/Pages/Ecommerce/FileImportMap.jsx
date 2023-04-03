@@ -46,6 +46,12 @@ export default function FileImportMap({
         <option value="subtotal">Subtotal</option>
         <option value="shipping_cost">Shipping cost</option>
         <option value="total">Total</option>
+        <option value="vendor_code">Vendor Code</option>
+        <option value="product_code">Product Code</option>
+        <option value="ani">ANI</option>
+        <option value="call_length">Call Length</option>
+        <option value="payment_type">Payment Type</option>
+        <option value="r1">R1</option>
       </select>
       <select
         className="custom-input"
