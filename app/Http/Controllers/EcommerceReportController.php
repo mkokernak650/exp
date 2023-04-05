@@ -600,7 +600,7 @@ class EcommerceReportController extends Controller
                 'ecommerce_sales.vendor_code AS Vendor',
                 'ecommerce_sales.product_code AS ProductCode',
                 'ecommerce_affiliates.product_code AS CreativeCode',
-                DB::raw('"" AS Station'),
+                'ecommerce_sales.station AS Station',
                 'ecommerce_sales.dialed AS 800#',
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%y/%m/%d") AS `Date of call`'),
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'),

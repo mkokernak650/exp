@@ -131,6 +131,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
             'call_length'    => $this->getValue($row, 'call_length'),
             'payment_type'   => $this->getValue($row, 'payment_type'),
             'r1'             => $this->getValue($row, 'r1'),
+            'station'        => $this->getValue($row, 'station'),
         ]);
     }
 

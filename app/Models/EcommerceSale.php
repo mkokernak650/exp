@@ -43,6 +43,7 @@ class EcommerceSale extends Model
         'call_length',
         'payment_type',
         'r1',
+        'station',
     ];
 
     public $casts = [

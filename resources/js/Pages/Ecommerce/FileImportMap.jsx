@@ -48,6 +48,7 @@ export default function FileImportMap({
         <option value="total">Total</option>
         <option value="vendor_code">Vendor Code</option>
         <option value="product_code">Product Code</option>
+        <option value="station">Station</option>
         <option value="ani">ANI</option>
         <option value="call_length">Call Length</option>
         <option value="payment_type">Payment Type</option>
