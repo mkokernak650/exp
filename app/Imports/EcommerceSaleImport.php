@@ -71,9 +71,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
         if (empty($this->getValue($row, 'coupon_code')) && empty($this->getValue($row, 'dialed'))) {
             return;
         }
-        $this->salesCount += 1;
 
-        $orderDate = $this->getDateTime($row);
+        $this->salesCount += 1;
+        $orderDate         = $this->getDateTime($row);
+
         if (!is_null($orderDate)) {
             if (gettype($orderDate) !== 'string') {
                 $orderDate = Date::excelToTimestamp($orderDate, config('app.timezone'));
@@ -82,6 +83,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
         }
 
         $keys = array_keys($this->order_at, $orderDate);
+
         if (!empty($keys)) {
             foreach ($keys as $key) {
                 if (
@@ -163,17 +165,39 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
                 $time = Date::excelToTimestamp($time, config('app.timezone'));
             }
 
-            if (gettype($time) === 'string') {
+            if (gettype($date) === 'string') {
                 $formattedTime = Carbon::parse($time)->toTimeString();
-                $formattedDate = Carbon::parse($date)->format('d-m-Y');
+                $formattedDate = $this->parseDate($date);
             } else {
                 $formattedTime = Carbon::parse(date('H:i:s', $time))->toTimeString();
                 $formattedDate = Carbon::parse(date('d-m-Y', $date))->toDateString();
             }
 
-            $order_at = !empty($time) ? $formattedDate . ' ' . $formattedTime : Carbon::parse(date('d-m-Y', $date))->toDateString();
+            $order_at = !empty($time) ? $formattedDate . ' ' . $formattedTime : $formattedDate;
 
             return $order_at;
+        }
+
+        return null;
+    }
+
+    protected function parseDate($date)
+    {
+        //array because more formats may be added
+        $formats = [
+            'y/m/d'
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                $formattedDate = Carbon::createFromFormat($format, $date);
+
+                if ($formattedDate != false) {
+                    return $formattedDate->format('d-m-Y');
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
 
         return null;
