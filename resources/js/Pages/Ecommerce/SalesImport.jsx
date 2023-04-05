@@ -169,8 +169,11 @@ const SalesImport = () => {
     <>
       <Helmet title="Import Sales Report" />
       <Note>
-        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong.
-      </Note>
+        Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong. <br />
+        <br />
+        <b>Caution:</b> For CSV import, pick the date and time; otherwise, an error will be generated.
+        Additionally, if the date format is incorrect, the order will be uploaded with the current date.
+      </Note >
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
           Import Sales Report
