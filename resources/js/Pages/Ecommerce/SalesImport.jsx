@@ -171,7 +171,7 @@ const SalesImport = () => {
       <Note>
         Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong. <br />
         <br />
-        <b>Caution:</b> For CSV import, pick the date and time; otherwise, an error will be generated.
+        <b>Caution:</b> For CSV import, pick the call date and call time both; otherwise, an error will be generated.
         Additionally, if the date format is incorrect, the order will be uploaded with the current date.
       </Note >
       <Paper className={classes.root}>
