@@ -216,9 +216,9 @@ const EcommerceReport = () => {
 
   let affiliateOptions = []
   affiliateOptions = [{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]
-  if (orderType.orderType === '2') {
-    affiliateOptions.push({ label: 'Aces Marketing', value: acesMarketingId })
-  }
+  // if (orderType.orderType === '2') {
+  //   affiliateOptions.push({ label: 'Aces Marketing', value: acesMarketingId })
+  // }
 
 
   useEffect(() => {

@@ -18,11 +18,13 @@ use Inertia\Inertia;
 class EcommerceReportController extends Controller
 {
     private static $acesMarketingId;
+    private $gdmIds;
 
     public function __construct()
     {
         $aId = Affiliate::where('affiliate_name', 'like', '%Aces Marketing%')->pluck('id');
         self::$acesMarketingId = $aId->toArray();
+        $this->gdmIds = Affiliate::where('affiliate_name', 'like', '%Golden Direct Media%')->pluck('id')->toArray();
     }
 
     public function ecommerceReport()
@@ -615,6 +617,21 @@ class EcommerceReportController extends Controller
             ];
 
             return $columnsForAcesMarketing;
+        } elseif (in_array($checkAffiliate, $this->gdmIds)) {
+            $columnsForGdm = [
+                'ecommerce_affiliates.product_code AS ISCI code(s)',
+                'ecommerce_sales.dialed AS Dialed',
+                DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%m/%d/%Y") AS `Date of call`'),
+                DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%h:%i:%s %p") AS `Time of call`'),
+                'ecommerce_sales.ani AS ANI',
+                'ecommerce_sales.shipping_city AS City',
+                'ecommerce_sales.shipping_state AS State',
+                'ecommerce_sales.shipping_zip AS Zip Code',
+                'ecommerce_sales.call_length AS Call Length',
+                'ecommerce_sales.quantity AS Total orders',
+            ];
+
+            return $columnsForGdm;
         }
 
         return [
