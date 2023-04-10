@@ -505,19 +505,28 @@ class EcommerceReportController extends Controller
 
         if (in_array($checkAffiliate, $this->amIds)) {
             $selectRows = [
-                DB::raw(
-                    'DATE_FORMAT(ecommerce_sales.order_at, "%Y/%m/%d") AS `Date of call`'
-                ),
-                DB::raw(
-                    'DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'
-                ),
+                DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%Y/%m/%d") AS `Date of call`'),
+                DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'),
+                'ecommerce_campaigns.campaign_name AS Campaign Name',
                 'affiliates.affiliate_name AS Affiliate Name',
-                'ecommerce_affiliates.product_code AS ISCI Code',
-                'ecommerce_sales.shipping_state AS Caller State',
-                'ecommerce_sales.shipping_city AS Caller City',
-                'ecommerce_sales.shipping_zip AS Caller Zip',
-                'ecommerce_sales.inbound AS ANI',
+                'affiliates.market AS Affiliate Market',
+                DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
+                'ecommerce_affiliates.product_code AS ISCI',
+                'zipcode_by_television_markets.market AS Customer Market',
+                'ecommerce_sales.dialed AS Dialed (800#)',
+                'ecommerce_sales.ani AS ANI',
+                'ecommerce_sales.shipping_city AS Ship City',
+                'ecommerce_sales.shipping_state AS Ship State',
+                'ecommerce_sales.shipping_zip AS Ship Zip Code',
+                'ecommerce_sales.call_length AS Call Length',
+                'ecommerce_sales.quantity AS Quantity',
                 'ecommerce_sales.quantity AS R2 Orders',
+                'ecommerce_sales.r1 AS R1 Calls',
+                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL THEN "" ELSE 
+                    CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
+                    ROUND(ecommerce_affiliates.affiliate_fee, 2) ELSE 
+                    ROUND(ecommerce_affiliates.affiliate_fee * ecommerce_sales.quantity, 2) END 
+                    END AS `Affiliate Fee`'),
             ];
         } else {
             $selectRows = [
@@ -538,23 +547,18 @@ class EcommerceReportController extends Controller
                 DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN ROUND(ecommerce_affiliates.' . $column . ', 2)
                 ELSE ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END AS `' . $alias . '`'),
             ];
+
+            $selectRows = $this->addColumnToArray($selectRows, $orderType, 7, $affiliate);
+
+            if ($type === 'customer') {
+                return array_merge($selectRows, [
+                    DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                    ROUND(ecommerce_sales.total - ecommerce_affiliates.revenue, 2)
+                    ELSE ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) END AS `Net Amount`'),
+                ]);
+            }
         }
 
-        $selectRows = $this->addColumnToArray($selectRows, $orderType, 7, $affiliate);
-
-        if (!empty($affiliate)) {
-            $checkAffiliate = intval($affiliate[0]);
-        } else {
-            $checkAffiliate = '';
-        }
-
-        if ($type === 'customer' && !in_array($checkAffiliate, $this->amIds)) {
-            return array_merge($selectRows, [
-                DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
-                ROUND(ecommerce_sales.total - ecommerce_affiliates.revenue, 2)
-                ELSE ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) END AS `Net Amount`'),
-            ]);
-        }
         return $selectRows;
     }
 
