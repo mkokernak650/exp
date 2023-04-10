@@ -67,48 +67,23 @@ class EcommerceReportController extends Controller
         $summary   = [];
         $header    = [];
 
-        if (!empty($request->affiliate_id)) {
-            $checkAffiliate = intval($request->affiliate_id[0]);
-        } else {
-            $checkAffiliate = '';
-        }
-
-        // if (in_array($checkAffiliate, $this->amIds)) {
-        //     $aMarketingData = [];
-        //     foreach ($salesData as $sale) {
-        //         $sale->{'Vendor Code'} = 'new field';
-        //         $sale->{'Caller Country'} = 'USA';
-        //         $sale->{'Call Length'} = 'new field';
-        //         $sale->{'R1 Calls'} = '0';
-        //         array_push(
-        //             $aMarketingData,
-        //             $sale
-        //         );
-        //     }
-        //     $salesData = collect($aMarketingData);
-        // }
-
         $summaryCampaigns = [];
 
         if (isset($request->campaign_id)) {
             $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
         }
 
-        if (!in_array($checkAffiliate, $this->amIds)) {
-            $header = $this->getHeader($request);
-        }
+        $header = $this->getHeader($request);
 
-        if (!in_array($checkAffiliate, $this->amIds)) {
-            $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns);
+        $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns, $request->affiliate_id);
 
-            if (!empty($request->year)) {
-                $selectedYears        = implode(', ', $request->year);
-                $yearNaming           = (count($request->year) > 1) ? 'Years' : 'Year';
-                $summary[$yearNaming] = $selectedYears;
-            } elseif (isset($request->start_date) && isset($request->end_date)) {
-                $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
-                $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
-            }
+        if (!empty($request->year)) {
+            $selectedYears        = implode(', ', $request->year);
+            $yearNaming           = (count($request->year) > 1) ? 'Years' : 'Year';
+            $summary[$yearNaming] = $selectedYears;
+        } elseif (isset($request->start_date) && isset($request->end_date)) {
+            $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
+            $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
         }
 
         if ($request->reportFor === 'payPerOrder' && $request->reportOn === 'marketTarget') {
@@ -142,11 +117,6 @@ class EcommerceReportController extends Controller
             $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria, $header);
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
-        }
-
-        if (in_array($checkAffiliate, $this->amIds)) {
-            $header  = [];
-            $summary = [];
         }
 
         return response()->json([
@@ -524,9 +494,9 @@ class EcommerceReportController extends Controller
                 'ecommerce_sales.r1 AS R1 Calls',
                 DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL THEN "" ELSE 
                     CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
-                    ROUND(ecommerce_affiliates.affiliate_fee, 2) ELSE 
-                    ROUND(ecommerce_affiliates.affiliate_fee * ecommerce_sales.quantity, 2) END 
-                    END AS `Affiliate Fee`'),
+                    ROUND(ecommerce_affiliates.' . $column . ', 2) ELSE 
+                    ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END 
+                    END AS `' . $alias . '`'),
             ];
         } else {
             $selectRows = [
@@ -642,20 +612,26 @@ class EcommerceReportController extends Controller
         ];
     }
 
-    protected function getReportSummary($reportFor, $reportGenOn, $type, $salesData, $summaryCampaigns)
+    protected function getReportSummary($reportFor, $reportGenOn, $type, $salesData, $summaryCampaigns, $affiliate)
     {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
         if ($reportFor === 'payPerOrder' && $reportGenOn === 'detail') {
             if ($type === 'customer') {
                 if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
-                    return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns);
+                    return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate);
                 } else {
-                    return $this->customerSummary($salesData);
+                    return $this->customerSummary($salesData, $checkAffiliate);
                 }
             }
             if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
-                return $this->affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns);
+                return $this->affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate);
             } else {
-                return $this->affiliateSummary($salesData);
+                return $this->affiliateSummary($salesData, $checkAffiliate);
             }
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget') {
             return $this->marketTargetSummary($salesData);
@@ -671,7 +647,7 @@ class EcommerceReportController extends Controller
         return [];
     }
 
-    protected function customerSummary($salesData)
+    protected function customerSummary($salesData, $checkAffiliate)
     {
         $summary       = [];
         $totalCoupons  = 0;
@@ -687,15 +663,15 @@ class EcommerceReportController extends Controller
                 $totalCoupons += (int) $data->{'Total Quantity'};
             }
 
-            if (!empty($data->{'Dialed'})) {
-                $totalPhones += (int) $data->{'Total Quantity'};
+            if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
+                $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
             }
 
-            $totalQuantity += $data->{'Total Quantity'};
-            $totalAmount   += $data->{'Total Amount'};
-            $netAmount     += $data->{'Net Amount'};
-            $totalFee      += $data->{'Total Fee'};
-            $totalOrders   += (int) $data->{'Total Quantity'};
+            $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
+            $netAmount     += isset($data->{'Net Amount'}) ? $data->{'Net Amount'} : 0;
+            $totalFee      += (float) $data->{'Total Fee'};
+            $totalOrders   += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
         }
 
         $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
@@ -705,18 +681,24 @@ class EcommerceReportController extends Controller
         $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
         $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-
-        $summary['Total Coupon']       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
-        $summary['Total Phone']        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
-        $summary['Total Quantity']     = "{$totalQuantity} {$totalQuantityPercentage}";
-        $summary['Total Sales Amount'] = round($totalAmount, 2) . $totalAmountPercentage;
-        $summary['Total Fee']          = round($totalFee, 2) . " ({$totalFeePercentage}%)";
-        $summary['Net Amount']         = round($netAmount, 2) . " ({$netAmountPercentage}%)";
+        if (in_array($checkAffiliate, $this->amIds)) {
+            $summary['Total Coupon']   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+            $summary['Total Phone']    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+            $summary['Total Quantity'] = "{$totalQuantity} {$totalQuantityPercentage}";
+            $summary['Total Fee']      = round($totalFee, 2);
+        } else {
+            $summary['Total Coupon']       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+            $summary['Total Phone']        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+            $summary['Total Quantity']     = "{$totalQuantity} {$totalQuantityPercentage}";
+            $summary['Total Sales Amount'] = round($totalAmount, 2) . $totalAmountPercentage;
+            $summary['Total Fee']          = round($totalFee, 2) . " ({$totalFeePercentage}%)";
+            $summary['Net Amount']         = round($netAmount, 2) . " ({$netAmountPercentage}%)";
+        }
 
         return $summary;
     }
 
-    protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns)
+    protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
             $summary       = [];
@@ -734,15 +716,15 @@ class EcommerceReportController extends Controller
                         $totalCoupons += (int) $data->{'Total Quantity'};
                     }
 
-                    if (!empty($data->{'Dialed'})) {
-                        $totalPhones += (int) $data->{'Total Quantity'};
+                    if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
+                        $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
-                    $totalQuantity += $data->{'Total Quantity'};
-                    $totalAmount   += $data->{'Total Amount'};
-                    $netAmount     += $data->{'Net Amount'};
-                    $totalFee      += $data->{'Total Fee'};
-                    $totalOrders   += (int) $data->{'Total Quantity'};
+                    $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
+                    $netAmount     += isset($data->{'Net Amount'}) ? $data->{'Net Amount'} : 0;
+                    $totalFee      += (float) $data->{'Total Fee'};
+                    $totalOrders   += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
                 }
             }
 
@@ -753,14 +735,21 @@ class EcommerceReportController extends Controller
             $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
             $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-
-            $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
-            $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
-            $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
-            $summary["{$summaryCampaign} Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
-            $summary["{$summaryCampaign} Total Fee"]          = round($totalFee, 2) . " ({$totalFeePercentage}%)";
-            $summary["{$summaryCampaign} Net Amount"]         = round($netAmount, 2) . " ({$netAmountPercentage}%)";
-            $summary[' ']                                     = ' ';
+            if (in_array($checkAffiliate, $this->amIds)) {
+                $summary["{$summaryCampaign} Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
+                $summary["{$summaryCampaign} Total Fee"]      = round($totalFee, 2);
+                $summary[' ']                                 = ' ';
+            } else {
+                $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+                $summary["{$summaryCampaign} Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
+                $summary["{$summaryCampaign} Total Fee"]          = round($totalFee, 2) . " ({$totalFeePercentage}%)";
+                $summary["{$summaryCampaign} Net Amount"]         = round($netAmount, 2) . " ({$netAmountPercentage}%)";
+                $summary[' ']                                     = ' ';
+            }
 
             $allSummary[] = $summary;
         }
@@ -770,7 +759,7 @@ class EcommerceReportController extends Controller
         return $campaignSeparatedSummary;
     }
 
-    protected function affiliateSummary($salesData)
+    protected function affiliateSummary($salesData, $checkAffiliate)
     {
         $summary       = [];
         $totalQuantity = 0;
@@ -785,14 +774,14 @@ class EcommerceReportController extends Controller
                 $totalCoupons += (int) $data->{'Total Quantity'};
             }
 
-            if (!empty($data->{'Dialed'})) {
-                $totalPhones += (int) $data->{'Total Quantity'};
+            if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
+                $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
             }
 
-            $totalQuantity += $data->{'Total Quantity'};
-            $totalAmount   += $data->{'Total Amount'};
-            $affiliateFee  += $data->{'Affiliate Fee'};
-            $totalOrders   += $data->{'Total Quantity'};
+            $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
+            $affiliateFee  += (float) $data->{'Affiliate Fee'};
+            $totalOrders   += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
         }
 
         $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
@@ -801,16 +790,23 @@ class EcommerceReportController extends Controller
         $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
         $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-        $summary["Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
-        $summary["Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
-        $summary["Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
-        $summary["Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
-        $summary["Affiliate Fee"]      = round($affiliateFee, 2) . " ({$affiliateFeePercentage}%)";
+        if (in_array($checkAffiliate, $this->amIds)) {
+            $summary["Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+            $summary["Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+            $summary["Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
+            $summary["Affiliate Fee"]  = round($affiliateFee, 2);
+        } else {
+            $summary["Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+            $summary["Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+            $summary["Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+            $summary["Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
+            $summary["Affiliate Fee"]      = round($affiliateFee, 2) . " ({$affiliateFeePercentage}%)";
+        }
 
         return $summary;
     }
 
-    protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns)
+    protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate)
     {
         foreach ($summaryCampaigns as $summaryCampaign) {
             $summary       = [];
@@ -827,14 +823,14 @@ class EcommerceReportController extends Controller
                         $totalCoupons += (int) $data->{'Total Quantity'};
                     }
 
-                    if (!empty($data->{'Dialed'})) {
-                        $totalPhones += (int) $data->{'Total Quantity'};
+                    if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
+                        $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
-                    $totalQuantity += $data->{'Total Quantity'};
-                    $totalAmount   += $data->{'Total Amount'};
-                    $affiliateFee  += $data->{'Affiliate Fee'};
-                    $totalOrders   += $data->{'Total Quantity'};
+                    $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
+                    $affiliateFee  += (float) $data->{'Affiliate Fee'};
+                    $totalOrders   += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
                 }
             }
 
@@ -844,12 +840,20 @@ class EcommerceReportController extends Controller
             $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
             $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-            $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
-            $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
-            $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
-            $summary["{$summaryCampaign} Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
-            $summary["{$summaryCampaign} Affiliate Fee"]      = round($affiliateFee, 2) . " ({$affiliateFeePercentage}%)";
-            $summary[' ']                                     = ' ';
+            if (in_array($checkAffiliate, $this->amIds)) {
+                $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+                $summary["{$summaryCampaign} Affiliate Fee"]      = round($affiliateFee, 2);
+                $summary[' ']                                     = ' ';
+            } else {
+                $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
+                $summary["{$summaryCampaign} Total Sales Amount"] = round($totalAmount, 2) . $totalAmountPercentage;
+                $summary["{$summaryCampaign} Affiliate Fee"]      = round($affiliateFee, 2) . " ({$affiliateFeePercentage}%)";
+                $summary[' ']                                     = ' ';
+            }
 
             $allSummary[] = $summary;
         }
