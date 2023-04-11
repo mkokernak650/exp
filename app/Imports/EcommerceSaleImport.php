@@ -184,9 +184,9 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
 
     protected function parseDate($date)
     {
-        //array because more formats may be added
         $formats = [
-            'y/m/d'
+            'y/m/d',
+            'y-m-d',
         ];
 
         foreach ($formats as $format) {
