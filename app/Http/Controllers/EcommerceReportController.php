@@ -474,7 +474,7 @@ class EcommerceReportController extends Controller
             $checkAffiliate = '';
         }
 
-        if (in_array($checkAffiliate, $this->amIds)) {
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
             $selectRows = [
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%Y/%m/%d") AS `Date of call`'),
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'),
@@ -493,8 +493,8 @@ class EcommerceReportController extends Controller
                 'ecommerce_sales.quantity AS Quantity',
                 'ecommerce_sales.quantity AS R2 Orders',
                 'ecommerce_sales.r1 AS R1 Calls',
-                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL THEN "" ELSE 
-                    CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
+                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
+                    ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
                     ROUND(ecommerce_affiliates.' . $column . ', 2) ELSE 
                     ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END 
                     END AS `' . $alias . '`'),
@@ -515,8 +515,11 @@ class EcommerceReportController extends Controller
                 't_v_households.tv_households AS TV Market Households',
                 'ecommerce_sales.quantity AS Total Quantity',
                 'ecommerce_sales.total AS Total Amount',
-                DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN ROUND(ecommerce_affiliates.' . $column . ', 2)
-                ELSE ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END AS `' . $alias . '`'),
+                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
+                    ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
+                    ROUND(ecommerce_affiliates.' . $column . ', 2) ELSE 
+                    ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END 
+                    END AS `' . $alias . '`'),
             ];
 
             $selectRows = $this->addColumnToArray($selectRows, $orderType, 7, $affiliate);
@@ -671,14 +674,14 @@ class EcommerceReportController extends Controller
             }
 
             if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
-                $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
             }
 
-            $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
-            $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
-            $netAmount     += isset($data->{'Net Amount'}) ? $data->{'Net Amount'} : 0;
+            $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
+            $netAmount     += property_exists($data, 'Net Amount') ? $data->{'Net Amount'} : 0;
             $totalFee      += (float) $data->{'Total Fee'};
-            $totalOrders   += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalOrders   += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
         }
 
         $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
@@ -688,7 +691,7 @@ class EcommerceReportController extends Controller
         $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
         $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-        if (in_array($checkAffiliate, $this->amIds)) {
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
             $summary['Total Coupon']   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
             $summary['Total Phone']    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
             $summary['Total Quantity'] = "{$totalQuantity} {$totalQuantityPercentage}";
@@ -724,14 +727,14 @@ class EcommerceReportController extends Controller
                     }
 
                     if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
-                        $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                        $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
-                    $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
-                    $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
-                    $netAmount     += isset($data->{'Net Amount'}) ? $data->{'Net Amount'} : 0;
+                    $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
+                    $netAmount     += property_exists($data, 'Net Amount') ? $data->{'Net Amount'} : 0;
                     $totalFee      += (float) $data->{'Total Fee'};
-                    $totalOrders   += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalOrders   += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                 }
             }
 
@@ -742,7 +745,7 @@ class EcommerceReportController extends Controller
             $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
             $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-            if (in_array($checkAffiliate, $this->amIds)) {
+            if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
                 $summary["{$summaryCampaign} Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
@@ -782,13 +785,13 @@ class EcommerceReportController extends Controller
             }
 
             if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
-                $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
             }
 
-            $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
-            $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
+            $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
             $affiliateFee  += (float) $data->{'Affiliate Fee'};
-            $totalOrders   += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalOrders   += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
         }
 
         $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
@@ -831,13 +834,13 @@ class EcommerceReportController extends Controller
                     }
 
                     if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
-                        $totalPhones += (int) isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                        $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
-                    $totalQuantity += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
-                    $totalAmount   += isset($data->{'Total Amount'}) ? $data->{'Total Amount'} : 0;
+                    $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
                     $affiliateFee  += (float) $data->{'Affiliate Fee'};
-                    $totalOrders   += isset($data->{'Total Quantity'}) ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalOrders   += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                 }
             }
 
