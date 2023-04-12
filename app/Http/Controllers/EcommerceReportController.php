@@ -73,17 +73,18 @@ class EcommerceReportController extends Controller
             $summaryCampaigns = EcommerceCampaign::whereIn('id', $request->campaign_id)->select('campaign_name')->pluck('campaign_name')->toArray();
         }
 
-        $header = $this->getHeader($request);
+        if ($request->reportOn != 'exportCSV') {
+            $header  = $this->getHeader($request);
+            $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns, $request->affiliate_id);
 
-        $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns, $request->affiliate_id);
-
-        if (!empty($request->year)) {
-            $selectedYears        = implode(', ', $request->year);
-            $yearNaming           = (count($request->year) > 1) ? 'Years' : 'Year';
-            $summary[$yearNaming] = $selectedYears;
-        } elseif (isset($request->start_date) && isset($request->end_date)) {
-            $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
-            $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
+            if (!empty($request->year)) {
+                $selectedYears        = implode(', ', $request->year);
+                $yearNaming           = (count($request->year) > 1) ? 'Years' : 'Year';
+                $summary[$yearNaming] = $selectedYears;
+            } elseif (isset($request->start_date) && isset($request->end_date)) {
+                $summary['From'] = date_format(date_create($request->start_date), 'd-M-Y');
+                $summary['To']   = date_format(date_create($request->end_date), 'd-M-Y');
+            }
         }
 
         if ($request->reportFor === 'payPerOrder' && $request->reportOn === 'marketTarget') {
