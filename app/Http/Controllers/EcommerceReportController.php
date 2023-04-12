@@ -156,7 +156,7 @@ class EcommerceReportController extends Controller
                     }
                 })
             )
-            ->when(($reportFor === 'payPerOrder' && $reportGenOn === 'detail'), fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
+            ->when(($reportFor === 'payPerOrder' && ($reportGenOn === 'detail' || $reportGenOn === 'summary')), fn ($q) => $q->join('ecommerce_campaigns', 'ecommerce_campaigns.id', '=', 'ecommerce_sales.campaign_id'))
             ->when(($reportFor === 'payPerOrder' && $reportGenOn === 'detail'), fn ($q) => $q->join('customers', 'customers.id', '=', 'ecommerce_sales.customer_id'))
             ->join('affiliates', 'affiliates.id', '=', 'ecommerce_affiliates.affiliate_id')
             ->leftJoin('zipcode_by_television_markets', 'zipcode_by_television_markets.zip_code', '=', 'ecommerce_sales.shipping_zip')
@@ -365,6 +365,7 @@ class EcommerceReportController extends Controller
 
         $columns = [
             'affiliates.affiliate_name AS Affiliate Name',
+            'ecommerce_campaigns.campaign_name AS Campaign Name',
             'ecommerce_affiliates.product_code AS ISCI Code',
             'affiliates.market AS Affiliate Market',
             DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
