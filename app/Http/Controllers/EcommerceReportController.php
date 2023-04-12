@@ -141,6 +141,12 @@ class EcommerceReportController extends Controller
         $reportGenOn = $request->reportOn;
         $orderType   = $request->orderType;
         $affiliate   = $request->affiliate_id;
+        $amGdmIds    = array_merge($this->amIds, $this->gdmIds);
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
         $queryData   = DB::table('ecommerce_sales')
             ->when(
                 $orderType,
@@ -211,8 +217,10 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
-                    ->select($this->payPerOrderSummaryReportColumns($type))
-                    ->orderByDesc('Total Amount')
+                    ->select($this->payPerOrderSummaryReportColumns($type, $affiliate))
+                    ->when(!in_array($checkAffiliate, $amGdmIds), fn ($q) => $q->orderByDesc('Total Amount'))
+                    ->when((in_array($checkAffiliate, $amGdmIds) && $type === 'customer'), fn ($q) => $q->orderByDesc('Total Fee'))
+                    ->when((in_array($checkAffiliate, $amGdmIds) && $type != 'customer'), fn ($q) => $q->orderByDesc('Affiliate Fee'))
             )
             ->when(
                 ($reportFor === 'payPerOrder' && $reportGenOn === 'exportCSV'),
@@ -353,7 +361,7 @@ class EcommerceReportController extends Controller
         return $finalQuery;
     }
 
-    protected function payPerOrderSummaryReportColumns($type)
+    protected function payPerOrderSummaryReportColumns($type, $affiliate)
     {
         if ($type === 'customer') {
             $column = 'revenue';
@@ -362,6 +370,18 @@ class EcommerceReportController extends Controller
             $column = 'affiliate_fee';
             $alias = 'Affiliate Fee';
         }
+
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        $amGdmIds = array_merge($this->amIds, $this->gdmIds);
+
+        // dd(in_array($checkAffiliate, $amGdmIds));
+        // dd($amGdmIds);
+        // dd($checkAffiliate);
 
         $columns = [
             'affiliates.affiliate_name AS Affiliate Name',
@@ -372,13 +392,19 @@ class EcommerceReportController extends Controller
             'ecommerce_sales.coupon_code AS Coupon Code',
             'ecommerce_sales.dialed AS Dialed',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-            DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
-            DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
-                ROUND(ecommerce_affiliates.' . $column . ' * COUNT(ecommerce_sales.id), 2) ELSE
-                ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) END AS `' . $alias . '`'),
         ];
 
-        if ($type === 'customer') {
+        if (!in_array($checkAffiliate, $amGdmIds)) {
+            $columns[] = DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`');
+        }
+
+        $columns[] =  DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
+                        ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                        ROUND(ecommerce_affiliates.' . $column . ' * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END), 2) ELSE
+                        ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) END
+                        END AS `' . $alias . '`');
+
+        if ($type === 'customer' && !in_array($checkAffiliate, $amGdmIds)) {
             $columns[] = DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
                 ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * COUNT(ecommerce_sales.id)), 2) ELSE
                 ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) END AS `Net Amount`');
@@ -888,6 +914,7 @@ class EcommerceReportController extends Controller
 
     protected function summarySummary($salesData, $type)
     {
+        return [];
         $totalCouponsSales = 0;
         $totalCoupons      = 0;
         $totalPhonesSales  = 0;
@@ -908,7 +935,7 @@ class EcommerceReportController extends Controller
             }
 
             if ($type === 'customer') {
-                $totalFee  += $data->{'Total Fee'};
+                $totalFee  += (float) $data->{'Total Fee'};
                 $netAmount += $data->{'Net Amount'};
             } else {
                 $affiliateFee += $data->{'Affiliate Fee'};
