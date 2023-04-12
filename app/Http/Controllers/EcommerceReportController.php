@@ -677,7 +677,7 @@ class EcommerceReportController extends Controller
                 $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
             }
 
-            $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalQuantity += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
             $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
             $netAmount     += property_exists($data, 'Net Amount') ? $data->{'Net Amount'} : 0;
             $totalFee      += (float) $data->{'Total Fee'};
@@ -730,7 +730,7 @@ class EcommerceReportController extends Controller
                         $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
-                    $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalQuantity += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
                     $netAmount     += property_exists($data, 'Net Amount') ? $data->{'Net Amount'} : 0;
                     $totalFee      += (float) $data->{'Total Fee'};
@@ -788,10 +788,10 @@ class EcommerceReportController extends Controller
                 $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
             }
 
-            $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalQuantity += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
             $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
             $affiliateFee  += (float) $data->{'Affiliate Fee'};
-            $totalOrders   += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+            $totalOrders   += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
         }
 
         $couponOrdersPercentage  = $totalOrders != 0 ? (round((($totalCoupons / $totalOrders) * 100), 2)) : 0;
@@ -800,7 +800,7 @@ class EcommerceReportController extends Controller
         $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
         $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-        if (in_array($checkAffiliate, $this->amIds)) {
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
             $summary["Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
             $summary["Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
             $summary["Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
@@ -837,10 +837,10 @@ class EcommerceReportController extends Controller
                         $totalPhones += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
-                    $totalQuantity += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalQuantity += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     $totalAmount   += property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0;
                     $affiliateFee  += (float) $data->{'Affiliate Fee'};
-                    $totalOrders   += property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
+                    $totalOrders   += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                 }
             }
 
@@ -850,12 +850,12 @@ class EcommerceReportController extends Controller
             $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
             $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-            if (in_array($checkAffiliate, $this->amIds)) {
-                $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
-                $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
-                $summary["{$summaryCampaign} Total Quantity"]     = "{$totalQuantity} {$totalQuantityPercentage}";
-                $summary["{$summaryCampaign} Affiliate Fee"]      = round($affiliateFee, 2);
-                $summary[' ']                                     = ' ';
+            if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+                $summary["{$summaryCampaign} Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
+                $summary["{$summaryCampaign} Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
+                $summary["{$summaryCampaign} Affiliate Fee"]  = round($affiliateFee, 2);
+                $summary[' ']                                 = ' ';
             } else {
                 $summary["{$summaryCampaign} Total Coupon"]       = "{$totalCoupons} ({$couponOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Phone"]        = "{$totalPhones} ({$phoneOrdersPercentage}%)";
