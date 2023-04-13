@@ -142,11 +142,13 @@ class EcommerceReportController extends Controller
         $orderType   = $request->orderType;
         $affiliate   = $request->affiliate_id;
         $amGdmIds    = array_merge($this->amIds, $this->gdmIds);
+
         if (!empty($affiliate)) {
             $checkAffiliate = intval($affiliate[0]);
         } else {
             $checkAffiliate = '';
         }
+
         $queryData   = DB::table('ecommerce_sales')
             ->when(
                 $orderType,
@@ -217,10 +219,10 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
-                    ->select($this->payPerOrderSummaryReportColumns($type, $affiliate))
+                    ->select($this->payPerOrderSummaryReportColumns($type, $checkAffiliate, $amGdmIds))
                     ->when(!in_array($checkAffiliate, $amGdmIds), fn ($q) => $q->orderByDesc('Total Amount'))
                     ->when((in_array($checkAffiliate, $amGdmIds) && $type === 'customer'), fn ($q) => $q->orderByDesc('Total Fee'))
-                    ->when((in_array($checkAffiliate, $amGdmIds) && $type != 'customer'), fn ($q) => $q->orderByDesc('Affiliate Fee'))
+                    ->when((in_array($checkAffiliate, $amGdmIds) && $type === 'affiliate'), fn ($q) => $q->orderByDesc('Affiliate Fee'))
             )
             ->when(
                 ($reportFor === 'payPerOrder' && $reportGenOn === 'exportCSV'),
@@ -361,7 +363,7 @@ class EcommerceReportController extends Controller
         return $finalQuery;
     }
 
-    protected function payPerOrderSummaryReportColumns($type, $affiliate)
+    protected function payPerOrderSummaryReportColumns($type, $checkAffiliate, $amGdmIds)
     {
         if ($type === 'customer') {
             $column = 'revenue';
@@ -370,18 +372,6 @@ class EcommerceReportController extends Controller
             $column = 'affiliate_fee';
             $alias = 'Affiliate Fee';
         }
-
-        if (!empty($affiliate)) {
-            $checkAffiliate = intval($affiliate[0]);
-        } else {
-            $checkAffiliate = '';
-        }
-
-        $amGdmIds = array_merge($this->amIds, $this->gdmIds);
-
-        // dd(in_array($checkAffiliate, $amGdmIds));
-        // dd($amGdmIds);
-        // dd($checkAffiliate);
 
         $columns = [
             'affiliates.affiliate_name AS Affiliate Name',
@@ -405,9 +395,11 @@ class EcommerceReportController extends Controller
                         END AS `' . $alias . '`');
 
         if ($type === 'customer' && !in_array($checkAffiliate, $amGdmIds)) {
-            $columns[] = DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
-                ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * COUNT(ecommerce_sales.id)), 2) ELSE
-                ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) END AS `Net Amount`');
+            $columns[] = DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN ""
+                            ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                            ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END)), 2) ELSE
+                            ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) END 
+                            END AS `Net Amount`');
         }
 
         return $columns;
