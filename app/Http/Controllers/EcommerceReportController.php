@@ -665,7 +665,7 @@ class EcommerceReportController extends Controller
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget') {
             return $this->marketTargetSummary($salesData);
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'summary') {
-            return $this->summarySummary($salesData, $type);
+            return $this->summarySummary($salesData, $type, $checkAffiliate);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             return $this->cashBuySummary($salesData, $type);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'marketTarget') {
@@ -904,9 +904,8 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
-    protected function summarySummary($salesData, $type)
+    protected function summarySummary($salesData, $type, $checkAffiliate)
     {
-        return [];
         $totalCouponsSales = 0;
         $totalCoupons      = 0;
         $totalPhonesSales  = 0;
@@ -917,37 +916,51 @@ class EcommerceReportController extends Controller
 
         foreach ($salesData as $data) {
             if (!empty($data->{'Coupon Code'})) {
-                $totalCouponsSales += $data->{'Total Amount'};
-                $totalCoupons      += $data->{'Total Quantity'};
+                $totalCouponsSales += (float) (property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0);
+                $totalCoupons      += (int) $data->{'Total Quantity'};
             }
 
             if (!empty($data->{'Dialed'})) {
-                $totalPhonesSales += $data->{'Total Amount'};
-                $totalPhones      += $data->{'Total Quantity'};
+                $totalPhonesSales += (float) (property_exists($data, 'Total Amount') ? $data->{'Total Amount'} : 0);
+                $totalPhones      += (int) $data->{'Total Quantity'};
             }
 
             if ($type === 'customer') {
                 $totalFee  += (float) $data->{'Total Fee'};
-                $netAmount += $data->{'Net Amount'};
+                $netAmount += (float) (property_exists($data, 'Net Amount') ? $data->{'Net Amount'} : 0);
             } else {
-                $affiliateFee += $data->{'Affiliate Fee'};
+                $affiliateFee += (float) $data->{'Affiliate Fee'};
             }
         }
 
-        $summary = [
-            'Total Coupon Sales'         => $totalCouponsSales,
-            'Total Coupon Sales Count'   => $totalCoupons,
-            'Total Phone Sales'          => $totalPhonesSales,
-            'Total Phone Sales Count'    => $totalPhones,
-            'Total Coupon & Phone'       => ($totalCoupons + $totalPhones),
-            'Total Coupon & Phone Sales' => ($totalCouponsSales + $totalPhonesSales),
-        ];
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+            $summary = [
+                'Total Coupon Sales Count'   => $totalCoupons,
+                'Total Phone Sales Count'    => $totalPhones,
+                'Total Coupon & Phone'       => ($totalCoupons + $totalPhones),
+            ];
 
-        if ($type === 'customer') {
-            $summary['Total Fee']  = $totalFee;
-            $summary['Net Amount'] = $netAmount;
+            if ($type === 'customer') {
+                $summary['Total Fee']  = $totalFee;
+            } else {
+                $summary['Affiliate Fee'] = $affiliateFee;
+            }
         } else {
-            $summary['Affiliate Fee'] = $affiliateFee;
+            $summary = [
+                'Total Coupon Sales'         => $totalCouponsSales,
+                'Total Coupon Sales Count'   => $totalCoupons,
+                'Total Phone Sales'          => $totalPhonesSales,
+                'Total Phone Sales Count'    => $totalPhones,
+                'Total Coupon & Phone'       => ($totalCoupons + $totalPhones),
+                'Total Coupon & Phone Sales' => ($totalCouponsSales + $totalPhonesSales),
+            ];
+
+            if ($type === 'customer') {
+                $summary['Total Fee']  = $totalFee;
+                $summary['Net Amount'] = $netAmount;
+            } else {
+                $summary['Affiliate Fee'] = $affiliateFee;
+            }
         }
 
         return $summary;
