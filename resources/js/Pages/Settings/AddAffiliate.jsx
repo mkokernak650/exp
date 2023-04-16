@@ -60,6 +60,7 @@ const AddAffiliate = () => {
           e.target.reset()
           setErrors({})
           setValues()
+          setSimilarAffiliates('')
         }
       })
       .catch((err) => {

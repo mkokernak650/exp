@@ -81,7 +81,6 @@ class AffiliateController extends Controller
 
     public function storeAffiliate(Request $request)
     {
-        // dd($request->affiliate_name);
         $existData = Affiliate::where([
             ['affiliate_id', '=', $request->affiliate_id],
             ['affiliate_name', '=', $request->affiliate_name],
@@ -103,20 +102,16 @@ class AffiliateController extends Controller
             'market'         => 'required',
         ]);
 
-        $affiliateName          = explode(' ', $request->affiliate_name);
-        $firstFourLetters       = substr($affiliateName[0], 0, 4);
-        $matchingAffiliateNames = Affiliate::where('affiliate_name', 'LIKE', $firstFourLetters . '%')->pluck('affiliate_name');
-        // dd($matchingAffiliateNames->count(), $matchingAffiliateNames);
-        // dd($matchingAffiliateNames);
-        // dd($firstFourLetters);
+        $affiliateName      = explode(' ', $request->affiliate_name);
+        $firstFourLetters   = substr($affiliateName[0], 0, 4);
+        $matchingAffiliates = Affiliate::where('affiliate_name', 'LIKE', $firstFourLetters . '%')->pluck('affiliate_name');
 
-        if ($matchingAffiliateNames->count() > 0) {
-            $matchingAffiliateNames = implode(', ', $matchingAffiliateNames->toArray());
-            $matchFound             = "Similar like affiliate found: {$matchingAffiliateNames}";
+        if ($matchingAffiliates->count() > 0) {
+            $matchingAffiliateNames = implode(', ', $matchingAffiliates->toArray());
+            $matchFound             = "Similar like affiliate(s) found: {$matchingAffiliateNames}";
 
             return response()->json(['msg' => $matchFound], 206);
         }
-
 
         Affiliate::create($request->all());
 
