@@ -32,6 +32,7 @@ const AddAffiliate = () => {
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [similarAffiliates, setSimilarAffiliates] = useState('')
   const { allMarkets } = usePage().props
 
   const handleChange = (e) => {
@@ -48,6 +49,11 @@ const AddAffiliate = () => {
     axios
       .post(route('store.affiliate'), values)
       .then((res) => {
+        if (res.status === 206) {
+          setLoading(false)
+          setErrors({})
+          setSimilarAffiliates(res.data.msg)
+        }
         if (res.status === 200) {
           setLoading(false)
           toast.success(res.data.msg)
@@ -83,8 +89,8 @@ const AddAffiliate = () => {
                 label="Affiliate Name"
                 name="affiliate_name"
                 handleChange={handleChange}
-                error={errors?.affiliate_name}
-                helperText={errors?.affiliate_name?.[0]}
+                error={errors?.affiliate_name || similarAffiliates}
+                helperText={errors?.affiliate_name?.[0] || similarAffiliates}
               />
               <TextInput
                 label="Email"
