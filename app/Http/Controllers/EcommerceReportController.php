@@ -67,6 +67,12 @@ class EcommerceReportController extends Controller
         $summary   = [];
         $header    = [];
 
+        if (!empty($request->affiliate_id)) {
+            $checkAffiliate = intval($request->affiliate_id[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
         $summaryCampaigns = [];
 
         if (isset($request->campaign_id)) {
@@ -98,6 +104,10 @@ class EcommerceReportController extends Controller
                 }
                 return $item;
             });
+        }
+
+        if ($request->reportOn === 'exportCSV' && in_array($checkAffiliate, $this->amIds) && $salesData->count() === 0) {
+            $salesData = $this->csvEmptyTemplateAces();
         }
 
         if ($request->report_type === 'email-report') {
@@ -1188,5 +1198,34 @@ class EcommerceReportController extends Controller
         }
 
         return $header;
+    }
+
+    protected function csvEmptyTemplateAces()
+    {
+        $template[] = [
+            'Vendor'        => ' ',
+            'ProductCode'   => ' ',
+            'CreativeCode'  => ' ',
+            'Station'       => ' ',
+            'Dnis'          => ' ',
+            'CallDate'      => ' ',
+            'CallTime'      => ' ',
+            'ANI'           => ' ',
+            'CallerCity'    => ' ',
+            'CallerState'   => ' ',
+            'CallerZip'     => ' ',
+            'CallerCountry' => ' ',
+            'CallerGender'  => ' ',
+            'City'          => ' ',
+            'State'         => ' ',
+            'Zip'           => ' ',
+            'Revenue'       => ' ',
+            'CallLength'    => ' ',
+            'PaymentMethod' => ' ',
+            'R1'            => ' ',
+            'R2'            => ' '
+        ];
+
+        return collect($template);
     }
 }
