@@ -216,10 +216,6 @@ const EcommerceReport = () => {
 
   let affiliateOptions = []
   affiliateOptions = [{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]
-  // if (orderType.orderType === '2') {
-  //   affiliateOptions.push({ label: 'Aces Marketing', value: acesMarketingId })
-  // }
-
 
   useEffect(() => {
     if (
@@ -441,18 +437,43 @@ const EcommerceReport = () => {
     reportName = 'Detail Report'
   }
 
-  const fileName = `${reportName}${reportType.type === 'customer'
-    ? values?.customer_id
-      ? `_For_(${getCustomerNames().toString()})`
+  let fileName
+
+  if (reportOn.reportOn === 'exportCSV') {
+    let dateRange
+
+    if (!values?.year && values?.start_date) {
+      if (values.start_date === values?.end_date) {
+        dateRange = dateFormat(values.start_date)
+      } else {
+        dateRange = `${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)}`
+      }
+    }
+
+    fileName = `${values?.campaign_id ? `${getCampaignNames().toString()}` : ''}${(!values?.year && values?.start_date)
+      ? ` - ${dateRange}`
       : ''
-    : values?.affiliate_id.length
-      ? `_For_(${getAffiliateNames().toString()})`
-      : ''
-    }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
-      ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
-      : ''
-    }${values?.year ? `_For_(${values.year.toString()})` : ''}`
-  values.file_name = fileName
+      }${values?.year ? ` - ${values.year.toString()}` : ''}`
+
+    if (fileName == '') {
+      fileName = 'Export CSV Report'
+    }
+
+    values.file_name = fileName
+  } else {
+    fileName = `${reportName}${reportType.type === 'customer'
+      ? values?.customer_id
+        ? `_For_(${getCustomerNames().toString()})`
+        : ''
+      : values?.affiliate_id.length
+        ? `_For_(${getAffiliateNames().toString()})`
+        : ''
+      }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
+        ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
+        : ''
+      }${values?.year ? `_For_(${values.year.toString()})` : ''}`
+    values.file_name = fileName
+  }
 
   const handleSubmit = () => {
     if (reportFor.reportFor === '') {
@@ -477,6 +498,11 @@ const EcommerceReport = () => {
 
     if (reportOn.reportOn === 'exportCSV' && reportFor.reportFor != 'payPerOrder') {
       toast.error('Export CSV is only for pay per order')
+      return
+    }
+
+    if (!values?.year && (values?.start_date && !values?.end_date)) {
+      toast.error('Please select start date and end date both')
       return
     }
 
