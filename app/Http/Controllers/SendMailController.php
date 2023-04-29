@@ -11,7 +11,7 @@ class SendMailController extends Controller
 {
     public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header)
     {
-        $mergedEmails  = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com', 'shoen@bitcode.pro']);
+        $mergedEmails  = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com']);
         $michaelEmails = array_unique($mergedEmails);
         // $michaelEmails = ['fahim@bitcode.pro'];
         if (app()->environment('local')) {
