@@ -684,9 +684,9 @@ class EcommerceReportController extends Controller
                 }
             }
             if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
-                return $this->affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate);
+                return $this->affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns, $affiliate, $selectedCampaigns, $selectedCustomers);
             } else {
-                return $this->affiliateSummary($salesData, $checkAffiliate);
+                return $this->affiliateSummary($salesData, $affiliate, $selectedCampaigns, $selectedCustomers);
             }
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget') {
             return $this->marketTargetSummary($salesData);
@@ -850,8 +850,26 @@ class EcommerceReportController extends Controller
         return $campaignSeparatedSummary;
     }
 
-    protected function affiliateSummary($salesData, $checkAffiliate)
+    protected function affiliateSummary($salesData, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $SheerScienceAllAffiliate = false;
+        }
+
         $summary       = [];
         $totalQuantity = 0;
         $totalCoupons  = 0;
@@ -881,7 +899,7 @@ class EcommerceReportController extends Controller
         $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
         $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $SheerScienceAllAffiliate) {
             $summary["Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
             $summary["Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
             $summary["Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
@@ -897,8 +915,26 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
-    protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate)
+    protected function affiliateCampaignSeparatedSummary($salesData, $summaryCampaigns, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $SheerScienceAllAffiliate = false;
+        }
+
         foreach ($summaryCampaigns as $summaryCampaign) {
             $summary       = [];
             $totalQuantity = 0;
@@ -931,7 +967,7 @@ class EcommerceReportController extends Controller
             $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
             $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-            if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+            if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $SheerScienceAllAffiliate) {
                 $summary["{$summaryCampaign} Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
