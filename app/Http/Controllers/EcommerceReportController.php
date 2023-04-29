@@ -19,11 +19,15 @@ class EcommerceReportController extends Controller
 {
     private $amIds;
     private $gdmIds;
+    private $paId;
+    private $ssId;
 
     public function __construct()
     {
         $this->amIds  = Affiliate::where('affiliate_name', 'like', '%Aces Marketing%')->pluck('id')->toArray();
         $this->gdmIds = Affiliate::where('affiliate_name', 'like', '%Golden Direct Media%')->pluck('id')->toArray();
+        $this->paId   = EcommerceCampaign::where('campaign_name', 'like', '%Powerswabs%')->pluck('id')->first();
+        $this->ssId   = Customer::where('customer_name', 'like', '%Sheer Science%')->pluck('id')->first();
     }
 
     public function ecommerceReport()
@@ -81,7 +85,7 @@ class EcommerceReportController extends Controller
 
         if ($request->reportOn != 'exportCSV') {
             $header  = $this->getHeader($request);
-            $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns, $request->affiliate_id);
+            $summary = $this->getReportSummary($request->reportFor, $request->reportOn, $request->type, $salesData, $summaryCampaigns, $request->affiliate_id, $request->campaign_id, $request->customer_id);
 
             if (!empty($request->year)) {
                 $selectedYears        = implode(', ', $request->year);
@@ -212,7 +216,7 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.id')
-                    ->select($this->payPerOrderDetailReportColumns($type, $orderType, $affiliate))
+                    ->select($this->payPerOrderDetailReportColumns($type, $orderType, $affiliate, $request->campaign_id, $request->customer_id))
                     ->orderBy('ecommerce_sales.order_at')
             )
             ->when(
@@ -487,7 +491,7 @@ class EcommerceReportController extends Controller
         return $array;
     }
 
-    protected function payPerOrderDetailReportColumns($type, $orderType, $affiliate)
+    protected function payPerOrderDetailReportColumns($type, $orderType, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
         if ($type === 'customer') {
             $column = 'revenue';
@@ -503,7 +507,19 @@ class EcommerceReportController extends Controller
             $checkAffiliate = '';
         }
 
-        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $SheerScienceAllAffiliate = false;
+        }
+
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $SheerScienceAllAffiliate) {
             $selectRows = [
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%Y/%m/%d") AS `Date of call`'),
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Time of call`'),
@@ -651,7 +667,7 @@ class EcommerceReportController extends Controller
         ];
     }
 
-    protected function getReportSummary($reportFor, $reportGenOn, $type, $salesData, $summaryCampaigns, $affiliate)
+    protected function getReportSummary($reportFor, $reportGenOn, $type, $salesData, $summaryCampaigns, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
         if (!empty($affiliate)) {
             $checkAffiliate = intval($affiliate[0]);
@@ -662,9 +678,9 @@ class EcommerceReportController extends Controller
         if ($reportFor === 'payPerOrder' && $reportGenOn === 'detail') {
             if ($type === 'customer') {
                 if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
-                    return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate);
+                    return $this->customerCampaignSeparatedSummary($salesData, $summaryCampaigns, $affiliate, $selectedCampaigns, $selectedCustomers);
                 } else {
-                    return $this->customerSummary($salesData, $checkAffiliate);
+                    return $this->customerSummary($salesData, $affiliate, $selectedCampaigns, $selectedCustomers);
                 }
             }
             if (!empty($summaryCampaigns) && !empty($salesData->toArray())) {
@@ -686,8 +702,26 @@ class EcommerceReportController extends Controller
         return [];
     }
 
-    protected function customerSummary($salesData, $checkAffiliate)
+    protected function customerSummary($salesData, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $SheerScienceAllAffiliate = false;
+        }
+
         $summary       = [];
         $totalCoupons  = 0;
         $totalPhones   = 0;
@@ -720,7 +754,7 @@ class EcommerceReportController extends Controller
         $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
         $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $SheerScienceAllAffiliate) {
             $summary['Total Coupon']   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
             $summary['Total Phone']    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
             $summary['Total Quantity'] = "{$totalQuantity} {$totalQuantityPercentage}";
@@ -737,8 +771,26 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
-    protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns, $checkAffiliate)
+    protected function customerCampaignSeparatedSummary($salesData, $summaryCampaigns, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $SheerScienceAllAffiliate = false;
+        }
+
         foreach ($summaryCampaigns as $summaryCampaign) {
             $summary       = [];
             $totalQuantity = 0;
@@ -774,7 +826,7 @@ class EcommerceReportController extends Controller
             $totalQuantityPercentage = $totalQuantity != 0 ? '(100%)' : '(0%)';
             $totalAmountPercentage   = $totalAmount != 0 ? ' (100%)' : ' (0%)';
 
-            if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+            if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $SheerScienceAllAffiliate) {
                 $summary["{$summaryCampaign} Total Coupon"]   = "{$totalCoupons} ({$couponOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Phone"]    = "{$totalPhones} ({$phoneOrdersPercentage}%)";
                 $summary["{$summaryCampaign} Total Quantity"] = "{$totalQuantity} {$totalQuantityPercentage}";
