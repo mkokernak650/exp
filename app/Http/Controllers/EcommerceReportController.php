@@ -233,10 +233,8 @@ class EcommerceReportController extends Controller
                 fn ($q) => $q
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
-                    ->select($this->payPerOrderSummaryReportColumns($type, $checkAffiliate, $amGdmIds))
-                    ->when(!in_array($checkAffiliate, $amGdmIds), fn ($q) => $q->orderByDesc('Total Amount'))
-                    ->when((in_array($checkAffiliate, $amGdmIds) && $type === 'customer'), fn ($q) => $q->orderByDesc('Total Fee'))
-                    ->when((in_array($checkAffiliate, $amGdmIds) && $type === 'affiliate'), fn ($q) => $q->orderByDesc('Affiliate Fee'))
+                    ->select($this->payPerOrderSummaryReportColumns($type, $affiliate, $amGdmIds, $request->campaign_id, $request->customer_id))
+                    ->orderByDesc($this->payPerOrderSummaryReportOrderBy($affiliate, $type, $request->campaign_id, $request->customer_id, $amGdmIds))
             )
             ->when(
                 ($reportFor === 'payPerOrder' && $reportGenOn === 'exportCSV'),
@@ -377,7 +375,7 @@ class EcommerceReportController extends Controller
         return $finalQuery;
     }
 
-    protected function payPerOrderSummaryReportColumns($type, $checkAffiliate, $amGdmIds)
+    protected function payPerOrderSummaryReportColumns($type, $affiliate, $amGdmIds, $selectedCampaigns, $selectedCustomers)
     {
         if ($type === 'customer') {
             $column = 'revenue';
@@ -387,33 +385,65 @@ class EcommerceReportController extends Controller
             $alias = 'Affiliate Fee';
         }
 
-        $columns = [
-            'affiliates.affiliate_name AS Affiliate Name',
-            'ecommerce_campaigns.campaign_name AS Campaign Name',
-            'ecommerce_affiliates.product_code AS ISCI Code',
-            'affiliates.market AS Affiliate Market',
-            DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
-            'ecommerce_sales.coupon_code AS Coupon Code',
-            'ecommerce_sales.dialed AS Dialed',
-            DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
-        ];
-
-        if (!in_array($checkAffiliate, $amGdmIds)) {
-            $columns[] = DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`');
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
         }
 
-        $columns[] =  DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $sheerScienceAllAffiliate = false;
+        }
+
+        if (in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) {
+            $columns = [
+                'affiliates.affiliate_name AS Affiliate Name',
+                'ecommerce_campaigns.campaign_name AS Campaign Name',
+                'ecommerce_affiliates.product_code AS ISCI Code',
+                'affiliates.market AS Affiliate Market',
+                DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
+                'ecommerce_sales.coupon_code AS Coupon Code',
+                'ecommerce_sales.dialed AS Dialed',
+                DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
                         ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
                         ROUND(ecommerce_affiliates.' . $column . ' * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END), 2) ELSE
                         ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) END
-                        END AS `' . $alias . '`');
+                        END AS `' . $alias . '`')
+            ];
+        } else {
+            $columns = [
+                'affiliates.affiliate_name AS Affiliate Name',
+                'ecommerce_campaigns.campaign_name AS Campaign Name',
+                'ecommerce_affiliates.product_code AS ISCI Code',
+                'affiliates.market AS Affiliate Market',
+                DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
+                'ecommerce_sales.coupon_code AS Coupon Code',
+                'ecommerce_sales.dialed AS Dialed',
+                DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
+                DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Amount`'),
+                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
+                        ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                        ROUND(ecommerce_affiliates.' . $column . ' * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END), 2) ELSE
+                        ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) END
+                        END AS `' . $alias . '`'),
+            ];
 
-        if ($type === 'customer' && !in_array($checkAffiliate, $amGdmIds)) {
-            $columns[] = DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN ""
-                            ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
-                            ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END)), 2) ELSE
-                            ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) END 
-                            END AS `Net Amount`');
+            if ($type === 'customer') {
+                $columns[] = DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN ""
+                                ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+                                ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END)), 2) ELSE
+                                ROUND(SUM(ecommerce_sales.total) - (ecommerce_affiliates.revenue * SUM(ecommerce_sales.quantity)), 2) END 
+                                END AS `Net Amount`');
+            }
         }
 
         return $columns;
@@ -691,7 +721,7 @@ class EcommerceReportController extends Controller
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'marketTarget') {
             return $this->marketTargetSummary($salesData);
         } elseif ($reportFor === 'payPerOrder' && $reportGenOn === 'summary') {
-            return $this->summarySummary($salesData, $type, $checkAffiliate);
+            return $this->summarySummary($salesData, $type, $affiliate, $selectedCampaigns, $selectedCustomers);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'detail') {
             return $this->cashBuySummary($salesData, $type);
         } elseif ($reportFor === 'cashBuy' && $reportGenOn === 'marketTarget') {
@@ -1002,8 +1032,26 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
-    protected function summarySummary($salesData, $type, $checkAffiliate)
+    protected function summarySummary($salesData, $type, $affiliate, $selectedCampaigns, $selectedCustomers)
     {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $sheerScienceAllAffiliate = false;
+        }
+
         $totalCouponsSales = 0;
         $totalCoupons      = 0;
         $totalPhonesSales  = 0;
@@ -1031,7 +1079,7 @@ class EcommerceReportController extends Controller
             }
         }
 
-        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds)) {
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) {
             $summary = [
                 'Total Coupon Sales Count'   => $totalCoupons,
                 'Total Phone Sales Count'    => $totalPhones,
@@ -1315,5 +1363,34 @@ class EcommerceReportController extends Controller
         ];
 
         return collect($template);
+    }
+
+    protected function payPerOrderSummaryReportOrderBy($affiliate, $type, $selectedCampaigns, $selectedCustomers, $amGdmIds)
+    {
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $sheerScienceAllAffiliate = false;
+        }
+
+        if ((in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) && $type === 'customer') {
+            return 'Total Fee';
+        } elseif ((in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) && $type === 'affiliate') {
+            return 'Affiliate Fee';
+        } else {
+            return 'Total Amount';
+        }
     }
 }
