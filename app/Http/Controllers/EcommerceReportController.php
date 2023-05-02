@@ -1258,6 +1258,16 @@ class EcommerceReportController extends Controller
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
         $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
 
+        if ($requestData->orderType === 'both') {
+            $type = 'E-commerce & Phone';
+        } elseif ($requestData->orderType === '1') {
+            $type = 'E-commerce';
+        } elseif ($requestData->orderType === '2') {
+            $type = 'Phone';
+        } else {
+            $type = '';
+        }
+
         if (!empty($requestData->campaign_id)) {
             $getCampaigns = EcommerceCampaign::toBase()->whereIn('id', $requestData->campaign_id)->pluck('campaign_name');
             $campaigns    = implode(', ', $getCampaigns->toArray());
@@ -1277,6 +1287,17 @@ class EcommerceReportController extends Controller
             $affiliates    = implode(', ', $getAffiliates->toArray());
         } else {
             $affiliates = '';
+        }
+
+        if (!empty($requestData->year)) {
+            $selectedYears = implode(', ', $requestData->year);
+            $dateRange     = $selectedYears;
+        } elseif (isset($requestData->start_date) && isset($requestData->end_date)) {
+            $startingDate = date_format(date_create($requestData->start_date), 'd-M-Y');
+            $endingDate   = date_format(date_create($requestData->end_date), 'd-M-Y');
+            $dateRange    = "{$startingDate} - {$endingDate}";
+        } else {
+            $dateRange = '';
         }
 
         if ($requestData->reportOn === 'detail') {
@@ -1309,31 +1330,9 @@ class EcommerceReportController extends Controller
         }
 
         if ($requestData->reportOn === 'summary') {
-            if ($requestData->orderType === 'both') {
-                $header['Type'] = 'E-commerce & Phone';
-            } elseif ($requestData->orderType === '1') {
-                $header['Type'] = 'E-commerce';
-            } elseif ($requestData->orderType === '2') {
-                $header['Type'] = 'Phone';
-            }
-
-            $header['Affiliates'] = '';
-
-            if (!empty($affiliates)) {
-                $header['Affiliates'] = $affiliates;
-            }
-
-            $header['Date Range'] = '';
-
-            if (!empty($requestData->year)) {
-                $selectedYears        = implode(', ', $requestData->year);
-                $header['Date Range'] = $selectedYears;
-            } elseif (isset($requestData->start_date) && isset($requestData->end_date)) {
-                $startingDate         = date_format(date_create($requestData->start_date), 'd-M-Y');
-                $endingDate           = date_format(date_create($requestData->end_date), 'd-M-Y');
-                $header['Date Range'] = "{$startingDate} - {$endingDate}";
-            }
-
+            $header['Type']          = $type;
+            $header['Affiliates']    = $affiliates;
+            $header['Date Range']    = $dateRange;
             $header['Prepared by']   = $userFullName;
             $header['ConsumerEXP']   = 'www.consumerexp.com';
             $header['Prepared Time'] = $preparedTime;
@@ -1341,6 +1340,9 @@ class EcommerceReportController extends Controller
 
         if ($requestData->reportOn === 'marketTarget') {
             $header['Market Target Report'] = '';
+            $header['Type']                 = $type;
+            $header['Affiliates']           = $affiliates;
+            $header['Date Range']           = $dateRange;
             $header['Campaign']             = $campaigns;
             $header['Prepared by']          = $userFullName;
             $header['ConsumerEXP']          = 'www.consumerexp.com';
