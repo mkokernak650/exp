@@ -1312,12 +1312,29 @@ class EcommerceReportController extends Controller
         }
 
         if ($requestData->reportOn === 'summary') {
-            $header['Summary Report'] = '';
+            if ($requestData->orderType === 'both') {
+                $header['Type'] = 'E-commerce & Phone';
+            } elseif ($requestData->orderType === '1') {
+                $header['Type'] = 'E-commerce';
+            } elseif ($requestData->orderType === '2') {
+                $header['Type'] = 'Phone';
+            }
 
-            if ($requestData->type === "customer" && !empty($customers)) {
-                $header['Summary Report'] = $customers;
-            } elseif ($requestData->type === "affiliate" && !empty($affiliates)) {
-                $header['Summary Report'] = $affiliates;
+            $header['Affiliates'] = '';
+
+            if (!empty($affiliates)) {
+                $header['Affiliates'] = $affiliates;
+            }
+
+            $header['Date Range'] = '';
+
+            if (!empty($requestData->year)) {
+                $selectedYears        = implode(', ', $requestData->year);
+                $header['Date Range'] = $selectedYears;
+            } elseif (isset($requestData->start_date) && isset($requestData->end_date)) {
+                $startingDate         = date_format(date_create($requestData->start_date), 'd-M-Y');
+                $endingDate           = date_format(date_create($requestData->end_date), 'd-M-Y');
+                $header['Date Range'] = "{$startingDate} - {$endingDate}";
             }
 
             $header['Prepared by']   = $userFullName;
