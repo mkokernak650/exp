@@ -157,12 +157,6 @@ class EcommerceReportController extends Controller
         $affiliate   = $request->affiliate_id;
         $amGdmIds    = array_merge($this->amIds, $this->gdmIds);
 
-        if (!empty($affiliate)) {
-            $checkAffiliate = intval($affiliate[0]);
-        } else {
-            $checkAffiliate = '';
-        }
-
         $queryData   = DB::table('ecommerce_sales')
             ->when(
                 $orderType,
@@ -234,7 +228,6 @@ class EcommerceReportController extends Controller
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->groupBy('ecommerce_sales.coupon_code', 'ecommerce_sales.dialed')
                     ->select($this->payPerOrderSummaryReportColumns($type, $affiliate, $amGdmIds, $request->campaign_id, $request->customer_id))
-                    ->orderByDesc($this->payPerOrderSummaryReportOrderBy($affiliate, $type, $request->campaign_id, $request->customer_id, $amGdmIds))
             )
             ->when(
                 ($reportFor === 'payPerOrder' && $reportGenOn === 'exportCSV'),
@@ -256,6 +249,10 @@ class EcommerceReportController extends Controller
                     ->select($this->cashBuySummaryReportColumns())
             )
             ->get();
+
+        if ($reportFor === 'payPerOrder' && $reportGenOn === 'summary') {
+            return $this->payPerOrderSummaryReportOrderBy($affiliate, $type, $request->campaign_id, $request->customer_id, $amGdmIds, $queryData)->values();
+        }
 
         if ($reportFor === 'cashBuy' && $reportGenOn != 'summary') {
             if (!empty($markets) && !in_array('allMarkets', $markets)) {
@@ -1382,7 +1379,7 @@ class EcommerceReportController extends Controller
         return collect($template);
     }
 
-    protected function payPerOrderSummaryReportOrderBy($affiliate, $type, $selectedCampaigns, $selectedCustomers, $amGdmIds)
+    protected function payPerOrderSummaryReportOrderBy($affiliate, $type, $selectedCampaigns, $selectedCustomers, $amGdmIds, $queryData)
     {
         if (!empty($affiliate)) {
             $checkAffiliate = intval($affiliate[0]);
@@ -1402,12 +1399,14 @@ class EcommerceReportController extends Controller
             $sheerScienceAllAffiliate = false;
         }
 
-        if ((in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) && $type === 'customer') {
-            return 'Total Fee';
-        } elseif ((in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) && $type === 'affiliate') {
-            return 'Affiliate Fee';
-        } else {
-            return 'Total Amount';
-        }
+        return $queryData->sortByDesc(function ($item) use ($checkAffiliate, $amGdmIds, $type, $powerswabsAllAffiliate, $sheerScienceAllAffiliate) {
+            if ((in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) && $type === 'customer') {
+                return (float) $item->{'Total Fee'};
+            } elseif ((in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) && $type === 'affiliate') {
+                return (float) $item->{'Affiliate Fee'};
+            } else {
+                return (float) $item->{'Total Amount'};
+            }
+        });
     }
 }
