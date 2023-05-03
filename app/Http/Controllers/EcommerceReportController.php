@@ -1355,27 +1355,27 @@ class EcommerceReportController extends Controller
     protected function csvEmptyTemplateAces()
     {
         $template[] = [
-            'Vendor'        => ' ',
-            'ProductCode'   => ' ',
-            'CreativeCode'  => ' ',
-            'Station'       => ' ',
-            'Dnis'          => ' ',
-            'CallDate'      => ' ',
-            'CallTime'      => ' ',
-            'ANI'           => ' ',
-            'CallerCity'    => ' ',
-            'CallerState'   => ' ',
-            'CallerZip'     => ' ',
-            'CallerCountry' => ' ',
-            'CallerGender'  => ' ',
-            'City'          => ' ',
-            'State'         => ' ',
-            'Zip'           => ' ',
-            'Revenue'       => ' ',
-            'CallLength'    => ' ',
-            'PaymentMethod' => ' ',
-            'R1'            => ' ',
-            'R2'            => ' '
+            'Vendor'        => '',
+            'ProductCode'   => '',
+            'CreativeCode'  => '',
+            'Station'       => '',
+            'Dnis'          => '',
+            'CallDate'      => '',
+            'CallTime'      => '',
+            'ANI'           => '',
+            'CallerCity'    => '',
+            'CallerState'   => '',
+            'CallerZip'     => '',
+            'CallerCountry' => '',
+            'CallerGender'  => '',
+            'City'          => '',
+            'State'         => '',
+            'Zip'           => '',
+            'Revenue'       => '',
+            'CallLength'    => '',
+            'PaymentMethod' => '',
+            'R1'            => '',
+            'R2'            => ''
         ];
 
         return collect($template);
