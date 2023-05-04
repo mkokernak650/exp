@@ -43,6 +43,14 @@ export const ExportReportWithTag = (apiData, fileName) => {
 }
 
 export const exportReportEcommerce = (apiData, fileName, reportOn) => {
+  if (reportOn.reportOn === 'exportCSV' && apiData.data === 'csvEmptyTemplateAces') {
+    const emptyTemplate = new Blob([['Vendor', 'ProductCode', 'CreativeCode', 'Station', 'Dnis', 'CallDate', 'CallTime', 'ANI', 'CallerCity', 'CallerState',
+      'CallerZip', 'CallerCountry', 'CallerGender', 'City', 'State', 'Zip', 'Revenue', 'CallLength', 'PaymentMethod', 'R1', 'R2']], { type: fileType })
+    FileSaver.saveAs(emptyTemplate, fileName + '.csv')
+    toast.success('Report generated successfully')
+    return
+  }
+
   let mainDataOrigin, headerLength = 0
 
   if (Object.keys(apiData.header).length) {

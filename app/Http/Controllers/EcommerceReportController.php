@@ -111,7 +111,8 @@ class EcommerceReportController extends Controller
         }
 
         if ($request->reportOn === 'exportCSV' && in_array($checkAffiliate, $this->amIds) && $salesData->count() === 0) {
-            $salesData = $this->csvEmptyTemplateAces();
+            $salesData = 'csvEmptyTemplateAces';
+            // $salesData = $this->csvEmptyTemplateAces();
         }
 
         if ($request->report_type === 'email-report') {
@@ -1352,34 +1353,34 @@ class EcommerceReportController extends Controller
         return $header;
     }
 
-    protected function csvEmptyTemplateAces()
-    {
-        $template[] = [
-            'Vendor'        => '',
-            'ProductCode'   => '',
-            'CreativeCode'  => '',
-            'Station'       => '',
-            'Dnis'          => '',
-            'CallDate'      => '',
-            'CallTime'      => '',
-            'ANI'           => '',
-            'CallerCity'    => '',
-            'CallerState'   => '',
-            'CallerZip'     => '',
-            'CallerCountry' => '',
-            'CallerGender'  => '',
-            'City'          => '',
-            'State'         => '',
-            'Zip'           => '',
-            'Revenue'       => '',
-            'CallLength'    => '',
-            'PaymentMethod' => '',
-            'R1'            => '',
-            'R2'            => ''
-        ];
+    // protected function csvEmptyTemplateAces()
+    // {
+    //     $template[] = [
+    //         'Vendor'        => '',
+    //         'ProductCode'   => '',
+    //         'CreativeCode'  => '',
+    //         'Station'       => '',
+    //         'Dnis'          => '',
+    //         'CallDate'      => '',
+    //         'CallTime'      => '',
+    //         'ANI'           => '',
+    //         'CallerCity'    => '',
+    //         'CallerState'   => '',
+    //         'CallerZip'     => '',
+    //         'CallerCountry' => '',
+    //         'CallerGender'  => '',
+    //         'City'          => '',
+    //         'State'         => '',
+    //         'Zip'           => '',
+    //         'Revenue'       => '',
+    //         'CallLength'    => '',
+    //         'PaymentMethod' => '',
+    //         'R1'            => '',
+    //         'R2'            => ''
+    //     ];
 
-        return collect($template);
-    }
+    //     return collect($template);
+    // }
 
     protected function payPerOrderSummaryReportOrderBy($affiliate, $type, $selectedCampaigns, $selectedCustomers, $amGdmIds, $queryData)
     {
