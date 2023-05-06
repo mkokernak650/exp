@@ -416,14 +416,13 @@ const EcommerceReport = () => {
   }
 
   const dateFormat = (dataParam) => {
-    return dataParam
-    // let newDate = new Date(dataParam)
-    // let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
-    // let format_date = newDate
-    // let dd = String(format_date.getDate()).padStart(2, '0')
-    // let yyyy = format_date.getFullYear()
-    // format_date = dd + '-' + shortMonth + '-' + yyyy
-    // return format_date
+    let newDate = new Date(dataParam + 'T00:00:00')
+    let shortMonth = newDate.toLocaleString('en-us', { month: 'short' })
+    let format_date = newDate
+    let dd = String(format_date.getDate()).padStart(2, '0')
+    let yyyy = format_date.getFullYear()
+    format_date = dd + '-' + shortMonth + '-' + yyyy
+    return format_date
   }
 
   let reportName
