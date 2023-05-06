@@ -178,7 +178,7 @@ const EcommerceReport = () => {
     const affiliateNames = []
     Object.values(affiliateList).map((item) => {
       if (values.affiliate_id.includes(item.value)) {
-        affiliateNames.push(item.label)
+        affiliateNames.push(item.label.replace(/\s?\([^)]*\)/g, ""))
       }
     })
     return affiliateNames
