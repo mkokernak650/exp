@@ -18,15 +18,21 @@ class SendMailController extends Controller
             $michaelEmails = ['fahimikbal97@gmail.com'];
         }
 
-        if ($reportOn === 'exportCSV') {
-            Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+        if ($sheetData === 'csvEmptyTemplateAces') {
+            $data = $sheetData;
         } else {
-            Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.xlsx');
+            $data = [];
+
+            if ($reportOn === 'exportCSV') {
+                Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+            } else {
+                Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.xlsx');
+            }
         }
 
         if (count($michaelEmails)) {
             foreach ($michaelEmails as $email) {
-                Notification::route('mail', $email)->notify(new SendMail($fileName, $emailCriteria, $reportOn));
+                Notification::route('mail', $email)->notify(new SendMail($fileName, $emailCriteria, $reportOn, $data));
             }
         }
     }
