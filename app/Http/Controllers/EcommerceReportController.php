@@ -129,7 +129,7 @@ class EcommerceReportController extends Controller
             $summary       = $request->reportOn != 'exportCSV' ? ['Summary' => ''] + $summary : $summary;
             $sendMailCtrl  = new SendMailController();
 
-            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria, $header);
+            $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria, $header, $request->reportOn);
 
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }

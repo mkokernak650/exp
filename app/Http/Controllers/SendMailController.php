@@ -9,19 +9,24 @@ use App\Notifications\SendMail;
 
 class SendMailController extends Controller
 {
-    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header)
+    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header, $reportOn)
     {
         $mergedEmails  = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com']);
         $michaelEmails = array_unique($mergedEmails);
+
         if (app()->environment('local')) {
-            // $michaelEmails = ['shosen@bitcode.pro'];
             $michaelEmails = ['fahimikbal97@gmail.com'];
         }
 
-        Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header), $fileName . '.xlsx');
+        if ($reportOn === 'exportCSV') {
+            Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+        } else {
+            Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.xlsx');
+        }
+
         if (count($michaelEmails)) {
             foreach ($michaelEmails as $email) {
-                Notification::route('mail', $email)->notify(new SendMail($fileName, $emailCriteria));
+                Notification::route('mail', $email)->notify(new SendMail($fileName, $emailCriteria, $reportOn));
             }
         }
     }

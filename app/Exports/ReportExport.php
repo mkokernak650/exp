@@ -18,14 +18,16 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
     protected $callSummary;
     protected $tagData;
     protected $header;
+    protected $reportOn;
 
-    public function __construct($data, $callSummary, $tagData, $header)
+    public function __construct($data, $callSummary, $tagData, $header, $reportOn)
     {
         $this->header      = $header;
         $this->headings    = isset($data[0]) ? array_keys((array)$data[0]) : [];
         $this->sheetData   = $data;
         $this->callSummary = $callSummary;
         $this->tagData     = $tagData;
+        $this->reportOn    = $reportOn;
     }
 
     public function collection()
@@ -40,7 +42,7 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
 
     public function styles(Worksheet $sheet): array
     {
-        if (count($this->headings) < 1) {
+        if ((count($this->headings) < 1) || $this->reportOn === 'exportCSV') {
             return [];
         }
 

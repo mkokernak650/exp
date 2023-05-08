@@ -15,16 +15,20 @@ class SendMail extends Notification implements ShouldQueue
 
     protected $fileName;
     protected $emailCriteria;
+    protected $reportOn;
+    protected $fileExt;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($fileName, $emailCriteria)
+    public function __construct($fileName, $emailCriteria, $reportOn)
     {
         $this->fileName      = $fileName;
         $this->emailCriteria = $emailCriteria;
+        $this->reportOn      = $reportOn;
+        $this->fileExt       = $reportOn === 'exportCSV' ? '.csv' : '.xlsx';
     }
 
     /**
@@ -62,7 +66,7 @@ class SendMail extends Notification implements ShouldQueue
                 ->line(new HtmlString($this->emailCriteria != null ? "**Report on:**<br><br> {$this->emailCriteria}" : ''))
                 ->line('Please find the attached results report for the campaign.')
                 ->line('Thank you')->attach($filePath, [
-                    'as' => $this->fileName . '.xlsx',
+                    'as' => $this->fileName . $this->fileExt,
                 ]);
         }
     }
