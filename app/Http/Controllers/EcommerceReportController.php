@@ -126,7 +126,7 @@ class EcommerceReportController extends Controller
             }
 
             $emailCriteria = $this->getEmailCriteria($request);
-            $summary       = ['Summary' => ''] + $summary;
+            $summary       = $request->reportOn != 'exportCSV' ? ['Summary' => ''] + $summary : $summary;
             $sendMailCtrl  = new SendMailController();
 
             $sendMailCtrl->sendMail($salesData, $summary, [], $request->file_name, $emails, $emailCriteria, $header);

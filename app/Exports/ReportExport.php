@@ -69,18 +69,24 @@ class ReportExport implements WithHeadings, FromCollection, WithStyles, ShouldAu
             };
         }
 
-        $events[AfterSheet::class] = function (AfterSheet $event) {
-            for ($i = 0; $i < 3; $i++) {
-                $event->sheet->appendRows([[' ', ' ']], $event);
-            }
+        if (!empty($this->callSummary)) {
+            $events[AfterSheet::class] = function (AfterSheet $event) {
+                for ($i = 0; $i < 3; $i++) {
+                    $event->sheet->appendRows([[' ', ' ']], $event);
+                }
 
-            foreach ($this->callSummary as $key => $value) {
-                $event->sheet->appendRows([[$key, (string)$value]], $event);
-            }
+                foreach ($this->callSummary as $key => $value) {
+                    $event->sheet->appendRows([[$key, (string)$value]], $event);
+                }
 
-            $event->sheet->getDelegate();
-        };
+                $event->sheet->getDelegate();
+            };
+        }
 
-        return $events;
+        if (!empty($this->header) || !empty($this->callSummary)) {
+            return $events;
+        } else {
+            return [];
+        }
     }
 }
