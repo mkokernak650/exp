@@ -219,7 +219,7 @@ class EcommerceReportController extends Controller
                     ->where('ecommerce_affiliates.affiliate_fee_type', '=', 1)
                     ->whereNotNull('zipcode_by_television_markets.market')
                     ->groupBy('zipcode_by_television_markets.market')
-                    ->select($this->payPerOrderMarketTargetReportColumns())
+                    ->select($this->payPerOrderMarketTargetReportColumns($type, $affiliate, $amGdmIds, $request->campaign_id, $request->customer_id))
                     ->orderBy('Homes Per Sales')
             )
             ->when(
@@ -462,15 +462,52 @@ class EcommerceReportController extends Controller
         ];
     }
 
-    protected function payPerOrderMarketTargetReportColumns()
+    protected function payPerOrderMarketTargetReportColumns($type, $affiliate, $amGdmIds, $selectedCampaigns, $selectedCustomers)
     {
-        return [
+        if ($type === 'customer') {
+            $column = 'revenue';
+            $alias = 'Total Revenue';
+        } else {
+            $column = 'affiliate_fee';
+            $alias = 'Total Revenue';
+        }
+
+        if (!empty($affiliate)) {
+            $checkAffiliate = intval($affiliate[0]);
+        } else {
+            $checkAffiliate = '';
+        }
+
+        if (!empty($selectedCampaigns)) {
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+        } else {
+            $powerswabsAllAffiliate = false;
+        }
+
+        if (!empty($selectedCustomers)) {
+            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+        } else {
+            $sheerScienceAllAffiliate = false;
+        }
+
+        $columns =  [
             'zipcode_by_television_markets.market AS Customer Market',
             't_v_households.tv_households AS TV Households',
             DB::raw('SUM(ecommerce_sales.quantity) AS `Total Quantity`'),
             DB::raw('ROUND(t_v_households.tv_households / SUM(ecommerce_sales.quantity), 2) AS `Homes Per Sales`'),
-            DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`'),
         ];
+
+        if (in_array($checkAffiliate, $amGdmIds) || $powerswabsAllAffiliate || $sheerScienceAllAffiliate) {
+            $columns[] =  DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
+            ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
+            ROUND(ecommerce_affiliates.' . $column . ' * COUNT(CASE WHEN ecommerce_sales.quantity IS NOT NULL AND ecommerce_sales.quantity > 0 THEN ecommerce_sales.id END), 2) ELSE
+            ROUND(ecommerce_affiliates.' . $column . ' * SUM(ecommerce_sales.quantity), 2) END
+            END AS `' . $alias . '`');
+        } else {
+            $columns[] = DB::raw('ROUND(SUM(ecommerce_sales.total), 2) AS `Total Revenue`');
+        }
+
+        return $columns;
     }
 
     protected function cashBuyMarketTargetReportColumns()
