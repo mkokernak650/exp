@@ -54,7 +54,7 @@ class SendMail extends Notification implements ShouldQueue
     {
         if (file_exists(storage_path('framework') . DIRECTORY_SEPARATOR . 'laravel-excel')) {
             if ($this->data === 'csvEmptyTemplateAces') {
-                $filePath = public_path('CSVFile\emptyCSVFile.csv');
+                $filePath = public_path('CSVFile/emptyCSVFile.csv');
             } else {
                 $allFiles = File::allFiles(storage_path('framework') . DIRECTORY_SEPARATOR . 'laravel-excel');
                 $latest_ctime = 0;
