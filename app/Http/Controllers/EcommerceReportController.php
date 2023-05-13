@@ -525,7 +525,7 @@ class EcommerceReportController extends Controller
     }
 
     // add new column for detailed sales report depending on order type
-    protected function addColumnToArray($array, $orderType, $offset, $affiliate)
+    protected function addColumnToArray($array, $orderType, $offset, $affiliate, $powerswabsAllAffiliate = false, $SheerScienceAllAffiliate = false)
     {
         if (!empty($affiliate)) {
             $checkAffiliate = intval($affiliate[0]);
@@ -533,14 +533,16 @@ class EcommerceReportController extends Controller
             $checkAffiliate = '';
         }
 
-        if (in_array($checkAffiliate, $this->amIds)) {
-            if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
-                $dialedColumn = ['ecommerce_sales.dialed AS 800#', 'ecommerce_sales.coupon_code AS Station Code'];
-                array_splice($array, $offset, 0, $dialedColumn);
-            }
-            if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['e-commerce']) {
-                $couponCodeColumn = ['ecommerce_sales.coupon_code AS Station Code'];
-                array_splice($array, $offset, 0, $couponCodeColumn);
+        if (in_array($checkAffiliate, $this->amIds) || in_array($checkAffiliate, $this->gdmIds) || $powerswabsAllAffiliate || $SheerScienceAllAffiliate) {
+            if ($orderType === 'both') {
+                $addColumns = ['ecommerce_sales.coupon_code AS Coupon Code', 'ecommerce_sales.dialed AS Dialed (800#)'];
+                array_splice($array, $offset, 0, $addColumns);
+            } elseif ($orderType == EcommerceSale::ORDER_TYPE['e-commerce']) {
+                $addColumns = ['ecommerce_sales.coupon_code AS Coupon Code'];
+                array_splice($array, $offset, 0, $addColumns);
+            } elseif ($orderType == EcommerceSale::ORDER_TYPE['phone']) {
+                $addColumns = ['ecommerce_sales.dialed AS Dialed (800#)'];
+                array_splice($array, $offset, 0, $addColumns);
             }
         } else {
             if ($orderType === 'both' || $orderType == EcommerceSale::ORDER_TYPE['phone']) {
@@ -593,8 +595,6 @@ class EcommerceReportController extends Controller
                 DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
                 'ecommerce_affiliates.product_code AS ISCI',
                 'zipcode_by_television_markets.market AS Customer Market',
-                'ecommerce_sales.coupon_code AS Coupon Code',
-                'ecommerce_sales.dialed AS Dialed (800#)',
                 'ecommerce_sales.ani AS ANI',
                 'ecommerce_sales.shipping_city AS Ship City',
                 'ecommerce_sales.shipping_state AS Ship State',
@@ -609,6 +609,7 @@ class EcommerceReportController extends Controller
                     ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END 
                     END AS `' . $alias . '`'),
             ];
+            $selectRows = $this->addColumnToArray($selectRows, $orderType, 8, $affiliate, $powerswabsAllAffiliate, $SheerScienceAllAffiliate);
         } else {
             $selectRows = [
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%d-%b-%Y %H:%i") AS `Date`'),
