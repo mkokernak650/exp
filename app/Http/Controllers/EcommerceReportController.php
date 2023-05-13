@@ -593,6 +593,7 @@ class EcommerceReportController extends Controller
                 DB::raw('REPLACE(ecommerce_affiliates.lengths, ",", ", ") AS "Length"'),
                 'ecommerce_affiliates.product_code AS ISCI',
                 'zipcode_by_television_markets.market AS Customer Market',
+                'ecommerce_sales.coupon_code AS Coupon Code',
                 'ecommerce_sales.dialed AS Dialed (800#)',
                 'ecommerce_sales.ani AS ANI',
                 'ecommerce_sales.shipping_city AS Ship City',
@@ -868,7 +869,7 @@ class EcommerceReportController extends Controller
             foreach ($salesData as $data) {
                 if ($summaryCampaign == $data->{'Campaign Name'}) {
                     if (!empty($data->{'Coupon Code'})) {
-                        $totalCoupons += (int) $data->{'Total Quantity'};
+                        $totalCoupons += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
                     if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
