@@ -1013,7 +1013,7 @@ class EcommerceReportController extends Controller
             foreach ($salesData as $data) {
                 if ($summaryCampaign == $data->{'Campaign Name'}) {
                     if (!empty($data->{'Coupon Code'})) {
-                        $totalCoupons += (int) $data->{'Total Quantity'};
+                        $totalCoupons += (int) property_exists($data, 'Total Quantity') ? $data->{'Total Quantity'} : $data->{'Quantity'};
                     }
 
                     if (!empty($data->{'Dialed'}) || !empty($data->{'Dialed (800#)'})) {
