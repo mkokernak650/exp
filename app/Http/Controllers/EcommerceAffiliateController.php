@@ -25,9 +25,9 @@ class EcommerceAffiliateController extends Controller
      */
     public function index()
     {
-        $affiliates = Affiliate::active()->get();
-        $campaigns = EcommerceCampaign::active()->get();
-        $customers = Customer::active()->get();
+        $affiliates  = Affiliate::active()->orderBy('affiliate_name')->get();
+        $campaigns   = EcommerceCampaign::active()->get();
+        $customers   = Customer::active()->get();
         $columnsData = TableDetails::all()->pluck('column_details');
 
         $conditions = json_decode(request('filteredValue'));

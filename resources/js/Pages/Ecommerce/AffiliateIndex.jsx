@@ -616,7 +616,7 @@ const AffiliateIndex = () => {
                   <option value="">Select Affiliate</option>
                   {affiliates.map((option, indx) => (
                     <option key={indx + `-3`} value={option.id}>
-                      {option.affiliate_name}
+                      {`${option.affiliate_name} (${option.market})`}
                     </option>
                   ))}
                 </TextField>
