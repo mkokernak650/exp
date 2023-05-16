@@ -125,9 +125,9 @@ class EcommerceAffiliateController extends Controller
      */
     public function create()
     {
-        $affiliates = Affiliate::active()->get();
-        $campaigns = EcommerceCampaign::active()->get();
-        $customers = Customer::active()->get();
+        $affiliates = Affiliate::active()->orderBy('affiliate_name')->get();
+        $campaigns  = EcommerceCampaign::active()->get();
+        $customers  = Customer::active()->get();
         return Inertia::render('Ecommerce/AffiliateCreate', compact('affiliates', 'campaigns', 'customers'));
     }
 
