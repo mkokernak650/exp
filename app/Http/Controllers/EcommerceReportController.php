@@ -714,6 +714,7 @@ class EcommerceReportController extends Controller
         } elseif (in_array($checkAffiliate, $this->gdmIds)) {
             $columnsForGdm = [
                 'ecommerce_affiliates.product_code AS ISCI code(s)',
+                'ecommerce_sales.coupon_code AS Coupon Code',
                 'ecommerce_sales.dialed AS Dialed',
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%m/%d/%Y") AS `Date of call`'),
                 DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%h:%i:%s %p") AS `Time of call`'),
