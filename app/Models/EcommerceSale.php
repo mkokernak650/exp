@@ -50,6 +50,16 @@ class EcommerceSale extends Model
         'order_at' => 'datetime',
     ];
 
+    public function setShippingZipAttribute($value)
+    {
+        if (strlen($value) < 5 && strlen($value) != 0) {
+            $updatedZipCode = str_pad($value, 5, '0', STR_PAD_LEFT);
+            $this->attributes['shipping_zip'] = $updatedZipCode;
+        } else {
+            $this->attributes['shipping_zip'] = $value;
+        }
+    }
+
     public function ecommerceAffiliate(): BelongsTo
     {
         return $this->belongsTo(EcommerceAffiliate::class);
