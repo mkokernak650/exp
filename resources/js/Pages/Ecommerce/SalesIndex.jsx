@@ -164,9 +164,7 @@ const SalesIndex = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      columns,
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
