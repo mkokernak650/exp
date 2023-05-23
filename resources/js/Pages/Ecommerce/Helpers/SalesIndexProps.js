@@ -187,6 +187,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'affiliate_name',
+    title: 'Affiliate Name',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
     key: 'order_at',
     title: 'Order AT',
     dataType: DataType.Date,

@@ -121,6 +121,7 @@ const SalesIndex = () => {
         customer_id: item?.customer_id,
         campaign: item?.campaign?.campaign_name,
         customer: item?.customer?.customer_name,
+        affiliate_name: item?.affiliate_name,
         order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
         dialed: item?.dialed,
         inbound: item?.inbound,
@@ -290,11 +291,11 @@ const SalesIndex = () => {
     await axios
       .get(
         'ecommerce-sales?page=' +
-          data.page +
-          '&itemPerPage=' +
-          itemPerPage +
-          '&filteredValue=' +
-          JSON.stringify(filterValue)
+        data.page +
+        '&itemPerPage=' +
+        itemPerPage +
+        '&filteredValue=' +
+        JSON.stringify(filterValue)
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -678,11 +679,10 @@ const SalesIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
     </>
   )

@@ -23,15 +23,29 @@ class EcommerceSaleController extends Controller
         $campaigns = EcommerceCampaign::active()->get();
         $customers = Customer::active()->get();
         $sales = EcommerceSale::query()
-            ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
+            ->select(
+                '*',
+                DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
+                DB::raw("(SELECT affiliate_name FROM affiliates WHERE affiliates.id = 
+                                    (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code = 
+                                    ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1)) 
+                                    as affiliate_name")
+            )
             ->with('campaign:id,campaign_name')
             ->with('customer:id,customer_name')
-            ->lazy();
+            ->paginate(request('itemPerPage') ?? 10);
 
         $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
             $salesQuery = EcommerceSale::query()
-                ->select('*', DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"))
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
+                    DB::raw("(SELECT affiliate_name FROM affiliates WHERE affiliates.id = 
+                                        (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code = 
+                                        ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1)) 
+                                        as affiliate_name")
+                )
                 ->with('campaign:id,campaign_name')
                 ->with('customer:id,customer_name');
 
@@ -51,7 +65,6 @@ class EcommerceSaleController extends Controller
             return $salesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $sales = EcommerceSale::paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $sales;
         }
