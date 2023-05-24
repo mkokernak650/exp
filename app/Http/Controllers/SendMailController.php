@@ -9,7 +9,7 @@ use App\Notifications\SendMail;
 
 class SendMailController extends Controller
 {
-    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header, $reportOn)
+    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header = [], $reportOn = '')
     {
         $mergedEmails  = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com']);
         $michaelEmails = array_unique($mergedEmails);
