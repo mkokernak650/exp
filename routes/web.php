@@ -23,6 +23,7 @@ use App\Http\Controllers\RingbaCallLogController;
 use App\Http\Controllers\BroadCastMonthController;
 use App\Http\Controllers\BroadCastWeeksController;
 use App\Http\Controllers\ArchivedCallLogController;
+use App\Http\Controllers\CustomEmailController;
 use App\Http\Controllers\MarketExceptionController;
 use App\Http\Controllers\ReportGeneratorController;
 use App\Http\Controllers\EcommerceCampaignController;
@@ -225,9 +226,12 @@ Route::middleware('auth')->group(function () {
 
     //Users
     Route::resource('user', UserController::class);
-    Route::get('/user-profile-index',[UserController::class,'userProfileIndex'])->name('user.profile.index');
-    Route::post('/user-profile-update',[UserController::class,'userProfileUpdate'])->name('user.profile.update');
+    Route::get('/user-profile-index', [UserController::class, 'userProfileIndex'])->name('user.profile.index');
+    Route::post('/user-profile-update', [UserController::class, 'userProfileUpdate'])->name('user.profile.update');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // CustomEmail
+    Route::get('custom-email', [CustomEmailController::class, 'index'])->name('custom-email');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
