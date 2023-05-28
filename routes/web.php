@@ -231,7 +231,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // CustomEmail
-    Route::get('custom-email', [CustomEmailController::class, 'index'])->name('custom-email');
+    Route::get('custom-email', [CustomEmailController::class, 'index'])->name('custom.email');
+    Route::post('custom-email-get-affiliates', [CustomEmailController::class, 'getAffiliates'])->name('custom.email.get.affiliates');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
