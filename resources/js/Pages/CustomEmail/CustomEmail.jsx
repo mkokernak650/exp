@@ -6,6 +6,7 @@ import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -40,7 +41,7 @@ const CustomEmail = () => {
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
-        value: item.id,
+        value: item.id.toString(),
     }))
 
     const handleCampaignChange = (value) => {
@@ -83,12 +84,19 @@ const CustomEmail = () => {
         axios
             .post(route('send.custom.email'), formData)
             .then((response) => {
-                if (response.data) {
-                    setAffiliateOptions(response.data)
+                if (response.data.success === true) {
+                    setCampaignIds()
+                    setAffiliateOptions()
+                    setSelectedAffiliates()
+                    setAdditionalEmails('')
+                    e.target.reset()
+                    toast.success(response.data.msg)
+                } else {
+                    toast.error(response.data.msg)
                 }
             })
             .catch((err) => {
-                console.log(err)
+                toast.error('Something went wrong!')
             })
     }
 
@@ -106,6 +114,7 @@ const CustomEmail = () => {
                                 name="campaign_ids"
                                 onChange={(value) => handleCampaignChange(value)}
                                 options={campaignOptions}
+                                defaultValue={campaignIds}
                                 style={{ width: '100%' }}
                                 placeholder="Select Campaigns"
                             />

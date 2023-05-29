@@ -58,8 +58,12 @@ class CustomEmailController extends Controller
             $emails = ['fahimikbal97@gmail.com'];
         }
 
-        if (!empty($emails)) {
+        if (empty($emails)) {
+            return ['success' => false, 'msg' => 'No emails found'];
+        } else {
             Notification::route('mail', $emails)->notify(new CustomEmail($emailSubject, $emailMessage));
         }
+
+        return ['success' => true, 'msg' => 'Email sent successfully'];
     }
 }
