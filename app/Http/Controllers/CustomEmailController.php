@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Affiliate;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
+use App\Notifications\CustomEmail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class CustomEmailController extends Controller
@@ -34,5 +35,31 @@ class CustomEmailController extends Controller
         }
 
         return $affiliateOptions;
+    }
+
+    public function sendCustomEmail(Request $request)
+    {
+        $affiliateEmails  = [];
+        $additionalEmails = [];
+        $emailSubject     = $request->subject;
+        $emailMessage     = $request->message;
+
+        if (!empty($request->affiliateEmails)) {
+            $affiliateEmails = explode(',', $request->affiliateEmails);
+        }
+
+        if (!empty($request->additionalEmails)) {
+            $additionalEmails = explode(',', $request->additionalEmails);
+        }
+
+        $emails = array_unique(array_merge($affiliateEmails, $additionalEmails));
+
+        if (app()->environment('local')) {
+            $emails = ['fahimikbal97@gmail.com'];
+        }
+
+        if (!empty($emails)) {
+            Notification::route('mail', $emails)->notify(new CustomEmail($emailSubject, $emailMessage));
+        }
     }
 }

@@ -35,7 +35,7 @@ const CustomEmail = () => {
     const [campaignIds, setCampaignIds] = useState()
     const [affiliateOptions, setAffiliateOptions] = useState()
     const [selectedAffiliates, setSelectedAffiliates] = useState()
-    const [additionalEmails, setAdditionalEmails] = useState()
+    const [additionalEmails, setAdditionalEmails] = useState('')
     const [values, setValues] = useState()
 
     const campaignOptions = campaigns.map((item) => ({
@@ -66,6 +66,32 @@ const CustomEmail = () => {
             })
     }
 
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setValues((values) => ({ ...values, [name]: value }))
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        const formData = new FormData()
+
+        formData.append('affiliateEmails', selectedAffiliates)
+        formData.append('additionalEmails', additionalEmails)
+        formData.append('subject', values?.subject)
+        formData.append('message', values?.message)
+
+        axios
+            .post(route('send.custom.email'), formData)
+            .then((response) => {
+                if (response.data) {
+                    setAffiliateOptions(response.data)
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }
+
     return (
         <>
             <Helmet title="Email Affiliate (Custom Email)" />
@@ -73,9 +99,9 @@ const CustomEmail = () => {
                 <Typography variant="h6" className={classes.title}>
                     Compose Email
                 </Typography>
-                <form>
+                <form validate="true" onSubmit={handleSubmit}>
                     <Grid container spacing={4}>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        <Grid item xs={12}>
                             <MultiSelect
                                 name="campaign_ids"
                                 onChange={(value) => handleCampaignChange(value)}
@@ -85,7 +111,7 @@ const CustomEmail = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        <Grid item xs={12}>
                             <MultiSelect
                                 name="affiliate_emails"
                                 onChange={(value) => setSelectedAffiliates(value)}
@@ -97,7 +123,7 @@ const CustomEmail = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        <Grid item xs={12}>
                             <MultiSelect
                                 name="additional_emails"
                                 onChange={(value) => setAdditionalEmails(value)}
@@ -108,14 +134,39 @@ const CustomEmail = () => {
                             />
                         </Grid>
 
-                        {/* <Grid item xs={12} style={{ paddingBottom: 5 }}>
-                            <TextField multiline minRows={4} fullWidth spellCheck maxRows={6} variant='outlined' label="Okay"></TextField>
-                        </Grid> */}
+                        <Grid item xs={12}>
+                            <TextField
+                                name="subject"
+                                label="Subject"
+                                variant="outlined"
+                                onChange={handleChange}
+                                spellCheck
+                                fullWidth
+                                required
+                            ></TextField>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                name="message"
+                                label="Message"
+                                variant="outlined"
+                                onChange={handleChange}
+                                spellCheck
+                                fullWidth
+                                multiline
+                                minRows="8"
+                                maxRows="10"
+                                required
+                            ></TextField>
+                        </Grid>
+
                         <Grid item xs={12}>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 disabled={!campaignIds || !selectedAffiliates}
+                                type="submit"
                             >
                                 SEND
                             </Button>

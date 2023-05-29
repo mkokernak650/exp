@@ -233,6 +233,7 @@ Route::middleware('auth')->group(function () {
     // CustomEmail
     Route::get('custom-email', [CustomEmailController::class, 'index'])->name('custom.email');
     Route::post('custom-email-get-affiliates', [CustomEmailController::class, 'getAffiliates'])->name('custom.email.get.affiliates');
+    Route::post('send-custom-email', [CustomEmailController::class, 'sendCustomEmail'])->name('send.custom.email');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
