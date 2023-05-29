@@ -39,10 +39,12 @@ class CustomEmailController extends Controller
 
     public function sendCustomEmail(Request $request)
     {
-        $affiliateEmails  = [];
-        $additionalEmails = [];
-        $emailSubject     = $request->subject;
-        $emailMessage     = $request->message;
+        $affiliateEmails   = [];
+        $additionalEmails  = [];
+        $attachedFilesData = [];
+        $emailSubject      = $request->subject;
+        $emailMessage      = $request->message;
+        $attachedFiles     = $request->file('files');
 
         if (!empty($request->affiliateEmails)) {
             $affiliateEmails = explode(',', $request->affiliateEmails);
@@ -54,6 +56,15 @@ class CustomEmailController extends Controller
 
         $emails = array_unique(array_merge($affiliateEmails, $additionalEmails));
 
+        if (!empty($attachedFiles)) {
+            foreach ($attachedFiles as $file) {
+                $attachedFilesData[] = [
+                    'filePath' => $file->getPathname(),
+                    'fileName' => $file->getClientOriginalName()
+                ];
+            }
+        }
+
         if (app()->environment('local')) {
             $emails = ['fahimikbal97@gmail.com'];
         }
@@ -61,7 +72,7 @@ class CustomEmailController extends Controller
         if (empty($emails)) {
             return ['success' => false, 'msg' => 'No emails found'];
         } else {
-            Notification::route('mail', $emails)->notify(new CustomEmail($emailSubject, $emailMessage));
+            Notification::route('mail', $emails)->notify(new CustomEmail($emailSubject, $emailMessage, $attachedFilesData));
         }
 
         return ['success' => true, 'msg' => 'Email sent successfully'];

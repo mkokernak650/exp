@@ -14,16 +14,18 @@ class CustomEmail extends Notification
 
     protected $subject;
     protected $message;
+    protected $attachments;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($subject, $message)
+    public function __construct($subject, $message, $attachments)
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->subject     = $subject;
+        $this->message     = $message;
+        $this->attachments = $attachments;
     }
 
     /**
@@ -45,10 +47,18 @@ class CustomEmail extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject($this->subject)
             ->greeting(' ')
             ->line(new HtmlString(nl2br(e($this->message))));
+
+        if (!empty($this->attachments)) {
+            foreach ($this->attachments as $attachment) {
+                $mail->attach($attachment['filePath'], ['as' => $attachment['fileName']]);
+            }
+        }
+
+        return $mail;
     }
 
     /**

@@ -38,6 +38,7 @@ const CustomEmail = () => {
     const [selectedAffiliates, setSelectedAffiliates] = useState()
     const [additionalEmails, setAdditionalEmails] = useState('')
     const [values, setValues] = useState()
+    const [files, setFiles] = useState([])
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -72,6 +73,10 @@ const CustomEmail = () => {
         setValues((values) => ({ ...values, [name]: value }))
     }
 
+    const handleFileSelect = (e) => {
+        setFiles([...files, ...e.target.files])
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault()
         const formData = new FormData()
@@ -81,8 +86,16 @@ const CustomEmail = () => {
         formData.append('subject', values?.subject)
         formData.append('message', values?.message)
 
+        files.forEach((file) => {
+            formData.append('files[]', file)
+        })
+
         axios
-            .post(route('send.custom.email'), formData)
+            .post(route('send.custom.email'), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
             .then((response) => {
                 if (response.data.success === true) {
                     setCampaignIds()
@@ -168,6 +181,19 @@ const CustomEmail = () => {
                                 maxRows="10"
                                 required
                             ></TextField>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Button variant="outlined" component="label">
+                                Attach Files
+                                <input
+                                    type="file"
+                                    multiple
+                                    onChange={handleFileSelect}
+                                    hidden
+                                />
+                            </Button>
+                            {/* <span>Hello</span> */}
                         </Grid>
 
                         <Grid item xs={12}>
