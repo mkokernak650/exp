@@ -102,6 +102,7 @@ const CustomEmail = () => {
                     setAffiliateOptions()
                     setSelectedAffiliates()
                     setAdditionalEmails('')
+                    setFiles([])
                     e.target.reset()
                     toast.success(response.data.msg)
                 } else {
@@ -193,7 +194,12 @@ const CustomEmail = () => {
                                     hidden
                                 />
                             </Button>
-                            {/* <span>Hello</span> */}
+                            <span className="custom-email-file-list-line"></span>
+                            <span className="custom-email-file-list">
+                                {files.length === 0 ?
+                                    'No files selected. (Multiple files can be added.)' :
+                                    'Selected files: ' + files.map(file => file.name).toString()}
+                            </span>
                         </Grid>
 
                         <Grid item xs={12}>

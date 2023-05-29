@@ -1266,3 +1266,12 @@ div::-webkit-scrollbar-thumb {
     border-bottom: 1px solid #7a7a7a;
     border-radius: 0%;
 }
+
+.custom-email-file-list-line {
+    border-left: 1px solid #c5c5c4;
+    margin-left: 15px;
+}
+
+.custom-email-file-list {
+    margin-left: 10px;
+}
