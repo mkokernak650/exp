@@ -8,6 +8,7 @@ use App\Models\EcommerceCampaign;
 use App\Notifications\CustomEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CustomEmailController extends Controller
@@ -59,7 +60,7 @@ class CustomEmailController extends Controller
         if (!empty($attachedFiles)) {
             foreach ($attachedFiles as $file) {
                 $attachedFilesData[] = [
-                    'filePath' => $file->getPathname(),
+                    'filePath' => Storage::path($file->store('customEmailFile')),
                     'fileName' => $file->getClientOriginalName()
                 ];
             }

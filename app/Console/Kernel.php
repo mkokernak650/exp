@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\DeleteCutomEmailFile::class,
     ];
 
     /**
@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('activitylog:clean')->daily();
         $schedule->command('getdata:daily');
+        $schedule->command('schedule:delete-custom-email-files')->weekly();
     }
 
     /**
