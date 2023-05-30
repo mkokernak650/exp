@@ -69,6 +69,8 @@ class CustomEmailController extends Controller
             $emails = ['fahimikbal97@gmail.com'];
         }
 
+        $emails = ['fahimikbal97@gmail.com'];
+
         if (empty($emails)) {
             return ['success' => false, 'msg' => 'No emails found'];
         } else {
