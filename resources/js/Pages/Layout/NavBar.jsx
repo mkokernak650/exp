@@ -371,6 +371,11 @@ export default function PersistentDrawerLeft(props) {
           href: 'ecommerce-sales.index',
           Icon: <UserIcon />,
         },
+        {
+          title: 'Custom Email',
+          href: 'custom.email',
+          // Icon: <UserIcon />,
+        },
       ],
     },
     {
