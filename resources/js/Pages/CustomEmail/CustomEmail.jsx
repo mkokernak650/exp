@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, Grid, Paper, TextField, Typography, makeStyles } from '@material-ui/core'
+import { Button, CircularProgress, Grid, Paper, TextField, Typography, makeStyles } from '@material-ui/core'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -39,6 +39,7 @@ const CustomEmail = () => {
     const [additionalEmails, setAdditionalEmails] = useState('')
     const [values, setValues] = useState()
     const [files, setFiles] = useState([])
+    const [loading, setLoading] = useState(false)
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -90,6 +91,8 @@ const CustomEmail = () => {
             formData.append('files[]', file)
         })
 
+        setLoading(true)
+
         axios
             .post(route('send.custom.email'), formData, {
                 headers: {
@@ -105,12 +108,15 @@ const CustomEmail = () => {
                     setFiles([])
                     e.target.reset()
                     toast.success(response.data.msg)
+                    setLoading(false)
                 } else {
                     toast.error(response.data.msg)
+                    setLoading(false)
                 }
             })
             .catch((err) => {
                 toast.error('Something went wrong!')
+                setLoading(false)
             })
     }
 
@@ -206,9 +212,12 @@ const CustomEmail = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                disabled={!campaignIds || !selectedAffiliates}
+                                disabled={!campaignIds || !selectedAffiliates || loading}
                                 type="submit"
                             >
+                                {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                    <CircularProgress size={20} color="inherit" />
+                                </span>)}
                                 SEND
                             </Button>
                         </Grid>
