@@ -37,6 +37,10 @@ class EcommerceAffiliateController extends Controller
                 ->with('campaign:id,campaign_name')
                 ->with('customer:id,customer_name');
 
+            if (!empty(request('orderBy'))) {
+                $eAffiliatesQuery->orderBy('created_at', request('orderBy'));
+            }
+
             $firstCond = $conditions->items[0];
             $field = $this->fieldName($firstCond->field);
             $val = $this->valueCehckById($firstCond->field, $firstCond->value);

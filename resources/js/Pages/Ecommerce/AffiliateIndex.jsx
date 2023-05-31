@@ -70,6 +70,7 @@ const AffiliateIndex = () => {
   const [eAffiliatesData, seteAffiliatesData] = useState(ecommerceAffiliates)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
+  const [orderByValue, setOrderByValue] = useState('')
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -397,7 +398,7 @@ const AffiliateIndex = () => {
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
-        JSON.stringify(filterValue)
+        JSON.stringify(filterValue) + '&orderBy=' + orderByValue
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -415,7 +416,7 @@ const AffiliateIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue])
+  }, [itemPerPage, filterValue, orderByValue])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -477,6 +478,14 @@ const AffiliateIndex = () => {
                   'Searched Export'
                 )}
               </Button>
+              <div>
+                <MultiSelect
+                  options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                  onChange={(value) => setOrderByValue(value)}
+                  placeholder="Order By"
+                  singleSelect
+                />
+              </div>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
