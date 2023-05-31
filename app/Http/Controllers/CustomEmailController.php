@@ -69,7 +69,6 @@ class CustomEmailController extends Controller
         if (app()->environment('local')) {
             $emails = ['fahimikbal97@gmail.com'];
         }
-        $emails = ['fahimikbal97@gmail.com', 'fahim@bitcode.pro'];
 
         if (empty($emails)) {
             return ['success' => false, 'msg' => 'No emails found'];
