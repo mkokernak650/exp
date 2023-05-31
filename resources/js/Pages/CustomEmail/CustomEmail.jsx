@@ -35,7 +35,7 @@ const CustomEmail = () => {
     const { campaigns } = usePage().props
     const [campaignIds, setCampaignIds] = useState()
     const [affiliateOptions, setAffiliateOptions] = useState()
-    const [selectedAffiliates, setSelectedAffiliates] = useState()
+    const [selectedAffiliates, setSelectedAffiliates] = useState('')
     const [additionalEmails, setAdditionalEmails] = useState('')
     const [values, setValues] = useState()
     const [files, setFiles] = useState([])
@@ -52,7 +52,7 @@ const CustomEmail = () => {
             getAffiliates(value)
         } else {
             setAffiliateOptions()
-            setSelectedAffiliates()
+            setSelectedAffiliates('')
         }
     }
 
@@ -103,7 +103,7 @@ const CustomEmail = () => {
                 if (response.data.success === true) {
                     setCampaignIds()
                     setAffiliateOptions()
-                    setSelectedAffiliates()
+                    setSelectedAffiliates('')
                     setAdditionalEmails('')
                     setFiles([])
                     e.target.reset()
@@ -212,7 +212,7 @@ const CustomEmail = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                disabled={!campaignIds || !selectedAffiliates || loading}
+                                disabled={(!selectedAffiliates && !additionalEmails) || loading}
                                 type="submit"
                             >
                                 {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
