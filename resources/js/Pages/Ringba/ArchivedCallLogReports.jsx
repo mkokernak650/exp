@@ -28,6 +28,8 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
 import { columns, useStyles } from './Helpers/ArchivedCallLogReportsProps'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const ArchivedCallLogReports = () => {
   const classes = useStyles()
@@ -41,6 +43,7 @@ const ArchivedCallLogReports = () => {
     open: false,
   })
   const showColumnRef = useRef()
+  const [orderByValue, setOrderByValue] = useState('')
 
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
@@ -254,11 +257,11 @@ const ArchivedCallLogReports = () => {
     await axios
       .get(
         'archived-call-log-report?page=' +
-          data.page +
-          '&itemPerPage=' +
-          itemPerPage +
-          '&filteredValue=' +
-          JSON.stringify(filterValue)
+        data.page +
+        '&itemPerPage=' +
+        itemPerPage +
+        '&filteredValue=' +
+        JSON.stringify(filterValue) + '&orderBy=' + orderByValue
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -275,7 +278,7 @@ const ArchivedCallLogReports = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue])
+  }, [itemPerPage, filterValue, orderByValue])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -334,8 +337,18 @@ const ArchivedCallLogReports = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
-              <Eye />
+            <div className='top-left'>
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
+              </div>
+              <div>
+                <MultiSelect
+                  options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                  onChange={(value) => setOrderByValue(value)}
+                  placeholder="Order By"
+                  singleSelect
+                />
+              </div>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -423,11 +436,10 @@ const ArchivedCallLogReports = () => {
         btnAction={() => handleMoveCallLog(inboundIds)}
         closeAction={() => handleCloseModal(setShowCallLogModal)}
         width={'450px'}
-        title={`${
-          inboundIds.length > 1
-            ? 'Do you want to move these records to Call Log?'
-            : 'Do you want to move this record to Call Log?'
-        }`}
+        title={`${inboundIds.length > 1
+          ? 'Do you want to move these records to Call Log?'
+          : 'Do you want to move this record to Call Log?'
+          }`}
         loading={isLoading.archive}
       ></ConfirmModal>
 
@@ -437,11 +449,10 @@ const ArchivedCallLogReports = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          inboundIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${inboundIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
         loading={isLoading.delete}
       ></ConfirmModal>
     </>
