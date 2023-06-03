@@ -627,7 +627,6 @@ class ReportGeneratorController extends Controller
 
     public function affiliateReport(Request $request)
     {
-        // dd($request->all());
         $campaign = Campaign::find($request->input('campaign'));
         $newData = [];
         $report_type = $request->type; // billed or general
@@ -853,7 +852,7 @@ class ReportGeneratorController extends Controller
             }
 
             $emailCriteria  = 'Pay Per Call Affiliate<br>';
-            $emailCriteria .= ucwords(str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->file_name));
+            $emailCriteria .= ucwords(str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->fileNameForEmailCriteria));
 
             $newSummary['Summary of Calls'] = '';
             $newSummary['Customer Name'] = $call_summary['Customer Name'];
