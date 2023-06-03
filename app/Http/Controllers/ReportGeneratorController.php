@@ -1131,7 +1131,7 @@ class ReportGeneratorController extends Controller
                 return response()->json(['msg' => 'No email found.'], 422);
             }
 
-            $separatedFileName  = explode('_Target_Report', $request->file_name);
+            $separatedFileName  = explode('_Target_Report', $request->fileNameForEmailCriteria);
             $reportType         = ucwords($separatedFileName[0]);
             $reportTitle        = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $separatedFileName[1]);
             $emailCriteria      = "Target Report<br>{$reportType}{$reportTitle}";
