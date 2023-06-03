@@ -1317,7 +1317,7 @@ class ReportGeneratorController extends Controller
                 return response()->json(['msg' => 'No email found.'], 422);
             }
 
-            $emailCriteria = str_replace(['MarketException_Report', '_For_', '_Created@'], ['Market Exception Report', '<br>', '<br>Created@'], $request->file_name);
+            $emailCriteria = str_replace(['MarketException_Report', '_For_', '_Created@'], ['Market Exception Report', '<br>', '<br>Created@'], $request->fileNameForEmailCriteria);
 
             $newSummary['Total Number of Calls'] = $call_summary['Total Number of Calls'];
             $newSummary['Total Minutes'] = $call_summary['Total Minutes'];
