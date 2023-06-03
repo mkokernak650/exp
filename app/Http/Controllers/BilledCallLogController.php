@@ -32,6 +32,11 @@ class BilledCallLogController extends Controller
         $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
             $ringbaDataQuery = BilledCallLog::query();
+
+            if (!empty(request('orderBy'))) {
+                $ringbaDataQuery->orderBy('Call_Date_Time', request('orderBy'));
+            }
+
             $groupName = $conditions->groupName;
             foreach ($conditions->items as $cond) {
                 $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {

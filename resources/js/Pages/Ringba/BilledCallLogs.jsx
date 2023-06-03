@@ -31,6 +31,8 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
 import { columns } from './Helpers/BilledCallLogsProps'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const BilledCallLogs = () => {
   const { billedCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
@@ -62,6 +64,7 @@ const BilledCallLogs = () => {
     top: position.y < 650 ? position.y - 137 : position.y - 298,
     left: 350,
   }
+  const [orderByValue, setOrderByValue] = useState('')
 
   const updateAnnotation = (e, tableIndex, index) => {
     e.preventDefault()
@@ -83,7 +86,7 @@ const BilledCallLogs = () => {
           changeTableProps(tmpTableProps)
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   const rowFunctionalitiesPosition = (e) => {
@@ -357,11 +360,11 @@ const BilledCallLogs = () => {
     await axios
       .get(
         'billed-call-log-report?page=' +
-          data.page +
-          '&itemPerPage=' +
-          itemPerPage +
-          '&filteredValue=' +
-          JSON.stringify(filterValue)
+        data.page +
+        '&itemPerPage=' +
+        itemPerPage +
+        '&filteredValue=' +
+        JSON.stringify(filterValue) + '&orderBy=' + orderByValue
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -379,7 +382,7 @@ const BilledCallLogs = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue])
+  }, [itemPerPage, filterValue, orderByValue])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -479,8 +482,18 @@ const BilledCallLogs = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
-              <Eye />
+            <div className="top-left">
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
+              </div>
+              <div>
+                <MultiSelect
+                  options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                  onChange={(value) => setOrderByValue(value)}
+                  placeholder="Order By"
+                  singleSelect
+                />
+              </div>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
@@ -584,11 +597,10 @@ const BilledCallLogs = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          inboundIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${inboundIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
         loading={isLoading.delete}
       ></ConfirmModal>
     </>
