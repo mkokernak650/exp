@@ -554,7 +554,7 @@ class ReportGeneratorController extends Controller
                 return response()->json(['msg' => 'No email found.'], 422);
             }
 
-            $emailCriteria = str_replace(['_For_', '_', 'Created@', 'MarketTarget'], ['<br>', ' ', '<br>Created@', 'Market Target'], $request->file_name);
+            $emailCriteria = str_replace(['_For_', '_', 'Created@', 'MarketTarget'], ['<br>', ' ', '<br>Created@', 'Market Target'], $request->fileNameForEmailCriteria);
 
             $newSummary['Total Nielsen TV Homes:'] = $call_summary['Total Nielsen TV Homes:'];
             $newSummary['Total Billed Calls:'] = $call_summary['Total Billed Calls:'];

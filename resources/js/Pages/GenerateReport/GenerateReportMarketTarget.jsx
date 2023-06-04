@@ -291,18 +291,26 @@ const GenerateReportMarketTarget = () => {
     return affiliateNames
   }
 
-  const fileName = `MarketTarget_Report${selectAllmarkets ? `_For_Markets(AllMarkets)` : ''}${values?.market && !selectAllmarkets ? `_For_Markets(${values.market})` : ''
+  const fileName = `MarketTarget${values.customer_name ? `_(${values.customer_name})` : ''}${values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''
+    }${values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''}${selectAllStates ? `_(AllStates)` : ''
+    }${values?.state && !selectAllStates ? `_(${values.state})` : ''}${values?.market && !selectAllmarkets ? `_(${values.market})` : ''
+    }${selectAllmarkets ? `_(AllMarkets)` : ''}${year?.year ? `_(${year.year.toString()})` : ''
+    }${(values?.start_date && !year?.year)
+      ? `_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
+      : ''
+    }`
+  values.file_name = fileName
+
+  const fileNameForEmailCriteria = `MarketTarget_Report${selectAllmarkets ? `_For_Markets(AllMarkets)` : ''}${values?.market && !selectAllmarkets ? `_For_Markets(${values.market})` : ''
     }${values.customer_name ? `_For_Customers(${values.customer_name})` : ''}${selectAllStates ? `_For_States(AllStates)` : ''
     }${values?.state && !selectAllStates ? `_For_States(${values.state})` : ''}${values?.annotation ? `_For_Annotations(${values.annotation})` : ''
     }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
     }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${year?.year ? `_For_Years(${year.year.toString()})` : ''
-    }${values?.start_date
+    }${(values?.start_date && !year?.year)
       ? `_For_Date_Range(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
     }_Created@${currentDate()}`
-  values.file_name = fileName
-
-  console.log(values)
+  values.fileNameForEmailCriteria = fileNameForEmailCriteria
 
   const handleSubmit = () => {
     setLoading(true)
