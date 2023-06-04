@@ -152,7 +152,7 @@ class ReportGeneratorController extends Controller
                 return response()->json(['success' => false, 'message' => 'No email found.'], 422);
             }
 
-            $emailCriteria = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->file_name);
+            $emailCriteria = str_replace(['_For_', '_', 'Created@'], ['<br>', ' ', '<br>Created@'], $request->fileNameForEmailCriteria);
 
             $newSummary['Summary of Calls'] = '   ';
             $newSummary['Billable Calls'] = $call_summary['Billable Calls'];
