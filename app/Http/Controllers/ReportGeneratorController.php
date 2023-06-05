@@ -525,6 +525,7 @@ class ReportGeneratorController extends Controller
         } else {
             $summaryDateRange = 'All';
         }
+
         foreach ($billed as $bill) {
             $newData[] = (object)[
                 'Date Range'                              => $summaryDateRange,
@@ -547,7 +548,9 @@ class ReportGeneratorController extends Controller
         $call_summary['Total Billed Calls:'] = $totalBilledCalls;
         $call_summary['Average Homes Per call:'] = number_format(ceil($totalNielsenTVHouseholds / $totalBilledCalls), 0, '.', ',');
         $call_summary['Total Revenue:'] = $totalRevenue;
-        $collection = collect($newData)->sortBy('Average Homes Per Call');
+        $collection = collect($newData)->sortBy(function ($item) {
+            return (int) (str_replace(',', '', $item->{'Average Homes Per Call'}));
+        });
 
         if ($request->report_type === 'email-report') {
             if (empty($request->emails)) {
