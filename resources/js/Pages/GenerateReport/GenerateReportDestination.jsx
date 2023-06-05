@@ -215,12 +215,12 @@ const GenerateReportDestination = () => {
     campaignName = campaigns.filter((item) => item.id == values.campaign_id)
   }
 
-  const fileName = `Destination_Report${values?.customer_name ? `_(${values.customer_name})` : ''
+  const fileName = `Summary_Report${values?.customer_name ? `_(${values.customer_name})` : ''
     }${campaignName.length > 0 ? `_(${campaignName[0]?.campaign_name})` : ''}${values?.broad_cast_month ? `_(${values.broad_cast_month.toString()})` : ''
     }`
   values.file_name = fileName
 
-  const fileNameForEmailCriteria = `Destination_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
+  const fileNameForEmailCriteria = `Summary_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
     }${campaignName.length > 0 ? `_For_Campaigns(${campaignName[0]?.campaign_name})` : ''}${values?.broad_cast_month ? `_For_BroadCastMonths(${values.broad_cast_month.toString()})` : ''
     }_Created@${currentDate()}`
   values.fileNameForEmailCriteria = fileNameForEmailCriteria
@@ -255,10 +255,10 @@ const GenerateReportDestination = () => {
 
   return (
     <>
-      <Helmet title="Destination Report" />
+      <Helmet title="Summary Report" />
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
-          Generate Report Destination
+          Generate Report Summary
         </Typography>
         <form validate="true" className="generate-report">
           <Grid container spacing={4}>
@@ -366,6 +366,6 @@ const GenerateReportDestination = () => {
 }
 
 GenerateReportDestination.layout = (page) => (
-  <Layout title="Generate Report Destination">{page}</Layout>
+  <Layout title="Generate Report Summary">{page}</Layout>
 )
 export default GenerateReportDestination
