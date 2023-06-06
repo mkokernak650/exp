@@ -277,7 +277,7 @@ const GenerateReportDestination = () => {
                 <FormControlLabel
                   value="email-report"
                   control={<Radio color="primary" />}
-                  label="Email Report"
+                  label="Email Report (Customer)"
                 />
               </RadioGroup>
             </Grid>

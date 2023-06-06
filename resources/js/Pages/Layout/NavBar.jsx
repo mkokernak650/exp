@@ -254,7 +254,7 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
-          title: 'Pay Per Call-Destination',
+          title: 'Pay Per Call-Summary',
           href: 'generate.report.destination',
           Icon: <UserIcon />,
         },
