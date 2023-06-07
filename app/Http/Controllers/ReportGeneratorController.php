@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\SendMailController;
 use App\Models\BroadCastWeeks;
 use App\Models\ZipcodeByTelevisionMarket;
+use Carbon\Carbon;
 
 class ReportGeneratorController extends Controller
 {
@@ -646,7 +647,8 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        // summary of calls
+        $header = $this->getAffiliateReportHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+
         $archived = [];
         $call_summary = [];
         $condition = [];
@@ -871,7 +873,8 @@ class ReportGeneratorController extends Controller
         return [
             'data'         => $newData,
             'call_summary' => $call_summary,
-            'tag_count'    => $tag_count
+            'tag_count'    => $tag_count,
+            'header'       => $header
         ];
     }
 
@@ -1369,5 +1372,50 @@ class ReportGeneratorController extends Controller
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
         {$where}";
         return DB::select($sql);
+    }
+
+    protected function getAffiliateReportHeader($type, $customerName, $campaignName, $affiliateIds)
+    {
+        $header       = [];
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
+
+        if (!empty($affiliateIds)) {
+            $getAffiliates = Affiliate::toBase()->whereIn('affiliate_id', $affiliateIds)->pluck('affiliate_name');
+            $affiliates    = implode(', ', $getAffiliates->toArray());
+        } else {
+            $affiliates = '';
+        }
+
+        if (!empty($type)) {
+            $reportTypeForHeader          = ucwords($type) . ' Report';
+            $header[$reportTypeForHeader] = '';
+        }
+
+        $header['Criteria'] = '';
+
+        if (!empty($customerName)) {
+            $header['Criteria'] = $customerName;
+        }
+
+        if (!empty($campaignName)) {
+            if (!empty($header['Criteria'])) {
+                $header['Criteria'] .= ', ';
+            }
+            $header['Criteria'] .= $campaignName;
+        }
+
+        if (!empty($affiliates)) {
+            if (!empty($header['Criteria'])) {
+                $header['Criteria'] .= ', ';
+            }
+            $header['Criteria'] .= $affiliates;
+        }
+
+        $header['Prepared by'] = $userFullName;
+        $header['Prepared on'] = $preparedTime;
+        $header['ConsumerEXP'] = 'www.consumerexp.com';
+
+        return $header;
     }
 }
