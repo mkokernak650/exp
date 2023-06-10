@@ -4,8 +4,26 @@ import toast from 'react-hot-toast'
 
 const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
 export const ExportReportWithoutTag = (apiData, fileName) => {
-  const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), fileName)
-  const secondData = Object.keys(apiData.data).length + 5
+  let mainDataOrigin = 'A1', headerLength = 0
+
+  if (apiData.header) {
+    if (Object.keys(apiData.header).length) {
+      mainDataOrigin = `A${Object.keys(apiData.header).length + 2}`
+      headerLength = Object.keys(apiData.header).length
+    }
+  }
+
+  const ws = XLSX.utils.json_to_sheet(Object.values(apiData.data), { origin: mainDataOrigin })
+
+  if (apiData.header && Object.keys(apiData.header).length) {
+    const header = []
+    Object.keys(apiData.header).forEach(headerKey => {
+      header.push([headerKey, apiData.header[headerKey]])
+    })
+    XLSX.utils.sheet_add_aoa(ws, header)
+  }
+
+  const secondData = Object.keys(apiData.data).length + 5 + headerLength
   const call_summary = []
   Object.keys(apiData.call_summary).forEach((cf) => {
     call_summary.push([cf, apiData.call_summary[cf]])

@@ -647,7 +647,7 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getAffiliateTargetReportHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+        $header = $this->getHeader($request->type, $customer_name, $campaign, $affiliate_ids);
 
         $archived = [];
         $call_summary = [];
@@ -931,7 +931,7 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getAffiliateTargetReportHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+        $header = $this->getHeader($request->type, $customer_name, $campaign, $affiliate_ids);
 
         // summary of calls
         $archived = [];
@@ -1223,6 +1223,8 @@ class ReportGeneratorController extends Controller
         }
         $broad_cast_month = $request->input('broad_cast_month');
 
+        $header = $this->getHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+
         // summary of calls
         $call_summary = [];
         $condition = [];
@@ -1339,7 +1341,8 @@ class ReportGeneratorController extends Controller
         return [
             'data'         => $newData,
             'call_summary' => $call_summary,
-            'tag_count'    => $tag_count
+            'tag_count'    => $tag_count,
+            'header'       => $header
         ];
     }
 
@@ -1377,7 +1380,7 @@ class ReportGeneratorController extends Controller
         return DB::select($sql);
     }
 
-    protected function getAffiliateTargetReportHeader($type, $customerName, $campaignName, $affiliateIds)
+    protected function getHeader($type, $customerName, $campaignName, $affiliateIds)
     {
         $header       = [];
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
