@@ -1151,7 +1151,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Revenue'] = $call_summary['Total Revenue'];
             $newSummary['Avg Revenue Amount'] = $call_summary['Avg Revenue Amount'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria);
+            $sendMailCtrl->SendMail(collect($newData), $newSummary, $tag_count, $request->file_name, $request->emails, $emailCriteria, $header);
             return;
         }
 
