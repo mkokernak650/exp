@@ -579,7 +579,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Average Homes Per call:'] = $call_summary['Average Homes Per call:'];
             $newSummary['Total Revenue:'] = $call_summary['Total Revenue:'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail($collection, $newSummary, [], $request->file_name, $request->emails, $emailCriteria);
+            $sendMailCtrl->SendMail($collection, $newSummary, [], $request->file_name, $request->emails, $emailCriteria, $header);
             return;
         }
         return [
