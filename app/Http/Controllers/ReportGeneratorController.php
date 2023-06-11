@@ -647,7 +647,7 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+        $header = $this->getHeader($request->type, $campaign, $customer_name, $affiliate_ids);
 
         $archived = [];
         $call_summary = [];
@@ -931,7 +931,7 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+        $header = $this->getHeader($request->type, $campaign, $customer_name, $affiliate_ids);
 
         // summary of calls
         $archived = [];
@@ -1223,7 +1223,7 @@ class ReportGeneratorController extends Controller
         }
         $broad_cast_month = $request->input('broad_cast_month');
 
-        $header = $this->getHeader($request->type, $customer_name, $campaign, $affiliate_ids);
+        $header = $this->getHeader($request->type, $campaign, $customer_name, $affiliate_ids);
 
         // summary of calls
         $call_summary = [];
@@ -1380,43 +1380,43 @@ class ReportGeneratorController extends Controller
         return DB::select($sql);
     }
 
-    protected function getHeader($type, $customerName, $campaignName, $affiliateIds)
+    protected function getHeader($type, $campaignName, $customerName = [], $affiliateIds = [])
     {
         $header       = [];
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
         $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
 
-        if (!empty($affiliateIds)) {
-            $getAffiliates = Affiliate::toBase()->whereIn('affiliate_id', $affiliateIds)->pluck('affiliate_name');
-            $affiliates    = implode(', ', $getAffiliates->toArray());
-        } else {
-            $affiliates = '';
-        }
+        // if (!empty($affiliateIds)) {
+        //     $getAffiliates = Affiliate::toBase()->whereIn('affiliate_id', $affiliateIds)->pluck('affiliate_name');
+        //     $affiliates    = implode(', ', $getAffiliates->toArray());
+        // } else {
+        //     $affiliates = '';
+        // }
 
         if (!empty($type)) {
             $reportTypeForHeader          = ucwords($type) . ' Report';
             $header[$reportTypeForHeader] = '';
         }
 
-        $header['Criteria'] = '';
+        $header['Campaign'] = '';
 
-        if (!empty($customerName)) {
-            $header['Criteria'] = $customerName;
-        }
+        // if (!empty($customerName)) {
+        //     $header['Campaign'] = $customerName;
+        // }
 
         if (!empty($campaignName)) {
-            if (!empty($header['Criteria'])) {
-                $header['Criteria'] .= ', ';
+            if (!empty($header['Campaign'])) {
+                $header['Campaign'] .= ', ';
             }
-            $header['Criteria'] .= $campaignName;
+            $header['Campaign'] .= $campaignName;
         }
 
-        if (!empty($affiliates)) {
-            if (!empty($header['Criteria'])) {
-                $header['Criteria'] .= ', ';
-            }
-            $header['Criteria'] .= $affiliates;
-        }
+        // if (!empty($affiliates)) {
+        //     if (!empty($header['Campaign'])) {
+        //         $header['Campaign'] .= ', ';
+        //     }
+        //     $header['Campaign'] .= $affiliates;
+        // }
 
         $header['Prepared by'] = $userFullName;
         $header['Prepared on'] = $preparedTime;
