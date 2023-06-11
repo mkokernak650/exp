@@ -196,6 +196,8 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
+        $header = $this->getHeader('Call Length', $campaign);
+
         // summary of calls
         $archived = [];
         $call_summary = [];
@@ -413,6 +415,7 @@ class ReportGeneratorController extends Controller
         return [
             'data'         => $finalArray,
             'call_summary' => $call_summary,
+            'header'       => $header
 
         ];
     }
