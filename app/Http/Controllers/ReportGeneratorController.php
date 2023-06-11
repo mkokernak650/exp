@@ -168,7 +168,7 @@ class ReportGeneratorController extends Controller
             $newSummary['Total Charges'] = $call_summary['Total Charges'];
             $newSummary['Non-revenue Calls'] = $call_summary['Non-revenue Calls'];
             $sendMailCtrl = new SendMailController();
-            $sendMailCtrl->SendMail($destinationReport, $newSummary, [], $request->file_name, $request->emails, $emailCriteria);
+            $sendMailCtrl->SendMail($destinationReport, $newSummary, [], $request->file_name, $request->emails, $emailCriteria, $header);
             return;
         }
 
