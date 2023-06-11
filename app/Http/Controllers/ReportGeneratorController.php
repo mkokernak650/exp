@@ -455,6 +455,7 @@ class ReportGeneratorController extends Controller
 
     public function marketTargetReport(Request $request)
     {
+        // dd('mt');
         $campaign = Campaign::find($request->input('campaign'));
         $market_name = $request->market;
         $state_name = $request->state;
@@ -471,6 +472,9 @@ class ReportGeneratorController extends Controller
         } else {
             $year = $request->year;
         }
+
+        $header = $this->getHeader('Homes Per Call', $campaign);
+        // dd($header);
 
         $call_summary = [];
         $condition = [];
@@ -582,7 +586,8 @@ class ReportGeneratorController extends Controller
         }
         return [
             'data'         => $collection->values()->all(),
-            'call_summary' => $call_summary
+            'call_summary' => $call_summary,
+            'header'       => $header
         ];
     }
 
