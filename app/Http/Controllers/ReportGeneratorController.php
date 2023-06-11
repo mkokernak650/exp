@@ -39,6 +39,14 @@ class ReportGeneratorController extends Controller
                 ->get();
         }
 
+        if (!empty($campaign)) {
+            $campaignName = $campaign->campaign_name;
+        } else {
+            $campaignName = '';
+        }
+
+        $header = $this->getHeader('Summary', $campaignName);
+
         $destinationReport = DB::table('billed_call_logs')
             ->when(!empty($request->input('campaign_id')), fn ($q) => $q->where([
                 'Campaign' => $campaign->campaign_name,
@@ -167,6 +175,7 @@ class ReportGeneratorController extends Controller
         return [
             'data'         => $destinationReport,
             'call_summary' => $call_summary,
+            'header'       => $header
         ];
     }
 
