@@ -45,7 +45,23 @@ class ReportGeneratorController extends Controller
             $campaignName = '';
         }
 
-        $header = $this->getHeader('Summary', $campaignName);
+        if (!empty($request->year)) {
+            $selectedYears      = implode(', ', $request->year);
+            $yearNaming         = (count($request->year) > 1) ? 'Years' : 'Year';
+            $dateRangeForHeader = [$yearNaming => $selectedYears];
+        } elseif (!empty($request->broad_cast_month)) {
+            $selectedMonths     = implode(', ', $request->broad_cast_month);
+            $monthNaming        = (count($request->broad_cast_month) > 1) ? 'Months' : 'Month';
+            $dateRangeForHeader = [$monthNaming => $selectedMonths];
+        } elseif (!empty($request->broad_cast_week)) {
+            $selectedWeeks      = implode(', ', $request->broad_cast_week);
+            $weekNaming         = (count($request->broad_cast_week) > 1) ? 'Weeks' : 'Week';
+            $dateRangeForHeader = [$weekNaming => $selectedWeeks];
+        } else {
+            $dateRangeForHeader = [];
+        }
+
+        $header = $this->getHeader('Summary', $campaignName, $dateRangeForHeader);
 
         $destinationReport = DB::table('billed_call_logs')
             ->when(!empty($request->input('campaign_id')), fn ($q) => $q->where([
