@@ -1262,7 +1262,19 @@ class ReportGeneratorController extends Controller
         }
         $broad_cast_month = $request->input('broad_cast_month');
 
-        $header = $this->getHeader($request->type, $campaign);
+        if (!empty($request->year)) {
+            $selectedYears      = implode(', ', $request->year);
+            $yearNaming         = (count($request->year) > 1) ? 'Years' : 'Year';
+            $dateRangeForHeader = [$yearNaming => $selectedYears];
+        } elseif (!empty($request->broad_cast_month)) {
+            $selectedMonths     = implode(', ', $request->broad_cast_month);
+            $monthNaming        = (count($request->broad_cast_month) > 1) ? 'Months' : 'Month';
+            $dateRangeForHeader = [$monthNaming => $selectedMonths];
+        } else {
+            $dateRangeForHeader = [];
+        }
+
+        $header = $this->getHeader($request->type, $campaign, $dateRangeForHeader);
 
         // summary of calls
         $call_summary = [];
