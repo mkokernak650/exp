@@ -500,7 +500,19 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getHeader('Homes Per Call', $campaign);
+        if (!empty($request->year)) {
+            $selectedYears      = implode(', ', $request->year);
+            $yearNaming         = (count($request->year) > 1) ? 'Years' : 'Year';
+            $dateRangeForHeader = [$yearNaming => $selectedYears];
+        } elseif (isset($request->start_date) && isset($request->end_date)) {
+            $dateRangeStart     = date_format(date_create($request->start_date), 'd-M-Y');
+            $dateRangeEnd       = date_format(date_create($request->end_date), 'd-M-Y');
+            $dateRangeForHeader = ['Date Range' => $dateRangeStart . ' To ' . $dateRangeEnd];
+        } else {
+            $dateRangeForHeader = [];
+        }
+
+        $header = $this->getHeader('Homes Per Call', $campaign, $dateRangeForHeader);
 
         $call_summary = [];
         $condition = [];
@@ -516,7 +528,7 @@ class ReportGeneratorController extends Controller
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date)); //'2021-07-26';
             $date_range = date('d-M-Y', strtotime($start_date)) . ' - ' . date('d-M-Y', strtotime($end_date));
-            $call_summary['Date Range'] = $date_range;
+            // $call_summary['Date Range'] = $date_range;
             $condition[] = "Call_Date >='$start_date'";
             $condition[] = "Call_Date <= '$end_date'";
         }
@@ -1459,7 +1471,7 @@ class ReportGeneratorController extends Controller
         return DB::select($sql);
     }
 
-    protected function getHeader($type, $campaignName, $dateRange = [])
+    protected function getHeader($type, $campaignName, $dateRange)
     {
         $header       = [];
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
