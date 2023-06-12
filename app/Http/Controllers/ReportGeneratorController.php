@@ -958,7 +958,19 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getHeader($request->type, $campaign);
+        if (!empty($request->year)) {
+            $selectedYears      = implode(', ', $request->year);
+            $yearNaming         = (count($request->year) > 1) ? 'Years' : 'Year';
+            $dateRangeForHeader = [$yearNaming => $selectedYears];
+        } elseif (isset($request->start_date) && isset($request->end_date)) {
+            $dateRangeStart     = date_format(date_create($request->start_date), 'd-M-Y');
+            $dateRangeEnd       = date_format(date_create($request->end_date), 'd-M-Y');
+            $dateRangeForHeader = ['Date Range' => $dateRangeStart . ' To ' . $dateRangeEnd];
+        } else {
+            $dateRangeForHeader = [];
+        }
+
+        $header = $this->getHeader($request->type, $campaign, $dateRangeForHeader);
 
         // summary of calls
         $archived = [];
