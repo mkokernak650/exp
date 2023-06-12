@@ -662,7 +662,7 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getHeader($request->type, $campaign, $customer_name, $affiliate_ids);
+        $header = $this->getHeader($request->type, $campaign);
 
         $archived = [];
         $call_summary = [];
@@ -946,7 +946,7 @@ class ReportGeneratorController extends Controller
             $year = $request->year;
         }
 
-        $header = $this->getHeader($request->type, $campaign, $customer_name, $affiliate_ids);
+        $header = $this->getHeader($request->type, $campaign);
 
         // summary of calls
         $archived = [];
@@ -1238,7 +1238,7 @@ class ReportGeneratorController extends Controller
         }
         $broad_cast_month = $request->input('broad_cast_month');
 
-        $header = $this->getHeader($request->type, $campaign, $customer_name, $affiliate_ids);
+        $header = $this->getHeader($request->type, $campaign);
 
         // summary of calls
         $call_summary = [];
@@ -1395,18 +1395,11 @@ class ReportGeneratorController extends Controller
         return DB::select($sql);
     }
 
-    protected function getHeader($type, $campaignName, $customerName = [], $affiliateIds = [])
+    protected function getHeader($type, $campaignName)
     {
         $header       = [];
         $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
         $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
-
-        // if (!empty($affiliateIds)) {
-        //     $getAffiliates = Affiliate::toBase()->whereIn('affiliate_id', $affiliateIds)->pluck('affiliate_name');
-        //     $affiliates    = implode(', ', $getAffiliates->toArray());
-        // } else {
-        //     $affiliates = '';
-        // }
 
         if (!empty($type)) {
             $reportTypeForHeader          = ucwords($type) . ' Report';
@@ -1415,23 +1408,12 @@ class ReportGeneratorController extends Controller
 
         $header['Campaign'] = '';
 
-        // if (!empty($customerName)) {
-        //     $header['Campaign'] = $customerName;
-        // }
-
         if (!empty($campaignName)) {
             if (!empty($header['Campaign'])) {
                 $header['Campaign'] .= ', ';
             }
             $header['Campaign'] .= $campaignName;
         }
-
-        // if (!empty($affiliates)) {
-        //     if (!empty($header['Campaign'])) {
-        //         $header['Campaign'] .= ', ';
-        //     }
-        //     $header['Campaign'] .= $affiliates;
-        // }
 
         $header['Prepared by'] = $userFullName;
         $header['Prepared on'] = $preparedTime;
