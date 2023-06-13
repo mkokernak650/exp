@@ -14,6 +14,7 @@ class EcommerceCampaign extends Model
 
     protected $fillable = [
         'campaign_name',
+        'customer_id',
         'status',
     ];
 

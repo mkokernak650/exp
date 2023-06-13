@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\TableDetails;
 use Illuminate\Http\Request;
@@ -35,7 +36,9 @@ class EcommerceCampaignController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Ecommerce/CampaignCreate');
+        $customers = Customer::Active()->get();
+
+        return Inertia::render('Ecommerce/CampaignCreate', compact('customers'));
     }
 
     /**
@@ -48,10 +51,13 @@ class EcommerceCampaignController extends Controller
     {
         $validated = $request->validate([
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')],
+            'customer_id'    => ['nullable']
         ]);
+
         if (EcommerceCampaign::create($validated)) {
             return response()->json(['msg' => 'Created Successfully.'], 201);
         }
+
         return response()->json(['msg' => 'Try Again!'], 422);
     }
 

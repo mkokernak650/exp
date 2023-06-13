@@ -12,6 +12,9 @@ import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import toast from "react-hot-toast";
+import { usePage } from "@inertiajs/inertia-react";
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "2rem",
     padding: "40px",
     flexGrow: 1,
+    minHeight: "500px",
   },
   paper: {
     padding: theme.spacing(2),
@@ -35,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
 const CampaignCreate = () => {
   const defaultState = {
     campaign_name: "",
+    customer_id: ""
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
@@ -42,6 +47,7 @@ const CampaignCreate = () => {
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState();
   const [responseType, setResponseType] = useState();
+  const { customers } = usePage().props
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,6 +57,15 @@ const CampaignCreate = () => {
   const headers = {
     headers: { Accept: "application/json" },
   };
+
+  const customersOption = customers.map(customer => ({
+    value: customer.id.toString(),
+    label: customer.customer_name,
+  }))
+
+  const CustomerHandleChange = (value) => {
+    setValues((oldValues) => ({ ...oldValues, customer_id: value }));
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -84,7 +99,7 @@ const CampaignCreate = () => {
           Create Campaign
         </Typography>
         <form validate="true" onSubmit={handleSubmit}>
-          <Grid container spacing={4}>
+          <Grid container spacing={6}>
             <Grid item xs={12}>
               <TextField
                 value={values?.campaign_name}
@@ -97,6 +112,17 @@ const CampaignCreate = () => {
                 className={classes.textField}
                 fullWidth
                 required={true}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <MultiSelect
+                singleSelect
+                placeholder="Select Customer"
+                options={customersOption}
+                defaultValue={values.customer_id}
+                onChange={value => CustomerHandleChange(value)}
+                style={{ width: '100%' }}
               />
             </Grid>
 
