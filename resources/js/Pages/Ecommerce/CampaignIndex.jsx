@@ -29,10 +29,12 @@ import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import { columns, useStyles, fields, groups, filter } from './Helpers/CampaignIndexProps'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const CampaignIndex = () => {
   const classes = useStyles()
-  const { campaigns, columnsData } = usePage().props
+  const { campaigns, columnsData, customers } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -45,16 +47,26 @@ const CampaignIndex = () => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
   }
 
+  const CustomerHandleChange = (value) => {
+    setEditData({ ...editData, customer_id: value })
+  }
+
   const dataArray = campaigns.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
     campaign_name: item?.campaign_name,
     customer_name: item?.customer?.customer_name,
+    customer_id: item?.customer?.id.toString(),
     status: [item.status, item.id, index],
     created_at: item.created_at,
     updated_at: item.updated_at,
     id: item.id,
     key: index,
+  }))
+
+  const customersOption = customers.map(customer => ({
+    value: customer.id.toString(),
+    label: customer.customer_name,
   }))
 
   const handleEdit = (itemId) => {
@@ -203,6 +215,7 @@ const CampaignIndex = () => {
         let tmpData = { ...tableProps }
         let tmpEditData = { ...editData }
         tmpEditData.updated_at = res.data.updated_at
+        tmpEditData.customer_name = res.data.customer_name
         tmpData.data[editData.sl - 1] = tmpEditData
         changeTableProps({ ...tmpData })
         setEditData()
@@ -352,6 +365,17 @@ const CampaignIndex = () => {
                   onChange={handleEditChange}
                   fullWidth
                   required={true}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <MultiSelect
+                  singleSelect
+                  placeholder="Select Customer"
+                  options={customersOption}
+                  defaultValue={editData?.customer_id}
+                  onChange={value => CustomerHandleChange(value)}
+                  style={{ width: '100%' }}
                 />
               </Grid>
 

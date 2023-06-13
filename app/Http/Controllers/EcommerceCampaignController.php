@@ -20,12 +20,14 @@ class EcommerceCampaignController extends Controller
     {
         $campaigns   = EcommerceCampaign::with('customer:id,customer_name')->get();
         $columnsData = TableDetails::all()->pluck('column_details');
+        $customers   = Customer::Active()->get();
 
         return Inertia::render(
             'Ecommerce/CampaignIndex',
             [
-                'campaigns'  => $campaigns,
-                'columnsData' => $columnsData
+                'campaigns'   => $campaigns,
+                'columnsData' => $columnsData,
+                'customers'   => $customers
             ]
         );
     }
@@ -52,7 +54,7 @@ class EcommerceCampaignController extends Controller
     {
         $validated = $request->validate([
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')],
-            'customer_id'    => ['nullable']
+            'customer_id'   => ['nullable']
         ]);
 
         if (EcommerceCampaign::create($validated)) {
@@ -73,9 +75,14 @@ class EcommerceCampaignController extends Controller
     {
         $validated = $request->validate([
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')->ignore($ecommerceCampaign->id)],
+            'customer_id'   => ['nullable']
         ]);
+
         if ($ecommerceCampaign->update($validated)) {
-            return response()->json(['msg' => 'Updated Successfully.', 'updated_at' => $ecommerceCampaign->updated_at], 201);
+            $customer_name = $ecommerceCampaign->fresh()->customer;
+            $customer_name = $customer_name ? $customer_name->customer_name : null;
+
+            return response()->json(['msg' => 'Updated Successfully.', 'updated_at' => $ecommerceCampaign->updated_at, 'customer_name' => $customer_name], 201);
         }
         return response()->json(['msg' => 'Try Again!'], 422);
     }
