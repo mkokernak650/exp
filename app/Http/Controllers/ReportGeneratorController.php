@@ -976,7 +976,7 @@ class ReportGeneratorController extends Controller
         $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)', Call_Date_Time AS 'Call Time', Campaign, Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID', Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup', payoutAmount AS 'Payout', call_Logs_status AS 'Call Status', Annotation_Tag AS 'Call Type', Has_Annotation AS 'Has Annotation'
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
-        {$where}";
+        {$where} ORDER BY Call_Date_Time";
         return DB::select($sql);
     }
 
@@ -1271,7 +1271,7 @@ class ReportGeneratorController extends Controller
         $sql = "SELECT annotations.annotation_name, Call_Date AS 'Call Date(EST)' , Call_Date_Time AS 'Call Time', Campaign,Affiliate, Target, Target_Description AS 'Target Description', City, Market, State,Zipcode, Inbound AS 'Caller ID',Type, Conn_Duration AS 'Connection Duration', Duplicate_Call AS 'Duplicate Call', Source_Hangup AS 'Hangup',Revenue, call_Logs_status AS 'Call Status',Annotation_Tag AS 'Annotation',Has_Annotation AS 'Has Annotation',Recording_Url as 'Recording Url'
         FROM {$tablename}
         LEFT JOIN annotations ON {$tablename}.Annotation_Tag = annotations.id
-        {$where}";
+        {$where} ORDER BY Call_Date_Time";
         return DB::select($sql);
     }
 
