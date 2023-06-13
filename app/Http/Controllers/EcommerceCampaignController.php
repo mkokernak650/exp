@@ -18,8 +18,9 @@ class EcommerceCampaignController extends Controller
      */
     public function index()
     {
-        $campaigns = EcommerceCampaign::all();
+        $campaigns   = EcommerceCampaign::with('customer:id,customer_name')->get();
         $columnsData = TableDetails::all()->pluck('column_details');
+
         return Inertia::render(
             'Ecommerce/CampaignIndex',
             [

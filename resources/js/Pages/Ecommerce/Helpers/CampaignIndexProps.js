@@ -114,14 +114,21 @@ export const columns = [
     key: 'campaign_name',
     title: 'Campaign',
     dataType: DataType.String,
-    style: { width: 200 },
+    style: { width: 150 },
+    visible: true,
+  },
+  {
+    key: 'customer_name',
+    title: 'Customer',
+    dataType: DataType.String,
+    style: { width: 150 },
     visible: true,
   },
   {
     key: 'status',
     title: 'Status',
     dataType: DataType.String,
-    style: { width: 100 },
+    style: { width: 50 },
     visible: true,
   },
   {

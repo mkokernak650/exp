@@ -49,6 +49,7 @@ const CampaignIndex = () => {
     edit: item.id,
     sl: index + 1,
     campaign_name: item?.campaign_name,
+    customer_name: item?.customer?.customer_name,
     status: [item.status, item.id, index],
     created_at: item.created_at,
     updated_at: item.updated_at,
@@ -379,11 +380,10 @@ const CampaignIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
     </>
   )
