@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react'
+import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
 import { CircularProgress, Paper, Typography, TextField, Button, Radio, FormControlLabel, RadioGroup, Divider } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
@@ -33,10 +33,8 @@ const useStyles = makeStyles((theme) => ({
 const RingbaReports = () => {
     const classes = useStyles()
     const [loading, setLoading] = useState(false)
-    const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, acesMarketingId } = usePage().props
-    const [affiliateList, setAffiliateList] = useState([])
-    const [couponCodeList, setCouponCodeList] = useState([])
-    const [dialedPhoneList, setDialedPhoneList] = useState([])
+    const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, affiliatesOptions } = usePage().props
+    const [affiliateList, setAffiliateList] = useState(affiliatesOptions)
     const [affiliate, setAffiliate] = useState()
     const [affiliatesEmail, setAffiliatesEmail] = useState([])
     const [month, setMonth] = useState('')
@@ -111,56 +109,6 @@ const RingbaReports = () => {
         value: item.broad_cast_week,
     }))
 
-    const setSelectionWiseData = (affiliates, couponCodes, dialedPhones) => {
-        const activeAffiliates = Object.values(affiliates)?.map((item) => ({
-            label: item?.[1],
-            value: item?.[0].toString(),
-            email: item?.[2],
-        }))
-        const couponOptions = Object.values(couponCodes)?.map((item) => ({
-            label: item,
-            value: item,
-        }))
-        const dialedOptions = Object.values(dialedPhones)?.map((item) => ({
-            label: item,
-            value: item,
-        }))
-
-        setAffiliateList([...activeAffiliates])
-        setCouponCodeList([...couponOptions])
-        setDialedPhoneList([...dialedOptions])
-
-        //dynamically set the selected values depending on the customer and campaign
-        let filteredAffiliates = []
-        if (affiliate?.affiliate_id.includes('allAffiliates')) {
-            filteredAffiliates = 'allAffiliates'
-        } else {
-            filteredAffiliates = activeAffiliates
-                .filter((item) => {
-                    return affiliate?.affiliate_id?.includes(item.value)
-                })
-                .map((item) => item.value)
-                .join(',')
-        }
-        affiliateHandleChange(filteredAffiliates, 'affiliate_id', activeAffiliates)
-
-        setCouponCode({
-            couponCodes: couponOptions
-                .filter((item) => {
-                    return values?.couponCodes?.includes(item.value)
-                })
-                .map((item) => item.value),
-        })
-
-        setDialed({
-            dialed: dialedOptions
-                .filter((item) => {
-                    return values?.dialed?.includes(item.value)
-                })
-                .map((item) => item.value),
-        })
-    }
-
     const getCampaignNames = () => {
         const campaignNames = []
         if (values?.campaign_id.length) {
@@ -171,6 +119,7 @@ const RingbaReports = () => {
         }
         return campaignNames
     }
+
     const getAffiliateNames = () => {
         const affiliateNames = []
         Object.values(affiliateList).map((item) => {
@@ -180,6 +129,7 @@ const RingbaReports = () => {
         })
         return affiliateNames
     }
+
     const getCustomerNames = () => {
         const customerNames = []
         if (values?.customer_id.length) {
@@ -190,10 +140,12 @@ const RingbaReports = () => {
         }
         return customerNames
     }
+
     const ecommerceReportTypeHandleChange = (e) => {
         const { name, value } = e.target
         setEcommerceReportType({ [name]: value })
     }
+
     const campaignHandleChange = (val, key) => {
         if (val) {
             const campaign_ids = val.split(',')
@@ -202,6 +154,7 @@ const RingbaReports = () => {
             setCampaign()
         }
     }
+
     const customerHandleChange = (val, key) => {
         if (val) {
             const customer_ids = val.split(',')
@@ -213,33 +166,6 @@ const RingbaReports = () => {
 
     let affiliateOptions = []
     affiliateOptions = [{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]
-
-    useEffect(() => {
-        if (
-            typeof campaign?.campaign_id === 'undefined' &&
-            typeof customer?.customer_id === 'undefined'
-        ) {
-            setSelectionWiseData([], [], [])
-            setAffiliate({ affiliate_id: [] })
-            setCouponCode({ couponCodes: [] })
-            setDialed({ dialed: [] })
-            return
-        }
-
-        axios
-            .post(route('ecommerce.report.selectionWiseData'), {
-                campaign_ids: campaign?.campaign_id,
-                customer_ids: customer?.customer_id,
-            })
-            .then((res) => {
-                if (res?.status == 200) {
-                    setSelectionWiseData(res.data.affiliates, res.data.couponCodes, res.data.dialedPhones)
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }, [campaign?.campaign_id, customer?.customer_id])
 
     const affiliateHandleChange = (val, key, activeAffiliates = false) => {
         let affiliate_ids = val ? val.split(',') : []
@@ -641,30 +567,6 @@ const RingbaReports = () => {
                                 singleSelect
                             />
                         </Grid>
-                        {(orderType.orderType === 'both' || orderType.orderType == 1) && (
-                            <Grid item xs={12} style={{ paddingBottom: 5 }}>
-                                <MultiSelect
-                                    name="couponCodes"
-                                    defaultValue={couponCode?.couponCodes}
-                                    onChange={(val) => couponCodeHandleChange(val, 'couponCodes')}
-                                    options={couponCodeList}
-                                    style={{ width: '100%' }}
-                                    placeholder="Select Coupon Codes"
-                                />
-                            </Grid>
-                        )}
-                        {(orderType.orderType === 'both' || orderType.orderType == 2) && (
-                            <Grid item xs={12} style={{ paddingBottom: 5 }}>
-                                <MultiSelect
-                                    name="dialed"
-                                    defaultValue={dialed?.dialed}
-                                    onChange={(val) => dialedHandleChange(val, 'dialed')}
-                                    options={dialedPhoneList}
-                                    style={{ width: '100%' }}
-                                    placeholder="Select Dialed Phone"
-                                />
-                            </Grid>
-                        )}
                         <Grid item xs={12} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="year"
