@@ -37,6 +37,7 @@ use App\Http\Controllers\GenerateReportDestinationController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
+use App\Http\Controllers\RingbaReportsController;
 use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\UserController;
 
@@ -234,6 +235,9 @@ Route::middleware('auth')->group(function () {
     Route::get('custom-email', [CustomEmailController::class, 'index'])->name('custom.email');
     Route::post('custom-email-get-affiliates', [CustomEmailController::class, 'getAffiliates'])->name('custom.email.get.affiliates');
     Route::post('send-custom-email', [CustomEmailController::class, 'sendCustomEmail'])->name('send.custom.email');
+
+    //Ringba Reports
+    Route::get('reports/ringba', [RingbaReportsController::class, 'index'])->name('ringba.reports');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
