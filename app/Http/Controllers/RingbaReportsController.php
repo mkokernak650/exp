@@ -34,4 +34,9 @@ class RingbaReportsController extends Controller
 
         return Inertia::render('GenerateReport/RingbaReports', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'affiliatesOptions'));
     }
+
+    public function generateReport(Request $request)
+    {
+        dd($request->all());
+    }
 }

@@ -47,7 +47,7 @@ const RingbaReports = () => {
     const [state, setState] = useState([])
     const [market, setMarket] = useState([])
     const [campaign, setCampaign] = useState([])
-    const [orderType, setOrderType] = useState({ orderType: 'both' })
+    const [orderType, setOrderType] = useState({ orderType: 'billed' })
     const [customer, setCustomer] = useState([])
     const [reportType, setReportType] = useState({ type: 'customer' })
     const [reportFor, setReportFor] = useState({ reportFor: 'payPerOrder' })
@@ -245,24 +245,6 @@ const RingbaReports = () => {
         }
     }
 
-    const couponCodeHandleChange = (val, key) => {
-        if (val) {
-            const couponCodesValue = val.split(',')
-            setCouponCode({ [key]: couponCodesValue })
-        } else {
-            setCouponCode([])
-        }
-    }
-
-    const dialedHandleChange = (val, key) => {
-        if (val) {
-            const dialedValue = val.split(',')
-            setDialed({ [key]: dialedValue })
-        } else {
-            setDialed([])
-        }
-    }
-
     const startDateHandleChange = (e) => {
         const { name, value } = e.target
         setStartDate({ [name]: value })
@@ -293,14 +275,6 @@ const RingbaReports = () => {
 
     const orderTypeHandleChange = (val) => {
         setOrderType({ orderType: val })
-        if (val !== '2' && affiliate?.affiliate_id?.[0] === '25') {
-            setAffiliate([])
-        }
-        if (val == 1) {
-            setDialed([])
-        } else if (val == 2) {
-            setCouponCode([])
-        }
     }
 
     const values = {
@@ -435,7 +409,7 @@ const RingbaReports = () => {
 
         setLoading(true)
         axios
-            .post(route('ecommerce.report.generate'), { ...values, affiliatesEmail })
+            .post(route('ringba.reports.generate'), { ...values, affiliatesEmail })
             .then((r) => {
                 setLoading(false)
                 if (r?.status === 204) {
@@ -477,7 +451,7 @@ const RingbaReports = () => {
                                 onChange={(val) => reportForHandleChange(val)}
                                 options={[
                                     { label: 'Pay Per Order', value: 'payPerOrder' },
-                                    { label: 'Cash Buy', value: 'cashBuy' },
+                                    // { label: 'Cash Buy', value: 'cashBuy' },
                                 ]}
                                 style={{ width: '100%' }}
                                 placeholder="Select Report For"
@@ -490,9 +464,8 @@ const RingbaReports = () => {
                                 defaultValue={orderType.orderType}
                                 onChange={(val) => orderTypeHandleChange(val)}
                                 options={[
-                                    { label: 'E-commerce & Phone', value: 'both' },
-                                    { label: 'E-commerce', value: '1' },
-                                    { label: 'Phone', value: '2' },
+                                    { label: 'Billed', value: 'billed' },
+                                    { label: 'General', value: 'general' },
                                 ]}
                                 style={{ width: '100%' }}
                                 placeholder="Select Order Type"
@@ -506,9 +479,11 @@ const RingbaReports = () => {
                                 onChange={(val) => reportOnHandleChange(val)}
                                 options={[
                                     { label: 'Detail Report', value: 'detail' },
-                                    { label: 'Market Target', value: 'marketTarget' },
                                     { label: 'Summary Report', value: 'summary' },
-                                    { label: 'Export CSV Report', value: 'exportCSV' },
+                                    { label: 'Exceptions Report', value: 'exceptions' },
+                                    { label: 'Call Length Report', value: 'callLength' },
+                                    { label: 'Homes Per Call Report', value: 'homesPerCall' },
+                                    // { label: 'Export CSV Report', value: 'exportCSV' },
                                 ]}
                                 style={{ width: '100%' }}
                                 placeholder="Select Report On"

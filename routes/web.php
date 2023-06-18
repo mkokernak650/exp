@@ -238,6 +238,7 @@ Route::middleware('auth')->group(function () {
 
     //Ringba Reports
     Route::get('reports/ringba', [RingbaReportsController::class, 'index'])->name('ringba.reports');
+    Route::post('reports/ringba/generate', [RingbaReportsController::class, 'generateReport'])->name('ringba.reports.generate');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
