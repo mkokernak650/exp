@@ -24,7 +24,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { User as UserIcon, Minus as MinusIcon } from 'react-feather';
-import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage ,GroupAddOutlined} from '@material-ui/icons';
+import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage, GroupAddOutlined } from '@material-ui/icons';
 import { InertiaLink } from '@inertiajs/inertia-react';
 import { useState } from 'react';
 import Logo from '../../../images/webform/logo.png';
@@ -193,7 +193,7 @@ export default function PersistentDrawerLeft(props) {
   const items = [
     {
       id: 2,
-      Icon: <Language  size="20" />,
+      Icon: <Language size="20" />,
       title: 'Ringba',
       active: false,
       collapse: true,
@@ -271,6 +271,11 @@ export default function PersistentDrawerLeft(props) {
         {
           title: 'Phone and Coupon Codes',
           href: 'ecommerce.report',
+          Icon: <UserIcon />,
+        },
+        {
+          title: 'Ringa Reports',
+          href: 'ringba.reports',
           Icon: <UserIcon />,
         },
       ],
@@ -696,7 +701,7 @@ export default function PersistentDrawerLeft(props) {
                                   className={classes.menuText}
                                 />
                                 {activeItems?.submenu?.id === submenu?.id &&
-                                activeItems?.submenu?.active ? (
+                                  activeItems?.submenu?.active ? (
                                   <ExpandLess />
                                 ) : (
                                   <ExpandMore />
