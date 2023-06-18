@@ -37,13 +37,9 @@ const RingbaReports = () => {
     const [affiliateList, setAffiliateList] = useState(affiliatesOptions)
     const [affiliate, setAffiliate] = useState()
     const [affiliatesEmail, setAffiliatesEmail] = useState([])
-    const [month, setMonth] = useState('')
     const [year, setYear] = useState([])
-    const [week, setWeek] = useState('')
     const [startDate, setStartDate] = useState({ start_date: '' })
     const [endDate, setEndDate] = useState({ end_date: '' })
-    const [couponCode, setCouponCode] = useState([])
-    const [dialed, setDialed] = useState([])
     const [state, setState] = useState([])
     const [market, setMarket] = useState([])
     const [campaign, setCampaign] = useState([])
@@ -52,9 +48,6 @@ const RingbaReports = () => {
     const [reportType, setReportType] = useState({ type: 'customer' })
     const [reportFor, setReportFor] = useState({ reportFor: 'payPerOrder' })
     const [reportOn, setReportOn] = useState({ reportOn: 'detail' })
-    const [affiliateFeeType, setAffiliateFeeType] = useState({
-        affiliate_fee_type: 'payout_per_order',
-    })
     const [ecommerceReportType, setEcommerceReportType] = useState({
         report_type: 'export-report',
     })
@@ -188,7 +181,6 @@ const RingbaReports = () => {
 
     const monthHandleChange = (value) => {
         if (value) {
-            setMonth({ broad_cast_month: value })
             broadCastMonths.filter((item) => {
                 if (item.broad_cast_month === value) {
                     setStartDate({ ...startDate, start_date: item.start_date })
@@ -203,7 +195,6 @@ const RingbaReports = () => {
 
     const weekHandleChange = (value) => {
         if (value) {
-            setWeek({ broad_cast_week: value })
             broadCastWeeks.filter((item) => {
                 if (item.broad_cast_week === value) {
                     setStartDate({ ...startDate, start_date: item.start_date })
@@ -260,11 +251,6 @@ const RingbaReports = () => {
         setReportType({ [name]: value })
     }
 
-    const affiliateFeeTypeHandleChange = (e) => {
-        const { name, value } = e.target
-        setAffiliateFeeType({ [name]: value })
-    }
-
     const reportForHandleChange = (val) => {
         setReportFor({ reportFor: val })
     }
@@ -279,17 +265,12 @@ const RingbaReports = () => {
 
     const values = {
         ...orderType,
-        ...affiliateFeeType,
         ...campaign,
         ...customer,
         ...state,
         ...market,
         ...affiliate,
-        ...couponCode,
-        ...dialed,
         ...year,
-        ...month,
-        ...week,
         ...startDate,
         ...endDate,
         ...reportType,
@@ -402,7 +383,7 @@ const RingbaReports = () => {
             return
         }
 
-        if (!values?.year && (values?.start_date && !values?.end_date)) {
+        if (!values?.year && ((values?.start_date && !values?.end_date) || (values?.end_date && !values?.start_date))) {
             toast.error('Please select start date and end date both')
             return
         }

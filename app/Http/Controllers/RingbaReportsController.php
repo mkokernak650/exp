@@ -37,6 +37,27 @@ class RingbaReportsController extends Controller
 
     public function generateReport(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
+        $data = $this->reportQuery($request);
+    }
+
+    protected function reportQuery($request)
+    {
+        // dd($request->all());
+        $reportFor         = $request->reportFor;
+        $orderType         = $request->orderType;
+        $reportOn          = $request->reportOn;
+        $selectedStates    = $request->states;
+        $selectedMarkets   = $request->markets;
+        $selectedCampaigns = $request->campaign_id;
+        $selectedCustomers = $request->customer_id;
+        $selectedAffiliate = $request->affiliate_id;
+        $selectedYears     = $request->year;
+        $startDate         = $request->start_date;
+        $endDate           = $request->end_date;
+        $generateFor       = $request->type;
+        $reportType        = $request->report_type;
+
+        dd($reportType);
     }
 }
