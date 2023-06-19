@@ -238,6 +238,7 @@ Route::middleware('auth')->group(function () {
 
     //Ringba Reports
     Route::get('reports/ringba', [RingbaReportsController::class, 'index'])->name('ringba.reports');
+    Route::post('reports/ringba/get-affiliates-dialed', [RingbaReportsController::class, 'getAffiliatesAndDialedByCampaigns'])->name('ringba.reports.get.affiliates.dialed');
     Route::post('reports/ringba/generate', [RingbaReportsController::class, 'generateReport'])->name('ringba.reports.generate');
 });
 

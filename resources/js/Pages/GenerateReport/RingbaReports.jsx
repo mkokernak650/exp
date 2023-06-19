@@ -33,9 +33,9 @@ const useStyles = makeStyles((theme) => ({
 const RingbaReports = () => {
     const classes = useStyles()
     const [loading, setLoading] = useState(false)
-    const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, affiliatesOptions } = usePage().props
-    const [affiliateList, setAffiliateList] = useState(affiliatesOptions)
-    const [affiliate, setAffiliate] = useState()
+    const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets } = usePage().props
+    const [affiliateList, setAffiliateList] = useState([])
+    const [selectedAffiliate, setSelectedAffiliate] = useState('')
     const [affiliatesEmail, setAffiliatesEmail] = useState([])
     const [year, setYear] = useState([])
     const [startDate, setStartDate] = useState({ start_date: '' })
@@ -69,12 +69,12 @@ const RingbaReports = () => {
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
-        value: item.id,
+        value: item.campaign_name,
     }))
 
     const customerOptions = customers.map((item) => ({
         label: item.customer_name,
-        value: item.id,
+        value: item.customer_name,
     }))
 
     const yearOptions = yearsArray.map((year) => ({
@@ -106,7 +106,7 @@ const RingbaReports = () => {
         const campaignNames = []
         if (values?.campaign_id.length) {
             for (let i = 0; i < values.campaign_id.length; i++) {
-                const campaign = campaigns.find((campaign) => campaign.id == values.campaign_id[i])
+                const campaign = campaigns.find((campaign) => campaign.campaign_name == values.campaign_id[i])
                 campaignNames.push(campaign ? campaign.campaign_name : '')
             }
         }
@@ -114,20 +114,24 @@ const RingbaReports = () => {
     }
 
     const getAffiliateNames = () => {
-        const affiliateNames = []
-        Object.values(affiliateList).map((item) => {
-            if (values.affiliate_id.includes(item.value)) {
-                affiliateNames.push(item.label.replace(/\s?\([^)]*\)/g, ""))
-            }
-        })
-        return affiliateNames
+        if (values.selectedAffiliate == 'allAffiliates') {
+            return 'All Affiliates'
+        } else {
+            let AffiliateName
+            affiliateList.forEach(item => {
+                if (values.selectedAffiliate == item.value) {
+                    AffiliateName = item.label.replace(/\s?\([^)]*\)/g, "")
+                }
+            })
+            return AffiliateName
+        }
     }
 
     const getCustomerNames = () => {
         const customerNames = []
         if (values?.customer_id.length) {
             for (let i = 0; i < values.customer_id.length; i++) {
-                const customer = customers.find((customer) => customer.id == values.customer_id[i])
+                const customer = customers.find((customer) => customer.customer_name == values.customer_id[i])
                 customerNames.push(customer ? customer.customer_name : '')
             }
         }
@@ -140,11 +144,15 @@ const RingbaReports = () => {
     }
 
     const campaignHandleChange = (val, key) => {
+        setSelectedAffiliate('')
+        setAffiliatesEmail([])
         if (val) {
             const campaign_ids = val.split(',')
             setCampaign({ [key]: campaign_ids })
+            getAffiliatesAndDialedByCampaigns(val)
         } else {
             setCampaign()
+            setAffiliateList([])
         }
     }
 
@@ -160,23 +168,21 @@ const RingbaReports = () => {
     let affiliateOptions = []
     affiliateOptions = [{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateList]
 
-    const affiliateHandleChange = (val, key, activeAffiliates = false) => {
-        let affiliate_ids = val ? val.split(',') : []
-        if (affiliate_ids.includes('allAffiliates')) {
-            affiliate_ids = ['allAffiliates']
+    const affiliateHandleChange = (value) => {
+        const emails = []
+
+        if (value == 'allAffiliates') {
+            affiliateList.map(item => emails.push(item.email))
+        } else {
+            affiliateList.map(item => {
+                if (item.value == value) {
+                    emails.push(item.email)
+                }
+            })
         }
 
-        const activeAffiliatesList = activeAffiliates || affiliateList
-
-        const emails = []
-        Object.values(activeAffiliatesList).map((item) => {
-            if (affiliate_ids.includes('allAffiliates') || affiliate_ids.includes(item.value)) {
-                emails.push(item.email)
-            }
-        })
-
+        setSelectedAffiliate(value)
         setAffiliatesEmail([...emails])
-        setAffiliate({ [key]: affiliate_ids })
     }
 
     const monthHandleChange = (value) => {
@@ -269,7 +275,7 @@ const RingbaReports = () => {
         ...customer,
         ...state,
         ...market,
-        ...affiliate,
+        selectedAffiliate,
         ...year,
         ...startDate,
         ...endDate,
@@ -284,7 +290,7 @@ const RingbaReports = () => {
         customers.filter((item) => {
             let i = 0
             for (i; i < values.customer_id.length; i++) {
-                if (item.id == values.customer_id[i]) {
+                if (item.customer_name == values.customer_id[i]) {
                     if (item.email) {
                         customerEmails.push(item.email)
                     }
@@ -347,14 +353,29 @@ const RingbaReports = () => {
             ? values?.customer_id
                 ? `_For_(${getCustomerNames().toString()})`
                 : ''
-            : values?.affiliate_id.length
-                ? `_For_(${getAffiliateNames().toString()})`
+            : values?.selectedAffiliate
+                ? `_For_(${getAffiliateNames()})`
                 : ''
             }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
                 ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
                 : ''
             }${values?.year ? `_For_(${values.year.toString()})` : ''}`
         values.file_name = fileName
+    }
+
+    let val = values.selectedAffiliate
+
+    const getAffiliatesAndDialedByCampaigns = (selectedCampaigns) => {
+        axios
+            .post(route('ringba.reports.get.affiliates.dialed'), { selectedCampaigns })
+            .then((response) => {
+                if (response.data) {
+                    setAffiliateList(response.data.affiliatesOptions)
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
     }
 
     const handleSubmit = () => {
@@ -516,7 +537,8 @@ const RingbaReports = () => {
                         <Grid item xs={12} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="affiliate_id"
-                                onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
+                                onChange={(value) => affiliateHandleChange(value)}
+                                defaultValue={selectedAffiliate}
                                 options={affiliateOptions}
                                 style={{ width: '100%' }}
                                 placeholder="Select Affiliates"
