@@ -66,9 +66,25 @@ class RingbaReportsController extends Controller
         if ($request->orderType === 'billed') {
             $data = $this->reportQuery($request, 'billed_call_logs');
         } else if ($request->orderType === 'general') {
+            $billedTableData     = $this->reportQuery($request, 'billed_call_logs');
+            $archivedTableData   = $this->reportQuery($request, 'archived_call_logs');
+            $callLogsTableData   = $this->reportQuery($request, 'ringba_call_logs');
+            $exceptionsTableData = $this->reportQuery($request, 'exceptions');
+
+            // dd($billedTableData, $archivedTableData, $callLogsTableData, $exceptionsTableData);
+
+            $data = $billedTableData->merge($archivedTableData)->merge($callLogsTableData)->merge($exceptionsTableData);
+
+            // dd($data);
         } else {
             return;
         }
+        dd($data);
+        // return response()->json([
+        //     'header'  => [],
+        //     'data'    => $data,
+        //     'summary' => [],
+        // ], 200);
     }
 
     protected function reportQuery($request, $table)
@@ -112,10 +128,14 @@ class RingbaReportsController extends Controller
                     ->whereDate('Call_Date_Time', '>=', $startDate)
                     ->whereDate('Call_Date_Time', '<=', $endDate)
             )
-            ->when($reportOn === 'detail', fn ($query) => $query->select($this->detailReportColumns($table)))
+            ->when(($reportOn === 'detail'),
+                fn ($query) => $query
+                    ->select($this->detailReportColumns($table))
+                    ->orderBy('Call_Date_Time')
+            )
             ->get();
 
-        dd($data);
+        return $data;
     }
 
     protected function detailReportColumns($table)
