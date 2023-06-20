@@ -117,13 +117,13 @@ const RingbaReports = () => {
         if (values.selectedAffiliate == 'allAffiliates') {
             return 'All Affiliates'
         } else {
-            let AffiliateName
+            let affiliateName
             affiliateList.forEach(item => {
                 if (values.selectedAffiliate == item.value) {
-                    AffiliateName = item.label.replace(/\s?\([^)]*\)/g, "")
+                    affiliateName = item.label.replace(/\s?\([^)]*\)/g, "")
                 }
             })
-            return AffiliateName
+            return affiliateName
         }
     }
 
@@ -362,8 +362,6 @@ const RingbaReports = () => {
             }${values?.year ? `_For_(${values.year.toString()})` : ''}`
         values.file_name = fileName
     }
-
-    let val = values.selectedAffiliate
 
     const getAffiliatesAndDialedByCampaigns = (selectedCampaigns) => {
         axios
