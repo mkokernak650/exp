@@ -62,12 +62,19 @@ class RingbaReportsController extends Controller
     public function generateReport(Request $request)
     {
         // dd($request->all());
-        $data = $this->reportQuery($request);
+        // dd($request->orderType);
+        if ($request->orderType === 'billed') {
+            $data = $this->reportQuery($request, 'billed_call_logs');
+        } else if ($request->orderType === 'general') {
+        } else {
+            return;
+        }
     }
 
-    protected function reportQuery($request)
+    protected function reportQuery($request, $table)
     {
-        dd($request->all());
+        // dd($request->all());
+        // dd($table);
         $reportFor         = $request->reportFor;
         $orderType         = $request->orderType;
         $reportOn          = $request->reportOn;
@@ -76,13 +83,58 @@ class RingbaReportsController extends Controller
         $selectedCampaigns = $request->campaign_id;
         $selectedCustomers = $request->customer_id;
         $selectedAffiliate = $request->selectedAffiliate;
-        $selectedDialed    = $request->selectedDialed;
+        $selectedDialed    = !empty($request->selectedDialed) ? explode(',', $request->selectedDialed) : null;
         $selectedYears     = $request->year;
         $startDate         = $request->start_date;
         $endDate           = $request->end_date;
         $generateFor       = $request->type;
         $reportType        = $request->report_type;
 
-        dd($selectedDialed);
+        // dd($startDate, $endDate);
+        // dd((empty($selectedYears) && !empty($startDate) && !empty($endDate)));
+
+        $data = DB::table($table)
+            ->when((!empty($selectedStates) && !in_array('allStates', $selectedStates)),
+                fn ($query) => $query->whereIn('State', $selectedStates)
+            )
+            ->when((!empty($selectedMarkets) && !in_array('allMarkets', $selectedMarkets)),
+                fn ($query) => $query->whereIn('Market', $selectedMarkets)
+            )
+            ->when(!empty($selectedCampaigns), fn ($query) => $query->whereIn('Campaign', $selectedCampaigns))
+            ->when(!empty($selectedCustomers), fn ($query) => $query->whereIn('Customer', $selectedCustomers))
+            ->when((!empty($selectedAffiliate) && $selectedAffiliate != 'allAffiliates'),
+                fn ($query) => $query->where('Affiliate_Id', $selectedAffiliate)
+            )
+            ->when(!empty($selectedDialed), fn ($query) => $query->whereIn('Dialed', $selectedDialed))
+            ->when(!empty($selectedYears), fn ($query) => $query->whereIn(DB::raw('YEAR(Call_Date_Time)'), $selectedYears))
+            ->when((empty($selectedYears) && !empty($startDate) && !empty($endDate)),
+                fn ($query) => $query
+                    ->whereDate('Call_Date_Time', '>=', $startDate)
+                    ->whereDate('Call_Date_Time', '<=', $endDate)
+            )
+            ->when($reportOn === 'detail', fn ($query) => $query->select($this->detailReportColumns($table)))
+            ->get();
+
+        dd($data);
+    }
+
+    protected function detailReportColumns($table)
+    {
+        $columns = [
+            DB::raw('DATE_FORMAT(Call_Date_Time, "%Y-%m-%d") AS `Call Date`'),
+            DB::raw('DATE_FORMAT(Call_Date_Time, "%h:%i:%s") AS `Call Time`'),
+            'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode',
+            'Inbound AS Caller ID',
+            'Type',
+            'Conn_Duration AS Connection Duration',
+            'Duplicate_Call AS Duplicate Call',
+            'Source_Hangup AS Hangup',
+            'Revenue',
+            'call_Logs_status AS Call Status',
+            DB::raw('(SELECT annotation_name FROM annotations WHERE annotations.id = ' . $table . '.Annotation_Tag) AS Annotation'),
+            'Recording_Url as Recording Url'
+        ];
+
+        return $columns;
     }
 }
