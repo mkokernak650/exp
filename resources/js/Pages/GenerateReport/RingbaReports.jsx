@@ -51,6 +51,8 @@ const RingbaReports = () => {
     const [ecommerceReportType, setEcommerceReportType] = useState({
         report_type: 'export-report',
     })
+    const [dialedOptions, setDialedOptions] = useState([])
+    const [selectedDialed, setSelectedDialed] = useState('')
 
     let yearsArray = []
     for (let i = 0; i < 5; i++) {
@@ -146,6 +148,7 @@ const RingbaReports = () => {
     const campaignHandleChange = (val, key) => {
         setSelectedAffiliate('')
         setAffiliatesEmail([])
+        setSelectedDialed('')
         if (val) {
             const campaign_ids = val.split(',')
             setCampaign({ [key]: campaign_ids })
@@ -153,6 +156,7 @@ const RingbaReports = () => {
         } else {
             setCampaign()
             setAffiliateList([])
+            setDialedOptions([])
         }
     }
 
@@ -183,6 +187,10 @@ const RingbaReports = () => {
 
         setSelectedAffiliate(value)
         setAffiliatesEmail([...emails])
+    }
+
+    const handleDialedPhoneChange = (value) => {
+        setSelectedDialed(value)
     }
 
     const monthHandleChange = (value) => {
@@ -276,6 +284,7 @@ const RingbaReports = () => {
         ...state,
         ...market,
         selectedAffiliate,
+        selectedDialed,
         ...year,
         ...startDate,
         ...endDate,
@@ -369,6 +378,7 @@ const RingbaReports = () => {
             .then((response) => {
                 if (response.data) {
                     setAffiliateList(response.data.affiliatesOptions)
+                    setDialedOptions(response.data.dialedOptions)
                 }
             })
             .catch((err) => {
@@ -541,6 +551,16 @@ const RingbaReports = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Affiliates"
                                 singleSelect
+                            />
+                        </Grid>
+                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                            <MultiSelect
+                                name="dialedPhone"
+                                onChange={(value) => handleDialedPhoneChange(value)}
+                                defaultValue={selectedDialed}
+                                options={dialedOptions}
+                                style={{ width: '100%' }}
+                                placeholder="Select Dialed Phone"
                             />
                         </Grid>
                         <Grid item xs={12} style={{ paddingBottom: 5 }}>

@@ -75,13 +75,14 @@ class RingbaReportsController extends Controller
         $selectedMarkets   = $request->markets;
         $selectedCampaigns = $request->campaign_id;
         $selectedCustomers = $request->customer_id;
-        $selectedAffiliate = $request->affiliate_id;
+        $selectedAffiliate = $request->selectedAffiliate;
+        $selectedDialed    = $request->selectedDialed;
         $selectedYears     = $request->year;
         $startDate         = $request->start_date;
         $endDate           = $request->end_date;
         $generateFor       = $request->type;
         $reportType        = $request->report_type;
 
-        dd($reportType);
+        dd($selectedDialed);
     }
 }
