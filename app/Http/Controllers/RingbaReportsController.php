@@ -79,6 +79,14 @@ class RingbaReportsController extends Controller
         } else {
             return;
         }
+
+        if ($request->orderType === 'general' && $request->reportOn === 'detail') {
+            $data = $data->sortBy(function ($item) {
+                $callDateTime = $item->{'Call Date'} . ' ' . $item->{'Call Time'};
+                return strtotime($callDateTime);
+            });
+            $data = [...$data];
+        }
         dd($data);
         // return response()->json([
         //     'header'  => [],
