@@ -63,6 +63,7 @@ class RingbaReportsController extends Controller
     {
         // dd($request->all());
         // dd($request->reportOn);
+        $tagsData = [];
         $reportOn = $request->reportOn;
 
         if ($request->orderType === 'billed') {
@@ -84,6 +85,11 @@ class RingbaReportsController extends Controller
 
         $summary = $this->summary($reportOn, $data);
 
+        if ($reportOn === 'detail') {
+            $tagsData = $this->tagsData($data);
+        }
+        // dd($tagsData);
+
         if ($request->orderType === 'general' && $reportOn === 'detail') {
             $data = $data->sortBy(function ($item) {
                 $callDateTime = $item->{'Call Date'} . ' ' . $item->{'Call Time'};
@@ -91,12 +97,13 @@ class RingbaReportsController extends Controller
             });
             $data = [...$data];
         }
-        dd($data);
+        // dd($data);
 
         return response()->json([
-            'header'  => [],
-            'data'    => $data,
-            'summary' => $summary,
+            'header'   => [],
+            'data'     => $data,
+            'summary'  => $summary,
+            'tagsData' => $tagsData
         ], 200);
     }
 
@@ -200,5 +207,26 @@ class RingbaReportsController extends Controller
         ];
 
         return $summary;
+    }
+
+    protected function tagsData($data)
+    {
+        $result   = [];
+        $tagsData = $data->countBy(function ($item) {
+            return $item->Annotation;
+        })->map(function ($calls, $annotation) use ($data) {
+            $revenue = $data->where('Annotation', $annotation)->sum(function ($item) {
+                return (float) $item->Revenue;
+            });
+            return ['calls' => $calls, 'revenue' => $revenue];
+        });
+
+        foreach ($tagsData as $key => $value) {
+            if ($key != '') {
+                $result[] = [$key, $value['calls'], $value['revenue']];
+            }
+        }
+
+        return $result;
     }
 }

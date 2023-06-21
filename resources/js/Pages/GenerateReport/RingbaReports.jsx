@@ -9,7 +9,7 @@ import { Helmet } from 'react-helmet'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import toast from 'react-hot-toast'
-import { exportReportEcommerce } from '@/Helpers/ExportReport'
+import { exportRingbaReports } from '@/Helpers/ExportReport'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -428,7 +428,7 @@ const RingbaReports = () => {
                 } else {
                     setLoading(false)
                     if (ecommerceReportType.report_type === 'export-report') {
-                        exportReportEcommerce(r.data, fileName, reportOn)
+                        exportRingbaReports(r.data, fileName)
                     } else {
                         toast.success(r?.data?.message)
                     }

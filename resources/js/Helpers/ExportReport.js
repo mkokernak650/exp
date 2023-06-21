@@ -128,6 +128,55 @@ export const exportReportEcommerce = (apiData, fileName, reportOn) => {
   toast.success('Report generated successfully')
 }
 
+export const exportRingbaReports = (apiData, fileName) => {
+  let mainDataOrigin, headerLength = 0, summaryLength = 0
+
+  if (Object.keys(apiData.header).length) {
+    mainDataOrigin = `A${Object.keys(apiData.header).length + 2}`
+    headerLength = Object.keys(apiData.header).length
+  } else {
+    mainDataOrigin = 'A1'
+  }
+
+  const ws = XLSX.utils.json_to_sheet(apiData.data, { origin: mainDataOrigin })
+
+  if (apiData.header && Object.keys(apiData.header).length) {
+    const header = []
+    Object.keys(apiData.header).forEach(headerKey => {
+      header.push([headerKey, apiData.header[headerKey]])
+    })
+    XLSX.utils.sheet_add_aoa(ws, header)
+  }
+
+  if (apiData?.summary && Object.keys(apiData.summary).length) {
+    const secondData = apiData.data.length + 5 + headerLength
+    const summary = []
+    summary.push(['Summary', ''])
+    Object.keys(apiData.summary).forEach((cf) => {
+      summary.push([cf, apiData.summary[cf]])
+    })
+
+    summaryLength = summary.length
+
+    XLSX.utils.sheet_add_aoa(ws, summary, { origin: `C${secondData}` })
+  }
+
+  if (apiData.tagsData && apiData.tagsData.length) {
+    const thirdData = apiData.data.length + 5 + headerLength + summaryLength + 2
+    const tagsData = [['Category', 'Total Calls', 'Total Revenue']]
+    apiData.tagsData.forEach(tagdata => {
+      tagsData.push(tagdata)
+    })
+    XLSX.utils.sheet_add_aoa(ws, tagsData, { origin: `C${thirdData}` })
+  }
+
+  const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  const data = new Blob([excelBuffer], { type: fileType })
+  FileSaver.saveAs(data, fileName + '.xlsx')
+  toast.success('Report generated successfully')
+}
+
 export const exportReportAlreadyExist = (apiData) => {
   const ws = XLSX.utils.json_to_sheet(apiData, 'already_exists_sales')
   const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
