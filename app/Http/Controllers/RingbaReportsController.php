@@ -62,7 +62,9 @@ class RingbaReportsController extends Controller
     public function generateReport(Request $request)
     {
         // dd($request->all());
-        // dd($request->orderType);
+        // dd($request->reportOn);
+        $reportOn = $request->reportOn;
+
         if ($request->orderType === 'billed') {
             $data = $this->reportQuery($request, 'billed_call_logs');
         } else if ($request->orderType === 'general') {
@@ -80,7 +82,9 @@ class RingbaReportsController extends Controller
             return;
         }
 
-        if ($request->orderType === 'general' && $request->reportOn === 'detail') {
+        $summary = $this->summary($reportOn, $data);
+
+        if ($request->orderType === 'general' && $reportOn === 'detail') {
             $data = $data->sortBy(function ($item) {
                 $callDateTime = $item->{'Call Date'} . ' ' . $item->{'Call Time'};
                 return strtotime($callDateTime);
@@ -88,11 +92,12 @@ class RingbaReportsController extends Controller
             $data = [...$data];
         }
         dd($data);
-        // return response()->json([
-        //     'header'  => [],
-        //     'data'    => $data,
-        //     'summary' => [],
-        // ], 200);
+
+        return response()->json([
+            'header'  => [],
+            'data'    => $data,
+            'summary' => $summary,
+        ], 200);
     }
 
     protected function reportQuery($request, $table)
@@ -164,5 +169,36 @@ class RingbaReportsController extends Controller
         ];
 
         return $columns;
+    }
+
+    protected function summary($reportOn, $data)
+    {
+        $summary = [];
+
+        if ($reportOn === 'detail') {
+            $summary = $this->detailReportSummary($data);
+        }
+
+        return $summary;
+    }
+
+    protected function detailReportSummary($data)
+    {
+        $totalCalls   = $data->count();
+        $totalMinutes = secondToMinutes($data->sum('Connection Duration'));
+        $totalRevenue = $data->sum(function ($item) {
+            return (float) $item->Revenue;
+        });
+
+        $averageRevenue = ($totalCalls > 0 && $totalRevenue > 0) ? round(($totalRevenue / $totalCalls), 2) : 0;
+
+        $summary = [
+            'Total Calls'     => (string) $totalCalls,
+            'Total Minutes'   => (string) $totalMinutes,
+            'Total Revenue'   => (string) $totalRevenue,
+            'Average Revenue' => (string) $averageRevenue
+        ];
+
+        return $summary;
     }
 }
