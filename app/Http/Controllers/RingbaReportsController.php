@@ -63,10 +63,11 @@ class RingbaReportsController extends Controller
     {
         // dd($request->all());
         // dd($request->reportOn);
-        $tagsData    = [];
-        $orderType   = $request->orderType;
-        $reportOn    = $request->reportOn;
-        $generateFor = $request->type;
+        $tagsData             = [];
+        $orderType            = $request->orderType;
+        $reportOn             = $request->reportOn;
+        $generateFor          = $request->type;
+        $nonRevenueCallsCount = 0;
 
         if ($orderType === 'general' && $reportOn === 'detail') {
             $billedTableData     = $this->reportQuery($request, 'billed_call_logs');
@@ -74,11 +75,14 @@ class RingbaReportsController extends Controller
             $callLogsTableData   = $this->reportQuery($request, 'ringba_call_logs');
             $exceptionsTableData = $this->reportQuery($request, 'exceptions');
             $data                = $billedTableData->merge($archivedTableData)->merge($callLogsTableData)->merge($exceptionsTableData);
+        } else if ($reportOn === 'summary') {
+            $data                 = $this->reportQuery($request, 'billed_call_logs');
+            $nonRevenueCallsCount = $this->reportQuery($request, 'archived_call_logs')->value('count');
         } else {
             $data = $this->reportQuery($request, 'billed_call_logs');
         }
 
-        $summary = $this->summary($reportOn, $data, $generateFor);
+        $summary = $this->summary($reportOn, $data, $generateFor, $nonRevenueCallsCount);
 
         if ($reportOn === 'detail') {
             $tagsData = $this->tagsData($data, $generateFor);
@@ -121,7 +125,7 @@ class RingbaReportsController extends Controller
         $generateFor       = $request->type;
         $reportType        = $request->report_type;
 
-        // dd($generateFor);
+        // dd($reportOn);
         // dd((empty($selectedYears) && !empty($startDate) && !empty($endDate)));
 
         $data = DB::table($table)
@@ -137,16 +141,25 @@ class RingbaReportsController extends Controller
                 fn ($query) => $query->where('Affiliate_Id', $selectedAffiliate)
             )
             ->when(!empty($selectedDialed), fn ($query) => $query->whereIn('Dialed', $selectedDialed))
-            ->when(!empty($selectedYears), fn ($query) => $query->whereIn(DB::raw('YEAR(Call_Date_Time)'), $selectedYears))
+            ->when(!empty($selectedYears), fn ($query) => $query->whereIn(DB::raw('YEAR(Call_Date)'), $selectedYears))
             ->when((empty($selectedYears) && !empty($startDate) && !empty($endDate)),
                 fn ($query) => $query
-                    ->whereDate('Call_Date_Time', '>=', $startDate)
-                    ->whereDate('Call_Date_Time', '<=', $endDate)
+                    ->whereDate('Call_Date', '>=', $startDate)
+                    ->whereDate('Call_Date', '<=', $endDate)
             )
             ->when(($reportOn === 'detail'),
                 fn ($query) => $query
                     ->select($this->detailReportColumns($table, $generateFor))
                     ->orderBy('Call_Date_Time')
+            )
+            ->when(($reportOn === 'summary' && $table != 'archived_call_logs'),
+                fn ($query) => $query
+                    ->select($this->summaryReportColumns())
+                    ->groupByRaw('EXTRACT(YEAR FROM Call_Date), EXTRACT(MONTH FROM Call_Date), Target_Number, Affiliate')
+            )
+            ->when(($reportOn === 'summary' && $table === 'archived_call_logs'),
+                fn ($query) => $query
+                    ->select(DB::raw('COUNT(*) as count'))
             )
             ->get();
 
@@ -177,17 +190,31 @@ class RingbaReportsController extends Controller
             $columns[] = DB::raw('(SELECT annotation_name FROM annotations WHERE annotations.id = ' . $table . '.Annotation_Tag) AS Annotation');
         }
 
-        // dd($columns);
+        return $columns;
+    }
+
+    protected function summaryReportColumns()
+    {
+        $columns = [
+            DB::raw('DATE_FORMAT(Call_Date, "%M-%Y") AS Month'),
+            'Target_Number AS Destination Number',
+            'Affiliate',
+            DB::raw('count(Target_Number) AS `Billable Calls`'),
+            'payoutAmount AS Per Call Rate',
+            DB::raw('count(Target_Number)*payoutAmount AS `Total Charge`')
+        ];
 
         return $columns;
     }
 
-    protected function summary($reportOn, $data, $generateFor)
+    protected function summary($reportOn, $data, $generateFor, $nonRevenueCallsCount)
     {
         $summary = [];
 
         if ($reportOn === 'detail') {
             $summary = $this->detailReportSummary($data, $generateFor);
+        } elseif ($reportOn === 'summary') {
+            $summary = $this->summaryReportSummary($data, $nonRevenueCallsCount);
         }
 
         return $summary;
@@ -239,5 +266,23 @@ class RingbaReportsController extends Controller
         }
 
         return $result;
+    }
+
+    protected function summaryReportSummary($data, $nonRevenueCallsCount)
+    {
+        $billableCalls = $totalCharge = 0;
+
+        foreach ($data as $item) {
+            $billableCalls += (int) $item->{'Billable Calls'};
+            $totalCharge   += (float) $item->{'Total Charge'};
+        }
+
+        $summary = [
+            'Billable Calls'    => $billableCalls,
+            'Total Charge'      => $totalCharge,
+            'Non Revenue Calls' => $nonRevenueCallsCount
+        ];
+
+        return $summary;
     }
 }
