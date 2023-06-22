@@ -163,7 +163,7 @@ export const exportRingbaReports = (apiData, fileName) => {
 
   if (apiData.tagsData && apiData.tagsData.length) {
     const thirdData = apiData.data.length + 5 + headerLength + summaryLength + 2
-    const tagsData = [['Category', 'Total Calls', 'Total Revenue']]
+    const tagsData = []
     apiData.tagsData.forEach(tagdata => {
       tagsData.push(tagdata)
     })

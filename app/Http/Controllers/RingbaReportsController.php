@@ -63,30 +63,25 @@ class RingbaReportsController extends Controller
     {
         // dd($request->all());
         // dd($request->reportOn);
-        $tagsData = [];
-        $reportOn = $request->reportOn;
+        $tagsData    = [];
+        $orderType   = $request->orderType;
+        $reportOn    = $request->reportOn;
+        $generateFor = $request->type;
 
-        if ($request->orderType === 'billed') {
-            $data = $this->reportQuery($request, 'billed_call_logs');
-        } else if ($request->orderType === 'general') {
+        if ($orderType === 'general' && $reportOn === 'detail') {
             $billedTableData     = $this->reportQuery($request, 'billed_call_logs');
             $archivedTableData   = $this->reportQuery($request, 'archived_call_logs');
             $callLogsTableData   = $this->reportQuery($request, 'ringba_call_logs');
             $exceptionsTableData = $this->reportQuery($request, 'exceptions');
-
-            // dd($billedTableData, $archivedTableData, $callLogsTableData, $exceptionsTableData);
-
-            $data = $billedTableData->merge($archivedTableData)->merge($callLogsTableData)->merge($exceptionsTableData);
-
-            // dd($data);
+            $data                = $billedTableData->merge($archivedTableData)->merge($callLogsTableData)->merge($exceptionsTableData);
         } else {
-            return;
+            $data = $this->reportQuery($request, 'billed_call_logs');
         }
 
-        $summary = $this->summary($reportOn, $data);
+        $summary = $this->summary($reportOn, $data, $generateFor);
 
         if ($reportOn === 'detail') {
-            $tagsData = $this->tagsData($data);
+            $tagsData = $this->tagsData($data, $generateFor);
         }
         // dd($tagsData);
 
@@ -126,7 +121,7 @@ class RingbaReportsController extends Controller
         $generateFor       = $request->type;
         $reportType        = $request->report_type;
 
-        // dd($startDate, $endDate);
+        // dd($generateFor);
         // dd((empty($selectedYears) && !empty($startDate) && !empty($endDate)));
 
         $data = DB::table($table)
@@ -150,7 +145,7 @@ class RingbaReportsController extends Controller
             )
             ->when(($reportOn === 'detail'),
                 fn ($query) => $query
-                    ->select($this->detailReportColumns($table))
+                    ->select($this->detailReportColumns($table, $generateFor))
                     ->orderBy('Call_Date_Time')
             )
             ->get();
@@ -158,7 +153,7 @@ class RingbaReportsController extends Controller
         return $data;
     }
 
-    protected function detailReportColumns($table)
+    protected function detailReportColumns($table, $generateFor)
     {
         $columns = [
             DB::raw('DATE_FORMAT(Call_Date_Time, "%Y-%m-%d") AS `Call Date`'),
@@ -168,58 +163,74 @@ class RingbaReportsController extends Controller
             'Type',
             'Conn_Duration AS Connection Duration',
             'Duplicate_Call AS Duplicate Call',
-            'Source_Hangup AS Hangup',
-            'Revenue',
-            'call_Logs_status AS Call Status',
-            DB::raw('(SELECT annotation_name FROM annotations WHERE annotations.id = ' . $table . '.Annotation_Tag) AS Annotation'),
-            'Recording_Url as Recording Url'
+            'Source_Hangup AS Hangup'
         ];
+
+        if ($generateFor === 'customer') {
+            $columns[] = 'Revenue';
+            $columns[] = 'call_Logs_status AS Call Status';
+            $columns[] = DB::raw('(SELECT annotation_name FROM annotations WHERE annotations.id = ' . $table . '.Annotation_Tag) AS Annotation');
+            $columns[] = 'Recording_Url as Recording Url';
+        } else {
+            $columns[] = 'payoutAmount AS Payout';
+            $columns[] = 'call_Logs_status AS Call Status';
+            $columns[] = DB::raw('(SELECT annotation_name FROM annotations WHERE annotations.id = ' . $table . '.Annotation_Tag) AS Annotation');
+        }
+
+        // dd($columns);
 
         return $columns;
     }
 
-    protected function summary($reportOn, $data)
+    protected function summary($reportOn, $data, $generateFor)
     {
         $summary = [];
 
         if ($reportOn === 'detail') {
-            $summary = $this->detailReportSummary($data);
+            $summary = $this->detailReportSummary($data, $generateFor);
         }
 
         return $summary;
     }
 
-    protected function detailReportSummary($data)
+    protected function detailReportSummary($data, $generateFor)
     {
-        $totalCalls   = $data->count();
-        $totalMinutes = secondToMinutes($data->sum('Connection Duration'));
-        $totalRevenue = $data->sum(function ($item) {
-            return (float) $item->Revenue;
+        $revenueOrPayout = $generateFor === 'customer' ? 'Revenue' : 'Payout';
+        $totalCalls      = $data->count();
+        $totalMinutes    = secondToMinutes($data->sum('Connection Duration'));
+
+        $totalRevenueOrPayout = $data->sum(function ($item) use ($revenueOrPayout) {
+            return (float) $item->$revenueOrPayout;
         });
 
-        $averageRevenue = ($totalCalls > 0 && $totalRevenue > 0) ? round(($totalRevenue / $totalCalls), 2) : 0;
-
+        $average = ($totalCalls > 0 && $totalRevenueOrPayout > 0) ? round(($totalRevenueOrPayout / $totalCalls), 2) : 0;
         $summary = [
-            'Total Calls'     => (string) $totalCalls,
-            'Total Minutes'   => (string) $totalMinutes,
-            'Total Revenue'   => (string) $totalRevenue,
-            'Average Revenue' => (string) $averageRevenue
+            'Total Calls'                 => (string) $totalCalls,
+            'Total Minutes'               => (string) $totalMinutes,
+            'Total ' . $revenueOrPayout   => (string) $totalRevenueOrPayout,
+            'Average ' . $revenueOrPayout => (string) $average
         ];
 
         return $summary;
     }
 
-    protected function tagsData($data)
+    protected function tagsData($data, $generateFor)
     {
-        $result   = [];
+        $revenueOrPayout = $generateFor === 'customer' ? 'Revenue' : 'Payout';
+        $result          = [];
+
         $tagsData = $data->countBy(function ($item) {
             return $item->Annotation;
-        })->map(function ($calls, $annotation) use ($data) {
-            $revenue = $data->where('Annotation', $annotation)->sum(function ($item) {
-                return (float) $item->Revenue;
+        })->map(function ($calls, $annotation) use ($data, $revenueOrPayout) {
+            $revenue = $data->where('Annotation', $annotation)->sum(function ($item) use ($revenueOrPayout) {
+                return (float) $item->$revenueOrPayout;
             });
             return ['calls' => $calls, 'revenue' => $revenue];
         });
+
+        if ($tagsData->isNotEmpty()) {
+            $result[] = ['Category', 'Total Calls', 'Total ' . $revenueOrPayout];
+        }
 
         foreach ($tagsData as $key => $value) {
             if ($key != '') {
