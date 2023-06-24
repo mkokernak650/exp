@@ -69,7 +69,7 @@ class RingbaReportsController extends Controller
         $generateFor          = $request->type;
         $nonRevenueCallsCount = 0;
 
-        if ($orderType === 'general' && $reportOn === 'detail') {
+        if ($orderType === 'general' && ($reportOn === 'detail' || $reportOn === 'callLength')) {
             $billedTableData     = $this->reportQuery($request, 'billed_call_logs');
             $archivedTableData   = $this->reportQuery($request, 'archived_call_logs');
             $callLogsTableData   = $this->reportQuery($request, 'ringba_call_logs');
@@ -82,19 +82,35 @@ class RingbaReportsController extends Controller
             $data = $this->reportQuery($request, 'billed_call_logs');
         }
 
-        $summary = $this->summary($reportOn, $data, $generateFor, $nonRevenueCallsCount);
+        if ($reportOn != 'callLength') {
+            $summary = $this->summary($reportOn, $data, $generateFor, $nonRevenueCallsCount);
+        }
 
         if ($reportOn === 'detail') {
             $tagsData = $this->tagsData($data, $generateFor);
         }
         // dd($tagsData);
 
-        if ($request->orderType === 'general' && $reportOn === 'detail') {
+        if ($orderType === 'general' && $reportOn === 'detail') {
             $data = $data->sortBy(function ($item) {
                 $callDateTime = $item->{'Call Date'} . ' ' . $item->{'Call Time'};
                 return strtotime($callDateTime);
             });
+
             $data = [...$data];
+        }
+
+        if ($reportOn === 'callLength') {
+            $dataCount = $data->count();
+
+            if ($dataCount > 0) {
+                $result      = $this->groupByCallLengthRanges($data);
+                $data        = $result['data'];
+                $totalPayout = $result['totalPayout'];
+                $summary     = ['Total Calls'   => $dataCount, 'Total Payout' => $totalPayout];
+            } else {
+                $summary = ['Total Calls'   => 0, 'Total Payout' => 0];
+            }
         }
         // dd($data);
 
@@ -161,6 +177,10 @@ class RingbaReportsController extends Controller
                 fn ($query) => $query
                     ->select(DB::raw('COUNT(*) as count'))
             )
+            ->when(($reportOn === 'callLength'),
+                fn ($query) => $query
+                    ->select('call_Length_In_Seconds', 'payoutAmount')
+            )
             ->get();
 
         return $data;
@@ -205,6 +225,42 @@ class RingbaReportsController extends Controller
         ];
 
         return $columns;
+    }
+
+    protected function groupByCallLengthRanges($data)
+    {
+        $totalCalls       = 0;
+        $callLengthRanges = [[30, 60], [61, 90], [91, 120], [121, 180], [181, 240], [241, 300], [301, 360], [361, 420], [421, 480], [481, 540], [541, 600], [601, 660], [661, 720], [721, 780], [781, 840], [841, 900]];
+
+        foreach ($callLengthRanges as $callLengthRange) {
+            $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]] = [
+                'Range - Call Length in Seconds' => $callLengthRange[0] . '-' . $callLengthRange[1],
+                'Min Length'                     => $callLengthRange[0],
+                'Max Length'                     => $callLengthRange[1],
+                'Total Calls'                    => 0,
+                '% of all calls'                 => '0 %',
+                'Total seconds'                  => 0,
+                'Total Payout'                   => 0
+            ];
+        }
+
+        foreach ($data as $item) {
+            foreach ($callLengthRanges as $callLengthRange) {
+                if ($item->call_Length_In_Seconds >= $callLengthRange[0] && $item->call_Length_In_Seconds <= $callLengthRange[1]) {
+                    ++$totalCalls;
+                    ++$groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total Calls'];
+                    $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['% of all calls'] =
+                        round(($groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total Calls'] / $totalCalls) * 100, 2) . ' %';
+                    $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total seconds'] += $item->call_Length_In_Seconds;
+                    $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total Payout'] += (float) $item->payoutAmount;
+                }
+            }
+        }
+
+        $data        = collect($groupByCallLengthRanges)->values();
+        $totalPayout = $data->sum('Total Payout');
+
+        return ['data' => $data, 'totalPayout' => $totalPayout];
     }
 
     protected function summary($reportOn, $data, $generateFor, $nonRevenueCallsCount)
