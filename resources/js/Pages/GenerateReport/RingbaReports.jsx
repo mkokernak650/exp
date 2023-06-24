@@ -402,7 +402,7 @@ const RingbaReports = () => {
             return
         }
 
-        if (reportOn.reportOn === 'marketTarget' && state.length < 1 && market.length < 1) {
+        if (reportOn.reportOn === 'homesPerCall' && state.length < 1 && market.length < 1) {
             toast.error('Please select state or market')
             return
         }

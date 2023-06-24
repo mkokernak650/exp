@@ -112,6 +112,13 @@ class RingbaReportsController extends Controller
                 $summary = ['Total Calls'   => 0, 'Total Payout' => 0];
             }
         }
+
+        if ($reportOn === 'homesPerCall') {
+            $data = $data->sortBy(function ($item) {
+                return (int) (str_replace(',', '', $item->{'Average Homes Per Call'}));
+            })->values();
+        }
+
         // dd($data);
 
         return response()->json([
@@ -145,6 +152,9 @@ class RingbaReportsController extends Controller
         // dd((empty($selectedYears) && !empty($startDate) && !empty($endDate)));
 
         $data = DB::table($table)
+            ->when(($reportOn === 'homesPerCall'),
+                fn ($query) => $query->leftJoin('t_v_households', $table . '.Market', '=', 't_v_households.market')
+            )
             ->when((!empty($selectedStates) && !in_array('allStates', $selectedStates)),
                 fn ($query) => $query->whereIn('State', $selectedStates)
             )
@@ -180,6 +190,12 @@ class RingbaReportsController extends Controller
             ->when(($reportOn === 'callLength'),
                 fn ($query) => $query
                     ->select('call_Length_In_Seconds', 'payoutAmount')
+            )
+            ->when(($reportOn === 'homesPerCall'),
+                fn ($query) => $query
+                    ->select($this->homesPerCallReportColumns($table, $selectedStates))
+                    ->when(!empty($selectedStates), fn ($query) => $query->groupBy('State'))
+                    ->when(!empty($selectedMarkets), fn ($query) => $query->groupBy('Market'))
             )
             ->get();
 
@@ -222,6 +238,21 @@ class RingbaReportsController extends Controller
             DB::raw('count(Target_Number) AS `Billable Calls`'),
             'payoutAmount AS Per Call Rate',
             DB::raw('count(Target_Number)*payoutAmount AS `Total Charge`')
+        ];
+
+        return $columns;
+    }
+
+    protected function homesPerCallReportColumns($table, $selectedStates)
+    {
+        $columns = [
+            !empty($selectedStates) ? $table . '.State' : $table . '.Market',
+            DB::raw('FORMAT(t_v_households.tv_households, 0) AS `TV Households`'),
+            DB::raw('COUNT(' . $table . '.Market) AS Billed'),
+            DB::raw('SUM(Revenue) AS Revenue'),
+            DB::raw('CASE WHEN t_v_households.tv_households/COUNT(' . $table . '.Market) IS NOT NULL
+                THEN FORMAT(t_v_households.tv_households/COUNT(' . $table . '.Market), 0) ELSE 0 END
+                AS `Average Homes Per Call`'),
         ];
 
         return $columns;
