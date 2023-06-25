@@ -324,16 +324,19 @@ const RingbaReports = () => {
 
     let reportName
 
-    if (reportOn.reportOn === 'marketTarget') {
-        reportName = 'Market Report'
-    } else if (reportOn.reportOn === 'summary') {
-        reportName = 'Summary Report'
-    } else if (reportOn.reportOn === 'exportCSV') {
-        reportName = 'Export CSV Report'
+    if (reportOn.reportOn === 'summary') {
+        reportName = 'Summary_Report'
+    } else if (reportOn.reportOn === 'exceptions') {
+        reportName = 'Exceptions_Report'
+    } else if (reportOn.reportOn === 'callLength') {
+        reportName = 'Call_Length_Report'
+    } else if (reportOn.reportOn === 'homesPerCall') {
+        reportName = 'Homes_Per_Call'
     } else {
-        reportName = 'Detail Report'
+        reportName = 'Detail_Report'
     }
 
+    const reportOrderType = orderType.orderType === 'billed' ? 'Billed' : 'General'
     let fileName
 
     if (reportOn.reportOn === 'exportCSV') {
@@ -358,17 +361,17 @@ const RingbaReports = () => {
 
         values.file_name = fileName
     } else {
-        fileName = `${reportName}${reportType.type === 'customer'
+        fileName = `${reportName}_${reportOrderType}${reportType.type === 'customer'
             ? values?.customer_id
-                ? `_For_(${getCustomerNames().toString()})`
+                ? `_(${getCustomerNames().toString()})`
                 : ''
             : values?.selectedAffiliate
-                ? `_For_(${getAffiliateNames()})`
+                ? `_(${getAffiliateNames()})`
                 : ''
-            }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
-                ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
+            }${values?.campaign_id ? `_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
+                ? `_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
                 : ''
-            }${values?.year ? `_For_(${values.year.toString()})` : ''}`
+            }${values?.year ? `_(${values.year.toString()})` : ''}`
         values.file_name = fileName
     }
 
