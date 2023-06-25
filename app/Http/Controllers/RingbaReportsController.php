@@ -78,6 +78,8 @@ class RingbaReportsController extends Controller
         } else if ($reportOn === 'summary') {
             $data                 = $this->reportQuery($request, 'billed_call_logs');
             $nonRevenueCallsCount = $this->reportQuery($request, 'archived_call_logs')->value('count');
+        } else if ($reportOn === 'exceptions') {
+            $data = $this->reportQuery($request, 'exceptions');
         } else {
             $data = $this->reportQuery($request, 'billed_call_logs');
         }
@@ -197,6 +199,9 @@ class RingbaReportsController extends Controller
                     ->when(!empty($selectedStates), fn ($query) => $query->groupBy('State'))
                     ->when(!empty($selectedMarkets), fn ($query) => $query->groupBy('Market'))
             )
+            ->when(($reportOn === 'exceptions'),
+                fn ($query) => $query->select($this->exceptionsReportColumns($table))
+            )
             ->get();
 
         return $data;
@@ -253,6 +258,27 @@ class RingbaReportsController extends Controller
             DB::raw('CASE WHEN t_v_households.tv_households/COUNT(' . $table . '.Market) IS NOT NULL
                 THEN FORMAT(t_v_households.tv_households/COUNT(' . $table . '.Market), 0) ELSE 0 END
                 AS `Average Homes Per Call`'),
+        ];
+
+        return $columns;
+    }
+
+    protected function exceptionsReportColumns($table)
+    {
+        $columns = [
+            DB::raw('DATE_FORMAT(Call_Date, "%Y-%m-%d") AS `Call Date`'),
+            DB::raw('DATE_FORMAT(Call_Date_Time, "%h:%i:%s") AS `Call Time`'),
+            'Campaign', 'Affiliate', 'Target',
+            'Target_Description AS Target Description',
+            'City', 'Market', 'State', 'Zipcode',
+            'Inbound AS Caller ID',
+            'Type',
+            'Conn_Duration AS Connection Duration',
+            'Duplicate_Call AS Duplicate Call',
+            'Source_Hangup AS Hangup',
+            'Revenue',
+            'call_Logs_status AS Call Status',
+            DB::raw('(SELECT annotation_name FROM annotations WHERE annotations.id = ' . $table . '.Annotation_Tag) AS Annotation')
         ];
 
         return $columns;
