@@ -156,10 +156,10 @@ class RingbaReportsController extends Controller
                 fn ($query) => $query->leftJoin('t_v_households', $table . '.Market', '=', 't_v_households.market')
             )
             ->when((!empty($selectedStates) && !in_array('allStates', $selectedStates)),
-                fn ($query) => $query->whereIn('State', $selectedStates)
+                fn ($query) => $query->whereIn($table . '.State', $selectedStates)
             )
             ->when((!empty($selectedMarkets) && !in_array('allMarkets', $selectedMarkets)),
-                fn ($query) => $query->whereIn('Market', $selectedMarkets)
+                fn ($query) => $query->whereIn($table . '.Market', $selectedMarkets)
             )
             ->when(!empty($selectedCampaigns), fn ($query) => $query->whereIn('Campaign', $selectedCampaigns))
             ->when(!empty($selectedCustomers), fn ($query) => $query->whereIn('Customer', $selectedCustomers))
@@ -205,7 +205,7 @@ class RingbaReportsController extends Controller
     protected function detailReportColumns($table, $generateFor)
     {
         $columns = [
-            DB::raw('DATE_FORMAT(Call_Date_Time, "%Y-%m-%d") AS `Call Date`'),
+            DB::raw('DATE_FORMAT(Call_Date, "%Y-%m-%d") AS `Call Date`'),
             DB::raw('DATE_FORMAT(Call_Date_Time, "%h:%i:%s") AS `Call Time`'),
             'Campaign', 'Affiliate', 'City', 'Market', 'State', 'Zipcode',
             'Inbound AS Caller ID',
@@ -302,6 +302,8 @@ class RingbaReportsController extends Controller
             $summary = $this->detailReportSummary($data, $generateFor);
         } elseif ($reportOn === 'summary') {
             $summary = $this->summaryReportSummary($data, $nonRevenueCallsCount);
+        } elseif ($reportOn === 'homesPerCall') {
+            $summary = $this->homesPerCallSummary($data);
         }
 
         return $summary;
@@ -368,6 +370,30 @@ class RingbaReportsController extends Controller
             'Billable Calls'    => $billableCalls,
             'Total Charge'      => $totalCharge,
             'Non Revenue Calls' => $nonRevenueCallsCount
+        ];
+
+        return $summary;
+    }
+
+    protected function homesPerCallSummary($data)
+    {
+        $totalTVHouseholds = $totalBilled = $averageHomesPerCall = $totalRevenue = 0;
+
+        foreach ($data as $item) {
+            $totalTVHouseholds += (int) (str_replace(',', '', $item->{'TV Households'}));
+            $totalBilled       += (int) $item->Billed;
+            $totalRevenue      += (float) $item->Revenue;
+        }
+
+        if ($totalTVHouseholds > 0 && $totalBilled > 0) {
+            $averageHomesPerCall = round(($totalTVHouseholds / $totalBilled));
+        }
+
+        $summary = [
+            'Total TV Households'    => (string) number_format($totalTVHouseholds),
+            'Total Billed'           => (string) $totalBilled,
+            'Average Homes Per Call' => (string) number_format($averageHomesPerCall),
+            'Total Revenue'          => (string) $totalRevenue
         ];
 
         return $summary;
