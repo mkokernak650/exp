@@ -329,7 +329,9 @@ class RingbaReportsController extends Controller
         } elseif ($reportOn === 'summary') {
             $summary = $this->summaryReportSummary($data, $nonRevenueCallsCount);
         } elseif ($reportOn === 'homesPerCall') {
-            $summary = $this->homesPerCallSummary($data);
+            $summary = $this->homesPerCallReportSummary($data);
+        } elseif ($reportOn === 'exceptions') {
+            $summary = $this->exceptionsReportSummary($data);
         }
 
         return $summary;
@@ -401,7 +403,7 @@ class RingbaReportsController extends Controller
         return $summary;
     }
 
-    protected function homesPerCallSummary($data)
+    protected function homesPerCallReportSummary($data)
     {
         $totalTVHouseholds = $totalBilled = $averageHomesPerCall = $totalRevenue = 0;
 
@@ -420,6 +422,30 @@ class RingbaReportsController extends Controller
             'Total Billed'           => (string) $totalBilled,
             'Average Homes Per Call' => (string) number_format($averageHomesPerCall),
             'Total Revenue'          => (string) $totalRevenue
+        ];
+
+        return $summary;
+    }
+
+    protected function exceptionsReportSummary($data)
+    {
+        $totalCalls = $totalSeconds = $totalRevenue = $averageRevenue = 0;
+
+        foreach ($data as $item) {
+            $totalCalls++;
+            $totalSeconds += $item->{'Connection Duration'};
+            $totalRevenue += $item->Revenue;
+        }
+
+        if ($totalCalls > 0 && $totalRevenue > 0) {
+            $averageRevenue = $totalRevenue / $totalCalls;
+        }
+
+        $summary = [
+            'Total Calls'     => (string) $totalCalls,
+            'Total Minutes'   => (string) secondToMinutes($totalSeconds),
+            'Total Revenue'   => (string) $totalRevenue,
+            'Average Revenue' => (string) $averageRevenue
         ];
 
         return $summary;
