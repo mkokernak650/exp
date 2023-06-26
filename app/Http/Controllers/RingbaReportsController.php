@@ -64,6 +64,14 @@ class RingbaReportsController extends Controller
     {
         // dd($request->all());
         // dd($request->reportOn);
+
+        if ($request->report_type === 'email-report') {
+            $emails = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
+            if (empty($emails)) {
+                return response()->json(['success' => false, 'message' => 'No email found.'], 422);
+            }
+        }
+
         $tagsData             = [];
         $orderType            = $request->orderType;
         $reportOn             = $request->reportOn;
@@ -100,9 +108,7 @@ class RingbaReportsController extends Controller
             $data = $data->sortBy(function ($item) {
                 $callDateTime = $item->{'Call Date'} . ' ' . $item->{'Call Time'};
                 return strtotime($callDateTime);
-            });
-
-            $data = [...$data];
+            })->values();
         }
 
         if ($reportOn === 'callLength') {
@@ -124,7 +130,14 @@ class RingbaReportsController extends Controller
             })->values();
         }
 
-        $emailCriteria = $this->emailCriteria($request);
+        if ($request->report_type === 'email-report') {
+            $emailCriteria      = $this->emailCriteria($request);
+            $sendMailController = new SendMailController();
+
+            $sendMailController->sendMail($data, $summary, [], $request->file_name, $emails, $emailCriteria, $header, $request->reportOn);
+
+            return response()->json(['message' => 'Email sent successfully.'], 200);
+        }
 
         // dd($data);
 
