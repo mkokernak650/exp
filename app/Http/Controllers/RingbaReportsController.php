@@ -7,6 +7,7 @@ use App\Models\BroadCastWeeks;
 use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\ZipcodeByTelevisionMarket;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -84,6 +85,8 @@ class RingbaReportsController extends Controller
             $data = $this->reportQuery($request, 'billed_call_logs');
         }
 
+        $header = $this->header($request);
+
         if ($reportOn != 'callLength') {
             $summary = $this->summary($reportOn, $data, $generateFor, $nonRevenueCallsCount);
         }
@@ -124,7 +127,7 @@ class RingbaReportsController extends Controller
         // dd($data);
 
         return response()->json([
-            'header'   => [],
+            'header'   => $header,
             'data'     => $data,
             'summary'  => $summary,
             'tagsData' => $tagsData
@@ -449,5 +452,46 @@ class RingbaReportsController extends Controller
         ];
 
         return $summary;
+    }
+
+    protected function header($request)
+    {
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $preparedTime = Carbon::now('America/New_York')->format('F d, Y h:iA');
+
+        if ($request->reportOn === 'callLength') {
+            $reportOn = 'Call Length Report';
+        } elseif ($request->reportOn === 'homesPerCall') {
+            $reportOn = 'Homes Per Call Report';
+        } else {
+            $reportOn = ucfirst($request->reportOn) . ' Report';
+        }
+
+        if (!empty($request->campaign_id)) {
+            $selectedCampaigns = implode(', ', $request->campaign_id);
+        } else {
+            $selectedCampaigns = '';
+        }
+
+        if (!empty($request->year)) {
+            $dateRange = implode(', ', $request->year);
+        } elseif (!empty($request->start_date) && !empty($request->end_date)) {
+            $startingDate = date_format(date_create($request->start_date), 'd-M-Y');
+            $endingDate   = date_format(date_create($request->end_date), 'd-M-Y');
+            $dateRange    = "{$startingDate} - {$endingDate}";
+        } else {
+            $dateRange = '';
+        }
+
+        $header = [
+            $reportOn     => ucfirst($request->orderType),
+            'Campaign'    => $selectedCampaigns,
+            'Date Range'  => $dateRange,
+            'Prepared by' => $userFullName,
+            'Prepared on' => $preparedTime,
+            'ConsumerEXP' => 'www.consumerexp.com'
+        ];
+
+        return $header;
     }
 }
