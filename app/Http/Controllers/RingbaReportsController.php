@@ -124,6 +124,8 @@ class RingbaReportsController extends Controller
             })->values();
         }
 
+        $emailCriteria = $this->emailCriteria($request);
+
         // dd($data);
 
         return response()->json([
@@ -493,5 +495,50 @@ class RingbaReportsController extends Controller
         ];
 
         return $header;
+    }
+
+    protected function emailCriteria($request)
+    {
+        if ($request->reportOn === 'callLength') {
+            $reportOn = 'Call Length Report';
+        } elseif ($request->reportOn === 'homesPerCall') {
+            $reportOn = 'Homes Per Call Report';
+        } else {
+            $reportOn = ucfirst($request->reportOn) . ' Report';
+        }
+
+        $emailCriteria = $reportOn . '<br>' . ucfirst($request->orderType);
+
+        if (!empty($request->customer_id) && $request->type === 'customer') {
+            $selectedCustomers  = implode(', ', $request->customer_id);
+            $emailCriteria     .= "<br>Customer ({$selectedCustomers})";
+        }
+
+        if (!empty($request->selectedAffiliate) && $request->type === 'affiliate') {
+            if ($request->selectedAffiliate === 'allAffiliates') {
+                $selectedAffiliate = 'All Affiliates';
+            } else {
+                $selectedAffiliate = DB::table('affiliates')->where('affiliate_id', $request->selectedAffiliate)->select('affiliate_name')->value('affiliate_name');
+            }
+
+            $emailCriteria .= "<br>Affiliate ({$selectedAffiliate})";
+        }
+
+        if (!empty($request->campaign_id)) {
+            $selectedCampaigns  = implode(', ', $request->campaign_id);
+            $emailCriteria     .= "<br>Campaign ({$selectedCampaigns})";
+        }
+
+        if (!empty($request->year)) {
+            $selectedYears  = implode(', ', $request->year);
+            $yearNaming     = (count($request->year) > 1) ? 'Years' : 'Year';
+            $emailCriteria .= "<br>{$yearNaming} ({$selectedYears})";
+        } elseif (!empty($request->start_date) && !empty($request->end_date)) {
+            $startingDate   = date_format(date_create($request->start_date), 'd-M-Y');
+            $endingDate     = date_format(date_create($request->end_date), 'd-M-Y');
+            $emailCriteria .= "<br>Date Range ({$startingDate} To {$endingDate})";
+        }
+
+        return $emailCriteria;
     }
 }
