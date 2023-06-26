@@ -62,9 +62,6 @@ class RingbaReportsController extends Controller
 
     public function generateReport(Request $request)
     {
-        // dd($request->all());
-        // dd($request->reportOn);
-
         if ($request->report_type === 'email-report') {
             $emails = $request->type === 'affiliate' ? $request->affiliatesEmail : $request->emails;
             if (empty($emails)) {
@@ -102,7 +99,6 @@ class RingbaReportsController extends Controller
         if ($reportOn === 'detail') {
             $tagsData = $this->tagsData($data, $generateFor);
         }
-        // dd($tagsData);
 
         if ($orderType === 'general' && $reportOn === 'detail') {
             $data = $data->sortBy(function ($item) {
@@ -139,8 +135,6 @@ class RingbaReportsController extends Controller
             return response()->json(['message' => 'Email sent successfully.'], 200);
         }
 
-        // dd($data);
-
         return response()->json([
             'header'   => $header,
             'data'     => $data,
@@ -151,10 +145,6 @@ class RingbaReportsController extends Controller
 
     protected function reportQuery($request, $table)
     {
-        // dd($request->all());
-        // dd($table);
-        $reportFor         = $request->reportFor;
-        $orderType         = $request->orderType;
         $reportOn          = $request->reportOn;
         $selectedStates    = $request->states;
         $selectedMarkets   = $request->markets;
@@ -166,10 +156,6 @@ class RingbaReportsController extends Controller
         $startDate         = $request->start_date;
         $endDate           = $request->end_date;
         $generateFor       = $request->type;
-        $reportType        = $request->report_type;
-
-        // dd($reportOn);
-        // dd((empty($selectedYears) && !empty($startDate) && !empty($endDate)));
 
         $data = DB::table($table)
             ->when(($reportOn === 'homesPerCall'),
