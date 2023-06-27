@@ -18,6 +18,10 @@ class SendMailController extends Controller
             $michaelEmails = ['fahimikbal97@gmail.com'];
         }
 
+        //testing mail
+        $michaelEmails = ['fahimikbal97@gmail.com'];
+        //testing mail
+
         if ($sheetData === 'csvEmptyTemplateAces') {
             $data = $sheetData;
         } else {
