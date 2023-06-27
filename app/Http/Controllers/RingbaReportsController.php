@@ -310,24 +310,17 @@ class RingbaReportsController extends Controller
                 if ($item->call_Length_In_Seconds >= $callLengthRange[0] && $item->call_Length_In_Seconds <= $callLengthRange[1]) {
                     $totalCalls++;
                     $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total Calls']++;
-                    // $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['% of all calls'] =
-                    //     round(($groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total Calls'] / $totalCalls) * 100, 2) . ' %';
                     $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total seconds'] += $item->call_Length_In_Seconds;
                     $groupByCallLengthRanges[$callLengthRange[0] . '-' . $callLengthRange[1]]['Total Payout'] += (float) $item->payoutAmount;
                 }
             }
         }
 
-        // dd($groupByCallLengthRanges);
-
         foreach ($groupByCallLengthRanges as $key => $groupByCallLengthRange) {
-            $groupByCallLengthRanges[$key]['% of all calls'] = round(($groupByCallLengthRanges[$key]['Total Calls'] / $totalCalls) * 100, 2);
+            $groupByCallLengthRanges[$key]['% of all calls'] = round(($groupByCallLengthRanges[$key]['Total Calls'] / $totalCalls) * 100, 2) . ' %';
         }
 
-        // dd($groupByCallLengthRanges);
-
         $data        = collect($groupByCallLengthRanges)->values();
-        // dd($data);
         $totalPayout = $data->sum('Total Payout');
 
         return ['data' => $data, 'totalPayout' => $totalPayout];
