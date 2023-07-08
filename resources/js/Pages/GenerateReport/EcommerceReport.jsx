@@ -116,7 +116,19 @@ const EcommerceReport = () => {
       label: item?.[1],
       value: item?.[0].toString(),
       email: item?.[2],
-    }))
+    })).sort((a, b) => {
+      const nameA = a.label.toLowerCase();
+      const nameB = b.label.toLowerCase();
+
+      if (nameA < nameB) {
+        return -1
+      } else if (nameA > nameB) {
+        return 1
+      } else {
+        return 0
+      }
+    })
+
     const couponOptions = Object.values(couponCodes)?.map((item) => ({
       label: item,
       value: item,
@@ -125,9 +137,6 @@ const EcommerceReport = () => {
       label: item,
       value: item,
     }))
-
-
-
 
     setAffiliateList([...activeAffiliates])
     setCouponCodeList([...couponOptions])
