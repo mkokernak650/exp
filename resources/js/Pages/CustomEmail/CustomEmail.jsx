@@ -43,8 +43,10 @@ const CustomEmail = () => {
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
-        value: item.id.toString(),
+        value: item.id + '+' + item.campaign_name,
     }))
+
+    console.log(campaignOptions)
 
     const handleCampaignChange = (value) => {
         setCampaignIds(value)

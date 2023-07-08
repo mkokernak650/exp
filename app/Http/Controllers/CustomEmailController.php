@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Affiliate;
+use App\Models\Campaign;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
 use App\Notifications\CustomEmail;
@@ -15,7 +16,9 @@ class CustomEmailController extends Controller
 {
     public function index()
     {
-        $campaigns = EcommerceCampaign::active()->get();
+        $ecommerceCampaigns = EcommerceCampaign::active()->get();
+        $otherCampaigns     = Campaign::active()->get();
+        $campaigns          = $ecommerceCampaigns->merge($otherCampaigns);
 
         return Inertia::render('CustomEmail/CustomEmail', compact('campaigns'));
     }
