@@ -238,36 +238,36 @@ export default function PersistentDrawerLeft(props) {
       active: false,
       collapse: true,
       submenu: [
-        {
-          title: 'Pay Per Call-Affiliate',
-          href: 'generate.report.affiliate',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Pay Per Call-Customer',
-          href: 'generate.report.target',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Pay Per Call-Exceptions',
-          href: 'generate.report.market.exception',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Pay Per Call-Summary',
-          href: 'generate.report.destination',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Pay Per Call-Length',
-          href: 'generate.report.call.length',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Pay Per Call-Homes per call',
-          href: 'generate.report.market.target',
-          Icon: <UserIcon />,
-        },
+        // {
+        //   title: 'Pay Per Call-Affiliate',
+        //   href: 'generate.report.affiliate',
+        //   Icon: <UserIcon />,
+        // },
+        // {
+        //   title: 'Pay Per Call-Customer',
+        //   href: 'generate.report.target',
+        //   Icon: <UserIcon />,
+        // },
+        // {
+        //   title: 'Pay Per Call-Exceptions',
+        //   href: 'generate.report.market.exception',
+        //   Icon: <UserIcon />,
+        // },
+        // {
+        //   title: 'Pay Per Call-Summary',
+        //   href: 'generate.report.destination',
+        //   Icon: <UserIcon />,
+        // },
+        // {
+        //   title: 'Pay Per Call-Length',
+        //   href: 'generate.report.call.length',
+        //   Icon: <UserIcon />,
+        // },
+        // {
+        //   title: 'Pay Per Call-Homes per call',
+        //   href: 'generate.report.market.target',
+        //   Icon: <UserIcon />,
+        // },
         {
           title: 'Phone and Coupon Codes',
           href: 'ecommerce.report',
