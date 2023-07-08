@@ -46,8 +46,6 @@ const CustomEmail = () => {
         value: item.id + '+' + item.campaign_name,
     }))
 
-    console.log(campaignOptions)
-
     const handleCampaignChange = (value) => {
         setCampaignIds(value)
         if (value) {
@@ -58,9 +56,9 @@ const CustomEmail = () => {
         }
     }
 
-    const getAffiliates = (selectedCampaignIds) => {
+    const getAffiliates = (selectedCampaigns) => {
         axios
-            .post(route('custom.email.get.affiliates'), { selectedCampaignIds })
+            .post(route('custom.email.get.affiliates'), { selectedCampaigns })
             .then((response) => {
                 if (response.data) {
                     setAffiliateOptions(response.data)

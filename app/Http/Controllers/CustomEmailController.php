@@ -8,6 +8,7 @@ use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
 use App\Notifications\CustomEmail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -25,14 +26,29 @@ class CustomEmailController extends Controller
 
     public function getAffiliates(Request $request)
     {
-        $campaignIds         = explode(',', $request->selectedCampaignIds);
+        $selectedCampaigns = explode(',', $request->selectedCampaigns);
+
+        foreach ($selectedCampaigns as $selectedCampaign) {
+            $separateCampaignIdName = explode('+', $selectedCampaign);
+            $campaignIds[]          = $separateCampaignIdName[0];
+            $campaignNames[]        = $separateCampaignIdName[1];
+        }
+
         $ecommerceAffiliates = EcommerceAffiliate::distinct()->whereIn('campaign_id', $campaignIds)->pluck('affiliate_id')->toArray();
-        $affiliates          = Affiliate::whereIn('id', $ecommerceAffiliates)->orderBy('affiliate_name')->get();
+
+        $fromBilled     = DB::table('billed_call_logs')->whereIn('Campaign', $campaignNames)->select('Affiliate_Id')->distinct()->get();
+        $fromArchived   = DB::table('archived_call_logs')->whereIn('Campaign', $campaignNames)->select('Affiliate_Id')->distinct()->get();
+        $fromCallLogs   = DB::table('ringba_call_logs')->whereIn('Campaign', $campaignNames)->select('Affiliate_Id')->distinct()->get();
+        $fromExceptions = DB::table('exceptions')->whereIn('Campaign', $campaignNames)->select('Affiliate_Id')->distinct()->get();
+        $data           = $fromBilled->merge($fromArchived)->merge($fromCallLogs)->merge($fromExceptions);
+        $affiliateIds   = $data->pluck('Affiliate_Id')->unique()->toArray();
+
+        $affiliates = Affiliate::whereIn('id', $ecommerceAffiliates)->orWhereIn('affiliate_id', $affiliateIds)->orderBy('affiliate_name')->get();
 
         foreach ($affiliates as $affiliate) {
             if (!empty($affiliate->email)) {
                 $affiliateOptions[] = [
-                    'label' => "{$affiliate->affiliate_name} ({$affiliate->market})",
+                    'label' => $affiliate->affiliate_name . (!empty($affiliate->market) ? " ({$affiliate->market})" : ''),
                     'value' => $affiliate->email
                 ];
             }
