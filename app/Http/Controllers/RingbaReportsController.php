@@ -18,8 +18,8 @@ class RingbaReportsController extends Controller
     {
         $campaigns         = Campaign::active()->get();
         $customers         = Customer::active()->get();
-        $markets           = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
-        $states            = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
+        $markets           = ZipcodeByTelevisionMarket::select('market')->orderBy('market')->distinct()->get();
+        $states            = ZipcodeByTelevisionMarket::select('state')->orderBy('state')->distinct()->get();
         $broadCastWeeks    = BroadCastWeeks::active()->get();
         $broadCastMonths   = BroadCastMonth::active()->get();
 
