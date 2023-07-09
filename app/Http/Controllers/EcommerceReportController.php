@@ -36,8 +36,8 @@ class EcommerceReportController extends Controller
         $customers       = Customer::active()->get();
         $broadCastMonths = BroadCastMonth::active()->get();
         $broadCastWeeks  = BroadCastWeeks::active()->get();
-        $states          = ZipcodeByTelevisionMarket::select('state')->distinct()->get();
-        $markets         = ZipcodeByTelevisionMarket::select('market')->distinct()->get();
+        $states          = ZipcodeByTelevisionMarket::select('state')->orderBy('state')->distinct()->get();
+        $markets         = ZipcodeByTelevisionMarket::select('market')->orderBy('market')->distinct()->get();
         $acesMarketingId = $this->amIds;
 
         return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'acesMarketingId'));
