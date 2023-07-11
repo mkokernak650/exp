@@ -316,7 +316,8 @@ const SalesIndex = () => {
         '&filteredValue=' +
         JSON.stringify(filterValue) +
         '&filterByCampaigns=' + filterByCampaigns +
-        '&filterByCustomers=' + filterByCustomers
+        '&filterByCustomers=' + filterByCustomers +
+        '&filterByDate=' + JSON.stringify(filterByDate)
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -334,7 +335,7 @@ const SalesIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue, filterByCampaigns, filterByCustomers])
+  }, [itemPerPage, filterValue, filterByCampaigns, filterByCustomers, filterByDate])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {

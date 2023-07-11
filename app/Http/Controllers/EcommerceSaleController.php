@@ -59,6 +59,13 @@ class EcommerceSaleController extends Controller
                 $salesQuery->whereIn('customer_id', $filterByCustomers);
             }
 
+            $filterByDate = json_decode(request('filterByDate'));
+
+            if (!empty($filterByDate->startDate) && !empty($filterByDate->endDate)) {
+                $salesQuery->whereDate('order_at', '>=', $filterByDate->startDate)
+                    ->whereDate('order_at', '<=', $filterByDate->endDate);
+            }
+
             return $salesQuery->paginate(request('itemPerPage') ?? 10);
 
             // $firstCond = $conditions->items[0];
@@ -80,6 +87,7 @@ class EcommerceSaleController extends Controller
         if (request('page')) {
             return $sales;
         }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers', 'columnsData'));

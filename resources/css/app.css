@@ -109,6 +109,7 @@ div::-webkit-scrollbar-thumb {
 
 .table-top-flex-start .top-left {
     display: flex;
+    align-items: center;
     gap: 15px;
 }
 
