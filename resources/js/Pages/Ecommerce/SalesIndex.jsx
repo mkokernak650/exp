@@ -49,6 +49,7 @@ const SalesIndex = () => {
   const showColumnRef = useRef()
   const [filterByCampaigns, setFilterByCampaigns] = useState('')
   const [filterByCustomers, setFilterByCustomers] = useState('')
+  const [filterByDate, setFilterByDate] = useState({ startDate: '', endDate: '' })
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -77,6 +78,10 @@ const SalesIndex = () => {
     label: item.customer_name,
     value: item.id.toString(),
   }))
+
+  const dateHandleChange = (event) => {
+    setFilterByDate((oldValues) => ({ ...oldValues, [event.target.name]: event.target.value }))
+  }
 
   const handleEditSubmit = () => {
     axios
@@ -423,6 +428,38 @@ const SalesIndex = () => {
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
               />
+              <div>
+                <TextField
+                  label="Start Date"
+                  id="startDate"
+                  variant="outlined"
+                  size="small"
+                  type="date"
+                  name="startDate"
+                  onChange={dateHandleChange}
+                  value={filterByDate.startDate}
+                  className={classes.textField}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </div>
+              <div>
+                <TextField
+                  label="End Date"
+                  id="endDate"
+                  variant="outlined"
+                  size="small"
+                  type="date"
+                  name="endDate"
+                  onChange={dateHandleChange}
+                  value={filterByDate.endDate}
+                  className={classes.textField}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </div>
             </div>
             {/* <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
