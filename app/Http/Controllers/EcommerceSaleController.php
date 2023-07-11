@@ -49,20 +49,27 @@ class EcommerceSaleController extends Controller
                 ->with('campaign:id,campaign_name')
                 ->with('customer:id,customer_name');
 
-            $firstCond = $conditions->items[0];
-            $field = $this->fieldName($firstCond->field);
-            $val = $this->valueCehckById($firstCond->field, $firstCond->value);
-
-            $this->makeConditionQuery($salesQuery, 'where', $field, $firstCond->operator, $val);
-            for ($i = 1; $i < count($conditions->items); $i++) {
-                $cond = $conditions->items[$i];
-                $multiConField = $this->fieldName($cond->field);
-                $multiConVal = $this->valueCehckById($cond->field, $cond->value);
-
-                $this->makeConditionQuery($salesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
+            if (!empty(request('filterByCampaigns'))) {
+                $filterByCampaigns = explode(',', request('filterByCampaigns'));
+                $salesQuery->whereIn('campaign_id', $filterByCampaigns);
             }
 
             return $salesQuery->paginate(request('itemPerPage') ?? 10);
+
+            // $firstCond = $conditions->items[0];
+            // $field = $this->fieldName($firstCond->field);
+            // $val = $this->valueCehckById($firstCond->field, $firstCond->value);
+
+            // $this->makeConditionQuery($salesQuery, 'where', $field, $firstCond->operator, $val);
+            // for ($i = 1; $i < count($conditions->items); $i++) {
+            //     $cond = $conditions->items[$i];
+            //     $multiConField = $this->fieldName($cond->field);
+            //     $multiConVal = $this->valueCehckById($cond->field, $cond->value);
+
+            //     $this->makeConditionQuery($salesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
+            // }
+
+            // return $salesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
         if (request('page')) {

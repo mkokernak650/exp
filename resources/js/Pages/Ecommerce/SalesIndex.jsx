@@ -30,6 +30,8 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
 import { columns, useStyles, fields, groups, filter } from './Helpers/SalesIndexProps'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const SalesIndex = () => {
   const classes = useStyles()
@@ -45,6 +47,8 @@ const SalesIndex = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const showColumnRef = useRef()
+  const [filterByCampaigns, setFilterByCampaigns] = useState('')
+  const [filterByCustomers, setFilterByCustomers] = useState('')
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -63,6 +67,11 @@ const SalesIndex = () => {
     const campaign = campaigns.find((campaign) => campaign.id == id)
     return campaign ? campaign.campaign_name : ''
   }
+
+  const campaignOptions = campaigns.map((item) => ({
+    label: item.campaign_name,
+    value: item.id.toString(),
+  }))
 
   const handleEditSubmit = () => {
     axios
@@ -295,7 +304,8 @@ const SalesIndex = () => {
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
-        JSON.stringify(filterValue)
+        JSON.stringify(filterValue) +
+        '&filterByCampaigns=' + filterByCampaigns
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -313,7 +323,7 @@ const SalesIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue])
+  }, [itemPerPage, filterValue, filterByCampaigns])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -372,7 +382,7 @@ const SalesIndex = () => {
         {tableToolbar ? (
           <TableToolbar />
         ) : (
-          <div className="table-top">
+          <div className="table-top-flex-start">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
@@ -392,7 +402,16 @@ const SalesIndex = () => {
                 )}
               </Button>
             </div>
-            <div className="search-icon" onClick={handleSearch}>
+            <div>
+              <MultiSelect
+                options={campaignOptions}
+                placeholder="Campaign"
+                style={{ width: '250px' }}
+                onChange={(value) => setFilterByCampaigns(value)}
+                defaultValue={filterByCampaigns}
+              />
+            </div>
+            {/* <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
               <Search />
             </div>
@@ -421,7 +440,7 @@ const SalesIndex = () => {
               </div>
             ) : (
               ''
-            )}
+            )} */}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
