@@ -54,6 +54,11 @@ class EcommerceSaleController extends Controller
                 $salesQuery->whereIn('campaign_id', $filterByCampaigns);
             }
 
+            if (!empty(request('filterByCustomers'))) {
+                $filterByCustomers = explode(',', request('filterByCustomers'));
+                $salesQuery->whereIn('customer_id', $filterByCustomers);
+            }
+
             return $salesQuery->paginate(request('itemPerPage') ?? 10);
 
             // $firstCond = $conditions->items[0];

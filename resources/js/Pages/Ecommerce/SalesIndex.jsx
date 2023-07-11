@@ -73,6 +73,11 @@ const SalesIndex = () => {
     value: item.id.toString(),
   }))
 
+  const customerOptions = customers.map((item) => ({
+    label: item.customer_name,
+    value: item.id.toString(),
+  }))
+
   const handleEditSubmit = () => {
     axios
       .put(route('ecommerce-sales.update', editData?.id), editData, headers)
@@ -305,7 +310,8 @@ const SalesIndex = () => {
         itemPerPage +
         '&filteredValue=' +
         JSON.stringify(filterValue) +
-        '&filterByCampaigns=' + filterByCampaigns
+        '&filterByCampaigns=' + filterByCampaigns +
+        '&filterByCustomers=' + filterByCustomers
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -323,7 +329,7 @@ const SalesIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue, filterByCampaigns])
+  }, [itemPerPage, filterValue, filterByCampaigns, filterByCustomers])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -402,13 +408,20 @@ const SalesIndex = () => {
                 )}
               </Button>
             </div>
-            <div>
+            <div className="top-left">
               <MultiSelect
                 options={campaignOptions}
                 placeholder="Campaign"
                 style={{ width: '250px' }}
                 onChange={(value) => setFilterByCampaigns(value)}
                 defaultValue={filterByCampaigns}
+              />
+              <MultiSelect
+                options={customerOptions}
+                placeholder="Customer"
+                style={{ width: '250px' }}
+                onChange={(value) => setFilterByCustomers(value)}
+                defaultValue={filterByCustomers}
               />
             </div>
             {/* <div className="search-icon" onClick={handleSearch}>
