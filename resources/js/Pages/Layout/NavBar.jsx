@@ -278,6 +278,11 @@ export default function PersistentDrawerLeft(props) {
           href: 'ringba.reports',
           Icon: <UserIcon />,
         },
+        {
+          title: 'Custom Email',
+          href: 'custom.email',
+          // Icon: <UserIcon />,
+        },
       ],
     },
     {
@@ -375,11 +380,6 @@ export default function PersistentDrawerLeft(props) {
           title: 'Historical sales',
           href: 'ecommerce-sales.index',
           Icon: <UserIcon />,
-        },
-        {
-          title: 'Custom Email',
-          href: 'custom.email',
-          // Icon: <UserIcon />,
         },
       ],
     },
