@@ -253,7 +253,7 @@ class EcommerceSaleController extends Controller
 
     public function export(Request $request)
     {
-        return Excel::download(new EcommerceSalesExport($request->filterValue), 'E-Commerce-Sales.' . 'xlsx');
+        return Excel::download(new EcommerceSalesExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates, $request->filterByDate), 'E-Commerce-Sales.' . 'xlsx');
     }
 
     public function deleteSelected(Request $request)

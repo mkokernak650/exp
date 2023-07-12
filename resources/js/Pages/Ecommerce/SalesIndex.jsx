@@ -379,7 +379,12 @@ const SalesIndex = () => {
     e.preventDefault()
     setLoading(true)
     axios
-      .get('ecommerce-sales-export?filterValue=' + JSON.stringify(filterValue))
+      .get(
+        'ecommerce-sales-export?filterByCampaigns=' + filterByCampaigns +
+        '&filterByCustomers=' + filterByCustomers +
+        '&filterByAffiliates=' + filterByAffiliates +
+        '&filterByDate=' + JSON.stringify(filterByDate)
+      )
       .then((res) => {
         setLoading(false)
         if (res.status === 200) {

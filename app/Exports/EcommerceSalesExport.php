@@ -10,28 +10,51 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class EcommerceSalesExport extends Controller implements FromCollection, WithHeadings, WithMapping
 {
-    protected $filterValue;
+    protected $filterByCampaigns;
+    protected $filterByCustomers;
+    protected $filterByAffiliates;
+    protected $filterByDate;
 
-    public function __construct($filterValue)
+    public function __construct($filterByCampaigns, $filterByCustomers, $filterByAffiliates, $filterByDate)
     {
-        $this->filterValue = $filterValue;
+        $this->filterByCampaigns  = $filterByCampaigns;
+        $this->filterByCustomers  = $filterByCustomers;
+        $this->filterByAffiliates = $filterByAffiliates;
+        $this->filterByDate       = $filterByDate;
     }
 
     public function collection()
     {
-        $zipDataQuery = EcommerceSale::query()->with('campaign:id,campaign_name')->with('customer:id,customer_name');
-        $conditions = json_decode($this->filterValue);
-        $firstCond = $conditions->items[0];
-        $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
-        for ($i = 1; $i < count($conditions->items); $i++) {
-            $cond = $conditions->items[$i];
-            $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+        $salesDataQuery = EcommerceSale::query()->with('campaign:id,campaign_name')->with('customer:id,customer_name');
+
+        if (!empty($this->filterByCampaigns)) {
+            $filterByCampaigns = explode(',', $this->filterByCampaigns);
+            $salesDataQuery->whereIn('campaign_id', $filterByCampaigns);
         }
 
-        return $zipDataQuery->get();
+        if (!empty($this->filterByCustomers)) {
+            $filterByCustomers = explode(',', $this->filterByCustomers);
+            $salesDataQuery->whereIn('customer_id', $filterByCustomers);
+        }
+
+        if (!empty($this->filterByAffiliates)) {
+            $salesDataQuery->whereRaw("(SELECT id FROM affiliates WHERE affiliates.id =
+                                (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code =
+                                ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1))
+                                IN (" . $this->filterByAffiliates . ")");
+        }
+
+        $filterByDate = json_decode($this->filterByDate);
+
+        if (!empty($filterByDate->startDate) && !empty($filterByDate->endDate)) {
+            $salesDataQuery->whereDate('order_at', '>=', $filterByDate->startDate)
+                ->whereDate('order_at', '<=', $filterByDate->endDate);
+        }
+
+        return $salesDataQuery->get();
     }
 
-    public function headings() : array
+    public function headings(): array
     {
         return [
             'Campaign',
@@ -54,7 +77,7 @@ class EcommerceSalesExport extends Controller implements FromCollection, WithHea
         ];
     }
 
-    public function map($sales) : array
+    public function map($sales): array
     {
         return [
             $sales->campaign->campaign_name,
