@@ -35,7 +35,7 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const SalesIndex = () => {
   const classes = useStyles()
-  const { sales, campaigns, customers, columnsData } = usePage().props
+  const { sales, campaigns, customers, affiliates, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowIds, setSelectedRowIds] = useState([])
@@ -49,6 +49,7 @@ const SalesIndex = () => {
   const showColumnRef = useRef()
   const [filterByCampaigns, setFilterByCampaigns] = useState('')
   const [filterByCustomers, setFilterByCustomers] = useState('')
+  const [filterByAffiliates, setFilterByAffiliates] = useState('')
   const [filterByDate, setFilterByDate] = useState({ startDate: '', endDate: '' })
 
   const handleEditChange = ({ target: { name, value } }) => {
@@ -76,6 +77,11 @@ const SalesIndex = () => {
 
   const customerOptions = customers.map((item) => ({
     label: item.customer_name,
+    value: item.id.toString(),
+  }))
+
+  const affiliateOptions = affiliates.map((item) => ({
+    label: item.affiliate_name,
     value: item.id.toString(),
   }))
 
@@ -317,6 +323,7 @@ const SalesIndex = () => {
         JSON.stringify(filterValue) +
         '&filterByCampaigns=' + filterByCampaigns +
         '&filterByCustomers=' + filterByCustomers +
+        '&filterByAffiliates=' + filterByAffiliates +
         '&filterByDate=' + JSON.stringify(filterByDate)
       )
       .then((res) => {
@@ -335,7 +342,7 @@ const SalesIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue, filterByCampaigns, filterByCustomers, filterByDate])
+  }, [itemPerPage, filterValue, filterByCampaigns, filterByCustomers, filterByAffiliates, filterByDate])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -428,6 +435,13 @@ const SalesIndex = () => {
                 style={{ width: '250px' }}
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
+              />
+              <MultiSelect
+                options={affiliateOptions}
+                placeholder="Affiliate"
+                style={{ width: '250px' }}
+                onChange={(value) => setFilterByAffiliates(value)}
+                defaultValue={filterByAffiliates}
               />
               <div>
                 <TextField

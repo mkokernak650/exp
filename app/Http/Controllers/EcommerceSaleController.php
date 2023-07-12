@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Imports\EcommerceSaleImport;
+use App\Models\Affiliate;
 use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
@@ -20,9 +21,10 @@ class EcommerceSaleController extends Controller
 {
     public function index()
     {
-        $campaigns = EcommerceCampaign::active()->get();
-        $customers = Customer::active()->get();
-        $sales = EcommerceSale::query()
+        $campaigns  = EcommerceCampaign::active()->get();
+        $customers  = Customer::active()->get();
+        $affiliates = Affiliate::orderBy('affiliate_name')->select('id', 'affiliate_name')->active()->get();
+        $sales      = EcommerceSale::query()
             ->select(
                 '*',
                 DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
@@ -59,6 +61,13 @@ class EcommerceSaleController extends Controller
                 $salesQuery->whereIn('customer_id', $filterByCustomers);
             }
 
+            if (!empty(request('filterByAffiliates'))) {
+                $salesQuery->whereRaw("(SELECT id FROM affiliates WHERE affiliates.id =
+                                    (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code =
+                                    ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1))
+                                    IN (" . request('filterByAffiliates') . ")");
+            }
+
             $filterByDate = json_decode(request('filterByDate'));
 
             if (!empty($filterByDate->startDate) && !empty($filterByDate->endDate)) {
@@ -67,21 +76,6 @@ class EcommerceSaleController extends Controller
             }
 
             return $salesQuery->paginate(request('itemPerPage') ?? 10);
-
-            // $firstCond = $conditions->items[0];
-            // $field = $this->fieldName($firstCond->field);
-            // $val = $this->valueCehckById($firstCond->field, $firstCond->value);
-
-            // $this->makeConditionQuery($salesQuery, 'where', $field, $firstCond->operator, $val);
-            // for ($i = 1; $i < count($conditions->items); $i++) {
-            //     $cond = $conditions->items[$i];
-            //     $multiConField = $this->fieldName($cond->field);
-            //     $multiConVal = $this->valueCehckById($cond->field, $cond->value);
-
-            //     $this->makeConditionQuery($salesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
-            // }
-
-            // return $salesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
         if (request('page')) {
@@ -90,7 +84,7 @@ class EcommerceSaleController extends Controller
 
         $columnsData = TableDetails::all()->pluck('column_details');
 
-        return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers', 'columnsData'));
+        return Inertia::render('Ecommerce/SalesIndex', compact('sales', 'campaigns', 'customers', 'affiliates', 'columnsData'));
     }
 
     public function valueCehckById($key, $val)
