@@ -253,7 +253,35 @@ class EcommerceSaleController extends Controller
 
     public function export(Request $request)
     {
-        return Excel::download(new EcommerceSalesExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates, $request->filterByDate), 'E-Commerce-Sales.' . 'xlsx');
+        $fileName = 'E-Commerce-Sales';
+
+        if (!empty(request('filterByCampaigns'))) {
+            $filterByCampaigns  = explode(',', request('filterByCampaigns'));
+            $campaignNames      = EcommerceCampaign::whereIn('id', $filterByCampaigns)->select('campaign_name')->pluck('campaign_name');
+            $fileName          .= '_' . implode(',', $campaignNames->toArray());
+        }
+
+        if (!empty(request('filterByCustomers'))) {
+            $filterByCustomers  = explode(',', request('filterByCustomers'));
+            $customerNames      = Customer::whereIn('id', $filterByCustomers)->select('customer_name')->pluck('customer_name');
+            $fileName          .= '_' . implode(',', $customerNames->toArray());
+        }
+
+        if (!empty(request('filterByAffiliates'))) {
+            $filterByAffiliates  = explode(',', request('filterByAffiliates'));
+            $affiliateNames      = Affiliate::whereIn('id', $filterByAffiliates)->select('affiliate_name')->pluck('affiliate_name');
+            $fileName           .= '_' . implode(',', $affiliateNames->toArray());
+        }
+
+        $filterByDate = json_decode(request('filterByDate'));
+
+        if (!empty($filterByDate->startDate) && !empty($filterByDate->endDate)) {
+            $startDate  = date_format(date_create($filterByDate->startDate), 'd-M-Y');
+            $endDate    = date_format(date_create($filterByDate->endDate), 'd-M-Y');
+            $fileName  .= '_' . $startDate . '_' . $endDate;
+        }
+
+        return Excel::download(new EcommerceSalesExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates, $request->filterByDate), $fileName . '.xlsx');
     }
 
     public function deleteSelected(Request $request)
