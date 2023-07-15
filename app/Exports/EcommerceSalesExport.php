@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Http\Controllers\Controller;
 use App\Models\EcommerceSale;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -51,7 +52,17 @@ class EcommerceSalesExport extends Controller implements FromCollection, WithHea
                 ->whereDate('order_at', '<=', $filterByDate->endDate);
         }
 
-        return $salesDataQuery->get();
+        return $salesDataQuery->select(
+            '*',
+            DB::raw("(SELECT pay_on_multiple_orders FROM ecommerce_affiliates
+                                    WHERE ecommerce_affiliates.coupon_code = ecommerce_sales.coupon_code
+                                    OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1)
+                                    as pay_on_multiple_orders"),
+            DB::raw("(SELECT revenue FROM ecommerce_affiliates
+                                    WHERE ecommerce_affiliates.coupon_code = ecommerce_sales.coupon_code
+                                    OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1)
+                                    as revenue"),
+        )->get();
     }
 
     public function headings(): array
@@ -72,6 +83,9 @@ class EcommerceSalesExport extends Controller implements FromCollection, WithHea
             'Quantity',
             'Subtotal',
             'Shipping Cost',
+            'Total',
+            'Total Fee',
+            'Net Amount',
             'Order At',
             'Created At'
         ];
@@ -96,6 +110,8 @@ class EcommerceSalesExport extends Controller implements FromCollection, WithHea
             $sales->subtotal,
             $sales->shipping_cost,
             $sales->total,
+            ($sales->quantity != null || $sales->quantity != '') ? ($sales->pay_on_multiple_orders == 0 ? $sales->revenue : ($sales->revenue * $sales->quantity)) : '',
+            ($sales->total != null && $sales->revenue != null) ? ($sales->pay_on_multiple_orders == 0 ? ($sales->total - $sales->revenue) : ($sales->total - ($sales->revenue * $sales->quantity))) : '',
             $sales->order_at,
             $sales->created_at,
         ];
