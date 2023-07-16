@@ -57,21 +57,6 @@ class EcommerceAffiliateController extends Controller
             }
 
             return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
-
-            // $firstCond = $conditions->items[0];
-            // $field = $this->fieldName($firstCond->field);
-            // $val = $this->valueCehckById($firstCond->field, $firstCond->value);
-
-            // $this->makeConditionQuery($eAffiliatesQuery, 'where', $field, $firstCond->operator, $val);
-            // for ($i = 1; $i < count($conditions->items); $i++) {
-            //     $cond = $conditions->items[$i];
-            //     $multiConField = $this->fieldName($cond->field);
-            //     $multiConVal = $this->valueCehckById($cond->field, $cond->value);
-
-            //     $this->makeConditionQuery($eAffiliatesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
-            // }
-
-            // return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
         $ecommerceAffiliates = EcommerceAffiliate::paginate(request('itemPerPage') ?? 10);
@@ -79,6 +64,7 @@ class EcommerceAffiliateController extends Controller
         if (request('page')) {
             return $ecommerceAffiliates;
         }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Ecommerce/AffiliateIndex', compact('ecommerceAffiliates', 'affiliates', 'campaigns', 'customers', 'columnsData'));
