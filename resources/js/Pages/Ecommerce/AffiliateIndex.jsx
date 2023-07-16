@@ -5,10 +5,7 @@ import { SortingMode } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
 import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
-import { filterData } from '../filterData'
 import 'ka-table/style.scss'
-import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
@@ -22,8 +19,6 @@ import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
-import * as FileSaver from 'file-saver'
-import * as XLSX from 'xlsx'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
@@ -31,7 +26,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-import { columns, useStyles, fields, groups, filter } from './Helpers/AffiliateIndexProps'
+import { columns, useStyles, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -347,18 +342,8 @@ const AffiliateIndex = () => {
       })
   }
 
-  const [serachSidebar, setSearchSidebar] = useState(false)
-
-  const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState)
-  }
-
   const handleColumns = () => {
     setShowColumns(true)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const deleteHandler = () => {
@@ -532,36 +517,6 @@ const AffiliateIndex = () => {
                 defaultValue={filterByAffiliates}
               />
             </div>
-            {/* <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
-            </div>
-
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              ''
-            )} */}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
