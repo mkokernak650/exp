@@ -313,7 +313,6 @@ class EcommerceAffiliateController extends Controller
             $affiliateNames      = Affiliate::whereIn('id', $filterByAffiliates)->select('affiliate_name')->pluck('affiliate_name');
             $fileName           .= '_' . implode(',', $affiliateNames->toArray());
         }
-        dd(Excel::download(new EcommerceAffiliateExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates), $fileName . '.xlsx'));
 
         return Excel::download(new EcommerceAffiliateExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates), $fileName . '.xlsx');
     }
