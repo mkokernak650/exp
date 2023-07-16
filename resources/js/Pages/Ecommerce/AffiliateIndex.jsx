@@ -451,7 +451,7 @@ const AffiliateIndex = () => {
         {tableToolbar ? (
           <TableToolbar />
         ) : (
-          <div className="table-top">
+          <div className="table-top-flex-start">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
@@ -475,19 +475,20 @@ const AffiliateIndex = () => {
                 {loading ? (
                   <CircularProgress color="inherit" thickness={3} size="1.5rem" />
                 ) : (
-                  'Searched Export'
+                  'Export'
                 )}
               </Button>
-              <div>
-                <MultiSelect
-                  options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
-                  onChange={(value) => setOrderByValue(value)}
-                  placeholder="Order By"
-                  singleSelect
-                />
-              </div>
             </div>
-            <div className="search-icon" onClick={handleSearch}>
+            <div className="top-left">
+              <MultiSelect
+                options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                onChange={(value) => setOrderByValue(value)}
+                placeholder="Order By"
+                style={{ width: '250px' }}
+                singleSelect
+              />
+            </div>
+            {/* <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
               <Search />
             </div>
@@ -516,7 +517,7 @@ const AffiliateIndex = () => {
               </div>
             ) : (
               ''
-            )}
+            )} */}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings {...tableProps} dispatch={dispatch} />
