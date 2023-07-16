@@ -2,13 +2,12 @@
 
 namespace App\Exports;
 
-use App\Http\Controllers\Controller;
 use App\Models\EcommerceAffiliate;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class EcommerceAffiliateExport extends Controller implements FromCollection, WithHeadings, WithMapping
+class EcommerceAffiliateExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $filterByCampaigns;
     protected $filterByCustomers;
