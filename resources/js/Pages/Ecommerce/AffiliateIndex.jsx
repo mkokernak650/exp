@@ -71,6 +71,9 @@ const AffiliateIndex = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const [orderByValue, setOrderByValue] = useState('')
+  const [filterByCampaigns, setFilterByCampaigns] = useState('')
+  const [filterByCustomers, setFilterByCustomers] = useState('')
+  const [filterByAffiliates, setFilterByAffiliates] = useState('')
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -94,6 +97,21 @@ const AffiliateIndex = () => {
     const affiliate = affiliates.find((affiliate) => affiliate.id == id)
     return affiliate ? affiliate.affiliate_name : ''
   }
+
+  const campaignOptions = campaigns.map((item) => ({
+    label: item.campaign_name,
+    value: item.id.toString(),
+  }))
+
+  const customerOptions = customers.map((item) => ({
+    label: item.customer_name,
+    value: item.id.toString(),
+  }))
+
+  const affiliateOptions = affiliates.map((item) => ({
+    label: item.affiliate_name,
+    value: item.id.toString(),
+  }))
 
   const handleEditSubmit = () => {
     axios
@@ -398,7 +416,10 @@ const AffiliateIndex = () => {
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
-        JSON.stringify(filterValue) + '&orderBy=' + orderByValue
+        JSON.stringify(filterValue) + '&orderBy=' + orderByValue +
+        '&filterByCampaigns=' + filterByCampaigns +
+        '&filterByCustomers=' + filterByCustomers +
+        '&filterByAffiliates=' + filterByAffiliates
       )
       .then((res) => {
         const tmpTableProps = { ...tableProps }
@@ -416,7 +437,7 @@ const AffiliateIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue, orderByValue])
+  }, [itemPerPage, filterValue, orderByValue, filterByCampaigns, filterByCustomers, filterByAffiliates])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -485,7 +506,29 @@ const AffiliateIndex = () => {
                 onChange={(value) => setOrderByValue(value)}
                 placeholder="Order By"
                 style={{ width: '250px' }}
+                defaultValue={orderByValue}
                 singleSelect
+              />
+              <MultiSelect
+                options={campaignOptions}
+                placeholder="Campaign"
+                style={{ width: '250px' }}
+                onChange={(value) => setFilterByCampaigns(value)}
+                defaultValue={filterByCampaigns}
+              />
+              <MultiSelect
+                options={customerOptions}
+                placeholder="Customer"
+                style={{ width: '250px' }}
+                onChange={(value) => setFilterByCustomers(value)}
+                defaultValue={filterByCustomers}
+              />
+              <MultiSelect
+                options={affiliateOptions}
+                placeholder="Affiliate"
+                style={{ width: '250px' }}
+                onChange={(value) => setFilterByAffiliates(value)}
+                defaultValue={filterByAffiliates}
               />
             </div>
             {/* <div className="search-icon" onClick={handleSearch}>

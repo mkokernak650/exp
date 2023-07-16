@@ -29,35 +29,53 @@ class EcommerceAffiliateController extends Controller
         $campaigns   = EcommerceCampaign::active()->get();
         $customers   = Customer::active()->get();
         $columnsData = TableDetails::all()->pluck('column_details');
+        $conditions  = json_decode(request('filteredValue'));
 
-        $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
             $eAffiliatesQuery = EcommerceAffiliate::query()
                 ->with('affiliate:id,affiliate_name')
                 ->with('campaign:id,campaign_name')
                 ->with('customer:id,customer_name');
 
+            if (!empty(request('filterByCampaigns'))) {
+                $filterByCampaigns = explode(',', request('filterByCampaigns'));
+                $eAffiliatesQuery->whereIn('campaign_id', $filterByCampaigns);
+            }
+
+            if (!empty(request('filterByCustomers'))) {
+                $filterByCustomers = explode(',', request('filterByCustomers'));
+                $eAffiliatesQuery->whereIn('customer_id', $filterByCustomers);
+            }
+
+            if (!empty(request('filterByAffiliates'))) {
+                $filterByAffiliates = explode(',', request('filterByAffiliates'));
+                $eAffiliatesQuery->whereIn('affiliate_id', $filterByAffiliates);
+            }
+
             if (!empty(request('orderBy'))) {
                 $eAffiliatesQuery->orderBy('created_at', request('orderBy'));
             }
 
-            $firstCond = $conditions->items[0];
-            $field = $this->fieldName($firstCond->field);
-            $val = $this->valueCehckById($firstCond->field, $firstCond->value);
-
-            $this->makeConditionQuery($eAffiliatesQuery, 'where', $field, $firstCond->operator, $val);
-            for ($i = 1; $i < count($conditions->items); $i++) {
-                $cond = $conditions->items[$i];
-                $multiConField = $this->fieldName($cond->field);
-                $multiConVal = $this->valueCehckById($cond->field, $cond->value);
-
-                $this->makeConditionQuery($eAffiliatesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
-            }
-
             return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
+
+            // $firstCond = $conditions->items[0];
+            // $field = $this->fieldName($firstCond->field);
+            // $val = $this->valueCehckById($firstCond->field, $firstCond->value);
+
+            // $this->makeConditionQuery($eAffiliatesQuery, 'where', $field, $firstCond->operator, $val);
+            // for ($i = 1; $i < count($conditions->items); $i++) {
+            //     $cond = $conditions->items[$i];
+            //     $multiConField = $this->fieldName($cond->field);
+            //     $multiConVal = $this->valueCehckById($cond->field, $cond->value);
+
+            //     $this->makeConditionQuery($eAffiliatesQuery, $conditions->groupName, $multiConField, $cond->operator, $multiConVal);
+            // }
+
+            // return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
         $ecommerceAffiliates = EcommerceAffiliate::paginate(request('itemPerPage') ?? 10);
+
         if (request('page')) {
             return $ecommerceAffiliates;
         }
