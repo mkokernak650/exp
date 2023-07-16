@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');
     Route::post('ecommerce-affiliates/import', [EcommerceAffiliateController::class, 'import'])->name('ecommerce-affiliates.import');
     Route::post('ecommerce-affiliates/deleteSelected', [EcommerceAffiliateController::class, 'deleteSelected'])->name('ecommerce-affiliates.deleteSelected');
+    Route::get('ecommerce-affiliates/export', [EcommerceAffiliateController::class, 'export'])->name('ecommerce-affiliates.export');
 
     // E-commerce sale
     Route::get('ecommerce-sales', [EcommerceSaleController::class, 'index'])->name('ecommerce-sales.index');

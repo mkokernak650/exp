@@ -320,30 +320,31 @@ const AffiliateIndex = () => {
     changeFilter(newFilterValue)
   }
 
-  const exportHandler = () => {
-    const apiData = filterData(tableProps.data, filterValue)
-    const filterdData = apiData.map((item) => {
-      delete item.affiliate_id
-      delete item.campaign_id
-      delete item.customer_id
-      delete item.edit
-      delete item.id
-      delete item.key
-      delete item.consumerEXP_cash_buy_fee_type
-      delete item.consumerEXP_cash_buy_fee
-      item.order_type = item.order_type == 1 ? 'E-commerce' : 'Phone'
-      item.affiliate_fee_type = item.affiliate_fee_type == 1 ? 'Payout Per Order' : 'Cash Buy'
-      item.pay_on_multiple_orders = item.pay_on_multiple_orders == '0' ? 'No' : 'Yes'
-      return item
-    })
-    const fileType =
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
-    const ws = XLSX.utils.json_to_sheet(filterdData, 'Ecommerce Affiliates')
-    const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
-    const data = new Blob([excelBuffer], { type: fileType })
-    FileSaver.saveAs(data, 'Ecommerce Affiliates' + '.xlsx')
-    toast.success('Report Exported Successfully')
+  const triggerExportLink = (link) => {
+    return window.open(link)
+  }
+
+  const exportHandler = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    axios
+      .get(
+        'ecommerce-affiliates/export?filterByCampaigns=' + filterByCampaigns +
+        '&filterByCustomers=' + filterByCustomers +
+        '&filterByAffiliates=' + filterByAffiliates
+      )
+      .then((res) => {
+        setLoading(false)
+        if (res.status === 200) {
+          triggerExportLink(res.request.responseURL)
+          toast.success('Report Exported Successfully')
+        } else {
+          toast.error('Error while importing file')
+        }
+      })
+      .catch((err) => {
+        setLoading(false)
+      })
   }
 
   const [serachSidebar, setSearchSidebar] = useState(false)

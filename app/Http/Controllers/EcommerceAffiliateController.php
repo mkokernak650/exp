@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\EcommerceAffiliateExport;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Customer;
@@ -289,5 +290,12 @@ class EcommerceAffiliateController extends Controller
         $affiliates = Affiliate::pluck('affiliate_name', 'id')->toArray();
         Excel::import(new EcommerceAffiliatesImport($affiliates), $request->importFile);
         return response()->json(['msg' => 'Successfully import!'], 201);
+    }
+
+    public function export(Request $request)
+    {
+        $fileName = 'Phone & codes';
+
+        return Excel::download(new EcommerceAffiliateExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates), $fileName . '.xlsx');
     }
 }
