@@ -296,6 +296,24 @@ class EcommerceAffiliateController extends Controller
     {
         $fileName = 'Phone & codes';
 
+        if (!empty($request->filterByCampaigns)) {
+            $filterByCampaigns  = explode(',', $request->filterByCampaigns);
+            $campaignNames      = EcommerceCampaign::whereIn('id', $filterByCampaigns)->select('campaign_name')->pluck('campaign_name');
+            $fileName          .= '_' . implode(',', $campaignNames->toArray());
+        }
+
+        if (!empty($request->filterByCustomers)) {
+            $filterByCustomers  = explode(',', $request->filterByCustomers);
+            $customerNames      = Customer::whereIn('id', $filterByCustomers)->select('customer_name')->pluck('customer_name');
+            $fileName          .= '_' . implode(',', $customerNames->toArray());
+        }
+
+        if (!empty($request->filterByAffiliates)) {
+            $filterByAffiliates  = explode(',', $request->filterByAffiliates);
+            $affiliateNames      = Affiliate::whereIn('id', $filterByAffiliates)->select('affiliate_name')->pluck('affiliate_name');
+            $fileName           .= '_' . implode(',', $affiliateNames->toArray());
+        }
+
         return Excel::download(new EcommerceAffiliateExport($request->filterByCampaigns, $request->filterByCustomers, $request->filterByAffiliates), $fileName . '.xlsx');
     }
 }
