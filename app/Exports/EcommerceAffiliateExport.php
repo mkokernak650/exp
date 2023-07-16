@@ -38,7 +38,6 @@ class EcommerceAffiliateExport implements FromCollection, WithHeadings, WithMapp
             $filterByAffiliates = explode(',', $this->filterByAffiliates);
             $ecommerceAffiliateQuery->whereIn('affiliate_id', $filterByAffiliates);
         }
-        dd($ecommerceAffiliateQuery->get());
 
         return $ecommerceAffiliateQuery->get();
     }
