@@ -9,14 +9,7 @@ import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import {
-  Button,
-  CircularProgress,
-  RadioGroup,
-  Radio,
-  FormControlLabel,
-  FormLabel,
-} from '@material-ui/core'
+import { Button, CircularProgress, RadioGroup, Radio, FormControlLabel, FormLabel, TextField } from '@material-ui/core'
 import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -43,6 +36,7 @@ const ZipcodeDatabase = () => {
   const [searchedData, setSearchData] = useState([])
   const [filterByState, setFilterByState] = useState('')
   const [filterByTimeZone, setFilterByTimeZone] = useState('')
+  const [filterBySearchBoxValue, setFilterBySearchBoxValue] = useState({ county: '', city: '', zipCode: '', npa: '', nxx: '' })
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -93,6 +87,10 @@ const ZipcodeDatabase = () => {
   const statesOptions = states.map(state => ({ label: state, value: state }))
   const timeZones = [4, 5, 6, 7, 8, 9, 10, 11, 14, 20]
   const TimeZoneOptions = timeZones.map(timeZone => ({ label: timeZone, value: timeZone.toString() }))
+
+  const handleSearchBoxChange = (event) => {
+    setFilterBySearchBoxValue((oldValues) => ({ ...oldValues, [event.target.name]: event.target.value }))
+  }
 
   const tablePropsInit = {
     columns:
@@ -215,9 +213,9 @@ const ZipcodeDatabase = () => {
     getSearchingData(curerentPage)
   }, [itemPerPage])
 
-  useEffect(() => {
-    getSearchingData(curerentPage)
-  }, [filterValue])
+  // useEffect(() => {
+  //   getSearchingData(curerentPage)
+  // }, [filterValue])
 
   const triggerExportLink = (link) => {
     return window.open(link)
@@ -265,20 +263,73 @@ const ZipcodeDatabase = () => {
               )}
             </Button>
           </div>
-          <div className="top-left">
+          <div className="top-left" style={{ gap: '5px' }}>
             <MultiSelect
               options={statesOptions}
               placeholder="State"
-              style={{ width: '200px' }}
+              style={{ width: '180px' }}
               onChange={(value) => setFilterByState(value)}
               defaultValue={filterByState}
             />
             <MultiSelect
               options={TimeZoneOptions}
               placeholder="Time Zone"
-              style={{ width: '200px' }}
+              style={{ width: '180px' }}
               onChange={(value) => setFilterByTimeZone(value)}
               defaultValue={filterByTimeZone}
+            />
+            <TextField
+              id="county"
+              name="county"
+              label="County"
+              variant="outlined"
+              size="small"
+              style={{ width: '180px' }}
+              value={filterBySearchBoxValue.county}
+              onChange={handleSearchBoxChange}
+            />
+            <TextField
+              id="city"
+              name="city"
+              label="City"
+              variant="outlined"
+              size="small"
+              style={{ width: '180px' }}
+              value={filterBySearchBoxValue.city}
+              onChange={handleSearchBoxChange}
+            />
+            <TextField
+              id="zipCode"
+              name="zipCode"
+              label="Zip Code"
+              variant="outlined"
+              size="small"
+              type="number"
+              style={{ width: '180px' }}
+              value={filterBySearchBoxValue.zipCode}
+              onChange={handleSearchBoxChange}
+            />
+            <TextField
+              id="npa"
+              name="npa"
+              label="NPA"
+              variant="outlined"
+              size="small"
+              type="number"
+              style={{ width: '180px' }}
+              value={filterBySearchBoxValue.npa}
+              onChange={handleSearchBoxChange}
+            />
+            <TextField
+              id="nxx"
+              name="nxx"
+              label="NXX"
+              variant="outlined"
+              size="small"
+              type="number"
+              style={{ width: '180px' }}
+              value={filterBySearchBoxValue.nxx}
+              onChange={handleSearchBoxChange}
             />
           </div>
 
