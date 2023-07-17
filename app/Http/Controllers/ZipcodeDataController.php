@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Exports\ZipcodeDataExport;
@@ -33,16 +34,15 @@ class ZipcodeDataController extends Controller
             return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
         }
 
+        $states = ZipCodeData::select('State')->whereNotNull('State')->orderBy('State')->distinct()->pluck('State');
+
         $allZipcodes = ZipCodeData::paginate(request('itemPerPage') ?? 15);
         if (request('page')) {
             return $allZipcodes;
         }
         $columnsData = TableDetails::all()->pluck('column_details');
 
-        return Inertia::render('Settings/ZipcodeDatabase', [
-            'allZipcodes'                   => $allZipcodes,
-            'columnsData'                   => $columnsData
-        ]);
+        return Inertia::render('Settings/ZipcodeDatabase', ['allZipcodes' => $allZipcodes, 'columnsData' => $columnsData, 'states' => $states]);
     }
 
     public function import(Request $request)

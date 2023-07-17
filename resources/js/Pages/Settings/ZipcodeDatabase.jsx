@@ -24,12 +24,13 @@ import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { useStyles, fields, groups, filter, columns } from './Helpers/ZipcodeDatabaseProps'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const ZipcodeDatabase = () => {
   const classes = useStyles()
-  const { allZipcodes, columnsData } = usePage().props
+  const { allZipcodes, columnsData, states } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
-  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [importModal, setImportModal] = useState({ open: false })
   const [exportModal, setExportModal] = useState({ open: false })
@@ -40,6 +41,8 @@ const ZipcodeDatabase = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [searchedData, setSearchData] = useState([])
+  const [filterByState, setFilterByState] = useState('')
+  const [filterByTimeZone, setFilterByTimeZone] = useState('')
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -86,6 +89,10 @@ const ZipcodeDatabase = () => {
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+
+  const statesOptions = states.map(state => ({ label: state, value: state }))
+  const timeZones = [4, 5, 6, 7, 8, 9, 10, 11, 14, 20]
+  const TimeZoneOptions = timeZones.map(timeZone => ({ label: timeZone, value: timeZone.toString() }))
 
   const tablePropsInit = {
     columns:
@@ -161,7 +168,7 @@ const ZipcodeDatabase = () => {
           toast.error('Import failed')
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   useEffect(() => {
@@ -183,11 +190,11 @@ const ZipcodeDatabase = () => {
     await axios
       .get(
         'telephone-and-zip-codes?page=' +
-          data.page +
-          '&itemPerPage=' +
-          itemPerPage +
-          '&filteredValue=' +
-          JSON.stringify(filterValue)
+        data.page +
+        '&itemPerPage=' +
+        itemPerPage +
+        '&filteredValue=' +
+        JSON.stringify(filterValue)
       )
       .then((res) => {
         setZipcodeData(res.data)
@@ -225,7 +232,6 @@ const ZipcodeDatabase = () => {
         setLoading(false)
         if (res.status === 200) {
           triggerExportLink(res.request.responseURL)
-          setOpen(true)
         } else {
           toast.error('Error while importing file')
         }
@@ -239,7 +245,7 @@ const ZipcodeDatabase = () => {
     <>
       <Helmet title="ZipCode Database" />
       <div className="selection-demo">
-        <div className="table-top">
+        <div className="table-top-flex-start">
           <div className="top-left">
             <div className="columns-show-hide" onClick={handleColumns}>
               <Eye />
@@ -255,12 +261,28 @@ const ZipcodeDatabase = () => {
               {loading ? (
                 <CircularProgress color="inherit" thickness={3} size="1.5rem" />
               ) : (
-                'Searched Export'
+                'Export'
               )}
             </Button>
           </div>
+          <div className="top-left">
+            <MultiSelect
+              options={statesOptions}
+              placeholder="State"
+              style={{ width: '200px' }}
+              onChange={(value) => setFilterByState(value)}
+              defaultValue={filterByState}
+            />
+            <MultiSelect
+              options={TimeZoneOptions}
+              placeholder="Time Zone"
+              style={{ width: '200px' }}
+              onChange={(value) => setFilterByTimeZone(value)}
+              defaultValue={filterByTimeZone}
+            />
+          </div>
 
-          <div className="search-icon" onClick={handleSearch}>
+          {/* <div className="search-icon" onClick={handleSearch}>
             <span>Search Here</span>
             <Search />
           </div>
@@ -289,7 +311,7 @@ const ZipcodeDatabase = () => {
             </div>
           ) : (
             ''
-          )}
+          )} */}
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
               <ColumnSettings {...tableProps} dispatch={dispatch} />
