@@ -22,7 +22,7 @@ class EcommerceAffiliateExport implements FromCollection, WithHeadings, WithMapp
 
     public function collection()
     {
-        $ecommerceAffiliateQuery = EcommerceAffiliate::with('campaign:id,campaign_name')->with('customer:id,customer_name')->with('affiliate:id,affiliate_name');
+        $ecommerceAffiliateQuery = EcommerceAffiliate::query()->with('campaign:id,campaign_name')->with('customer:id,customer_name')->with('affiliate:id,affiliate_name');
 
         if (!empty($this->filterByCampaigns)) {
             $filterByCampaigns = explode(',', $this->filterByCampaigns);
