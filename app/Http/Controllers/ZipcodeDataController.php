@@ -36,6 +36,29 @@ class ZipcodeDataController extends Controller
                 $zipDataQuery->whereIn('TimeZone', $filterByTimeZone);
             }
 
+            $filterBySearchBoxValue = json_decode(request('filterBySearchBoxValue'));
+            // dd($filterBySearchBoxValue);
+
+            if (!empty($filterBySearchBoxValue->county)) {
+                $zipDataQuery->where('County', 'LIKE', "%{$filterBySearchBoxValue->county}%");
+            }
+
+            if (!empty($filterBySearchBoxValue->city)) {
+                $zipDataQuery->where('City', 'LIKE', "%{$filterBySearchBoxValue->city}%");
+            }
+
+            if (!empty($filterBySearchBoxValue->zipCode)) {
+                $zipDataQuery->where('ZipCode', 'LIKE', "%{$filterBySearchBoxValue->zipCode}%");
+            }
+
+            if (!empty($filterBySearchBoxValue->npa)) {
+                $zipDataQuery->where('NPA', 'LIKE', "%{$filterBySearchBoxValue->npa}%");
+            }
+
+            if (!empty($filterBySearchBoxValue->nxx)) {
+                $zipDataQuery->where('NXX', 'LIKE', "%{$filterBySearchBoxValue->nxx}%");
+            }
+
             return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
 
             // $firstCond = $conditions->items[0];
