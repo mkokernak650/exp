@@ -78,9 +78,9 @@ class ZipcodeDataController extends Controller
         return response()->json($newZipcodes);
     }
 
-    public function export(Request $request)
+    public function export()
     {
-        return Excel::download(new ZipcodeDataExport($request->filterValue), 'ZipCodeData.' . 'xlsx');
+        return Excel::download(new ZipcodeDataExport(request('filterByState'), request('filterByTimeZone'), request('filterBySearchBoxValue')), 'ZipCodeData.' . 'xlsx');
     }
 
     /**

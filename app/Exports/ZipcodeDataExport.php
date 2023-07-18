@@ -10,22 +10,51 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class ZipcodeDataExport extends Controller implements FromCollection, WithHeadings, WithMapping
 {
-    protected $filterValue;
+    protected $filterByState;
+    protected $filterByTimeZone;
+    protected $filterBySearchBoxValue;
 
-    public function __construct($filterValue)
+    public function __construct($filterByState, $filterByTimeZone, $filterBySearchBoxValue)
     {
-        $this->filterValue = $filterValue;
+        $this->filterByState          = $filterByState;
+        $this->filterByTimeZone       = $filterByTimeZone;
+        $this->filterBySearchBoxValue = $filterBySearchBoxValue;
     }
 
     public function collection()
     {
         $zipDataQuery = ZipCodeData::query();
-        $conditions = json_decode($this->filterValue);
-        $firstCond = $conditions->items[0];
-        $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
-        for ($i = 1; $i < count($conditions->items); $i++) {
-            $cond = $conditions->items[$i];
-            $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+
+        if (!empty($this->filterByState)) {
+            $filterByState = explode(',', $this->filterByState);
+            $zipDataQuery->whereIn('State', $filterByState);
+        }
+
+        if (!empty($this->filterByTimeZone)) {
+            $filterByTimeZone = explode(',', $this->filterByTimeZone);
+            $zipDataQuery->whereIn('TimeZone', $filterByTimeZone);
+        }
+
+        $filterBySearchBoxValue = json_decode($this->filterBySearchBoxValue);
+
+        if (!empty($filterBySearchBoxValue->county)) {
+            $zipDataQuery->where('County', 'LIKE', "%{$filterBySearchBoxValue->county}%");
+        }
+
+        if (!empty($filterBySearchBoxValue->city)) {
+            $zipDataQuery->where('City', 'LIKE', "%{$filterBySearchBoxValue->city}%");
+        }
+
+        if (!empty($filterBySearchBoxValue->zipCode)) {
+            $zipDataQuery->where('ZipCode', 'LIKE', "%{$filterBySearchBoxValue->zipCode}%");
+        }
+
+        if (!empty($filterBySearchBoxValue->npa)) {
+            $zipDataQuery->where('NPA', 'LIKE', "%{$filterBySearchBoxValue->npa}%");
+        }
+
+        if (!empty($filterBySearchBoxValue->nxx)) {
+            $zipDataQuery->where('NXX', 'LIKE', "%{$filterBySearchBoxValue->nxx}%");
         }
 
         return $zipDataQuery->get();

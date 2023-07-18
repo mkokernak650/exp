@@ -204,7 +204,9 @@ const ZipcodeDatabase = () => {
     e.preventDefault()
     setLoading(true)
     axios
-      .get('zipcode-data-export?filterValue=' + JSON.stringify(filterValue))
+      .get('zipcode-data-export?filterByState=' + filterByState +
+        '&filterByTimeZone=' + filterByTimeZone +
+        '&filterBySearchBoxValue=' + JSON.stringify(filterBySearchBoxValue))
       .then((res) => {
         setLoading(false)
         if (res.status === 200) {
