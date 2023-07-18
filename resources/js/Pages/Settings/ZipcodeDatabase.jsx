@@ -192,7 +192,10 @@ const ZipcodeDatabase = () => {
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
-        JSON.stringify(filterValue)
+        JSON.stringify(filterValue) +
+        '&filterByState=' + filterByState +
+        '&filterByTimeZone=' + filterByTimeZone +
+        '&filterBySearchBoxValue=' + JSON.stringify(filterBySearchBoxValue)
       )
       .then((res) => {
         setZipcodeData(res.data)
@@ -211,7 +214,7 @@ const ZipcodeDatabase = () => {
 
   useEffect(() => {
     getSearchingData(curerentPage)
-  }, [itemPerPage])
+  }, [itemPerPage, filterByState, filterByTimeZone, filterBySearchBoxValue])
 
   // useEffect(() => {
   //   getSearchingData(curerentPage)

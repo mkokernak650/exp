@@ -20,18 +20,32 @@ class ZipcodeDataController extends Controller
 
     public function index()
     {
+        // dd(request()->all());
         $conditions = json_decode(request('filteredValue'));
         if (request('filteredValue') && count($conditions->items)) {
             $zipDataQuery = ZipCodeData::query();
 
-            $firstCond = $conditions->items[0];
-            $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
-
-            for ($i = 1; $i < count($conditions->items); $i++) {
-                $cond = $conditions->items[$i];
-                $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+            // dd(request()->all());
+            if (!empty(request('filterByState'))) {
+                $filterByState = explode(',', request('filterByState'));
+                $zipDataQuery->whereIn('State', $filterByState);
             }
+
+            if (!empty(request('filterByTimeZone'))) {
+                $filterByTimeZone = explode(',', request('filterByTimeZone'));
+                $zipDataQuery->whereIn('TimeZone', $filterByTimeZone);
+            }
+
             return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
+
+            // $firstCond = $conditions->items[0];
+            // $this->makeConditionQuery($zipDataQuery, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
+
+            // for ($i = 1; $i < count($conditions->items); $i++) {
+            //     $cond = $conditions->items[$i];
+            //     $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
+            // }
+            // return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
         }
 
         $states = ZipCodeData::select('State')->whereNotNull('State')->orderBy('State')->distinct()->pluck('State');
@@ -40,6 +54,7 @@ class ZipcodeDataController extends Controller
         if (request('page')) {
             return $allZipcodes;
         }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Settings/ZipcodeDatabase', ['allZipcodes' => $allZipcodes, 'columnsData' => $columnsData, 'states' => $states]);
