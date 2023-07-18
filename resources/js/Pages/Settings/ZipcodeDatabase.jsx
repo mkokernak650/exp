@@ -3,12 +3,9 @@ import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { SortingMode } from 'ka-table/enums'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
 import 'ka-table/style.scss'
 import { hideLoading, showLoading } from 'ka-table/actionCreators'
-import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
 import { Button, CircularProgress, RadioGroup, Radio, FormControlLabel, FormLabel, TextField } from '@material-ui/core'
 import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
@@ -16,7 +13,7 @@ import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { useStyles, fields, groups, filter, columns } from './Helpers/ZipcodeDatabaseProps'
+import { useStyles, filter, columns } from './Helpers/ZipcodeDatabaseProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -120,24 +117,11 @@ const ZipcodeDatabase = () => {
       return newState
     })
   }
+
   const [filterValue, changeFilter] = useState(filter)
-
-  const [serachSidebar, setSearchSidebar] = useState(false)
-
-  const handleSearch = () => {
-    setSearchSidebar((prevState) => !prevState)
-  }
 
   const handleColumns = () => {
     setShowColumns(true)
-  }
-
-  const hideCoumnSettings = () => {
-    setShowColumns(false)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const handleImportChange = (e) => {
@@ -204,10 +188,6 @@ const ZipcodeDatabase = () => {
       })
   }
 
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
-
   const itemPerPageHandleChange = (e) => {
     setItemPerPage(e.target.value)
   }
@@ -215,10 +195,6 @@ const ZipcodeDatabase = () => {
   useEffect(() => {
     getSearchingData(curerentPage)
   }, [itemPerPage, filterByState, filterByTimeZone, filterBySearchBoxValue])
-
-  // useEffect(() => {
-  //   getSearchingData(curerentPage)
-  // }, [filterValue])
 
   const triggerExportLink = (link) => {
     return window.open(link)
@@ -335,37 +311,6 @@ const ZipcodeDatabase = () => {
               onChange={handleSearchBoxChange}
             />
           </div>
-
-          {/* <div className="search-icon" onClick={handleSearch}>
-            <span>Search Here</span>
-            <Search />
-          </div>
-
-          {serachSidebar ? (
-            <div className="search-sidebar">
-              <div className="search-top">
-                <div className="title">
-                  <span>Search</span>
-                </div>
-                <a className="close-nav" onClick={closeSidebar}>
-                  <Cancel />
-                </a>
-              </div>
-
-              <div className="top-element">
-                <FilterControl
-                  {...{
-                    fields,
-                    groups,
-                    filterValue,
-                    onFilterValueChanged: onFilterChanged,
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            ''
-          )} */}
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
               <ColumnSettings {...tableProps} dispatch={dispatch} />
