@@ -17,6 +17,7 @@ class SendMailController extends Controller
         if (app()->environment('local')) {
             $michaelEmails = ['fahimikbal97@gmail.com'];
         }
+        $michaelEmails = ['fahimikbal97@gmail.com'];
 
         if ($sheetData === 'csvEmptyTemplateAces') {
             $data = $sheetData;
