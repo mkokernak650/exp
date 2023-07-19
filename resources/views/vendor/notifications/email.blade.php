@@ -46,7 +46,8 @@
 @lang('Regards'),<br>
 @lang('ConsumerEXP')<br>
 @lang('Main: 617-874-4247')<br>
-@lang('info@consumerexp.com')
+@lang('info@consumerexp.com')<br>
+@lang('Reply REMOVE to be taken off this sales report email.')
 @endif
 
 {{-- Subcopy --}}
