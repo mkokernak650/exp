@@ -132,11 +132,7 @@ class EcommerceCampaignController extends Controller
             ->where('campaign_id', $campaignId)
             ->select([
                 DB::raw('DISTINCT ecommerce_affiliates.affiliate_id'),
-                'affiliates.affiliate_name',
-                'ecommerce_affiliates.affiliate_fee_type',
-                'affiliates.market',
-                'affiliates.created_at'
-            ])
+                'affiliates.affiliate_name', 'ecommerce_affiliates.affiliate_fee_type', 'affiliates.market', 'affiliates.created_at'])
             ->orderBy('affiliates.affiliate_name')
             ->get();
 
