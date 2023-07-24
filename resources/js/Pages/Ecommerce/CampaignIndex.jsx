@@ -86,7 +86,9 @@ const CampaignIndex = () => {
 
   const tablePropsInit = {
     columns:
-      columns,
+      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        ? JSON.parse(columnsData[0])?.[optionKey]
+        : columns,
     paging: {
       enabled: true,
       pageIndex: 0,
