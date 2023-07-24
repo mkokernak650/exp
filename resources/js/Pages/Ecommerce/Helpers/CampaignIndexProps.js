@@ -118,6 +118,12 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'affiliates',
+    title: 'Affiliates',
+    style: { width: 80 },
+    visible: true,
+  },
+  {
     key: 'customer_name',
     title: 'Customer',
     dataType: DataType.String,

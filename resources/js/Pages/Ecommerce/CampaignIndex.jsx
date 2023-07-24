@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { kaReducer, Table } from 'ka-table'
 import { SortingMode, PagingPosition } from 'ka-table/enums'
 import { kaPropsUtils } from 'ka-table/utils'
-import { usePage } from '@inertiajs/inertia-react'
+import { InertiaLink, usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
 import { filterData } from '../filterData'
 import 'ka-table/style.scss'
@@ -55,6 +55,7 @@ const CampaignIndex = () => {
     edit: item.id,
     sl: index + 1,
     campaign_name: item?.campaign_name,
+    affiliates: item.id,
     customer_name: item?.customer?.customer_name,
     customer_id: item?.customer?.id.toString(),
     status: [item.status, item.id, index],
@@ -106,6 +107,11 @@ const CampaignIndex = () => {
           <div className="edit-icon" onClick={() => handleEdit(value)}>
             <Edit />
           </div>
+        )
+      }
+      if (column.key === 'affiliates') {
+        return (
+          <InertiaLink href='' >Affiliates</InertiaLink>
         )
       }
       if (column.key === 'status') {
