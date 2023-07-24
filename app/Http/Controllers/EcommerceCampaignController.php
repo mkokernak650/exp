@@ -126,16 +126,18 @@ class EcommerceCampaignController extends Controller
 
     public function affiliateList($campaignId)
     {
-        // dd($campaignId);
         $affiliateList = DB::table('ecommerce_affiliates')
             ->join('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
             ->where('campaign_id', $campaignId)
-            ->select([
-                DB::raw('DISTINCT ecommerce_affiliates.affiliate_id'),
-                'affiliates.affiliate_name', 'ecommerce_affiliates.affiliate_fee_type', 'affiliates.market', 'affiliates.created_at'])
+            ->select(['affiliates.affiliate_name', 'ecommerce_affiliates.affiliate_fee_type', 'affiliates.market', 'affiliates.created_at'])
             ->orderBy('affiliates.affiliate_name')
-            ->get();
+            ->groupBy('ecommerce_affiliates.affiliate_id')
+            ->paginate(request('itemPerPage') ?? 10);
 
-        dd($affiliateList);
+        if (request('page')) {
+            return $affiliateList;
+        }
+
+        return Inertia::render('Ecommerce/CampaignAffiliateList', compact('affiliateList', 'campaignId'));
     }
 }

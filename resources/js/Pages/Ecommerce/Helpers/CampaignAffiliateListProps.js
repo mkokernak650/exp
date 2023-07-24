@@ -1,0 +1,41 @@
+import { makeStyles } from '@material-ui/core'
+import { DataType } from 'ka-table/enums'
+
+export const useStyles = makeStyles(() => ({
+  button: {
+    width: 'auto',
+    textTransform: 'capitalize',
+    fontSize: '14px',
+  },
+}))
+
+export const columns = [
+  {
+    key: 'affiliate_name',
+    title: 'Affiliate Name',
+    dataType: DataType.String,
+    style: { width: 250 },
+    visible: true,
+  },
+  {
+    key: 'affiliate_fee_type',
+    title: 'Affiliate Fee Type',
+    dataType: DataType.Number,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
+    key: 'market',
+    title: 'Market',
+    dataType: DataType.String,
+    style: { width: 100 },
+    visible: true,
+  },
+  {
+    key: 'created_at',
+    title: 'Created At',
+    dataType: DataType.String,
+    style: { width: 100 },
+    visible: true,
+  },
+]
