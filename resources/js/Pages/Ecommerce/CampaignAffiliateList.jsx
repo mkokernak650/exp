@@ -17,11 +17,10 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const CampaignAffiliateList = () => {
   const classes = useStyles()
-  const { affiliateList, campaignId } = usePage().props
+  const { affiliateList, campaignId, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [loading, setLoading] = useState(false)
   const showColumnRef = useRef()
-  const columnsData = []
   const [campaignAffiliateList, setCampaignAffiliateList] = useState(affiliateList)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
@@ -36,11 +35,7 @@ const CampaignAffiliateList = () => {
     }))
   }
 
-  // console.log(campaignAffiliateList)
-
   const dataArray = mapDataArr(affiliateList)
-
-  console.log(dataArray)
 
   const optionKey = 'campaign-affiliate-list'
   const [columnDetails, setColumnDetails] = useState(
@@ -61,6 +56,11 @@ const CampaignAffiliateList = () => {
     sortingMode: SortingMode.Single,
     columnResizing: true,
     columnReordering: true,
+    format: ({ column, value }) => {
+      if (column.key === 'affiliate_fee_type') {
+        return (value == 1 ? 'Payout Per Order' : 'Cash Buy')
+      }
+    }
   }
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
@@ -104,7 +104,6 @@ const CampaignAffiliateList = () => {
         itemPerPage
       )
       .then((res) => {
-        console.log('first')
         setCampaignAffiliateList(res.data)
         dispatch(hideLoading())
         setSearchData(res.data.data)
