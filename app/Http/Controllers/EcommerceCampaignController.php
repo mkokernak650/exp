@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\TableDetails;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -121,5 +122,24 @@ class EcommerceCampaignController extends Controller
     {
         $ecommerceCampaign->update(['status' => $request->status]);
         return response()->json(['msg' => 'Updated Successfully.'], 201);
+    }
+
+    public function affiliateList($campaignId)
+    {
+        // dd($campaignId);
+        $affiliateList = DB::table('ecommerce_affiliates')
+            ->join('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
+            ->where('campaign_id', $campaignId)
+            ->select([
+                DB::raw('DISTINCT ecommerce_affiliates.affiliate_id'),
+                'affiliates.affiliate_name',
+                'ecommerce_affiliates.affiliate_fee_type',
+                'affiliates.market',
+                'affiliates.created_at'
+            ])
+            ->orderBy('affiliates.affiliate_name')
+            ->get();
+
+        dd($affiliateList);
     }
 }

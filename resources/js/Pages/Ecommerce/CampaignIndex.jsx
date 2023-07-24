@@ -111,7 +111,7 @@ const CampaignIndex = () => {
       }
       if (column.key === 'affiliates') {
         return (
-          <InertiaLink href='' >Affiliates</InertiaLink>
+          <InertiaLink href={route('ecommerce.campaigns.affiliates', value)} >Affiliates</InertiaLink>
         )
       }
       if (column.key === 'status') {

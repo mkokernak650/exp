@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');
     Route::post('ecommerce-campaigns-status-update/{ecommerceCampaign}', [EcommerceCampaignController::class, 'statusUpdate'])->name('ecommerce-campaigns.status.update');
     Route::post('ecommerce-campaigns/deleteSelected', [EcommerceCampaignController::class, 'deleteSelected'])->name('ecommerce-campaigns.deleteSelected');
+    Route::get('ecommerce-campaigns-affiliates/{campaignId}', [EcommerceCampaignController::class, 'affiliateList'])->name('ecommerce.campaigns.affiliates');
 
     Route::get('/get-customer', [RingbaCallLogController::class, 'getCustomer']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
