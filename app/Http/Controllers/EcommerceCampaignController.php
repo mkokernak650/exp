@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\EcommerceCampaignAffiliateListExport;
 use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\TableDetails;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EcommerceCampaignController extends Controller
 {
@@ -145,6 +147,9 @@ class EcommerceCampaignController extends Controller
 
     public function affiliateListExport($campaignId)
     {
-        dd($campaignId);
+        $campaignName = EcommerceCampaign::where('id', $campaignId)->select('campaign_name')->value('campaign_name');
+        $fileName     = "{$campaignName} Affiliates";
+
+        return Excel::download(new EcommerceCampaignAffiliateListExport($campaignId), $fileName . '.xlsx');
     }
 }
