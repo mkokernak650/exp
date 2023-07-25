@@ -14,6 +14,7 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import { useStyles, columns } from './Helpers/CampaignAffiliateListProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
+import { Button, CircularProgress } from '@material-ui/core'
 
 const CampaignAffiliateList = () => {
   const classes = useStyles()
@@ -122,23 +123,23 @@ const CampaignAffiliateList = () => {
     return window.open(link)
   }
 
-  // const exportHandler = (e) => {
-  //   e.preventDefault()
-  //   setLoading(true)
-  //   axios
-  //     .get('zipcode-data-export')
-  //     .then((res) => {
-  //       setLoading(false)
-  //       if (res.status === 200) {
-  //         triggerExportLink(res.request.responseURL)
-  //       } else {
-  //         toast.error('Error while importing file')
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       setLoading(false)
-  //     })
-  // }
+  const exportHandler = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    axios
+      .get(`/ecommerce-campaigns-affiliates/export/${campaignId}`)
+      .then((res) => {
+        setLoading(false)
+        if (res.status === 200) {
+          triggerExportLink(res.request.responseURL)
+        } else {
+          toast.error('Error while exporting file')
+        }
+      })
+      .catch((err) => {
+        setLoading(false)
+      })
+  }
 
   return (
     <>
@@ -149,7 +150,7 @@ const CampaignAffiliateList = () => {
             <div className="columns-show-hide" onClick={handleColumns}>
               <Eye />
             </div>
-            {/* <Button
+            <Button
               variant="contained"
               type="submit"
               color="primary"
@@ -162,7 +163,7 @@ const CampaignAffiliateList = () => {
               ) : (
                 'Export'
               )}
-            </Button> */}
+            </Button>
           </div>
           {/* <div className="top-left" style={{ gap: '5px' }}>
             <MultiSelect
@@ -171,66 +172,6 @@ const CampaignAffiliateList = () => {
               style={{ width: '180px' }}
               onChange={(value) => setFilterByState(value)}
               defaultValue={filterByState}
-            />
-            <MultiSelect
-              options={TimeZoneOptions}
-              placeholder="Time Zone"
-              style={{ width: '180px' }}
-              onChange={(value) => setFilterByTimeZone(value)}
-              defaultValue={filterByTimeZone}
-            />
-            <TextField
-              id="county"
-              name="county"
-              label="County"
-              variant="outlined"
-              size="small"
-              style={{ width: '180px' }}
-              value={filterBySearchBoxValue.county}
-              onChange={handleSearchBoxChange}
-            />
-            <TextField
-              id="city"
-              name="city"
-              label="City"
-              variant="outlined"
-              size="small"
-              style={{ width: '180px' }}
-              value={filterBySearchBoxValue.city}
-              onChange={handleSearchBoxChange}
-            />
-            <TextField
-              id="zipCode"
-              name="zipCode"
-              label="Zip Code"
-              variant="outlined"
-              size="small"
-              type="number"
-              style={{ width: '180px' }}
-              value={filterBySearchBoxValue.zipCode}
-              onChange={handleSearchBoxChange}
-            />
-            <TextField
-              id="npa"
-              name="npa"
-              label="NPA"
-              variant="outlined"
-              size="small"
-              type="number"
-              style={{ width: '180px' }}
-              value={filterBySearchBoxValue.npa}
-              onChange={handleSearchBoxChange}
-            />
-            <TextField
-              id="nxx"
-              name="nxx"
-              label="NXX"
-              variant="outlined"
-              size="small"
-              type="number"
-              style={{ width: '180px' }}
-              value={filterBySearchBoxValue.nxx}
-              onChange={handleSearchBoxChange}
             />
           </div> */}
           {showColumns ? (

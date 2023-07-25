@@ -142,4 +142,9 @@ class EcommerceCampaignController extends Controller
 
         return Inertia::render('Ecommerce/CampaignAffiliateList', compact('affiliateList', 'campaignId', 'columnsData'));
     }
+
+    public function affiliateListExport($campaignId)
+    {
+        dd($campaignId);
+    }
 }
