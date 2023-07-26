@@ -24,7 +24,14 @@ class EcommerceCampaignAffiliateListExport implements FromCollection, WithHeadin
         $ecommerceCampaignAffiliateList = DB::table('ecommerce_affiliates')
             ->join('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
             ->where('campaign_id', $this->campaignId)
-            ->select(['affiliates.affiliate_name', 'ecommerce_affiliates.affiliate_fee_type', 'affiliates.market', 'affiliates.created_at'])
+            ->select([
+                'affiliates.affiliate_name',
+                'ecommerce_affiliates.affiliate_fee_type',
+                'affiliates.market',
+                'affiliates.created_at',
+                'ecommerce_affiliates.coupon_code',
+                'ecommerce_affiliates.dialed'
+            ])
             ->groupBy('ecommerce_affiliates.affiliate_id')
             ->orderBy('affiliates.affiliate_name')
             ->get();
@@ -38,6 +45,8 @@ class EcommerceCampaignAffiliateListExport implements FromCollection, WithHeadin
             'Affiliate Name',
             'Affiliate Fee Type',
             'Market',
+            'Coupon Code',
+            'Dialed',
             'Created At'
         ];
     }
@@ -48,6 +57,8 @@ class EcommerceCampaignAffiliateListExport implements FromCollection, WithHeadin
             $row->affiliate_name,
             $row->affiliate_fee_type == 1 ? 'Payout Per Order' : 'Cash Buy',
             $row->market,
+            $row->coupon_code,
+            $row->dialed,
             $row->created_at
         ];
     }
