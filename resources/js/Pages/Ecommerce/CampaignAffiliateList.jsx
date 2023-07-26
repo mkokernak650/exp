@@ -44,9 +44,7 @@ const CampaignAffiliateList = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      columns,
     loading: {
       enabled: false,
       text: 'Loading...',
