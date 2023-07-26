@@ -12,8 +12,6 @@ import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { useStyles, columns } from './Helpers/CampaignAffiliateListProps'
-import MultiSelect from 'react-multiple-select-dropdown-lite'
-import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { Button, CircularProgress } from '@material-ui/core'
 
 const CampaignAffiliateList = () => {
@@ -33,6 +31,7 @@ const CampaignAffiliateList = () => {
       affiliate_fee_type: item.affiliate_fee_type,
       market: item.market,
       created_at: item.created_at,
+      id: item.id,
     }))
   }
 
@@ -165,15 +164,6 @@ const CampaignAffiliateList = () => {
               )}
             </Button>
           </div>
-          {/* <div className="top-left" style={{ gap: '5px' }}>
-            <MultiSelect
-              options={statesOptions}
-              placeholder="State"
-              style={{ width: '180px' }}
-              onChange={(value) => setFilterByState(value)}
-              defaultValue={filterByState}
-            />
-          </div> */}
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
               <ColumnSettings {...tableProps} dispatch={dispatch} />

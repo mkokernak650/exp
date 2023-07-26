@@ -131,7 +131,15 @@ class EcommerceCampaignController extends Controller
         $affiliateList = DB::table('ecommerce_affiliates')
             ->join('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
             ->where('campaign_id', $campaignId)
-            ->select(['affiliates.affiliate_name', 'ecommerce_affiliates.affiliate_fee_type', 'affiliates.market', 'affiliates.created_at'])
+            ->select([
+                'affiliates.id',
+                'affiliates.affiliate_name',
+                'ecommerce_affiliates.affiliate_fee_type',
+                'affiliates.market',
+                'affiliates.created_at',
+                'ecommerce_affiliates.coupon_code',
+                'ecommerce_affiliates.dialed'
+            ])
             ->orderBy('affiliates.affiliate_name')
             ->groupBy('ecommerce_affiliates.affiliate_id')
             ->paginate(request('itemPerPage') ?? 10);

@@ -21,7 +21,7 @@ export const columns = [
     key: 'affiliate_fee_type',
     title: 'Affiliate Fee Type',
     dataType: DataType.Number,
-    style: { width: 150 },
+    style: { width: 100 },
     visible: true,
   },
   {
@@ -29,6 +29,20 @@ export const columns = [
     title: 'Market',
     dataType: DataType.String,
     style: { width: 150 },
+    visible: true,
+  },
+  {
+    key: 'coupon_code',
+    title: 'Coupon Code',
+    dataType: DataType.String,
+    style: { width: 100 },
+    visible: true,
+  },
+  {
+    key: 'dialed',
+    title: 'Dialed',
+    dataType: DataType.String,
+    style: { width: 100 },
     visible: true,
   },
   {
