@@ -50,6 +50,7 @@ const AffiliateCreate = () => {
     cash_buy: '',
     consumerEXP_cash_buy_fee_type: '',
     consumerEXP_cash_buy_fee: '',
+    description: '',
   }
   const classes = useStyles()
   const [values, setValues] = useState(defaultState)
@@ -395,6 +396,19 @@ const AffiliateCreate = () => {
                 </Grid>
               </>
             )}
+
+            <Grid item xs={12}>
+              <TextField
+                name="description"
+                label="Description"
+                onChange={handleChange}
+                value={values?.description}
+                spellCheck
+                fullWidth
+                multiline
+                maxRows="4"
+              ></TextField>
+            </Grid>
 
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">

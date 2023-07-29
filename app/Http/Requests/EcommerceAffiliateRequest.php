@@ -39,6 +39,7 @@ class EcommerceAffiliateRequest extends FormRequest
             'affiliate_fee_type'            => ['required', Rule::in(EcommerceSale::AFFILIATE_FEE_TYPE)],
             'consumerEXP_cash_buy_fee'      => ['nullable'],
             'consumerEXP_cash_buy_fee_type' => ['nullable'],
+            'description'                   => ['nullable'],
         ];
 
         if ($this->affiliate_fee_type == 1) {
