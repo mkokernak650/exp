@@ -59,6 +59,7 @@ class EcommerceAffiliateExport implements FromCollection, WithHeadings, WithMapp
             'Affiliate Fee',
             'Commission',
             'Cash Buy',
+            'Description',
             'Created At',
             'Updated At'
         ];
@@ -67,7 +68,7 @@ class EcommerceAffiliateExport implements FromCollection, WithHeadings, WithMapp
     public function map($row): array
     {
         return [
-            $row->campaign->campaign_name,
+            $row->campaign ? $row->campaign->campaign_name : '',
             $row->customer->customer_name,
             $row->affiliate->affiliate_name,
             $row->order_type == 1 ? 'E-commerce' : 'Phone',
@@ -81,6 +82,7 @@ class EcommerceAffiliateExport implements FromCollection, WithHeadings, WithMapp
             $row->affiliate_fee,
             $row->percentage,
             $row->cash_buy,
+            $row->description,
             $row->created_at,
             $row->updated_at
         ];

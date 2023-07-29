@@ -48,6 +48,7 @@ const AffiliateIndex = () => {
     cash_buy: '',
     consumerEXP_cash_buy_fee_type: '',
     consumerEXP_cash_buy_fee: '',
+    description: '',
   }
 
   const classes = useStyles()
@@ -141,6 +142,7 @@ const AffiliateIndex = () => {
             } else {
               item.percentage = editData.revenue - editData.affiliate_fee
             }
+            item.description = res.data.data.description
             item.updated_at = res.data.updated_at
           }
           return tablePropsRef.current
@@ -819,6 +821,19 @@ const AffiliateIndex = () => {
                   </Grid>
                 </>
               )}
+
+              <Grid item xs={12}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  onChange={handleEditChange}
+                  value={editData?.description}
+                  spellCheck
+                  fullWidth
+                  multiline
+                  maxRows="4"
+                ></TextField>
+              </Grid>
 
               <Grid item xs={12}>
                 <Button
