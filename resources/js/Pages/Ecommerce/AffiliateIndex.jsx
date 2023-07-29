@@ -216,6 +216,7 @@ const AffiliateIndex = () => {
         consumerEXP_cash_buy_fee: `${item?.consumerEXP_cash_buy_fee_type === 1 ? ((item?.consumerEXP_cash_buy_fee / item?.cash_buy) * 100) : item?.consumerEXP_cash_buy_fee}`,
         created_at: item.created_at,
         updated_at: item.updated_at,
+        description: item.description,
         id: item.id,
         key: index,
       }

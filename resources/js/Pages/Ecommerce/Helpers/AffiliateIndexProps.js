@@ -237,17 +237,24 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'description',
+    title: 'Description',
+    dataType: DataType.String,
+    style: { width: 300 },
+    visible: true,
+  },
+  {
     key: 'created_at',
     title: 'Created At',
     dataType: DataType.String,
-    style: { width: 200 },
+    style: { width: 180 },
     visible: true,
   },
   {
     key: 'updated_at',
     title: 'Last Updated',
     dataType: DataType.Date,
-    style: { width: 200 },
+    style: { width: 180 },
     visible: true,
   },
 ]

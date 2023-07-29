@@ -29,6 +29,7 @@ class EcommerceAffiliate extends Model
         'affiliate_fee',
         'percentage',
         'status',
+        'description',
         'cash_buy',
         'consumerEXP_cash_buy_fee',
         'consumerEXP_cash_buy_fee_type'
