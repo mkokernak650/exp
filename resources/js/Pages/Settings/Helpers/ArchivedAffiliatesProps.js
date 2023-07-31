@@ -15,6 +15,10 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
+  formControl: {
+    marginTop: '15px',
+    marginBottom: '10px',
+  },
 }))
 
 const operators = [
@@ -152,6 +156,20 @@ export const columns = [
     title: 'Address',
     dataType: DataType.String,
     style: { width: 240 },
+    visible: true,
+  },
+  {
+    key: 'contact_name',
+    title: 'Contact Name',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
+    key: 'contact_telephone',
+    title: 'Contact Telephone',
+    dataType: DataType.String,
+    style: { width: 200 },
     visible: true,
   },
 ]

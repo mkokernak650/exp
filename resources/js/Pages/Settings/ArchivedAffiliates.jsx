@@ -24,6 +24,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import { useStyles, fields, groups, filter, columns } from './Helpers/ArchivedAffiliatesProps'
+import TextInput from '@/Components/Global/TextInput'
 
 const ArchivedAffiliates = () => {
   const classes = useStyles()
@@ -46,6 +47,8 @@ const ArchivedAffiliates = () => {
     email: item.email,
     telephone: item.telephone,
     address: item.address,
+    contact_name: item.contact_name,
+    contact_telephone: item.contact_telephone,
     id: item.id,
     key: index,
   }))
@@ -172,6 +175,8 @@ const ArchivedAffiliates = () => {
               filteredData.data[indx].email = editData.email
               filteredData.data[indx].telephone = editData.telephone
               filteredData.data[indx].address = editData.address
+              filteredData.data[indx].contact_name = editData.contact_name
+              filteredData.data[indx].contact_telephone = editData.contact_telephone
             }
           })
           setEditData()
@@ -313,8 +318,8 @@ const ArchivedAffiliates = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Affiliate Id:</span>
             <TextField
+              label="Affiliate Id"
               value={editData ? editData.affiliate_id : ''}
               fullWidth
               margin="normal"
@@ -323,8 +328,8 @@ const ArchivedAffiliates = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-            <span>Affiliate Name:</span>
             <TextField
+              label="Affiliate Name"
               value={editData ? editData.affiliate_name : ''}
               fullWidth
               margin="normal"
@@ -333,8 +338,8 @@ const ArchivedAffiliates = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-            <span>Email:</span>
             <TextField
+              label="Email"
               value={editData ? editData.email : ''}
               fullWidth
               margin="normal"
@@ -343,8 +348,8 @@ const ArchivedAffiliates = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-            <span>Telephone:</span>
             <TextField
+              label="Telephone"
               value={editData ? editData.telephone : ''}
               fullWidth
               margin="normal"
@@ -353,8 +358,8 @@ const ArchivedAffiliates = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-            <span>Address:</span>
             <TextField
+              label="Address"
               value={editData ? editData.address : ''}
               fullWidth
               margin="normal"
@@ -381,6 +386,18 @@ const ArchivedAffiliates = () => {
                 ))}
               </Select>
             </FormControl>
+            <TextInput
+              label="Contact Name"
+              name="contact_name"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_name : ''}
+            />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_telephone : ''}
+            />
 
             <Button
               variant="contained"
