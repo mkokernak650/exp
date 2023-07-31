@@ -131,6 +131,16 @@ const AddAffiliate = () => {
                   {errors?.market && <FormHelperText style={{ color: 'red' }}>{errors?.market?.[0]}</FormHelperText>}
                 </FormControl>
               </Grid>
+              <TextInput
+                label="Contact Name"
+                name="contact_name"
+                handleChange={handleChange}
+              />
+              <TextInput
+                label="Contact Telephone"
+                name="contact_telephone"
+                handleChange={handleChange}
+              />
             </Grid>
 
             <Grid item xs={12}>

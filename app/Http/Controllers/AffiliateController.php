@@ -94,12 +94,14 @@ class AffiliateController extends Controller
         }
 
         $request->validate([
-            'affiliate_id'   => 'required',
-            'affiliate_name' => 'required',
-            'email'          => 'nullable',
-            'telephone'      => 'nullable',
-            'address'        => 'nullable',
-            'market'         => 'required',
+            'affiliate_id'      => 'required',
+            'affiliate_name'    => 'required',
+            'email'             => 'nullable',
+            'telephone'         => 'nullable',
+            'address'           => 'nullable',
+            'market'            => 'required',
+            'contact_name'      => 'nullable',
+            'contact_telephone' => 'nullable'
         ]);
 
         $affiliateName      = explode(' ', $request->affiliate_name);
