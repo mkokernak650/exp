@@ -50,6 +50,8 @@ const AffiliateReport = () => {
     email: item.email,
     telephone: item.telephone,
     address: item.address,
+    contact_name: item.contact_name,
+    contact_telephone: item.contact_telephone,
     id: item.id,
     key: index,
   }))
@@ -203,6 +205,8 @@ const AffiliateReport = () => {
               filteredData.data[indx].telephone = editData.telephone
               filteredData.data[indx].address = editData.address
               filteredData.data[indx].market = editData.market
+              filteredData.data[indx].contact_name = editData.contact_name
+              filteredData.data[indx].contact_telephone = editData.contact_telephone
             }
           })
           setEditData()
@@ -399,6 +403,18 @@ const AffiliateReport = () => {
                 ))}
               </Select>
             </FormControl>
+            <TextInput
+              label="Contact Name"
+              name="contact_name"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_name : ''}
+            />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_telephone : ''}
+            />
 
             <Button
               variant="contained"

@@ -166,17 +166,19 @@ class AffiliateController extends Controller
 
     public function edit(Request $request)
     {
-        $id                   = $request->id;
-        $userFullName         = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-        $userEmail            = auth()->user()->email;
-        $data                 = Affiliate::find($request->id);
-        $data->affiliate_id   = $request->affiliate_id;
-        $data->affiliate_name = $request->affiliate_name;
-        $data->email          = $request->email;
-        $data->telephone      = $request->telephone;
-        $data->address        = $request->address;
-        $data->market         = $request->market;
-        $result               = $data->save();
+        $id                      = $request->id;
+        $userFullName            = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail               = auth()->user()->email;
+        $data                    = Affiliate::find($request->id);
+        $data->affiliate_id      = $request->affiliate_id;
+        $data->affiliate_name    = $request->affiliate_name;
+        $data->email             = $request->email;
+        $data->telephone         = $request->telephone;
+        $data->address           = $request->address;
+        $data->market            = $request->market;
+        $data->contact_name      = $request->contact_name;
+        $data->contact_telephone = $request->contact_telephone;
+        $result                  = $data->save();
 
         if ($result) {
             activity('Affiliate')->event('updated')

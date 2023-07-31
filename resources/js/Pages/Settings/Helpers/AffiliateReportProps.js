@@ -154,4 +154,18 @@ export const columns = [
     style: { width: 240 },
     visible: true,
   },
+  {
+    key: 'contact_name',
+    title: 'Contact Name',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
+    key: 'contact_telephone',
+    title: 'Contact Telephone',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
 ]
