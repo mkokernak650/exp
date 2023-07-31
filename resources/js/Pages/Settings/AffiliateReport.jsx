@@ -352,35 +352,35 @@ const AffiliateReport = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Affiliate Id:</span>
             <TextInput
+              label="Affiliate Id"
               name="affiliate_id"
               required={true}
               handleChange={handleEditChange}
               value={editData ? editData.affiliate_id : ''}
             />
-            <span>Affiliate Name:</span>
             <TextInput
+              label="Affiliate Name"
               name="affiliate_name"
               required={true}
               handleChange={handleEditChange}
               value={editData ? editData.affiliate_name : ''}
             />
-            <span>Email:</span>
             <TextInput
+              label="Email"
               name="email"
               type="email"
               handleChange={handleEditChange}
               value={editData ? editData.email : ''}
             />
-            <span>Telephone:</span>
             <TextInput
+              label="Telephone"
               name="telephone"
               handleChange={handleEditChange}
               value={editData ? editData.telephone : ''}
             />
-            <span>Address:</span>
             <TextInput
+              label="Address"
               name="address"
               handleChange={handleEditChange}
               value={editData ? editData.address : ''}
@@ -415,7 +415,6 @@ const AffiliateReport = () => {
               handleChange={handleEditChange}
               value={editData ? editData.contact_telephone : ''}
             />
-
             <Button
               variant="contained"
               color="primary"

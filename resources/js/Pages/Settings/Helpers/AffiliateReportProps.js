@@ -15,6 +15,10 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
+  formControl: {
+    marginTop: '15px',
+    marginBottom: '10px',
+  },
 }))
 
 const operators = [
