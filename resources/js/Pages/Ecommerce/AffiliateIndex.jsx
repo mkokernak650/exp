@@ -243,9 +243,10 @@ const AffiliateIndex = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      //   ? JSON.parse(columnsData[0])?.[optionKey]
+      //   : 
+        columns,
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
