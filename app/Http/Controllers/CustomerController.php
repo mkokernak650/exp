@@ -79,15 +79,19 @@ class CustomerController extends Controller
 
     public function edit(Request $request)
     {
-        $id                  = $request->id;
-        $userFullName        = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-        $userEmail           = auth()->user()->email;
-        $data                = Customer::find($request->id);
-        $data->customer_name = $request->customer;
-        $data->email         = $request->email;
-        $data->telephone     = $request->telephone;
-        $data->address       = $request->address;
-        $result              = $data->save();
+        $request->validate(['customer' => 'required']);
+
+        $id                      = $request->id;
+        $userFullName            = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail               = auth()->user()->email;
+        $data                    = Customer::find($request->id);
+        $data->customer_name     = $request->customer;
+        $data->email             = $request->email;
+        $data->telephone         = $request->telephone;
+        $data->address           = $request->address;
+        $data->contact_name      = $request->contact_name;
+        $data->contact_telephone = $request->contact_telephone;
+        $result                  = $data->save();
 
         if ($result) {
             activity('Customer')->event('updated')

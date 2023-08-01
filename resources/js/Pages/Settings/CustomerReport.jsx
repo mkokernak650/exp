@@ -14,7 +14,6 @@ import Edit from '@/Components/Icons/Edit.jsx'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
-import TextField from '@material-ui/core/TextField'
 import { Button } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -42,6 +41,7 @@ const CustomerReport = () => {
     open: false,
   })
   const showColumnRef = useRef()
+  const [errors, setErrors] = useState({});
 
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
@@ -49,6 +49,8 @@ const CustomerReport = () => {
     email: item.email,
     telephone: item.telephone,
     address: item.address,
+    contact_name: item.contact_name,
+    contact_telephone: item.contact_telephone,
     id: item.id,
     key: index,
   }))
@@ -196,19 +198,23 @@ const CustomerReport = () => {
               filteredData.data[indx].email = editData.email
               filteredData.data[indx].telephone = editData.telephone
               filteredData.data[indx].address = editData.address
+              filteredData.data[indx].contact_name = editData.contact_name
+              filteredData.data[indx].contact_telephone = editData.contact_telephone
             }
           })
           setEditData()
+          setErrors({})
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
         } else {
           setEditData()
+          setErrors({})
           setShowEditModal({ open: false })
           toast.error(res.data.msg)
         }
       })
       .catch((err) => {
-        console.log(err)
+        setErrors(err.response.data.errors)
       })
   }
 
@@ -345,30 +351,45 @@ const CustomerReport = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Customer:</span>
             <TextInput
+              label="Customer Name"
               name="customer"
               handleChange={handleEditChange}
               value={editData ? editData.customer : ''}
+              required
+              error={errors?.customer}
+              helperText={errors?.customer?.[0]}
             />
-            <span>Email:</span>
             <TextInput
+              label="Email"
               name="email"
               type="email"
               handleChange={handleEditChange}
               value={editData ? editData.email : ''}
             />
-            <span>Telephone:</span>
             <TextInput
+              label="Telephone"
               name="telephone"
               handleChange={handleEditChange}
               value={editData ? editData.telephone : ''}
             />
-            <span>Address:</span>
             <TextInput
+              label="Address"
               name="address"
               handleChange={handleEditChange}
               value={editData ? editData.address : ''}
+            />
+            <TextInput
+              label="Contact Name"
+              name="contact_name"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_name : ''}
+            />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_telephone : ''}
             />
 
             <Button
