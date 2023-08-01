@@ -24,6 +24,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import { useStyles, fields, groups, filter, columns } from './Helpers/ArchivedCustomersProps'
+import TextInput from '../../Components/Global/TextInput'
 
 const ArchivedCustomers = () => {
   const classes = useStyles()
@@ -37,6 +38,7 @@ const ArchivedCustomers = () => {
   })
   const [editData, setEditData] = useState()
   const showColumnRef = useRef()
+  const [errors, setErrors] = useState({});
 
   const dataArray = allCustomers.map((item, index) => ({
     edit: item.id,
@@ -45,6 +47,8 @@ const ArchivedCustomers = () => {
     email: item.email,
     telephone: item.telephone,
     address: item.address,
+    contact_name: item.contact_name,
+    contact_telephone: item.contact_telephone,
     id: item.id,
     key: index,
   }))
@@ -149,7 +153,7 @@ const ArchivedCustomers = () => {
           setShowActiveModal({ open: false })
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   const handleEditChange = (e) => {
@@ -168,17 +172,21 @@ const ArchivedCustomers = () => {
               filteredData.data[indx].email = editData.email
               filteredData.data[indx].telephone = editData.telephone
               filteredData.data[indx].address = editData.address
+              filteredData.data[indx].contact_name = editData.contact_name
+              filteredData.data[indx].contact_telephone = editData.contact_telephone
             }
           })
           setEditData()
+          setErrors({})
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
         } else {
+          setErrors({})
           toast.error(res.data.msg)
         }
       })
       .catch((err) => {
-        console.log(err)
+        setErrors(err.response.data.errors)
       })
   }
 
@@ -290,7 +298,7 @@ const ArchivedCustomers = () => {
                     <SelectionHeader
                       {...props}
                       areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
+                    // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
                     />
                   )
                 }
@@ -310,8 +318,8 @@ const ArchivedCustomers = () => {
       >
         <div className="edit_target">
           <form className={classes.form}>
-            <span>Customer:</span>
             <TextField
+              label="Customer Name"
               value={editData ? editData.customer : ''}
               fullWidth
               margin="normal"
@@ -319,9 +327,12 @@ const ArchivedCustomers = () => {
               type="text"
               variant="outlined"
               onChange={handleEditChange}
+              required
+              error={errors?.customer}
+              helperText={errors?.customer?.[0]}
             />
-            <span>Email:</span>
             <TextField
+              label="Email"
               value={editData ? editData.email : ''}
               fullWidth
               margin="normal"
@@ -330,8 +341,8 @@ const ArchivedCustomers = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-            <span>Telephone:</span>
             <TextField
+              label="Telephone"
               value={editData ? editData.telephone : ''}
               fullWidth
               margin="normal"
@@ -340,8 +351,8 @@ const ArchivedCustomers = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-            <span>Address:</span>
             <TextField
+              label="Address"
               value={editData ? editData.address : ''}
               fullWidth
               margin="normal"
@@ -350,7 +361,18 @@ const ArchivedCustomers = () => {
               variant="outlined"
               onChange={handleEditChange}
             />
-
+            <TextInput
+              label="Contact Name"
+              name="contact_name"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_name : ''}
+            />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_telephone : ''}
+            />
             <Button
               variant="contained"
               color="primary"
@@ -373,11 +395,10 @@ const ArchivedCustomers = () => {
         btnAction={handleActive}
         closeAction={() => handleCloseModal(setShowActiveModal)}
         width={'450px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to active these customers?'
-            : 'Do you want to active this customer?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to active these customers?'
+          : 'Do you want to active this customer?'
+          }`}
       ></ConfirmModal>
     </>
   )

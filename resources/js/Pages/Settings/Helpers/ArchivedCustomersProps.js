@@ -120,7 +120,7 @@ export const columns = [
     key: 'email',
     title: 'Email',
     dataType: DataType.String,
-    style: { width: 240 },
+    style: { width: 300 },
     visible: true,
   },
   {
@@ -135,6 +135,20 @@ export const columns = [
     title: 'Address',
     dataType: DataType.String,
     style: { width: 240 },
+    visible: true,
+  },
+  {
+    key: 'contact_name',
+    title: 'Contact Name',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
+    key: 'contact_telephone',
+    title: 'Contact Telephone',
+    dataType: DataType.String,
+    style: { width: 200 },
     visible: true,
   },
 ]
