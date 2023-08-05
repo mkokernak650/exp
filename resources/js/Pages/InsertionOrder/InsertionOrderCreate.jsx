@@ -1,0 +1,151 @@
+import React, { useState } from 'react'
+import Layout from '../Layout/Layout'
+import { Helmet } from 'react-helmet'
+import { Button, CircularProgress, Grid, Paper, TextField, Typography, makeStyles } from '@material-ui/core'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        display: 'grid',
+        width: '800px',
+        margin: 'auto',
+        marginTop: '2rem',
+        padding: '40px',
+        flexGrow: 1,
+    },
+    paper: {
+        padding: theme.spacing(2),
+        color: theme.palette.text.secondary,
+    },
+    title: {
+        textAlign: 'center',
+        marginBottom: '35px',
+    },
+    snackbar: {
+        maxWidth: '500px',
+    },
+}))
+
+const InsertionOrderCreate = () => {
+    const classes = useStyles()
+    const { campaigns } = usePage().props
+    const [campaignIds, setCampaignIds] = useState()
+    const [affiliateOptions, setAffiliateOptions] = useState()
+    const [selectedAffiliates, setSelectedAffiliates] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    const campaignOptions = campaigns.map((item) => ({
+        label: item.campaign_name,
+        value: item.id + '+' + item.campaign_name,
+    }))
+
+    const handleCampaignChange = (value) => {
+        setCampaignIds(value)
+        if (value) {
+            getAffiliates(value)
+        } else {
+            setAffiliateOptions()
+            setSelectedAffiliates('')
+        }
+    }
+
+    const getAffiliates = (selectedCampaigns) => {
+        axios
+            .post(route('custom.email.get.affiliates'), { selectedCampaigns })
+            .then((response) => {
+                if (response.data) {
+                    setAffiliateOptions(response.data)
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        const formData = new FormData()
+
+        formData.append('affiliateEmails', selectedAffiliates)
+
+        setLoading(true)
+
+        axios
+            .post(route('send.custom.email'), formData)
+            .then((response) => {
+                if (response.data.success === true) {
+                    setCampaignIds()
+                    setAffiliateOptions()
+                    setSelectedAffiliates('')
+                    e.target.reset()
+                    toast.success(response.data.msg)
+                    setLoading(false)
+                } else {
+                    toast.error(response.data.msg)
+                    setLoading(false)
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+                setLoading(false)
+            })
+    }
+
+    return (
+        <>
+            <Helmet title="Email Affiliate (Custom Email)" />
+            <Paper className={classes.root}>
+                <Typography variant="h6" className={classes.title}>
+                    Insertion Order
+                </Typography>
+                <form validate="true" onSubmit={handleSubmit}>
+                    <Grid container spacing={4}>
+                        <Grid item xs={12}>
+                            <MultiSelect
+                                name="campaign_ids"
+                                onChange={(value) => handleCampaignChange(value)}
+                                options={campaignOptions}
+                                defaultValue={campaignIds}
+                                style={{ width: '100%' }}
+                                placeholder="Select Campaigns"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <MultiSelect
+                                name="affiliate_emails"
+                                onChange={(value) => setSelectedAffiliates(value)}
+                                options={affiliateOptions}
+                                defaultValue={selectedAffiliates}
+                                style={{ width: '100%' }}
+                                placeholder="Select Affiliates"
+                                disabled={!campaignIds}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={(!selectedAffiliates) || loading}
+                                type="submit"
+                            >
+                                {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                    <CircularProgress size={20} color="inherit" />
+                                </span>)}
+                                SEND
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+        </>
+    )
+}
+
+InsertionOrderCreate.layout = (page) => <Layout title="Insertion Order - Create">{page}</Layout>
+export default InsertionOrderCreate

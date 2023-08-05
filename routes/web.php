@@ -37,6 +37,7 @@ use App\Http\Controllers\GenerateReportDestinationController;
 use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
+use App\Http\Controllers\InsertionOrderController;
 use App\Http\Controllers\RingbaReportsController;
 use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\UserController;
@@ -239,10 +240,13 @@ Route::middleware('auth')->group(function () {
     Route::post('custom-email-get-affiliates', [CustomEmailController::class, 'getAffiliates'])->name('custom.email.get.affiliates');
     Route::post('send-custom-email', [CustomEmailController::class, 'sendCustomEmail'])->name('send.custom.email');
 
-    //Ringba Reports
+    //RingbaReports
     Route::get('reports/ringba', [RingbaReportsController::class, 'index'])->name('ringba.reports');
     Route::post('reports/ringba/get-affiliates-dialed', [RingbaReportsController::class, 'getAffiliatesAndDialedByCampaigns'])->name('ringba.reports.get.affiliates.dialed');
     Route::post('reports/ringba/generate', [RingbaReportsController::class, 'generateReport'])->name('ringba.reports.generate');
+
+    //InsertionOrder
+    Route::get('insertion-order/create', [InsertionOrderController::class, 'create'])->name('insertion.order.create');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
