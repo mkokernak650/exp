@@ -32,46 +32,52 @@ const useStyles = makeStyles((theme) => ({
 
 const InsertionOrderCreate = () => {
     const classes = useStyles()
-    const { campaigns } = usePage().props
+    const { campaigns, customers } = usePage().props
     const [campaignIds, setCampaignIds] = useState()
+    const [customerIds, setCustomerIds] = useState()
     const [affiliateOptions, setAffiliateOptions] = useState()
     const [selectedAffiliates, setSelectedAffiliates] = useState('')
     const [loading, setLoading] = useState(false)
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
-        value: item.id + '+' + item.campaign_name,
+        value: item.id.toString(),
+    }))
+
+    const customerOptions = customers.map((item) => ({
+        label: item.customer_name,
+        value: item.id.toString(),
     }))
 
     const handleCampaignChange = (value) => {
         setCampaignIds(value)
-        if (value) {
-            getAffiliates(value)
-        } else {
-            setAffiliateOptions()
-            setSelectedAffiliates('')
-        }
+        getAffiliates(value, customerIds)
+        setSelectedAffiliates('')
     }
 
-    const getAffiliates = (selectedCampaigns) => {
+    const handleCustomerChange = (value) => {
+        setCustomerIds(value)
+        getAffiliates(campaignIds, value)
+        setSelectedAffiliates('')
+    }
+
+    const getAffiliates = (selectedCampaigns, selectedCustomers) => {
         axios
-            .post(route('custom.email.get.affiliates'), { selectedCampaigns })
+            .post(route('insertion.order.get.affiliates'), { selectedCampaigns, selectedCustomers })
             .then((response) => {
                 if (response.data) {
                     setAffiliateOptions(response.data)
                 }
             })
             .catch((err) => {
-                console.log(err)
+                toast.error('Affiliates fetching failed!')
             })
     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
         const formData = new FormData()
-
         formData.append('affiliateEmails', selectedAffiliates)
-
         setLoading(true)
 
         axios
@@ -97,7 +103,7 @@ const InsertionOrderCreate = () => {
 
     return (
         <>
-            <Helmet title="Email Affiliate (Custom Email)" />
+            <Helmet title="Insertion Order - Create" />
             <Paper className={classes.root}>
                 <Typography variant="h6" className={classes.title}>
                     Insertion Order
@@ -114,16 +120,26 @@ const InsertionOrderCreate = () => {
                                 placeholder="Select Campaigns"
                             />
                         </Grid>
+                        <Grid item xs={12}>
+                            <MultiSelect
+                                name="customer_ids"
+                                onChange={(value) => handleCustomerChange(value)}
+                                options={customerOptions}
+                                defaultValue={customerIds}
+                                style={{ width: '100%' }}
+                                placeholder="Select Customers"
+                            />
+                        </Grid>
 
                         <Grid item xs={12}>
                             <MultiSelect
-                                name="affiliate_emails"
+                                name="affiliate_ids"
                                 onChange={(value) => setSelectedAffiliates(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliates}
                                 style={{ width: '100%' }}
                                 placeholder="Select Affiliates"
-                                disabled={!campaignIds}
+                                disabled={!campaignIds && !customerIds}
                             />
                         </Grid>
 
