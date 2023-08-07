@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, CircularProgress, Grid, Paper, TextField, Typography, makeStyles } from '@material-ui/core'
+import { Button, CircularProgress, FormControlLabel, Grid, Paper, Radio, RadioGroup, Typography, makeStyles } from '@material-ui/core'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -25,18 +25,17 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
         marginBottom: '35px',
     },
-    snackbar: {
-        maxWidth: '500px',
-    },
 }))
 
 const InsertionOrderCreate = () => {
     const classes = useStyles()
-    const { campaigns, customers } = usePage().props
+    const { campaigns, customers, codesAndPhones } = usePage().props
     const [campaignIds, setCampaignIds] = useState()
     const [customerIds, setCustomerIds] = useState()
     const [affiliateOptions, setAffiliateOptions] = useState()
     const [selectedAffiliates, setSelectedAffiliates] = useState('')
+    const [selectedCodesAndPhones, setSelectedCodesAndPhones] = useState('')
+    const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
     const [loading, setLoading] = useState(false)
 
     const campaignOptions = campaigns.map((item) => ({
@@ -46,6 +45,11 @@ const InsertionOrderCreate = () => {
 
     const customerOptions = customers.map((item) => ({
         label: item.customer_name,
+        value: item.id.toString(),
+    }))
+
+    const codesAndPhoneOptions = codesAndPhones.map((item) => ({
+        label: item.coupon_code ? item.coupon_code : item.dialed,
         value: item.id.toString(),
     }))
 
@@ -144,6 +148,37 @@ const InsertionOrderCreate = () => {
                         </Grid>
 
                         <Grid item xs={12}>
+                            <MultiSelect
+                                name="codes_and_Phones"
+                                onChange={(value) => setSelectedCodesAndPhones(value)}
+                                options={codesAndPhoneOptions}
+                                defaultValue={selectedCodesAndPhones}
+                                style={{ width: '100%' }}
+                                placeholder="Select Codes or Phones"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <RadioGroup
+                                name="insertion_order_for"
+                                value={insertionOrderFor}
+                                onChange={(e) => setInsertionOrderFor(e.target.value)}
+                                style={{ display: 'flex', flexDirection: 'row' }}
+                            >
+                                <FormControlLabel
+                                    value="customer"
+                                    control={<Radio color="primary" />}
+                                    label="For Customer"
+                                />
+                                <FormControlLabel
+                                    value="affiliate"
+                                    control={<Radio color="primary" />}
+                                    label="For Affiliate"
+                                />
+                            </RadioGroup>
+                        </Grid>
+
+                        <Grid item xs={12} style={{ textAlign: 'right' }}>
                             <Button
                                 variant="contained"
                                 color="primary"

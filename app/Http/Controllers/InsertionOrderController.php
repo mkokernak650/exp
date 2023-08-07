@@ -12,10 +12,11 @@ class InsertionOrderController extends Controller
 {
     public function create()
     {
-        $campaigns = EcommerceCampaign::active()->get();
-        $customers = Customer::active()->get();
+        $campaigns      = EcommerceCampaign::active()->get();
+        $customers      = Customer::active()->get();
+        $codesAndPhones = EcommerceAffiliate::select(['id', 'coupon_code', 'dialed'])->get();
 
-        return Inertia::render('InsertionOrder/InsertionOrderCreate', compact('campaigns', 'customers'));
+        return Inertia::render('InsertionOrder/InsertionOrderCreate', compact('campaigns', 'customers', 'codesAndPhones'));
     }
 
     public function getAffiliates(Request $request)
