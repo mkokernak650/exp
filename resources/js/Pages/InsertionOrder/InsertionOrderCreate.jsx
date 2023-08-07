@@ -30,12 +30,13 @@ const useStyles = makeStyles((theme) => ({
 const InsertionOrderCreate = () => {
     const classes = useStyles()
     const { campaigns, customers, codesAndPhones } = usePage().props
-    const [campaignIds, setCampaignIds] = useState()
-    const [customerIds, setCustomerIds] = useState()
+    const [campaignIds, setCampaignIds] = useState('')
+    const [customerIds, setCustomerIds] = useState('')
     const [affiliateOptions, setAffiliateOptions] = useState()
     const [selectedAffiliates, setSelectedAffiliates] = useState('')
     const [selectedCodesAndPhones, setSelectedCodesAndPhones] = useState('')
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
+    const [selectedTerms, setSelectedTerms] = useState('')
     const [loading, setLoading] = useState(false)
 
     const campaignOptions = campaigns.map((item) => ({
@@ -45,12 +46,19 @@ const InsertionOrderCreate = () => {
 
     const customerOptions = customers.map((item) => ({
         label: item.customer_name,
-        value: item.id.toString(),
+        value: item.id + '+cEmail+' + (item.email ? item.email : 'n/a'),
     }))
 
     const codesAndPhoneOptions = codesAndPhones.map((item) => ({
         label: item.coupon_code ? item.coupon_code : item.dialed,
         value: item.id.toString(),
+    }))
+
+    const terms = ['Cash in advance', 'Net 7 days', 'Net 14 days', 'Net 30 days', 'Net 45 days']
+
+    const termOptions = terms.map((item) => ({
+        label: item,
+        value: item,
     }))
 
     const handleCampaignChange = (value) => {
@@ -81,11 +89,14 @@ const InsertionOrderCreate = () => {
     const handleSubmit = (e) => {
         e.preventDefault()
         const formData = new FormData()
-        formData.append('affiliateEmails', selectedAffiliates)
+        formData.append('selectedCustomers', customerIds)
+        formData.append('selectedAffiliates', selectedAffiliates)
+        formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
+        formData.append('insertionOrderFor', insertionOrderFor)
         setLoading(true)
 
         axios
-            .post(route('send.custom.email'), formData)
+            .post(route('insertion.order.store'), formData)
             .then((response) => {
                 if (response.data.success === true) {
                     setCampaignIds()
@@ -159,6 +170,18 @@ const InsertionOrderCreate = () => {
                         </Grid>
 
                         <Grid item xs={12}>
+                            <MultiSelect
+                                name="terms"
+                                onChange={(value) => setSelectedTerms(value)}
+                                options={termOptions}
+                                defaultValue={selectedTerms}
+                                style={{ width: '100%' }}
+                                placeholder="Select Terms"
+                                singleSelect
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
                             <RadioGroup
                                 name="insertion_order_for"
                                 value={insertionOrderFor}
@@ -182,13 +205,13 @@ const InsertionOrderCreate = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                disabled={(!selectedAffiliates) || loading}
+                                disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading}
                                 type="submit"
                             >
                                 {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                                     <CircularProgress size={20} color="inherit" />
                                 </span>)}
-                                SEND
+                                CREATE & SEND
                             </Button>
                         </Grid>
                     </Grid>

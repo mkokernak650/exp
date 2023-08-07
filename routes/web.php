@@ -248,6 +248,7 @@ Route::middleware('auth')->group(function () {
     //InsertionOrder
     Route::get('insertion-order/create', [InsertionOrderController::class, 'create'])->name('insertion.order.create');
     Route::post('insertion-order/get-affiliates', [InsertionOrderController::class, 'getAffiliates'])->name('insertion.order.get.affiliates');
+    Route::post('insertion-order/store', [InsertionOrderController::class, 'store'])->name('insertion.order.store');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');

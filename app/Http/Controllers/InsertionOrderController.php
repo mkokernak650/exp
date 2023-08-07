@@ -39,4 +39,9 @@ class InsertionOrderController extends Controller
 
         return $affiliateOptions;
     }
+
+    public function store(Request $request)
+    {
+        dd($request->all());
+    }
 }
