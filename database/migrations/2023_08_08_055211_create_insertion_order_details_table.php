@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('insertion_orders', function (Blueprint $table) {
+        Schema::create('insertion_order_details', function (Blueprint $table) {
             $table->id();
-            $table->integer('io_no');
-            $table->foreignId('customer_id')->nullable()->constrained();
-            $table->foreignId('affiliate_id')->nullable()->constrained();
+            $table->foreignId('insertion_order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('ecommerce_affiliate_id')->constrained()->cascadeOnDelete();
+            $table->float('gross_price')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('insertion_orders');
+        Schema::dropIfExists('insertion_order_details');
     }
 };
