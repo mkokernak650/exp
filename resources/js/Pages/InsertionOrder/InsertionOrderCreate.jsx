@@ -36,7 +36,7 @@ const InsertionOrderCreate = () => {
     const [selectedAffiliates, setSelectedAffiliates] = useState('')
     const [selectedCodesAndPhones, setSelectedCodesAndPhones] = useState('')
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
-    const [selectedTerms, setSelectedTerms] = useState('')
+    const [selectedTerm, setSelectedTerm] = useState('')
     const [loading, setLoading] = useState(false)
 
     const campaignOptions = campaigns.map((item) => ({
@@ -93,6 +93,7 @@ const InsertionOrderCreate = () => {
         formData.append('selectedAffiliates', selectedAffiliates)
         formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
         formData.append('insertionOrderFor', insertionOrderFor)
+        formData.append('selectedTerm', selectedTerm)
         setLoading(true)
 
         axios
@@ -171,10 +172,10 @@ const InsertionOrderCreate = () => {
 
                         <Grid item xs={12}>
                             <MultiSelect
-                                name="terms"
-                                onChange={(value) => setSelectedTerms(value)}
+                                name="term"
+                                onChange={(value) => setSelectedTerm(value)}
                                 options={termOptions}
-                                defaultValue={selectedTerms}
+                                defaultValue={selectedTerm}
                                 style={{ width: '100%' }}
                                 placeholder="Select Terms"
                                 singleSelect

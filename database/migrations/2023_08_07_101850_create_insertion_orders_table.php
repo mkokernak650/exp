@@ -15,9 +15,10 @@ return new class extends Migration
     {
         Schema::create('insertion_orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('io_no');
+            $table->string('io_no');
             $table->foreignId('customer_id')->nullable()->constrained();
             $table->foreignId('affiliate_id')->nullable()->constrained();
+            $table->string('io_link');
             $table->timestamps();
         });
     }

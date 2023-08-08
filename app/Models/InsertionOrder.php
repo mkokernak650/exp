@@ -16,7 +16,7 @@ class InsertionOrder extends Model
      * @var array
      */
 
-    protected $fillable = ['io_no', 'customer_id', 'affiliate_id'];
+    protected $fillable = ['io_no', 'customer_id', 'affiliate_id', 'io_link'];
 
     public function customer(): BelongsTo
     {

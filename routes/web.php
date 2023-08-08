@@ -38,6 +38,7 @@ use App\Http\Controllers\ZipcodeByTelevisionMarketController;
 use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\InsertionOrderController;
+use App\Http\Controllers\InsertionOrderPublicController;
 use App\Http\Controllers\RingbaReportsController;
 use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\UserController;
@@ -256,3 +257,6 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.attempt')-
 Route::get('/web-form', function () {
     return Inertia::render('WebForm');
 });
+
+//InsertionOrderPublic
+Route::get('insertion-order/public', [InsertionOrderPublicController::class, 'show'])->name('insertion.order.public.show');

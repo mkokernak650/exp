@@ -16,8 +16,10 @@ return new class extends Migration
         Schema::create('insertion_order_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('insertion_order_id')->constrained()->cascadeOnDelete();
+            $table->string('io_no');
             $table->foreignId('ecommerce_affiliate_id')->constrained()->cascadeOnDelete();
             $table->float('gross_price')->nullable();
+            $table->string('term')->nullable();
             $table->timestamps();
         });
     }
