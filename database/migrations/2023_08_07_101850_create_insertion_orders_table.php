@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->nullable()->constrained();
             $table->foreignId('affiliate_id')->nullable()->constrained();
             $table->string('io_link');
+            $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
             $table->timestamps();
         });
     }

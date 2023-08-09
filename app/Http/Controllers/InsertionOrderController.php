@@ -45,8 +45,6 @@ class InsertionOrderController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $emailData = [];
 
         if ($request->insertionOrderFor == 'customer') {
@@ -63,9 +61,25 @@ class InsertionOrderController extends Controller
 
                 $emailData[] = ['email' => $customerDetails[1], 'ioLink' => $InsertionOrder->io_link];
             }
+        } elseif ($request->insertionOrderFor == 'affiliate') {
+            $selectedAffiliates = explode(',', $request->selectedAffiliates);
+
+            foreach ($selectedAffiliates as $selectedAffiliate) {
+                $affiliateDetails = explode('+aEmail+', $selectedAffiliate);
+                $affiliateId      = $affiliateDetails[0];
+                $ioNo             = uniqid($affiliateId);
+                $ioLink           = '?io=' . $ioNo . '&type=affiliate&id=' . $affiliateId;
+                $InsertionOrder   = InsertionOrder::create(['affiliate_id ' => $affiliateId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
+
+                $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
+
+                $emailData[] = ['email' => $affiliateDetails[1], 'ioLink' => $InsertionOrder->io_link];
+            }
+        } else {
+            return ['success' => false, 'msg' => 'Fail to create'];
         }
 
-        dd($request->insertionOrderFor);
+        return ['success' => true, 'msg' => 'Insertion order(s) created successfully'];
     }
 
     public function insertInsertionOrderDetails($codesAndPhones, $term, $InsertionOrder)

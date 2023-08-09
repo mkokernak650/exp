@@ -100,10 +100,13 @@ const InsertionOrderCreate = () => {
             .post(route('insertion.order.store'), formData)
             .then((response) => {
                 if (response.data.success === true) {
-                    setCampaignIds()
+                    setCampaignIds('')
+                    setCustomerIds('')
                     setAffiliateOptions()
                     setSelectedAffiliates('')
-                    e.target.reset()
+                    setSelectedCodesAndPhones('')
+                    setInsertionOrderFor('customer')
+                    setSelectedTerm('')
                     toast.success(response.data.msg)
                     setLoading(false)
                 } else {
