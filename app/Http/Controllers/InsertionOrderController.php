@@ -7,12 +7,28 @@ use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
 use App\Models\InsertionOrder;
 use App\Models\InsertionOrderDetail;
+use App\Models\TableDetails;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class InsertionOrderController extends Controller
 {
+    public function index()
+    {
+        $insertionOrders = InsertionOrder::with('customer:id,customer_name')
+            ->with('affiliate:id,affiliate_name')
+            ->paginate(request('itemPerPage') ?? 10);
+
+        if (request('page')) {
+            return $insertionOrders;
+        }
+
+        $columnsData = TableDetails::all()->pluck('column_details');
+
+        return Inertia::render('InsertionOrder/InsertionOrderIndex', compact('insertionOrders', 'columnsData'));
+    }
+
     public function create()
     {
         $campaigns      = EcommerceCampaign::active()->get();
@@ -69,7 +85,7 @@ class InsertionOrderController extends Controller
                 $affiliateId      = $affiliateDetails[0];
                 $ioNo             = uniqid($affiliateId);
                 $ioLink           = '?io=' . $ioNo . '&type=affiliate&id=' . $affiliateId;
-                $InsertionOrder   = InsertionOrder::create(['affiliate_id ' => $affiliateId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
+                $InsertionOrder   = InsertionOrder::create(['affiliate_id' => $affiliateId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
 
                 $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
 

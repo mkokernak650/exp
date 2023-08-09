@@ -247,6 +247,7 @@ Route::middleware('auth')->group(function () {
     Route::post('reports/ringba/generate', [RingbaReportsController::class, 'generateReport'])->name('ringba.reports.generate');
 
     //InsertionOrder
+    Route::get('insertion-order', [InsertionOrderController::class, 'index'])->name('insertion.order');
     Route::get('insertion-order/create', [InsertionOrderController::class, 'create'])->name('insertion.order.create');
     Route::post('insertion-order/get-affiliates', [InsertionOrderController::class, 'getAffiliates'])->name('insertion.order.get.affiliates');
     Route::post('insertion-order/store', [InsertionOrderController::class, 'store'])->name('insertion.order.store');
