@@ -1314,14 +1314,20 @@ div::-webkit-scrollbar-thumb {
 .io-table table {
     border-collapse: collapse;
     width: 100%;
-    border: 1px solid black;
+    border: 2px solid black;
+    border-bottom: none;
   }
 
 .io-table th,
 .io-table td {
   border: 1px solid black;
+  border-bottom: none;
   padding: 5px;
   text-align: left;
+}
+
+.io-details-table table{
+    border-bottom: 2px solid black;
 }
 
 .io-terms {

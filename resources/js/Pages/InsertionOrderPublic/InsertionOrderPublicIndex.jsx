@@ -40,47 +40,50 @@ const InsertionOrderPublicIndex = () => {
                                 <td>DATE:</td>
                             </tr>
                             <tr>
+                                <td>123 residential</td>
                                 <td></td>
                             </tr>
                         </tbody>
                     </table>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style={{ width: "15%" }}>Title Name</th>
-                                <th style={{ width: "35%" }}>Description</th>
-                                <th style={{ width: "10%" }}>Terms</th>
-                                <th style={{ width: "15%" }}>800#</th>
-                                <th style={{ width: "15%" }}>Coupon Code</th>
-                                <th style={{ width: "10%" }}>Gross Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td></td>
-                                <td style={{ fontSize: "12px" }}>Paid based on e-commerce sale by TV COUPON CODE. The Best Engineered
-                                    Mouth Guard for Teeth Grinding and Clenching.
-                                    https://www.bruxnightguard.com/</td>
-                                <td></td>
-                                <td>8009135440</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td colSpan="4" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
-                                <td>Sub Total</td>
-                                <td>20</td>
-                            </tr>
-                            <tr>
-                                <td>Discount</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>Grand Total</td>
-                                <td>20</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="io-details-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style={{ width: "15%" }}>Title Name</th>
+                                    <th style={{ width: "35%" }}>Description</th>
+                                    <th style={{ width: "10%" }}>Terms</th>
+                                    <th style={{ width: "15%" }}>800#</th>
+                                    <th style={{ width: "15%" }}>Coupon Code</th>
+                                    <th style={{ width: "10%" }}>Gross Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td style={{ fontSize: "12px" }}>Paid based on e-commerce sale by TV COUPON CODE. The Best Engineered
+                                        Mouth Guard for Teeth Grinding and Clenching.
+                                        https://www.bruxnightguard.com/</td>
+                                    <td></td>
+                                    <td>8009135440</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colSpan="4" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
+                                    <td>Sub Total</td>
+                                    <td>20</td>
+                                </tr>
+                                <tr>
+                                    <td>Discount</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Grand Total</td>
+                                    <td>20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div className="io-terms">
                     <p>ConsumerEXP pays according to terms of this insertion order. The company can provide agency of record (AOR) proof upon request.</p>
