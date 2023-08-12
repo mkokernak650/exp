@@ -23,6 +23,7 @@ const InsertionOrderIndex = () => {
     const [insertionOrderList, setInsertionOrderList] = useState(insertionOrders)
     const [itemPerPage, setItemPerPage] = useState(10)
     const [curerentPage, setCurerentPage] = useState(1)
+    const baseUrl = window.location.origin
 
     const mapDataArr = (data) => {
         return data.data.map((item) => ({
@@ -31,7 +32,7 @@ const InsertionOrderIndex = () => {
             affiliate: item?.affiliate?.affiliate_name,
             status: item.status,
             io_link: item.io_link,
-            created_at: item.created_at,
+            created_at: item.formatted_created_at,
         }))
     }
 
@@ -56,8 +57,11 @@ const InsertionOrderIndex = () => {
         columnResizing: true,
         columnReordering: true,
         format: ({ column, value }) => {
-            if (column.key === 'created_at') {
-                // return DateTimeFormat(value)
+            if (column.key === 'id') {
+                return 'IO-' + value.padStart(3, '0')
+            }
+            if (column.key === 'io_link') {
+                return `${baseUrl}/insertion-order/public${value}`
             }
         }
     }

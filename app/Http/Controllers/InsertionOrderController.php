@@ -18,6 +18,8 @@ class InsertionOrderController extends Controller
     {
         $insertionOrders = InsertionOrder::with('customer:id,customer_name')
             ->with('affiliate:id,affiliate_name')
+            ->select('*')
+            ->selectRaw('DATE_FORMAT(created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at')
             ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {

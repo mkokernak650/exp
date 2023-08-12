@@ -46,7 +46,7 @@ export const columns = [
     visible: true,
   },
   {
-    key: 'created_at',
+    key: 'formatted_created_at',
     title: 'Created At',
     dataType: DataType.String,
     style: { width: 100 },
