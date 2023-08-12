@@ -1288,3 +1288,59 @@ div::-webkit-scrollbar-thumb {
 .custom-email-file-list {
     margin-left: 10px;
 }
+
+/* public io style start */
+
+.insertion-order-public {
+    width: 794px;
+    min-height: 1123px;
+    margin: 30px auto;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+}
+
+.consumerexp-heading .consumerexp-info {
+    padding-left: 15px;
+    font-size: 14px;
+}
+
+.consumerexp-heading .consumerexp-info a {
+    color: blueviolet;
+}
+
+.io-table {
+    padding: 15px;
+}
+
+.io-table table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid black;
+  }
+
+.io-table th,
+.io-table td {
+  border: 1px solid black;
+  padding: 5px;
+  text-align: left;
+}
+
+.io-terms {
+    padding: 0px 15px;
+    font-size: 12px;
+}
+
+.io-footer {
+    background-color: #1aa8a2;
+    height: 80px;
+    margin: 15px 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.io-footer p{
+    font-size: 12px;
+    color: white;
+}
+
+/* public io style end */
