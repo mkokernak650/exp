@@ -1330,6 +1330,15 @@ div::-webkit-scrollbar-thumb {
     border-bottom: 2px solid black;
 }
 
+.io-details-table table th {
+    text-align: center;
+}
+
+.io-details-table table td {
+    font-size: 14px;
+    text-align: center;
+}
+
 .io-terms {
     padding: 0px 15px;
     font-size: 12px;

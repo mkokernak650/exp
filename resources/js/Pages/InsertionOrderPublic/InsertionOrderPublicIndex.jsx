@@ -1,8 +1,11 @@
 import React from "react"
 import { Helmet } from "react-helmet"
 import Logo from "../../../images/webform/logo.png";
+import { usePage } from "@inertiajs/inertia-react";
 
 const InsertionOrderPublicIndex = () => {
+    const { billingDetails, orderDetails, subTotal } = usePage().props
+
     return (
         <>
             <Helmet title="Insertion Order Public" />
@@ -24,23 +27,22 @@ const InsertionOrderPublicIndex = () => {
                             <tr>
                                 <td style={{ width: "60%" }}>
                                     <ul>
-                                        <li>Dan Viles</li>
-                                        <li>+18455490550</li>
-                                        <li>cannytv@gmail.com</li>
-                                        <li>Albany-Schenectady-Troy, NY</li>
-                                        <li>Households:</li>
+                                        <li>{billingDetails?.contactName}</li>
+                                        <li>{billingDetails?.contactPhone}</li>
+                                        <li>{billingDetails?.email}</li>
+                                        <li>{billingDetails?.address}</li>
                                     </ul>
                                 </td>
                                 <td style={{ width: "40%" }}>
-                                    Insertion Order NO: IO-025
+                                    Insertion Order NO: {billingDetails?.ioNo}
                                 </td>
                             </tr>
                             <tr>
-                                <td>BILL TO:</td>
-                                <td>DATE:</td>
+                                <td><b>BILL TO:</b></td>
+                                <td><b>DATE:</b> {billingDetails?.date}</td>
                             </tr>
                             <tr>
-                                <td>123 residential</td>
+                                <td>{billingDetails?.address}</td>
                                 <td></td>
                             </tr>
                         </tbody>
@@ -58,28 +60,28 @@ const InsertionOrderPublicIndex = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td></td>
-                                    <td style={{ fontSize: "12px" }}>Paid based on e-commerce sale by TV COUPON CODE. The Best Engineered
-                                        Mouth Guard for Teeth Grinding and Clenching.
-                                        https://www.bruxnightguard.com/</td>
-                                    <td></td>
-                                    <td>8009135440</td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
+                                {orderDetails.map((item, index) => (
+                                    <tr key={index + 1}>
+                                        <td>{item.titleName}</td>
+                                        <td style={{ fontSize: "12px" }}>{item.description}</td>
+                                        <td>{item.term}</td>
+                                        <td>{item.dialed}</td>
+                                        <td>{item.couponCode}</td>
+                                        <td>{item.grossPrice.toFixed(2)}</td>
+                                    </tr>
+                                ))}
                                 <tr>
                                     <td colSpan="4" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
-                                    <td>Sub Total</td>
-                                    <td>20</td>
+                                    <th>Sub Total</th>
+                                    <td>${subTotal.toFixed(2)}</td>
                                 </tr>
                                 <tr>
-                                    <td>Discount</td>
+                                    <th>Discount</th>
                                     <td>-</td>
                                 </tr>
                                 <tr>
-                                    <td>Grand Total</td>
-                                    <td>20</td>
+                                    <th>Grand Total</th>
+                                    <td>${subTotal.toFixed(2)}</td>
                                 </tr>
                             </tbody>
                         </table>
