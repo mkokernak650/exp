@@ -1,10 +1,37 @@
-import React from "react"
+import React, { useState } from "react"
 import { Helmet } from "react-helmet"
 import Logo from "../../../images/webform/logo.png";
 import { usePage } from "@inertiajs/inertia-react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const InsertionOrderPublicIndex = () => {
     const { billingDetails, orderDetails, subTotal } = usePage().props
+    const [loading, setLoading] = useState(false)
+
+    const changeIoStatus = (value) => {
+        setLoading(true)
+        axios
+            .post(route('insertion.order.public.update.status', { id: billingDetails.id, status: value }))
+            .then((response) => {
+                if (response.data.success === true) {
+                    billingDetails.status = response.data.status
+                    if (response.data.status === 'accepted') {
+                        toast.success('Insertion order accepted')
+                    } else {
+                        toast.error('Insertion order declined')
+                    }
+                    setLoading(false)
+                } else {
+                    toast.error(response.data.msg)
+                    setLoading(false)
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+                setLoading(false)
+            })
+    }
 
     return (
         <>
@@ -109,6 +136,15 @@ const InsertionOrderPublicIndex = () => {
                 <div className="io-footer">
                     <p>650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 | www.consumerexp.com</p>
                 </div>
+            </section>
+            <section className="decision-box" id="decision-box">
+                <div className="decision-box-text">
+                    This insertion order is {billingDetails.status}.
+                </div>
+                {billingDetails.status === 'pending' && <div className="decision-box-buttons">
+                    <button style={{ backgroundColor: "#FF0000" }} onClick={() => changeIoStatus('declined')}>{loading ? 'Loading..' : 'Decline'}</button>
+                    <button style={{ backgroundColor: "#6600FF" }} onClick={() => changeIoStatus('accepted')}>{loading ? 'Loading..' : 'Accept'}</button>
+                </div>}
             </section>
         </>
     )

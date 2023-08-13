@@ -17,11 +17,13 @@ class InsertionOrderPublicController extends Controller
 
         if (!empty($billingFor)) {
             $billingDetails = [
+                'id'           => $insertionOrder->id,
                 'ioNo'         => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
                 'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
                 'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
                 'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
                 'address'      => $billingFor->address,
+                'status'       => $insertionOrder->status,
                 'date'         => date_format(date_create($insertionOrder->created_at), 'd-M-Y')
             ];
         }
@@ -59,5 +61,16 @@ class InsertionOrderPublicController extends Controller
         $subTotal = collect($orderDetails)->sum('grossPrice');
 
         return Inertia::render('InsertionOrderPublic/InsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'subTotal'));
+    }
+
+    public function updateStatus($id, $status)
+    {
+        $result = InsertionOrder::find($id)->update(['status' => $status]);
+
+        if ($result) {
+            return ['success' => true, 'msg' => '', 'status' => $status];
+        } else {
+            return ['success' => false, 'msg' => 'Failed to update', 'status' => ''];
+        }
     }
 }

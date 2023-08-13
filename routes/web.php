@@ -261,3 +261,4 @@ Route::get('/web-form', function () {
 
 //InsertionOrderPublic
 Route::get('insertion-order/public', [InsertionOrderPublicController::class, 'show'])->name('insertion.order.public.show');
+Route::post('insertion-order/public/update-status/{id}/{status}', [InsertionOrderPublicController::class, 'updateStatus'])->name('insertion.order.public.update.status');

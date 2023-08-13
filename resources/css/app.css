@@ -1296,6 +1296,7 @@ div::-webkit-scrollbar-thumb {
     min-height: 1123px;
     margin: 30px auto;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+    position: relative;
 }
 
 .consumerexp-heading .consumerexp-info {
@@ -1346,16 +1347,49 @@ div::-webkit-scrollbar-thumb {
 
 .io-footer {
     background-color: #1aa8a2;
-    height: 80px;
-    margin: 15px 0;
+    height: 60px;
     display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .io-footer p{
     font-size: 12px;
     color: white;
+}
+
+.decision-box {
+    width: 794px;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px dashed black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.decision-box-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.decision-box-buttons button {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.3s, color 0.3s;
+    margin-left: 10px;
 }
 
 /* public io style end */
