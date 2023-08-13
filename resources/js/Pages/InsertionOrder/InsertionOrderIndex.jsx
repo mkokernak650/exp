@@ -44,9 +44,11 @@ const InsertionOrderIndex = () => {
     )
 
     const tablePropsInit = {
-        columns: columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-            ? JSON.parse(columnsData[0])?.[optionKey]
-            : columns,
+        columns: 
+        // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        //     ? JSON.parse(columnsData[0])?.[optionKey]
+        //     : 
+            columns,
         loading: {
             enabled: false,
             text: 'Loading...',
@@ -154,7 +156,7 @@ const InsertionOrderIndex = () => {
                         <div className="columns-show-hide" onClick={handleColumns}>
                             <Eye />
                         </div>
-                        <Button
+                        {/* <Button
                             variant="contained"
                             type="submit"
                             color="primary"
@@ -167,7 +169,7 @@ const InsertionOrderIndex = () => {
                             ) : (
                                 'Export'
                             )}
-                        </Button>
+                        </Button> */}
                     </div>
                     {showColumns ? (
                         <div className="column-settings" ref={showColumnRef}>
