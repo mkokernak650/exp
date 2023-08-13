@@ -384,6 +384,23 @@ export default function PersistentDrawerLeft(props) {
       ],
     },
     {
+      id: 14,
+      Icon: <AssessmentIcon size="20" />,
+      title: 'Insertion Order',
+      active: false,
+      collapse: true,
+      submenu: [
+        {
+          title: 'Create Insertion Order',
+          href: 'insertion.order.create',
+        },
+        {
+          title: 'All Insertion Orders',
+          href: 'insertion.order',
+        },
+      ],
+    },
+    {
       id: 6,
       Icon: <SettingsIcon size="20" />,
       title: 'Affiliates',
