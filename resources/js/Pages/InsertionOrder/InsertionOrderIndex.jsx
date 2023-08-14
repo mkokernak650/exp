@@ -44,11 +44,9 @@ const InsertionOrderIndex = () => {
     )
 
     const tablePropsInit = {
-        columns:
-            // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-            //     ? JSON.parse(columnsData[0])?.[optionKey]
-            //     : 
-            columns,
+        columns: columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+            ? JSON.parse(columnsData[0])?.[optionKey]
+            : columns,
         loading: {
             enabled: false,
             text: 'Loading...',
