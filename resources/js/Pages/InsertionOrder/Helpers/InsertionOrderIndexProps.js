@@ -11,6 +11,13 @@ export const useStyles = makeStyles(() => ({
 
 export const columns = [
   {
+    key: 'formatted_created_at',
+    title: 'Created At',
+    dataType: DataType.String,
+    style: { width: 100 },
+    visible: true,
+  },
+  {
     key: 'id',
     title: 'IO No',
     dataType: DataType.String,
@@ -43,13 +50,6 @@ export const columns = [
     title: 'IO Public Link',
     dataType: DataType.String,
     style: { width: 250 },
-    visible: true,
-  },
-  {
-    key: 'formatted_created_at',
-    title: 'Created At',
-    dataType: DataType.String,
-    style: { width: 100 },
     visible: true,
   },
 ]

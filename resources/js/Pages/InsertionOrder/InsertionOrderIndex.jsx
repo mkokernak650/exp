@@ -32,7 +32,7 @@ const InsertionOrderIndex = () => {
             affiliate: item?.affiliate?.affiliate_name,
             status: item.status,
             io_link: item.io_link,
-            created_at: item.formatted_created_at,
+            formatted_created_at: item.formatted_created_at,
         }))
     }
 
@@ -44,10 +44,10 @@ const InsertionOrderIndex = () => {
     )
 
     const tablePropsInit = {
-        columns: 
-        // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        //     ? JSON.parse(columnsData[0])?.[optionKey]
-        //     : 
+        columns:
+            // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+            //     ? JSON.parse(columnsData[0])?.[optionKey]
+            //     : 
             columns,
         loading: {
             enabled: false,
