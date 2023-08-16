@@ -14,14 +14,14 @@ export const columns = [
     key: 'formatted_created_at',
     title: 'Created At',
     dataType: DataType.String,
-    style: { width: 100 },
+    style: { width: 150 },
     visible: true,
   },
   {
     key: 'id',
     title: 'IO No',
     dataType: DataType.String,
-    style: { width: 50 },
+    style: { width: 80 },
     visible: true,
   },
   {
@@ -49,7 +49,7 @@ export const columns = [
     key: 'io_link',
     title: 'IO Public Link',
     dataType: DataType.String,
-    style: { width: 250 },
+    style: { width: 100 },
     visible: true,
   },
 ]

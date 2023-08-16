@@ -13,6 +13,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { useStyles, columns } from './Helpers/InsertionOrderIndexProps'
 import { Button, CircularProgress } from '@material-ui/core'
+import IOPublicLink from '../../Components/IOComponents/IOPublicLink'
 
 const InsertionOrderIndex = () => {
     const classes = useStyles()
@@ -44,9 +45,11 @@ const InsertionOrderIndex = () => {
     )
 
     const tablePropsInit = {
-        columns: columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-            ? JSON.parse(columnsData[0])?.[optionKey]
-            : columns,
+        columns: 
+        // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+        //     ? JSON.parse(columnsData[0])?.[optionKey]
+        //     : 
+            columns,
         loading: {
             enabled: false,
             text: 'Loading...',
@@ -61,7 +64,7 @@ const InsertionOrderIndex = () => {
                 return 'IO-' + value.padStart(3, '0')
             }
             if (column.key === 'io_link') {
-                return `${baseUrl}/insertion-order/public${value}`
+                return <IOPublicLink link={`${baseUrl}/insertion-order/public${value}`} />
             }
         }
     }
