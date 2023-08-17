@@ -43,7 +43,7 @@ class InsertionOrderPublicController extends Controller
                         'term'        => $insertionOrderDetail->term,
                         'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                         'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                        'grossPrice'  => (float) (request('type') == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                        'netPrice'    => (float) (request('type') == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
                     ];
                 }
             } else {
@@ -53,12 +53,12 @@ class InsertionOrderPublicController extends Controller
                     'term'        => $insertionOrderDetail->term,
                     'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                     'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                    'grossPrice'  => (float) (request('type') == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                    'netPrice'    => (float) (request('type') == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
                 ];
             }
         }
 
-        $subTotal = collect($orderDetails)->sum('grossPrice');
+        $subTotal = collect($orderDetails)->sum('netPrice');
 
         return Inertia::render('InsertionOrderPublic/InsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'subTotal'));
     }

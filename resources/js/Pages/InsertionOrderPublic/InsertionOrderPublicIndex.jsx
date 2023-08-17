@@ -83,7 +83,7 @@ const InsertionOrderPublicIndex = () => {
                                     <th style={{ width: "10%" }}>Terms</th>
                                     <th style={{ width: "15%" }}>800#</th>
                                     <th style={{ width: "15%" }}>Coupon Code</th>
-                                    <th style={{ width: "10%" }}>Gross Price</th>
+                                    <th style={{ width: "10%" }}>Net Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -94,7 +94,7 @@ const InsertionOrderPublicIndex = () => {
                                         <td>{item.term}</td>
                                         <td>{item.dialed}</td>
                                         <td>{item.couponCode}</td>
-                                        <td>{item.grossPrice.toFixed(2)}</td>
+                                        <td>{item.netPrice.toFixed(2)}</td>
                                     </tr>
                                 ))}
                                 <tr>
