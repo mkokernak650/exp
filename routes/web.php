@@ -251,6 +251,7 @@ Route::middleware('auth')->group(function () {
     Route::get('insertion-order/create', [InsertionOrderController::class, 'create'])->name('insertion.order.create');
     Route::post('insertion-order/get-affiliates', [InsertionOrderController::class, 'getAffiliates'])->name('insertion.order.get.affiliates');
     Route::post('insertion-order/store', [InsertionOrderController::class, 'store'])->name('insertion.order.store');
+    Route::post('insertion-order/get-codes-and-phones', [InsertionOrderController::class, 'getCodesAndPhones'])->name('insertion.order.get.codes.phones');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');

@@ -29,10 +29,11 @@ const useStyles = makeStyles((theme) => ({
 
 const InsertionOrderCreate = () => {
     const classes = useStyles()
-    const { campaigns, customers, codesAndPhones } = usePage().props
+    const { campaigns, customers } = usePage().props
     const [campaignIds, setCampaignIds] = useState('')
     const [customerIds, setCustomerIds] = useState('')
     const [affiliateOptions, setAffiliateOptions] = useState()
+    const [codeAndPhoneOptions, setCodeAndPhoneOptions] = useState([])
     const [selectedAffiliates, setSelectedAffiliates] = useState('')
     const [selectedCodesAndPhones, setSelectedCodesAndPhones] = useState('')
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
@@ -49,11 +50,6 @@ const InsertionOrderCreate = () => {
         value: item.id + '+cEmail+' + (item.email ? item.email : 'n/a'),
     }))
 
-    const codesAndPhoneOptions = codesAndPhones.map((item) => ({
-        label: item.coupon_code ? item.coupon_code : item.dialed,
-        value: item.id.toString(),
-    }))
-
     const terms = ['Cash in advance', 'Net 7 days', 'Net 14 days', 'Net 30 days', 'Net 45 days']
 
     const termOptions = terms.map((item) => ({
@@ -64,13 +60,23 @@ const InsertionOrderCreate = () => {
     const handleCampaignChange = (value) => {
         setCampaignIds(value)
         getAffiliates(value, customerIds)
+        getCodesAndPhones(value, customerIds, selectedAffiliates)
         setSelectedAffiliates('')
+        setSelectedCodesAndPhones('')
     }
 
     const handleCustomerChange = (value) => {
         setCustomerIds(value)
         getAffiliates(campaignIds, value)
+        getCodesAndPhones(campaignIds, value, selectedAffiliates)
         setSelectedAffiliates('')
+        setSelectedCodesAndPhones('')
+    }
+
+    const handleAffiliateChange = (value) => {
+        setSelectedAffiliates(value)
+        getCodesAndPhones(campaignIds, customerIds, value)
+        setSelectedCodesAndPhones('')
     }
 
     const getAffiliates = (selectedCampaigns, selectedCustomers) => {
@@ -83,6 +89,19 @@ const InsertionOrderCreate = () => {
             })
             .catch((err) => {
                 toast.error('Affiliates fetching failed!')
+            })
+    }
+
+    const getCodesAndPhones = (selectedCampaigns, selectedCustomers, selectedAffiliates) => {
+        axios
+            .post(route('insertion.order.get.codes.phones'), { selectedCampaigns, selectedCustomers, selectedAffiliates })
+            .then((response) => {
+                if (response.data) {
+                    setCodeAndPhoneOptions(response.data)
+                }
+            })
+            .catch((err) => {
+                toast.error('Codes and Phones fetching failed!')
             })
     }
 
@@ -153,7 +172,7 @@ const InsertionOrderCreate = () => {
                         <Grid item xs={12}>
                             <MultiSelect
                                 name="affiliate_ids"
-                                onChange={(value) => setSelectedAffiliates(value)}
+                                onChange={(value) => handleAffiliateChange(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliates}
                                 style={{ width: '100%' }}
@@ -166,7 +185,7 @@ const InsertionOrderCreate = () => {
                             <MultiSelect
                                 name="codes_and_Phones"
                                 onChange={(value) => setSelectedCodesAndPhones(value)}
-                                options={codesAndPhoneOptions}
+                                options={codeAndPhoneOptions}
                                 defaultValue={selectedCodesAndPhones}
                                 style={{ width: '100%' }}
                                 placeholder="Select Codes or Phones"

@@ -33,11 +33,10 @@ class InsertionOrderController extends Controller
 
     public function create()
     {
-        $campaigns      = EcommerceCampaign::active()->get();
-        $customers      = Customer::active()->get();
-        $codesAndPhones = EcommerceAffiliate::select(['id', 'coupon_code', 'dialed'])->get();
+        $campaigns = EcommerceCampaign::active()->get();
+        $customers = Customer::active()->get();
 
-        return Inertia::render('InsertionOrder/InsertionOrderCreate', compact('campaigns', 'customers', 'codesAndPhones'));
+        return Inertia::render('InsertionOrder/InsertionOrderCreate', compact('campaigns', 'customers'));
     }
 
     public function getAffiliates(Request $request)
@@ -59,6 +58,48 @@ class InsertionOrderController extends Controller
         })->unique()->sortBy('label')->values()->toArray();
 
         return $affiliateOptions;
+    }
+
+    public function getCodesAndPhones(Request $request)
+    {
+        if (empty($request->selectedCampaigns) && empty($request->selectedCustomers) && empty($request->selectedAffiliates)) {
+            return [];
+        }
+
+        $selectedCustomers = $selectedAffiliates = $codeAndPhoneOptions = [];
+
+        if (!empty($request->selectedCustomers)) {
+            $selectedCustomersWithEmail = explode(',', $request->selectedCustomers);
+
+            foreach ($selectedCustomersWithEmail as $selectedCustomerWithEmail) {
+                $customerDetails     = explode('+cEmail+', $selectedCustomerWithEmail);
+                $selectedCustomers[] = $customerDetails[0];
+            }
+        }
+
+        if (!empty($request->selectedAffiliates)) {
+            $selectedAffiliatesWithEmail = explode(',', $request->selectedAffiliates);
+
+            foreach ($selectedAffiliatesWithEmail as $selectedAffiliateWithEmail) {
+                $affiliateDetails     = explode('+aEmail+', $selectedAffiliateWithEmail);
+                $selectedAffiliates[] = $affiliateDetails[0];
+            }
+        }
+
+        $codesAndPhones = EcommerceAffiliate::with('affiliate:id,affiliate_name')
+            ->when(!empty($request->selectedCampaigns), fn ($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
+            ->when(!empty($selectedCustomers), fn ($q) => $q->whereIn('customer_id', $selectedCustomers))
+            ->when(!empty($selectedAffiliates), fn ($q) => $q->whereIn('affiliate_id', $selectedAffiliates))
+            ->select(['id', 'affiliate_id', 'coupon_code', 'dialed'])->get();
+
+        foreach ($codesAndPhones as $item) {
+            $codeAndPhoneOptions[] = [
+                'label' => ($item->coupon_code ? $item->coupon_code : $item->dialed) . " ({$item->affiliate?->affiliate_name})",
+                'value' => (string) $item->id
+            ];
+        }
+
+        return $codeAndPhoneOptions;
     }
 
     public function store(Request $request)

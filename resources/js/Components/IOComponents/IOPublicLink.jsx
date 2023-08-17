@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function IOPublicLink({ link }) {
     const [copied, setCopied] = useState(false)
+    const timer = useRef(null)
 
     const unsecuredCopyToClipboard = (text) => {
         const textArea = document.createElement("textarea");
@@ -29,8 +30,17 @@ export default function IOPublicLink({ link }) {
 
     const setCopiedAndReset = () => {
         setCopied(true)
-        setTimeout(() => { setCopied(false) }, 3000)
+        timer.current = setTimeout(() => {
+            setCopied(false)
+            clearTimeout(timer.current)
+        }, 3000)
     }
+
+    useEffect(() => {
+        return () => {
+            clearTimeout(timer.current);
+        }
+    }, [])
 
     return (
         <div className="io-public-link">
