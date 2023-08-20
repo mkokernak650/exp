@@ -8,8 +8,10 @@ use App\Models\EcommerceCampaign;
 use App\Models\InsertionOrder;
 use App\Models\InsertionOrderDetail;
 use App\Models\TableDetails;
+use App\Notifications\IOLink;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class InsertionOrderController extends Controller
@@ -138,6 +140,10 @@ class InsertionOrderController extends Controller
             return ['success' => false, 'msg' => 'Fail to create'];
         }
 
+        if (!empty($emailData)) {
+            $this->emailIOLink($emailData);
+        }
+
         return ['success' => true, 'msg' => 'Insertion order(s) created successfully'];
     }
 
@@ -161,6 +167,21 @@ class InsertionOrderController extends Controller
 
         if (!empty($data)) {
             InsertionOrderDetail::insert($data);
+        }
+    }
+
+    protected function emailIOLink($emailData)
+    {
+        foreach ($emailData as $item) {
+            if (filter_var($item['email'], FILTER_VALIDATE_EMAIL)) {
+                $email = $item['email'];
+
+                if (app()->environment('local')) {
+                    $email = 'fahimikbal97@gmail.com';
+                }
+
+                Notification::route('mail', $email)->notify(new IOLink($item['ioLink']));
+            }
         }
     }
 }
