@@ -33,6 +33,21 @@ const InsertionOrderPublicIndex = () => {
             })
     }
 
+    const sendIODocument = () => {
+        axios
+            .post(route('insertion.order.public.send.io.document', { billingDetails, orderDetails, subTotal }))
+            .then((response) => {
+                if (response.data.success === true) {
+                    toast.success(response.data.msg)
+                } else {
+                    toast.error(response.data.msg)
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+            })
+    }
+
     return (
         <>
             <Helmet title="Insertion Order Public" />
@@ -137,6 +152,7 @@ const InsertionOrderPublicIndex = () => {
                     <p>650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 | www.consumerexp.com</p>
                 </div>
             </section>
+            <button onClick={sendIODocument}>IODOC</button>
             <section className="decision-box" id="decision-box">
                 <div className="decision-box-text">
                     This insertion order is {billingDetails.status}.

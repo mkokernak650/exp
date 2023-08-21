@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\InsertionOrder;
 use App\Models\InsertionOrderDetail;
+use App\Notifications\InsertionOrderDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class InsertionOrderPublicController extends Controller
@@ -71,6 +73,26 @@ class InsertionOrderPublicController extends Controller
             return ['success' => true, 'msg' => '', 'status' => $status];
         } else {
             return ['success' => false, 'msg' => 'Failed to update', 'status' => ''];
+        }
+    }
+
+    public function sendIODocument()
+    {
+        if (filter_var(request('billingDetails')['email'], FILTER_VALIDATE_EMAIL)) {
+            $email          = request('billingDetails')['email'];
+            $billingDetails = request('billingDetails');
+            $orderDetails   = request('orderDetails');
+            $subTotal       = request('subTotal');
+
+            if (app()->environment('local')) {
+                $email = 'fahimikbal97@gmail.com';
+            }
+
+            Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal));
+
+            return ['success' => true, 'msg' => 'IO document sent.'];
+        } else {
+            return ['success' => false, 'msg' => 'Failed to send the IO document (no email found).'];
         }
     }
 }
