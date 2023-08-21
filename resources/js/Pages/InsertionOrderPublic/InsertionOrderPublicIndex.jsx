@@ -18,6 +18,7 @@ const InsertionOrderPublicIndex = () => {
                     billingDetails.status = response.data.status
                     if (response.data.status === 'accepted') {
                         toast.success('Insertion order accepted')
+                        sendIODocument()
                     } else {
                         toast.error('Insertion order declined')
                     }
@@ -152,7 +153,6 @@ const InsertionOrderPublicIndex = () => {
                     <p>650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 | www.consumerexp.com</p>
                 </div>
             </section>
-            <button onClick={sendIODocument}>IODOC</button>
             <section className="decision-box" id="decision-box">
                 <div className="decision-box-text">
                     This insertion order is {billingDetails.status}.

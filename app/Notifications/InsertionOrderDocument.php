@@ -46,7 +46,8 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $pdf = app('dompdf.wrapper')
+        $ioNo = $this->billingDetails['ioNo'];
+        $pdf  = app('dompdf.wrapper')
             ->loadView(
                 'insertion-order/insertion-order-document',
                 ['billingDetails' => $this->billingDetails, 'orderDetails' => $this->orderDetails, 'subTotal' => $this->subTotal]
@@ -55,8 +56,9 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('ConsumerEXP Insertion Order Document')
             ->line('ConsumerEXP insertion order final document.')
+            ->line('Insertion Order NO: ' . $ioNo . '.')
             ->line('Please find the attached file.')
-            ->attachData($pdf->output(), 'io-pdf.pdf', ['mime' => 'application/pdf',]);
+            ->attachData($pdf->output(), 'Insertion Order ' . $ioNo . '.pdf', ['mime' => 'application/pdf',]);
     }
 
     /**

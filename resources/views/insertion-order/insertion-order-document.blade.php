@@ -159,13 +159,13 @@
                                 <td>{{ $item['term'] ?? '' }}</td>
                                 <td>{{ $item['dialed'] }}</td>
                                 <td>{{ $item['couponCode'] }}</td>
-                                <td>{{ $item['netPrice'] }}</td>
+                                <td>{{ number_format($item['netPrice'], 2) }}</td>
                             </tr>
                         @endforeach
                         <tr>
                             <td colspan="4" rowspan="3" style="textAlign:center">Thank You</td>
                             <th>Sub Total</th>
-                            <td>${{ $subTotal }}</td>
+                            <td>${{ number_format($subTotal, 2) }}</td>
                         </tr>
                         <tr>
                             <th>Discount</th>
@@ -173,7 +173,7 @@
                         </tr>
                         <tr>
                             <th>Grand Total</th>
-                            <td>${{ $subTotal }}</td>
+                            <td>${{ number_format($subTotal, 2) }}</td>
                         </tr>
                     </tbody>
                 </table>
