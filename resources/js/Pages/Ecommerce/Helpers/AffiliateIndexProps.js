@@ -244,6 +244,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'video_url',
+    title: 'Video URL',
+    dataType: DataType.String,
+    style: { width: 300 },
+    visible: true,
+  },
+  {
     key: 'created_at',
     title: 'Created At',
     dataType: DataType.String,

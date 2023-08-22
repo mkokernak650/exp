@@ -49,6 +49,7 @@ const AffiliateIndex = () => {
     consumerEXP_cash_buy_fee_type: '',
     consumerEXP_cash_buy_fee: '',
     description: '',
+    video_url: '',
   }
 
   const classes = useStyles()
@@ -143,6 +144,7 @@ const AffiliateIndex = () => {
               item.percentage = editData.revenue - editData.affiliate_fee
             }
             item.description = res.data.data.description
+            item.video_url = res.data.data.video_url
             item.updated_at = res.data.updated_at
           }
           return tablePropsRef.current
@@ -219,6 +221,7 @@ const AffiliateIndex = () => {
         created_at: item.created_at,
         updated_at: item.updated_at,
         description: item.description,
+        video_url: item.video_url,
         id: item.id,
         key: index,
       }
@@ -243,9 +246,10 @@ const AffiliateIndex = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      //   ? JSON.parse(columnsData[0])?.[optionKey]
+      //   : 
+      columns,
     data: dataArray,
     rowKeyField: 'id',
     sortingMode: SortingMode.Single,
@@ -833,6 +837,19 @@ const AffiliateIndex = () => {
                   multiline
                   maxRows="4"
                 ></TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  value={editData?.video_url}
+                  id="video_url"
+                  label="Video URL"
+                  type="text"
+                  name="video_url"
+                  placeholder="Video URL"
+                  onChange={handleEditChange}
+                  className={classes.textField}
+                  fullWidth
+                />
               </Grid>
 
               <Grid item xs={12}>
