@@ -42,6 +42,7 @@ class InsertionOrderPublicController extends Controller
                     $orderDetails[] = [
                         'titleName'   => $length . ' sec- ' . $ecommerceAffiliate?->campaign?->campaign_name,
                         'description' => $ecommerceAffiliate->description,
+                        'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $insertionOrderDetail->term,
                         'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                         'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
@@ -52,6 +53,7 @@ class InsertionOrderPublicController extends Controller
                 $orderDetails[] = [
                     'titleName'   => $ecommerceAffiliate->campaign->campaign_name,
                     'description' => $ecommerceAffiliate->description,
+                    'videoUrl'    => $ecommerceAffiliate->video_url,
                     'term'        => $insertionOrderDetail->term,
                     'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                     'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
