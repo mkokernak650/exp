@@ -40,6 +40,7 @@ class EcommerceAffiliateRequest extends FormRequest
             'consumerEXP_cash_buy_fee'      => ['nullable'],
             'consumerEXP_cash_buy_fee_type' => ['nullable'],
             'description'                   => ['nullable'],
+            'video_url'                     => ['nullable'],
         ];
 
         if ($this->affiliate_fee_type == 1) {

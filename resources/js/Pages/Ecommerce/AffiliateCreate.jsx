@@ -51,6 +51,7 @@ const AffiliateCreate = () => {
     consumerEXP_cash_buy_fee_type: '',
     consumerEXP_cash_buy_fee: '',
     description: '',
+    video_url: '',
   }
   const classes = useStyles()
   const [values, setValues] = useState(defaultState)
@@ -408,6 +409,19 @@ const AffiliateCreate = () => {
                 multiline
                 maxRows="4"
               ></TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                value={values?.video_url}
+                id="video_url"
+                label="Video URL"
+                type="text"
+                name="video_url"
+                placeholder="Video URL"
+                onChange={handleChange}
+                className={classes.textField}
+                fullWidth
+              />
             </Grid>
 
             <Grid item xs={12}>
