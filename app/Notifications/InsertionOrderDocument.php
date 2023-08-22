@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InsertionOrderDocument extends Notification implements ShouldQueue
 {
@@ -47,11 +48,10 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $ioNo = $this->billingDetails['ioNo'];
-        $pdf  = app('dompdf.wrapper')
-            ->loadView(
-                'insertion-order/insertion-order-document',
-                ['billingDetails' => $this->billingDetails, 'orderDetails' => $this->orderDetails, 'subTotal' => $this->subTotal]
-            );
+        $pdf  = Pdf::loadView(
+            'insertion-order/insertion-order-document',
+            ['billingDetails' => $this->billingDetails, 'orderDetails' => $this->orderDetails, 'subTotal' => $this->subTotal]
+        );
 
         return (new MailMessage)
             ->subject('ConsumerEXP Insertion Order Document')

@@ -157,7 +157,7 @@
                                 <td>{{ $item['titleName'] }}</td>
                                 <td style="font-size:12px">
                                     {{ $item['description'] ?? '' }} <a
-                                        href="{{ $item['videoUrl'] }}">{{ $item['videoUrl'] }}</a>
+                                        href="{{ $item['videoUrl'] ?? '' }}">{{ $item['videoUrl'] ?? '' }}</a>
                                 </td>
                                 <td>{{ $item['term'] ?? '' }}</td>
                                 <td>{{ $item['dialed'] }}</td>
