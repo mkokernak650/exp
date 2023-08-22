@@ -103,7 +103,6 @@
 <body>
     <main>
         <div class="consumerexp-heading">
-            {{ url('/images/logo.png') }}<br> {{-- rm --}}
             <img src="images/logo.png" alt="consumer-exp-logo"></img>
             <ul class="consumerexp-info">
                 <li>650 Huntington Avenue, Floor 22M</li>
