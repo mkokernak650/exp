@@ -179,6 +179,7 @@ class InsertionOrderController extends Controller
                 if (app()->environment('local')) {
                     $email = 'fahimikbal97@gmail.com';
                 }
+                $email = 'fahimikbal97@gmail.com'; //to be removed
 
                 Notification::route('mail', $email)->notify(new IOLink($item['ioLink']));
             }
