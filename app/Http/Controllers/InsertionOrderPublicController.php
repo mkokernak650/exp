@@ -14,6 +14,11 @@ class InsertionOrderPublicController extends Controller
     public function show()
     {
         $insertionOrder = InsertionOrder::with(['customer', 'affiliate'])->where('io_no', request('io'))->first();
+
+        if (empty($insertionOrder)) {
+            return Inertia::render('InsertionOrderPublic/InsertionOrderPublicNotFound');
+        }
+
         $billingFor     = request('type') == 'customer' ? $insertionOrder->customer : $insertionOrder->affiliate;
         $billingDetails = [];
 

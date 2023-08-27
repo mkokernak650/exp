@@ -1434,4 +1434,12 @@ div::-webkit-scrollbar-thumb {
     margin-left: 10px;
 }
 
+.insertion-order-public-not-found {
+    position: fixed;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    font-size: large;
+}
+
 /* public io style end */
