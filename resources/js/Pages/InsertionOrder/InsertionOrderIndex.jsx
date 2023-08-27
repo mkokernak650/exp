@@ -12,8 +12,15 @@ import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { useStyles, columns } from './Helpers/InsertionOrderIndexProps'
-import { Button, CircularProgress } from '@material-ui/core'
+import { Button, CircularProgress, IconButton, Tooltip } from '@material-ui/core'
+import DeleteIcon from '@material-ui/icons/Delete'
 import IOPublicLink from '../../Components/IOComponents/IOPublicLink'
+import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
+import SelectionCell from '@/Components/TableComponents/SelectionCell'
+import ConfirmModal from '@/Shared/ConfirmModal'
+import { kaPropsUtils } from 'ka-table/utils'
+import handleSelects from '@/Helpers/HandleSelects'
+import toast from 'react-hot-toast'
 
 const InsertionOrderIndex = () => {
     const classes = useStyles()
@@ -24,7 +31,12 @@ const InsertionOrderIndex = () => {
     const [insertionOrderList, setInsertionOrderList] = useState(insertionOrders)
     const [itemPerPage, setItemPerPage] = useState(10)
     const [curerentPage, setCurerentPage] = useState(1)
+    const [selectedRowIds, setSelectedRowIds] = useState([])
+    const [tableToolbar, setTableToolbar] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
     const baseUrl = window.location.origin
+
+    // console.log(selectedRowIds)
 
     const mapDataArr = (data) => {
         return data.data.map((item) => ({
@@ -45,10 +57,10 @@ const InsertionOrderIndex = () => {
     )
 
     const tablePropsInit = {
-        columns: 
-        // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        //     ? JSON.parse(columnsData[0])?.[optionKey]
-        //     : 
+        columns:
+            // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+            //     ? JSON.parse(columnsData[0])?.[optionKey]
+            //     : 
             columns,
         loading: {
             enabled: false,
@@ -72,6 +84,19 @@ const InsertionOrderIndex = () => {
     const [tableProps, changeTableProps] = useState(tablePropsInit)
 
     const dispatch = (action) => {
+        if (
+            ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
+                action?.type
+            )
+        ) {
+            handleSelects({
+                action,
+                selectedRowIds,
+                setSelectedRowIds,
+                tableProps,
+                setTableToolbar,
+            })
+        }
         changeTableProps((prevState) => {
             const newState = kaReducer(prevState, action)
             const { data, ...settingsWithoutData } = newState
@@ -148,11 +173,50 @@ const InsertionOrderIndex = () => {
             })
     }
 
+    const TableToolbar = () => {
+        return (
+            <div className="table-toolbar">
+                <Tooltip title="Delete">
+                    <IconButton aria-label="delete" onClick={() => setShowDeleteModal({ open: true })}>
+                        <DeleteIcon style={{ color: '#031b4e' }} />
+                    </IconButton>
+                </Tooltip>
+                <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+            </div>
+        )
+    }
+
+    const deleteHandler = () => {
+        axios
+            .post(route('insertion.order.delete'), { selectedRowIds })
+            .then((res) => {
+                if (res.data.success === true) {
+                    let filteredData = tableProps
+                    const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
+                    filteredData.data = newData
+                    changeTableProps(filteredData)
+                    setSelectedRowIds([])
+                    getSearchingData(curerentPage)
+                    setTableToolbar(false)
+                    toast.success(res.data.msg)
+                    setShowDeleteModal({ open: false })
+                } else {
+                    toast.error(res.data.msg)
+                    setShowDeleteModal({ open: false })
+                }
+            })
+            .catch((err) => {
+                setShowDeleteModal({ open: false })
+            })
+    }
+
     return (
         <>
             <Helmet title="Insertion Order - Index" />
             <div className="selection-demo">
-                <div className="table-top-flex-start">
+                {tableToolbar ? (
+                    <TableToolbar />
+                ) : <div className="table-top-flex-start">
                     <div className="top-left">
                         <div className="columns-show-hide" onClick={handleColumns}>
                             <Eye />
@@ -179,12 +243,31 @@ const InsertionOrderIndex = () => {
                     ) : (
                         ''
                     )}
-                </div>
+                </div>}
                 <Table
                     {...tableProps}
                     childComponents={{
                         noDataRow: {
                             content: () => 'No Data Found',
+                        },
+                        cellText: {
+                            content: (props) => {
+                                if (props.column.key === 'selection-cell') {
+                                    return <SelectionCell {...props} />
+                                }
+                            },
+                        },
+                        headCell: {
+                            content: (props) => {
+                                if (props.column.key === 'selection-cell') {
+                                    return (
+                                        <SelectionHeader
+                                            {...props}
+                                            areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
+                                        />
+                                    )
+                                }
+                            },
                         },
                     }}
                     dispatch={dispatch}
@@ -205,6 +288,17 @@ const InsertionOrderIndex = () => {
                     <Pagination changePage={getSearchingData} data={insertionOrderList} />
                 </div>
             </div>
+            <ConfirmModal
+                open={showDeleteModal.open}
+                setOpen={setShowDeleteModal}
+                btnAction={deleteHandler}
+                closeAction={() => setShowDeleteModal({ open: false })}
+                width={'400px'}
+                title={`${selectedRowIds.length > 1
+                    ? 'Do you want to delete these records?'
+                    : 'Do you want to delete this record?'
+                    }`}
+            ></ConfirmModal>
         </>
     )
 }

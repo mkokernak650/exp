@@ -11,6 +11,11 @@ export const useStyles = makeStyles(() => ({
 
 export const columns = [
   {
+    key: 'selection-cell',
+    style: { width: 60 },
+    visible: true,
+  },
+  {
     key: 'formatted_created_at',
     title: 'Created At',
     dataType: DataType.String,

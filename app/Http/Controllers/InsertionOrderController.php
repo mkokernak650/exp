@@ -184,4 +184,25 @@ class InsertionOrderController extends Controller
             }
         }
     }
+
+    public function delete(Request $request)
+    {
+        $ids = $request->selectedRowIds;
+        $idsCount = count($ids);
+        $userFullName = auth()->user()->firstname . ' ' . auth()->user()->lastname;
+        $userEmail = auth()->user()->email;
+        $itemsCount = $idsCount > 1 ? 'items' : 'item';
+
+        $result = InsertionOrder::whereIn('id', $ids)->delete();
+
+        if ($result) {
+            activity('Insertion Order')->event('deleted')
+                ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
+                ->log("{$idsCount} {$itemsCount} has been deleted");
+
+            return ['success' => true, 'msg' => 'Successfully deleted'];
+        } else {
+            return ['success' => false, 'msg' => 'Can not delete the data'];
+        }
+    }
 }
