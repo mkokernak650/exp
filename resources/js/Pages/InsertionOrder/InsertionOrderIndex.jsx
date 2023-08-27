@@ -36,8 +36,6 @@ const InsertionOrderIndex = () => {
     const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
     const baseUrl = window.location.origin
 
-    // console.log(selectedRowIds)
-
     const mapDataArr = (data) => {
         return data.data.map((item) => ({
             id: item.id,
