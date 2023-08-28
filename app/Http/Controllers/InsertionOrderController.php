@@ -20,6 +20,10 @@ class InsertionOrderController extends Controller
     {
         $insertionOrders = InsertionOrder::with('customer:id,customer_name')
             ->with('affiliate:id,affiliate_name')
+            ->when(
+                !empty(request('filterByStatus')),
+                fn ($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
+            )
             ->select('*')
             ->selectRaw('DATE_FORMAT(created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at')
             ->paginate(request('itemPerPage') ?? 10);

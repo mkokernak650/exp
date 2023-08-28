@@ -21,6 +21,8 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import { kaPropsUtils } from 'ka-table/utils'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const InsertionOrderIndex = () => {
     const classes = useStyles()
@@ -34,6 +36,7 @@ const InsertionOrderIndex = () => {
     const [selectedRowIds, setSelectedRowIds] = useState([])
     const [tableToolbar, setTableToolbar] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+    const [filterByStatus, setFilterByStatus] = useState('')
     const baseUrl = window.location.origin
 
     const mapDataArr = (data) => {
@@ -48,6 +51,13 @@ const InsertionOrderIndex = () => {
     }
 
     const dataArray = mapDataArr(insertionOrders)
+
+    const status = ['pending', 'accepted', 'declined']
+
+    const statusOptions = status.map(item => ({
+        label: item,
+        value: item,
+    }))
 
     const optionKey = 'insertion-order-index'
     const [columnDetails, setColumnDetails] = useState(
@@ -130,7 +140,8 @@ const InsertionOrderIndex = () => {
                 'insertion-order?page=' +
                 data.page +
                 '&itemPerPage=' +
-                itemPerPage
+                itemPerPage +
+                '&filterByStatus=' + filterByStatus
             )
             .then((res) => {
                 const tmpTableProps = { ...tableProps }
@@ -147,7 +158,7 @@ const InsertionOrderIndex = () => {
 
     useEffect(() => {
         getSearchingData(curerentPage)
-    }, [itemPerPage])
+    }, [itemPerPage, filterByStatus])
 
     const triggerExportLink = (link) => {
         return window.open(link)
@@ -233,6 +244,14 @@ const InsertionOrderIndex = () => {
                                 'Export'
                             )}
                         </Button> */}
+                    </div>
+                    <div className="top-left">
+                        <MultiSelect
+                            placeholder="Status"
+                            options={statusOptions}
+                            onChange={(value) => setFilterByStatus(value)}
+                            defaultValue={filterByStatus}
+                        />
                     </div>
                     {showColumns ? (
                         <div className="column-settings" ref={showColumnRef}>
