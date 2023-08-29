@@ -1,27 +1,31 @@
 import { CircularProgress, Tooltip } from "@material-ui/core"
+import axios from "axios"
 import { useState } from "react"
+import toast from "react-hot-toast"
 
 export default function ResendIODoc({ data }) {
     const [loading, setLoading] = useState(false)
     const dataArray = data.split(",")
     const status = dataArray[0]
-    // console.log(data)
+    const ioNo = dataArray[1]
+
     const resendIoDocument = () => {
-        // axios
-        //     .post(route('', { billingDetails, orderDetails, subTotal }))
-        //     .then((response) => {
-        //         if (response.data.success === true) {
-        //             toast.success(response.data.msg)
-        //         } else {
-        //             toast.error(response.data.msg)
-        //         }
-        //     })
-        //     .catch((err) => {
-        //         toast.error('Something went wrong!')
-        //     })
         setLoading(true)
-        console.log(dataArray)
-        console.log(status)
+        axios
+            .post(route('insertion.order.resend.io.document', { ioNo }))
+            .then((response) => {
+                if (response.data.success === true) {
+                    toast.success(response.data.msg)
+                    setLoading(false)
+                } else {
+                    toast.error(response.data.msg)
+                    setLoading(false)
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+                setLoading(false)
+            })
     }
 
     return (

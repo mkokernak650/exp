@@ -8,6 +8,7 @@ use App\Models\EcommerceCampaign;
 use App\Models\InsertionOrder;
 use App\Models\InsertionOrderDetail;
 use App\Models\TableDetails;
+use App\Notifications\InsertionOrderDocument;
 use App\Notifications\IOLink;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -208,5 +209,82 @@ class InsertionOrderController extends Controller
         } else {
             return ['success' => false, 'msg' => 'Can not delete the data'];
         }
+    }
+
+    public function resendIODocument(Request $request)
+    {
+        $ioNo           = $request->ioNo;
+        $insertionOrder = InsertionOrder::with(['customer', 'affiliate'])->where('io_no', $ioNo)->first();
+
+        if (empty($insertionOrder)) {
+            return ['success' => false, 'msg' => 'Insertion order not found'];
+        }
+
+        if (!empty($insertionOrder->customer_id)) {
+            $billingFor = $insertionOrder->customer;
+            $type       = 'customer';
+        } else {
+            $billingFor = $insertionOrder->affiliate;
+            $type       = 'affiliate';
+        }
+
+        $email = $billingFor->email;
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'msg' => 'No email found! Document resending fail'];
+        }
+
+        $billingDetails = [];
+
+        if (!empty($billingFor)) {
+            $billingDetails = [
+                'id'           => $insertionOrder->id,
+                'ioNo'         => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
+                'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
+                'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+                'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
+                'address'      => $billingFor->address,
+                'status'       => $insertionOrder->status,
+                'date'         => date_format(date_create($insertionOrder->created_at), 'd-M-Y')
+            ];
+        }
+
+        $insertionOrderDetails = InsertionOrderDetail::with('ecommerceAffiliate')->where('io_no', $ioNo)->get();
+
+        foreach ($insertionOrderDetails as $insertionOrderDetail) {
+            $ecommerceAffiliate = $insertionOrderDetail->ecommerceAffiliate;
+
+            if (!empty($ecommerceAffiliate->lengths)) {
+                $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
+
+                foreach ($lengths as $length) {
+                    $orderDetails[] = [
+                        'titleName'   => $length . ' sec- ' . $ecommerceAffiliate?->campaign?->campaign_name,
+                        'description' => $ecommerceAffiliate->description,
+                        'videoUrl'    => $ecommerceAffiliate->video_url,
+                        'term'        => $insertionOrderDetail->term,
+                        'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
+                        'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
+                        'netPrice'    => (float) ($type == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                    ];
+                }
+            } else {
+                $orderDetails[] = [
+                    'titleName'   => $ecommerceAffiliate->campaign->campaign_name,
+                    'description' => $ecommerceAffiliate->description,
+                    'videoUrl'    => $ecommerceAffiliate->video_url,
+                    'term'        => $insertionOrderDetail->term,
+                    'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
+                    'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
+                    'netPrice'    => (float) ($type == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                ];
+            }
+        }
+
+        $subTotal = collect($orderDetails)->sum('netPrice');
+
+        Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal));
+
+        return ['success' => true, 'msg' => 'Insertion order document sent successfully'];
     }
 }
