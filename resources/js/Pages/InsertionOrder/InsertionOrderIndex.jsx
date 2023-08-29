@@ -23,6 +23,7 @@ import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
+import ResendIODoc from '../../Components/IOComponents/ResendIODoc'
 
 const InsertionOrderIndex = () => {
     const classes = useStyles()
@@ -47,6 +48,7 @@ const InsertionOrderIndex = () => {
             status: item.status,
             io_link: item.io_link,
             formatted_created_at: item.formatted_created_at,
+            resend_io_doc: item.status + ',' + item.io_no,
         }))
     }
 
@@ -85,6 +87,9 @@ const InsertionOrderIndex = () => {
             }
             if (column.key === 'io_link') {
                 return <IOPublicLink link={`${baseUrl}/insertion-order/public${value}`} />
+            }
+            if (column.key === 'resend_io_doc') {
+                return <ResendIODoc data={value} />
             }
         }
     }

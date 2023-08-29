@@ -1329,6 +1329,30 @@ div::-webkit-scrollbar-thumb {
     cursor: not-allowed;
 }
 
+.resend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    line-height: 1.5;
+    background-color: #22a166;
+    margin-left: 8px;
+    cursor: pointer;
+    margin: auto;
+}
+
+.resend-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 /* io style end */
 
 /* public io style start */

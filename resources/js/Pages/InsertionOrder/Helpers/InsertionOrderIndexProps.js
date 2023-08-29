@@ -57,4 +57,10 @@ export const columns = [
     style: { width: 100 },
     visible: true,
   },
+  {
+    key: 'resend_io_doc',
+    title: 'Resend IO DOC',
+    style: { width: 80 },
+    visible: true,
+  },
 ]
