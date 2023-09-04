@@ -139,6 +139,28 @@ const InsertionOrderCreate = () => {
             })
     }
 
+    const handleView = () => {
+        const formData = new FormData()
+        formData.append('selectedCustomers', customerIds)
+        formData.append('selectedAffiliates', selectedAffiliates)
+        formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
+        formData.append('insertionOrderFor', insertionOrderFor)
+        formData.append('selectedTerm', selectedTerm)
+
+        axios
+            .post(route('insertion.order.view'), formData)
+            .then((response) => {
+                if (response.data.success === true) {
+
+                } else {
+                    toast.error(response.data.msg)
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+            })
+    }
+
     return (
         <>
             <Helmet title="Insertion Order - Create" />
@@ -224,18 +246,33 @@ const InsertionOrderCreate = () => {
                             </RadioGroup>
                         </Grid>
 
-                        <Grid item xs={12} style={{ textAlign: 'right' }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading}
-                                type="submit"
-                            >
-                                {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                    <CircularProgress size={20} color="inherit" />
-                                </span>)}
-                                CREATE & SEND
-                            </Button>
+                        <Grid container justifyContent="flex-end">
+                            <Grid item style={{ marginRight: '8px' }}>
+                                <Button
+                                    variant="outlined"
+                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading}
+                                    type="button"
+                                    onClick={handleView}
+                                >
+                                    {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                        <CircularProgress size={20} color="inherit" />
+                                    </span>)}
+                                    View
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading}
+                                    type="submit"
+                                >
+                                    {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                        <CircularProgress size={20} color="inherit" />
+                                    </span>)}
+                                    CREATE & SEND
+                                </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </form>

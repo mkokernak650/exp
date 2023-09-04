@@ -254,6 +254,7 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/get-codes-and-phones', [InsertionOrderController::class, 'getCodesAndPhones'])->name('insertion.order.get.codes.phones');
     Route::post('insertion-order/delete', [InsertionOrderController::class, 'delete'])->name('insertion.order.delete');
     Route::post('insertion-order/resend-io-document', [InsertionOrderController::class, 'resendIODocument'])->name('insertion.order.resend.io.document');
+    Route::post('insertion-order/view', [InsertionOrderController::class, 'view'])->name('insertion.order.view');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');

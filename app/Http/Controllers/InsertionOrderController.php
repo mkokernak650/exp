@@ -175,6 +175,11 @@ class InsertionOrderController extends Controller
         }
     }
 
+    public function view(Request $request)
+    {
+        dd($request->all());
+    }
+
     protected function emailIOLink($emailData)
     {
         foreach ($emailData as $item) {
