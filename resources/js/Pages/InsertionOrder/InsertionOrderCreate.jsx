@@ -38,7 +38,7 @@ const InsertionOrderCreate = () => {
     const [selectedCodesAndPhones, setSelectedCodesAndPhones] = useState('')
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
     const [selectedTerm, setSelectedTerm] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState({ view: false, submit: false, })
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -113,7 +113,7 @@ const InsertionOrderCreate = () => {
         formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
         formData.append('insertionOrderFor', insertionOrderFor)
         formData.append('selectedTerm', selectedTerm)
-        setLoading(true)
+        setLoading((oldValues) => ({ ...oldValues, submit: true }))
 
         axios
             .post(route('insertion.order.store'), formData)
@@ -127,15 +127,15 @@ const InsertionOrderCreate = () => {
                     setInsertionOrderFor('customer')
                     setSelectedTerm('')
                     toast.success(response.data.msg)
-                    setLoading(false)
+                    setLoading((oldValues) => ({ ...oldValues, submit: false }))
                 } else {
                     toast.error(response.data.msg)
-                    setLoading(false)
+                    setLoading((oldValues) => ({ ...oldValues, submit: false }))
                 }
             })
             .catch((err) => {
                 toast.error('Something went wrong!')
-                setLoading(false)
+                setLoading((oldValues) => ({ ...oldValues, submit: false }))
             })
     }
 
@@ -146,18 +146,21 @@ const InsertionOrderCreate = () => {
         formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
         formData.append('insertionOrderFor', insertionOrderFor)
         formData.append('selectedTerm', selectedTerm)
+        setLoading((oldValues) => ({ ...oldValues, view: true }))
 
         axios
             .post(route('insertion.order.view'), formData)
             .then((response) => {
                 if (response.data.success === true) {
-
+                    setLoading((oldValues) => ({ ...oldValues, view: false }))
                 } else {
                     toast.error(response.data.msg)
+                    setLoading((oldValues) => ({ ...oldValues, view: false }))
                 }
             })
             .catch((err) => {
                 toast.error('Something went wrong!')
+                setLoading((oldValues) => ({ ...oldValues, view: false }))
             })
     }
 
@@ -250,11 +253,11 @@ const InsertionOrderCreate = () => {
                             <Grid item style={{ marginRight: '8px' }}>
                                 <Button
                                     variant="outlined"
-                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading}
+                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.view}
                                     type="button"
                                     onClick={handleView}
                                 >
-                                    {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                    {loading.view && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                                         <CircularProgress size={20} color="inherit" />
                                     </span>)}
                                     View
@@ -264,10 +267,10 @@ const InsertionOrderCreate = () => {
                                 <Button
                                     variant="contained"
                                     color="primary"
-                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading}
+                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.submit}
                                     type="submit"
                                 >
-                                    {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                    {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                                         <CircularProgress size={20} color="inherit" />
                                     </span>)}
                                     CREATE & SEND
