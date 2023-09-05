@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Affiliate;
 use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
@@ -177,7 +178,83 @@ class InsertionOrderController extends Controller
 
     public function view(Request $request)
     {
-        dd($request->all());
+        $lastIoId = InsertionOrder::toBase()->select('id')->latest()->first();
+
+        if ($request->insertionOrderFor == 'customer') {
+            $selectedCustomers     = explode(',', $request->selectedCustomers);
+            $customerIdEmail       = explode('+cEmail+', $selectedCustomers[0]);
+            $customerId            = $customerIdEmail[0];
+            $customer              = Customer::where('id', $customerId)->first();
+            $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId);
+        } elseif ($request->insertionOrderFor == 'affiliate') {
+            $selectedAffiliates    = explode(',', $request->selectedAffiliates);
+            $affiliateIdEmail      = explode('+aEmail+', $selectedAffiliates[0]);
+            $affiliateId           = $affiliateIdEmail[0];
+            $affiliate             = Affiliate::where('id', $affiliateId)->first();
+            $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId);
+        } else {
+            return ['success' => false, 'msg' => 'Billing-for not available'];
+        }
+
+        $orderDetailsForView = $this->orderDetailsForView($request->selectedCodesAndPhones, $request->selectedTerm, $request->insertionOrderFor);
+        $subTotal            = collect($orderDetailsForView)->sum('netPrice');
+
+        return [
+            'success' => true,
+            'data'    => [
+                'billingDetailsForView' => $billingDetailsForView,
+                'orderDetailsForView'   => $orderDetailsForView,
+                'subTotal'              => $subTotal
+            ]
+        ];
+    }
+
+    protected function billingDetailsForView($billingFor, $lastIoId)
+    {
+        $date = Carbon::now()->format('d-M-Y');
+
+        return [
+            'ioNo'         => 'IO-' . str_pad(($lastIoId->id + 1), 3, 0, STR_PAD_LEFT),
+            'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
+            'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+            'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
+            'address'      => $billingFor->address,
+            'date'         => $date
+        ];
+    }
+
+    protected function orderDetailsForView($selectedCodesAndPhones, $selectedTerm, $insertionOrderFor)
+    {
+        $ecommerceAffiliates = EcommerceAffiliate::with('campaign')->whereIn('id', explode(',', $selectedCodesAndPhones))->get();
+
+        foreach ($ecommerceAffiliates as $ecommerceAffiliate) {
+            if (!empty($ecommerceAffiliate->lengths)) {
+                $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
+                foreach ($lengths as $length) {
+                    $orderDetails[] = [
+                        'titleName'   => $length . ' sec- ' . $ecommerceAffiliate?->campaign?->campaign_name,
+                        'description' => $ecommerceAffiliate->description,
+                        'videoUrl'    => $ecommerceAffiliate->video_url,
+                        'term'        => $selectedTerm,
+                        'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
+                        'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
+                        'netPrice'    => (float) ($insertionOrderFor == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                    ];
+                }
+            } else {
+                $orderDetails[] = [
+                    'titleName'   => $ecommerceAffiliate?->campaign?->campaign_name,
+                    'description' => $ecommerceAffiliate->description,
+                    'videoUrl'    => $ecommerceAffiliate->video_url,
+                    'term'        => $selectedTerm,
+                    'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
+                    'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
+                    'netPrice'    => (float) ($insertionOrderFor == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                ];
+            }
+        }
+
+        return $orderDetails;
     }
 
     protected function emailIOLink($emailData)
