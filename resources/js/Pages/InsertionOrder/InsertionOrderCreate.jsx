@@ -7,6 +7,9 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import NormalModal from '../../Shared/NormalModal'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import IoModalView from '../../Components/IOComponents/IOModalView'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -39,6 +42,8 @@ const InsertionOrderCreate = () => {
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
     const [selectedTerm, setSelectedTerm] = useState('')
     const [loading, setLoading] = useState({ view: false, submit: false, })
+    const [viewData, setViewData] = useState({})
+    const [showViewModal, setShowViewModal] = useState({ open: false })
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -152,6 +157,8 @@ const InsertionOrderCreate = () => {
             .post(route('insertion.order.view'), formData)
             .then((response) => {
                 if (response.data.success === true) {
+                    setViewData(response.data.data)
+                    setShowViewModal({ open: true })
                     setLoading((oldValues) => ({ ...oldValues, view: false }))
                 } else {
                     toast.error(response.data.msg)
@@ -280,6 +287,19 @@ const InsertionOrderCreate = () => {
                     </Grid>
                 </form>
             </Paper>
+            <NormalModal
+                open={showViewModal.open}
+                setOpen={setShowViewModal}
+                width={'794px'}
+                title={'Insertion Order View'}
+            >
+                <div>
+                    <IoModalView viewData={viewData} />
+                    <div onClick={() => setShowViewModal({ open: false })} className="close-modal-icon">
+                        <Cancel />
+                    </div>
+                </div>
+            </NormalModal>
         </>
     )
 }
