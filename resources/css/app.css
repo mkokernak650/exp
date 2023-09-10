@@ -1411,7 +1411,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .io-terms {
-    padding: 0px 15px;
+    padding: 0px 15px 60px 15px;
     font-size: 12px;
 }
 
