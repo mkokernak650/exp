@@ -13,7 +13,7 @@
         }
 
         body {
-            margin: 0.5cm 1cm 1cm 1cm;
+            margin: 0.5cm 1.1cm 1cm 1cm;
             font-size: 14px;
             font-family: 'Helvetica';
         }
@@ -82,7 +82,7 @@
 
         .io-footer {
             background-color: #1aa8a2;
-            height: 60px;
+            height: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
