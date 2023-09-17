@@ -19,7 +19,7 @@ export const columns = [
     key: 'formatted_created_at',
     title: 'Created At',
     dataType: DataType.String,
-    style: { width: 150 },
+    style: { width: 180 },
     visible: true,
   },
   {
@@ -54,12 +54,18 @@ export const columns = [
     key: 'io_link',
     title: 'IO Public Link',
     dataType: DataType.String,
-    style: { width: 100 },
+    style: { width: 150 },
     visible: true,
   },
   {
     key: 'resend_io_doc',
     title: 'Resend IO DOC',
+    style: { width: 100 },
+    visible: true,
+  },
+  {
+    key: 'cancel_io',
+    title: 'Cancel IO',
     style: { width: 80 },
     visible: true,
   },

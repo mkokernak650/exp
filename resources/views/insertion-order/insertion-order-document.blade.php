@@ -103,7 +103,7 @@
 <body>
     <main>
         <div class="consumerexp-heading">
-            <img src="images/logo.png" alt="consumer-exp-logo"></img>
+            <img src="images/logo.png" alt="consumer-exp-logo">
             <ul class="consumerexp-info">
                 <li>650 Huntington Avenue, Floor 22M</li>
                 <li>Boston, MA 02115</li>
