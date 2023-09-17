@@ -127,6 +127,7 @@
                         </td>
                         <td style="width:40%">
                             Insertion Order NO: {{ $billingDetails['ioNo'] }}
+                            {{ $billingDetails['status'] == 'canceled' ? ' (Canceled)' : '' }}
                         </td>
                     </tr>
                     <tr>

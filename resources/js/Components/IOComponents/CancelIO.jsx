@@ -13,9 +13,10 @@ export default function CancelIO({ data }) {
     const resendIoDocument = () => {
         setLoading(true)
         axios
-            .post(route('', { ioNo }))
+            .post(route('insertion.order.resend.io.document', { ioNo, type: 'cancel' }))
             .then((response) => {
                 if (response.data.success === true) {
+                    setStatus('canceled')
                     toast.success(response.data.msg)
                     setLoading(false)
                 } else {

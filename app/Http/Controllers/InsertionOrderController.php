@@ -298,6 +298,13 @@ class InsertionOrderController extends Controller
         $ioNo           = $request->ioNo;
         $insertionOrder = InsertionOrder::with(['customer', 'affiliate'])->where('io_no', $ioNo)->first();
 
+        if ($request->type == 'cancel') {
+            $insertionOrder->status = 'canceled';
+            if (!$insertionOrder->save()) {
+                return ['success' => false, 'msg' => 'Insertion order cancellation fialed'];
+            }
+        }
+
         if (empty($insertionOrder)) {
             return ['success' => false, 'msg' => 'Insertion order not found'];
         }
@@ -371,6 +378,9 @@ class InsertionOrderController extends Controller
 
         Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal));
 
-        return ['success' => true, 'msg' => 'Insertion order document sent successfully'];
+        return [
+            'success' => true,
+            'msg'     => 'Insertion order ' . ($request->type == 'cancel' ? 'canceled' : 'document sent') . ' successfully'
+        ];
     }
 }

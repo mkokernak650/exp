@@ -12,7 +12,7 @@ export default function ResendIODoc({ data }) {
     const resendIoDocument = () => {
         setLoading(true)
         axios
-            .post(route('insertion.order.resend.io.document', { ioNo }))
+            .post(route('insertion.order.resend.io.document', { ioNo, type: 'reSend' }))
             .then((response) => {
                 if (response.data.success === true) {
                     toast.success(response.data.msg)
