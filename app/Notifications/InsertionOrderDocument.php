@@ -55,7 +55,16 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('ConsumerEXP Insertion Order Document')
-            ->line('ConsumerEXP insertion order final document.')
+            ->lineIf(
+                $this->billingDetails['status'] == 'accepted',
+                'ConsumerEXP insertion order final document.'
+            )
+            ->lineIf(
+                $this->billingDetails['status'] == 'canceled',
+                'This IO has been cancelled by ConsumerEXP. 
+                Please stop running the TV commercial as described in the attached PDF as soon as possible.  
+                Please contact ConsumerEXP with any questions or comments.'
+            )
             ->line('Insertion Order NO: ' . $ioNo . '.')
             ->line('Please find the attached file.')
             ->attachData($pdf->output(), 'Insertion Order ' . $ioNo . '.pdf', ['mime' => 'application/pdf',]);
