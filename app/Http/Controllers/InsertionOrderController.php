@@ -267,6 +267,8 @@ class InsertionOrderController extends Controller
                     $email = 'fahimikbal97@gmail.com';
                 }
 
+                $email = 'fahimikbal97@gmail.com'; //to be removed
+
                 Notification::route('mail', $email)->notify(new IOLink($item['ioLink']));
             }
         }
@@ -322,6 +324,8 @@ class InsertionOrderController extends Controller
         if (app()->environment('local')) {
             $email = 'fahimikbal97@gmail.com';
         }
+
+        $email = 'fahimikbal97@gmail.com'; //to be removed
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return ['success' => false, 'msg' => 'No email found! Document resending fail'];
