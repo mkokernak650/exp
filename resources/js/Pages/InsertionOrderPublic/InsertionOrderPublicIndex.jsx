@@ -15,9 +15,10 @@ const InsertionOrderPublicIndex = () => {
             .post(route('insertion.order.public.update.status', { id: billingDetails.id, status: value }))
             .then((response) => {
                 if (response.data.success === true) {
-                    billingDetails.status = response.data.status
-                    if (response.data.status === 'accepted') {
-                        toast.success('Insertion order accepted')
+                    const updatedStatus = response.data.status
+                    billingDetails.status = updatedStatus
+                    if (updatedStatus === 'accepted' || updatedStatus === 'canceled') {
+                        toast.success('Insertion order ' + updatedStatus)
                         sendIODocument()
                     } else {
                         toast.error('Insertion order declined')
@@ -162,6 +163,9 @@ const InsertionOrderPublicIndex = () => {
                 {billingDetails.status === 'pending' && <div className="decision-box-buttons">
                     <button style={{ backgroundColor: "#FF0000" }} onClick={() => changeIoStatus('declined')}>{loading ? 'Loading..' : 'Decline'}</button>
                     <button style={{ backgroundColor: "#6600FF" }} onClick={() => changeIoStatus('accepted')}>{loading ? 'Loading..' : 'Accept'}</button>
+                </div>}
+                {billingDetails.status === 'accepted' && <div className="decision-box-buttons">
+                    <button style={{ backgroundColor: "#ff0e0e" }} onClick={() => changeIoStatus('canceled')}>{loading ? 'Loading..' : 'Cancel'}</button>
                 </div>}
             </section>
         </>
