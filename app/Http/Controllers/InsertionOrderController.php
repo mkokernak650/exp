@@ -146,7 +146,7 @@ class InsertionOrderController extends Controller
             return ['success' => false, 'msg' => 'Fail to create'];
         }
 
-        if (!empty($emailData)) {
+        if (!empty($emailData) && $request->type != 'save') {
             $this->emailIOLink($emailData);
         }
 

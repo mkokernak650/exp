@@ -41,7 +41,7 @@ const InsertionOrderCreate = () => {
     const [selectedCodesAndPhones, setSelectedCodesAndPhones] = useState('')
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
     const [selectedTerm, setSelectedTerm] = useState('')
-    const [loading, setLoading] = useState({ view: false, submit: false, })
+    const [loading, setLoading] = useState({ view: false, submit: false, save: false })
     const [viewData, setViewData] = useState({})
     const [showViewModal, setShowViewModal] = useState({ open: false })
 
@@ -110,7 +110,7 @@ const InsertionOrderCreate = () => {
             })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e, type = 'create&save') => {
         e.preventDefault()
         const formData = new FormData()
         formData.append('selectedCustomers', customerIds)
@@ -118,7 +118,13 @@ const InsertionOrderCreate = () => {
         formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
         formData.append('insertionOrderFor', insertionOrderFor)
         formData.append('selectedTerm', selectedTerm)
-        setLoading((oldValues) => ({ ...oldValues, submit: true }))
+        formData.append('type', type)
+
+        if (type === 'create&save') {
+            setLoading((oldValues) => ({ ...oldValues, submit: true }))
+        } else {
+            setLoading((oldValues) => ({ ...oldValues, save: true }))
+        }
 
         axios
             .post(route('insertion.order.store'), formData)
@@ -132,15 +138,15 @@ const InsertionOrderCreate = () => {
                     setInsertionOrderFor('customer')
                     setSelectedTerm('')
                     toast.success(response.data.msg)
-                    setLoading((oldValues) => ({ ...oldValues, submit: false }))
+                    setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
                 } else {
                     toast.error(response.data.msg)
-                    setLoading((oldValues) => ({ ...oldValues, submit: false }))
+                    setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
                 }
             })
             .catch((err) => {
                 toast.error('Something went wrong!')
-                setLoading((oldValues) => ({ ...oldValues, submit: false }))
+                setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
             })
     }
 
@@ -270,11 +276,25 @@ const InsertionOrderCreate = () => {
                                     View
                                 </Button>
                             </Grid>
+                            <Grid item style={{ marginRight: '8px' }}>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.save || loading.submit}
+                                    type="button"
+                                    onClick={(e) => handleSubmit(e, 'save')}
+                                >
+                                    {loading.save && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                        <CircularProgress size={20} color="inherit" />
+                                    </span>)}
+                                    Save
+                                </Button>
+                            </Grid>
                             <Grid item>
                                 <Button
                                     variant="contained"
                                     color="primary"
-                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.submit}
+                                    disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.submit || loading.save}
                                     type="submit"
                                 >
                                     {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
