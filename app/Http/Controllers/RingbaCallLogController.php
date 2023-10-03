@@ -464,7 +464,7 @@ class RingbaCallLogController extends Controller
 
     private function getAffiliate()
     {
-        dd('duplicate aff');
+        // dd('duplicate aff');
         $createAffiliates = $updateAffilaites = [];
         $fromBilled       = DB::table('billed_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
         $fromArchived     = DB::table('archived_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
@@ -494,10 +494,11 @@ class RingbaCallLogController extends Controller
         }
 
         foreach ($updateAffilaites as $key => $item) {
-            DB::table('affiliates')->where('id', $key)->update(['affiliate_id' => $item]);
+           $result[] = DB::table('affiliates')->where('id', $key)->update(['affiliate_id' => $item]);
         }
 
-        DB::table('affiliates')->insert($createAffiliates);
+        $result2 = DB::table('affiliates')->insert($createAffiliates);
+        dd($result, $result2);
     }
 
     // for get Customer
