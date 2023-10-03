@@ -464,6 +464,7 @@ class RingbaCallLogController extends Controller
 
     private function getAffiliate()
     {
+        dd('duplicate aff');
         $createAffiliates = $updateAffilaites = [];
         $fromBilled       = DB::table('billed_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
         $fromArchived     = DB::table('archived_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
