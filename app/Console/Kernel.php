@@ -25,8 +25,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('activitylog:clean')->daily();
-        $schedule->command('getdata:daily');
-        $schedule->command('schedule:delete-custom-email-files')->everyMinute();
+        $schedule->command('getdata:daily')->daily();
+        $schedule->command('schedule:delete-custom-email-files')->weekly();
     }
 
     /**
