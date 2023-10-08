@@ -47,11 +47,26 @@ const useStyles = makeStyles((theme) => ({
 const GetRingbaData = () => {
   const classes = useStyles()
   const { lastDataFetchedDate } = usePage().props
+
+  const getEndDate = () => {
+    const createCurrentDate = new Date(currentDate())
+    if (lastDataFetchedDate.length) {
+      const lastFetchedDate = new Date(lastDataFetchedDate[0].end_date)
+      const dateDifference = createCurrentDate.getTime() - lastFetchedDate.getTime()
+      if (dateDifference > 0) {
+        return currentDate()
+      }
+      return lastDataFetchedDate[0].end_date
+    }
+    return currentDate()
+  }
+
   const [values, setValues] = useState({
     start_date: lastDataFetchedDate.length > 0 ? lastDataFetchedDate[0].end_date : currentDate(),
-    end_date: currentDate(),
+    end_date: getEndDate(),
   })
   const [loading, setLoading] = useState(false)
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setValues((oldValues) => ({
