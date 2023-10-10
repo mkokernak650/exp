@@ -1471,3 +1471,14 @@ div::-webkit-scrollbar-thumb {
 }
 
 /* public io style end */
+
+/* sales import fields map save */
+
+.fields-map-save-error {
+    border-left: #DC3545 3px solid;
+    padding: 5px 8px;
+    margin-top: 15px;
+    color: #DC3545;
+}
+
+/* sales import fields map save */

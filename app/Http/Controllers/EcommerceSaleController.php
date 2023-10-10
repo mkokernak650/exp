@@ -12,6 +12,7 @@ use App\Models\Affiliate;
 use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
+use App\Models\SalesImportFieldMap;
 use App\Models\TableDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -299,6 +300,33 @@ class EcommerceSaleController extends Controller
                 ->withProperties(['name' => $userFullName, 'email' => $userEmail, 'ids' => $ids])
                 ->log("{$idsCount} {$itemsCount} has been deleted");
             return response()->json(['msg' => 'Successfully Deleted', 'status_code' => 204]);
+        }
+    }
+
+    public function saveFieldsMap(Request $request)
+    {
+        $campaignId = $request->values['campaign_id'];
+        $customerId = $request->values['customer_id'];
+        $orderType  = $request->values['order_type'];
+        $fieldsMap  = $request->fieldMap;
+
+        if (empty($customerId) || empty($customerId) || empty($orderType) || empty($fieldsMap)) {
+            return ['success' => false, 'responseType' => 'empty', 'msg' => 'Required fields are missing!'];
+        }
+
+        $result = SalesImportFieldMap::updateOrCreate(
+            [
+                'campaign_id' => $campaignId,
+                'customer_id' => $customerId,
+                'order_type'  => $orderType,
+            ],
+            ['field_map'   => json_encode($fieldsMap)]
+        );
+
+        if ($result) {
+            $saveStatus = $result->wasRecentlyCreated ? 'saved' : 'updated';
+
+            return ['success' => true, 'msg' => "Fields map {$saveStatus} successfully"];
         }
     }
 }

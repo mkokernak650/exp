@@ -44,11 +44,12 @@ const SalesImport = () => {
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({ import: false, fieldMap: false });
   const [fileSelected, setFileSelected] = useState(false);
   const [fieldMap, setFieldMap] = useState([]);
   const [reportFields, setReportFields] = useState([]);
   const { campaigns, customers } = usePage().props;
+  const [fieldsMapSaveError, setFieldsMapSaveError] = useState('')
 
   const handleFile = (file) => {
     // Boilerplate to set up FileReader
@@ -123,7 +124,7 @@ const SalesImport = () => {
       return;
     }
 
-    setLoading(true);
+    setLoading((oldValues) => ({ ...oldValues, import: true }))
     const formData = new FormData();
     formData.append('file', values.file);
     formData.append('campaign_id', values.campaign_id);
@@ -142,7 +143,7 @@ const SalesImport = () => {
         if (res.data?.alreadyExists) {
           exportReportAlreadyExist(res.data.alreadyExists);
         }
-        setLoading(false);
+        setLoading((oldValues) => ({ ...oldValues, import: false }))
         toast.success(res.data.msg, { duration: 10000 });
       })
       .catch((err) => {
@@ -154,7 +155,7 @@ const SalesImport = () => {
         } else if (err.response.data?.msg) {
           errors = err.response.data.msg;
         }
-        setLoading(false);
+        setLoading((oldValues) => ({ ...oldValues, import: false }))
         toast.error(errors, { duration: 5000 });
       });
   };
@@ -164,6 +165,26 @@ const SalesImport = () => {
     newFieldMap.splice(i, 0, {});
     setFieldMap([...newFieldMap]);
   };
+
+  const saveOrUpdateFieldsMap = () => {
+    setFieldsMapSaveError('')
+    setLoading((oldValues) => ({ ...oldValues, fieldMap: true }))
+
+    axios.post(route('sales.import.save.fields.map'), { values, fieldMap })
+      .then((response) => {
+        if (response.data.success === false && response.data.responseType === 'empty') {
+          setFieldsMapSaveError(response.data.msg)
+        } else if (response.data.success === true) {
+          toast.success(response.data.msg)
+        }
+        // console.log(response)
+        setLoading((oldValues) => ({ ...oldValues, fieldMap: false }))
+      }).catch((err) => {
+        console.log(err)
+        toast.error('Something went wrong!')
+        setLoading((oldValues) => ({ ...oldValues, fieldMap: false }))
+      })
+  }
 
   return (
     <>
@@ -295,23 +316,38 @@ const SalesImport = () => {
                 </div>
               </Grid>
             )}
-
-            <Grid item xs={12}>
+          </Grid>
+          <Grid container justifyContent="flex-end" style={{ marginTop: '15px' }}>
+            <Grid item style={{ marginRight: '8px' }}>
               <Button
-                disabled={!checkMappedFields()}
+                variant="outlined"
+                color={fieldsMapSaveError ? 'secondary' : 'primary'}
+                type="button"
+                disabled={!checkMappedFields() || !values.campaign_id || !values.customer_id || !values.order_type || loading.fieldMap || loading.import}
+                onClick={saveOrUpdateFieldsMap}
+              >
+                {loading.fieldMap &&
+                  <CircularProgress color="inherit" thickness={3} size="1.2rem" style={{ marginRight: '5px' }} />}
+                Save Fields Map
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                disabled={!checkMappedFields() || loading.import || loading.fieldMap}
                 variant="contained"
                 color="primary"
                 type="submit"
               >
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Import'
-                )}
+                {loading.import &&
+                  <CircularProgress color="inherit" thickness={3} size="1.2rem" style={{ marginRight: '5px' }} />}
+                Import
               </Button>
             </Grid>
           </Grid>
         </form>
+        {fieldsMapSaveError &&
+          <div className="fields-map-save-error">{fieldsMapSaveError}</div>
+        }
       </Paper>
     </>
   );
