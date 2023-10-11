@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('ecommerce-sales/deleteSelected', [EcommerceSaleController::class, 'deleteSelected'])->name('ecommerce-sales.deleteSelected');
     Route::get('/ecommerce-sales-export', [EcommerceSaleController::class, 'export'])->name('ecommerce.sales.export');
     Route::post('ecommerce-sales/import/save-fields-map', [EcommerceSaleController::class, 'saveFieldsMap'])->name('sales.import.save.fields.map');
+    Route::post('ecommerce-sales/import/get-fields-map', [EcommerceSaleController::class, 'getFieldsMap'])->name('sales.import.get.fields.map');
 
     Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceReport'])->name('ecommerce.report');
     Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceReportGenerate'])->name('ecommerce.report.generate');

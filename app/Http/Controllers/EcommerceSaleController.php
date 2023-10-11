@@ -329,4 +329,20 @@ class EcommerceSaleController extends Controller
             return ['success' => true, 'msg' => "Fields map {$saveStatus} successfully"];
         }
     }
+
+    public function getFieldsMap(Request $request)
+    {
+        $data      = $request->all();
+        $fieldsMap = SalesImportFieldMap::select('field_map')
+            ->where('campaign_id', $data['campaign_id'])
+            ->where('customer_id', $data['customer_id'])
+            ->where('order_type', $data['order_type'])
+            ->get()->value('field_map');
+
+        if (!empty($fieldsMap)) {
+            return ['success' => true, 'data' => json_decode($fieldsMap)];
+        } else {
+            return ['success' => false, 'data' => []];
+        }
+    }
 }

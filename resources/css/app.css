@@ -1481,4 +1481,11 @@ div::-webkit-scrollbar-thumb {
     color: #DC3545;
 }
 
+.apply-fields-map {
+    background-color: #F2F2F2;
+    border-left: #097fe6 3px solid;
+    padding: 8px 5px;
+    border-radius: 0 5px 5px 0;
+}
+
 /* sales import fields map save */

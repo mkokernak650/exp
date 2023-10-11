@@ -44,12 +44,13 @@ const SalesImport = () => {
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
-  const [loading, setLoading] = useState({ import: false, fieldMap: false });
+  const [loading, setLoading] = useState({ import: false, fieldMap: false, gettingFieldsMap: false });
   const [fileSelected, setFileSelected] = useState(false);
   const [fieldMap, setFieldMap] = useState([]);
   const [reportFields, setReportFields] = useState([]);
   const { campaigns, customers } = usePage().props;
   const [fieldsMapSaveError, setFieldsMapSaveError] = useState('')
+  const [savedFieldsMap, setSavedFieldsMap] = useState(null)
 
   const handleFile = (file) => {
     // Boilerplate to set up FileReader
@@ -186,6 +187,63 @@ const SalesImport = () => {
       })
   }
 
+  const getFieldsMap = () => {
+    const data = {
+      campaign_id: values.campaign_id,
+      customer_id: values.customer_id,
+      order_type: values.order_type,
+    }
+
+    setLoading((oldValues) => ({ ...oldValues, gettingFieldsMap: true }))
+
+    axios.post(route('sales.import.get.fields.map'), data)
+      .then((response) => {
+        if (response.data.success) {
+          setSavedFieldsMap(response.data.data)
+        } else if (!response.data.success) {
+          setSavedFieldsMap([])
+        }
+        setLoading((oldValues) => ({ ...oldValues, gettingFieldsMap: false }))
+      }).catch((err) => {
+        console.log(err)
+        setLoading((oldValues) => ({ ...oldValues, gettingFieldsMap: false }))
+      })
+  }
+
+  useEffect(() => {
+    if (values.campaign_id && values.customer_id && values.order_type) {
+      getFieldsMap()
+    } else {
+      setSavedFieldsMap(null)
+    }
+  }, [values.campaign_id, values.customer_id, values.order_type])
+
+  const showApplyFieldsMap = () => {
+    let message = ''
+
+    if (loading.gettingFieldsMap) {
+      message = (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <CircularProgress color="inherit" thickness={3} size="0.8rem" style={{ marginRight: '5px' }} /> Fetching fields map...
+        </div >
+      )
+    } else if (savedFieldsMap === null) {
+      message = (
+        <div>For applying <b>key</b> (fields map), select <b>campaign</b>, <b>customer</b>, and <b>order type</b> first.</div>
+      )
+    } else if (savedFieldsMap.length && fileSelected) {
+      message = 'Key (fields map) available.'
+    } else if (savedFieldsMap.length && !fileSelected) {
+      message = 'Key (fields map) available, select a file to apply it.'
+    } else if (!savedFieldsMap.length) {
+      message = 'No Key found! You can save new after completing field map.'
+    }
+
+    return message
+  }
+
+  // console.log(savedFieldsMap, 'saved-fields-map')
+
   return (
     <>
       <Helmet title="Import Sales Report" />
@@ -287,7 +345,11 @@ const SalesImport = () => {
                 <b>Supported File Type: csv, xlsx</b>
               </small>
             </Grid>
-
+            <Grid item xs={12} style={{ paddingBottom: '5px' }} >
+              <div className="apply-fields-map">
+                {showApplyFieldsMap()}
+              </div>
+            </Grid>
             {fileSelected && (
               <Grid item xs={12}>
                 <div className="flx flx-around mt-4 mb-2" style={{ marginRight: 40 }}>
@@ -317,7 +379,7 @@ const SalesImport = () => {
               </Grid>
             )}
           </Grid>
-          <Grid container justifyContent="flex-end" style={{ marginTop: '15px' }}>
+          <Grid container justifyContent="flex-end" style={{ marginTop: '20px' }}>
             <Grid item style={{ marginRight: '8px' }}>
               <Button
                 variant="outlined"
@@ -328,7 +390,7 @@ const SalesImport = () => {
               >
                 {loading.fieldMap &&
                   <CircularProgress color="inherit" thickness={3} size="1.2rem" style={{ marginRight: '5px' }} />}
-                Save Fields Map
+                {savedFieldsMap?.length ? 'Update' : 'Save'} Fields Map
               </Button>
             </Grid>
             <Grid item>
