@@ -1,6 +1,6 @@
 import { React, useState } from 'react';
 import Layout from '../Layout/Layout';
-import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core';
+import { CircularProgress, Paper, Typography, TextField, Button, FormControlLabel, Checkbox } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
@@ -51,6 +51,7 @@ const SalesImport = () => {
   const { campaigns, customers } = usePage().props;
   const [fieldsMapSaveError, setFieldsMapSaveError] = useState('')
   const [savedFieldsMap, setSavedFieldsMap] = useState(null)
+  const [applyKeyChecked, setApplyKeyChecked] = useState(false)
 
   const handleFile = (file) => {
     // Boilerplate to set up FileReader
@@ -73,7 +74,7 @@ const SalesImport = () => {
     else reader.readAsArrayBuffer(file);
   };
 
-  useEffect(() => {
+  const generateReportFields = () => {
     let newFieldMap = [];
 
     reportFields[0] &&
@@ -82,6 +83,11 @@ const SalesImport = () => {
       });
 
     setFieldMap([...newFieldMap]);
+    setApplyKeyChecked(false)
+  }
+
+  useEffect(() => {
+    generateReportFields()
   }, [reportFields]);
 
   const handleChange = (e) => {
@@ -178,7 +184,6 @@ const SalesImport = () => {
         } else if (response.data.success === true) {
           toast.success(response.data.msg)
         }
-        // console.log(response)
         setLoading((oldValues) => ({ ...oldValues, fieldMap: false }))
       }).catch((err) => {
         console.log(err)
@@ -212,6 +217,7 @@ const SalesImport = () => {
 
   useEffect(() => {
     if (values.campaign_id && values.customer_id && values.order_type) {
+      generateReportFields()
       getFieldsMap()
     } else {
       setSavedFieldsMap(null)
@@ -232,7 +238,24 @@ const SalesImport = () => {
         <div>For applying <b>key</b> (fields map), select <b>campaign</b>, <b>customer</b>, and <b>order type</b> first.</div>
       )
     } else if (savedFieldsMap.length && fileSelected) {
-      message = 'Key (fields map) available.'
+      message = (
+        <div>
+          <span style={{ marginRight: '5px' }}>
+            Key (fields map) available.
+          </span>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={applyKeyChecked}
+                onChange={handleApplyKeyChange}
+                name="apply_key"
+                color="primary"
+              />
+            }
+            label="Apply key"
+          />
+        </div>
+      )
     } else if (savedFieldsMap.length && !fileSelected) {
       message = 'Key (fields map) available, select a file to apply it.'
     } else if (!savedFieldsMap.length) {
@@ -242,7 +265,14 @@ const SalesImport = () => {
     return message
   }
 
-  // console.log(savedFieldsMap, 'saved-fields-map')
+  const handleApplyKeyChange = (e) => {
+    if (e.target.checked) {
+      setFieldMap(savedFieldsMap)
+      setApplyKeyChecked(current => !current)
+    } else {
+      generateReportFields()
+    }
+  }
 
   return (
     <>
