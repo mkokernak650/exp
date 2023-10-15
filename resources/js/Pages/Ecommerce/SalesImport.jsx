@@ -376,11 +376,9 @@ const SalesImport = () => {
               </small>
             </Grid>
             <Grid item xs={12} style={{ paddingBottom: '5px' }} >
-              {/* to be uncommented */}
-              {/* <div className="apply-fields-map">
+              <div className="apply-fields-map">
                 {showApplyFieldsMap()}
-              </div> */}
-              {/* to be uncommented */}
+              </div>
             </Grid>
             {fileSelected && (
               <Grid item xs={12}>
@@ -412,8 +410,7 @@ const SalesImport = () => {
             )}
           </Grid>
           <Grid container justifyContent="flex-end" style={{ marginTop: '20px' }}>
-            {/* to be uncommented */}
-            {/* <Grid item style={{ marginRight: '8px' }}>
+            <Grid item style={{ marginRight: '8px' }}>
               <Button
                 variant="outlined"
                 color={fieldsMapSaveError ? 'secondary' : 'primary'}
@@ -425,8 +422,7 @@ const SalesImport = () => {
                   <CircularProgress color="inherit" thickness={3} size="1.2rem" style={{ marginRight: '5px' }} />}
                 {savedFieldsMap?.length ? 'Update' : 'Save'} Fields Map
               </Button>
-            </Grid> */}
-            {/* to be uncommented */}
+            </Grid>
             <Grid item>
               <Button
                 disabled={!checkMappedFields() || loading.import || loading.fieldMap}
