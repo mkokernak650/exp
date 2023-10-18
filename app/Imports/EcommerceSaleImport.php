@@ -75,6 +75,8 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
         $this->salesCount += 1;
         $orderDate         = $this->getDateTime($row);
 
+        // dd($orderDate); //test
+
         if (!is_null($orderDate)) {
             if (gettype($orderDate) !== 'string') {
                 $orderDate = Date::excelToTimestamp($orderDate, config('app.timezone'));
@@ -83,9 +85,22 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
         }
 
         $keys = array_keys($this->order_at, $orderDate);
+        // dd($this->couponCodes); //test
+
+        // dd($orderDate, $this->order_at); //test
+
+        //test
+        if (in_array($orderDate, $this->order_at)) {
+            array_push($this->alreadyExist, $row);
+            return;
+        }
+        //test
+
 
         if (!empty($keys)) {
+            // dd($keys); //test
             foreach ($keys as $key) {
+                // dd($key); //test
                 if (
                     $this->getValue($row, 'total') == $this->totals[$key] &&
                     $this->reqCampaignId == $this->campaignIds[$key] &&
