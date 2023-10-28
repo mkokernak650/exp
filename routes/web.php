@@ -39,6 +39,7 @@ use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\InsertionOrderController;
 use App\Http\Controllers\InsertionOrderPublicController;
+use App\Http\Controllers\RingbaInsertionOrderTermController;
 use App\Http\Controllers\RingbaReportsController;
 use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\UserController;
@@ -257,6 +258,9 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/delete', [InsertionOrderController::class, 'delete'])->name('insertion.order.delete');
     Route::post('insertion-order/resend-io-document', [InsertionOrderController::class, 'resendIODocument'])->name('insertion.order.resend.io.document');
     Route::post('insertion-order/view', [InsertionOrderController::class, 'view'])->name('insertion.order.view');
+
+    // RingbaInsertionOrder
+    Route::get('ringba/insertion-order-term/create', [RingbaInsertionOrderTermController::class, 'index'])->name('ringba.insertion.order.term.create');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');

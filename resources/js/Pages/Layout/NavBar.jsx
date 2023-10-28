@@ -398,6 +398,10 @@ export default function PersistentDrawerLeft(props) {
           title: 'All Insertion Orders',
           href: 'insertion.order',
         },
+        {
+          title: 'Create Ringba IO Terms',
+          href: 'ringba.insertion.order.term.create',
+        },
       ],
     },
     {
