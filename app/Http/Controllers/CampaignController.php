@@ -26,12 +26,13 @@ class CampaignController extends Controller
             if (!in_array($ringbaCampaign->name, $pluckedCampaignsName)) {
                 $newCampaign[$key] = [
                     'campaign_name' => $ringbaCampaign->name,
+                    'campaign_id'   => $ringbaCampaign->id,
                     'status'        => $ringbaCampaign->enabled,
                     'created_at'    => now(),
                 ];
             } else {
                 Campaign::where('campaign_name', $ringbaCampaign->name)->first()->update([
-                    'status' => $ringbaCampaign->enabled
+                    'status' => $ringbaCampaign->enabled, 'campaign_id' => $ringbaCampaign->id
                 ]);
             }
         }

@@ -12,8 +12,10 @@ class Campaign extends Model
 
     protected $fillable = [
         'campaign_name',
+        'campaign_id',
         'connection_duration',
         'status',
+        'description'
     ];
 
     public function ecommerceAffiliates(): HasMany

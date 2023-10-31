@@ -400,7 +400,7 @@ export default function PersistentDrawerLeft(props) {
         },
         {
           title: 'Create Ringba IO Terms',
-          href: 'ringba.insertion.order.term.create',
+          href: 'insertion.order.ringba.term.create',
         },
       ],
     },

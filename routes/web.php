@@ -260,7 +260,7 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/view', [InsertionOrderController::class, 'view'])->name('insertion.order.view');
 
     // RingbaInsertionOrder
-    Route::get('ringba/insertion-order-term/create', [RingbaInsertionOrderTermController::class, 'index'])->name('ringba.insertion.order.term.create');
+    Route::get('insertion-order/ringba/term/create', [RingbaInsertionOrderTermController::class, 'index'])->name('insertion.order.ringba.term.create');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
