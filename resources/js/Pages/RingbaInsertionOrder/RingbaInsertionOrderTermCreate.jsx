@@ -29,28 +29,29 @@ const useStyles = makeStyles((theme) => ({
 
 const RingbaInsertionOrderTermCreate = () => {
     const classes = useStyles()
-    const { campaigns, customers, affiliateOptions, ringbaNumbers } = usePage().props
+    const { campaigns, customers } = usePage().props
     const [selectedCampaign, setSelectedCampaign] = useState('')
     const [selectedCustomer, setSelectedCustomer] = useState('')
+    const [affiliateOptions, setAffiliateOptions] = useState([])
+    const [phoneOptions, setPhoneOptions] = useState([])
+    const [payoutOptions, setPayoutOptions] = useState([])
+    const [revenueOptions, setRevenueOptions] = useState([])
     const [selectedAffiliate, setSelectedAffiliate] = useState('')
     const [selectedPhone, setSelectedPhone] = useState('')
     const [orderType, setOrderType] = useState('')
     const [selectedTerm, setSelectedTerm] = useState('')
-    const [loading, setLoading] = useState({ view: false, submit: false, save: false })
+    const [selectedPayout, setSelectedPayout] = useState('')
+    const [selectedRevenue, setSelectedRevenue] = useState('')
+    const [loading, setLoading] = useState({ submit: false, campaignData: false })
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
-        value: item.campaign_name,
+        value: item.campaign_id === null ? "null" : item.campaign_id,
     }))
 
     const customerOptions = customers.map((item) => ({
         label: item.customer_name,
         value: item.customer_name,
-    }))
-
-    const ringbaNumberOptions = ringbaNumbers.map((item) => ({
-        label: item.phoneNumber,
-        value: item.phoneNumber
     }))
 
     const terms = ['Cash in advance', 'Net 7 days', 'Net 14 days', 'Net 30 days', 'Net 45 days']
@@ -59,6 +60,54 @@ const RingbaInsertionOrderTermCreate = () => {
         label: item,
         value: item,
     }))
+
+    const campaignHandleChange = (value) => {
+        setSelectedAffiliate('')
+        setSelectedPhone('')
+        setSelectedPayout('')
+        setSelectedRevenue('')
+        if (value) {
+            setSelectedCampaign(value)
+            getDataByCampaign(value)
+        } else {
+            setSelectedCampaign('')
+            setAffiliateOptions([])
+            setPhoneOptions([])
+            setPayoutOptions([])
+            setRevenueOptions([])
+        }
+    }
+
+    const getDataByCampaign = (campaignId) => {
+        if (campaignId === "null") {
+            toast.error('This campaign is not available in Ringba!')
+            return
+        }
+
+        setLoading((oldValues) => ({ ...oldValues, campaignData: true }))
+
+        axios.post(route('insertion.order.ringba.term.data.by.campaign'), { campaignId })
+            .then((response) => {
+                if (response.data.success) {
+                    const data = response.data.data
+                    setAffiliateOptions(data.affiliateOptions)
+                    setPhoneOptions(data.phoneOptions)
+                    setPayoutOptions(data.payoutOptions)
+                    setRevenueOptions(data.revenueOptions)
+                    toast.success(response.data.msg)
+                } else if (!response.data.success) {
+                    toast.error(response.data.msg)
+                } else {
+                    toast.error('something went wrong!')
+                }
+                setLoading((oldValues) => ({ ...oldValues, campaignData: false }))
+            })
+            .catch((err) => {
+                console.log(err)
+                setLoading((oldValues) => ({ ...oldValues, campaignData: false }))
+                toast.error('something went wrong!')
+            })
+    }
 
     // const handleSubmit = (e, type = 'create&save') => {
     //     e.preventDefault()
@@ -107,7 +156,7 @@ const RingbaInsertionOrderTermCreate = () => {
                         <Grid item xs={12}>
                             <MultiSelect
                                 name="select_campaign"
-                                onChange={(value) => setSelectedCampaign(value)}
+                                onChange={(value) => campaignHandleChange(value)}
                                 options={campaignOptions}
                                 defaultValue={selectedCampaign}
                                 style={{ width: '100%' }}
@@ -115,6 +164,11 @@ const RingbaInsertionOrderTermCreate = () => {
                                 singleSelect
                             />
                         </Grid>
+                        {loading.campaignData && <Grid item xs={12}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <CircularProgress color="inherit" thickness={3} size="0.8rem" style={{ marginRight: '5px' }} /> Fetching campaign related data...
+                            </div>
+                        </Grid>}
                         <Grid item xs={12}>
                             <MultiSelect
                                 name="select_customer"
@@ -135,6 +189,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 defaultValue={selectedAffiliate}
                                 style={{ width: '100%' }}
                                 placeholder="Select Affiliate"
+                                disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
                             />
                         </Grid>
@@ -143,10 +198,11 @@ const RingbaInsertionOrderTermCreate = () => {
                             <MultiSelect
                                 name="ringba_phone"
                                 onChange={(value) => setSelectedPhone(value)}
-                                options={ringbaNumberOptions}
+                                options={phoneOptions}
                                 defaultValue={selectedPhone}
                                 style={{ width: '100%' }}
                                 placeholder="Select Phone"
+                                disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
                             />
                         </Grid>
@@ -176,32 +232,32 @@ const RingbaInsertionOrderTermCreate = () => {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <TextField
-                                name="revenue"
-                                label="Revenue"
-                                variant="outlined"
-                                // onChange={handleChange}
-                                type="number"
-                                fullWidth
-                                required
-                                size="small"
+                            <MultiSelect
+                                name="select_payout"
+                                onChange={(value) => setSelectedPayout(value)}
+                                options={payoutOptions}
+                                defaultValue={selectedPayout}
+                                style={{ width: '100%' }}
+                                placeholder="Select Payout"
+                                disabled={!selectedCampaign || loading.campaignData}
+                                singleSelect
                             />
                         </Grid>
 
                         <Grid item xs={12}>
-                            <TextField
-                                name="payout"
-                                label="Payout"
-                                variant="outlined"
-                                // onChange={handleChange}
-                                type="number"
-                                fullWidth
-                                required
-                                size="small"
+                            <MultiSelect
+                                name="select_revenue"
+                                onChange={(value) => setSelectedRevenue(value)}
+                                options={revenueOptions}
+                                defaultValue={selectedRevenue}
+                                style={{ width: '100%' }}
+                                placeholder="Select Revenue"
+                                disabled={!selectedCampaign || loading.campaignData}
+                                singleSelect
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        {/* <Grid item xs={12}>
                             <TextField
                                 name="description"
                                 label="Description"
@@ -224,7 +280,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 fullWidth
                                 size="small"
                             />
-                        </Grid>
+                        </Grid> */}
 
                         <Grid item >
                             <Button

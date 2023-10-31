@@ -261,6 +261,7 @@ Route::middleware('auth')->group(function () {
 
     // RingbaInsertionOrder
     Route::get('insertion-order/ringba/term/create', [RingbaInsertionOrderTermController::class, 'index'])->name('insertion.order.ringba.term.create');
+    Route::post('insertion-order/ringba/term/get-data-by-campaign', [RingbaInsertionOrderTermController::class, 'getDataByCampaign'])->name('insertion.order.ringba.term.data.by.campaign');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
