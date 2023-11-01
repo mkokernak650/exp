@@ -34,6 +34,7 @@ const RingbaInsertionOrderTermCreate = () => {
     const [selectedCustomer, setSelectedCustomer] = useState('')
     const [affiliateOptions, setAffiliateOptions] = useState([])
     const [phoneOptions, setPhoneOptions] = useState([])
+    const [phoneOptionByAffiliate, setPhoneOptionByAffiliate] = useState([])
     const [payoutOptions, setPayoutOptions] = useState([])
     const [revenueOptions, setRevenueOptions] = useState([])
     const [selectedAffiliate, setSelectedAffiliate] = useState('')
@@ -73,6 +74,7 @@ const RingbaInsertionOrderTermCreate = () => {
             setSelectedCampaign('')
             setAffiliateOptions([])
             setPhoneOptions([])
+            setPhoneOptionByAffiliate([])
             setPayoutOptions([])
             setRevenueOptions([])
         }
@@ -92,6 +94,7 @@ const RingbaInsertionOrderTermCreate = () => {
                     const data = response.data.data
                     setAffiliateOptions(data.affiliateOptions)
                     setPhoneOptions(data.phoneOptions)
+                    setPhoneOptionByAffiliate(data.phoneOptions)
                     setPayoutOptions(data.payoutOptions)
                     setRevenueOptions(data.revenueOptions)
                     toast.success(response.data.msg)
@@ -107,6 +110,17 @@ const RingbaInsertionOrderTermCreate = () => {
                 setLoading((oldValues) => ({ ...oldValues, campaignData: false }))
                 toast.error('something went wrong!')
             })
+    }
+
+    const affiliateHandleChange = (value) => {
+        setSelectedAffiliate(value)
+        setSelectedPhone('')
+        if (value) {
+            const phoneOptionByAffiliate = phoneOptions.filter(item => item.affiliateId === value)
+            setPhoneOptionByAffiliate(phoneOptionByAffiliate)
+        } else {
+            setPhoneOptionByAffiliate(phoneOptions)
+        }
     }
 
     // const handleSubmit = (e, type = 'create&save') => {
@@ -184,7 +198,7 @@ const RingbaInsertionOrderTermCreate = () => {
                         <Grid item xs={12}>
                             <MultiSelect
                                 name="select_affiliate"
-                                onChange={(value) => setSelectedAffiliate(value)}
+                                onChange={(value) => affiliateHandleChange(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliate}
                                 style={{ width: '100%' }}
@@ -198,7 +212,7 @@ const RingbaInsertionOrderTermCreate = () => {
                             <MultiSelect
                                 name="ringba_phone"
                                 onChange={(value) => setSelectedPhone(value)}
-                                options={phoneOptions}
+                                options={phoneOptionByAffiliate}
                                 defaultValue={selectedPhone}
                                 style={{ width: '100%' }}
                                 placeholder="Select Phone"

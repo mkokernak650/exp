@@ -65,8 +65,9 @@ class RingbaInsertionOrderTermController extends Controller
 
         foreach ($campaign->affiliateNumbers as $item) {
             $phoneOptions[] = (object) [
-                'value' => $item->phoneNumber,
-                'label' => $item->phoneNumber
+                'value'       => $item->phoneNumber,
+                'label'       => $item->phoneNumber,
+                'affiliateId' => $item->affiliate->id
             ];
         }
 
