@@ -125,7 +125,7 @@ class EcommerceReportController extends Controller
                 $salesData = collect($salesData);
             }
 
-            $emailCriteria = $this->getEmailCriteria($request);
+            $emailCriteria = $this->getEmailCriteria($request, $salesData);
             $summary       = $request->reportOn != 'exportCSV' ? ['Summary' => ''] + $summary : $summary;
             $sendMailCtrl  = new SendMailController();
 
@@ -1245,7 +1245,7 @@ class EcommerceReportController extends Controller
         return $summary;
     }
 
-    protected function getEmailCriteria($requestData)
+    protected function getEmailCriteria($requestData, $salesData)
     {
         // $reportOn         = str_replace(['payPerOrder', 'cashBuy'], ['Pay Per Order', 'Cash Buy'], $requestData->reportFor);
         $reportOn         = ucwords(str_replace('marketTarget', 'Market Target', $requestData->reportOn)) . ' Report';
@@ -1287,6 +1287,20 @@ class EcommerceReportController extends Controller
             $startingDate  = date_format(date_create($requestData->start_date), 'd-M-Y');
             $endingDate    = date_format(date_create($requestData->end_date), 'd-M-Y');
             $reportOn     .= " <br> Date Range ({$startingDate} To {$endingDate})";
+        }
+
+        if ($requestData->reportFor === "payPerOrder" && ($requestData->reportOn === "detail" || $requestData->reportOn === "summary")) {
+            if ($requestData->type === "customer") {
+                $totalFee = $salesData->sum(function ($item) {
+                    return (float) $item->{'Total Fee'};
+                });
+                $reportOn .= "<br> Total Fee: {$totalFee}";
+            } else {
+                $affiliateFee = $salesData->sum(function ($item) {
+                    return (float) $item->{'Affiliate Fee'};
+                });
+                $reportOn .= "<br> Affiliate Fee: {$affiliateFee}";
+            }
         }
 
         return $reportOn;
