@@ -1294,12 +1294,12 @@ class EcommerceReportController extends Controller
                 $totalFee = $salesData->sum(function ($item) {
                     return (float) $item->{'Total Fee'};
                 });
-                $reportOn .= "<br> Total Fee: {$totalFee}";
+                $reportOn .= "<br> <p style='font-size: 18px;'><strong>Total Fee: {$totalFee}</strong></p>";
             } else {
                 $affiliateFee = $salesData->sum(function ($item) {
                     return (float) $item->{'Affiliate Fee'};
                 });
-                $reportOn .= "<br> Affiliate Fee: {$affiliateFee}";
+                $reportOn .= "<br> <p style='font-size: 18px;'><strong>Affiliate Fee: {$affiliateFee}</strong></p>";
             }
         }
 
