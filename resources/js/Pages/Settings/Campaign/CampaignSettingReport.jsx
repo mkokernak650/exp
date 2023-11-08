@@ -14,7 +14,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/Delete'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
-import { Button } from '@material-ui/core'
+import { Button, CircularProgress } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -37,6 +37,8 @@ const CampaignSettingReport = () => {
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
+  const [showDescriptionModal, setShowDescriptionModal] = useState({ open: false })
+  const [loading, setLoading] = useState({ description: false })
   const showColumnRef = useRef()
 
   const handleEditChange = (e) => {
@@ -120,6 +122,11 @@ const CampaignSettingReport = () => {
                 Exceptions
               </Button>
             </InertiaLink>
+            <div style={{ paddingLeft: '4px' }}>
+              <Button variant="contained" color="primary" onClick={() => handleDescriptionModal(value)}>
+                Description
+              </Button>
+            </div>
           </div>
         )
       }
@@ -243,6 +250,11 @@ const CampaignSettingReport = () => {
         <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
       </div>
     )
+  }
+
+  const handleDescriptionModal = (id) => {
+    setShowDescriptionModal({ open: true })
+    console.log(id)
   }
 
   return (
@@ -380,17 +392,57 @@ const CampaignSettingReport = () => {
         </div>
       </NormalModal>
 
+      <NormalModal
+        open={showDescriptionModal.open}
+        setOpen={setShowDescriptionModal}
+        width={'650px'}
+        title={'Campaign Description'}
+      >
+        <div>
+          <div>
+            <p style={{ textAlign: "center", marginBottom: "20px", marginTop: "-5px" }}>
+              Description for ABCD
+            </p>
+            <TextField
+              name="description"
+              label="Description"
+              variant="outlined"
+              // onChange={handleChange}
+              spellCheck
+              fullWidth
+              multiline
+              minRows="4"
+              maxRows="6"
+            />
+            <div style={{ display: "flex", marginTop: "20px", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                type="button"
+              >
+                {loading.description && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                  <CircularProgress size={15} color="inherit" />
+                </span>)}
+                Update Description
+              </Button>
+            </div>
+          </div>
+          <div onClick={() => setShowDescriptionModal({ open: false })} className="close-modal-icon">
+            <Cancel />
+          </div>
+        </div>
+      </NormalModal>
+
       <ConfirmModal
         open={showDeleteModal.open}
         setOpen={setShowDeleteModal}
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
     </>
   )
