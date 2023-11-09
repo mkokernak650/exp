@@ -39,6 +39,7 @@ const CampaignSettingReport = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [showDescriptionModal, setShowDescriptionModal] = useState({ open: false })
   const [loading, setLoading] = useState({ description: false })
+  const [descriptionModalData, setDescriptionModalData] = useState({})
   const showColumnRef = useRef()
 
   const handleEditChange = (e) => {
@@ -253,8 +254,45 @@ const CampaignSettingReport = () => {
   }
 
   const handleDescriptionModal = (id) => {
-    setShowDescriptionModal({ open: true })
-    console.log(id)
+    setDescriptionModalData({})
+    axios.get(route('campaign.get.description', id))
+      .then(response => {
+        if (response.data.success) {
+          setDescriptionModalData(response.data.data)
+          setShowDescriptionModal({ open: true })
+        } else if (!response.data.success) {
+          toast.error('Something went wrong!')
+        }
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error('Something went wrong!')
+      })
+  }
+
+  const handleDescriptionChange = (e) => {
+    setDescriptionModalData((values) => ({ ...values, description: e.target.value }))
+  }
+
+  const updateDescription = () => {
+    setLoading((oldValues) => ({ ...oldValues, description: true }))
+
+    axios.post(route('campaign.update.description'), { data: descriptionModalData })
+      .then(response => {
+        if (response.data.success) {
+          setShowDescriptionModal({ open: false })
+          setDescriptionModalData({})
+          toast.success(response.data.msg)
+        } else {
+          toast.error(response.data.msg)
+        }
+        setLoading((oldValues) => ({ ...oldValues, description: false }))
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error('Something went wrong!')
+        setLoading((oldValues) => ({ ...oldValues, description: false }))
+      })
   }
 
   return (
@@ -401,13 +439,14 @@ const CampaignSettingReport = () => {
         <div>
           <div>
             <p style={{ textAlign: "center", marginBottom: "20px", marginTop: "-5px" }}>
-              Description for ABCD
+              Description for <strong>{descriptionModalData?.campaign_name}</strong>
             </p>
             <TextField
               name="description"
               label="Description"
               variant="outlined"
-              // onChange={handleChange}
+              onChange={handleDescriptionChange}
+              value={descriptionModalData.description === null ? '' : descriptionModalData?.description}
               spellCheck
               fullWidth
               multiline
@@ -419,6 +458,8 @@ const CampaignSettingReport = () => {
                 variant="contained"
                 color="primary"
                 type="button"
+                onClick={updateDescription}
+                disabled={!descriptionModalData?.description || loading.description}
               >
                 {loading.description && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                   <CircularProgress size={15} color="inherit" />
@@ -427,7 +468,7 @@ const CampaignSettingReport = () => {
               </Button>
             </div>
           </div>
-          <div onClick={() => setShowDescriptionModal({ open: false })} className="close-modal-icon">
+          <div onClick={() => { setShowDescriptionModal({ open: false }); setDescriptionModalData({}) }} className="close-modal-icon">
             <Cancel />
           </div>
         </div>

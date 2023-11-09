@@ -56,6 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::get('campaign/{campaign}/annotations', [CampaignController::class, 'campaignAnnotations'])->name('campaign.annotations');
     Route::get('campaign/{campaign}/exceptions', [CampaignController::class, 'campaignExceptions'])->name('campaign.exceptions');
     Route::post('store-annotations-row-order', [CampaignController::class, 'storeAnnotationsRowOrder'])->name('store.annotations.row.order');
+    Route::get('campaign/get-description/{id}', [CampaignController::class, 'getDescription'])->name('campaign.get.description');
+    Route::post('campaign/update-description', [CampaignController::class, 'updateDescription'])->name('campaign.update.description');
 
     // E-commerce affiliate
     Route::resource('ecommerce-affiliates', EcommerceAffiliateController::class)->except('show', 'edit');

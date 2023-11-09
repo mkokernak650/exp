@@ -186,4 +186,27 @@ class CampaignController extends Controller
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
     }
+
+    public function getDescription($id)
+    {
+        $campaign = Campaign::select(['id', 'campaign_name', 'description'])->where('id', $id)->first();
+
+        if ($campaign) {
+            return ['success' => true, 'data' => $campaign];
+        }
+
+        return ['success' => false];
+    }
+
+    public function updateDescription(Request $request)
+    {
+        $data   = $request->data;
+        $result = Campaign::where('id', $data['id'])->update(['description' => $data['description']]);
+
+        if ($result) {
+            return ['success' => true, 'msg' => 'Description updated successfully'];
+        }
+
+        return ['success' => false, 'msg' => 'Description updating failed!'];
+    }
 }
