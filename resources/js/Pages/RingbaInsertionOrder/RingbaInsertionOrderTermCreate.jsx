@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, CircularProgress, Grid, Paper, TextField, Typography, makeStyles } from '@material-ui/core'
+import { Button, CircularProgress, FormControlLabel, Grid, Paper, Radio, RadioGroup, TextField, Typography, makeStyles } from '@material-ui/core'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -44,6 +44,7 @@ const RingbaInsertionOrderTermCreate = () => {
     const [selectedPayout, setSelectedPayout] = useState('')
     const [selectedRevenue, setSelectedRevenue] = useState('')
     const [loading, setLoading] = useState({ submit: false, campaignData: false })
+    const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -271,43 +272,67 @@ const RingbaInsertionOrderTermCreate = () => {
                             />
                         </Grid>
 
-                        {/* <Grid item xs={12}>
-                            <TextField
-                                name="description"
-                                label="Description"
-                                variant="outlined"
-                                // onChange={handleChange}
-                                spellCheck
-                                fullWidth
-                                multiline
-                                minRows="2"
-                                maxRows="4"
-                            />
+                        <Grid item xs={12}>
+                            <RadioGroup
+                                name="insertion_order_for"
+                                value={insertionOrderFor}
+                                onChange={(e) => setInsertionOrderFor(e.target.value)}
+                                style={{ display: 'flex', flexDirection: 'row' }}
+                            >
+                                <FormControlLabel
+                                    value="customer"
+                                    control={<Radio color="primary" />}
+                                    label="For Customer"
+                                />
+                                <FormControlLabel
+                                    value="affiliate"
+                                    control={<Radio color="primary" />}
+                                    label="For Affiliate"
+                                />
+                            </RadioGroup>
                         </Grid>
 
-                        <Grid item xs={12}>
-                            <TextField
-                                name="video_url"
-                                label="Video URL"
-                                variant="outlined"
-                                // onChange={handleChange}
-                                fullWidth
-                                size="small"
-                            />
-                        </Grid> */}
-
-                        <Grid item >
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                disabled
-                                type="submit"
-                            >
-                                {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                    <CircularProgress size={20} color="inherit" />
-                                </span>)}
-                                CREATE
-                            </Button>
+                        <Grid container justifyContent="flex-end">
+                            <Grid item style={{ marginRight: '8px' }}>
+                                <Button
+                                    variant="outlined"
+                                    disabled
+                                    type="button"
+                                // onClick={handleView}
+                                >
+                                    {loading.view && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                        <CircularProgress size={20} color="inherit" />
+                                    </span>)}
+                                    View
+                                </Button>
+                            </Grid>
+                            <Grid item style={{ marginRight: '8px' }}>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    disabled
+                                    type="button"
+                                // onClick={(e) => handleSubmit(e, 'save')}
+                                >
+                                    {loading.save && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                        <CircularProgress size={20} color="inherit" />
+                                    </span>)}
+                                    Save
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    disabled
+                                    type="submit"
+                                >
+                                    {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
+                                        <CircularProgress size={20} color="inherit" />
+                                    </span>)}
+                                    CREATE
+                                </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </form>
