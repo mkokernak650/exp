@@ -39,7 +39,7 @@ class RingbaInsertionOrderTermController extends Controller
 
     public function getDataByCampaign(Request $request)
     {
-        $affiliateOptions = $phoneOptions = $payoutOptions = $revenueOptions = [];
+        $affiliateOptions = $phoneOptions = $payoutOptions = $revenueOptions = $callLengthOptions = [];
         $apiResponse      = $this->campaignApiRequest($request->campaignId);
 
         if ($apiResponse == "string") {
@@ -48,8 +48,10 @@ class RingbaInsertionOrderTermController extends Controller
 
         $campaign = $apiResponse->campaign;
 
-        foreach ($campaign->affiliates as $affiliate) {
-            $affiliates[] = $affiliate->id;
+        if (isset($campaign->affiliates)) {
+            foreach ($campaign->affiliates as $affiliate) {
+                $affiliates[] = $affiliate->id;
+            }
         }
 
         if (!empty($affiliates)) {
@@ -63,12 +65,14 @@ class RingbaInsertionOrderTermController extends Controller
             }
         }
 
-        foreach ($campaign->affiliateNumbers as $item) {
-            $phoneOptions[] = (object) [
-                'value'       => $item->phoneNumber,
-                'label'       => $item->phoneNumber,
-                'affiliateId' => $item->affiliate->id
-            ];
+        if (isset($campaign->affiliateNumbers)) {
+            foreach ($campaign->affiliateNumbers as $item) {
+                $phoneOptions[] = (object) [
+                    'value'       => $item->phoneNumber,
+                    'label'       => $item->phoneNumber,
+                    'affiliateId' => $item->affiliate->id
+                ];
+            }
         }
 
         foreach ($campaign->defaultPayouts as $defaultPayout) {
@@ -76,6 +80,13 @@ class RingbaInsertionOrderTermController extends Controller
                 'value' => (string) $defaultPayout->payoutAmount,
                 'label' => $defaultPayout->payoutAmount
             ];
+
+            if (isset($defaultPayout->payoutConversionArgs) && isset($defaultPayout->payoutConversionArgs->callLengthInSeconds)) {
+                $callLengthOptions[] = (object) [
+                    'value' => (string) $defaultPayout->payoutConversionArgs->callLengthInSeconds,
+                    'label' => $defaultPayout->payoutConversionArgs->callLengthInSeconds . ' Sec'
+                ];
+            }
         }
 
         foreach ($campaign->routes as $route) {
@@ -87,10 +98,11 @@ class RingbaInsertionOrderTermController extends Controller
         }
 
         return ['success' => true, 'msg' => 'Data fetched successfully', 'data' => [
-            'affiliateOptions' => $affiliateOptions,
-            'phoneOptions'     => $phoneOptions,
-            'payoutOptions'    => $payoutOptions,
-            'revenueOptions'   => $revenueOptions
+            'affiliateOptions'  => $affiliateOptions,
+            'phoneOptions'      => $phoneOptions,
+            'payoutOptions'     => $payoutOptions,
+            'revenueOptions'    => $revenueOptions,
+            'callLengthOptions' => $callLengthOptions
         ]];
     }
 

@@ -37,12 +37,14 @@ const RingbaInsertionOrderTermCreate = () => {
     const [phoneOptionByAffiliate, setPhoneOptionByAffiliate] = useState([])
     const [payoutOptions, setPayoutOptions] = useState([])
     const [revenueOptions, setRevenueOptions] = useState([])
+    const [callLengthOptions, setCallLengthOptions] = useState([])
     const [selectedAffiliate, setSelectedAffiliate] = useState('')
     const [selectedPhone, setSelectedPhone] = useState('')
     const [orderType, setOrderType] = useState('')
     const [selectedTerm, setSelectedTerm] = useState('')
     const [selectedPayout, setSelectedPayout] = useState('')
     const [selectedRevenue, setSelectedRevenue] = useState('')
+    const [selectedCallLength, setSelectedCallLength] = useState('')
     const [loading, setLoading] = useState({ submit: false, campaignData: false })
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
 
@@ -68,6 +70,7 @@ const RingbaInsertionOrderTermCreate = () => {
         setSelectedPhone('')
         setSelectedPayout('')
         setSelectedRevenue('')
+        setSelectedCallLength('')
         if (value) {
             setSelectedCampaign(value)
             getDataByCampaign(value)
@@ -78,6 +81,7 @@ const RingbaInsertionOrderTermCreate = () => {
             setPhoneOptionByAffiliate([])
             setPayoutOptions([])
             setRevenueOptions([])
+            setCallLengthOptions([])
         }
     }
 
@@ -98,6 +102,7 @@ const RingbaInsertionOrderTermCreate = () => {
                     setPhoneOptionByAffiliate(data.phoneOptions)
                     setPayoutOptions(data.payoutOptions)
                     setRevenueOptions(data.revenueOptions)
+                    setCallLengthOptions(data.callLengthOptions)
                     toast.success(response.data.msg)
                 } else if (!response.data.success) {
                     toast.error(response.data.msg)
@@ -267,6 +272,19 @@ const RingbaInsertionOrderTermCreate = () => {
                                 defaultValue={selectedRevenue}
                                 style={{ width: '100%' }}
                                 placeholder="Select Revenue"
+                                disabled={!selectedCampaign || loading.campaignData}
+                                singleSelect
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <MultiSelect
+                                name="select_call_length"
+                                onChange={(value) => setSelectedCallLength(value)}
+                                options={callLengthOptions}
+                                defaultValue={selectedCallLength}
+                                style={{ width: '100%' }}
+                                placeholder="Select Call Length"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
                             />
