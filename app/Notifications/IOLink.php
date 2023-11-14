@@ -18,9 +18,13 @@ class IOLink extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($ioLink)
+    public function __construct($ioLink, $ioType = null)
     {
-        $this->ioLink = url('/') . '/insertion-order/public' . $ioLink;
+        if ($ioType === 'ringba') {
+            $this->ioLink = url('/') . '/insertion-order/ringba/public' . $ioLink;
+        } else {
+            $this->ioLink = url('/') . '/insertion-order/public' . $ioLink;
+        }
     }
 
     /**

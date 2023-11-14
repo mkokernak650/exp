@@ -45,7 +45,7 @@ const RingbaInsertionOrderTermCreate = () => {
     const [selectedPayout, setSelectedPayout] = useState('')
     const [selectedRevenue, setSelectedRevenue] = useState('')
     const [selectedCallLength, setSelectedCallLength] = useState('')
-    const [loading, setLoading] = useState({ submit: false, campaignData: false })
+    const [loading, setLoading] = useState({ submit: false, save: false, campaignData: false })
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
 
     const campaignOptions = campaigns.map((item) => ({
@@ -129,40 +129,53 @@ const RingbaInsertionOrderTermCreate = () => {
         }
     }
 
-    // const handleSubmit = (e, type = 'create&save') => {
-    //     e.preventDefault()
-    //     const formData = new FormData()
-    //     formData.append('selectedCodesAndPhones', selectedCodesAndPhones)
-    //     formData.append('insertionOrderFor', insertionOrderFor)
-    //     formData.append('selectedTerm', selectedTerm)
-    //     formData.append('type', type)
+    const handleSubmit = (e, type = 'create&save') => {
+        e.preventDefault()
 
-    //     if (type === 'create&save') {
-    //         setLoading((oldValues) => ({ ...oldValues, submit: true }))
-    //     } else {
-    //         setLoading((oldValues) => ({ ...oldValues, save: true }))
-    //     }
+        if (type === 'create&save') {
+            setLoading((oldValues) => ({ ...oldValues, submit: true }))
+        } else {
+            setLoading((oldValues) => ({ ...oldValues, save: true }))
+        }
 
-    //     axios
-    //         .post(route(''), formData)
-    //         .then((response) => {
-    //             if (response.data.success === true) {
-    //                 setSelectedAffiliate('')
-    //                 setSelectedCodesAndPhones('')
-    //                 setInsertionOrderFor('customer')
-    //                 setSelectedTerm('')
-    //                 toast.success(response.data.msg)
-    //                 setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
-    //             } else {
-    //                 toast.error(response.data.msg)
-    //                 setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
-    //             }
-    //         })
-    //         .catch((err) => {
-    //             toast.error('Something went wrong!')
-    //             setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
-    //         })
-    // }
+        const formData = new FormData()
+        formData.append('campaign_id', selectedCampaign)
+        formData.append('customer_id', selectedCustomer)
+        formData.append('affiliate_id', selectedAffiliate)
+        formData.append('phone', selectedPhone)
+        formData.append('order_type', orderType)
+        formData.append('term', selectedTerm)
+        formData.append('payout', selectedPayout)
+        formData.append('revenue', selectedRevenue)
+        formData.append('call_length', selectedCallLength)
+        formData.append('io_for', insertionOrderFor)
+
+        axios
+            .post(route('insertion.order.ringba.term.store'), formData)
+            .then((response) => {
+                if (response.data.success) {
+                    setSelectedCampaign('')
+                    setSelectedCustomer('')
+                    setSelectedAffiliate('')
+                    setSelectedPhone('')
+                    setOrderType('')
+                    setSelectedTerm('')
+                    setSelectedPayout('')
+                    setSelectedRevenue('')
+                    setSelectedCallLength('')
+                    setInsertionOrderFor('customer')
+                    toast.success(response.data.msg)
+                    setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
+                } else {
+                    toast.error(response.data.msg)
+                    setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+                setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
+            })
+    }
 
     return (
         <>
@@ -171,7 +184,7 @@ const RingbaInsertionOrderTermCreate = () => {
                 <Typography variant="h6" className={classes.title}>
                     Ringba Insertion Order Term
                 </Typography>
-                <form validate="true" onSubmit={''}>
+                <form validate="true" onSubmit={handleSubmit}>
                     <Grid container spacing={4}>
                         <Grid item xs={12}>
                             <MultiSelect
@@ -342,13 +355,13 @@ const RingbaInsertionOrderTermCreate = () => {
                                 <Button
                                     variant="contained"
                                     color="primary"
-                                    disabled
+                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedRevenue)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedPayout)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
                                     type="submit"
                                 >
                                     {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                                         <CircularProgress size={20} color="inherit" />
                                     </span>)}
-                                    CREATE
+                                    Create and Send
                                 </Button>
                             </Grid>
                         </Grid>

@@ -6,9 +6,12 @@ use App\Models\Affiliate;
 use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\RingbaAuthDetails;
+use App\Models\RingbaInsertionOrder;
+use App\Notifications\IOLink;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class RingbaInsertionOrderTermController extends Controller
@@ -106,6 +109,23 @@ class RingbaInsertionOrderTermController extends Controller
         ]];
     }
 
+    public function store(Request $request)
+    {
+        $data                 = $request->all();
+        $ioNo                 = uniqid();
+        $data['io_no']        = $ioNo;
+        $data['io_link']      = '?io=' . $ioNo . '&type=' . $data['io_for'];
+        $ringbaInsertionOrder = RingbaInsertionOrder::create($data);
+
+        if ($ringbaInsertionOrder) {
+            $this->emailIOLink($ringbaInsertionOrder);
+
+            return ['success' => true, 'msg' => 'Insertion order created successfully'];
+        }
+
+        return ['success' => false, 'msg' => 'Fail to create'];
+    }
+
     private function campaignApiRequest($campaignId)
     {
         $client      = new Client(['headers' => $this->ringbaApiHeader]);
@@ -118,5 +138,27 @@ class RingbaInsertionOrderTermController extends Controller
         }
 
         return json_decode($ringbaAffiliates->getBody()->getContents());
+    }
+
+    private function emailIOLink($ringbaInsertionOrder)
+    {
+        $ioFor  = $ringbaInsertionOrder->io_for;
+        $ioLink = $ringbaInsertionOrder->io_link;
+
+        if ($ioFor === 'customer') {
+            $customerId = $ringbaInsertionOrder->customer_id;
+            $email      = Customer::where('id', $customerId)->select(['email'])->value('email');
+        } elseif ($ioFor === 'affiliate') {
+            $affiliateId = $ringbaInsertionOrder->affiliate_id;
+            $email       = Affiliate::where('affiliate_id', $affiliateId)->select(['email'])->value('email');
+        }
+
+        if (app()->environment('local')) {
+            $email = 'fahimikbal97@gmail.com';
+        }
+
+        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Notification::route('mail', $email)->notify(new IOLink($ioLink, 'ringba'));
+        }
     }
 }
