@@ -55,7 +55,7 @@ const RingbaInsertionOrderTermCreate = () => {
 
     const customerOptions = customers.map((item) => ({
         label: item.customer_name,
-        value: item.customer_name,
+        value: item.id.toString(),
     }))
 
     const terms = ['Cash in advance', 'Net 7 days', 'Net 14 days', 'Net 30 days', 'Net 45 days']
