@@ -111,14 +111,20 @@ class RingbaInsertionOrderTermController extends Controller
 
     public function store(Request $request)
     {
-        $data                 = $request->all();
-        $ioNo                 = uniqid();
-        $data['io_no']        = $ioNo;
-        $data['io_link']      = '?io=' . $ioNo . '&type=' . $data['io_for'];
+        $data            = $request->all();
+        $ioNo            = uniqid();
+        $data['io_no']   = $ioNo;
+        $data['io_link'] = '?io=' . $ioNo . '&type=' . $data['io_for'];
+        $submitType      = $data['submit_type'];
+
+        unset($data['submit_type']);
+
         $ringbaInsertionOrder = RingbaInsertionOrder::create($data);
 
         if ($ringbaInsertionOrder) {
-            $this->emailIOLink($ringbaInsertionOrder);
+            if ($submitType != 'save') {
+                $this->emailIOLink($ringbaInsertionOrder);
+            }
 
             return ['success' => true, 'msg' => 'Insertion order created successfully'];
         }

@@ -58,7 +58,7 @@ const RingbaInsertionOrderTermCreate = () => {
         value: item.id.toString(),
     }))
 
-    const terms = ['Cash in advance', 'Net 7 days', 'Net 14 days', 'Net 30 days', 'Net 45 days']
+    const terms = ['Cash in advance', 'Net 7 days', 'Net 10 days', 'Net 14 days', 'Net 30 days', 'Net 45 days']
 
     const termOptions = terms.map((item) => ({
         label: item,
@@ -129,10 +129,10 @@ const RingbaInsertionOrderTermCreate = () => {
         }
     }
 
-    const handleSubmit = (e, type = 'create&save') => {
+    const handleSubmit = (e, submitType = 'create&save') => {
         e.preventDefault()
 
-        if (type === 'create&save') {
+        if (submitType === 'create&save') {
             setLoading((oldValues) => ({ ...oldValues, submit: true }))
         } else {
             setLoading((oldValues) => ({ ...oldValues, save: true }))
@@ -149,6 +149,7 @@ const RingbaInsertionOrderTermCreate = () => {
         formData.append('revenue', selectedRevenue)
         formData.append('call_length', selectedCallLength)
         formData.append('io_for', insertionOrderFor)
+        formData.append('submit_type', submitType)
 
         axios
             .post(route('insertion.order.ringba.term.store'), formData)
@@ -341,9 +342,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    disabled
+                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedRevenue)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedPayout)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
                                     type="button"
-                                // onClick={(e) => handleSubmit(e, 'save')}
+                                    onClick={(e) => handleSubmit(e, 'save')}
                                 >
                                     {loading.save && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                                         <CircularProgress size={20} color="inherit" />
