@@ -265,6 +265,7 @@ Route::middleware('auth')->group(function () {
     Route::get('insertion-order/ringba/term/create', [RingbaInsertionOrderTermController::class, 'index'])->name('insertion.order.ringba.term.create');
     Route::post('insertion-order/ringba/term/get-data-by-campaign', [RingbaInsertionOrderTermController::class, 'getDataByCampaign'])->name('insertion.order.ringba.term.data.by.campaign');
     Route::post('insertion-order/ringba/term/store', [RingbaInsertionOrderTermController::class, 'store'])->name('insertion.order.ringba.term.store');
+    Route::post('insertion-order/ringba/term/view', [RingbaInsertionOrderTermController::class, 'view'])->name('insertion.order.ringba.term.view');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');

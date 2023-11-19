@@ -7,6 +7,9 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import NormalModal from '../../Shared/NormalModal'
+import Cancel from '@/Components/Icons/Cancel.jsx'
+import RingbaIOModalView from '../../Components/IOComponents/RingbaIOModalView'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -45,8 +48,10 @@ const RingbaInsertionOrderTermCreate = () => {
     const [selectedPayout, setSelectedPayout] = useState('')
     const [selectedRevenue, setSelectedRevenue] = useState('')
     const [selectedCallLength, setSelectedCallLength] = useState('')
-    const [loading, setLoading] = useState({ submit: false, save: false, campaignData: false })
+    const [loading, setLoading] = useState({ submit: false, save: false, view: false, campaignData: false })
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
+    const [viewData, setViewData] = useState({})
+    const [showViewModal, setShowViewModal] = useState({ open: false })
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -175,6 +180,39 @@ const RingbaInsertionOrderTermCreate = () => {
             .catch((err) => {
                 toast.error('Something went wrong!')
                 setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
+            })
+    }
+
+    const handleView = () => {
+        setLoading((oldValues) => ({ ...oldValues, view: true }))
+
+        const formData = new FormData()
+        formData.append('campaign_id', selectedCampaign)
+        formData.append('customer_id', selectedCustomer)
+        formData.append('affiliate_id', selectedAffiliate)
+        formData.append('phone', selectedPhone)
+        formData.append('order_type', orderType)
+        formData.append('term', selectedTerm)
+        formData.append('payout', selectedPayout)
+        formData.append('revenue', selectedRevenue)
+        formData.append('call_length', selectedCallLength)
+        formData.append('io_for', insertionOrderFor)
+
+        axios
+            .post(route('insertion.order.ringba.term.view'), formData)
+            .then((response) => {
+                if (response.data.success === true) {
+                    setViewData(response.data.data)
+                    setShowViewModal({ open: true })
+                    setLoading((oldValues) => ({ ...oldValues, view: false }))
+                } else {
+                    toast.error(response.data.msg)
+                    setLoading((oldValues) => ({ ...oldValues, view: false }))
+                }
+            })
+            .catch((err) => {
+                toast.error('Something went wrong!')
+                setLoading((oldValues) => ({ ...oldValues, view: false }))
             })
     }
 
@@ -328,9 +366,9 @@ const RingbaInsertionOrderTermCreate = () => {
                             <Grid item style={{ marginRight: '8px' }}>
                                 <Button
                                     variant="outlined"
-                                    disabled
+                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedRevenue)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedPayout)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save || loading.view}
                                     type="button"
-                                // onClick={handleView}
+                                    onClick={handleView}
                                 >
                                     {loading.view && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                                         <CircularProgress size={20} color="inherit" />
@@ -369,6 +407,19 @@ const RingbaInsertionOrderTermCreate = () => {
                     </Grid>
                 </form>
             </Paper>
+            <NormalModal
+                open={showViewModal.open}
+                setOpen={setShowViewModal}
+                width={'794px'}
+                title={'Insertion Order View'}
+            >
+                <div>
+                    <RingbaIOModalView viewData={viewData} />
+                    <div onClick={() => setShowViewModal({ open: false })} className="close-modal-icon">
+                        <Cancel />
+                    </div>
+                </div>
+            </NormalModal>
         </>
     )
 }

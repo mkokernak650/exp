@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\RingbaAuthDetails;
 use App\Models\RingbaInsertionOrder;
 use App\Notifications\IOLink;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
@@ -132,6 +133,38 @@ class RingbaInsertionOrderTermController extends Controller
         return ['success' => false, 'msg' => 'Fail to create'];
     }
 
+    public function view(Request $request)
+    {
+        $lastIoId = RingbaInsertionOrder::toBase()->select('id')->latest()->first();
+        $data     = $request->all();
+        $ioFor    = $data['io_for'];
+
+        if ($ioFor === 'customer') {
+            $customer              = Customer::where('id', $data['customer_id'])->first();
+            $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId);
+        } elseif ($ioFor === 'affiliate') {
+            $affiliate             = Affiliate::where('affiliate_id', $data['affiliate_id'])->first();
+            $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId);
+        } else {
+            return ['success' => false, 'msg' => 'Billing-for not available'];
+        }
+
+        $campaign = Campaign::where('campaign_id', $data['campaign_id'])->first();
+
+        $orderDetailsForView = [
+            'titleName'   => (!empty($data['call_length']) ?  $data['call_length'] . ' sec- ' : '') . $campaign?->campaign_name,
+            'description' => $campaign?->description,
+            'term'        => $data['term'],
+            'phone'       => $data['phone'],
+            'netPrice'    => (float) ($ioFor === 'customer' ? $data['payout'] : $data['revenue'])
+        ];
+
+        return [
+            'success' => true,
+            'data'    => ['billingDetailsForView' => $billingDetailsForView, 'orderDetailsForView' => $orderDetailsForView, 'ioFor' => $ioFor]
+        ];
+    }
+
     private function campaignApiRequest($campaignId)
     {
         $client      = new Client(['headers' => $this->ringbaApiHeader]);
@@ -166,5 +199,19 @@ class RingbaInsertionOrderTermController extends Controller
         if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             Notification::route('mail', $email)->notify(new IOLink($ioLink, 'ringba'));
         }
+    }
+
+    private function billingDetailsForView($billingFor, $lastIoId)
+    {
+        $date = Carbon::now()->format('d-M-Y');
+
+        return [
+            'ioNo'         => 'IO-' . str_pad(($lastIoId->id + 1), 3, 0, STR_PAD_LEFT),
+            'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
+            'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+            'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
+            'address'      => $billingFor->address,
+            'date'         => $date
+        ];
     }
 }
