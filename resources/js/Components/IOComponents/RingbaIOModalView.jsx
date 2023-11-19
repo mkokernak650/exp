@@ -99,7 +99,7 @@ export default function RingbaIOModalView({ viewData }) {
                         that a commercial run by ConsumerEXP violates applicable federal or state law.
                     </p>
                     <p>ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order, can be cancelled with two weeks advance notice.
-                        {ioFor === 'customer' ? ' Customer may be charged for dubs if they cannot supply dubs' : ''}
+                        {ioFor === 'customer' ? ' Customer may be charged for dubs if they cannot supply dubs.' : ''}
                     </p>
                 </div>
                 <div className="io-footer">
