@@ -399,11 +399,11 @@ export default function PersistentDrawerLeft(props) {
           href: 'insertion.order',
         },
         {
-          title: 'Create Ringba IO Terms',
+          title: 'Create Pay Per Call IO',
           href: 'insertion.order.ringba.term.create',
         },
         {
-          title: 'ALL Ringba IO',
+          title: 'All Pay Per Call IO',
           href: 'insertion.order.ringba',
         },
       ],

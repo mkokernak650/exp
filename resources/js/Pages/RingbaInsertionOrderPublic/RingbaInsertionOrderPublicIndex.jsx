@@ -52,7 +52,7 @@ const RingbaInsertionOrderPublicIndex = () => {
 
     return (
         <>
-            <Helmet title="Ringba Insertion Order Public" />
+            <Helmet title="ConsumerEXP - Pay Per Call Insertion Order Public" />
             <section id="insertion-order-public" className="insertion-order-public">
                 <div className="consumerexp-heading">
                     <img src={Logo} alt="consumer-exp-logo"></img>

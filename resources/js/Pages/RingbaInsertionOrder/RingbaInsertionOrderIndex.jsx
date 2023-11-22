@@ -41,8 +41,6 @@ const RingbaInsertionOrderIndex = () => {
     const [filterByStatus, setFilterByStatus] = useState('')
     const baseUrl = window.location.origin
 
-    console.log(ringbaInsertionOrders)
-
     const mapDataArr = (data) => {
         return data.data.map((item) => ({
             formatted_created_at: item.formatted_created_at,
@@ -240,7 +238,7 @@ const RingbaInsertionOrderIndex = () => {
 
     return (
         <>
-            <Helmet title="Ringba Insertion Order - Index" />
+            <Helmet title="Pay Per Call Insertion Order - Index" />
             <div className="selection-demo">
                 {tableToolbar ? (
                     <TableToolbar />
@@ -339,5 +337,5 @@ const RingbaInsertionOrderIndex = () => {
     )
 }
 
-RingbaInsertionOrderIndex.layout = (page) => <Layout title="Ringba Insertion Order - Index">{page}</Layout>
+RingbaInsertionOrderIndex.layout = (page) => <Layout title="Pay Per Call Insertion Order - Index">{page}</Layout>
 export default RingbaInsertionOrderIndex

@@ -218,10 +218,10 @@ const RingbaInsertionOrderTermCreate = () => {
 
     return (
         <>
-            <Helmet title="Ringba Insertion Order Term - Create" />
+            <Helmet title="Pay Per Call Insertion Order Term - Create" />
             <Paper className={classes.root}>
                 <Typography variant="h6" className={classes.title}>
-                    Ringba Insertion Order Term
+                    Pay Per Call Insertion Order Term
                 </Typography>
                 <form validate="true" onSubmit={handleSubmit}>
                     <Grid container spacing={4}>
@@ -424,5 +424,5 @@ const RingbaInsertionOrderTermCreate = () => {
     )
 }
 
-RingbaInsertionOrderTermCreate.layout = (page) => <Layout title="Ringba Insertion Order Term - Create">{page}</Layout>
+RingbaInsertionOrderTermCreate.layout = (page) => <Layout title="Pay Per Call Insertion Order Term - Create">{page}</Layout>
 export default RingbaInsertionOrderTermCreate
