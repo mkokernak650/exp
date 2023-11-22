@@ -214,7 +214,7 @@ const RingbaInsertionOrderIndex = () => {
 
     const deleteHandler = () => {
         axios
-            .post(route('insertion.order.delete'), { selectedRowIds })
+            .post(route('insertion.order.ringba.term.delete'), { selectedRowIds })
             .then((res) => {
                 if (res.data.success === true) {
                     let filteredData = tableProps

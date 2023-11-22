@@ -18,7 +18,7 @@ class RingbaInsertionOrderPublicController extends Controller
         $ringbaInsertionOrder = RingbaInsertionOrder::where('io_no', request('io'))->first();
 
         if (empty($ringbaInsertionOrder)) {
-            return Inertia::render('InsertionOrderPublic/InsertionOrderPublicNotFound');
+            return Inertia::render('RingbaInsertionOrderPublic/RingbaInsertionOrderPublicNotFound');
         }
 
         $ioFor = $ringbaInsertionOrder->io_for;

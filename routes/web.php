@@ -268,6 +268,7 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/ringba/term/get-data-by-campaign', [RingbaInsertionOrderTermController::class, 'getDataByCampaign'])->name('insertion.order.ringba.term.data.by.campaign');
     Route::post('insertion-order/ringba/term/store', [RingbaInsertionOrderTermController::class, 'store'])->name('insertion.order.ringba.term.store');
     Route::post('insertion-order/ringba/term/view', [RingbaInsertionOrderTermController::class, 'view'])->name('insertion.order.ringba.term.view');
+    Route::post('insertion-order/ringba/term/delete', [RingbaInsertionOrderTermController::class, 'delete'])->name('insertion.order.ringba.term.delete');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
