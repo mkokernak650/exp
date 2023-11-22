@@ -7,11 +7,13 @@ use App\Models\Campaign;
 use App\Models\Customer;
 use App\Models\RingbaAuthDetails;
 use App\Models\RingbaInsertionOrder;
+use App\Models\TableDetails;
 use App\Notifications\IOLink;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
@@ -31,6 +33,32 @@ class RingbaInsertionOrderTermController extends Controller
 
             $this->ringbaAccountId = json_decode($ringbaAuthDetails->account_details)->accountId;
         }
+    }
+
+    public function allList()
+    {
+        $ringbaInsertionOrders = DB::table('ringba_insertion_orders')
+            ->when(
+                !empty(request('filterByStatus')),
+                fn ($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
+            )
+            ->select([
+                DB::raw('DATE_FORMAT(created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at'),
+                'id', 'io_for',
+                DB::raw('(SELECT campaign_name FROM campaigns WHERE campaigns.campaign_id = ringba_insertion_orders.campaign_id LIMIT 1) AS campaign'),
+                DB::raw('(SELECT customer_name FROM customers WHERE customers.id = ringba_insertion_orders.customer_id LIMIT 1) AS customer'),
+                DB::raw('(SELECT affiliate_name FROM affiliates WHERE affiliates.affiliate_id = ringba_insertion_orders.affiliate_id LIMIT 1) AS affiliate'),
+                'phone', 'term', 'payout', 'revenue', 'status', 'io_link'
+            ])
+            ->paginate(request('itemPerPage') ?? 10);
+
+        if (request('page')) {
+            return $ringbaInsertionOrders;
+        }
+
+        $columnsData = TableDetails::all()->pluck('column_details');
+
+        return Inertia::render('RingbaInsertionOrder/RingbaInsertionOrderIndex', compact('ringbaInsertionOrders', 'columnsData'));
     }
 
     public function index()

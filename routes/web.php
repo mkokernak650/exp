@@ -262,6 +262,7 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/view', [InsertionOrderController::class, 'view'])->name('insertion.order.view');
 
     // RingbaInsertionOrder
+    Route::get('insertion-order/ringba', [RingbaInsertionOrderTermController::class, 'allList'])->name('insertion.order.ringba');
     Route::get('insertion-order/ringba/term/create', [RingbaInsertionOrderTermController::class, 'index'])->name('insertion.order.ringba.term.create');
     Route::post('insertion-order/ringba/term/get-data-by-campaign', [RingbaInsertionOrderTermController::class, 'getDataByCampaign'])->name('insertion.order.ringba.term.data.by.campaign');
     Route::post('insertion-order/ringba/term/store', [RingbaInsertionOrderTermController::class, 'store'])->name('insertion.order.ringba.term.store');
@@ -280,3 +281,4 @@ Route::post('insertion-order/public/update-status/{id}/{status}', [InsertionOrde
 Route::post('insertion-order/public/send-io-document', [InsertionOrderPublicController::class, 'sendIODocument'])->name('insertion.order.public.send.io.document');
 
 //RingbaInsertionOrderPublic
+Route::get('insertion-order/ringba/public', [RignbaInsertionOrderPublicController::class, 'show'])->name('insertion.order.ringba.public.show');
