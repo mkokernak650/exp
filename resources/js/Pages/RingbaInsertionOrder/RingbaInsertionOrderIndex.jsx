@@ -53,6 +53,7 @@ const RingbaInsertionOrderIndex = () => {
             affiliate: item.io_for === 'affiliate' ? item.affiliate : null,
             phone: item.phone,
             term: item.term,
+            call_length: item.call_length,
             payout: item.io_for === 'customer' ? item.payout : null,
             revenue: item.io_for === 'affiliate' ? item.revenue : null,
             status: item.status,

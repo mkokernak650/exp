@@ -72,6 +72,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'call_length',
+    title: 'Call Length (Sec.)',
+    dataType: DataType.String,
+    style: { width: 200 },
+    visible: true,
+  },
+  {
     key: 'payout',
     title: 'Payout',
     dataType: DataType.String,

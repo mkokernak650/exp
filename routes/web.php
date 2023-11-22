@@ -39,6 +39,7 @@ use App\Http\Controllers\GenerateReportMarketTargetController;
 use App\Http\Controllers\GenerateReportMarketExceptionController;
 use App\Http\Controllers\InsertionOrderController;
 use App\Http\Controllers\InsertionOrderPublicController;
+use App\Http\Controllers\RingbaInsertionOrderPublicController;
 use App\Http\Controllers\RingbaInsertionOrderTermController;
 use App\Http\Controllers\RingbaReportsController;
 use App\Http\Controllers\SendMailController;
@@ -281,4 +282,6 @@ Route::post('insertion-order/public/update-status/{id}/{status}', [InsertionOrde
 Route::post('insertion-order/public/send-io-document', [InsertionOrderPublicController::class, 'sendIODocument'])->name('insertion.order.public.send.io.document');
 
 //RingbaInsertionOrderPublic
-Route::get('insertion-order/ringba/public', [RignbaInsertionOrderPublicController::class, 'show'])->name('insertion.order.ringba.public.show');
+Route::get('insertion-order/ringba/public', [RingbaInsertionOrderPublicController::class, 'show'])->name('insertion.order.ringba.public.show');
+Route::post('insertion-order/ringba/public/update-status/{id}/{status}', [RingbaInsertionOrderPublicController::class, 'updateStatus'])->name('insertion.order.ringba.public.update.status');
+Route::post('insertion-order/ringba/public/send-io-document', [RingbaInsertionOrderPublicController::class, 'sendIODocument'])->name('insertion.order.ringba.public.send.io.document');

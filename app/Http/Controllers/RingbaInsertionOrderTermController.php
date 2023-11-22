@@ -48,7 +48,7 @@ class RingbaInsertionOrderTermController extends Controller
                 DB::raw('(SELECT campaign_name FROM campaigns WHERE campaigns.campaign_id = ringba_insertion_orders.campaign_id LIMIT 1) AS campaign'),
                 DB::raw('(SELECT customer_name FROM customers WHERE customers.id = ringba_insertion_orders.customer_id LIMIT 1) AS customer'),
                 DB::raw('(SELECT affiliate_name FROM affiliates WHERE affiliates.affiliate_id = ringba_insertion_orders.affiliate_id LIMIT 1) AS affiliate'),
-                'phone', 'term', 'payout', 'revenue', 'status', 'io_link'
+                'phone', 'term', 'call_length', 'payout', 'revenue', 'status', 'io_link'
             ])
             ->paginate(request('itemPerPage') ?? 10);
 
