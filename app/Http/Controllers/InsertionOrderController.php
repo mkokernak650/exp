@@ -204,7 +204,8 @@ class InsertionOrderController extends Controller
             'data'    => [
                 'billingDetailsForView' => $billingDetailsForView,
                 'orderDetailsForView'   => $orderDetailsForView,
-                'subTotal'              => $subTotal
+                'subTotal'              => $subTotal,
+                'ioFor'                 => $request->insertionOrderFor
             ]
         ];
     }
