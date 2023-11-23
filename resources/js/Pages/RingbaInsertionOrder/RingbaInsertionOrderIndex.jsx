@@ -56,8 +56,8 @@ const RingbaInsertionOrderIndex = () => {
             revenue: item.io_for === 'affiliate' ? item.revenue : null,
             status: item.status,
             io_link: item.io_link,
-            // resend_io_doc: item.status + ',' + item.io_no,
-            // cancel_io: item.status + ',' + item.io_no,
+            resend_io_doc: item.status + ',' + item.io_no,
+            cancel_io: item.status + ',' + item.io_no,
         }))
     }
 
@@ -97,12 +97,12 @@ const RingbaInsertionOrderIndex = () => {
             if (column.key === 'io_link') {
                 return <IOPublicLink link={`${baseUrl}/insertion-order/ringba/public${value}`} />
             }
-            // if (column.key === 'resend_io_doc') {
-            //     return <ResendIODoc data={value} />
-            // }
-            // if (column.key === 'cancel_io') {
-            //     return <CancelIO data={value} />
-            // }
+            if (column.key === 'resend_io_doc') {
+                return <ResendIODoc data={value} routeName="insertion.order.ringba.resend.io.document" />
+            }
+            if (column.key === 'cancel_io') {
+                return <CancelIO data={value} routeName="insertion.order.ringba.resend.io.document" />
+            }
         }
     }
 

@@ -269,6 +269,7 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/ringba/term/store', [RingbaInsertionOrderTermController::class, 'store'])->name('insertion.order.ringba.term.store');
     Route::post('insertion-order/ringba/term/view', [RingbaInsertionOrderTermController::class, 'view'])->name('insertion.order.ringba.term.view');
     Route::post('insertion-order/ringba/term/delete', [RingbaInsertionOrderTermController::class, 'delete'])->name('insertion.order.ringba.term.delete');
+    Route::post('insertion-order/ringba/resend-io-document', [RingbaInsertionOrderTermController::class, 'resendIODocument'])->name('insertion.order.ringba.resend.io.document');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');

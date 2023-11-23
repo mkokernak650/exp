@@ -109,13 +109,13 @@ export const columns = [
   {
     key: 'resend_io_doc',
     title: 'Resend IO DOC',
-    style: { width: 100 },
+    style: { width: 150 },
     visible: true,
   },
   {
     key: 'cancel_io',
     title: 'Cancel IO',
-    style: { width: 80 },
+    style: { width: 120 },
     visible: true,
   },
 ]

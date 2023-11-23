@@ -3,7 +3,7 @@ import axios from "axios"
 import { useState } from "react"
 import toast from "react-hot-toast"
 
-export default function CancelIO({ data }) {
+export default function CancelIO({ data, routeName }) {
 
     const [loading, setLoading] = useState(false)
     const dataArray = data.split(",")
@@ -13,7 +13,7 @@ export default function CancelIO({ data }) {
     const resendIoDocument = () => {
         setLoading(true)
         axios
-            .post(route('insertion.order.resend.io.document', { ioNo, type: 'cancel' }))
+            .post(route(routeName, { ioNo, type: 'cancel' }))
             .then((response) => {
                 if (response.data.success === true) {
                     setStatus('canceled')

@@ -91,10 +91,10 @@ const InsertionOrderIndex = () => {
                 return <IOPublicLink link={`${baseUrl}/insertion-order/public${value}`} />
             }
             if (column.key === 'resend_io_doc') {
-                return <ResendIODoc data={value} />
+                return <ResendIODoc data={value} routeName="insertion.order.resend.io.document" />
             }
             if (column.key === 'cancel_io') {
-                return <CancelIO data={value} />
+                return <CancelIO data={value} routeName="insertion.order.resend.io.document" />
             }
         }
     }

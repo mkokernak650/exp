@@ -9,6 +9,7 @@ use App\Models\RingbaAuthDetails;
 use App\Models\RingbaInsertionOrder;
 use App\Models\TableDetails;
 use App\Notifications\IOLink;
+use App\Notifications\RingbaInsertionOrderDocument;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -44,7 +45,7 @@ class RingbaInsertionOrderTermController extends Controller
             )
             ->select([
                 DB::raw('DATE_FORMAT(created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at'),
-                'id', 'io_for',
+                'id', 'io_for', 'io_no',
                 DB::raw('(SELECT campaign_name FROM campaigns WHERE campaigns.campaign_id = ringba_insertion_orders.campaign_id LIMIT 1) AS campaign'),
                 DB::raw('(SELECT customer_name FROM customers WHERE customers.id = ringba_insertion_orders.customer_id LIMIT 1) AS customer'),
                 DB::raw('(SELECT affiliate_name FROM affiliates WHERE affiliates.affiliate_id = ringba_insertion_orders.affiliate_id LIMIT 1) AS affiliate'),
@@ -214,6 +215,59 @@ class RingbaInsertionOrderTermController extends Controller
         }
     }
 
+    public function resendIODocument(Request $request)
+    {
+        $ioNo                 = $request->ioNo;
+        $ringbaInsertionOrder = RingbaInsertionOrder::where('io_no', $ioNo)->first();
+        $ioFor                = $ringbaInsertionOrder->io_for;
+
+        if ($request->type == 'cancel') {
+            $ringbaInsertionOrder->status = 'canceled';
+            if (!$ringbaInsertionOrder->save()) {
+                return ['success' => false, 'msg' => 'Insertion order cancellation fialed'];
+            }
+        }
+
+        if (empty($ringbaInsertionOrder)) {
+            return ['success' => false, 'msg' => 'Insertion order not found'];
+        }
+
+        if ($ioFor === 'customer') {
+            $customer       = Customer::where('id', $ringbaInsertionOrder->customer_id)->first();
+            $billingDetails = $this->billingDetails($customer, $ringbaInsertionOrder);
+        } else {
+            $affiliate      = Affiliate::where('affiliate_id', $ringbaInsertionOrder->affiliate_id)->first();
+            $billingDetails = $this->billingDetails($affiliate, $ringbaInsertionOrder);
+        }
+
+        $email = $billingDetails['email'];
+
+        if (app()->environment('local')) {
+            $email = 'fahimikbal97@gmail.com';
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'msg' => 'No email found! Document resending fail'];
+        }
+
+        $campaign = Campaign::where('campaign_id', $ringbaInsertionOrder->campaign_id)->first();
+
+        $orderDetails = [
+            'titleName'   => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec- ' : '') . $campaign?->campaign_name,
+            'description' => $campaign?->description,
+            'term'        => $ringbaInsertionOrder->term,
+            'phone'       => $ringbaInsertionOrder->phone,
+            'netPrice'    => (float) ($ioFor === 'customer' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+        ];
+
+        Notification::route('mail', $email)->notify(new RingbaInsertionOrderDocument($billingDetails, $orderDetails, $ioFor));
+
+        return [
+            'success' => true,
+            'msg'     => 'Insertion order ' . ($request->type == 'cancel' ? 'canceled' : 'document sent') . ' successfully'
+        ];
+    }
+
     private function campaignApiRequest($campaignId)
     {
         $client      = new Client(['headers' => $this->ringbaApiHeader]);
@@ -261,6 +315,33 @@ class RingbaInsertionOrderTermController extends Controller
             'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
             'address'      => $billingFor->address,
             'date'         => $date
+        ];
+    }
+
+    private function billingDetails($billingFor, $io)
+    {
+        if (!empty($billingFor)) {
+            return [
+                'id'           => $io->id,
+                'ioNo'         => 'IO-' . str_pad($io->id, 3, 0, STR_PAD_LEFT),
+                'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
+                'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+                'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
+                'address'      => $billingFor?->address,
+                'status'       => $io->status,
+                'date'         => date_format(date_create($io->created_at), 'd-M-Y')
+            ];
+        }
+
+        return [
+            'id'           => 'N/A',
+            'ioNo'         => 'N/A',
+            'contactName'  => 'N/A',
+            'contactPhone' => 'N/A',
+            'email'        => 'N/A',
+            'address'      => 'N/A',
+            'status'       => 'N/A',
+            'date'         => 'N/A'
         ];
     }
 }

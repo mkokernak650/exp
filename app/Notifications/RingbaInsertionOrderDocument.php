@@ -54,10 +54,10 @@ class RingbaInsertionOrderDocument extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject('ConsumerEXP Insertion Order Document')
+            ->subject('ConsumerEXP Insertion Order Document (Pay Per Call)')
             ->lineIf(
                 $this->billingDetails['status'] == 'accepted',
-                'ConsumerEXP insertion order final document.'
+                'ConsumerEXP insertion order (Pay Per Call) final document.'
             )
             ->lineIf(
                 $this->billingDetails['status'] == 'canceled',

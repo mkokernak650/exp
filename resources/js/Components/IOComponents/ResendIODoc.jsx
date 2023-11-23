@@ -3,7 +3,7 @@ import axios from "axios"
 import { useState } from "react"
 import toast from "react-hot-toast"
 
-export default function ResendIODoc({ data }) {
+export default function ResendIODoc({ data, routeName }) {
     const [loading, setLoading] = useState(false)
     const dataArray = data.split(",")
     const status = dataArray[0]
@@ -12,7 +12,7 @@ export default function ResendIODoc({ data }) {
     const resendIoDocument = () => {
         setLoading(true)
         axios
-            .post(route('insertion.order.resend.io.document', { ioNo, type: 'reSend' }))
+            .post(route(routeName, { ioNo, type: 'reSend' }))
             .then((response) => {
                 if (response.data.success === true) {
                     toast.success(response.data.msg)
