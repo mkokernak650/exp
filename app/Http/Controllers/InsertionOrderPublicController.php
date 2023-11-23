@@ -21,6 +21,7 @@ class InsertionOrderPublicController extends Controller
 
         $billingFor     = request('type') == 'customer' ? $insertionOrder->customer : $insertionOrder->affiliate;
         $billingDetails = [];
+        $ioFor          = request('type');
 
         if (!empty($billingFor)) {
             $billingDetails = [
@@ -69,7 +70,7 @@ class InsertionOrderPublicController extends Controller
 
         $subTotal = collect($orderDetails)->sum('netPrice');
 
-        return Inertia::render('InsertionOrderPublic/InsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'subTotal'));
+        return Inertia::render('InsertionOrderPublic/InsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'subTotal', 'ioFor'));
     }
 
     public function updateStatus($id, $status)
