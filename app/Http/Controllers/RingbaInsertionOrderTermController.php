@@ -165,6 +165,11 @@ class RingbaInsertionOrderTermController extends Controller
     public function view(Request $request)
     {
         $lastIoId = RingbaInsertionOrder::toBase()->select('id')->latest()->first();
+
+        if ($lastIoId === null) {
+            $lastIoId = (object) ['id' => 0];
+        }
+
         $data     = $request->all();
         $ioFor    = $data['io_for'];
 
