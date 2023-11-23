@@ -91,12 +91,13 @@ class InsertionOrderPublicController extends Controller
             $billingDetails = request('billingDetails');
             $orderDetails   = request('orderDetails');
             $subTotal       = request('subTotal');
+            $ioFor          = request('ioFor');
 
             if (app()->environment('local')) {
                 $email = 'fahimikbal97@gmail.com';
             }
 
-            Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal));
+            Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal, $ioFor));
 
             return ['success' => true, 'msg' => 'IO document sent.'];
         } else {

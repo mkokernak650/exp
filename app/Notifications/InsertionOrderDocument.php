@@ -15,17 +15,19 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
     protected $billingDetails;
     protected $orderDetails;
     protected $subTotal;
+    protected $ioFor;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($billingDetails, $orderDetails, $subTotal)
+    public function __construct($billingDetails, $orderDetails, $subTotal, $ioFor)
     {
         $this->billingDetails = $billingDetails;
         $this->orderDetails   = $orderDetails;
         $this->subTotal       = $subTotal;
+        $this->ioFor          = $ioFor;
     }
 
     /**
@@ -50,7 +52,7 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
         $ioNo = $this->billingDetails['ioNo'];
         $pdf  = Pdf::loadView(
             'insertion-order/insertion-order-document',
-            ['billingDetails' => $this->billingDetails, 'orderDetails' => $this->orderDetails, 'subTotal' => $this->subTotal]
+            ['billingDetails' => $this->billingDetails, 'orderDetails' => $this->orderDetails, 'subTotal' => $this->subTotal, 'ioFor' => $this->ioFor]
         );
 
         return (new MailMessage)
@@ -65,7 +67,7 @@ class InsertionOrderDocument extends Notification implements ShouldQueue
                 Please stop running the TV commercial as described in the attached PDF as soon as possible.  
                 Please contact ConsumerEXP with any questions or comments.'
             )
-            ->line('Insertion Order NO: ' . $ioNo . '.')
+            ->line(($this->ioFor == 'customer' ? 'Customer ' : '') . 'Insertion Order NO: ' . $ioNo . '.')
             ->line('Please find the attached file.')
             ->attachData($pdf->output(), 'Insertion Order ' . $ioNo . '.pdf', ['mime' => 'application/pdf',]);
     }

@@ -377,7 +377,7 @@ class InsertionOrderController extends Controller
 
         $subTotal = collect($orderDetails)->sum('netPrice');
 
-        Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal));
+        Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal, $type));
 
         return [
             'success' => true,
