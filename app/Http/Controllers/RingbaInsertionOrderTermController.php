@@ -251,6 +251,8 @@ class RingbaInsertionOrderTermController extends Controller
             $email = 'fahimikbal97@gmail.com';
         }
 
+        $email = 'fahimikbal97@gmail.com'; //to be removed
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return ['success' => false, 'msg' => 'No email found! Document resending fail'];
         }
@@ -303,6 +305,8 @@ class RingbaInsertionOrderTermController extends Controller
         if (app()->environment('local')) {
             $email = 'fahimikbal97@gmail.com';
         }
+
+        $email = 'fahimikbal97@gmail.com'; //to be removed
 
         if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             Notification::route('mail', $email)->notify(new IOLink($ioLink, 'ringba'));
