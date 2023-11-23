@@ -97,8 +97,6 @@ class InsertionOrderPublicController extends Controller
                 $email = 'fahimikbal97@gmail.com';
             }
 
-            $email = 'fahimikbal97@gmail.com'; //to be removed
-
             Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal, $ioFor));
 
             return ['success' => true, 'msg' => 'IO document sent.'];
