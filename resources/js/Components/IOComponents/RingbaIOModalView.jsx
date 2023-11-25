@@ -82,25 +82,32 @@ export default function RingbaIOModalView({ viewData }) {
                     </div>
                 </div>
                 <div className="io-terms">
-                    <p>{ioFor === 'customer' ? 'Customer' : 'ConsumerEXP'} pays according to terms of this insertion order. {ioFor === 'customer' ? 'Customer may need to' : 'The company can'} provide agency of record (AOR) proof upon request.</p>
-                    <p>{ioFor === 'customer' ? 'Customer' : 'ConsumerEXP'} pays via ACH bank processing according to periodic sales reports to media outlet. {ioFor === 'customer' ? 'Customer may provide an advance payment' : ''}</p>
+                    <p>{ioFor === 'customer' ? 'Customer' : 'ConsumerEXP'} pays according to terms of this insertion order.</p>
+                    {ioFor === 'customer' ?
+                        (<p>Customer pays via ACH bank processing according to periodic sales reports to media outlet. Customer may provide an advance payment or retainer agreement.</p>)
+                        : (
+                            <>
+                                <p>A link to the dub will be contained within this insertion order or sent by separate email.</p>
+                                <p>ConsumerEXP pays via ACH bank processing according to periodic sales reports to media outlet.</p>
+                            </>
+                        )
+                    }
                     <p>
                         ConsumerEXP will provide {ioFor === 'customer' ? 'Customer' : 'media outlet'} log-in access to its vendor banking portal to view and download detailed bills, call or order logs,
                         and track payments. Also, the {ioFor === 'customer' ? 'Customer' : 'vendor'} portal will provide consolidated statements of accounts and contain uploaded transaction and sales documents.
                     </p>
-                    <p>
-                        ConsumerEXP represents that it has required the companies that own the TV commercial(s) that they have licensed the images, spokespeople, and
-                        music for the TV commercial(s).Furthermore, ConsumerEXP has required the companies that own the TV commercial(s) contained in this insertion
-                        order to attest in its agreement with ConsumerEXP that the TV commercial(s) do not knowingly violate the rights of any individual, company,
-                        state laws, or federal laws.
-                    </p>
-                    <p>
-                        ConsumerEXP agrees to indemnify and hold media outlet harmless from any claims for damages (including reasonable attorney fees) based upon a claim
-                        that a commercial run by ConsumerEXP violates applicable federal or state law.
-                    </p>
-                    <p>ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order, can be cancelled with two weeks advance notice.
-                        {ioFor === 'customer' ? ' Customer may be charged for dubs if they cannot supply dubs.' : ''}
-                    </p>
+                    {ioFor === 'customer' ?
+                        (<p>The customer attests that it owns the TV commercial(s) and that they have licensed the images, spokespeople, and music for the TV commercial(s). Furthermore,
+                            the customer attests that the TV commercial(s) do not knowingly violate the rights of any individual, company, state laws, or federal laws.</p>)
+                        :
+                        (<p>ConsumerEXP agrees to indemnify and hold media outlet harmless from any claims for damages (including reasonable attorney fees)
+                            based upon a claim that a commercial run by ConsumerEXP violates applicable federal or state law.</p>)}
+                    {ioFor === 'customer' ?
+                        (<p>ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order, can be cancelled with as mentioned in this insertion order.</p>)
+                        : (<p>ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order, can be cancelled with based upon the terms of this insertion order.</p>)}
+                    {ioFor === 'customer' ?
+                        (<p>Customer may be charged for dubs, if they cannot supply dubs, as per agreement.</p>)
+                        : ''}
                 </div>
                 <div className="io-footer">
                     <p>650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 | www.consumerexp.com</p>
