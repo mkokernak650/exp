@@ -27,6 +27,7 @@ class InsertionOrderPublicController extends Controller
             $billingDetails = [
                 'id'           => $insertionOrder->id,
                 'ioNo'         => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
+                'name'         => $ioFor === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
                 'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
                 'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
                 'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',

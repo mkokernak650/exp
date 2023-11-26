@@ -71,6 +71,7 @@ const InsertionOrderPublicIndex = () => {
                             <tr>
                                 <td style={{ width: "60%" }}>
                                     <ul>
+                                        <li>{billingDetails?.name}</li>
                                         <li>{billingDetails?.contactName}</li>
                                         <li>{billingDetails?.contactPhone}</li>
                                         <li>{billingDetails?.email}</li>
@@ -78,6 +79,7 @@ const InsertionOrderPublicIndex = () => {
                                     </ul>
                                 </td>
                                 <td style={{ width: "40%" }}>
+                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetails?.ioNo}
                                 </td>
                             </tr>
@@ -100,7 +102,7 @@ const InsertionOrderPublicIndex = () => {
                                     <th style={{ width: "10%" }}>Terms</th>
                                     <th style={{ width: "15%" }}>800#</th>
                                     <th style={{ width: "15%" }}>Coupon Code</th>
-                                    <th style={{ width: "10%" }}>Net Price</th>
+                                    <th style={{ width: "10%" }}>{ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -116,7 +118,7 @@ const InsertionOrderPublicIndex = () => {
                                         <td>{item.netPrice.toFixed(2)}</td>
                                     </tr>
                                 ))}
-                                <tr>
+                                {/* <tr>
                                     <td colSpan="4" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${subTotal.toFixed(2)}</td>
@@ -128,7 +130,7 @@ const InsertionOrderPublicIndex = () => {
                                 <tr>
                                     <th>Grand Total</th>
                                     <td>${subTotal.toFixed(2)}</td>
-                                </tr>
+                                </tr> */}
                             </tbody>
                         </table>
                     </div>

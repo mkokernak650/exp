@@ -23,6 +23,7 @@ export default function IoModalView({ viewData }) {
                             <tr>
                                 <td style={{ width: "60%" }}>
                                     <ul>
+                                        <li>{billingDetailsForView?.name}</li>
                                         <li>{billingDetailsForView?.contactName}</li>
                                         <li>{billingDetailsForView?.contactPhone}</li>
                                         <li>{billingDetailsForView?.email}</li>
@@ -30,6 +31,7 @@ export default function IoModalView({ viewData }) {
                                     </ul>
                                 </td>
                                 <td style={{ width: "40%" }}>
+                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetailsForView?.ioNo}
                                 </td>
                             </tr>
@@ -52,7 +54,7 @@ export default function IoModalView({ viewData }) {
                                     <th style={{ width: "10%" }}>Terms</th>
                                     <th style={{ width: "15%" }}>800#</th>
                                     <th style={{ width: "15%" }}>Coupon Code</th>
-                                    <th style={{ width: "10%" }}>Net Price</th>
+                                    <th style={{ width: "10%" }}>{ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -68,7 +70,7 @@ export default function IoModalView({ viewData }) {
                                         <td>{item.netPrice.toFixed(2)}</td>
                                     </tr>
                                 ))}
-                                <tr>
+                                {/* <tr>
                                     <td colSpan="4" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${subTotal.toFixed(2)}</td>
@@ -80,7 +82,7 @@ export default function IoModalView({ viewData }) {
                                 <tr>
                                     <th>Grand Total</th>
                                     <td>${subTotal.toFixed(2)}</td>
-                                </tr>
+                                </tr> */}
                             </tbody>
                         </table>
                     </div>

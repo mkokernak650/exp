@@ -185,13 +185,13 @@ class InsertionOrderController extends Controller
             $customerIdEmail       = explode('+cEmail+', $selectedCustomers[0]);
             $customerId            = $customerIdEmail[0];
             $customer              = Customer::where('id', $customerId)->first();
-            $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId);
+            $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId, 'customer');
         } elseif ($request->insertionOrderFor == 'affiliate') {
             $selectedAffiliates    = explode(',', $request->selectedAffiliates);
             $affiliateIdEmail      = explode('+aEmail+', $selectedAffiliates[0]);
             $affiliateId           = $affiliateIdEmail[0];
             $affiliate             = Affiliate::where('id', $affiliateId)->first();
-            $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId);
+            $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId, 'affiliate');
         } else {
             return ['success' => false, 'msg' => 'Billing-for not available'];
         }
@@ -210,12 +210,13 @@ class InsertionOrderController extends Controller
         ];
     }
 
-    protected function billingDetailsForView($billingFor, $lastIoId)
+    protected function billingDetailsForView($billingFor, $lastIoId, $ioFor)
     {
         $date = Carbon::now()->format('d-M-Y');
 
         return [
             'ioNo'         => 'IO-' . str_pad(($lastIoId->id + 1), 3, 0, STR_PAD_LEFT),
+            'name'         => $ioFor === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
             'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
             'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
             'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
@@ -334,6 +335,7 @@ class InsertionOrderController extends Controller
             $billingDetails = [
                 'id'           => $insertionOrder->id,
                 'ioNo'         => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
+                'name'         => $type === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
                 'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
                 'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
                 'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
