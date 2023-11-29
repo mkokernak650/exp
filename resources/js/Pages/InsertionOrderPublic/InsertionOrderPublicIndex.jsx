@@ -110,7 +110,13 @@ const InsertionOrderPublicIndex = () => {
                                     <tr key={index + 1}>
                                         <td>{item.titleName}</td>
                                         <td style={{ fontSize: "12px" }}>
-                                            {item.description} <a href={item.videoUrl} target="_blank">{item.videoUrl}</a>
+                                            {item.description}
+                                            {(item.videoUrl && ioFor === 'affiliate') &&
+                                                <>
+                                                    <br />
+                                                    <a href={item.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                                </>
+                                            }
                                         </td>
                                         <td>{item.term}</td>
                                         <td>{item.dialed}</td>

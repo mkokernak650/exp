@@ -160,8 +160,12 @@
                         <tr>
                             <td>{{ $item['titleName'] }}</td>
                             <td style="font-size:12px">
-                                {{ $item['description'] ?? '' }} <a href="{{ $item['videoUrl'] ?? '' }}">{{
-                                    $item['videoUrl'] ?? '' }}</a>
+                                {{ $item['description'] ?? '' }}
+                                @if (!empty($item['videoUrl']) && $ioFor === 'affiliate')
+                                <br>
+                                <a href="{{ $item['videoUrl'] }}" target="_blank" style="font-weight: bold">Download TV
+                                    Commercial</a>
+                                @endif
                             </td>
                             <td>{{ $item['term'] ?? '' }}</td>
                             <td>{{ $item['dialed'] }}</td>
