@@ -414,7 +414,7 @@ const AffiliateCreate = () => {
               <TextField
                 value={values?.video_url}
                 id="video_url"
-                label="Video URL"
+                label="DRTV Download Link"
                 type="text"
                 name="video_url"
                 placeholder="Video URL"
