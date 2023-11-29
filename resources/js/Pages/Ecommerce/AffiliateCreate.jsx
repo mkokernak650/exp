@@ -417,7 +417,7 @@ const AffiliateCreate = () => {
                 label="DRTV Download Link"
                 type="text"
                 name="video_url"
-                placeholder="Video URL"
+                placeholder="DRTV Download Link"
                 onChange={handleChange}
                 className={classes.textField}
                 fullWidth

@@ -845,7 +845,7 @@ const AffiliateIndex = () => {
                   label="DRTV Download Link"
                   type="text"
                   name="video_url"
-                  placeholder="Video URL"
+                  placeholder="DRTV Download Link"
                   onChange={handleEditChange}
                   className={classes.textField}
                   fullWidth
