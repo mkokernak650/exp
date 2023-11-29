@@ -52,6 +52,8 @@ const RingbaInsertionOrderTermCreate = () => {
     const [insertionOrderFor, setInsertionOrderFor] = useState('customer')
     const [viewData, setViewData] = useState({})
     const [showViewModal, setShowViewModal] = useState({ open: false })
+    const [description, setDescription] = useState('')
+    const [videoUrl, setVideoUrl] = useState('')
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -76,6 +78,8 @@ const RingbaInsertionOrderTermCreate = () => {
         setSelectedPayout('')
         setSelectedRevenue('')
         setSelectedCallLength('')
+        setDescription('')
+        setVideoUrl('')
         if (value) {
             setSelectedCampaign(value)
             getDataByCampaign(value)
@@ -108,6 +112,7 @@ const RingbaInsertionOrderTermCreate = () => {
                     setPayoutOptions(data.payoutOptions)
                     setRevenueOptions(data.revenueOptions)
                     setCallLengthOptions(data.callLengthOptions)
+                    setCampaignDescrUrl(data.campaignOtherDetails)
                     toast.success(response.data.msg)
                 } else if (!response.data.success) {
                     toast.error(response.data.msg)
@@ -121,6 +126,15 @@ const RingbaInsertionOrderTermCreate = () => {
                 setLoading((oldValues) => ({ ...oldValues, campaignData: false }))
                 toast.error('something went wrong!')
             })
+    }
+
+    const setCampaignDescrUrl = (value) => {
+        if (value.description) {
+            setDescription(value.description)
+        }
+        if (value.video_url) {
+            setVideoUrl(value.video_url)
+        }
     }
 
     const affiliateHandleChange = (value) => {
@@ -170,6 +184,8 @@ const RingbaInsertionOrderTermCreate = () => {
                     setSelectedRevenue('')
                     setSelectedCallLength('')
                     setInsertionOrderFor('customer')
+                    setDescription('')
+                    setVideoUrl('')
                     toast.success(response.data.msg)
                     setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
                 } else {
@@ -339,6 +355,42 @@ const RingbaInsertionOrderTermCreate = () => {
                                 placeholder="Select Call Length"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                name="description"
+                                label="Description (read only)"
+                                variant="outlined"
+                                value={description}
+                                fullWidth
+                                multiline
+                                minRows="2"
+                                maxRows="4"
+                                inputProps={
+                                    { readOnly: true, }
+                                }
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                name="video_url"
+                                label="DRTV Download Link (read only)"
+                                variant="outlined"
+                                value={videoUrl}
+                                fullWidth
+                                size="small"
+                                inputProps={
+                                    { readOnly: true, }
+                                }
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
                             />
                         </Grid>
 

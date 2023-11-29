@@ -130,12 +130,15 @@ class RingbaInsertionOrderTermController extends Controller
             ];
         }
 
+        $campaignOtherDetails = Campaign::select(['description', 'video_url'])->where('campaign_id', $request->campaignId)->first();
+
         return ['success' => true, 'msg' => 'Data fetched successfully', 'data' => [
-            'affiliateOptions'  => $affiliateOptions,
-            'phoneOptions'      => $phoneOptions,
-            'payoutOptions'     => $payoutOptions,
-            'revenueOptions'    => $revenueOptions,
-            'callLengthOptions' => $callLengthOptions
+            'affiliateOptions'     => $affiliateOptions,
+            'phoneOptions'         => $phoneOptions,
+            'payoutOptions'        => $payoutOptions,
+            'revenueOptions'       => $revenueOptions,
+            'callLengthOptions'    => $callLengthOptions,
+            'campaignOtherDetails' => $campaignOtherDetails
         ]];
     }
 
