@@ -191,6 +191,7 @@ class RingbaInsertionOrderTermController extends Controller
         $orderDetailsForView = [
             'titleName'   => (!empty($data['call_length']) ?  $data['call_length'] . ' sec- ' : '') . $campaign?->campaign_name,
             'description' => $campaign?->description,
+            'videoUrl'    => $campaign?->video_url,
             'term'        => $data['term'],
             'phone'       => $data['phone'],
             'netPrice'    => (float) ($ioFor === 'customer' ? $data['payout'] : $data['revenue'])
@@ -263,6 +264,7 @@ class RingbaInsertionOrderTermController extends Controller
         $orderDetails = [
             'titleName'   => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec- ' : '') . $campaign?->campaign_name,
             'description' => $campaign?->description,
+            'videoUrl'    => $campaign?->video_url,
             'term'        => $ringbaInsertionOrder->term,
             'phone'       => $ringbaInsertionOrder->phone,
             'netPrice'    => (float) ($ioFor === 'customer' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)

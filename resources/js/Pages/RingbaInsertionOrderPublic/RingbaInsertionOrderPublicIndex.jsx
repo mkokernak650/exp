@@ -109,6 +109,12 @@ const RingbaInsertionOrderPublicIndex = () => {
                                     <td>{orderDetails.titleName}</td>
                                     <td style={{ fontSize: "12px" }}>
                                         {orderDetails.description}
+                                        {(orderDetails.videoUrl && ioFor === 'affiliate') &&
+                                            <>
+                                                <br />
+                                                <a href={orderDetails.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                            </>
+                                        }
                                     </td>
                                     <td>{orderDetails.term}</td>
                                     <td>{orderDetails.phone}</td>

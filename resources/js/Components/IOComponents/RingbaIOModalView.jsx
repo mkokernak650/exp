@@ -61,6 +61,12 @@ export default function RingbaIOModalView({ viewData }) {
                                     <td>{orderDetailsForView.titleName}</td>
                                     <td style={{ fontSize: "12px" }}>
                                         {orderDetailsForView.description}
+                                        {(orderDetailsForView.videoUrl && ioFor === 'affiliate') &&
+                                            <>
+                                                <br />
+                                                <a href={orderDetailsForView.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                            </>
+                                        }
                                     </td>
                                     <td>{orderDetailsForView.term}</td>
                                     <td>{orderDetailsForView.phone}</td>

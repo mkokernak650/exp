@@ -159,6 +159,12 @@
                             <td>{{ $orderDetails['titleName'] }}</td>
                             <td style="font-size:12px">
                                 {{ $orderDetails['description'] ?? '' }}
+                                @if (!empty($orderDetails['videoUrl']) && $ioFor === 'affiliate')
+                                <br>
+                                <a href="{{ $orderDetails['videoUrl'] }}" target="_blank"
+                                    style="font-weight: bold">Download TV
+                                    Commercial</a>
+                                @endif
                             </td>
                             <td>{{ $orderDetails['term'] ?? '' }}</td>
                             <td>{{ $orderDetails['phone'] }}</td>
