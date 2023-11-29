@@ -81,6 +81,7 @@ class RingbaInsertionOrderPublicController extends Controller
             return [
                 'id'           => $io->id,
                 'ioNo'         => 'IO-' . str_pad($io->id, 3, 0, STR_PAD_LEFT),
+                'name'         => $io->io_for === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
                 'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
                 'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
                 'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
@@ -93,6 +94,7 @@ class RingbaInsertionOrderPublicController extends Controller
         return [
             'id'           => 'N/A',
             'ioNo'         => 'N/A',
+            'name'         => 'N/A',
             'contactName'  => 'N/A',
             'contactPhone' => 'N/A',
             'email'        => 'N/A',

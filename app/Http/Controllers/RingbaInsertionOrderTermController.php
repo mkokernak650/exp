@@ -178,10 +178,10 @@ class RingbaInsertionOrderTermController extends Controller
 
         if ($ioFor === 'customer') {
             $customer              = Customer::where('id', $data['customer_id'])->first();
-            $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId);
+            $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId, $ioFor);
         } elseif ($ioFor === 'affiliate') {
             $affiliate             = Affiliate::where('affiliate_id', $data['affiliate_id'])->first();
-            $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId);
+            $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId, $ioFor);
         } else {
             return ['success' => false, 'msg' => 'Billing-for not available'];
         }
@@ -312,12 +312,13 @@ class RingbaInsertionOrderTermController extends Controller
         }
     }
 
-    private function billingDetailsForView($billingFor, $lastIoId)
+    private function billingDetailsForView($billingFor, $lastIoId, $ioFor)
     {
         $date = Carbon::now()->format('d-M-Y');
 
         return [
             'ioNo'         => 'IO-' . str_pad(($lastIoId->id + 1), 3, 0, STR_PAD_LEFT),
+            'name'         => $ioFor === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
             'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
             'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
             'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
@@ -332,6 +333,7 @@ class RingbaInsertionOrderTermController extends Controller
             return [
                 'id'           => $io->id,
                 'ioNo'         => 'IO-' . str_pad($io->id, 3, 0, STR_PAD_LEFT),
+                'name'         => $io->io_for === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
                 'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
                 'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
                 'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
@@ -343,6 +345,7 @@ class RingbaInsertionOrderTermController extends Controller
 
         return [
             'id'           => 'N/A',
+            'name'         => 'N/A',
             'ioNo'         => 'N/A',
             'contactName'  => 'N/A',
             'contactPhone' => 'N/A',

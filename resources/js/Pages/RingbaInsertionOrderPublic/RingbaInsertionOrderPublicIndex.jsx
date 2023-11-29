@@ -71,6 +71,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                             <tr>
                                 <td style={{ width: "60%" }}>
                                     <ul>
+                                        <li>{billingDetails?.name}</li>
                                         <li>{billingDetails?.contactName}</li>
                                         <li>{billingDetails?.contactPhone}</li>
                                         <li>{billingDetails?.email}</li>
@@ -78,6 +79,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                                     </ul>
                                 </td>
                                 <td style={{ width: "40%" }}>
+                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetails?.ioNo}
                                 </td>
                             </tr>
@@ -99,7 +101,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                                     <th style={{ width: "40%" }}>Description</th>
                                     <th style={{ width: "10%" }}>Terms</th>
                                     <th style={{ width: "20%" }}>Phone</th>
-                                    <th style={{ width: "10%" }}>Net Price</th>
+                                    <th style={{ width: "10%" }}>{ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -112,7 +114,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                                     <td>{orderDetails.phone}</td>
                                     <td>{orderDetails.netPrice.toFixed(2)}</td>
                                 </tr>
-                                <tr>
+                                {/* <tr>
                                     <td colSpan="3" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${orderDetails.netPrice.toFixed(2)}</td>
@@ -124,7 +126,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                                 <tr>
                                     <th>Grand Total</th>
                                     <td>${orderDetails.netPrice.toFixed(2)}</td>
-                                </tr>
+                                </tr> */}
                             </tbody>
                         </table>
                     </div>

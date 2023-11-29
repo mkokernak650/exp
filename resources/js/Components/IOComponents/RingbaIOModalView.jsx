@@ -23,6 +23,7 @@ export default function RingbaIOModalView({ viewData }) {
                             <tr>
                                 <td style={{ width: "60%" }}>
                                     <ul>
+                                        <li>{billingDetailsForView?.name}</li>
                                         <li>{billingDetailsForView?.contactName}</li>
                                         <li>{billingDetailsForView?.contactPhone}</li>
                                         <li>{billingDetailsForView?.email}</li>
@@ -30,6 +31,7 @@ export default function RingbaIOModalView({ viewData }) {
                                     </ul>
                                 </td>
                                 <td style={{ width: "40%" }}>
+                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetailsForView?.ioNo}
                                 </td>
                             </tr>
@@ -51,7 +53,7 @@ export default function RingbaIOModalView({ viewData }) {
                                     <th style={{ width: "40%" }}>Description</th>
                                     <th style={{ width: "10%" }}>Terms</th>
                                     <th style={{ width: "20%" }}>Phone</th>
-                                    <th style={{ width: "10%" }}>Net Price</th>
+                                    <th style={{ width: "10%" }}>{ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,7 +66,7 @@ export default function RingbaIOModalView({ viewData }) {
                                     <td>{orderDetailsForView.phone}</td>
                                     <td>{orderDetailsForView.netPrice.toFixed(2)}</td>
                                 </tr>
-                                <tr>
+                                {/* <tr>
                                     <td colSpan="3" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${orderDetailsForView.netPrice.toFixed(2)}</td>
@@ -76,7 +78,7 @@ export default function RingbaIOModalView({ viewData }) {
                                 <tr>
                                     <th>Grand Total</th>
                                     <td>${orderDetailsForView.netPrice.toFixed(2)}</td>
-                                </tr>
+                                </tr> */}
                             </tbody>
                         </table>
                     </div>
