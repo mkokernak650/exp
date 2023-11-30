@@ -39,7 +39,7 @@ class RingbaInsertionOrderPublicController extends Controller
             'videoUrl'    => $ringbaInsertionOrder->video_url,
             'term'        => $ringbaInsertionOrder->term,
             'phone'       => $ringbaInsertionOrder->phone,
-            'netPrice'    => (float) ($ioFor === 'customer' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+            'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
         ];
 
         return Inertia::render('RingbaInsertionOrderPublic/RingbaInsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'ioFor'));

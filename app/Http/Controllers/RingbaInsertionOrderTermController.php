@@ -194,7 +194,7 @@ class RingbaInsertionOrderTermController extends Controller
             'videoUrl'    => $data['video_url'],
             'term'        => $data['term'],
             'phone'       => $data['phone'],
-            'netPrice'    => (float) ($ioFor === 'customer' ? $data['payout'] : $data['revenue'])
+            'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
         ];
 
         return [
@@ -267,7 +267,7 @@ class RingbaInsertionOrderTermController extends Controller
             'videoUrl'    => $ringbaInsertionOrder->video_url,
             'term'        => $ringbaInsertionOrder->term,
             'phone'       => $ringbaInsertionOrder->phone,
-            'netPrice'    => (float) ($ioFor === 'customer' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+            'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
         ];
 
         Notification::route('mail', $email)->notify(new RingbaInsertionOrderDocument($billingDetails, $orderDetails, $ioFor));

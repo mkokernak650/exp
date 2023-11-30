@@ -411,7 +411,7 @@ const RingbaInsertionOrderTermCreate = () => {
                             <Grid item style={{ marginRight: '8px' }}>
                                 <Button
                                     variant="outlined"
-                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedRevenue)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedPayout)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save || loading.view}
+                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedPayout)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedRevenue)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save || loading.view}
                                     type="button"
                                     onClick={handleView}
                                 >
@@ -425,7 +425,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 <Button
                                     variant="outlined"
                                     color="primary"
-                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedRevenue)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedPayout)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
+                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedPayout)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedRevenue)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
                                     type="button"
                                     onClick={(e) => handleSubmit(e, 'save')}
                                 >
@@ -439,7 +439,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 <Button
                                     variant="contained"
                                     color="primary"
-                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedRevenue)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedPayout)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
+                                    disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedPayout)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedRevenue)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
                                     type="submit"
                                 >
                                     {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
