@@ -31,7 +31,8 @@ export default function RingbaIOModalView({ viewData }) {
                                     </ul>
                                 </td>
                                 <td style={{ width: "40%" }}>
-                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br /> <br />
+                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br />
+                                    {ioFor === 'customer' ? 'Dub Order or Notification' : 'Traffic Instructions'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetailsForView?.ioNo}
                                 </td>
                             </tr>
