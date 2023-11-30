@@ -152,7 +152,7 @@
                             <th style="width:40%">Description</th>
                             <th style="width:10%">Terms</th>
                             <th style="width:20%">Phone</th>
-                            <th style="width:10%">{{$ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}}</th>
+                            <th style="width:10%">{{$ioFor === 'customer' ? 'Rate' : 'Net Payout'}}</th>
                         </tr>
                     </thead>
                     <tbody>
