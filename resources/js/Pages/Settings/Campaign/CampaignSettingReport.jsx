@@ -125,7 +125,7 @@ const CampaignSettingReport = () => {
             </InertiaLink>
             <div style={{ paddingLeft: '4px' }}>
               <Button variant="contained" color="primary" onClick={() => handleDescriptionModal(value)}>
-                Description & DRTV LINK
+                Description
               </Button>
             </div>
           </div>
@@ -272,10 +272,6 @@ const CampaignSettingReport = () => {
 
   const handleDescriptionChange = (e) => {
     setDescriptionModalData((values) => ({ ...values, description: e.target.value }))
-  }
-
-  const handleVideoURLChange = (e) => {
-    setDescriptionModalData((values) => ({ ...values, video_url: e.target.value }))
   }
 
   const updateDescription = () => {
@@ -438,12 +434,12 @@ const CampaignSettingReport = () => {
         open={showDescriptionModal.open}
         setOpen={setShowDescriptionModal}
         width={'650px'}
-        title={'Campaign Details'}
+        title={'Campaign Description'}
       >
         <div>
           <div>
             <p style={{ textAlign: "center", marginBottom: "20px", marginTop: "-5px" }}>
-              Description and DRTV link for <strong>{descriptionModalData?.campaign_name}</strong>
+              Description for <strong>{descriptionModalData?.campaign_name}</strong>
             </p>
             <TextField
               name="description"
@@ -457,27 +453,18 @@ const CampaignSettingReport = () => {
               minRows="4"
               maxRows="6"
             />
-            <TextField
-              name="video_url"
-              label="DRTV Download Link"
-              variant="outlined"
-              onChange={handleVideoURLChange}
-              value={descriptionModalData.video_url === null ? '' : descriptionModalData?.video_url}
-              fullWidth
-              style={{ marginTop: '20px' }}
-            />
             <div style={{ display: "flex", marginTop: "20px", justifyContent: "flex-end" }}>
               <Button
                 variant="contained"
                 color="primary"
                 type="button"
                 onClick={updateDescription}
-                disabled={(!descriptionModalData?.description && !descriptionModalData?.video_url) || loading.description}
+                disabled={!descriptionModalData?.description || loading.description}
               >
                 {loading.description && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                   <CircularProgress size={15} color="inherit" />
                 </span>)}
-                Update
+                Update Description
               </Button>
             </div>
           </div>
