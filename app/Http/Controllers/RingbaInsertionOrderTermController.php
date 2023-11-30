@@ -130,7 +130,7 @@ class RingbaInsertionOrderTermController extends Controller
             ];
         }
 
-        $campaignOtherDetails = Campaign::select(['description', 'video_url'])->where('campaign_id', $request->campaignId)->first();
+        $campaignOtherDetails = Campaign::select(['description'])->where('campaign_id', $request->campaignId)->first();
 
         return ['success' => true, 'msg' => 'Data fetched successfully', 'data' => [
             'affiliateOptions'     => $affiliateOptions,
@@ -191,7 +191,7 @@ class RingbaInsertionOrderTermController extends Controller
         $orderDetailsForView = [
             'titleName'   => (!empty($data['call_length']) ?  $data['call_length'] . ' sec- ' : '') . $campaign?->campaign_name,
             'description' => $campaign?->description,
-            'videoUrl'    => $campaign?->video_url,
+            'videoUrl'    => $data['video_url'],
             'term'        => $data['term'],
             'phone'       => $data['phone'],
             'netPrice'    => (float) ($ioFor === 'customer' ? $data['payout'] : $data['revenue'])
@@ -264,7 +264,7 @@ class RingbaInsertionOrderTermController extends Controller
         $orderDetails = [
             'titleName'   => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec- ' : '') . $campaign?->campaign_name,
             'description' => $campaign?->description,
-            'videoUrl'    => $campaign?->video_url,
+            'videoUrl'    => $ringbaInsertionOrder->video_url,
             'term'        => $ringbaInsertionOrder->term,
             'phone'       => $ringbaInsertionOrder->phone,
             'netPrice'    => (float) ($ioFor === 'customer' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)

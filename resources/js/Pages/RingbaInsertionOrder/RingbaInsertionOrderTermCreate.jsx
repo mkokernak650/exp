@@ -79,7 +79,6 @@ const RingbaInsertionOrderTermCreate = () => {
         setSelectedRevenue('')
         setSelectedCallLength('')
         setDescription('')
-        setVideoUrl('')
         if (value) {
             setSelectedCampaign(value)
             getDataByCampaign(value)
@@ -132,9 +131,6 @@ const RingbaInsertionOrderTermCreate = () => {
         if (value.description) {
             setDescription(value.description)
         }
-        if (value.video_url) {
-            setVideoUrl(value.video_url)
-        }
     }
 
     const affiliateHandleChange = (value) => {
@@ -169,6 +165,7 @@ const RingbaInsertionOrderTermCreate = () => {
         formData.append('call_length', selectedCallLength)
         formData.append('io_for', insertionOrderFor)
         formData.append('submit_type', submitType)
+        formData.append('video_url', videoUrl)
 
         axios
             .post(route('insertion.order.ringba.term.store'), formData)
@@ -213,6 +210,7 @@ const RingbaInsertionOrderTermCreate = () => {
         formData.append('revenue', selectedRevenue)
         formData.append('call_length', selectedCallLength)
         formData.append('io_for', insertionOrderFor)
+        formData.append('video_url', videoUrl)
 
         axios
             .post(route('insertion.order.ringba.term.view'), formData)
@@ -360,6 +358,18 @@ const RingbaInsertionOrderTermCreate = () => {
 
                         <Grid item xs={12}>
                             <TextField
+                                name="video_url"
+                                label="DRTV Download Link"
+                                variant="outlined"
+                                value={videoUrl}
+                                onChange={(e) => setVideoUrl(e.target.value)}
+                                fullWidth
+                                size="small"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
                                 name="description"
                                 label="Description (read only)"
                                 variant="outlined"
@@ -368,23 +378,6 @@ const RingbaInsertionOrderTermCreate = () => {
                                 multiline
                                 minRows="2"
                                 maxRows="4"
-                                inputProps={
-                                    { readOnly: true, }
-                                }
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <TextField
-                                name="video_url"
-                                label="DRTV Download Link (read only)"
-                                variant="outlined"
-                                value={videoUrl}
-                                fullWidth
-                                size="small"
                                 inputProps={
                                     { readOnly: true, }
                                 }
