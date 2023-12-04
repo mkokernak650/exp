@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
 const CampaignCreate = () => {
   const defaultState = {
     campaign_name: "",
+    description: "",
     customer_id: ""
   };
   const classes = useStyles();
@@ -113,6 +114,19 @@ const CampaignCreate = () => {
                 fullWidth
                 required={true}
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                name="description"
+                label="Description"
+                onChange={handleChange}
+                value={values?.description}
+                spellCheck
+                fullWidth
+                multiline
+                maxRows="4"
+              ></TextField>
             </Grid>
 
             <Grid item xs={12}>

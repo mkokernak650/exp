@@ -58,6 +58,7 @@ const CampaignIndex = () => {
     affiliates: item.id,
     customer_name: item?.customer?.customer_name,
     customer_id: item?.customer?.id.toString(),
+    description: item.description,
     status: [item.status, item.id, index],
     created_at: item.created_at,
     updated_at: item.updated_at,
@@ -86,9 +87,10 @@ const CampaignIndex = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      //   ? JSON.parse(columnsData[0])?.[optionKey]
+      //   : 
+      columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -372,6 +374,19 @@ const CampaignIndex = () => {
                   fullWidth
                   required={true}
                 />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  onChange={handleEditChange}
+                  value={editData ? editData?.description : ''}
+                  spellCheck
+                  fullWidth
+                  multiline
+                  maxRows="4"
+                ></TextField>
               </Grid>
 
               <Grid item xs={12}>

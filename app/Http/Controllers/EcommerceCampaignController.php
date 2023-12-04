@@ -57,6 +57,7 @@ class EcommerceCampaignController extends Controller
     {
         $validated = $request->validate([
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')],
+            'description'   => ['nullable'],
             'customer_id'   => ['nullable']
         ]);
 
@@ -78,6 +79,7 @@ class EcommerceCampaignController extends Controller
     {
         $validated = $request->validate([
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')->ignore($ecommerceCampaign->id)],
+            'description'   => ['nullable'],
             'customer_id'   => ['nullable']
         ]);
 
