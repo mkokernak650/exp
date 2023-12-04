@@ -362,16 +362,6 @@ export default function PersistentDrawerLeft(props) {
           Icon: <UserIcon />,
         },
         {
-          title: 'Create Phone or Code',
-          href: 'ecommerce-affiliates.create',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'All Phone and Codes',
-          href: 'ecommerce-affiliates.index',
-          Icon: <UserIcon />,
-        },
-        {
           title: 'Import Sales Report',
           href: 'ecommerce-sales.import',
           Icon: <UserIcon />,
@@ -390,6 +380,14 @@ export default function PersistentDrawerLeft(props) {
       active: false,
       collapse: true,
       submenu: [
+        {
+          title: 'Phone and Code Worksheet',
+          href: 'ecommerce-affiliates.create',
+        },
+        {
+          title: 'All Phone and Code Worksheets',
+          href: 'ecommerce-affiliates.index',
+        },
         {
           title: 'Create Insertion Order',
           href: 'insertion.order.create',
