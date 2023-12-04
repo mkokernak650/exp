@@ -76,6 +76,21 @@ const AffiliateIndex = () => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
   }
 
+  const campaginHandleChange = (e) => {
+    setEditData((oldEditData) => ({ ...oldEditData, description: '' }))
+    const value = e.target.value
+    setEditData((oldEditData) => ({ ...oldEditData, campaign_id: value }))
+
+    if (value) {
+      const selectedCampaign = campaigns.filter(campaign => campaign.id == value)
+      if (selectedCampaign[0].description) {
+        setEditData((oldEditData) => ({ ...oldEditData, description: selectedCampaign[0].description }))
+      } else {
+        setEditData((oldEditData) => ({ ...oldEditData, description: '' }))
+      }
+    }
+  }
+
   const headers = {
     headers: { Accept: 'application/json' },
   }
@@ -589,7 +604,7 @@ const AffiliateIndex = () => {
                   value={editData?.campaign_id}
                   select
                   name="campaign_id"
-                  onChange={handleEditChange}
+                  onChange={campaginHandleChange}
                   fullWidth
                   required={false}
                 >
@@ -828,18 +843,6 @@ const AffiliateIndex = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  name="description"
-                  label="Description"
-                  onChange={handleEditChange}
-                  value={editData?.description}
-                  spellCheck
-                  fullWidth
-                  multiline
-                  maxRows="4"
-                ></TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
                   value={editData?.video_url}
                   id="video_url"
                   label="DRTV Download Link"
@@ -850,6 +853,18 @@ const AffiliateIndex = () => {
                   className={classes.textField}
                   fullWidth
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  onChange={handleEditChange}
+                  value={editData?.description}
+                  spellCheck
+                  fullWidth
+                  multiline
+                  maxRows="4"
+                ></TextField>
               </Grid>
 
               <Grid item xs={12}>

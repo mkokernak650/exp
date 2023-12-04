@@ -70,6 +70,21 @@ const AffiliateCreate = () => {
     setValues((oldValues) => ({ ...oldValues, [name]: value }))
   }
 
+  const campaginHandleChange = (e) => {
+    setValues((oldValues) => ({ ...oldValues, description: '' }))
+    const value = e.target.value
+    setValues((oldValues) => ({ ...oldValues, campaign_id: value }))
+
+    if (value) {
+      const selectedCampaign = campaigns.filter(campaign => campaign.id == value)
+      if (selectedCampaign[0].description) {
+        setValues((oldValues) => ({ ...oldValues, description: selectedCampaign[0].description }))
+      } else {
+        setValues((oldValues) => ({ ...oldValues, description: '' }))
+      }
+    }
+  }
+
   const headers = {
     headers: { Accept: 'application/json' },
   }
@@ -124,7 +139,7 @@ const AffiliateCreate = () => {
                 id="campaign_id"
                 select
                 name="campaign_id"
-                onChange={handleChange}
+                onChange={campaginHandleChange}
                 SelectProps={{
                   native: true,
                 }}
@@ -400,18 +415,6 @@ const AffiliateCreate = () => {
 
             <Grid item xs={12}>
               <TextField
-                name="description"
-                label="Description"
-                onChange={handleChange}
-                value={values?.description}
-                spellCheck
-                fullWidth
-                multiline
-                maxRows="4"
-              ></TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
                 value={values?.video_url}
                 id="video_url"
                 label="DRTV Download Link"
@@ -422,6 +425,23 @@ const AffiliateCreate = () => {
                 className={classes.textField}
                 fullWidth
               />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="description"
+                label="Description (Read Only)"
+                value={values?.description}
+                spellCheck
+                fullWidth
+                multiline
+                maxRows="4"
+                inputProps={
+                  { readOnly: true, }
+                }
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              ></TextField>
             </Grid>
 
             <Grid item xs={12}>
