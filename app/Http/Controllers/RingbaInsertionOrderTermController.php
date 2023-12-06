@@ -186,16 +186,7 @@ class RingbaInsertionOrderTermController extends Controller
             return ['success' => false, 'msg' => 'Billing-for not available'];
         }
 
-        $campaign = Campaign::where('campaign_id', $data['campaign_id'])->first();
-
-        $orderDetailsForView = [
-            'titleName'   => (!empty($data['call_length']) ?  $data['call_length'] . ' sec- ' : '') . $campaign?->campaign_name,
-            'description' => $campaign?->description,
-            'videoUrl'    => $data['video_url'],
-            'term'        => $data['term'],
-            'phone'       => $data['phone'],
-            'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
-        ];
+        $orderDetailsForView = $this->orderDetailsForView($data, $ioFor);
 
         return [
             'success' => true,
@@ -356,5 +347,39 @@ class RingbaInsertionOrderTermController extends Controller
             'status'       => 'N/A',
             'date'         => 'N/A'
         ];
+    }
+    private function orderDetailsForView($data, $ioFor)
+    {
+        $campaign = Campaign::where('campaign_id', $data['campaign_id'])->first();
+
+        if (!empty($data['lengths'])) {
+            $lengths = explode(',', str_replace(':', '', $data['lengths']));
+
+            foreach ($lengths as $length) {
+                if ($length == '2830') {
+                    $length = '28:30';
+                }
+
+                $orderDetails[] = [
+                    'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                    'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' sec - ' : '') . $campaign?->description,
+                    'videoUrl'    => $data['video_url'],
+                    'term'        => $data['term'],
+                    'phone'       => $data['phone'],
+                    'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
+                ];
+            }
+        } else {
+            $orderDetails[] = [
+                'titleName'   => $campaign?->campaign_name,
+                'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' sec - ' : '') . $campaign?->description,
+                'videoUrl'    => $data['video_url'],
+                'term'        => $data['term'],
+                'phone'       => $data['phone'],
+                'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
+            ];
+        }
+
+        return $orderDetails;
     }
 }

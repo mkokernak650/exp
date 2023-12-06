@@ -58,21 +58,23 @@ export default function RingbaIOModalView({ viewData }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>{orderDetailsForView.titleName}</td>
-                                    <td style={{ fontSize: "12px" }}>
-                                        {orderDetailsForView.description}
-                                        {(orderDetailsForView.videoUrl && ioFor === 'affiliate') &&
-                                            <>
-                                                <br />
-                                                <a href={orderDetailsForView.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
-                                            </>
-                                        }
-                                    </td>
-                                    <td>{orderDetailsForView.term}</td>
-                                    <td>{orderDetailsForView.phone}</td>
-                                    <td>{orderDetailsForView.netPrice.toFixed(2)}</td>
-                                </tr>
+                                {orderDetailsForView.map((item, index) => (
+                                    <tr key={index + 1}>
+                                        <td>{item.titleName}</td>
+                                        <td style={{ fontSize: "12px" }}>
+                                            {item.description}
+                                            {(item.videoUrl && ioFor === 'affiliate') &&
+                                                <>
+                                                    <br />
+                                                    <a href={item.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                                </>
+                                            }
+                                        </td>
+                                        <td>{item.term}</td>
+                                        <td>{item.phone}</td>
+                                        <td>{item.netPrice.toFixed(2)}</td>
+                                    </tr>
+                                ))}
                                 {/* <tr>
                                     <td colSpan="3" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
                                     <th>Sub Total</th>

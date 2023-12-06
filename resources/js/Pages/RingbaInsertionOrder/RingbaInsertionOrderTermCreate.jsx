@@ -54,6 +54,7 @@ const RingbaInsertionOrderTermCreate = () => {
     const [showViewModal, setShowViewModal] = useState({ open: false })
     const [description, setDescription] = useState('')
     const [videoUrl, setVideoUrl] = useState('')
+    const [selectedLengths, setSelectedLengths] = useState('')
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -70,6 +71,13 @@ const RingbaInsertionOrderTermCreate = () => {
     const termOptions = terms.map((item) => ({
         label: item,
         value: item,
+    }))
+
+    const lengths = [':15', ':30', ':60', ':120', '28:30']
+
+    const lengthOptions = lengths.map((length) => ({
+        label: length,
+        value: length,
     }))
 
     const campaignHandleChange = (value) => {
@@ -166,6 +174,7 @@ const RingbaInsertionOrderTermCreate = () => {
         formData.append('io_for', insertionOrderFor)
         formData.append('submit_type', submitType)
         formData.append('video_url', videoUrl)
+        formData.append('lengths', selectedLengths)
 
         axios
             .post(route('insertion.order.ringba.term.store'), formData)
@@ -183,6 +192,7 @@ const RingbaInsertionOrderTermCreate = () => {
                     setInsertionOrderFor('customer')
                     setDescription('')
                     setVideoUrl('')
+                    setSelectedLengths('')
                     toast.success(response.data.msg)
                     setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
                 } else {
@@ -211,6 +221,7 @@ const RingbaInsertionOrderTermCreate = () => {
         formData.append('call_length', selectedCallLength)
         formData.append('io_for', insertionOrderFor)
         formData.append('video_url', videoUrl)
+        formData.append('lengths', selectedLengths)
 
         axios
             .post(route('insertion.order.ringba.term.view'), formData)
@@ -353,6 +364,17 @@ const RingbaInsertionOrderTermCreate = () => {
                                 placeholder="Select Call Length"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <MultiSelect
+                                name="select_lengths"
+                                onChange={(value) => setSelectedLengths(value)}
+                                options={lengthOptions}
+                                defaultValue={selectedLengths}
+                                style={{ width: '100%' }}
+                                placeholder="Select Lengths"
                             />
                         </Grid>
 
