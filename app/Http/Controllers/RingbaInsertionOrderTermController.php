@@ -250,16 +250,7 @@ class RingbaInsertionOrderTermController extends Controller
             return ['success' => false, 'msg' => 'No email found! Document resending fail'];
         }
 
-        $campaign = Campaign::where('campaign_id', $ringbaInsertionOrder->campaign_id)->first();
-
-        $orderDetails = [
-            'titleName'   => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec- ' : '') . $campaign?->campaign_name,
-            'description' => $campaign?->description,
-            'videoUrl'    => $ringbaInsertionOrder->video_url,
-            'term'        => $ringbaInsertionOrder->term,
-            'phone'       => $ringbaInsertionOrder->phone,
-            'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
-        ];
+        $orderDetails = $this->orderDetails($ringbaInsertionOrder, $ioFor);
 
         Notification::route('mail', $email)->notify(new RingbaInsertionOrderDocument($billingDetails, $orderDetails, $ioFor));
 
@@ -348,6 +339,7 @@ class RingbaInsertionOrderTermController extends Controller
             'date'         => 'N/A'
         ];
     }
+
     private function orderDetailsForView($data, $ioFor)
     {
         $campaign = Campaign::where('campaign_id', $data['campaign_id'])->first();
@@ -362,7 +354,7 @@ class RingbaInsertionOrderTermController extends Controller
 
                 $orderDetails[] = [
                     'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
-                    'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' sec - ' : '') . $campaign?->description,
+                    'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' seconds duration - ' : '') . $campaign?->description,
                     'videoUrl'    => $data['video_url'],
                     'term'        => $data['term'],
                     'phone'       => $data['phone'],
@@ -372,11 +364,45 @@ class RingbaInsertionOrderTermController extends Controller
         } else {
             $orderDetails[] = [
                 'titleName'   => $campaign?->campaign_name,
-                'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' sec - ' : '') . $campaign?->description,
+                'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' seconds duration - ' : '') . $campaign?->description,
                 'videoUrl'    => $data['video_url'],
                 'term'        => $data['term'],
                 'phone'       => $data['phone'],
                 'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
+            ];
+        }
+
+        return $orderDetails;
+    }
+
+    private function orderDetails($ringbaInsertionOrder, $ioFor)
+    {
+        $campaign = Campaign::where('campaign_id', $ringbaInsertionOrder->campaign_id)->first();
+
+        if (!empty($ringbaInsertionOrder->lengths)) {
+            $lengths = explode(',', str_replace(':', '', $ringbaInsertionOrder->lengths));
+
+            foreach ($lengths as $length) {
+                if ($length == '2830') {
+                    $length = '28:30';
+                }
+                $orderDetails[] =    [
+                    'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                    'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
+                    'videoUrl'    => $ringbaInsertionOrder->video_url,
+                    'term'        => $ringbaInsertionOrder->term,
+                    'phone'       => $ringbaInsertionOrder->phone,
+                    'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+                ];
+            }
+        } else {
+            $orderDetails[] =    [
+                'titleName'   => $campaign?->campaign_name,
+                'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
+                'videoUrl'    => $ringbaInsertionOrder->video_url,
+                'term'        => $ringbaInsertionOrder->term,
+                'phone'       => $ringbaInsertionOrder->phone,
+                'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
             ];
         }
 

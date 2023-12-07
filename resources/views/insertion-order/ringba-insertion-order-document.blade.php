@@ -156,21 +156,22 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach ($orderDetails as $item)
                         <tr>
-                            <td>{{ $orderDetails['titleName'] }}</td>
+                            <td>{{ $item['titleName'] }}</td>
                             <td style="font-size:12px">
-                                {{ $orderDetails['description'] ?? '' }}
-                                @if (!empty($orderDetails['videoUrl']) && $ioFor === 'affiliate')
+                                {{ $item['description'] ?? '' }}
+                                @if (!empty($item['videoUrl']) && $ioFor === 'affiliate')
                                 <br>
-                                <a href="{{ $orderDetails['videoUrl'] }}" target="_blank"
-                                    style="font-weight: bold">Download TV
+                                <a href="{{ $item['videoUrl'] }}" target="_blank" style="font-weight: bold">Download TV
                                     Commercial</a>
                                 @endif
                             </td>
-                            <td>{{ $orderDetails['term'] ?? '' }}</td>
-                            <td>{{ $orderDetails['phone'] }}</td>
-                            <td>{{ number_format($orderDetails['netPrice'], 2) }}</td>
+                            <td>{{ $item['term'] ?? '' }}</td>
+                            <td>{{ $item['phone'] }}</td>
+                            <td>{{ number_format($item['netPrice'], 2) }}</td>
                         </tr>
+                        @endforeach
                         {{-- <tr>
                             <td colspan="3" rowspan="3" style="textAlign:center">Thank You</td>
                             <th>Sub Total</th>

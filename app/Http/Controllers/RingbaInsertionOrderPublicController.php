@@ -110,7 +110,7 @@ class RingbaInsertionOrderPublicController extends Controller
 
                 $orderDetails[] = [
                     'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
-                    'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec - ' : '') . $campaign?->description,
+                    'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
                     'videoUrl'    => $ringbaInsertionOrder->video_url,
                     'term'        => $ringbaInsertionOrder->term,
                     'phone'       => $ringbaInsertionOrder->phone,
@@ -120,7 +120,7 @@ class RingbaInsertionOrderPublicController extends Controller
         } else {
             $orderDetails[] = [
                 'titleName'   => $campaign?->campaign_name,
-                'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec - ' : '') . $campaign?->description,
+                'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
                 'videoUrl'    => $ringbaInsertionOrder->video_url,
                 'term'        => $ringbaInsertionOrder->term,
                 'phone'       => $ringbaInsertionOrder->phone,
