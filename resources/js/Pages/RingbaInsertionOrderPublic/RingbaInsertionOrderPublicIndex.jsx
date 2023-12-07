@@ -106,21 +106,23 @@ const RingbaInsertionOrderPublicIndex = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>{orderDetails.titleName}</td>
-                                    <td style={{ fontSize: "12px" }}>
-                                        {orderDetails.description}
-                                        {(orderDetails.videoUrl && ioFor === 'affiliate') &&
-                                            <>
-                                                <br />
-                                                <a href={orderDetails.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
-                                            </>
-                                        }
-                                    </td>
-                                    <td>{orderDetails.term}</td>
-                                    <td>{orderDetails.phone}</td>
-                                    <td>{orderDetails.netPrice.toFixed(2)}</td>
-                                </tr>
+                                {orderDetails.map((item, index) => (
+                                    <tr key={index + 1}>
+                                        <td>{item.titleName}</td>
+                                        <td style={{ fontSize: "12px" }}>
+                                            {item.description}
+                                            {(item.videoUrl && ioFor === 'affiliate') &&
+                                                <>
+                                                    <br />
+                                                    <a href={item.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                                </>
+                                            }
+                                        </td>
+                                        <td>{item.term}</td>
+                                        <td>{item.phone}</td>
+                                        <td>{item.netPrice.toFixed(2)}</td>
+                                    </tr>
+                                ))}
                                 {/* <tr>
                                     <td colSpan="3" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
                                     <th>Sub Total</th>

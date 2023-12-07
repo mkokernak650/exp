@@ -31,16 +31,7 @@ class RingbaInsertionOrderPublicController extends Controller
             $billingDetails = $this->billingDetails($affiliate, $ringbaInsertionOrder);
         }
 
-        $campaign = Campaign::where('campaign_id', $ringbaInsertionOrder->campaign_id)->first();
-
-        $orderDetails = [
-            'titleName'   => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec- ' : '') . $campaign?->campaign_name,
-            'description' => $campaign?->description,
-            'videoUrl'    => $ringbaInsertionOrder->video_url,
-            'term'        => $ringbaInsertionOrder->term,
-            'phone'       => $ringbaInsertionOrder->phone,
-            'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
-        ];
+        $orderDetails = $this->orderDetails($ringbaInsertionOrder, $ioFor);
 
         return Inertia::render('RingbaInsertionOrderPublic/RingbaInsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'ioFor'));
     }
@@ -103,5 +94,40 @@ class RingbaInsertionOrderPublicController extends Controller
             'status'       => 'N/A',
             'date'         => 'N/A'
         ];
+    }
+
+    private function orderDetails($ringbaInsertionOrder, $ioFor)
+    {
+        $campaign = Campaign::where('campaign_id', $ringbaInsertionOrder->campaign_id)->first();
+
+        if (!empty($ringbaInsertionOrder->lengths)) {
+            $lengths = explode(',', str_replace(':', '', $ringbaInsertionOrder->lengths));
+
+            foreach ($lengths as $length) {
+                if ($length == '2830') {
+                    $length = '28:30';
+                }
+
+                $orderDetails[] = [
+                    'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                    'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec - ' : '') . $campaign?->description,
+                    'videoUrl'    => $ringbaInsertionOrder->video_url,
+                    'term'        => $ringbaInsertionOrder->term,
+                    'phone'       => $ringbaInsertionOrder->phone,
+                    'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+                ];
+            }
+        } else {
+            $orderDetails[] = [
+                'titleName'   => $campaign?->campaign_name,
+                'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' sec - ' : '') . $campaign?->description,
+                'videoUrl'    => $ringbaInsertionOrder->video_url,
+                'term'        => $ringbaInsertionOrder->term,
+                'phone'       => $ringbaInsertionOrder->phone,
+                'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+            ];
+        }
+
+        return $orderDetails;
     }
 }
