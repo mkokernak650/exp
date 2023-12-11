@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
 import { Button, CircularProgress, FormControlLabel, Grid, Paper, Radio, RadioGroup, TextField, Typography, makeStyles } from '@material-ui/core'
@@ -55,6 +55,9 @@ const RingbaInsertionOrderTermCreate = () => {
     const [description, setDescription] = useState('')
     const [videoUrl, setVideoUrl] = useState('')
     const [selectedLengths, setSelectedLengths] = useState('')
+    const [tmpSelectedAffiliate, setTmpSelectedAffiliate] = useState('')
+    const [tmpSelectedPhone, setTmpSelectedPhone] = useState('')
+    const [showPhoneFiled, setShowPhoneField] = useState(true)
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -145,12 +148,61 @@ const RingbaInsertionOrderTermCreate = () => {
         setSelectedAffiliate(value)
         setSelectedPhone('')
         if (value) {
-            const phoneOptionByAffiliate = phoneOptions.filter(item => item.affiliateId === value)
+            const phoneOptionByAffiliate = phoneOptions.filter(item => {
+                return value.split(',').some(val => val == item.affiliateId)
+            })
             setPhoneOptionByAffiliate(phoneOptionByAffiliate)
         } else {
             setPhoneOptionByAffiliate(phoneOptions)
         }
     }
+
+    const handleInsertionOrderFor = (e) => {
+        setInsertionOrderFor(e.target.value)
+        setTmpSelectedAffiliate(selectedAffiliate)
+        setTmpSelectedPhone(selectedPhone)
+
+        if (e.target.value === 'affiliate') {
+            let tmpPhoneOptionByAffiliate
+
+            if (selectedAffiliate) {
+                setSelectedAffiliate(selectedAffiliate.split(',')[0])
+                const phoneOptionByAffiliate = phoneOptions.filter(item => item.affiliateId === selectedAffiliate.split(',')[0])
+                tmpPhoneOptionByAffiliate = phoneOptionByAffiliate
+                setPhoneOptionByAffiliate(phoneOptionByAffiliate)
+            }
+
+            if (selectedPhone) {
+                let phoneSetted = null
+
+                selectedPhone.split(',').forEach(phone => {
+                    if (tmpPhoneOptionByAffiliate.some(item => item.value == phone)) {
+                        setSelectedPhone(phone)
+                        phoneSetted = true
+                    }
+                })
+
+                if (!phoneSetted) {
+                    setSelectedPhone('')
+                }
+            }
+        } else {
+            setSelectedAffiliate(tmpSelectedAffiliate)
+            setSelectedPhone(tmpSelectedPhone)
+            const phoneOptionByAffiliate = phoneOptions.filter(item => {
+                return tmpSelectedAffiliate.split(',').some(val => val == item.affiliateId)
+            })
+            setPhoneOptionByAffiliate(phoneOptionByAffiliate)
+        }
+    }
+
+    useEffect(() => {
+        setShowPhoneField(false)
+        const timeoutId = setTimeout(() => {
+            setShowPhoneField(true)
+            clearTimeout(timeoutId)
+        }, 300);
+    }, [insertionOrderFor])
 
     const handleSubmit = (e, submitType = 'create&save') => {
         e.preventDefault()
@@ -287,12 +339,12 @@ const RingbaInsertionOrderTermCreate = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Affiliate"
                                 disabled={!selectedCampaign || loading.campaignData}
-                                singleSelect
+                                singleSelect={insertionOrderFor === 'affiliate'}
                             />
                         </Grid>
 
                         <Grid item xs={12}>
-                            <MultiSelect
+                            {showPhoneFiled ? <MultiSelect
                                 name="ringba_phone"
                                 onChange={(value) => setSelectedPhone(value)}
                                 options={phoneOptionByAffiliate}
@@ -300,8 +352,12 @@ const RingbaInsertionOrderTermCreate = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Phone"
                                 disabled={!selectedCampaign || loading.campaignData}
-                                singleSelect
-                            />
+                                singleSelect={insertionOrderFor === 'affiliate'}
+                            /> :
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <CircularProgress color="inherit" thickness={3} size="0.8rem" style={{ marginRight: '5px' }} /> loading phone filed...
+                                </div>
+                            }
                         </Grid>
 
                         <Grid item xs={12}>
@@ -413,7 +469,7 @@ const RingbaInsertionOrderTermCreate = () => {
                             <RadioGroup
                                 name="insertion_order_for"
                                 value={insertionOrderFor}
-                                onChange={(e) => setInsertionOrderFor(e.target.value)}
+                                onChange={handleInsertionOrderFor}
                                 style={{ display: 'flex', flexDirection: 'row' }}
                             >
                                 <FormControlLabel
