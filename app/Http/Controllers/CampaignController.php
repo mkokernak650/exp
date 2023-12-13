@@ -19,25 +19,16 @@ class CampaignController extends Controller
     public static function getNewCampaigns()
     {
         $ringbaCampaigns = (new RingbaApiHelpers())->getCampaigns();
-        $pluckedCampaignsName = Campaign::get(['campaign_name', 'status'])->pluck('campaign_name')->toArray();
 
-        $newCampaign = [];
-        foreach ($ringbaCampaigns as $key => $ringbaCampaign) {
-            if (!in_array($ringbaCampaign->name, $pluckedCampaignsName)) {
-                $newCampaign[$key] = [
+        foreach ($ringbaCampaigns as $ringbaCampaign) {
+            Campaign::updateOrCreate(
+                ['campaign_id' => $ringbaCampaign->id],
+                [
                     'campaign_name' => $ringbaCampaign->name,
-                    'campaign_id'   => $ringbaCampaign->id,
                     'status'        => $ringbaCampaign->enabled,
-                    'created_at'    => now(),
-                ];
-            } else {
-                Campaign::where('campaign_name', $ringbaCampaign->name)->first()->update([
-                    'status' => $ringbaCampaign->enabled, 'campaign_id' => $ringbaCampaign->id
-                ]);
-            }
+                ]
+            );
         }
-
-        Campaign::insert($newCampaign);
     }
 
     public function campaignSettingForm(): Response
