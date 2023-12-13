@@ -180,7 +180,8 @@ class RingbaInsertionOrderTermController extends Controller
             $customer              = Customer::where('id', $data['customer_id'])->first();
             $billingDetailsForView = $this->billingDetailsForView($customer, $lastIoId, $ioFor);
         } elseif ($ioFor === 'affiliate') {
-            $affiliate             = Affiliate::where('affiliate_id', $data['affiliate_id'])->first();
+            $affiliateId           = explode(',', $data['affiliate_id']);
+            $affiliate             = Affiliate::where('affiliate_id', $affiliateId[0])->first();
             $billingDetailsForView = $this->billingDetailsForView($affiliate, $lastIoId, $ioFor);
         } else {
             return ['success' => false, 'msg' => 'Billing-for not available'];
@@ -236,7 +237,8 @@ class RingbaInsertionOrderTermController extends Controller
             $customer       = Customer::where('id', $ringbaInsertionOrder->customer_id)->first();
             $billingDetails = $this->billingDetails($customer, $ringbaInsertionOrder);
         } else {
-            $affiliate      = Affiliate::where('affiliate_id', $ringbaInsertionOrder->affiliate_id)->first();
+            $affiliateId    = explode(',', $ringbaInsertionOrder->affiliate_id);
+            $affiliate      = Affiliate::where('affiliate_id', $affiliateId[0])->first();
             $billingDetails = $this->billingDetails($affiliate, $ringbaInsertionOrder);
         }
 
@@ -283,8 +285,8 @@ class RingbaInsertionOrderTermController extends Controller
             $customerId = $ringbaInsertionOrder->customer_id;
             $email      = Customer::where('id', $customerId)->select(['email'])->value('email');
         } elseif ($ioFor === 'affiliate') {
-            $affiliateId = $ringbaInsertionOrder->affiliate_id;
-            $email       = Affiliate::where('affiliate_id', $affiliateId)->select(['email'])->value('email');
+            $affiliateId = explode(',', $ringbaInsertionOrder->affiliate_id);
+            $email       = Affiliate::where('affiliate_id', $affiliateId[0])->select(['email'])->value('email');
         }
 
         if (app()->environment('local')) {
@@ -343,33 +345,36 @@ class RingbaInsertionOrderTermController extends Controller
     private function orderDetailsForView($data, $ioFor)
     {
         $campaign = Campaign::where('campaign_id', $data['campaign_id'])->first();
+        $phones   = explode(',', $data['phone']);
 
-        if (!empty($data['lengths'])) {
-            $lengths = explode(',', str_replace(':', '', $data['lengths']));
+        foreach ($phones as $phone) {
+            if (!empty($data['lengths'])) {
+                $lengths = explode(',', str_replace(':', '', $data['lengths']));
 
-            foreach ($lengths as $length) {
-                if ($length == '2830') {
-                    $length = '28:30';
+                foreach ($lengths as $length) {
+                    if ($length == '2830') {
+                        $length = '28:30';
+                    }
+
+                    $orderDetails[] = [
+                        'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                        'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' seconds duration - ' : '') . $campaign?->description,
+                        'videoUrl'    => $data['video_url'],
+                        'term'        => $data['term'],
+                        'phone'       => $phone,
+                        'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
+                    ];
                 }
-
+            } else {
                 $orderDetails[] = [
-                    'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                    'titleName'   => $campaign?->campaign_name,
                     'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' seconds duration - ' : '') . $campaign?->description,
                     'videoUrl'    => $data['video_url'],
                     'term'        => $data['term'],
-                    'phone'       => $data['phone'],
+                    'phone'       => $phone,
                     'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
                 ];
             }
-        } else {
-            $orderDetails[] = [
-                'titleName'   => $campaign?->campaign_name,
-                'description' => (!empty($data['call_length']) ?  $data['call_length'] . ' seconds duration - ' : '') . $campaign?->description,
-                'videoUrl'    => $data['video_url'],
-                'term'        => $data['term'],
-                'phone'       => $data['phone'],
-                'netPrice'    => (float) ($ioFor === 'affiliate' ? $data['payout'] : $data['revenue'])
-            ];
         }
 
         return $orderDetails;
@@ -378,32 +383,35 @@ class RingbaInsertionOrderTermController extends Controller
     private function orderDetails($ringbaInsertionOrder, $ioFor)
     {
         $campaign = Campaign::where('campaign_id', $ringbaInsertionOrder->campaign_id)->first();
+        $phones   = explode(',', $ringbaInsertionOrder->phone);
 
-        if (!empty($ringbaInsertionOrder->lengths)) {
-            $lengths = explode(',', str_replace(':', '', $ringbaInsertionOrder->lengths));
+        foreach ($phones as $phone) {
+            if (!empty($ringbaInsertionOrder->lengths)) {
+                $lengths = explode(',', str_replace(':', '', $ringbaInsertionOrder->lengths));
 
-            foreach ($lengths as $length) {
-                if ($length == '2830') {
-                    $length = '28:30';
+                foreach ($lengths as $length) {
+                    if ($length == '2830') {
+                        $length = '28:30';
+                    }
+                    $orderDetails[] =    [
+                        'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                        'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
+                        'videoUrl'    => $ringbaInsertionOrder->video_url,
+                        'term'        => $ringbaInsertionOrder->term,
+                        'phone'       => $phone,
+                        'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
+                    ];
                 }
+            } else {
                 $orderDetails[] =    [
-                    'titleName'   => $length . ' sec - ' . $campaign?->campaign_name,
+                    'titleName'   => $campaign?->campaign_name,
                     'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
                     'videoUrl'    => $ringbaInsertionOrder->video_url,
                     'term'        => $ringbaInsertionOrder->term,
-                    'phone'       => $ringbaInsertionOrder->phone,
+                    'phone'       => $phone,
                     'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
                 ];
             }
-        } else {
-            $orderDetails[] =    [
-                'titleName'   => $campaign?->campaign_name,
-                'description' => (!empty($ringbaInsertionOrder->call_length) ?  $ringbaInsertionOrder->call_length . ' seconds duration - ' : '') . $campaign?->description,
-                'videoUrl'    => $ringbaInsertionOrder->video_url,
-                'term'        => $ringbaInsertionOrder->term,
-                'phone'       => $ringbaInsertionOrder->phone,
-                'netPrice'    => (float) ($ioFor === 'affiliate' ? $ringbaInsertionOrder->payout : $ringbaInsertionOrder->revenue)
-            ];
         }
 
         return $orderDetails;

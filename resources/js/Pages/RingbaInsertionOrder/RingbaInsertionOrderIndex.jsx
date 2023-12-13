@@ -103,6 +103,9 @@ const RingbaInsertionOrderIndex = () => {
             if (column.key === 'cancel_io') {
                 return <CancelIO data={value} routeName="insertion.order.ringba.resend.io.document" />
             }
+            if (column.key === 'phone') {
+                return value.toString().replace(/,/g, ', ')
+            }
         }
     }
 
