@@ -464,39 +464,52 @@ class RingbaCallLogController extends Controller
 
     private function getAffiliate()
     {
-        $createAffiliates = $updateAffilaites = [];
-        $fromBilled       = DB::table('billed_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
-        $fromArchived     = DB::table('archived_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
-        $fromCallLogs     = DB::table('ringba_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
-        $fromExceptions   = DB::table('exceptions')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
-        $RingbaData       = $fromBilled->merge($fromArchived)->merge($fromCallLogs)->merge($fromExceptions)->unique();
-        $affiliates       = DB::table('affiliates')->select('id', 'affiliate_id', 'affiliate_name')->get();
+        // $createAffiliates = $updateAffilaites = [];
+        // $fromBilled       = DB::table('billed_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
+        // $fromArchived     = DB::table('archived_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
+        // $fromCallLogs     = DB::table('ringba_call_logs')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
+        // $fromExceptions   = DB::table('exceptions')->select('Affiliate_Id', 'Affiliate')->distinct()->get();
+        // $RingbaData       = $fromBilled->merge($fromArchived)->merge($fromCallLogs)->merge($fromExceptions)->unique();
+        // $affiliates       = DB::table('affiliates')->select('id', 'affiliate_id', 'affiliate_name')->get();
 
-        foreach ($affiliates as $affiliate) {
-            $affiliateName    = explode(' ', $affiliate->affiliate_name);
-            $firstFourLetters = substr($affiliateName[0], 0, 4);
-            $affiliateNames[] = $affiliate->affiliate_name;
-            $affiliateIds[]   = $affiliate->affiliate_id;
-            foreach ($RingbaData as $item) {
-                $affiliateName          = explode(' ', $item->Affiliate);
-                $firstFourLettersRingba = substr($affiliateName[0], 0, 4);
-                if ($firstFourLetters == $firstFourLettersRingba && $affiliate->affiliate_id != $item->Affiliate_Id) {
-                    $updateAffilaites[$affiliate->id] = $item->Affiliate_Id;
-                }
-            }
+        // foreach ($affiliates as $affiliate) {
+        //     $affiliateName    = explode(' ', $affiliate->affiliate_name);
+        //     $firstFourLetters = substr($affiliateName[0], 0, 4);
+        //     $affiliateNames[] = $affiliate->affiliate_name;
+        //     $affiliateIds[]   = $affiliate->affiliate_id;
+        //     foreach ($RingbaData as $item) {
+        //         $affiliateName          = explode(' ', $item->Affiliate);
+        //         $firstFourLettersRingba = substr($affiliateName[0], 0, 4);
+        //         if ($firstFourLetters == $firstFourLettersRingba && $affiliate->affiliate_id != $item->Affiliate_Id) {
+        //             $updateAffilaites[$affiliate->id] = $item->Affiliate_Id;
+        //         }
+        //     }
+        // }
+
+        // foreach ($RingbaData as $item) {
+        //     if (!in_array($item->Affiliate, $affiliateNames) && !in_array($item->Affiliate_Id, $affiliateIds)) {
+        //         $createAffiliates[] = ['affiliate_id' => $item->Affiliate_Id, 'affiliate_name' => $item->Affiliate];
+        //     }
+        // }
+
+        // foreach ($updateAffilaites as $key => $item) {
+        //     DB::table('affiliates')->where('id', $key)->update(['affiliate_id' => $item]);
+        // }
+
+        // DB::table('affiliates')->insert($createAffiliates);
+
+        $ringbaApiHelper  = new RingbaApiHelpers;
+        $ringbaAffiliates = $ringbaApiHelper->getAffiliate();
+
+        foreach ($ringbaAffiliates as $ringbaAffiliate) {
+            Affiliate::updateOrCreate(
+                ['affiliate_id' => $ringbaAffiliate->id],
+                [
+                    'affiliate_name' => $ringbaAffiliate->name,
+                    'status'         => $ringbaAffiliate->enabled
+                ]
+            );
         }
-
-        foreach ($RingbaData as $item) {
-            if (!in_array($item->Affiliate, $affiliateNames) && !in_array($item->Affiliate_Id, $affiliateIds)) {
-                $createAffiliates[] = ['affiliate_id' => $item->Affiliate_Id, 'affiliate_name' => $item->Affiliate];
-            }
-        }
-
-        foreach ($updateAffilaites as $key => $item) {
-            DB::table('affiliates')->where('id', $key)->update(['affiliate_id' => $item]);
-        }
-
-        DB::table('affiliates')->insert($createAffiliates);
     }
 
     // for get Customer

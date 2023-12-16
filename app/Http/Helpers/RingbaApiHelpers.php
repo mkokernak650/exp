@@ -62,7 +62,7 @@ class RingbaApiHelpers
     public function totalDataCount($start_date, $end_date)
     {
         $params = [
-            'reportStart'=> $start_date,
+            'reportStart' => $start_date,
             'reportEnd'  => $end_date
         ];
 
@@ -70,28 +70,28 @@ class RingbaApiHelpers
         return $response;
     }
 
-      public function getRingbaData($start_date, $end_date, $offset)
-      {
-          $params = [
-              'reportStart'=> $start_date,
-              'reportEnd'  => $end_date,
-              'size'       => 1000,
-              'offset'     => $offset
-          ];
+    public function getRingbaData($start_date, $end_date, $offset)
+    {
+        $params = [
+            'reportStart' => $start_date,
+            'reportEnd'  => $end_date,
+            'size'       => 1000,
+            'offset'     => $offset
+        ];
 
-          $response = json_decode($this->postRequest('calllogs', $params));
-          return $response;
-      }
+        $response = json_decode($this->postRequest('calllogs', $params));
+        return $response;
+    }
 
     /**
-       * @var mixed $inboundId
-       * @param mixed $inboundId
-       * @return Object
-       */
+     * @var mixed $inboundId
+     * @param mixed $inboundId
+     * @return Object
+     */
     private function getDataById($inboundId)
     {
         $params = [
-            'InboundCallIds'=> [$inboundId]
+            'InboundCallIds' => [$inboundId]
         ];
         $response = json_decode($this->postRequest('calllogs/detail', $params));
         return $response->report->records;
