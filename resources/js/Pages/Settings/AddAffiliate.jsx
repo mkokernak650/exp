@@ -8,6 +8,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import TextInput from '@/Components/Global/TextInput'
 import { usePage } from '@inertiajs/inertia-react'
+import Note from '../../Components/Note'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,6 +73,10 @@ const AddAffiliate = () => {
   return (
     <>
       <Helmet title="Add Affiliate" />
+      <Note>
+        <p>For Ringba affiliates, fetching the Ringba data will fetch affiliates as well.</p>
+        <p>To avoid duplicate affiliates, update Ringba data first, and then this page will prevent users from inserting duplicates.</p>
+      </Note>
       <Paper className={classes.root}>
         <Typography variant="h5" className={classes.title}>
           Add Affiliate
