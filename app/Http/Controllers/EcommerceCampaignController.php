@@ -42,7 +42,7 @@ class EcommerceCampaignController extends Controller
      */
     public function create()
     {
-        $customers = Customer::Active()->get();
+        $customers = Customer::orderBy('customer_name')->Active()->get();
 
         return Inertia::render('Ecommerce/CampaignCreate', compact('customers'));
     }
