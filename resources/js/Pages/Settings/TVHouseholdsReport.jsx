@@ -64,9 +64,10 @@ const CustomerReport = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      //   ? JSON.parse(columnsData[0])?.[optionKey]
+      //   : 
+      columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -232,7 +233,7 @@ const CustomerReport = () => {
           toast.error('Import failed')
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   const triggerExportLink = (link) => {
@@ -465,11 +466,10 @@ const CustomerReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${
-          selectedRowIds.length > 1
-            ? 'Do you want to delete these records?'
-            : 'Do you want to delete this record?'
-        }`}
+        title={`${selectedRowIds.length > 1
+          ? 'Do you want to delete these records?'
+          : 'Do you want to delete this record?'
+          }`}
       ></ConfirmModal>
     </>
   )

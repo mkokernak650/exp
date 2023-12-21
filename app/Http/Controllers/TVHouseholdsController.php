@@ -25,7 +25,16 @@ class TVHouseholdsController extends Controller
 
     public function TVHouseholdsReport()
     {
-        $allTVHouseholds = TVHouseholds::all();
+        $allTVHouseholds = TVHouseholds::orderBy('tv_households', 'DESC')->get();
+
+        $allTVHouseholds->transform(function ($item) {
+            if (isset($item->tv_households)) {
+                $item->tv_households = number_format($item->tv_households);
+            }
+
+            return $item;
+        });
+
         $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/TVHouseholdsReport', [
             'allTVHouseholds' => $allTVHouseholds,
