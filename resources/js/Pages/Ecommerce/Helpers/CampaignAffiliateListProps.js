@@ -32,6 +32,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'tv_households',
+    title: 'TV Households',
+    dataType: DataType.String,
+    style: { width: 150 },
+    visible: true,
+  },
+  {
     key: 'coupon_code',
     title: 'Coupon Code',
     dataType: DataType.String,

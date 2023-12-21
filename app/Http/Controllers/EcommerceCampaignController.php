@@ -138,6 +138,7 @@ class EcommerceCampaignController extends Controller
                 'affiliates.affiliate_name',
                 'ecommerce_affiliates.affiliate_fee_type',
                 'affiliates.market',
+                DB::raw('(SELECT tv_households FROM t_v_households WHERE t_v_households.market = affiliates.market LIMIT 1) AS tv_households'),
                 'affiliates.created_at',
                 'ecommerce_affiliates.coupon_code',
                 'ecommerce_affiliates.dialed'
@@ -145,6 +146,14 @@ class EcommerceCampaignController extends Controller
             ->orderBy('affiliates.affiliate_name')
             ->groupBy('ecommerce_affiliates.affiliate_id')
             ->paginate(request('itemPerPage') ?? 10);
+
+        $affiliateList->getCollection()->transform(function ($item) {
+            if (isset($item->tv_households)) {
+                $item->tv_households = number_format($item->tv_households);
+            }
+
+            return $item;
+        });
 
         if (request('page')) {
             return $affiliateList;

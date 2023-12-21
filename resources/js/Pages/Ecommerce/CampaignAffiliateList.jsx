@@ -30,6 +30,7 @@ const CampaignAffiliateList = () => {
       affiliate_name: item.affiliate_name,
       affiliate_fee_type: item.affiliate_fee_type,
       market: item.market,
+      tv_households: item.tv_households,
       created_at: item.created_at,
       id: item.id,
     }))
@@ -44,9 +45,10 @@ const CampaignAffiliateList = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      //   ? JSON.parse(columnsData[0])?.[optionKey]
+      //   : 
+      columns,
     loading: {
       enabled: false,
       text: 'Loading...',
