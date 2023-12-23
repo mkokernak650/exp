@@ -130,6 +130,12 @@ class EcommerceCampaignController extends Controller
 
     public function affiliateList($campaignId)
     {
+        if (request('orderBy')) {
+            $orderBy          = explode('@', request('orderBy'));
+            $orderByColumn    = $orderBy[0];
+            $orderByDirection = $orderBy[1];
+        }
+
         $affiliateList = DB::table('ecommerce_affiliates')
             ->join('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
             ->where('campaign_id', $campaignId)
@@ -143,7 +149,10 @@ class EcommerceCampaignController extends Controller
                 'ecommerce_affiliates.coupon_code',
                 'ecommerce_affiliates.dialed'
             ])
-            ->orderBy('affiliates.affiliate_name')
+            ->when(
+                !empty($orderBy),
+                fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
+            )
             ->groupBy('ecommerce_affiliates.affiliate_id')
             ->paginate(request('itemPerPage') ?? 10);
 

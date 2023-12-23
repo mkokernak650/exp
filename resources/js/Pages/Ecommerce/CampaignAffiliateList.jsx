@@ -13,6 +13,8 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { useStyles, columns } from './Helpers/CampaignAffiliateListProps'
 import { Button, CircularProgress } from '@material-ui/core'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const CampaignAffiliateList = () => {
   const classes = useStyles()
@@ -24,6 +26,7 @@ const CampaignAffiliateList = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [searchedData, setSearchData] = useState([])
+  const [orderByValue, setOrderByValue] = useState('affiliates.affiliate_name@ASC')
 
   const mapDataArr = (data) => {
     return data.data.map((item) => ({
@@ -67,6 +70,15 @@ const CampaignAffiliateList = () => {
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
 
+  const orderByOptions = [
+    { label: 'Affiliate Name (Ascending)', value: 'affiliates.affiliate_name@ASC' },
+    { label: 'Affiliate Name (Descending)', value: 'affiliates.affiliate_name@DESC' },
+    { label: 'TV Households (Ascending)', value: 'tv_households@ASC' },
+    { label: 'TV Households (Descending)', value: 'tv_households@DESC' },
+    { label: 'Created At (Ascending)', value: 'affiliates.created_at@ASC' },
+    { label: 'Created At (Descending)', value: 'affiliates.created_at@DESC' }
+  ]
+
   const dispatch = (action) => {
     changeTableProps((prevState) => {
       const newState = kaReducer(prevState, action)
@@ -104,6 +116,7 @@ const CampaignAffiliateList = () => {
         data.page +
         '&itemPerPage=' +
         itemPerPage
+        + '&orderBy=' + orderByValue
       )
       .then((res) => {
         setCampaignAffiliateList(res.data)
@@ -118,7 +131,7 @@ const CampaignAffiliateList = () => {
 
   useEffect(() => {
     getSearchingData(curerentPage)
-  }, [itemPerPage])
+  }, [itemPerPage, orderByValue])
 
   const triggerExportLink = (link) => {
     return window.open(link)
@@ -165,6 +178,16 @@ const CampaignAffiliateList = () => {
                 'Export'
               )}
             </Button>
+          </div>
+          <div className="top-left">
+            <MultiSelect
+              options={orderByOptions}
+              onChange={(value) => setOrderByValue(value)}
+              placeholder="Order By"
+              style={{ width: '280px' }}
+              defaultValue={orderByValue}
+              singleSelect
+            />
           </div>
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
