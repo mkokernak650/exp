@@ -100,6 +100,8 @@ const AffiliateReport = () => {
   }
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps.data)
+
 
   const dispatch = (action) => {
     handleSelects({
@@ -176,7 +178,7 @@ const AffiliateReport = () => {
   }
 
   const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
+    tablePropsRef.current.filter((item) => {
       if (item.id == itemId) {
         setEditData(item)
       }
@@ -228,6 +230,7 @@ const AffiliateReport = () => {
               filteredData.data[indx].contact_telephone = editData.contact_telephone
             }
           })
+          tablePropsRef.current = filteredData.data
           setEditData()
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
@@ -250,20 +253,21 @@ const AffiliateReport = () => {
     setOpenModal({ open: true })
   }
 
-  // const getSearchingData = async () => {
-  //   dispatch(showLoading())
-  //   await axios
-  //     .get(
-  //       `/affiliate-report?orderBy=` + orderByValue
-  //       + '&type=orderBy'
-  //     )
-  //     .then((res) => {
-  //       const tmpTableProps = { ...tableProps }
-  //       tmpTableProps.data = mapDataArr(res.data)
-  //       changeTableProps(tmpTableProps)
-  //       dispatch(hideLoading())
-  //     })
-  // }
+  const getSearchingData = async () => {
+    dispatch(showLoading())
+    await axios
+      .get(
+        `/affiliate-report?orderBy=` + orderByValue
+        + '&type=orderBy'
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data)
+        tablePropsRef.current = mapDataArr(res.data)
+        changeTableProps(tmpTableProps)
+        dispatch(hideLoading())
+      })
+  }
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -278,9 +282,9 @@ const AffiliateReport = () => {
     }
   }, [showColumns])
 
-  // useEffect(() => {
-  //   getSearchingData()
-  // }, [orderByValue])
+  useEffect(() => {
+    getSearchingData()
+  }, [orderByValue])
 
   const TableToolbar = () => {
     return (
@@ -317,7 +321,7 @@ const AffiliateReport = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
-              {/* <div className="top-left">
+              <div className="top-left">
                 <MultiSelect
                   options={orderByOptions}
                   onChange={(value) => setOrderByValue(value)}
@@ -326,7 +330,7 @@ const AffiliateReport = () => {
                   defaultValue={orderByValue}
                   singleSelect
                 />
-              </div> */}
+              </div>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
