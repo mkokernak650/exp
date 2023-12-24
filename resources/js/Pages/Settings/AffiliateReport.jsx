@@ -27,6 +27,9 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import { useStyles, fields, groups, filter, columns } from './Helpers/AffiliateReportProps'
 import TextInput from '@/Components/Global/TextInput'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const AffiliateReport = () => {
   const classes = useStyles()
@@ -40,21 +43,27 @@ const AffiliateReport = () => {
   const [showArchivedModal, setShowArchivedModal] = useState({
     open: false,
   })
+  const [orderByValue, setOrderByValue] = useState('affiliate_name@ASC')
   const showColumnRef = useRef()
 
-  const dataArray = allAffiliates.map((item, index) => ({
-    edit: item.id,
-    affiliate_id: item.affiliate_id,
-    affiliate_name: item.affiliate_name,
-    market: item.market,
-    email: item.email,
-    telephone: item.telephone,
-    address: item.address,
-    contact_name: item.contact_name,
-    contact_telephone: item.contact_telephone,
-    id: item.id,
-    key: index,
-  }))
+  const mapDataArr = (data) => {
+    return data.map((item, index) => ({
+      edit: item.id,
+      affiliate_id: item.affiliate_id,
+      affiliate_name: item.affiliate_name,
+      tv_households: item.tv_households,
+      market: item.market,
+      email: item.email,
+      telephone: item.telephone,
+      address: item.address,
+      contact_name: item.contact_name,
+      contact_telephone: item.contact_telephone,
+      id: item.id,
+      key: index,
+    }))
+  }
+
+  const dataArray = mapDataArr(allAffiliates)
 
   const optionKey = 'affiliate-report'
   const [columnDetails, setColumnDetails] = useState(
@@ -63,9 +72,10 @@ const AffiliateReport = () => {
 
   const tablePropsInit = {
     columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      //   ? JSON.parse(columnsData[0])?.[optionKey]
+      //   : 
+      columns,
     paging: {
       enabled: true,
       pageIndex: 0,
@@ -128,6 +138,15 @@ const AffiliateReport = () => {
   const closeSidebar = () => {
     setSearchSidebar(false)
   }
+
+  const orderByOptions = [
+    { label: 'Affiliate Name (Ascending)', value: 'affiliate_name@ASC' },
+    { label: 'Affiliate Name (Descending)', value: 'affiliate_name@DESC' },
+    { label: 'TV Households (Ascending)', value: 'tv_households@ASC' },
+    { label: 'TV Households (Descending)', value: 'tv_households@DESC' },
+    // { label: 'Created At (Ascending)', value: 'created_at@ASC' },
+    // { label: 'Created At (Descending)', value: 'created_at@DESC' }
+  ]
 
   const deleteHandler = () => {
     axios
@@ -231,6 +250,21 @@ const AffiliateReport = () => {
     setOpenModal({ open: true })
   }
 
+  // const getSearchingData = async () => {
+  //   dispatch(showLoading())
+  //   await axios
+  //     .get(
+  //       `/affiliate-report?orderBy=` + orderByValue
+  //       + '&type=orderBy'
+  //     )
+  //     .then((res) => {
+  //       const tmpTableProps = { ...tableProps }
+  //       tmpTableProps.data = mapDataArr(res.data)
+  //       changeTableProps(tmpTableProps)
+  //       dispatch(hideLoading())
+  //     })
+  // }
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
@@ -243,6 +277,10 @@ const AffiliateReport = () => {
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
+
+  // useEffect(() => {
+  //   getSearchingData()
+  // }, [orderByValue])
 
   const TableToolbar = () => {
     return (
@@ -275,8 +313,20 @@ const AffiliateReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
-              <Eye />
+            <div className="top-left">
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
+              </div>
+              {/* <div className="top-left">
+                <MultiSelect
+                  options={orderByOptions}
+                  onChange={(value) => setOrderByValue(value)}
+                  placeholder="Order By"
+                  style={{ width: '280px' }}
+                  defaultValue={orderByValue}
+                  singleSelect
+                />
+              </div> */}
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>

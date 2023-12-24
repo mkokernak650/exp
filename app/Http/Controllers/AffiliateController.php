@@ -7,6 +7,7 @@ use App\Models\Affiliate;
 use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AffiliateController extends Controller
@@ -122,6 +123,12 @@ class AffiliateController extends Controller
 
     public function affiliateReport()
     {
+        if (request('orderBy')) {
+            $orderBy          = explode('@', request('orderBy'));
+            $orderByColumn    = $orderBy[0];
+            $orderByDirection = $orderBy[1];
+        }
+
         $customMarkets = [
             (object) ['market' => 'Third Party Provider'],
             (object) ['market' => 'Connected TV'],
@@ -133,8 +140,28 @@ class AffiliateController extends Controller
         $markets    = ZipcodeByTelevisionMarket::select('market')->distinct()->orderBy('market')->get();
         $allMarkets = array_merge($customMarkets, $markets->toarray());
 
-        $allAffiliates = Affiliate::where('status', '=', '1')->get();
-        $columnsData   = TableDetails::all()->pluck('column_details');
+        $allAffiliates = Affiliate::where('status', '=', '1')
+            ->select()
+            ->addSelect(DB::raw('(SELECT tv_households FROM t_v_households WHERE t_v_households.market = affiliates.market LIMIT 1) AS tv_households'))
+            ->when(
+                !empty($orderBy),
+                fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
+            )
+            ->get();
+
+        $allAffiliates->transform(function ($item) {
+            if (isset($item->tv_households)) {
+                $item->tv_households = number_format($item->tv_households);
+            }
+
+            return $item;
+        });
+
+        if (request('type') === 'orderBy') {
+            return $allAffiliates;
+        }
+
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/AffiliateReport', [
             'allAffiliates' => $allAffiliates,
             'columnsData'   => $columnsData,

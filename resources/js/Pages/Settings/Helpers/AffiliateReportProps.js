@@ -131,6 +131,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'tv_households',
+    title: 'TV Households',
+    dataType: DataType.String,
+    style: { width: 240 },
+    visible: true,
+  },
+  {
     key: 'market',
     title: 'Market',
     dataType: DataType.String,
