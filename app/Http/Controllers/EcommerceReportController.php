@@ -1299,7 +1299,7 @@ class EcommerceReportController extends Controller
                 $affiliateFee = $salesData->sum(function ($item) {
                     return (float) $item->{'Affiliate Fee'};
                 });
-                $reportOn .= '<br> <p style="font-size: 18px;"><strong>Affiliate Fee: $' . $affiliateFee . '</strong></p>';
+                $reportOn .= '<br> <p style="font-size: 18px;"><strong>Net Payout: $' . $affiliateFee . '</strong></p>';
             }
         }
 
