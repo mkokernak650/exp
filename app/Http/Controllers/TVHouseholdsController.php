@@ -25,7 +25,16 @@ class TVHouseholdsController extends Controller
 
     public function TVHouseholdsReport()
     {
-        $allTVHouseholds = TVHouseholds::orderBy('tv_households', 'DESC')->get();
+        if (request('orderBy')) {
+            $orderBy          = explode('@', request('orderBy'));
+            $orderByColumn    = $orderBy[0];
+            $orderByDirection = $orderBy[1];
+        }
+
+        $allTVHouseholds = TVHouseholds::when(
+            !empty($orderBy),
+            fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
+        )->get();
 
         $allTVHouseholds->transform(function ($item) {
             if (isset($item->tv_households)) {
@@ -34,6 +43,10 @@ class TVHouseholdsController extends Controller
 
             return $item;
         });
+
+        if (request('type') === 'orderBy') {
+            return $allTVHouseholds;
+        }
 
         $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/TVHouseholdsReport', [
@@ -71,15 +84,18 @@ class TVHouseholdsController extends Controller
 
     public function edit(Request $request)
     {
-        $data = TVHouseholds::find($request->id);
-        $data->market = $request->market;
-        $data->state = $request->state;
+        $data                = TVHouseholds::find($request->id);
+        $data->market        = $request->market;
+        $data->state         = $request->state;
         $data->tv_households = $request->tv_households;
-        $data->updated_at = now();
-        $result = $data->save();
+        $data->updated_at    = now();
+        $result              = $data->save();
+        $updatedData         = $data->refresh();
+
+        $updatedData->tv_households = number_format($updatedData->tv_households);
 
         if ($result) {
-            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200,]);
+            return response()->json(['msg' => 'Successfully Edited', 'status_code' => 200, 'data' => $data]);
         } else {
             return response()->json(['msg' => 'Editing Failed', 'status_code' => 500]);
         }

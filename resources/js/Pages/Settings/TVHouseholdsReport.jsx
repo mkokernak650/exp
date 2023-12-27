@@ -29,6 +29,9 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import { useStyles, fields, groups, filter, columns } from './Helpers/TVHouseholdsReportProps'
+import { hideLoading, showLoading } from 'ka-table/actionCreators'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const CustomerReport = () => {
   const classes = useStyles()
@@ -42,20 +45,26 @@ const CustomerReport = () => {
   const [importModal, setImportModal] = useState({ open: false })
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [orderByValue, setOrderByValue] = useState('tv_households@DESC')
 
   const showColumnRef = useRef()
 
-  const dataArray = allTVHouseholds.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    market: item.market,
-    state: item.state,
-    tv_households: item.tv_households,
-    created_at: item.created_at,
-    updated_at: item.updated_at,
-    id: item.id,
-    key: index,
-  }))
+  const mapDataArr = (data) => {
+    return data.map((item, index) => ({
+      edit: item.id,
+      sl: index + 1,
+      market: item.market,
+      state: item.state,
+      tv_households: item.tv_households,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      id: item.id,
+      key: index,
+    }))
+  }
+
+  const dataArray = mapDataArr(allTVHouseholds)
+
 
   const optionKey = 'tv-household-report'
   const [columnDetails, setColumnDetails] = useState(
@@ -95,6 +104,7 @@ const CustomerReport = () => {
   }
 
   const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const tablePropsRef = useRef(tableProps.data)
 
   const dispatch = (action) => {
     handleSelects({
@@ -134,6 +144,13 @@ const CustomerReport = () => {
     setSearchSidebar(false)
   }
 
+  const orderByOptions = [
+    { label: 'TV Households (Ascending)', value: 'tv_households@ASC' },
+    { label: 'TV Households (Descending)', value: 'tv_households@DESC' },
+    { label: 'Created At (Ascending)', value: 'created_at@ASC' },
+    { label: 'Created At (Descending)', value: 'created_at@DESC' }
+  ]
+
   const deleteHandler = () => {
     axios
       .post(route('tv.households.delete'), { selectedRowIds })
@@ -158,8 +175,9 @@ const CustomerReport = () => {
   }
 
   const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
+    tablePropsRef.current.filter((item) => {
       if (item.id == itemId) {
+        item.tv_households = item.tv_households.toString().replace(/,/g, '')
         setEditData(item)
       }
     })
@@ -180,10 +198,11 @@ const CustomerReport = () => {
             if (item.id === editData.id) {
               filteredData.data[indx].market = editData.market
               filteredData.data[indx].state = editData.state
-              filteredData.data[indx].tv_households = editData.tv_households
+              filteredData.data[indx].tv_households = res.data.data.tv_households
               filteredData.data[indx].updated_at = new Date()
             }
           })
+          tablePropsRef.current = filteredData.data
           setEditData()
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
@@ -259,6 +278,26 @@ const CustomerReport = () => {
       })
   }
 
+  const getSearchingData = async () => {
+    dispatch(showLoading())
+    await axios
+      .get(
+        `/tv-households-report?orderBy=` + orderByValue
+        + '&type=orderBy'
+      )
+      .then((res) => {
+        const tmpTableProps = { ...tableProps }
+        tmpTableProps.data = mapDataArr(res.data)
+        tablePropsRef.current = mapDataArr(res.data)
+        changeTableProps(tmpTableProps)
+        dispatch(hideLoading())
+      })
+  }
+
+  useEffect(() => {
+    getSearchingData()
+  }, [orderByValue])
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
@@ -324,6 +363,16 @@ const CustomerReport = () => {
                   'Searched Export'
                 )}
               </Button>
+              <div className="top-left">
+                <MultiSelect
+                  options={orderByOptions}
+                  onChange={(value) => setOrderByValue(value)}
+                  placeholder="Order By"
+                  style={{ width: '280px' }}
+                  defaultValue={orderByValue}
+                  singleSelect
+                />
+              </div>
             </div>
             <div className="search-icon" onClick={handleSearch}>
               <span>Search Here</span>
