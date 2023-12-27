@@ -127,7 +127,7 @@ class RingbaReportsController extends Controller
         }
 
         if ($request->report_type === 'email-report') {
-            $emailCriteria      = $this->emailCriteria($request);
+            $emailCriteria      = $this->emailCriteria($request, $summary);
             $sendMailController = new SendMailController();
 
             $sendMailController->sendMail($data, $summary, [], $request->file_name, $emails, $emailCriteria, $header, $request->reportOn);
@@ -498,7 +498,7 @@ class RingbaReportsController extends Controller
         return $header;
     }
 
-    protected function emailCriteria($request)
+    protected function emailCriteria($request, $summary)
     {
         if ($request->reportOn === 'callLength') {
             $reportOn = 'Call Length Report';
@@ -538,6 +538,14 @@ class RingbaReportsController extends Controller
             $startingDate   = date_format(date_create($request->start_date), 'd-M-Y');
             $endingDate     = date_format(date_create($request->end_date), 'd-M-Y');
             $emailCriteria .= "<br>Date Range ({$startingDate} To {$endingDate})";
+        }
+
+        if ($request->reportOn === 'detail') {
+            if ($request->type === 'customer') {
+                $emailCriteria .= '<br> <p style="font-size: 18px;"><strong>Total Revenue: $' . $summary['Total Revenue'] . '</strong></p>';
+            } else {
+                $emailCriteria .= '<br> <p style="font-size: 18px;"><strong>Net Payout: $' . $summary['Total Payout'] . '</strong></p>';
+            }
         }
 
         return $emailCriteria;
