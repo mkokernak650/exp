@@ -546,6 +546,12 @@ class RingbaReportsController extends Controller
             } else {
                 $emailCriteria .= '<br> <p style="font-size: 18px;"><strong>Net Payout: $' . $summary['Total Payout'] . '</strong></p>';
             }
+        } elseif ($request->reportOn === 'exceptions') {
+            $emailCriteria .= '<br> <p style="font-size: 18px;"><strong>Total Revenue: $' . $summary['Total Revenue'] . '</strong></p>';
+        } elseif ($request->reportOn === 'callLength') {
+            $emailCriteria .= '<br> <p style="font-size: 18px;"><strong>Net Payout: $' . $summary['Total Payout'] . '</strong></p>';
+        } elseif ($request->reportOn === 'homesPerCall') {
+            $emailCriteria .= '<br> <p style="font-size: 18px;"><strong>Total Revenue: $' . $summary['Total Revenue'] . '</strong></p>';
         }
 
         return $emailCriteria;
