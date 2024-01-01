@@ -180,7 +180,7 @@ class CampaignController extends Controller
 
     public function getDescription($id)
     {
-        $campaign = Campaign::select(['id', 'campaign_name', 'description'])->where('id', $id)->first();
+        $campaign = Campaign::select(['id', 'campaign_name', 'description', 'length_url'])->where('id', $id)->first();
 
         if ($campaign) {
             return ['success' => true, 'data' => $campaign];
@@ -192,7 +192,10 @@ class CampaignController extends Controller
     public function updateDescription(Request $request)
     {
         $data   = $request->data;
-        $result = Campaign::where('id', $data['id'])->update(['description' => $data['description']]);
+        $result = Campaign::where('id', $data['id'])->update([
+            'description' => $data['description'],
+            'length_url'  => $data['length_url']
+        ]);
 
         if ($result) {
             return ['success' => true, 'msg' => 'Description updated successfully'];

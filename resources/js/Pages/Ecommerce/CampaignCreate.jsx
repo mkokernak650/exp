@@ -39,8 +39,9 @@ const useStyles = makeStyles((theme) => ({
 const CampaignCreate = () => {
   const defaultState = {
     campaign_name: "",
+    customer_id: "",
     description: "",
-    customer_id: ""
+    lengthUrl: "",
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
@@ -49,6 +50,8 @@ const CampaignCreate = () => {
   const [response, setResponse] = useState();
   const [responseType, setResponseType] = useState();
   const { customers } = usePage().props
+
+  // console.log(values)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,6 +120,17 @@ const CampaignCreate = () => {
             </Grid>
 
             <Grid item xs={12}>
+              <MultiSelect
+                singleSelect
+                placeholder="Select Customer"
+                options={customersOption}
+                defaultValue={values.customer_id}
+                onChange={value => CustomerHandleChange(value)}
+                style={{ width: '100%' }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
               <TextField
                 name="description"
                 label="Description"
@@ -130,14 +144,16 @@ const CampaignCreate = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <MultiSelect
-                singleSelect
-                placeholder="Select Customer"
-                options={customersOption}
-                defaultValue={values.customer_id}
-                onChange={value => CustomerHandleChange(value)}
-                style={{ width: '100%' }}
-              />
+              <TextField
+                name="lengthUrl"
+                label="Length and URL"
+                onChange={handleChange}
+                value={values?.lengthUrl}
+                spellCheck
+                fullWidth
+                multiline
+                maxRows="3"
+              ></TextField>
             </Grid>
 
             <Grid item xs={12}>

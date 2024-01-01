@@ -15,7 +15,8 @@ class Campaign extends Model
         'campaign_id',
         'connection_duration',
         'status',
-        'description'
+        'description',
+        'length_url'
     ];
 
     public function ecommerceAffiliates(): HasMany

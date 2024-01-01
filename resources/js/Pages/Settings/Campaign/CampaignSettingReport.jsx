@@ -125,7 +125,7 @@ const CampaignSettingReport = () => {
             </InertiaLink>
             <div style={{ paddingLeft: '4px' }}>
               <Button variant="contained" color="primary" onClick={() => handleDescriptionModal(value)}>
-                Description
+                Description and URLs
               </Button>
             </div>
           </div>
@@ -272,6 +272,10 @@ const CampaignSettingReport = () => {
 
   const handleDescriptionChange = (e) => {
     setDescriptionModalData((values) => ({ ...values, description: e.target.value }))
+  }
+
+  const handleLengthUrlChange = (e) => {
+    setDescriptionModalData((values) => ({ ...values, length_url: e.target.value }))
   }
 
   const updateDescription = () => {
@@ -452,6 +456,19 @@ const CampaignSettingReport = () => {
               multiline
               minRows="4"
               maxRows="6"
+            />
+            <TextField
+              name="length_url"
+              label="Length and URL"
+              variant="outlined"
+              style={{ marginTop: '30px' }}
+              onChange={handleLengthUrlChange}
+              value={descriptionModalData.length_url === null ? '' : descriptionModalData?.length_url}
+              spellCheck
+              fullWidth
+              multiline
+              minRows="3"
+              maxRows="5"
             />
             <div style={{ display: "flex", marginTop: "20px", justifyContent: "flex-end" }}>
               <Button
