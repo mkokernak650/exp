@@ -443,7 +443,7 @@ const CampaignSettingReport = () => {
         <div>
           <div>
             <p style={{ textAlign: "center", marginBottom: "20px", marginTop: "-5px" }}>
-              Description for <strong>{descriptionModalData?.campaign_name}</strong>
+              Description, Length & URLs for <strong>{descriptionModalData?.campaign_name}</strong>
             </p>
             <TextField
               name="description"
@@ -481,7 +481,7 @@ const CampaignSettingReport = () => {
                 {loading.description && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
                   <CircularProgress size={15} color="inherit" />
                 </span>)}
-                Update Description
+                Update
               </Button>
             </div>
           </div>
