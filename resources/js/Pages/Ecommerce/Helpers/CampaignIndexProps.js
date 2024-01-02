@@ -138,6 +138,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'length_url',
+    title: 'Length and URLs',
+    dataType: DataType.String,
+    style: { width: 300 },
+    visible: true,
+  },
+  {
     key: 'status',
     title: 'Status',
     dataType: DataType.String,
@@ -148,14 +155,14 @@ export const columns = [
     key: 'created_at',
     title: 'Created At',
     dataType: DataType.String,
-    style: { width: 150 },
+    style: { width: 200 },
     visible: true,
   },
   {
     key: 'updated_at',
     title: 'Last Updated',
     dataType: DataType.Date,
-    style: { width: 150 },
+    style: { width: 200 },
     visible: true,
   },
 ]

@@ -59,6 +59,7 @@ const CampaignIndex = () => {
     customer_name: item?.customer?.customer_name,
     customer_id: item?.customer?.id.toString(),
     description: item.description,
+    length_url: item.length_url,
     status: [item.status, item.id, index],
     created_at: item.created_at,
     updated_at: item.updated_at,
@@ -377,6 +378,17 @@ const CampaignIndex = () => {
               </Grid>
 
               <Grid item xs={12}>
+                <MultiSelect
+                  singleSelect
+                  placeholder="Select Customer"
+                  options={customersOption}
+                  defaultValue={editData?.customer_id}
+                  onChange={value => CustomerHandleChange(value)}
+                  style={{ width: '100%' }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
                 <TextField
                   name="description"
                   label="Description"
@@ -390,14 +402,16 @@ const CampaignIndex = () => {
               </Grid>
 
               <Grid item xs={12}>
-                <MultiSelect
-                  singleSelect
-                  placeholder="Select Customer"
-                  options={customersOption}
-                  defaultValue={editData?.customer_id}
-                  onChange={value => CustomerHandleChange(value)}
-                  style={{ width: '100%' }}
-                />
+                <TextField
+                  name="length_url"
+                  label="Length and URL"
+                  onChange={handleEditChange}
+                  value={editData ? editData?.length_url : ''}
+                  spellCheck
+                  fullWidth
+                  multiline
+                  maxRows="3"
+                ></TextField>
               </Grid>
 
               <Grid item xs={12}>
