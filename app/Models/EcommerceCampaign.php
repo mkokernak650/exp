@@ -18,6 +18,7 @@ class EcommerceCampaign extends Model
         'campaign_name',
         'customer_id',
         'description',
+        'length_url',
         'status',
     ];
 

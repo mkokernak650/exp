@@ -58,7 +58,8 @@ class EcommerceCampaignController extends Controller
         $validated = $request->validate([
             'campaign_name' => ['required', 'string', 'max:255', Rule::unique('ecommerce_campaigns', 'campaign_name')],
             'description'   => ['nullable'],
-            'customer_id'   => ['nullable']
+            'customer_id'   => ['nullable'],
+            'length_url'    => ['nullable'],
         ]);
 
         if (EcommerceCampaign::create($validated)) {

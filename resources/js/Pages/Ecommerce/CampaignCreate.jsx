@@ -41,7 +41,7 @@ const CampaignCreate = () => {
     campaign_name: "",
     customer_id: "",
     description: "",
-    lengthUrl: "",
+    length_url: "",
   };
   const classes = useStyles();
   const [values, setValues] = useState(defaultState);
@@ -50,8 +50,6 @@ const CampaignCreate = () => {
   const [response, setResponse] = useState();
   const [responseType, setResponseType] = useState();
   const { customers } = usePage().props
-
-  // console.log(values)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,10 +143,10 @@ const CampaignCreate = () => {
 
             <Grid item xs={12}>
               <TextField
-                name="lengthUrl"
+                name="length_url"
                 label="Length and URL"
                 onChange={handleChange}
-                value={values?.lengthUrl}
+                value={values?.length_url}
                 spellCheck
                 fullWidth
                 multiline
