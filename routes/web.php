@@ -42,6 +42,7 @@ use App\Http\Controllers\InsertionOrderPublicController;
 use App\Http\Controllers\RingbaInsertionOrderPublicController;
 use App\Http\Controllers\RingbaInsertionOrderTermController;
 use App\Http\Controllers\RingbaReportsController;
+use App\Http\Controllers\SendCampaignController;
 use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\UserController;
 
@@ -270,6 +271,9 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/ringba/term/view', [RingbaInsertionOrderTermController::class, 'view'])->name('insertion.order.ringba.term.view');
     Route::post('insertion-order/ringba/term/delete', [RingbaInsertionOrderTermController::class, 'delete'])->name('insertion.order.ringba.term.delete');
     Route::post('insertion-order/ringba/resend-io-document', [RingbaInsertionOrderTermController::class, 'resendIODocument'])->name('insertion.order.ringba.resend.io.document');
+
+    // send campaign
+    Route::get('send-campaign', [SendCampaignController::class, 'index'])->name('send.campaign');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
