@@ -8,25 +8,21 @@ import { Helmet } from 'react-helmet';
 import { usePage } from '@inertiajs/inertia-react';
 
 const SendCampaign = () => {
-    const { affiliates } = usePage().props
+    const { affiliates, allCampaigns } = usePage().props
     const { data, setData, post, processing, errors, reset } = useForm({
         selectedAffiliates: '',
         additionalEmails: ''
     })
-
-    console.log(data)
 
     const affiliateOptions = affiliates.map(affiliate => ({
         label: affiliate.affiliate_name + (affiliate.market ? ` (${affiliate.market})` : ''),
         value: affiliate.id.toString()
     }))
 
-    // console.log(affiliateOptions)
-
     return (
         <>
             <Helmet title="Send Campaigns" />
-            <div className="max-w-5xl mx-auto mt-10">
+            <div className="max-w-4xl mx-auto mt-10">
                 <h4 className="text-2xl font-medium">Send Campaigns</h4>
                 <div className="mt-8 p-8 rounded-2xl shadow">
                     <form className="space-y-5">
@@ -61,6 +57,25 @@ const SendCampaign = () => {
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+            <div className="max-w-4xl mx-auto mt-10">
+                <h4 className="text-xl font-medium">Campaign List (preview)</h4>
+                <div className="mt-8 p-8 rounded-2xl shadow space-y-5">
+                    {allCampaigns.map((campaign, index) => (
+                        <div key={index}>
+                            <h5 className="font-medium text-base">{campaign.campaign_name}</h5>
+                            <div className="pl-2">
+                                {campaign.description &&
+                                    <p dangerouslySetInnerHTML={{ __html: campaign.description.replace(/\n/g, "<br />") }} />
+
+                                }
+                                {campaign.length_url &&
+                                    <p dangerouslySetInnerHTML={{ __html: campaign.length_url.replace(/\n/g, "<br />") }} />
+                                }
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </>
