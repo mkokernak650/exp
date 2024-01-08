@@ -42,7 +42,7 @@ export default function FileImportMap({
         <option value="shipping_state">Shipping state</option>
         <option value="shipping_zip">Shipping zip</option>
         <option value="billing_zip">Billing zip</option>
-        <option value="quantity">Quantity</option>
+        <option value="quantity">Quantity (R2)</option>
         <option value="subtotal">Subtotal</option>
         <option value="shipping_cost">Shipping cost</option>
         <option value="total">Total</option>
