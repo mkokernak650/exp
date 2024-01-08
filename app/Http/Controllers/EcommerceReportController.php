@@ -397,7 +397,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $sheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $sheerScienceAllAffiliate = false;
         }
@@ -487,7 +487,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $sheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $sheerScienceAllAffiliate = false;
         }
@@ -582,7 +582,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $SheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $SheerScienceAllAffiliate = false;
         }
@@ -786,7 +786,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $SheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $SheerScienceAllAffiliate = false;
         }
@@ -855,7 +855,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $SheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $SheerScienceAllAffiliate = false;
         }
@@ -934,7 +934,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $SheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $SheerScienceAllAffiliate = false;
         }
@@ -999,7 +999,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $SheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $SheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $SheerScienceAllAffiliate = false;
         }
@@ -1086,7 +1086,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $sheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $sheerScienceAllAffiliate = false;
         }
@@ -1423,7 +1423,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCustomers)) {
-            $sheerScienceAllAffiliate = (in_array($this->ssId, $selectedCustomers) && in_array('allAffiliates', $affiliate));
+            $sheerScienceAllAffiliate = in_array($this->ssId, $selectedCustomers);
         } else {
             $sheerScienceAllAffiliate = false;
         }
