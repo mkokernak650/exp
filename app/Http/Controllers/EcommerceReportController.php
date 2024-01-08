@@ -21,13 +21,15 @@ class EcommerceReportController extends Controller
     private $gdmIds;
     private $paId;
     private $ssId;
+    private $plexId;
 
     public function __construct()
     {
         $this->amIds  = Affiliate::where('affiliate_name', 'like', '%Aces Marketing%')->pluck('id')->toArray();
         $this->gdmIds = Affiliate::where('affiliate_name', 'like', '%Golden Direct Media%')->pluck('id')->toArray();
-        $this->paId   = EcommerceCampaign::where('campaign_name', 'like', '%Powerswabs%')->pluck('id')->first();
+        $this->paId   = EcommerceCampaign::where('campaign_name', 'like', '%Power Swabs%')->pluck('id')->first();
         $this->ssId   = Customer::where('customer_name', 'like', '%Sheer Science%')->pluck('id')->first();
+        $this->plexId = EcommerceCampaign::where('campaign_name', 'like', '%Plexaderm%')->pluck('id')->first();
     }
 
     public function ecommerceReport()
@@ -389,7 +391,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -479,7 +481,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -574,7 +576,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -778,7 +780,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -847,7 +849,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -926,7 +928,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -991,7 +993,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -1078,7 +1080,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
@@ -1415,7 +1417,7 @@ class EcommerceReportController extends Controller
         }
 
         if (!empty($selectedCampaigns)) {
-            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) && in_array('allAffiliates', $affiliate));
+            $powerswabsAllAffiliate = (in_array($this->paId, $selectedCampaigns) || in_array($this->plexId, $selectedCampaigns));
         } else {
             $powerswabsAllAffiliate = false;
         }
