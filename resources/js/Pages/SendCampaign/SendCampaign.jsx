@@ -6,6 +6,7 @@ import Spiner from './Components/Spiner';
 import { useForm } from '@inertiajs/inertia-react';
 import { Helmet } from 'react-helmet';
 import { usePage } from '@inertiajs/inertia-react';
+import consumerExpLogo from '../../../images/webform/logo.png'
 
 const SendCampaign = () => {
     const { affiliates, allCampaigns } = usePage().props
@@ -62,6 +63,9 @@ const SendCampaign = () => {
             <div className="max-w-4xl mx-auto mt-10">
                 <h4 className="text-xl font-medium">Campaign List (preview)</h4>
                 <div className="mt-8 p-8 rounded-2xl shadow space-y-5">
+                    <div>
+                        <img src={consumerExpLogo} alt="consumer-exp-logo" className="-ml-4" />
+                    </div>
                     {allCampaigns.map((campaign, index) => (
                         <div key={index}>
                             <h5 className="font-medium text-base">{campaign.campaign_name}</h5>
