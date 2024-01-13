@@ -20,13 +20,24 @@ const SendCampaign = () => {
         value: affiliate.id.toString()
     }))
 
+    const submit = (e) => {
+        e.preventDefault()
+
+        post(route('send.campaign'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset()
+            },
+        })
+    }
+
     return (
         <>
             <Helmet title="Send Campaigns" />
             <div className="max-w-4xl mx-auto mt-10">
                 <h4 className="text-2xl font-medium">Send Campaigns</h4>
                 <div className="mt-8 p-8 rounded-2xl shadow">
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={submit}>
                         <div>
                             <p className="font-medium pl-1">Select Affiliates</p>
                             <MultiSelect

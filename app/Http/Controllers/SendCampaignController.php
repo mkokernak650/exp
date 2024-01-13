@@ -19,4 +19,23 @@ class SendCampaignController extends Controller
 
         return Inertia::render('SendCampaign/SendCampaign', compact('affiliates', 'allCampaigns'));
     }
+
+    public function sendCampaign(Request $request)
+    {
+        // dd($request->all());
+
+        $selectedAffiliates = explode(',', $request['selectedAffiliates']);
+        $affiliatesEmail    = Affiliate::whereIn('id', $selectedAffiliates)->pluck('email')->toArray();
+        $additionalEmails   = explode(',', $request['additionalEmails']);
+        $emails             = array_merge($affiliatesEmail, $additionalEmails);
+        $emails             = array_unique($emails);
+
+        dd($emails);
+
+        dd($additionalEmails);
+        dd($affiliatesEmail);
+
+
+        dd($selectedAffiliates);
+    }
 }
