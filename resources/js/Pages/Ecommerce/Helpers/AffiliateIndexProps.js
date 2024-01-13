@@ -245,7 +245,7 @@ export const columns = [
   },
   {
     key: 'video_url',
-    title: 'Video URL',
+    title: 'DRTV Download Link',
     dataType: DataType.String,
     style: { width: 300 },
     visible: true,
