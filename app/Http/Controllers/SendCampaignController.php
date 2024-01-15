@@ -24,8 +24,6 @@ class SendCampaignController extends Controller
 
     public function sendCampaign(Request $request)
     {
-        // dd($request->all());
-
         $selectedAffiliates = explode(',', $request['selectedAffiliates']);
         $affiliatesEmail    = Affiliate::whereIn('id', $selectedAffiliates)->pluck('email')->toArray();
         $additionalEmails   = explode(',', $request['additionalEmails']);
@@ -37,25 +35,7 @@ class SendCampaignController extends Controller
         $message            = '';
 
         foreach ($allCampaigns as $campaign) {
-            // varDump($campaign);
-            // dd($campaign);
-            if (!empty($campaign->description)) {
-                // $description = str_replace('\n', '<br>', $campaign->description);
-                $description = $campaign->description;
-            } else {
-                $description = null;
-            }
-
-            if (!empty($campaign->length_url)) {
-                // $lengthUrl = str_replace('\n', '<br>', $campaign->length_url);
-                $lengthUrl = $campaign->length_url;
-            } else {
-                $lengthUrl = null;
-            }
-
-            $message .= '<div><strong>' . $campaign->campaign_name . '</strong>' . (!empty($description) ? "<br>{$description}<br>" : '') . (!empty($lengthUrl) ? "<br>{$lengthUrl}<br>" : '') .
-
-                '</div><br>';
+            $message .= '<div><strong>' . $campaign->campaign_name . '</strong>' . (!empty($campaign->description) ? "<br>{$campaign->description}<br>" : '') . (!empty($campaign->length_url) ? "<br>{$campaign->length_url}<br>" : '') . '</div><br>';
         }
 
         if (app()->environment('local')) {
@@ -68,6 +48,6 @@ class SendCampaignController extends Controller
             }
         }
 
-        dd($message);
+        return redirect()->back();
     }
 }
