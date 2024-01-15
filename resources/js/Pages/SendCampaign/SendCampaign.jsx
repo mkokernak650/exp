@@ -7,6 +7,7 @@ import { useForm } from '@inertiajs/inertia-react';
 import { Helmet } from 'react-helmet';
 import { usePage } from '@inertiajs/inertia-react';
 import consumerExpLogo from '../../../images/webform/logo.png'
+import toast from 'react-hot-toast';
 
 const SendCampaign = () => {
     const { affiliates, allCampaigns } = usePage().props
@@ -27,7 +28,11 @@ const SendCampaign = () => {
             preserveScroll: true,
             onSuccess: () => {
                 reset()
+                toast.success('Campaigns sent successfully.')
             },
+            onError: () => {
+                toast.error('No emails found!')
+            }
         })
     }
 
@@ -60,9 +65,9 @@ const SendCampaign = () => {
                         </div>
                         <div className="flex justify-end">
                             <button
-                                className="flex items-center px-5 py-2 rounded-xl text-white font-semibold bg-[#6366f1] enabled:hover:bg-[#4338ca] disabled:opacity-75"
+                                className="flex items-center px-5 py-2 rounded-xl text-white font-semibold bg-[#6366f1] enabled:hover:bg-[#4338ca] disabled:opacity-75 disabled:cursor-not-allowed"
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || (!data.selectedAffiliates && !data.additionalEmails)}
                             >
                                 {processing && <Spiner width="4" height="4" className="mr-2" />}
                                 Send Campaigns

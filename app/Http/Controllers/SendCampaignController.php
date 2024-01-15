@@ -24,6 +24,10 @@ class SendCampaignController extends Controller
 
     public function sendCampaign(Request $request)
     {
+        if ($request['selectedAffiliates'] === null && $request['additionalEmails'] === null) {
+            return redirect()->back()->withErrors(['emails' => 'No emails found!']);
+        }
+
         $selectedAffiliates = explode(',', $request['selectedAffiliates']);
         $affiliatesEmail    = Affiliate::whereIn('id', $selectedAffiliates)->pluck('email')->toArray();
         $additionalEmails   = explode(',', $request['additionalEmails']);
