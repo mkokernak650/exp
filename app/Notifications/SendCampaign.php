@@ -45,6 +45,8 @@ class SendCampaign extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('ConsumerEXP Campaigns')
+            ->greeting(' ')
+            ->line(new HtmlString('<img src="https://consumer-test.bitcode.pro/images/logo.png" alt="ConuserEXP Logo">'))
             ->line(new HtmlString($this->message));
     }
 
