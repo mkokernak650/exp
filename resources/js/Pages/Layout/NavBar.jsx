@@ -283,6 +283,11 @@ export default function PersistentDrawerLeft(props) {
           href: 'custom.email',
           // Icon: <UserIcon />,
         },
+        {
+          title: 'Send Campaign',
+          href: 'send.campaign',
+          // Icon: <UserIcon />,
+        },
       ],
     },
     {
