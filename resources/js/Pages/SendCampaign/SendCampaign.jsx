@@ -69,7 +69,7 @@ const SendCampaign = () => {
                                 type="submit"
                                 disabled={processing || (!data.selectedAffiliates && !data.additionalEmails)}
                             >
-                                {processing && <Spiner width="4" height="4" className="mr-2" />}
+                                {processing && <Spiner width="16px" height="16px" className="mr-2" />}
                                 Send Campaigns
                             </button>
                         </div>

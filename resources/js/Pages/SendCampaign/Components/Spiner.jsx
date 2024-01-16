@@ -1,13 +1,14 @@
 import React from 'react'
 
-const Spiner = ({ height = '8', width = '8', className = '' }) => {
+const Spiner = ({ height = '32px', width = '32px', className = '' }) => {
     return (
         <svg
             aria-hidden="true"
-            className={`w-${height} h-${width} text-white animate-spin fill-blue-600 ` + className}
+            className={'text-white animate-spin fill-blue-600 ' + className}
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            style={{ width: width, height: height }}
         >
             <path
                 d="M100 50.59c0 27.615-22.386 50.001-50 50.001s-50-22.386-50-50 22.386-50 50-50 50 22.386 50 50zm-90.919 0c0 22.6 18.32 40.92 40.919 40.92 22.599 0 40.919-18.32 40.919-40.92 0-22.598-18.32-40.918-40.919-40.918-22.599 0-40.919 18.32-40.919 40.919z"
