@@ -8,12 +8,14 @@ import { Helmet } from 'react-helmet';
 import { usePage } from '@inertiajs/inertia-react';
 import consumerExpLogo from '../../../images/webform/logo.png'
 import toast from 'react-hot-toast';
+import { Inertia } from '@inertiajs/inertia';
 
 const SendCampaign = () => {
-    const { affiliates, allCampaigns } = usePage().props
+    const { affiliates, allCampaigns, topMessage } = usePage().props
     const { data, setData, post, processing, errors, reset } = useForm({
         selectedAffiliates: '',
-        additionalEmails: ''
+        additionalEmails: '',
+        topMessage: topMessage
     })
 
     const affiliateOptions = affiliates.map(affiliate => ({
@@ -32,6 +34,15 @@ const SendCampaign = () => {
             },
             onError: () => {
                 toast.error('No emails found!')
+            }
+        })
+    }
+
+    const saveOrUpdateTopMessage = () => {
+        Inertia.post(route('send.campaign.top.message'), { topMessage: data.topMessage }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success(`Top message ${topMessage ? 'updated' : 'saved'} successfully`)
             }
         })
     }
@@ -62,6 +73,29 @@ const SendCampaign = () => {
                                 onChange={(value) => setData('additionalEmails', value)}
                                 customValue
                             />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="top_message"
+                                className="block mb-2  font-medium"
+                            >
+                                Message
+                            </label>
+                            <textarea
+                                id="top_message"
+                                rows={4}
+                                className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-400 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Write the top message..."
+                                value={data.topMessage}
+                                onChange={(e) => setData('topMessage', e.target.value)}
+                            />
+                            <button
+                                className="p-2 mt-1 rounded-md font-medium hover:bg-black/10"
+                                type="button"
+                                onClick={saveOrUpdateTopMessage}
+                            >
+                                {topMessage ? 'Update' : 'Save'} message
+                            </button>
                         </div>
                         <div className="flex justify-end">
                             <button

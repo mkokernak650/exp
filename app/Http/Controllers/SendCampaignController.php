@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Affiliate;
 use App\Models\Campaign;
 use App\Models\EcommerceCampaign;
+use App\Models\SendCampaign as ModelsSendCampaign;
 use App\Notifications\SendCampaign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -18,8 +19,13 @@ class SendCampaignController extends Controller
         $ringbaCampaigns    = Campaign::active()->get();
         $ecommerceCampaigns = EcommerceCampaign::active()->get();
         $allCampaigns       = $ringbaCampaigns->merge($ecommerceCampaigns)->sortByDesc('created_at')->values();
+        $topMessage         = ModelsSendCampaign::select('top_message')->first();
 
-        return Inertia::render('SendCampaign/SendCampaign', compact('affiliates', 'allCampaigns'));
+        if ($topMessage) {
+            $topMessage = $topMessage->value('top_message');
+        }
+
+        return Inertia::render('SendCampaign/SendCampaign', compact('affiliates', 'allCampaigns', 'topMessage'));
     }
 
     public function sendCampaign(Request $request)
@@ -51,6 +57,17 @@ class SendCampaignController extends Controller
                 Notification::route('mail', $email)->notify(new SendCampaign($message));
             }
         }
+
+        return redirect()->back();
+    }
+
+    public function topMessage(Request $request)
+    {
+        $sendCampaign = ModelsSendCampaign::firstOrNew(['id' => 1]);
+
+        $sendCampaign->top_message = $request['topMessage'];
+
+        $sendCampaign->save();
 
         return redirect()->back();
     }

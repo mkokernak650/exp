@@ -275,6 +275,7 @@ Route::middleware('auth')->group(function () {
     // send campaign
     Route::get('send-campaign', [SendCampaignController::class, 'index'])->name('send.campaign');
     Route::post('send-campaign', [SendCampaignController::class, 'sendCampaign'])->name('send.campaign');
+    Route::post('send-campaign-top-message', [SendCampaignController::class, 'topMessage'])->name('send.campaign.top.message');
 });
 
 Route::get('/', [LoginController::class, 'showLoginform'])->name('login')->middleware('guest');
