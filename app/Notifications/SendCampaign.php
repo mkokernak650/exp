@@ -13,15 +13,17 @@ class SendCampaign extends Notification implements ShouldQueue
     use Queueable;
 
     protected $message;
+    protected $topMessage;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($message)
+    public function __construct($message, $topMessage)
     {
-        $this->message = $message;
+        $this->message    = $message;
+        $this->topMessage = $topMessage;
     }
 
     /**
@@ -47,6 +49,7 @@ class SendCampaign extends Notification implements ShouldQueue
             ->subject('ConsumerEXP Campaigns')
             ->greeting(' ')
             ->line(new HtmlString('<img src="https://consumer-test.bitcode.pro/images/logo.png" alt="ConuserEXP Logo">'))
+            ->lineIf(!empty($this->topMessage), new HtmlString($this->topMessage))
             ->line(new HtmlString($this->message));
     }
 

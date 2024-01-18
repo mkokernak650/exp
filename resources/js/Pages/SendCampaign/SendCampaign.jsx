@@ -15,7 +15,7 @@ const SendCampaign = () => {
     const { data, setData, post, processing, errors, reset } = useForm({
         selectedAffiliates: '',
         additionalEmails: '',
-        topMessage: topMessage
+        topMessage: topMessage ? topMessage : ''
     })
 
     const affiliateOptions = affiliates.map(affiliate => ({

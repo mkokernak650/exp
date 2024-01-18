@@ -45,7 +45,7 @@ class SendCampaignController extends Controller
         $message            = '';
 
         foreach ($allCampaigns as $campaign) {
-            $message .= '<div><strong>' . $campaign->campaign_name . '</strong>' . (!empty($campaign->description) ? "<br>{$campaign->description}<br>" : '') . (!empty($campaign->length_url) ? "<br>{$campaign->length_url}<br>" : '') . '</div><br>';
+            $message .= '<div><strong>' . $campaign->campaign_name . '</strong>' . (!empty($campaign->description) ? "<br>{$campaign->description}<br>" : '') . (!empty($campaign->length_url) ? "<br>{$campaign->length_url}<br>" : '') . '</div><br> ---';
         }
 
         if (app()->environment('local')) {
@@ -54,7 +54,7 @@ class SendCampaignController extends Controller
 
         foreach ($emails as $email) {
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                Notification::route('mail', $email)->notify(new SendCampaign($message));
+                Notification::route('mail', $email)->notify(new SendCampaign($message, $request['topMessage']));
             }
         }
 
