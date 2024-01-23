@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Layout from "../Layout/Layout";
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -17,6 +17,7 @@ const SendCampaign = () => {
         additionalEmails: '',
         topMessage: topMessage ? topMessage : ''
     })
+    const [topMessageLoading, setTopMessageLoading] = useState(false)
 
     const affiliateOptions = affiliates.map(affiliate => ({
         label: affiliate.affiliate_name + (affiliate.market ? ` (${affiliate.market})` : ''),
@@ -41,8 +42,15 @@ const SendCampaign = () => {
     const saveOrUpdateTopMessage = () => {
         Inertia.post(route('send.campaign.top.message'), { topMessage: data.topMessage }, {
             preserveScroll: true,
+            onStart: () => {
+                setTopMessageLoading(true)
+            },
             onSuccess: () => {
                 toast.success(`Top message ${topMessage ? 'updated' : 'saved'} successfully`)
+                setTopMessageLoading(false)
+            },
+            onFinish: () => {
+                setTopMessageLoading(false)
             }
         })
     }
@@ -90,10 +98,12 @@ const SendCampaign = () => {
                                 onChange={(e) => setData('topMessage', e.target.value)}
                             />
                             <button
-                                className="p-2 mt-1 rounded-md font-medium hover:bg-black/10"
+                                className="flex items-center p-2 mt-1 rounded-md font-medium hover:bg-black/10 disabled:cursor-not-allowed"
                                 type="button"
                                 onClick={saveOrUpdateTopMessage}
+                                disabled={topMessageLoading}
                             >
+                                {topMessageLoading && <Spiner width="16px" height="16px" className="mr-2" />}
                                 {topMessage ? 'Update' : 'Save'} message
                             </button>
                         </div>
