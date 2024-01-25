@@ -54,7 +54,7 @@ class SendCampaignController extends Controller
 
         foreach ($emails as $email) {
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                Notification::route('mail', $email)->notify(new SendCampaign($message, $request['topMessage']));
+                Notification::route('mail', $email)->notify(new SendCampaign($request['subject'], $message, $request['topMessage']));
             }
         }
 

@@ -12,6 +12,7 @@ class SendCampaign extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    protected $subject;
     protected $message;
     protected $topMessage;
 
@@ -20,8 +21,9 @@ class SendCampaign extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($message, $topMessage)
+    public function __construct($subject, $message, $topMessage)
     {
+        $this->subject    = $subject;
         $this->message    = $message;
         $this->topMessage = $topMessage;
     }
@@ -46,7 +48,7 @@ class SendCampaign extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('ConsumerEXP Campaigns')
+            ->subject($this->subject)
             ->greeting(' ')
             ->line(new HtmlString('<img src="https://consumer-test.bitcode.pro/images/logo.png" alt="ConuserEXP Logo">'))
             ->lineIf(!empty($this->topMessage), new HtmlString($this->topMessage))

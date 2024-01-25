@@ -15,6 +15,7 @@ const SendCampaign = () => {
     const { data, setData, post, processing, errors, reset } = useForm({
         selectedAffiliates: '',
         additionalEmails: '',
+        subject: '',
         topMessage: topMessage ? topMessage : ''
     })
     const [topMessageLoading, setTopMessageLoading] = useState(false)
@@ -84,8 +85,25 @@ const SendCampaign = () => {
                         </div>
                         <div>
                             <label
+                                htmlFor="subject"
+                                className="block mb-2 font-medium"
+                            >
+                                Subject
+                            </label>
+                            <input
+                                type="text"
+                                id="subject"
+                                className="border border-gray-400 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Email subject"
+                                value={data.subject}
+                                onChange={(e) => setData('subject', e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label
                                 htmlFor="top_message"
-                                className="block mb-2  font-medium"
+                                className="block mb-2 font-medium"
                             >
                                 Message
                             </label>
