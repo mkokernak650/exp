@@ -68,7 +68,7 @@ const SendCampaign = () => {
                             <MultiSelect
                                 style={{ width: '100%' }}
                                 placeholder="Select Affiliates"
-                                options={affiliateOptions}
+                                options={[{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateOptions]}
                                 defaultValue={data.selectedAffiliates}
                                 onChange={(value) => setData('selectedAffiliates', value)}
                             />

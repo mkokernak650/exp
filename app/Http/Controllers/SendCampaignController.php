@@ -35,7 +35,10 @@ class SendCampaignController extends Controller
         }
 
         $selectedAffiliates = explode(',', $request['selectedAffiliates']);
-        $affiliatesEmail    = Affiliate::whereIn('id', $selectedAffiliates)->pluck('email')->toArray();
+        $affiliatesEmail    = Affiliate::when(in_array('allAffiliates', $selectedAffiliates), fn ($q) => $q->where('status', 1))
+            ->when(!in_array('allAffiliates', $selectedAffiliates), fn ($q) => $q->whereIn('id', $selectedAffiliates))
+            ->pluck('email')->toArray();
+
         $additionalEmails   = explode(',', $request['additionalEmails']);
         $emails             = array_merge($affiliatesEmail, $additionalEmails);
         $emails             = array_unique($emails);
