@@ -513,24 +513,59 @@ class RingbaCallLogController extends Controller
     }
 
     // for get Customer
+    // public function getCustomer()
+    // {
+    //     $get_customers = RingbaCallLog::distinct()->get(['Customer']);
+    //     $all_customer  = Customer::all();
+    //     $customer_arr  = [];
+    //     foreach ($all_customer as $cus) {
+    //         array_push($customer_arr, $cus->customer_name);
+    //     }
+
+    //     foreach ($get_customers as $customer) {
+    //         if ($customer->Customer && !in_array($customer->Customer, $customer_arr)) {
+    //             $customer_inc = new Customer();
+    //             $customer_inc->customer_name = $customer->Customer;
+    //             $customer_inc->save();
+    //         }
+    //     }
+
+    //     return true;
+    // }
+
     public function getCustomer()
     {
-        $get_customers = RingbaCallLog::distinct()->get(['Customer']);
-        $all_customer  = Customer::all();
-        $customer_arr  = [];
-        foreach ($all_customer as $cus) {
-            array_push($customer_arr, $cus->customer_name);
+        //step - one
+
+        $ringbaApiHelper = new RingbaApiHelpers;
+        $ringbaCustomers = $ringbaApiHelper->getCustomers();
+
+        foreach ($ringbaCustomers as $ringbaCustomer) {
+            Customer::updateOrCreate(
+                ['customer_name' => $ringbaCustomer->name],
+                [
+                    'customer_id' => $ringbaCustomer->id,
+                    'status'      => $ringbaCustomer->enabled
+                ]
+            );
         }
 
-        foreach ($get_customers as $customer) {
-            if ($customer->Customer && !in_array($customer->Customer, $customer_arr)) {
-                $customer_inc = new Customer();
-                $customer_inc->customer_name = $customer->Customer;
-                $customer_inc->save();
-            }
-        }
+        return;
 
-        return true;
+        //step - final
+
+        // $ringbaApiHelper = new RingbaApiHelpers;
+        // $ringbaCustomers = $ringbaApiHelper->getCustomers();
+
+        // foreach ($ringbaCustomers as $ringbaCustomer) {
+        //     Customer::updateOrCreate(
+        //         ['customer_id' => $ringbaCustomer->id],
+        //         [
+        //             'customer_name' => $ringbaCustomer->name,
+        //             'status'        => $ringbaCustomer->enabled
+        //         ]
+        //     );
+        // }
     }
 
     /**
