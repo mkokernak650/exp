@@ -535,37 +535,18 @@ class RingbaCallLogController extends Controller
 
     public function getCustomer()
     {
-        //step - one
-
         $ringbaApiHelper = new RingbaApiHelpers;
         $ringbaCustomers = $ringbaApiHelper->getCustomers();
 
         foreach ($ringbaCustomers as $ringbaCustomer) {
             Customer::updateOrCreate(
-                ['customer_name' => $ringbaCustomer->name],
+                ['customer_id' => $ringbaCustomer->id],
                 [
-                    'customer_id' => $ringbaCustomer->id,
-                    'status'      => $ringbaCustomer->enabled
+                    'customer_name' => $ringbaCustomer->name,
+                    'status'        => $ringbaCustomer->enabled
                 ]
             );
         }
-
-        return;
-
-        //step - final
-
-        // $ringbaApiHelper = new RingbaApiHelpers;
-        // $ringbaCustomers = $ringbaApiHelper->getCustomers();
-
-        // foreach ($ringbaCustomers as $ringbaCustomer) {
-        //     Customer::updateOrCreate(
-        //         ['customer_id' => $ringbaCustomer->id],
-        //         [
-        //             'customer_name' => $ringbaCustomer->name,
-        //             'status'        => $ringbaCustomer->enabled
-        //         ]
-        //     );
-        // }
     }
 
     /**
