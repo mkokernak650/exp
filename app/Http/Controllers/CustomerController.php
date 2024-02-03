@@ -46,6 +46,12 @@ class CustomerController extends Controller
 
     public function storeCustomer(Request $request)
     {
+        $nameExists = Customer::where('customer_name', $request->customer)->count();
+
+        if ($nameExists > 0) {
+            return response()->json(["msg" => "Cutomer name already exists"]);
+        }
+
         $existData = Customer::where('customer_name', $request->customer)->where('email', $request->email)->where('telephone', $request->telephone)->where('address', $request->address)->count();
 
         if ($existData > 0) {
