@@ -58,9 +58,9 @@ const SendCampaign = () => {
 
     return (
         <>
-            <Helmet title="Send Campaigns" />
+            <Helmet title="Roster Campaign" />
             <div className="max-w-4xl mx-auto mt-10">
-                <h4 className="text-2xl font-medium">Send Campaigns</h4>
+                <h4 className="text-2xl font-medium">Roster Campaign</h4>
                 <div className="mt-8 p-8 rounded-2xl shadow">
                     <form className="space-y-5" onSubmit={submit}>
                         <div>
@@ -132,7 +132,7 @@ const SendCampaign = () => {
                                 disabled={processing || (!data.selectedAffiliates && !data.additionalEmails)}
                             >
                                 {processing && <Spiner width="16px" height="16px" className="mr-2" />}
-                                Send Campaigns
+                                Send
                             </button>
                         </div>
                     </form>
@@ -164,5 +164,5 @@ const SendCampaign = () => {
     )
 }
 
-SendCampaign.layout = (page) => <Layout title="Send Campaigns">{page}</Layout>
+SendCampaign.layout = (page) => <Layout title="Roster Campaign">{page}</Layout>
 export default SendCampaign

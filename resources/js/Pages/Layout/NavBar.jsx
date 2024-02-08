@@ -284,7 +284,7 @@ export default function PersistentDrawerLeft(props) {
           // Icon: <UserIcon />,
         },
         {
-          title: 'Send Campaign',
+          title: 'Roster Campaign',
           href: 'send.campaign',
           // Icon: <UserIcon />,
         },
