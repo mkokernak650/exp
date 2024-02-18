@@ -33,7 +33,7 @@ class CampaignController extends Controller
 
     public function campaignSettingForm(): Response
     {
-        $allCampaigns = Campaign::all();
+        $allCampaigns = Campaign::orderBy('campaign_name')->get();
         return Inertia::render('Settings/Campaign/CampaignSettingForm', compact('allCampaigns'));
     }
 
