@@ -34,7 +34,6 @@ class CampaignController extends Controller
     public function campaignSettingForm(): Response
     {
         $allCampaigns = Campaign::orderBy('campaign_name')->get();
-        dd($allCampaigns, $allCampaigns->count()); // to be removed
         return Inertia::render('Settings/Campaign/CampaignSettingForm', compact('allCampaigns'));
     }
 
