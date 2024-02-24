@@ -45,9 +45,10 @@ class MarketExceptionController extends Controller
 
     public function marketExceptionForm()
     {
-        $allStates = DB::table('zipcode_by_television_markets')->select('state')->distinct()->get();
-        $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
-        $allCampaigns = Campaign::active()->get();
+        $allStates    = DB::table('zipcode_by_television_markets')->select('state')->distinct()->get();
+        $allMarkets   = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
+        $allCampaigns = Campaign::orderBy('campaign_name')->active()->get();
+
         return Inertia::render('Settings/MarketExceptionForm', [
             'allStates'    => $allStates,
             'allMarkets'   => $allMarkets,
