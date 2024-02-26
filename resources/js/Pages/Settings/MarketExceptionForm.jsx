@@ -36,9 +36,6 @@ const MarketExceptionForm = () => {
   const [loading, setLoading] = useState(false)
   const { allMarkets, allCampaigns, allStates } = usePage().props
 
-
-  console.log(allCampaigns) //to be removed
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setValues((oldValues) => ({
@@ -58,7 +55,7 @@ const MarketExceptionForm = () => {
           toast.success(res.data.msg)
         }
       })
-      .catch((err) => {})
+      .catch((err) => { })
   }
 
   return (
@@ -101,7 +98,7 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                // required={true}
+              // required={true}
               >
                 <option value="">Select State</option>
                 {allStates.map((option, indx) => (
@@ -122,7 +119,7 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                // required={true}
+              // required={true}
               >
                 <option value="">Select Market</option>
                 {allMarkets.map((option, indx) => (
@@ -143,7 +140,7 @@ const MarketExceptionForm = () => {
                   native: true,
                 }}
                 fullWidth
-                // required={true}
+              // required={true}
               >
                 <option value="">Call Type</option>
                 <option value="L">Landline (L)</option>

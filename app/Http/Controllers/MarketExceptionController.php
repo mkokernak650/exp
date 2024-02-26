@@ -49,8 +49,6 @@ class MarketExceptionController extends Controller
         $allMarkets   = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();
         $allCampaigns = Campaign::orderBy('campaign_name')->active()->get();
 
-        dd($allCampaigns); //to be removed
-
         return Inertia::render('Settings/MarketExceptionForm', [
             'allStates'    => $allStates,
             'allMarkets'   => $allMarkets,
