@@ -36,6 +36,9 @@ const MarketExceptionForm = () => {
   const [loading, setLoading] = useState(false)
   const { allMarkets, allCampaigns, allStates } = usePage().props
 
+
+  console.log(allCampaigns) //to be removed
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setValues((oldValues) => ({
