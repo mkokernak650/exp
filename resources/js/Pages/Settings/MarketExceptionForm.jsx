@@ -156,7 +156,7 @@ const MarketExceptionForm = () => {
                 type="date"
                 name="start_date"
                 onChange={handleChange}
-                defaultValue="2021-01-06"
+                // defaultValue="2021-01-06"
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
@@ -165,6 +165,23 @@ const MarketExceptionForm = () => {
                 required={true}
               />
             </Grid>
+            {/* create date */}
+            <Grid item xs={12}>
+              <TextField
+                id="create_date"
+                label="Create Date"
+                type="date"
+                name="Create_date"
+                onChange={handleChange}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                fullWidth
+                required={true}
+              />
+            </Grid>
+            {/* create date */}
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
                 {loading ? (
