@@ -139,6 +139,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'created_at',
+    title: 'Created At',
+    dataType: DataType.String,
+    style: { width: 180 },
+    visible: true,
+  },
+  {
     key: 'campaign',
     title: 'Campaign',
     dataType: DataType.String,
@@ -248,13 +255,6 @@ export const columns = [
     title: 'DRTV Download Link',
     dataType: DataType.String,
     style: { width: 300 },
-    visible: true,
-  },
-  {
-    key: 'created_at',
-    title: 'Created At',
-    dataType: DataType.String,
-    style: { width: 180 },
     visible: true,
   },
   {
