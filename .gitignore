@@ -23,6 +23,7 @@ auth.json
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+composer.lock
 
 # -------------------------------------------------
 # Vite & Build Output
