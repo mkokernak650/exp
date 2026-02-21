@@ -1,20 +1,72 @@
-/node_modules
-/public/hot
-/public/build
-/public/js/
-/public/js/*.js
-/public/storage
-/storage/*.key
+# -------------------------------------------------
+# Laravel
+# -------------------------------------------------
 /vendor
-.env
-.env.backup
-.phpunit.result.cache
-docker-compose.override.yml
+/storage/*.key
+/storage/framework/laravel-excel/*.tmp
 Homestead.json
 Homestead.yaml
-npm-debug.log
-yarn-error.log
+auth.json
+
+# -------------------------------------------------
+# Environment & Secrets
+# -------------------------------------------------
+.env
+.env.backup
+.env.production
+.env.staging
+
+# -------------------------------------------------
+# Node / NPM / Yarn / PNPM
+# -------------------------------------------------
+/node_modules
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# -------------------------------------------------
+# Vite & Build Output
+# -------------------------------------------------
+/public/build
+/public/hot
+/public/js/
+/public/storage
+/public/mix-manifest.json
+
+# -------------------------------------------------
+# Testing
+# -------------------------------------------------
+.phpunit.result.cache
+.phpunit.cache
+/coverage
+/.phpunit.cache
+
+# -------------------------------------------------
+# IDE & Editors
+# -------------------------------------------------
 /.idea
 /.vscode
-/storage/framework/laravel-excel/*.tmp
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# -------------------------------------------------
+# Temporary & Cache Files
+# -------------------------------------------------
 *.tmp
+*.log
+*.cache
+/storage/debugbar
+/storage/logs/*.log
+
+# -------------------------------------------------
+# PHP Tools
+# -------------------------------------------------
+.php-cs-fixer.cache
+.phpcs-cache
+phpstan.neon
+_ide_helper.php
+_ide_helper_models.php
+
