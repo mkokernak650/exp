@@ -119,6 +119,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'days_difference',
+    title: 'Days Difference',
+    dataType: DataType.Number,
+    style: { minWidth: 100 },
+    visible: true,
+  },
+  {
     key: 'status',
     title: 'Status',
     style: { width: 240 },

@@ -28,6 +28,7 @@ import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import { useStyles, fields, groups, filter, columns } from './Helpers/BroadcastMonthReportProps'
+import mergeColumns from '@/Helpers/MergeColumns'
 import { hideLoading, showColumn, showLoading } from 'ka-table/actionCreators'
 import { Pagination } from 'react-laravel-paginex'
 
@@ -45,7 +46,6 @@ const BroadcastMonthReport = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
 
-
   const mapDataArr = (data) => {
     return data.map((item, index) => ({
       edit: item.id,
@@ -53,6 +53,7 @@ const BroadcastMonthReport = () => {
       broad_cast_month: item.broad_cast_month,
       start_date: item.start_date,
       end_date: item.end_date,
+      days_difference: item.days_difference,
       status: [item.status, item.id],
       id: item.id,
       key: index,
@@ -67,10 +68,10 @@ const BroadcastMonthReport = () => {
   )
 
   const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+    columns: mergeColumns(
+      columns,
+      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
+    ),
     loading: {
       enabled: false,
       text: 'Loading...',
@@ -187,6 +188,7 @@ const BroadcastMonthReport = () => {
               filteredData.data[indx].broad_cast_month = editData.broad_cast_month
               filteredData.data[indx].start_date = editData.start_date
               filteredData.data[indx].end_date = editData.end_date
+              filteredData.data[indx].days_difference = res.data.days_difference
             }
           })
           setEditData([])

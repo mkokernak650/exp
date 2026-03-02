@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\BroadCastMonth;
 use App\Models\TableDetails;
+use Carbon\Carbon;
 
 class BroadCastMonthController extends Controller
 {
@@ -42,23 +43,38 @@ class BroadCastMonthController extends Controller
 
     public function broadCastMonthReport()
     {
-        $conditions = json_decode(request('filteredValue'));
+        $filteredValue = request('filteredValue');
+        $conditions    = $filteredValue ? json_decode($filteredValue) : null;
 
-        if (request('filteredValue') && count($conditions->items) && isset($conditions->items[0]->value)) {
-            $broadCastMonthData = BroadCastMonth::query();
+        $hasValidFilters = $filteredValue
+            && isset($conditions->items)
+            && is_array($conditions->items)
+            && count($conditions->items)
+            && isset($conditions->items[0]->value);
+
+        if ($hasValidFilters) {
+            $broadCastMonthData = BroadCastMonth::query()
+                ->select('*')
+                ->selectRaw('DATEDIFF(end_date, start_date) as days_difference');
             $firstCond          = $conditions->items[0];
+            $itemsCount         = count($conditions->items);
 
             $this->makeConditionQuery($broadCastMonthData, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
 
-            for ($i = 1; $i < count($conditions->items); $i++) {
+            for ($i = 1; $i < $itemsCount; $i++) {
                 $cond = $conditions->items[$i];
                 $this->makeConditionQuery($broadCastMonthData, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
 
-            return $broadCastMonthData->paginate(request('itemPerPage') ?? 10);
+            $paginatedData = $broadCastMonthData->paginate(request('itemPerPage') ?? 10);
+
+            return $paginatedData;
         }
 
-        $allBroadCastMonths = BroadCastMonth::paginate(request('itemPerPage') ?? 10);
+        $allBroadCastMonths = BroadCastMonth::query()
+            ->select('*')
+            ->selectRaw('DATEDIFF(end_date, start_date) as days_difference')
+            ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $allBroadCastMonths;
@@ -110,10 +126,13 @@ class BroadCastMonthController extends Controller
         $data->start_date       = $request->start_date;
         $data->end_date         = $request->end_date;
         $result                 = $data->save();
-        $allData                = BroadCastMonth::all();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200, "allData" => $allData]);
+            return response()->json([
+                "msg"             => "Successfully Edited",
+                "status_code"     => 200,
+                "days_difference" => $this->getDaysDifference($data->start_date, $data->end_date)
+            ]);
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
@@ -134,6 +153,19 @@ class BroadCastMonthController extends Controller
 
         if ($result) {
             return response()->json(['msg' => 'Status updated successfully.', 'status_code' => 200]);
+        }
+    }
+
+    private function getDaysDifference($startDate, $endDate)
+    {
+        if (!$startDate || !$endDate) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate), false);
+        } catch (\Exception $e) {
+            return null;
         }
     }
 }
