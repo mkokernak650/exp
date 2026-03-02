@@ -53,7 +53,7 @@ const BroadcastMonthReport = () => {
       broad_cast_month: item.broad_cast_month,
       start_date: item.start_date,
       end_date: item.end_date,
-      days_difference: item.days_difference,
+      days_count: item.days_count,
       status: [item.status, item.id],
       id: item.id,
       key: index,
@@ -188,7 +188,7 @@ const BroadcastMonthReport = () => {
               filteredData.data[indx].broad_cast_month = editData.broad_cast_month
               filteredData.data[indx].start_date = editData.start_date
               filteredData.data[indx].end_date = editData.end_date
-              filteredData.data[indx].days_difference = res.data.days_difference
+              filteredData.data[indx].days_count = res.data.days_count
             }
           })
           setEditData([])

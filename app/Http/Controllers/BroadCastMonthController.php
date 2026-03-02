@@ -55,7 +55,7 @@ class BroadCastMonthController extends Controller
         if ($hasValidFilters) {
             $broadCastMonthData = BroadCastMonth::query()
                 ->select('*')
-                ->selectRaw('DATEDIFF(end_date, start_date) as days_difference');
+                ->selectRaw('DATEDIFF(end_date, start_date) as days_count');
             $firstCond          = $conditions->items[0];
             $itemsCount         = count($conditions->items);
 
@@ -73,7 +73,7 @@ class BroadCastMonthController extends Controller
 
         $allBroadCastMonths = BroadCastMonth::query()
             ->select('*')
-            ->selectRaw('DATEDIFF(end_date, start_date) as days_difference')
+            ->selectRaw('DATEDIFF(end_date, start_date) as days_count')
             ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
@@ -131,7 +131,7 @@ class BroadCastMonthController extends Controller
             return response()->json([
                 "msg"             => "Successfully Edited",
                 "status_code"     => 200,
-                "days_difference" => $this->getDaysDifference($data->start_date, $data->end_date)
+                "days_count" => $this->getDaysCount($data->start_date, $data->end_date)
             ]);
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
@@ -156,7 +156,7 @@ class BroadCastMonthController extends Controller
         }
     }
 
-    private function getDaysDifference($startDate, $endDate)
+    private function getDaysCount($startDate, $endDate)
     {
         if (!$startDate || !$endDate) {
             return null;
