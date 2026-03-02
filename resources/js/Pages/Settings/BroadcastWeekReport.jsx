@@ -23,6 +23,7 @@ import NormalModal from '@/Shared/NormalModal'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import mergeColumns from '@/Helpers/MergeColumns'
 import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
 import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import handleSelects from '@/Helpers/HandleSelects'
@@ -52,6 +53,7 @@ const BroadcastWeekReport = () => {
       broad_cast_week: item.broad_cast_week,
       start_date: item.start_date,
       end_date: item.end_date,
+      days_count: item.days_count,
       status: [item.status, item.id],
       id: item.id,
       key: index,
@@ -66,10 +68,10 @@ const BroadcastWeekReport = () => {
   )
 
   const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
+    columns: mergeColumns(
+      columns,
+      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
+    ),
     loading: {
       enabled: false,
       text: 'Loading...',
@@ -187,6 +189,7 @@ const BroadcastWeekReport = () => {
               filteredData.data[indx].broad_cast_week = editData.broad_cast_week
               filteredData.data[indx].start_date = editData.start_date
               filteredData.data[indx].end_date = editData.end_date
+              filteredData.data[indx].days_count = res.data.days_count
             }
           })
           setEditData([])

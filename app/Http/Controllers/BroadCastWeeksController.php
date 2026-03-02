@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\BroadCastWeeks;
 use App\Models\TableDetails;
+use Carbon\Carbon;
 
 class BroadCastWeeksController extends Controller
 {
@@ -43,23 +44,38 @@ class BroadCastWeeksController extends Controller
 
     public function broadCastWeekReport()
     {
-        $conditions = json_decode(request('filteredValue'));
+        $filteredValue = request('filteredValue');
+        $conditions    = $filteredValue ? json_decode($filteredValue) : null;
 
-        if (request('filteredValue') && count($conditions->items) && isset($conditions->items[0]->value)) {
-            $broadCastWeeksData = BroadCastWeeks::query();
+        $hasValidFilters = $filteredValue
+            && isset($conditions->items)
+            && is_array($conditions->items)
+            && count($conditions->items)
+            && isset($conditions->items[0]->value);
+
+        if ($hasValidFilters) {
+            $broadCastWeeksData = BroadCastWeeks::query()
+                ->select('*')
+                ->selectRaw('DATEDIFF(end_date, start_date) as days_count');
             $firstCond          = $conditions->items[0];
+            $itemsCount         = count($conditions->items);
 
             $this->makeConditionQuery($broadCastWeeksData, 'where', $firstCond->field, $firstCond->operator, $firstCond->value);
 
-            for ($i = 1; $i < count($conditions->items); $i++) {
+            for ($i = 1; $i < $itemsCount; $i++) {
                 $cond = $conditions->items[$i];
                 $this->makeConditionQuery($broadCastWeeksData, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
 
-            return $broadCastWeeksData->paginate(request('itemPerPage') ?? 10);
+            $paginatedData = $broadCastWeeksData->paginate(request('itemPerPage') ?? 10);
+
+            return $paginatedData;
         }
 
-        $allBroadCastWeeks = BroadCastWeeks::paginate(request('itemPerPage') ?? 10);
+        $allBroadCastWeeks = BroadCastWeeks::query()
+            ->select('*')
+            ->selectRaw('DATEDIFF(end_date, start_date) as days_count')
+            ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $allBroadCastWeeks;
@@ -115,7 +131,11 @@ class BroadCastWeeksController extends Controller
         $result                = $data->save();
 
         if ($result) {
-            return response()->json(["msg" => "Successfully Edited", "status_code" => 200,]);
+            return response()->json([
+                "msg"         => "Successfully Edited",
+                "status_code" => 200,
+                "days_count"  => $this->getDaysCount($data->start_date, $data->end_date)
+            ]);
         } else {
             return response()->json(["msg" => "Editing Failed", "status_code" => 500]);
         }
@@ -136,6 +156,19 @@ class BroadCastWeeksController extends Controller
 
         if ($result) {
             return response()->json(['msg' => 'Status updated successfully.'], 201);
+        }
+    }
+
+    private function getDaysCount($startDate, $endDate)
+    {
+        if (!$startDate || !$endDate) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate), false);
+        } catch (\Exception $e) {
+            return null;
         }
     }
 }
