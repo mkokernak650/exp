@@ -26,7 +26,8 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import { User as UserIcon, Minus as MinusIcon } from 'react-feather';
 import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage, GroupAddOutlined } from '@material-ui/icons';
 import { InertiaLink } from '@inertiajs/inertia-react';
-import { useState } from 'react';
+import { usePage } from '@inertiajs/inertia-react';
+import { useEffect, useState } from 'react';
 import Logo from '../../../images/webform/logo.png';
 import MoreIcon from '@material-ui/icons/MoreVert';
 
@@ -135,12 +136,23 @@ const useStyles = makeStyles((theme) => ({
       fontSize: '13px',
     },
   },
+  selectedNested: {
+    backgroundColor: '#e2e7ed !important',
+  },
 }));
 
 export default function PersistentDrawerLeft(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = useState(true);
+  const { url } = usePage();
+  const [open, setOpen] = useState(() => {
+    if (typeof window === 'undefined') {
+      return true;
+    }
+
+    const savedOpenState = window.localStorage.getItem('sidebar-drawer-open');
+    return savedOpenState !== null ? savedOpenState === 'true' : true;
+  });
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
 
@@ -564,6 +576,73 @@ export default function PersistentDrawerLeft(props) {
     },
   });
 
+  const isCurrentRoute = (routeName) => {
+    if (!routeName) {
+      return false;
+    }
+
+    try {
+      return route().current(routeName);
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const getActiveItemsFromRoute = () => {
+    const defaultState = {
+      id: '',
+      active: false,
+      submenu: {
+        id: '',
+        active: false,
+      },
+    };
+
+    for (const menu of items) {
+      if (!menu?.collapse || !menu?.submenu) {
+        continue;
+      }
+
+      for (const submenu of menu.submenu) {
+        if (submenu?.name && submenu?.submenu) {
+          const matchingChild = submenu.submenu.find((child) => isCurrentRoute(child.href));
+
+          if (matchingChild) {
+            return {
+              id: menu.id,
+              active: true,
+              submenu: {
+                id: submenu.id,
+                active: true,
+              },
+            };
+          }
+        } else if (isCurrentRoute(submenu?.href)) {
+          return {
+            id: menu.id,
+            active: true,
+            submenu: {
+              id: '',
+              active: false,
+            },
+          };
+        }
+      }
+    }
+
+    return defaultState;
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('sidebar-drawer-open', String(open));
+    }
+  }, [open]);
+
+  useEffect(() => {
+    setActiveItems(getActiveItemsFromRoute());
+  }, [url]);
+
   const handleClick = (id, type) => {
     items.forEach((item) => {
       if (type === 'parent') {
@@ -685,7 +764,11 @@ export default function PersistentDrawerLeft(props) {
             return (
               <div key={menu.id}>
                 {menu.collapse ? (
-                  <ListItem button onClick={() => handleClick(menu.id, 'parent')} key={menu.id}>
+                  <ListItem
+                    button
+                    onClick={() => handleClick(menu.id, 'parent')}
+                    key={menu.id}
+                  >
                     <ListItemIcon className={classes.menuIcon}>{menu.Icon}</ListItemIcon>
                     <ListItemText primary={menu.title} className={classes.menuText} />
                     {activeItems.id === menu.id && activeItems.active ? (
@@ -755,7 +838,11 @@ export default function PersistentDrawerLeft(props) {
                                         <ListItem
                                           button
                                           key={submenu?.id}
-                                          className={classes.nested}
+                                          className={clsx(
+                                            classes.nested,
+                                            isCurrentRoute(child.href) && classes.selectedNested
+                                          )}
+                                          selected={isCurrentRoute(child.href)}
                                         >
                                           <ListItemIcon className={classes.menuIcon}>
                                             <MinusIcon size="15" />
@@ -779,7 +866,15 @@ export default function PersistentDrawerLeft(props) {
                               style={{ textDecoration: 'none' }}
                               key={submenu.title}
                             >
-                              <ListItem button className={classes.nested} key={submenu.id}>
+                              <ListItem
+                                button
+                                className={clsx(
+                                  classes.nested,
+                                  isCurrentRoute(submenu.href) && classes.selectedNested
+                                )}
+                                key={submenu.id}
+                                selected={isCurrentRoute(submenu.href)}
+                              >
                                 <ListItemIcon className={classes.menuIcon}>
                                   <MinusIcon size="15" />
                                 </ListItemIcon>
