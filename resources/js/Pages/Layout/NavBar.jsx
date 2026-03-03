@@ -508,7 +508,7 @@ export default function PersistentDrawerLeft(props) {
       collapse: true,
       submenu: [
         {
-          title: 'Add Broadcast Months',
+          title: 'Add Broadcast Month',
           href: 'add.broadcast.month',
           Icon: <UserIcon />,
         },
