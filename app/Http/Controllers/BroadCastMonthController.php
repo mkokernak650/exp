@@ -55,7 +55,7 @@ class BroadCastMonthController extends Controller
         if ($hasValidFilters) {
             $broadCastMonthData = BroadCastMonth::query()
                 ->select('*')
-                ->selectRaw('DATEDIFF(end_date, start_date) as days_count');
+                ->selectRaw('DATEDIFF(end_date, start_date) + 1 as days_count');
             $firstCond          = $conditions->items[0];
             $itemsCount         = count($conditions->items);
 
@@ -73,7 +73,7 @@ class BroadCastMonthController extends Controller
 
         $allBroadCastMonths = BroadCastMonth::query()
             ->select('*')
-            ->selectRaw('DATEDIFF(end_date, start_date) as days_count')
+            ->selectRaw('DATEDIFF(end_date, start_date) + 1 as days_count')
             ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
@@ -163,7 +163,8 @@ class BroadCastMonthController extends Controller
         }
 
         try {
-            return Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate), false);
+            $days = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate), false);
+            return $days >= 0 ? $days + 1 : $days - 1;
         } catch (\Exception $e) {
             return null;
         }

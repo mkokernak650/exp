@@ -56,7 +56,7 @@ class BroadCastWeeksController extends Controller
         if ($hasValidFilters) {
             $broadCastWeeksData = BroadCastWeeks::query()
                 ->select('*')
-                ->selectRaw('DATEDIFF(end_date, start_date) as days_count');
+                ->selectRaw('DATEDIFF(end_date, start_date) + 1 as days_count');
             $firstCond          = $conditions->items[0];
             $itemsCount         = count($conditions->items);
 
@@ -74,7 +74,7 @@ class BroadCastWeeksController extends Controller
 
         $allBroadCastWeeks = BroadCastWeeks::query()
             ->select('*')
-            ->selectRaw('DATEDIFF(end_date, start_date) as days_count')
+            ->selectRaw('DATEDIFF(end_date, start_date) + 1 as days_count')
             ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
@@ -166,7 +166,8 @@ class BroadCastWeeksController extends Controller
         }
 
         try {
-            return Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate), false);
+            $days = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate), false);
+            return $days >= 0 ? $days + 1 : $days - 1;
         } catch (\Exception $e) {
             return null;
         }
