@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { styles, columns as defaultColumns } from './Helpers/InsertionOrderIndexProps'
 import { Button, Tooltip, Table, Select } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
@@ -64,6 +65,13 @@ const InsertionOrderIndex = () => {
     )
 
     const [columns, setColumns] = useState(defaultColumns)
+    const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+        columns,
+        setColumns,
+        columnDetails,
+        setColumnDetails,
+        optionKey,
+    })
 
     const handleToggleColumn = (key) => {
         setColumns((prev) => {
@@ -172,34 +180,36 @@ const InsertionOrderIndex = () => {
             })
     }
 
-    const antdColumns = columns
-        .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-        .map((col) => {
-            const base = {
-                key: col.key,
-                dataIndex: col.key,
-                title: col.title || '',
-                width: col.style?.width || col.width,
-                sorter: col.dataType === 'number'
-                    ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-                    : col.dataType === 'string'
-                        ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                        : undefined,
-            }
-            if (col.key === 'id') {
-                base.render = (value) => 'IO-' + String(value).padStart(3, '0')
-            }
-            if (col.key === 'io_link') {
-                base.render = (value) => <IOPublicLink link={`${baseUrl}/insertion-order/public${value}`} />
-            }
-            if (col.key === 'resend_io_doc') {
-                base.render = (value) => <ResendIODoc data={value} routeName="insertion.order.resend.io.document" />
-            }
-            if (col.key === 'cancel_io') {
-                base.render = (value) => <CancelIO data={value} routeName="insertion.order.resend.io.document" />
-            }
-            return base
-        })
+    const antdColumns = withResizableColumns(
+        columns
+            .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+            .map((col) => {
+                const base = {
+                    key: col.key,
+                    dataIndex: col.key,
+                    title: col.title || '',
+                    width: col.style?.width || col.width,
+                    sorter: col.dataType === 'number'
+                        ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+                        : col.dataType === 'string'
+                            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                            : undefined,
+                }
+                if (col.key === 'id') {
+                    base.render = (value) => 'IO-' + String(value).padStart(3, '0')
+                }
+                if (col.key === 'io_link') {
+                    base.render = (value) => <IOPublicLink link={`${baseUrl}/insertion-order/public${value}`} />
+                }
+                if (col.key === 'resend_io_doc') {
+                    base.render = (value) => <ResendIODoc data={value} routeName="insertion.order.resend.io.document" />
+                }
+                if (col.key === 'cancel_io') {
+                    base.render = (value) => <CancelIO data={value} routeName="insertion.order.resend.io.document" />
+                }
+                return base
+            })
+    )
 
     const rowSelection = {
         selectedRowKeys,
@@ -244,6 +254,11 @@ const InsertionOrderIndex = () => {
                     rowSelection={rowSelection}
                     loading={tableLoading}
                     pagination={false}
+                    components={{
+                        header: {
+                            cell: ResizableTitle,
+                        },
+                    }}
                     scroll={{ y: 'calc(100vh - 217px)' }}
                     size="small"
                     locale={{ emptyText: 'No Data Found' }}

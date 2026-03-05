@@ -16,6 +16,7 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/PendingCallLogsProps'
 
@@ -116,6 +117,13 @@ const PendingCallLogsReport = () => {
   const [columns, setColumns] = useState(initialColumns)
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -136,7 +144,8 @@ const PendingCallLogsReport = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(
+    columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -197,6 +206,7 @@ const PendingCallLogsReport = () => {
 
       return base
     })
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 
@@ -435,6 +445,11 @@ const PendingCallLogsReport = () => {
           rowSelection={rowSelection}
           loading={loading}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
           size="small"
         />

@@ -16,6 +16,7 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
 import { fields, groups, filter, columns as defaultColumns } from './Helpers/ZipcodeByTelevisionMarketNewProps'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 
 const ZipcodeByTelevisionMarketNew = () => {
   const { allZipcodesByTelevisionMarket, columnsData } = usePage().props
@@ -57,6 +58,13 @@ const ZipcodeByTelevisionMarketNew = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const [data, setData] = useState(mapDataArr(allZipcodesByTelevisionMarket))
 
@@ -169,7 +177,8 @@ const ZipcodeByTelevisionMarketNew = () => {
     getSearchingData(curerentPage)
   }, [itemPerPage, filterValue])
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(
+    columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -186,6 +195,7 @@ const ZipcodeByTelevisionMarketNew = () => {
 
       return base
     })
+  )
 
   return (
     <>
@@ -256,6 +266,7 @@ const ZipcodeByTelevisionMarketNew = () => {
         }
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           loading={loading}

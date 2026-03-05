@@ -17,6 +17,7 @@ import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { columns as defaultColumns, fields, groups, filter } from './Helpers/CampaignIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -68,6 +69,13 @@ const CampaignIndex = () => {
   )
 
   const [columns, setColumns] = useState(defaultColumns)
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -199,50 +207,52 @@ const CampaignIndex = () => {
     )
   }
 
-  const antdColumns = columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
-      if (col.key === 'edit') {
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (col.key === 'affiliates') {
-        base.render = (value) => (
-          <InertiaLink href={route('ecommerce.campaigns.affiliates', value)}>Affiliates</InertiaLink>
-        )
-      }
-      if (col.key === 'status') {
-        base.render = (value) => {
-          if (typeof value === 'string') {
-            value = value.split(',')
-          }
-          return (
-            <Switch
-              checked={parseInt(value[0]) === 1}
-              onChange={() => handleStatus(value[0], value[1], value[2])}
-            />
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter: col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
+        }
+        if (col.key === 'edit') {
+          base.render = (value) => (
+            <div className="edit-icon" onClick={() => handleEdit(value)}>
+              <Edit />
+            </div>
           )
         }
-      }
-      if (col.key === 'created_at' || col.key === 'updated_at') {
-        base.render = (value) => DateTimeFormat(value)
-      }
-      return base
-    })
+        if (col.key === 'affiliates') {
+          base.render = (value) => (
+            <InertiaLink href={route('ecommerce.campaigns.affiliates', value)}>Affiliates</InertiaLink>
+          )
+        }
+        if (col.key === 'status') {
+          base.render = (value) => {
+            if (typeof value === 'string') {
+              value = value.split(',')
+            }
+            return (
+              <Switch
+                checked={parseInt(value[0]) === 1}
+                onChange={() => handleStatus(value[0], value[1], value[2])}
+              />
+            )
+          }
+        }
+        if (col.key === 'created_at' || col.key === 'updated_at') {
+          base.render = (value) => DateTimeFormat(value)
+        }
+        return base
+      })
+  )
 
   const rowSelection = {
     selectedRowKeys,
@@ -312,6 +322,11 @@ const CampaignIndex = () => {
           rowKey="id"
           rowSelection={rowSelection}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
         />

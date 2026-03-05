@@ -13,6 +13,7 @@ import { Helmet } from 'react-helmet'
 import ConfirmModal from '../Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import toast from 'react-hot-toast'
 import { fields, groups, filter, columns as defaultColumns } from './Settings/Helpers/WebFormReportProps'
 
@@ -54,6 +55,13 @@ const WebFormReport = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -145,29 +153,31 @@ const WebFormReport = () => {
     )
   }
 
-  const antdColumns = columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
-      if (col.key === 'Website') {
-        base.render = (value) => (
-          <a target="_blank" href={value}>
-            {value}
-          </a>
-        )
-      }
-      return base
-    })
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter: col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
+        }
+        if (col.key === 'Website') {
+          base.render = (value) => (
+            <a target="_blank" href={value}>
+              {value}
+            </a>
+          )
+        }
+        return base
+      })
+  )
 
   const rowSelection = {
     selectedRowKeys,
@@ -235,6 +245,11 @@ const WebFormReport = () => {
           rowKey="id"
           rowSelection={rowSelection}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
         />

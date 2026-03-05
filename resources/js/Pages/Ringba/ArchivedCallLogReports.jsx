@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -16,6 +16,7 @@ import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/ArchivedCallLogReportsProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
@@ -95,131 +96,13 @@ const ArchivedCallLogReports = () => {
   const [columns, setColumns] = useState(initialColumns)
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
-  const [activeResizeKey, setActiveResizeKey] = useState(null)
-  const [hoveredResizeKey, setHoveredResizeKey] = useState(null)
-  const columnsRef = useRef(initialColumns)
-  const columnDetailsRef = useRef(
-    columnsData.length ? JSON.parse(columnsData[0]) : {}
-  )
-
-  useEffect(() => {
-    columnsRef.current = columns
-  }, [columns])
-
-  useEffect(() => {
-    columnDetailsRef.current = columnDetails
-  }, [columnDetails])
-
-  const handleColumnResize = useCallback((columnKey, nextWidth) => {
-    setColumns((prev) =>
-      prev.map((column) => {
-        if (column.key !== columnKey) {
-          return column
-        }
-
-        return {
-          ...column,
-          width: nextWidth,
-          style: { ...(column.style || {}), width: nextWidth },
-        }
-      })
-    )
-  }, [])
-
-  const ResizableTitle = ({ children, width, columnKey, ...restProps }) => {
-    if (!width || !columnKey) {
-      return <th {...restProps}>{children}</th>
-    }
-    const isSeparatorVisible =
-      activeResizeKey === columnKey || hoveredResizeKey === columnKey
-
-    const startResize = (event) => {
-      event.preventDefault()
-      event.stopPropagation()
-      setActiveResizeKey(columnKey)
-
-      const startX = event.clientX
-      const startWidth = Number(width) || Number.parseInt(width, 10) || 120
-
-      const onMouseMove = (moveEvent) => {
-        const nextWidth = Math.max(120, startWidth + moveEvent.clientX - startX)
-        handleColumnResize(columnKey, nextWidth)
-      }
-
-      const onMouseUp = () => {
-        setActiveResizeKey(null)
-        addTableDetails(
-          columnDetailsRef.current,
-          setColumnDetails,
-          columnsRef.current,
-          optionKey
-        )
-        document.removeEventListener('mousemove', onMouseMove)
-        document.removeEventListener('mouseup', onMouseUp)
-      }
-
-      document.addEventListener('mousemove', onMouseMove)
-      document.addEventListener('mouseup', onMouseUp)
-    }
-
-    const mergedHeaderStyle = {
-      ...(restProps.style || {}),
-      position: 'relative',
-      overflow: 'visible',
-    }
-
-    return (
-      <th
-        {...restProps}
-        style={mergedHeaderStyle}
-        onMouseEnter={() => setHoveredResizeKey(columnKey)}
-        onMouseLeave={() => setHoveredResizeKey(null)}
-      >
-        {children}
-        <div
-          role="separator"
-          aria-label={`Resize ${columnKey} column`}
-          onMouseDown={startResize}
-          onClick={(event) => event.stopPropagation()}
-          onMouseEnter={() => setHoveredResizeKey(columnKey)}
-          onMouseLeave={() => {
-            if (activeResizeKey !== columnKey) {
-              setHoveredResizeKey(null)
-            }
-          }}
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: '-8px',
-            width: '10px',
-            height: '100%',
-            cursor: 'col-resize',
-            userSelect: 'none',
-            zIndex: 5,
-            backgroundColor:
-              activeResizeKey === columnKey ? 'rgba(29, 78, 216, 0.06)' : 'transparent',
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              right: '5px',
-              width: '2px',
-              height: '16px',
-              backgroundColor: activeResizeKey === columnKey ? '#1d4ed8' : '#8c8c8c',
-              borderRadius: '4px',
-              opacity: isSeparatorVisible ? 1 : 0,
-              pointerEvents: 'none',
-              transition: 'opacity 0.15s ease',
-            }}
-          />
-        </div>
-      </th>
-    )
-  }
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -240,29 +123,21 @@ const ArchivedCallLogReports = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(
+    columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
-      const normalizedWidth =
-        Number(col.style?.width || col.width) ||
-        Number.parseInt(col.style?.width || col.width, 10) ||
-        180
-
       const base = {
         key: col.key,
         dataIndex: col.key,
         title: col.title || '',
-        width: normalizedWidth,
+        width: col.style?.width || col.width,
         sorter:
           col.dataType === 'number'
             ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
             : col.dataType === 'string'
               ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
               : undefined,
-        onHeaderCell: () => ({
-          width: normalizedWidth,
-          columnKey: col.key,
-        }),
       }
 
       if (col.key === 'Call_Date') {
@@ -287,6 +162,7 @@ const ArchivedCallLogReports = () => {
 
       return base
     })
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 

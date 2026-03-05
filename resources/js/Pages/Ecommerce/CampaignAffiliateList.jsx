@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { columns as defaultColumns } from './Helpers/CampaignAffiliateListProps'
 import { Button, Table, Select } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
@@ -45,6 +46,13 @@ const CampaignAffiliateList = () => {
   )
 
   const [columns, setColumns] = useState(defaultColumns)
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -130,25 +138,27 @@ const CampaignAffiliateList = () => {
       })
   }
 
-  const antdColumns = columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
-      if (col.key === 'affiliate_fee_type') {
-        base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
-      }
-      return base
-    })
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter: col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
+        }
+        if (col.key === 'affiliate_fee_type') {
+          base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
+        }
+        return base
+      })
+  )
 
   return (
     <>
@@ -193,6 +203,11 @@ const CampaignAffiliateList = () => {
           rowKey="id"
           loading={tableLoading}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
           locale={{ emptyText: 'No Data Found' }}

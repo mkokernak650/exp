@@ -15,6 +15,7 @@ import NormalModal from '@/Shared/NormalModal'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import toast from 'react-hot-toast'
 import { fields, groups, filter, columns as defaultColumns } from './Helpers/TVHouseholdsReportProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
@@ -43,6 +44,13 @@ const CustomerReport = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const [data, setData] = useState(mapDataArr(allTVHouseholds))
 
@@ -152,7 +160,7 @@ const CustomerReport = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -179,7 +187,7 @@ const CustomerReport = () => {
       }
 
       return base
-    })
+    }))
 
   return (
     <>
@@ -200,6 +208,7 @@ const CustomerReport = () => {
         )}
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}

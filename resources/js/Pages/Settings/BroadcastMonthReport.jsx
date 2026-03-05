@@ -20,6 +20,7 @@ import toast from 'react-hot-toast'
 import { fields, groups, filter, columns as defaultColumns } from './Helpers/BroadcastMonthReportProps'
 import mergeColumns from '@/Helpers/MergeColumns'
 import { Pagination } from 'react-laravel-paginex'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 
 const BroadcastMonthReport = () => {
   const { allBroadCastMonths, columnsData } = usePage().props
@@ -45,6 +46,13 @@ const BroadcastMonthReport = () => {
       columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
     )
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const mapDataArr = (data) => {
     return data.map((item, index) => ({
@@ -243,7 +251,8 @@ const BroadcastMonthReport = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(
+    columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -276,6 +285,7 @@ const BroadcastMonthReport = () => {
 
       return base
     })
+  )
 
   return (
     <>
@@ -330,6 +340,7 @@ const BroadcastMonthReport = () => {
         )}
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}

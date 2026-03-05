@@ -13,6 +13,7 @@ import NormalModal from '@/Shared/NormalModal'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import toast from 'react-hot-toast'
 import { fields, groups, filter, columns as defaultColumns } from './Helpers/ArchivedAffiliatesProps'
 import TextInput from '@/Components/Global/TextInput'
@@ -38,6 +39,13 @@ const ArchivedAffiliates = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const [data, setData] = useState(dataArray)
 
@@ -136,7 +144,7 @@ const ArchivedAffiliates = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -160,7 +168,7 @@ const ArchivedAffiliates = () => {
       }
 
       return base
-    })
+    }))
 
   return (
     <>
@@ -176,6 +184,7 @@ const ArchivedAffiliates = () => {
         )}
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}

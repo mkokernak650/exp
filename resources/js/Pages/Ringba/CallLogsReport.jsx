@@ -20,6 +20,7 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/CallLogsReportProps'
 
@@ -122,6 +123,13 @@ const CallLogsReport = () => {
   const [columns, setColumns] = useState(initialColumns)
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -142,7 +150,8 @@ const CallLogsReport = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(
+    columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -221,6 +230,7 @@ const CallLogsReport = () => {
 
       return base
     })
+  )
 
   const updateAnnotation = (value, tableIndex) => {
     axios
@@ -605,6 +615,11 @@ const CallLogsReport = () => {
           rowSelection={rowSelection}
           loading={loading}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
           size="small"
         />

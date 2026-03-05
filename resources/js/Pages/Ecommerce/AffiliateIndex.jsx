@@ -14,6 +14,7 @@ import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
@@ -255,6 +256,13 @@ const AffiliateIndex = () => {
   )
 
   const [columns, setColumns] = useState(defaultColumns)
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -398,52 +406,54 @@ const AffiliateIndex = () => {
     )
   }
 
-  const antdColumns = columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
-      if (col.key === 'edit') {
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (col.key === 'status') {
-        base.render = (value) => (value == 1 ? 'Active' : 'Inactive')
-      }
-      if (col.key === 'order_type') {
-        base.render = (value) => (value == 1 ? 'E-commerce' : 'Phone')
-      }
-      if (col.key === 'affiliate_fee_type') {
-        base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
-      }
-      if (col.key === 'created_at' || col.key === 'updated_at') {
-        base.render = (value) => DateTimeFormat(value)
-      }
-      if (col.key === 'pay_on_multiple_orders') {
-        base.render = (value) => {
-          if (value == '0') return 'No'
-          else if (value == '1') return 'Yes'
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter: col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
         }
-      }
-      if (col.key === 'lengths') {
-        base.render = (value) => {
-          if (value != null) return value.toString().replace(/,/g, ', ')
+        if (col.key === 'edit') {
+          base.render = (value) => (
+            <div className="edit-icon" onClick={() => handleEdit(value)}>
+              <Edit />
+            </div>
+          )
         }
-      }
-      return base
-    })
+        if (col.key === 'status') {
+          base.render = (value) => (value == 1 ? 'Active' : 'Inactive')
+        }
+        if (col.key === 'order_type') {
+          base.render = (value) => (value == 1 ? 'E-commerce' : 'Phone')
+        }
+        if (col.key === 'affiliate_fee_type') {
+          base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
+        }
+        if (col.key === 'created_at' || col.key === 'updated_at') {
+          base.render = (value) => DateTimeFormat(value)
+        }
+        if (col.key === 'pay_on_multiple_orders') {
+          base.render = (value) => {
+            if (value == '0') return 'No'
+            else if (value == '1') return 'Yes'
+          }
+        }
+        if (col.key === 'lengths') {
+          base.render = (value) => {
+            if (value != null) return value.toString().replace(/,/g, ', ')
+          }
+        }
+        return base
+      })
+  )
 
   const rowSelection = {
     selectedRowKeys,
@@ -528,6 +538,11 @@ const AffiliateIndex = () => {
           rowSelection={rowSelection}
           loading={tableLoading}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
         />

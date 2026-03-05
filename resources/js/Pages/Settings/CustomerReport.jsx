@@ -14,6 +14,7 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import toast from 'react-hot-toast'
 import { fields, groups, filter, columns as defaultColumns } from './Helpers/CustomerReportProps'
 import TextInput from '../../Components/Global/TextInput'
@@ -38,6 +39,13 @@ const CustomerReport = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const [data, setData] = useState(dataArray)
 
@@ -152,7 +160,7 @@ const CustomerReport = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -176,7 +184,7 @@ const CustomerReport = () => {
       }
 
       return base
-    })
+    }))
 
   return (
     <>
@@ -185,6 +193,7 @@ const CustomerReport = () => {
         {tableToolbar ? (<TableToolbar />) : (<div className="table-top"><div className="columns-show-hide" onClick={handleColumns}><Eye /></div><div className="search-icon" onClick={handleSearch}><span>Search Here</span><Search /></div>{serachSidebar ? (<div className="search-sidebar"><div className="search-top"><div className="title"><span>Search</span></div><a className="close-nav" onClick={closeSidebar}><Cancel /></a></div><div className="top-element"><FilterControl {...{ fields, groups, filterValue, onFilterValueChanged: onFilterChanged }} /></div></div>) : ''}{showColumns ? (<div className="column-settings" ref={showColumnRef}><ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} /></div>) : ''}</div>)}
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}

@@ -15,6 +15,7 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { fields, groups, filter, columns as defaultColumns } from './Helpers/TargetNamesProps'
 
 const Targets = () => {
@@ -45,6 +46,13 @@ const Targets = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const [data, setData] = useState(dataArray)
 
@@ -204,7 +212,7 @@ const Targets = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -236,7 +244,7 @@ const Targets = () => {
       }
 
       return base
-    })
+    }))
 
   return (
     <>
@@ -290,6 +298,7 @@ const Targets = () => {
         )}
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}

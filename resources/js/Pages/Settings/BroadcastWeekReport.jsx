@@ -19,6 +19,7 @@ import FilterControl from 'react-filter-control'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
+import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 
 const BroadcastWeekReport = () => {
   const { allBroadCastWeeks, columnsData } = usePage().props
@@ -44,6 +45,13 @@ const BroadcastWeekReport = () => {
       columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
     )
   )
+  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+    columns,
+    setColumns,
+    columnDetails,
+    setColumnDetails,
+    optionKey,
+  })
 
   const mapDataArr = (data) => {
     return data.map((item, index) => ({
@@ -243,7 +251,8 @@ const BroadcastWeekReport = () => {
     },
   }
 
-  const antdColumns = columns
+  const antdColumns = withResizableColumns(
+    columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
       const base = {
@@ -276,6 +285,7 @@ const BroadcastWeekReport = () => {
 
       return base
     })
+  )
 
   return (
     <>
@@ -329,6 +339,7 @@ const BroadcastWeekReport = () => {
         )}
         <Table
           columns={antdColumns}
+          components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}
