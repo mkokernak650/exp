@@ -61,24 +61,30 @@ const GetRingbaData = () => {
     <div>
       <Helmet title="Get Ringba Data" />
       <div className="flex flex-wrap flex-col max-w-[600px] mx-auto mt-16 text-center p-5 bg-white shadow rounded">
-        <Typography.Title level={5} className="text-center mb-9">
+        <Typography.Title level={3} className="text-center !mb-9">
           Fetch Ringba Data
         </Typography.Title>
         <form validate="true" onSubmit={handleSubmit}>
           <div className="w-[300px] mx-auto mb-4">
-            <label className="block text-sm text-left mb-1">Data has been fetched up to this date</label>
+            <label className="block text-sm text-left mb-1">
+              Data has been fetched up to this date *
+            </label>
             <DatePicker
               value={values.start_date ? dayjs(values.start_date) : null}
-              onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+              onChange={(date, dateString) =>
+                handleChange({ target: { name: 'start_date', value: dateString } })
+              }
               className="w-full"
             />
           </div>
 
           <div className="w-[300px] mx-auto mb-4">
-            <label className="block text-sm text-left mb-1">End Date</label>
+            <label className="block text-sm text-left mb-1">End Date *</label>
             <DatePicker
               value={values.end_date ? dayjs(values.end_date) : null}
-              onChange={(date, dateString) => handleChange({ target: { name: 'end_date', value: dateString } })}
+              onChange={(date, dateString) =>
+                handleChange({ target: { name: 'end_date', value: dateString } })
+              }
               className="w-full"
             />
           </div>
