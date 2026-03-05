@@ -354,6 +354,24 @@ export default function PersistentDrawerLeft(props) {
     },
   ]
 
+  const withLinePrefix = (label) => (
+    <span className="flex items-center gap-2">
+      <MinusIcon size={14} strokeWidth={2} />
+      <span>{label}</span>
+    </span>
+  )
+
+  const applyLinePrefixToChildren = (items, hasParent = false) =>
+    items.map((item) => ({
+      ...item,
+      label: hasParent ? withLinePrefix(item.label) : item.label,
+      ...(item.children
+        ? { children: applyLinePrefixToChildren(item.children, true) }
+        : {}),
+    }))
+
+  const styledMenuItems = applyLinePrefixToChildren(menuItems)
+
   const findSelectedAndOpenKeys = () => {
     const selectedKeys = []
     const openKeys = []
@@ -438,14 +456,6 @@ export default function PersistentDrawerLeft(props) {
             <Button type="text" icon={<UserOutlined style={{ color: '#fff', fontSize: 20 }} />} />
           </Dropdown>
         </div>
-        <div className="flex md:hidden">
-          <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight">
-            <Button
-              type="text"
-              icon={<EllipsisOutlined style={{ color: '#fff', fontSize: 20 }} />}
-            />
-          </Dropdown>
-        </div>
       </Header>
 
       <Sider
@@ -453,7 +463,7 @@ export default function PersistentDrawerLeft(props) {
         trigger={null}
         collapsedWidth={0}
         collapsed={!open}
-        className="overflow-auto h-screen fixed left-0 top-0 bottom-0 z-[1001] bg-white"
+        className="sidebar-scroll overflow-auto h-screen fixed left-0 top-0 bottom-0 z-[1001] bg-white"
       >
         <div className="flex items-center justify-between px-2 py-0 !h-[64px]">
           <div className="logo">
@@ -461,7 +471,12 @@ export default function PersistentDrawerLeft(props) {
               <img src={Logo} alt="consumer-exp-logo" />
             </InertiaLink>
           </div>
-          <Button type="text" icon={<LeftOutlined />} onClick={() => setOpen(false)} />
+          <Button
+            type="text"
+            icon={<LeftOutlined />}
+            onClick={() => setOpen(false)}
+            style={{ borderRadius: '100%', width: 40, height: 40 }}
+          />
         </div>
         <Divider className="m-0" />
         <Menu
@@ -469,7 +484,7 @@ export default function PersistentDrawerLeft(props) {
           selectedKeys={selectedKeys}
           openKeys={openKeys}
           onOpenChange={setOpenKeys}
-          items={menuItems}
+          items={styledMenuItems}
           className="border-r-0"
         />
       </Sider>

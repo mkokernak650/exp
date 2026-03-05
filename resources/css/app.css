@@ -33,6 +33,24 @@ div::-webkit-scrollbar-thumb {
     /* creates padding around scroll thumb */
 }
 
+.sidebar-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #c8d0dc #ffffff;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: #c8d0dc;
+    border-radius: 10px;
+}
+
 .layout main {
     overflow: auto;
 }
