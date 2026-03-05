@@ -103,6 +103,13 @@ div::-webkit-scrollbar-thumb {
     background: #eff2f5 !important;
 }
 
+/* Ensure AntD small table defaults (8px) are overridden in report tables */
+.selection-demo .ant-table-wrapper .ant-table.ant-table-small .ant-table-thead>tr>th,
+.selection-demo .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody>tr>td,
+.selection-demo .ant-table-wrapper .ant-table.ant-table-small tfoot>tr>td {
+    padding: 16px 16px !important;
+}
+
 .ant-checkbox-checked .ant-checkbox-inner {
     background-color: #0069ff !important;
     border-color: #0069ff !important;

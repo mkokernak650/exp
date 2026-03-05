@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import { useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -95,6 +95,97 @@ const ArchivedCallLogReports = () => {
   const [columns, setColumns] = useState(initialColumns)
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
+  const [activeResizeKey, setActiveResizeKey] = useState(null)
+
+  const handleColumnResize = useCallback((columnKey, nextWidth) => {
+    setColumns((prev) =>
+      prev.map((column) => {
+        if (column.key !== columnKey) {
+          return column
+        }
+
+        return {
+          ...column,
+          width: nextWidth,
+          style: { ...(column.style || {}), width: nextWidth },
+        }
+      })
+    )
+  }, [])
+
+  const ResizableTitle = ({ children, width, columnKey, ...restProps }) => {
+    if (!width || !columnKey) {
+      return <th {...restProps}>{children}</th>
+    }
+
+    const startResize = (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      setActiveResizeKey(columnKey)
+
+      const startX = event.clientX
+      const startWidth = Number(width) || Number.parseInt(width, 10) || 120
+
+      const onMouseMove = (moveEvent) => {
+        const nextWidth = Math.max(120, startWidth + moveEvent.clientX - startX)
+        handleColumnResize(columnKey, nextWidth)
+      }
+
+      const onMouseUp = () => {
+        setActiveResizeKey(null)
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+      }
+
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    }
+
+    const mergedHeaderStyle = {
+      ...(restProps.style || {}),
+      position: 'relative',
+      overflow: 'visible',
+    }
+
+    return (
+      <th {...restProps} style={mergedHeaderStyle}>
+        {children}
+        <div
+          role="separator"
+          aria-label={`Resize ${columnKey} column`}
+          onMouseDown={startResize}
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: '-6px',
+            width: '12px',
+            height: '100%',
+            cursor: 'col-resize',
+            userSelect: 'none',
+            zIndex: 5,
+            backgroundColor:
+              activeResizeKey === columnKey ? 'rgba(29, 78, 216, 0.06)' : 'transparent',
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              right: '4px',
+              width: '2px',
+              height: '16px',
+              backgroundColor: activeResizeKey === columnKey ? '#1d4ed8' : '#8c8c8c',
+              borderRadius: '4px',
+              opacity: 1,
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      </th>
+    )
+  }
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -118,17 +209,26 @@ const ArchivedCallLogReports = () => {
   const antdColumns = columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell')
     .map((col) => {
+      const normalizedWidth =
+        Number(col.style?.width || col.width) ||
+        Number.parseInt(col.style?.width || col.width, 10) ||
+        180
+
       const base = {
         key: col.key,
         dataIndex: col.key,
         title: col.title || '',
-        width: col.style?.width || col.width,
+        width: normalizedWidth,
         sorter:
           col.dataType === 'number'
             ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
             : col.dataType === 'string'
               ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
               : undefined,
+        onHeaderCell: () => ({
+          width: normalizedWidth,
+          columnKey: col.key,
+        }),
       }
 
       if (col.key === 'Call_Date') {
@@ -249,11 +349,13 @@ const ArchivedCallLogReports = () => {
     await axios
       .get(
         'archived-call-log-report?page=' +
-        pageData.page +
-        '&itemPerPage=' +
-        itemPerPage +
-        '&filteredValue=' +
-        JSON.stringify(filterValue) + '&orderBy=' + orderByValue
+          pageData.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue) +
+          '&orderBy=' +
+          orderByValue
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -287,7 +389,11 @@ const ArchivedCallLogReports = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
         </Tooltip>
 
         <Button
@@ -310,13 +416,16 @@ const ArchivedCallLogReports = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className='top-left'>
+            <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
               <div>
                 <MultiSelect
-                  options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                  options={[
+                    { label: 'Created At (Ascending)', value: 'ASC' },
+                    { label: 'Created At (Descending)', value: 'DESC' },
+                  ]}
                   onChange={(value) => setOrderByValue(value)}
                   placeholder="Order By"
                   singleSelect
@@ -369,6 +478,11 @@ const ArchivedCallLogReports = () => {
           rowSelection={rowSelection}
           loading={loading}
           pagination={false}
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
           size="small"
         />
@@ -392,10 +506,11 @@ const ArchivedCallLogReports = () => {
         btnAction={() => handleMoveCallLog(inboundIds)}
         closeAction={() => handleCloseModal(setShowCallLogModal)}
         width={'450px'}
-        title={`${inboundIds.length > 1
-          ? 'Do you want to move these records to Call Log?'
-          : 'Do you want to move this record to Call Log?'
-          }`}
+        title={`${
+          inboundIds.length > 1
+            ? 'Do you want to move these records to Call Log?'
+            : 'Do you want to move this record to Call Log?'
+        }`}
         loading={isLoading.archive}
       ></ConfirmModal>
 
@@ -405,10 +520,11 @@ const ArchivedCallLogReports = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${inboundIds.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          inboundIds.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
         loading={isLoading.delete}
       ></ConfirmModal>
     </>
