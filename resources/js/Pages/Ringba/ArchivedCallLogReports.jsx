@@ -97,6 +97,18 @@ const ArchivedCallLogReports = () => {
   const [loading, setLoading] = useState(false)
   const [activeResizeKey, setActiveResizeKey] = useState(null)
   const [hoveredResizeKey, setHoveredResizeKey] = useState(null)
+  const columnsRef = useRef(initialColumns)
+  const columnDetailsRef = useRef(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
+
+  useEffect(() => {
+    columnsRef.current = columns
+  }, [columns])
+
+  useEffect(() => {
+    columnDetailsRef.current = columnDetails
+  }, [columnDetails])
 
   const handleColumnResize = useCallback((columnKey, nextWidth) => {
     setColumns((prev) =>
@@ -136,6 +148,12 @@ const ArchivedCallLogReports = () => {
 
       const onMouseUp = () => {
         setActiveResizeKey(null)
+        addTableDetails(
+          columnDetailsRef.current,
+          setColumnDetails,
+          columnsRef.current,
+          optionKey
+        )
         document.removeEventListener('mousemove', onMouseMove)
         document.removeEventListener('mouseup', onMouseUp)
       }
