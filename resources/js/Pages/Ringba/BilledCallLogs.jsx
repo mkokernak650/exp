@@ -57,10 +57,11 @@ const BilledCallLogs = () => {
   const [orderByValue, setOrderByValue] = useState('')
 
   const updateAnnotation = (value, tableIndex, index) => {
+    const annotationId = value === '' ? '' : Number(value)
     axios
       .post(route('change.annotation', 'BilledCallLogs'), {
         indexId: tableIndex,
-        annotation_id: value,
+        annotation_id: annotationId,
       })
       .then((res) => {
         if (res.status === 200) {
@@ -225,9 +226,10 @@ const BilledCallLogs = () => {
       if (col.key === 'Annotation_Tag') {
         base.render = (value) => {
           let arrayValue = Array.isArray(value) ? value : String(value).split(',')
+          const selectedAnnotation = arrayValue[0] ? String(arrayValue[0]) : undefined
           return (
             <Select
-              defaultValue={arrayValue[0] || undefined}
+              defaultValue={selectedAnnotation}
               onChange={(value) => updateAnnotation(value, arrayValue[2], arrayValue[3])}
               size="small"
               className="w-full"
@@ -236,7 +238,7 @@ const BilledCallLogs = () => {
               {campaignsWithAnnotations
                 .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
                 ?.annotations.map((annotation) => (
-                  <Select.Option key={annotation.id} value={annotation.id}>
+                  <Select.Option key={annotation.id} value={String(annotation.id)}>
                     {annotation.annotation_name}
                   </Select.Option>
                 ))}
