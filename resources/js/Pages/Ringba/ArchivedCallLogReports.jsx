@@ -96,6 +96,7 @@ const ArchivedCallLogReports = () => {
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
   const [activeResizeKey, setActiveResizeKey] = useState(null)
+  const [hoveredResizeKey, setHoveredResizeKey] = useState(null)
 
   const handleColumnResize = useCallback((columnKey, nextWidth) => {
     setColumns((prev) =>
@@ -117,6 +118,8 @@ const ArchivedCallLogReports = () => {
     if (!width || !columnKey) {
       return <th {...restProps}>{children}</th>
     }
+    const isSeparatorVisible =
+      activeResizeKey === columnKey || hoveredResizeKey === columnKey
 
     const startResize = (event) => {
       event.preventDefault()
@@ -148,17 +151,29 @@ const ArchivedCallLogReports = () => {
     }
 
     return (
-      <th {...restProps} style={mergedHeaderStyle}>
+      <th
+        {...restProps}
+        style={mergedHeaderStyle}
+        onMouseEnter={() => setHoveredResizeKey(columnKey)}
+        onMouseLeave={() => setHoveredResizeKey(null)}
+      >
         {children}
         <div
           role="separator"
           aria-label={`Resize ${columnKey} column`}
           onMouseDown={startResize}
+          onClick={(event) => event.stopPropagation()}
+          onMouseEnter={() => setHoveredResizeKey(columnKey)}
+          onMouseLeave={() => {
+            if (activeResizeKey !== columnKey) {
+              setHoveredResizeKey(null)
+            }
+          }}
           style={{
             position: 'absolute',
             top: 0,
-            right: '-6px',
-            width: '12px',
+            right: '-8px',
+            width: '10px',
             height: '100%',
             cursor: 'col-resize',
             userSelect: 'none',
@@ -173,13 +188,14 @@ const ArchivedCallLogReports = () => {
               position: 'absolute',
               top: '50%',
               transform: 'translateY(-50%)',
-              right: '4px',
+              right: '5px',
               width: '2px',
               height: '16px',
               backgroundColor: activeResizeKey === columnKey ? '#1d4ed8' : '#8c8c8c',
               borderRadius: '4px',
-              opacity: 1,
+              opacity: isSeparatorVisible ? 1 : 0,
               pointerEvents: 'none',
+              transition: 'opacity 0.15s ease',
             }}
           />
         </div>

@@ -36,7 +36,7 @@ export const columns = [
     key: 'Inbound_Id',
     title: 'Inbound Id',
     dataType: 'string',
-    style: { width: 600 },
+    style: { width: 500 },
     visible: true,
   },
   {
@@ -92,7 +92,7 @@ export const columns = [
     key: 'Target',
     title: 'Target',
     dataType: 'string',
-    style: { width: 350 },
+    style: { width: 200 },
     visible: true,
   },
   {
@@ -106,14 +106,14 @@ export const columns = [
     key: 'Target_Description',
     title: 'Target Description',
     dataType: 'string',
-    style: { width: 400 },
+    style: { width: 300 },
     visible: true,
   },
   {
     key: 'Call_Length_In_Seconds',
     title: 'Call Length In Seconds',
     dataType: 'number',
-    style: { width: 240 },
+    style: { width: 200 },
     visible: true,
   },
   {
@@ -127,7 +127,7 @@ export const columns = [
     key: 'Conn_Duration',
     title: 'Conn.Duration',
     dataType: 'number',
-    style: { width: 240 },
+    style: { width: 150 },
     visible: true,
   },
   {
@@ -155,21 +155,21 @@ export const columns = [
     key: 'City',
     title: 'City',
     dataType: 'string',
-    style: { width: 240 },
+    style: { width: 150 },
     visible: true,
   },
   {
     key: 'State',
     title: 'State',
     dataType: 'string',
-    style: { width: 240 },
+    style: { width: 120 },
     visible: true,
   },
   {
     key: 'Zipcode',
     title: 'Zipcode',
     dataType: 'string',
-    style: { width: 240 },
+    style: { width: 120 },
     visible: true,
   },
 ]
