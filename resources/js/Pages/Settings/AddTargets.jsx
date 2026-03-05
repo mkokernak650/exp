@@ -56,8 +56,8 @@ const AddTargets = () => {
   return (
     <>
       <Helmet title="Add Target" />
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Add Target
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
@@ -66,7 +66,7 @@ const AddTargets = () => {
               <Select
                 placeholder="Select Customer"
                 onChange={(value) => handleChange({ target: { name: 'Customer', value } })}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {allCustomers.map((option, indx) => (
                   <Select.Option key={indx} value={option.customer_name}>
@@ -84,7 +84,7 @@ const AddTargets = () => {
                 }
                 options={options}
                 placeholder="Select Targets"
-                style={{ width: '100%' }}
+                className="w-full"
               />
             </Col>
 
@@ -96,7 +96,7 @@ const AddTargets = () => {
                   onChange={handleChange}
                   type="text"
                   required
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>

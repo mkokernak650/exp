@@ -59,17 +59,8 @@ const UserProfile = () => {
     return (
         <>
             <Helmet title="Edit Info" />
-            <div style={{
-                display: 'grid',
-                width: '500px',
-                margin: 'auto',
-                marginTop: '2rem',
-                padding: '40px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-                borderRadius: '4px',
-                background: '#fff',
-            }}>
-                <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+            <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+                <Typography.Title level={5} className="text-center mb-[35px]">
                     Edit Info
                 </Typography.Title>
                 <form onSubmit={handleSubmit}>
@@ -83,9 +74,9 @@ const UserProfile = () => {
                                     type="text"
                                     defaultValue={user[0].firstname}
                                     status={errors?.firstname ? 'error' : ''}
-                                    style={{ width: '100%' }}
+                                    className="w-full"
                                 />
-                                {errors?.firstname && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.firstname?.[0]}</div>}
+                                {errors?.firstname && <div className="text-red-500 text-xs">{errors?.firstname?.[0]}</div>}
                             </div>
                             <div className="mb-4">
                                 <label>Last Name*</label>
@@ -95,9 +86,9 @@ const UserProfile = () => {
                                     type="text"
                                     defaultValue={user[0].lastname}
                                     status={errors?.lastname ? 'error' : ''}
-                                    style={{ width: '100%' }}
+                                    className="w-full"
                                 />
-                                {errors?.lastname && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.lastname?.[0]}</div>}
+                                {errors?.lastname && <div className="text-red-500 text-xs">{errors?.lastname?.[0]}</div>}
                             </div>
                             <div className="mb-4">
                                 <label>Email*</label>
@@ -107,12 +98,12 @@ const UserProfile = () => {
                                     type="email"
                                     defaultValue={user[0].email}
                                     status={errors?.email ? 'error' : ''}
-                                    style={{ width: '100%' }}
+                                    className="w-full"
                                 />
-                                {errors?.email && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.email?.[0]}</div>}
+                                {errors?.email && <div className="text-red-500 text-xs">{errors?.email?.[0]}</div>}
                             </div>
                             {!showPasswordFields &&
-                                <span className='change-password' onClick={handleChangePassword} style={{ color: "#1677ff", cursor: "pointer" }}>Change Password</span>
+                                <span className='change-password text-[#1677ff] cursor-pointer' onClick={handleChangePassword}>Change Password</span>
                             }
 
                             {showPasswordFields &&
@@ -124,14 +115,14 @@ const UserProfile = () => {
                                             onChange={handleChange}
                                             type={showPassword?.password ? 'text' : 'password'}
                                             status={errors?.password ? 'error' : ''}
-                                            style={{ width: '100%' }}
+                                            className="w-full"
                                             suffix={
-                                                <span onClick={() => handleClickShowPassword('password')} style={{ cursor: 'pointer' }}>
+                                                <span onClick={() => handleClickShowPassword('password')} className="cursor-pointer">
                                                     {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                                                 </span>
                                             }
                                         />
-                                        {errors?.password && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.password?.[0]}</div>}
+                                        {errors?.password && <div className="text-red-500 text-xs">{errors?.password?.[0]}</div>}
                                     </div>
                                     <div className="mb-4">
                                         <label>New Password</label>
@@ -140,14 +131,14 @@ const UserProfile = () => {
                                             onChange={handleChange}
                                             type={showPassword?.new_password ? 'text' : 'password'}
                                             status={errors?.new_password ? 'error' : ''}
-                                            style={{ width: '100%' }}
+                                            className="w-full"
                                             suffix={
-                                                <span onClick={() => handleClickShowPassword('new_password')} style={{ cursor: 'pointer' }}>
+                                                <span onClick={() => handleClickShowPassword('new_password')} className="cursor-pointer">
                                                     {showPassword?.new_password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                                                 </span>
                                             }
                                         />
-                                        {errors?.new_password && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.new_password?.[0]}</div>}
+                                        {errors?.new_password && <div className="text-red-500 text-xs">{errors?.new_password?.[0]}</div>}
                                     </div>
                                     <div className="mb-4">
                                         <label>Confirm Password</label>
@@ -156,14 +147,14 @@ const UserProfile = () => {
                                             onChange={handleChange}
                                             type={showPassword?.cpassword ? 'text' : 'password'}
                                             status={errors?.password_confirmation ? 'error' : ''}
-                                            style={{ width: '100%' }}
+                                            className="w-full"
                                             suffix={
-                                                <span onClick={() => handleClickShowPassword('cpassword')} style={{ cursor: 'pointer' }}>
+                                                <span onClick={() => handleClickShowPassword('cpassword')} className="cursor-pointer">
                                                     {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                                                 </span>
                                             }
                                         />
-                                        {errors?.password_confirmation && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.password_confirmation?.[0]}</div>}
+                                        {errors?.password_confirmation && <div className="text-red-500 text-xs">{errors?.password_confirmation?.[0]}</div>}
                                     </div>
                                 </>
                             }

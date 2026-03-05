@@ -7,7 +7,7 @@ import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { styles, columns as defaultColumns } from './Helpers/CampaignAffiliateListProps'
+import { columns as defaultColumns } from './Helpers/CampaignAffiliateListProps'
 import { Button, Table, Select } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -163,7 +163,7 @@ const CampaignAffiliateList = () => {
               type="primary"
               onClick={exportHandler}
               disabled={campaignAffiliateList == ''}
-              style={styles.button}
+              className="w-auto capitalize text-sm"
               loading={loading}
             >
               Export
@@ -174,7 +174,7 @@ const CampaignAffiliateList = () => {
               options={orderByOptions}
               onChange={(value) => setOrderByValue(value)}
               placeholder="Order By"
-              style={{ width: '280px' }}
+              className="w-[280px]"
               defaultValue={orderByValue}
               singleSelect
             />

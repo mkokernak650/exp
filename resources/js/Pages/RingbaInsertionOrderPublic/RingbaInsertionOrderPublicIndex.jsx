@@ -69,7 +69,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                     <table>
                         <tbody>
                             <tr>
-                                <td style={{ width: "60%" }}>
+                                <td className="w-[60%]">
                                     <ul>
                                         <li>{billingDetails?.name}</li>
                                         <li>{billingDetails?.contactName}</li>
@@ -78,7 +78,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                                         <li>{billingDetails?.address}</li>
                                     </ul>
                                 </td>
-                                <td style={{ width: "40%" }}>
+                                <td className="w-[40%]">
                                     {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br />
                                     {ioFor === 'customer' ? 'Dub Order or Notification' : 'Traffic Instructions'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetails?.ioNo}
@@ -98,23 +98,23 @@ const RingbaInsertionOrderPublicIndex = () => {
                         <table>
                             <thead>
                                 <tr>
-                                    <th style={{ width: "20%" }}>Title Name</th>
-                                    <th style={{ width: "40%" }}>Description</th>
-                                    <th style={{ width: "10%" }}>Terms</th>
-                                    <th style={{ width: "20%" }}>Phone</th>
-                                    <th style={{ width: "10%" }}>{ioFor === 'customer' ? 'Rate' : 'Net Payout'}</th>
+                                    <th className="w-[20%]">Title Name</th>
+                                    <th className="w-[40%]">Description</th>
+                                    <th className="w-[10%]">Terms</th>
+                                    <th className="w-[20%]">Phone</th>
+                                    <th className="w-[10%]">{ioFor === 'customer' ? 'Rate' : 'Net Payout'}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {orderDetails.map((item, index) => (
                                     <tr key={index + 1}>
                                         <td>{item.titleName}</td>
-                                        <td style={{ fontSize: "12px" }}>
+                                        <td className="text-xs">
                                             {item.description}
                                             {(item.videoUrl && ioFor === 'affiliate') &&
                                                 <>
                                                     <br />
-                                                    <a href={item.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                                    <a href={item.videoUrl} target="_blank" className="underline font-bold">Download TV Commercial</a>
                                                 </>
                                             }
                                         </td>
@@ -124,7 +124,7 @@ const RingbaInsertionOrderPublicIndex = () => {
                                     </tr>
                                 ))}
                                 {/* <tr>
-                                    <td colSpan="3" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
+                                    <td colSpan="3" rowSpan="3" className="text-center">Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${orderDetails.netPrice.toFixed(2)}</td>
                                 </tr>
@@ -177,11 +177,11 @@ const RingbaInsertionOrderPublicIndex = () => {
                     This insertion order is {billingDetails.status}.
                 </div>
                 {billingDetails.status === 'pending' && <div className="decision-box-buttons">
-                    <button style={{ backgroundColor: "#FF0000" }} onClick={() => changeIoStatus('declined')}>{loading ? 'Loading..' : 'Decline'}</button>
-                    <button style={{ backgroundColor: "#6600FF" }} onClick={() => changeIoStatus('accepted')}>{loading ? 'Loading..' : 'Accept'}</button>
+                    <button className="bg-[#FF0000]" onClick={() => changeIoStatus('declined')}>{loading ? 'Loading..' : 'Decline'}</button>
+                    <button className="bg-[#6600FF]" onClick={() => changeIoStatus('accepted')}>{loading ? 'Loading..' : 'Accept'}</button>
                 </div>}
                 {billingDetails.status === 'accepted' && <div className="decision-box-buttons">
-                    <button style={{ backgroundColor: "#ff0e0e" }} onClick={() => changeIoStatus('canceled')}>{loading ? 'Loading..' : 'Cancel'}</button>
+                    <button className="bg-[#ff0e0e]" onClick={() => changeIoStatus('canceled')}>{loading ? 'Loading..' : 'Cancel'}</button>
                 </div>}
             </section>
         </>

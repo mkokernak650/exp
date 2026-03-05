@@ -6,21 +6,14 @@ const ColumnSettings = ({ columns, onToggleColumn }) => {
   const filteredColumns = columns.filter((c) => !hiddenColumns.includes(c.key))
 
   return (
-    <div style={{ width: 200, marginBottom: 20 }}>
+    <div className="w-[200px] mb-5">
       {filteredColumns.map((col) => (
         <div
           key={col.key}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '6px 7px',
-            borderBottom: '1px solid #eaeaf1',
-            cursor: 'pointer',
-          }}
+          className="flex items-center justify-between px-[7px] py-[6px] border-b border-[#eaeaf1] cursor-pointer"
           onClick={() => onToggleColumn(col.key)}
         >
-          <span style={{ fontSize: 13, color: '#4b5668' }}>{col.title || col.key}</span>
+          <span className="text-[13px] text-[#4b5668]">{col.title || col.key}</span>
           <Switch size="small" checked={col.visible !== false} />
         </div>
       ))}

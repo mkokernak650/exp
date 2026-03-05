@@ -14,7 +14,7 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/ArchivedCustomersProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/ArchivedCustomersProps'
 import TextInput from '../../Components/Global/TextInput'
 
 const ArchivedCustomers = () => {
@@ -126,7 +126,7 @@ const ArchivedCustomers = () => {
 
   const TableToolbar = () => (
     <div className="table-toolbar">
-      <Button type="primary" style={styles.button} onClick={() => handleOpenModal(setShowActiveModal)}>Active</Button>
+      <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowActiveModal)}>Active</Button>
       <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
     </div>
   )
@@ -191,13 +191,13 @@ const ArchivedCustomers = () => {
       <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit Customer'}>
         <div className="edit_target">
           <form>
-            <div className="mb-4"><label>Customer Name</label><Input value={editData ? editData.customer : ''} name="customer" onChange={handleEditChange} style={{ width: '100%' }} required />{errors?.customer && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.customer?.[0]}</div>}</div>
-            <div className="mb-4"><label>Email</label><Input value={editData ? editData.email : ''} name="email" type="email" onChange={handleEditChange} style={{ width: '100%' }} /></div>
-            <div className="mb-4"><label>Telephone</label><Input value={editData ? editData.telephone : ''} name="telephone" onChange={handleEditChange} style={{ width: '100%' }} /></div>
-            <div className="mb-4"><label>Address</label><Input value={editData ? editData.address : ''} name="address" onChange={handleEditChange} style={{ width: '100%' }} /></div>
+            <div className="mb-4"><label>Customer Name</label><Input value={editData ? editData.customer : ''} name="customer" onChange={handleEditChange} className="w-full" required />{errors?.customer && <div className="text-red-500 text-xs">{errors?.customer?.[0]}</div>}</div>
+            <div className="mb-4"><label>Email</label><Input value={editData ? editData.email : ''} name="email" type="email" onChange={handleEditChange} className="w-full" /></div>
+            <div className="mb-4"><label>Telephone</label><Input value={editData ? editData.telephone : ''} name="telephone" onChange={handleEditChange} className="w-full" /></div>
+            <div className="mb-4"><label>Address</label><Input value={editData ? editData.address : ''} name="address" onChange={handleEditChange} className="w-full" /></div>
             <TextInput label="Contact Name" name="contact_name" handleChange={handleEditChange} value={editData ? editData.contact_name : ''} />
             <TextInput label="Contact Telephone" name="contact_telephone" handleChange={handleEditChange} value={editData ? editData.contact_telephone : ''} />
-            <Button type="primary" onClick={handleEditSubmit} style={styles.editButton}>Edit</Button>
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
           </form>
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
         </div>

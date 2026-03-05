@@ -17,7 +17,7 @@ import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { columns as defaultColumns, styles, fields, groups, filter } from './Helpers/CampaignIndexProps'
+import { columns as defaultColumns, fields, groups, filter } from './Helpers/CampaignIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -347,7 +347,7 @@ const CampaignIndex = () => {
                   options={customersOption}
                   defaultValue={editData?.customer_id}
                   onChange={value => CustomerHandleChange(value)}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </Col>
 
@@ -383,7 +383,7 @@ const CampaignIndex = () => {
                 <Button
                   type="primary"
                   onClick={handleEditSubmit}
-                  style={styles.editButton}
+                  className="mt-[15px]"
                 >
                   Update
                 </Button>

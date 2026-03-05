@@ -31,8 +31,8 @@ const AddMarket = () => {
   return (
     <>
       <Helmet title="Call Logs Report" />
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Add Market
         </Typography.Title>
         <form onSubmit={handleSubmit}>
@@ -45,7 +45,7 @@ const AddMarket = () => {
                   onChange={handleChange}
                   type="text"
                   required
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>

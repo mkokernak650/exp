@@ -15,7 +15,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/ZipcodeByTelevisionMarketNewProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/ZipcodeByTelevisionMarketNewProps'
 
 const ZipcodeByTelevisionMarketNew = () => {
   const { allZipcodesByTelevisionMarket, columnsData } = usePage().props
@@ -203,7 +203,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                 onClick={exportHandler}
                 disabled={allZipcodesByTelevisionMarket == ''}
                 loading={loading}
-                style={styles.button}
+                className="w-auto capitalize text-sm"
               >
                 Searched Export
               </Button>
@@ -211,7 +211,7 @@ const ZipcodeByTelevisionMarketNew = () => {
                 type="primary"
                 onClick={viewExport}
                 disabled={data.length < 1}
-                style={styles.button}
+                className="w-auto capitalize text-sm"
               >
                 View Export
               </Button>

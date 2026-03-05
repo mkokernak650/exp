@@ -17,22 +17,6 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 
-const styles = {
-  topBtn: {
-    display: 'flex',
-    gap: '10px',
-    marginLeft: '10px',
-  },
-  button: {
-    width: 130,
-    textTransform: 'capitalize',
-    fontSize: '14px',
-  },
-  editButton: {
-    marginTop: '15px',
-  },
-}
-
 export const fields = [
   {
     caption: 'annotation',
@@ -224,7 +208,7 @@ const CampaignAnnotations = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button type="text" icon={<DeleteOutlined className="text-[#031b4e]" />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -346,7 +330,7 @@ const CampaignAnnotations = () => {
               name="customer_id"
               type="text"
               onChange={handleEditChange}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <span>Market:</span>
             <Input
@@ -354,18 +338,18 @@ const CampaignAnnotations = () => {
               name="market_id"
               type="text"
               onChange={handleEditChange}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <span>Start Date:</span>
             <DatePicker
               value={editData?.start_date ? dayjs(editData.start_date) : null}
               onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <Button
               type="primary"
               onClick={handleEditSubmit}
-              style={styles.editButton}
+              className="mt-[15px]"
             >
               Edit
             </Button>

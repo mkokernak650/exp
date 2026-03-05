@@ -17,7 +17,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { Pagination } from 'react-laravel-paginex'
-import { columns as defaultColumns, buttonStyle } from './Helpers/PendingCallLogsProps'
+import { columns as defaultColumns } from './Helpers/PendingCallLogsProps'
 
 const PendingCallLogsReport = () => {
   const { pendingCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
@@ -180,7 +180,7 @@ const PendingCallLogsReport = () => {
               defaultValue={arrayValue[0] || undefined}
               onChange={(value) => updateAnnotation(value, arrayValue[2])}
               size="small"
-              style={{ width: '100%' }}
+              className="w-full"
             >
               <Select.Option value="">Select Annotation</Select.Option>
               {campaignsWithAnnotations
@@ -361,14 +361,14 @@ const PendingCallLogsReport = () => {
 
         <Button
           type="primary"
-          style={buttonStyle}
+          className="w-auto capitalize text-sm"
           onClick={() => handleOpenModal(setShowCallLogModal)}
         >
           Move Call Log
         </Button>
         <Button
           type="primary"
-          style={buttonStyle}
+          className="w-auto capitalize text-sm"
           onClick={() => handleOpenModal(setShowBilledModal)}
         >
           Billed

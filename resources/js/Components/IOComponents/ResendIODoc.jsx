@@ -41,7 +41,7 @@ export default function ResendIODoc({ data, routeName }) {
                     Resend
                 </button>
                 : <Tooltip title="Only available when accepted" placement="top">
-                    <p className="new" style={{ textAlign: 'center' }}>N/A</p>
+                    <p className="new text-center">N/A</p>
                 </Tooltip>
             }
         </>

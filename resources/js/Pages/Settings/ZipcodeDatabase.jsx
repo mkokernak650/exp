@@ -9,7 +9,7 @@ import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { styles, filter, columns as defaultColumns } from './Helpers/ZipcodeDatabaseProps'
+import { filter, columns as defaultColumns } from './Helpers/ZipcodeDatabaseProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import toast from 'react-hot-toast'
@@ -236,23 +236,23 @@ const ZipcodeDatabase = () => {
               onClick={exportHandler}
               disabled={zipCodeData == ''}
               loading={loading}
-              style={styles.button}
+              className="w-auto capitalize text-sm"
             >
               Export
             </Button>
           </div>
-          <div className="top-left" style={{ gap: '5px' }}>
+          <div className="top-left gap-[5px]">
             <MultiSelect
               options={statesOptions}
               placeholder="State"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               onChange={(value) => setFilterByState(value)}
               defaultValue={filterByState}
             />
             <MultiSelect
               options={TimeZoneOptions}
               placeholder="Time Zone"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               onChange={(value) => setFilterByTimeZone(value)}
               defaultValue={filterByTimeZone}
             />
@@ -261,7 +261,7 @@ const ZipcodeDatabase = () => {
               name="county"
               placeholder="County"
               size="small"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               value={filterBySearchBoxValue.county}
               onChange={handleSearchBoxChange}
             />
@@ -270,7 +270,7 @@ const ZipcodeDatabase = () => {
               name="city"
               placeholder="City"
               size="small"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               value={filterBySearchBoxValue.city}
               onChange={handleSearchBoxChange}
             />
@@ -280,7 +280,7 @@ const ZipcodeDatabase = () => {
               placeholder="Zip Code"
               size="small"
               type="number"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               value={filterBySearchBoxValue.zipCode}
               onChange={handleSearchBoxChange}
             />
@@ -290,7 +290,7 @@ const ZipcodeDatabase = () => {
               placeholder="NPA"
               size="small"
               type="number"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               value={filterBySearchBoxValue.npa}
               onChange={handleSearchBoxChange}
             />
@@ -300,7 +300,7 @@ const ZipcodeDatabase = () => {
               placeholder="NXX"
               size="small"
               type="number"
-              style={{ width: '180px' }}
+              className="w-[180px]"
               value={filterBySearchBoxValue.nxx}
               onChange={handleSearchBoxChange}
             />

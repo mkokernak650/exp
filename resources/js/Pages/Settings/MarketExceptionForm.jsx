@@ -45,8 +45,8 @@ const MarketExceptionForm = () => {
   return (
     <>
       <Helmet title="Add Exceptions" />
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Add Exceptions
         </Typography.Title>
         <form onSubmit={handleSubmit}>
@@ -56,7 +56,7 @@ const MarketExceptionForm = () => {
                 id="campaign_id"
                 placeholder="Select Campaign"
                 onChange={(value) => handleSelectChange('campaign_id', value)}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {allCampaigns.map((option, indx) => (
                   <Select.Option key={indx} value={option.id}>
@@ -71,7 +71,7 @@ const MarketExceptionForm = () => {
                 id="state"
                 placeholder="Select State"
                 onChange={(value) => handleSelectChange('state', value)}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {allStates.map((option, indx) => (
                   <Select.Option key={indx} value={option.state}>
@@ -86,7 +86,7 @@ const MarketExceptionForm = () => {
                 id="market"
                 placeholder="Select Market"
                 onChange={(value) => handleSelectChange('market', value)}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {allMarkets.map((option, indx) => (
                   <Select.Option key={indx} value={option.market}>
@@ -101,7 +101,7 @@ const MarketExceptionForm = () => {
                 id="call_type"
                 placeholder="Call Type"
                 onChange={(value) => handleSelectChange('call_type', value)}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 <Select.Option value="L">Landline (L)</Select.Option>
                 <Select.Option value="W">Wireless (W)</Select.Option>
@@ -114,7 +114,7 @@ const MarketExceptionForm = () => {
                 <label>Start Date</label>
                 <DatePicker
                   onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>

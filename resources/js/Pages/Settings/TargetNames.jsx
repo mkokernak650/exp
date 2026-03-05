@@ -15,7 +15,7 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/TargetNamesProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/TargetNamesProps'
 
 const Targets = () => {
   const { allTargetNames, columnsData } = usePage().props
@@ -313,12 +313,12 @@ const Targets = () => {
               name="target_name"
               type="text"
               onChange={handleEditChange}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <Button
               type="primary"
               onClick={handleEditSubmit}
-              style={styles.editButton}
+              className="mt-[15px]"
             >
               Edit
             </Button>

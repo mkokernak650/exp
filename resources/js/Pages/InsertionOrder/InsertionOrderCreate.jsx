@@ -162,8 +162,8 @@ const InsertionOrderCreate = () => {
     return (
         <>
             <Helmet title="Insertion Order - Create" />
-            <div style={{ display: 'grid', width: '800px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
-                <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+            <div className="grid w-[800px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
+                <Title level={5} className="text-center mb-[35px]">
                     Insertion Order
                 </Title>
                 <form onSubmit={handleSubmit}>
@@ -174,7 +174,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => handleCampaignChange(value)}
                                 options={campaignOptions}
                                 defaultValue={campaignIds}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Campaigns"
                             />
                         </Col>
@@ -184,7 +184,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => handleCustomerChange(value)}
                                 options={customerOptions}
                                 defaultValue={customerIds}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Customers"
                             />
                         </Col>
@@ -195,7 +195,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => handleAffiliateChange(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliates}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Affiliates"
                                 disabled={!campaignIds && !customerIds}
                             />
@@ -207,7 +207,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => setSelectedCodesAndPhones(value)}
                                 options={codeAndPhoneOptions}
                                 defaultValue={selectedCodesAndPhones}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Codes or Phones"
                             />
                         </Col>
@@ -218,7 +218,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => setSelectedTerm(value)}
                                 options={termOptions}
                                 defaultValue={selectedTerm}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Terms"
                                 singleSelect
                             />
@@ -229,7 +229,7 @@ const InsertionOrderCreate = () => {
                                 name="insertion_order_for"
                                 value={insertionOrderFor}
                                 onChange={(e) => setInsertionOrderFor(e.target.value)}
-                                style={{ display: 'flex', flexDirection: 'row' }}
+                                className="flex flex-row"
                             >
                                 <Radio value="customer">For Customer</Radio>
                                 <Radio value="affiliate">For Affiliate</Radio>
@@ -237,7 +237,7 @@ const InsertionOrderCreate = () => {
                         </Col>
 
                         <Row justify="end" className="w-full">
-                            <Col style={{ marginRight: '8px' }}>
+                            <Col className="mr-2">
                                 <Button
                                     disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.view}
                                     onClick={handleView}
@@ -246,7 +246,7 @@ const InsertionOrderCreate = () => {
                                     View
                                 </Button>
                             </Col>
-                            <Col style={{ marginRight: '8px' }}>
+                            <Col className="mr-2">
                                 <Button
                                     disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.save || loading.submit}
                                     onClick={(e) => handleSubmit(e, 'save')}

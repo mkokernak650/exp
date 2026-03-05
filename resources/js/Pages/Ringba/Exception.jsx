@@ -20,7 +20,7 @@ import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { Pagination } from 'react-laravel-paginex'
-import { columns as defaultColumns, buttonStyle } from './Helpers/ExceptionProps'
+import { columns as defaultColumns } from './Helpers/ExceptionProps'
 
 const Exceptions = () => {
   const { Exceptions: ExceptionsData, columnsData } = usePage().props
@@ -176,7 +176,7 @@ const Exceptions = () => {
 
       if (col.key === 'Recording_Url') {
         base.render = (value) => (
-          <audio className="audio-data" controls style={{ width: '100%' }}>
+          <audio className="audio-data w-full" controls>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
@@ -432,21 +432,21 @@ const Exceptions = () => {
 
         <Button
           type="primary"
-          style={buttonStyle}
+          className="w-auto capitalize text-sm"
           onClick={() => handleOpenModal(setShowPendingModal)}
         >
           Pending
         </Button>
         <Button
           type="primary"
-          style={buttonStyle}
+          className="w-auto capitalize text-sm"
           onClick={() => handleOpenModal(setShowArchivedModal)}
         >
           Archived
         </Button>
         <Button
           type="primary"
-          style={buttonStyle}
+          className="w-auto capitalize text-sm"
           onClick={() => handleUpdate(inboundIds)}
           loading={isLoading.update}
         >

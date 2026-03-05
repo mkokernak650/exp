@@ -15,7 +15,7 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { Pagination } from 'react-laravel-paginex'
-import { columns as defaultColumns, styles, filter } from './Helpers/AffiliateIndexProps'
+import { columns as defaultColumns, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -468,14 +468,14 @@ const AffiliateIndex = () => {
               <Button
                 type="primary"
                 onClick={openImportModal}
-                style={styles.button}
+                className="capitalize text-sm"
               >
                 Import
               </Button>
               <Button
                 type="primary"
                 onClick={exportHandler}
-                style={styles.button}
+                className="capitalize text-sm"
                 loading={loading}
               >
                 Export
@@ -486,28 +486,28 @@ const AffiliateIndex = () => {
                 options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
                 onChange={(value) => setOrderByValue(value)}
                 placeholder="Order By"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 defaultValue={orderByValue}
                 singleSelect
               />
               <MultiSelect
                 options={campaignOptions}
                 placeholder="Campaign"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 onChange={(value) => setFilterByCampaigns(value)}
                 defaultValue={filterByCampaigns}
               />
               <MultiSelect
                 options={customerOptions}
                 placeholder="Customer"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
               />
               <MultiSelect
                 options={affiliateOptions}
                 placeholder="Affiliate"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 onChange={(value) => setFilterByAffiliates(value)}
                 defaultValue={filterByAffiliates}
               />
@@ -681,7 +681,7 @@ const AffiliateIndex = () => {
                   defaultValue={editData?.lengths}
                   onChange={(val) => lengthHandleChange(val)}
                   options={lengthOptions}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   placeholder="Select Length"
                 />
               </Col>
@@ -811,7 +811,7 @@ const AffiliateIndex = () => {
                 <Button
                   type="primary"
                   onClick={handleEditSubmit}
-                  style={styles.editButton}
+                  className="mt-[15px]"
                 >
                   Update
                 </Button>
@@ -827,13 +827,13 @@ const AffiliateIndex = () => {
 
       <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>
         <form onSubmit={importHandler}>
-          <div style={styles.import}>
+          <div className="flex items-center">
             <input
               id="importFile"
               type="file"
               name="importFile"
               onChange={handleImportChange}
-              style={styles.importFile}
+              className="flex-1 bg-[#eee] p-[7px] rounded-[5px] mr-[6px]"
             />
             <Button type="primary" htmlType="submit" disabled={!selectedFile} loading={loading}>
               Next

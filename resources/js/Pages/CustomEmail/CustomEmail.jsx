@@ -103,15 +103,9 @@ const CustomEmail = () => {
         <>
             <Helmet title="Email Affiliate (Custom Email)" />
             <Card
-                style={{
-                    display: 'grid',
-                    width: '800px',
-                    margin: 'auto',
-                    marginTop: '2rem',
-                    padding: '40px',
-                }}
+                className="grid w-[800px] m-auto mt-8 p-10"
             >
-                <Typography.Title level={4} style={{ textAlign: 'center', marginBottom: '35px' }}>
+                <Typography.Title level={4} className="text-center mb-[35px]">
                     Compose Email
                 </Typography.Title>
                 <form validate="true" onSubmit={handleSubmit}>
@@ -122,7 +116,7 @@ const CustomEmail = () => {
                                 onChange={(value) => handleCampaignChange(value)}
                                 options={campaignOptions}
                                 defaultValue={campaignIds}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Campaigns"
                             />
                         </Col>
@@ -133,7 +127,7 @@ const CustomEmail = () => {
                                 onChange={(value) => setSelectedAffiliates(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliates}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Affiliates"
                                 disabled={!campaignIds}
                             />
@@ -144,44 +138,44 @@ const CustomEmail = () => {
                                 name="additional_emails"
                                 onChange={(value) => setAdditionalEmails(value)}
                                 defaultValue={additionalEmails}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Additional Emails (Write and press enter or comma(,) to add additional emails)"
                                 customValue
                             />
                         </Col>
 
                         <Col span={24}>
-                            <label style={{ display: 'block', marginBottom: 4 }}>Subject</label>
+                            <label className="block mb-1">Subject</label>
                             <Input
                                 name="subject"
                                 onChange={handleChange}
                                 spellCheck
                                 required
-                                style={{ width: '100%' }}
+                                className="w-full"
                             />
                         </Col>
 
                         <Col span={24}>
-                            <label style={{ display: 'block', marginBottom: 4 }}>Message</label>
+                            <label className="block mb-1">Message</label>
                             <TextArea
                                 name="message"
                                 onChange={handleChange}
                                 spellCheck
                                 rows={8}
                                 required
-                                style={{ width: '100%', resize: 'vertical' }}
+                                className="w-full resize-y"
                             />
                         </Col>
 
                         <Col span={24}>
-                            <Button component="label" style={{ position: 'relative' }}>
+                            <Button component="label" className="relative">
                                 Attach Files
                                 <input
                                     type="file"
                                     multiple
                                     onChange={handleFileSelect}
                                     hidden
-                                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
                                 />
                             </Button>
                             <span className="custom-email-file-list-line"></span>
@@ -199,7 +193,7 @@ const CustomEmail = () => {
                                 htmlType="submit"
                             >
                                 {loading && (
-                                    <span style={{ marginRight: '8px', marginBottom: '-5px', display: 'inline-flex' }}>
+                                    <span className="mr-2 -mb-[5px] inline-flex">
                                         <Spin size="small" />
                                     </span>
                                 )}

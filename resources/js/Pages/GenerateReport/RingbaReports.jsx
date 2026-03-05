@@ -429,13 +429,13 @@ const RingbaReports = () => {
     return (
         <>
             <Helmet title="Ringba Reports" />
-            <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
-                <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
+            <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
+                <Typography.Title level={5} className="text-center mb-[35px]">
                     Ringba Reports
                 </Typography.Title>
                 <form validate="true" className="generate-report">
                     <Row gutter={[0, 16]}>
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 singleSelect
                                 name="reportFor"
@@ -444,11 +444,11 @@ const RingbaReports = () => {
                                 options={[
                                     { label: 'Pay Per Order', value: 'payPerOrder' },
                                 ]}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Report For"
                             />
                         </Col>
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 singleSelect
                                 name="order_type"
@@ -458,11 +458,11 @@ const RingbaReports = () => {
                                     { label: 'Billed', value: 'billed' },
                                     { label: 'General', value: 'general' },
                                 ]}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Order Type"
                             />
                         </Col>
-                        <Col span={24} style={{ paddingBottom: 5, marginBottom: 15 }}>
+                        <Col span={24} className="pb-[5px] mb-[15px]">
                             <MultiSelect
                                 singleSelect
                                 name="reportOn"
@@ -475,80 +475,80 @@ const RingbaReports = () => {
                                     { label: 'Call Length Report', value: 'callLength' },
                                     { label: 'Homes Per Call Report', value: 'homesPerCall' },
                                 ]}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Report On"
                             />
                         </Col>
-                        <Col span={24} style={{ paddingTop: 0, marginBottom: -10 }}>
+                        <Col span={24} className="pt-0 mb-[-10px]">
                             <Divider />
                         </Col>
                         {market.length < 1 && (
-                            <Col span={24} style={{ paddingBottom: 5 }}>
+                            <Col span={24} className="pb-[5px]">
                                 <MultiSelect
                                     name="states"
                                     onChange={(val) => stateHandleChange(val, 'states')}
                                     options={[{ label: 'All States', value: 'allStates,' }].concat(stateOptions)}
-                                    style={{ width: '100%' }}
+                                    className="w-full"
                                     placeholder="Select States"
                                 />
                             </Col>
                         )}
                         {state.length < 1 && (
-                            <Col span={24} style={{ paddingBottom: 5 }}>
+                            <Col span={24} className="pb-[5px]">
                                 <MultiSelect
                                     name="markets"
                                     onChange={(val) => marketHandleChange(val, 'markets')}
                                     options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
-                                    style={{ width: '100%' }}
+                                    className="w-full"
                                     placeholder="Select Markets"
                                 />
                             </Col>
                         )}
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 name="campaign_id"
                                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                                 options={campaignOptions}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Campaign"
                             />
                         </Col>
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 name="customer_id"
                                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                                 options={customerOptions}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Customer"
                             />
                         </Col>
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 name="affiliate_id"
                                 onChange={(value) => affiliateHandleChange(value)}
                                 defaultValue={selectedAffiliate}
                                 options={affiliateOptions}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Affiliates"
                                 singleSelect
                             />
                         </Col>
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 name="dialedPhone"
                                 onChange={(value) => handleDialedPhoneChange(value)}
                                 defaultValue={selectedDialed}
                                 options={dialedOptions}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Dialed Phone"
                             />
                         </Col>
-                        <Col span={24} style={{ paddingBottom: 5 }}>
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 name="year"
                                 onChange={(val) => yearHandleChange(val, 'year')}
                                 options={yearOptions}
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Years"
                             />
                         </Col>
@@ -557,7 +557,7 @@ const RingbaReports = () => {
                                 <Col span={24}>
                                     <MultiSelect
                                         placeholder="Select Broadcast Month"
-                                        style={{ width: '100%' }}
+                                        className="w-full"
                                         options={broadCastMonthsOptions}
                                         onChange={(value) => monthHandleChange(value)}
                                         singleSelect
@@ -566,7 +566,7 @@ const RingbaReports = () => {
                                 <Col span={24}>
                                     <MultiSelect
                                         placeholder="Select Broadcast Week"
-                                        style={{ width: '100%' }}
+                                        className="w-full"
                                         options={broadCastWeeksOptions}
                                         onChange={(value) => weekHandleChange(value)}
                                         singleSelect
@@ -578,7 +578,7 @@ const RingbaReports = () => {
                                         <DatePicker
                                             value={startDate.start_date ? dayjs(startDate.start_date) : null}
                                             onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
-                                            style={{ width: '100%' }}
+                                            className="w-full"
                                         />
                                     </div>
                                 </Col>
@@ -588,7 +588,7 @@ const RingbaReports = () => {
                                         <DatePicker
                                             value={endDate.end_date ? dayjs(endDate.end_date) : null}
                                             onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
-                                            style={{ width: '100%' }}
+                                            className="w-full"
                                         />
                                     </div>
                                 </Col>

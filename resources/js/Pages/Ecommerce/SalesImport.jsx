@@ -205,8 +205,8 @@ const SalesImport = () => {
 
     if (loading.gettingFieldsMap) {
       message = (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Spin size="small" style={{ marginRight: '5px' }} /> Fetching fields map...
+        <div className="flex items-center">
+          <Spin size="small" className="mr-[5px]" /> Fetching fields map...
         </div >
       )
     } else if (savedFieldsMap === null) {
@@ -216,7 +216,7 @@ const SalesImport = () => {
     } else if (savedFieldsMap.length && fileSelected) {
       message = (
         <div>
-          <span style={{ marginRight: '5px' }}>
+          <span className="mr-[5px]">
             Key (fields map) available.
           </span>
           <Checkbox
@@ -272,13 +272,13 @@ const SalesImport = () => {
         <b>Caution:</b> For CSV import, pick the call date and call time both; otherwise, an error will be generated.
         Additionally, if the date format is incorrect, the order will be uploaded with the current date.
       </Note >
-      <div style={{ display: 'grid', width: '600px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
-        <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[600px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
+        <Title level={5} className="text-center mb-[35px]">
           Import Sales Report
         </Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[0, 16]}>
-            <Col span={24} style={{ paddingBottom: '5px' }}>
+            <Col span={24} className="pb-[5px]">
               <div>
                 <label>Select Campaign</label>
                 <Select
@@ -291,7 +291,7 @@ const SalesImport = () => {
                 />
               </div>
             </Col>
-            <Col span={24} style={{ paddingBottom: '5px' }}>
+            <Col span={24} className="pb-[5px]">
               <div>
                 <label>Select Customer</label>
                 <Select
@@ -304,7 +304,7 @@ const SalesImport = () => {
                 />
               </div>
             </Col>
-            <Col span={24} style={{ paddingBottom: '5px' }}>
+            <Col span={24} className="pb-[5px]">
               <div>
                 <label>Select Order Type</label>
                 <Select
@@ -317,7 +317,7 @@ const SalesImport = () => {
                 />
               </div>
             </Col>
-            <Col span={24} style={{ paddingBottom: '5px' }}>
+            <Col span={24} className="pb-[5px]">
               <label htmlFor="file">Select Sales Report</label>
               <input
                 id="file"
@@ -331,14 +331,14 @@ const SalesImport = () => {
                 <b>Supported File Type: csv, xlsx</b>
               </small>
             </Col>
-            <Col span={24} style={{ paddingBottom: '5px' }} >
+            <Col span={24} className="pb-[5px]" >
               <div className="apply-fields-map">
                 {showApplyFieldsMap()}
               </div>
             </Col>
             {fileSelected && (
               <Col span={24}>
-                <div className="flx flx-around mt-4 mb-2" style={{ marginRight: 40 }}>
+                <div className="flx flx-around mt-4 mb-2 mr-10">
                   <b>Application Field</b>
                   <b>Report Field</b>
                 </div>
@@ -353,7 +353,7 @@ const SalesImport = () => {
                       reportFields={reportFields}
                     />
                   ))}
-                <div className="txt-center w-full mt-2" style={{ transform: 'translateX(-16px)' }}>
+                <div className="txt-center w-full mt-2 -translate-x-4">
                   <button
                     onClick={() => addFieldMap(fieldMap.length)}
                     className="icn-btn sh-sm"
@@ -365,8 +365,8 @@ const SalesImport = () => {
               </Col>
             )}
           </Row>
-          <Row justify="end" style={{ marginTop: '20px' }}>
-            <Col style={{ marginRight: '8px' }}>
+          <Row justify="end" className="mt-5">
+            <Col className="mr-2">
               <Button
                 danger={!!fieldsMapSaveError}
                 disabled={!checkMappedFields() || !values.campaign_id || !values.customer_id || !values.order_type || loading.fieldMap || loading.import}

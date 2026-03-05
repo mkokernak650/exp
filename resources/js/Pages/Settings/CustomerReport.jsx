@@ -15,7 +15,7 @@ import NormalModal from '@/Shared/NormalModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/CustomerReportProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/CustomerReportProps'
 import TextInput from '../../Components/Global/TextInput'
 
 const CustomerReport = () => {
@@ -139,7 +139,7 @@ const CustomerReport = () => {
   const TableToolbar = () => (
     <div className="table-toolbar">
       <Tooltip title="Delete"><Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} /></Tooltip>
-      <Button type="primary" style={styles.button} onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</Button>
+      <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</Button>
       <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
     </div>
   )
@@ -202,7 +202,7 @@ const CustomerReport = () => {
             <TextInput label="Address" name="address" handleChange={handleEditChange} value={editData ? editData.address : ''} />
             <TextInput label="Contact Name" name="contact_name" handleChange={handleEditChange} value={editData ? editData.contact_name : ''} />
             <TextInput label="Contact Telephone" name="contact_telephone" handleChange={handleEditChange} value={editData ? editData.contact_telephone : ''} />
-            <Button type="primary" onClick={handleEditSubmit} style={styles.editButton}>Edit</Button>
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
           </form>
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
         </div>

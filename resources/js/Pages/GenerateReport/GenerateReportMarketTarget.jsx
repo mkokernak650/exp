@@ -341,8 +341,8 @@ const GenerateReportMarketTarget = () => {
   return (
     <>
       <Helmet title="Generate Report Homes Per Call" />
-      <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
+      <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Generate Report Homes Per Call
         </Typography.Title>
         <form validate="true" className="generate-report">
@@ -375,7 +375,7 @@ const GenerateReportMarketTarget = () => {
                       name="state"
                       onChange={(val) => stateHandleChange(val, 'state')}
                       options={stateOptions}
-                      style={{ width: '100%' }}
+                      className="w-full"
                       placeholder="Select State"
                     />
                   </Col>
@@ -400,7 +400,7 @@ const GenerateReportMarketTarget = () => {
                       name="market"
                       onChange={(val) => marketHandleChange(val, 'market')}
                       options={marketOptions}
-                      style={{ width: '100%' }}
+                      className="w-full"
                       placeholder="Select Market"
                     />
                   </Col>
@@ -413,7 +413,7 @@ const GenerateReportMarketTarget = () => {
                 onChange={customerHandleChange}
                 placeholder="Select Customer"
                 allowClear
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {targets
                   .map((option) => option.Customer)
@@ -430,7 +430,7 @@ const GenerateReportMarketTarget = () => {
                 onChange={campaignHandleChange}
                 placeholder="Select Campaign"
                 allowClear
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {campaigns.map((campaign, key) => (
                   <Select.Option key={key} value={campaign.id}>
@@ -444,7 +444,7 @@ const GenerateReportMarketTarget = () => {
                 name="target_name"
                 onChange={(val) => targetHandleChange(val, 'target_name')}
                 options={targetOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Targets"
               />
             </Col>
@@ -454,7 +454,7 @@ const GenerateReportMarketTarget = () => {
                 onChange={annotationHandleChange}
                 placeholder="Select Annotation"
                 allowClear
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 <Select.Option value="yes">Yes</Select.Option>
                 <Select.Option value="no">No</Select.Option>
@@ -465,7 +465,7 @@ const GenerateReportMarketTarget = () => {
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
                 options={affiliateOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Affiliates"
               />
             </Col>
@@ -475,7 +475,7 @@ const GenerateReportMarketTarget = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -484,7 +484,7 @@ const GenerateReportMarketTarget = () => {
                 onChange={monthHandleChange}
                 placeholder="Select Broadcast Month"
                 allowClear
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {monthByYear.map((option, indx) => (
                   <Select.Option key={indx} value={option.broad_cast_month}>
@@ -499,7 +499,7 @@ const GenerateReportMarketTarget = () => {
                 onChange={weekHandleChange}
                 placeholder="Select Broadcast Week"
                 allowClear
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {broadCastWeeks.map((option, indx) => (
                   <Select.Option key={indx} value={option.broad_cast_week}>
@@ -515,7 +515,7 @@ const GenerateReportMarketTarget = () => {
                 <DatePicker
                   value={startDate.start_date ? dayjs(startDate.start_date) : null}
                   onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>
@@ -525,7 +525,7 @@ const GenerateReportMarketTarget = () => {
                 <DatePicker
                   value={endDate.end_date ? dayjs(endDate.end_date) : null}
                   onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>

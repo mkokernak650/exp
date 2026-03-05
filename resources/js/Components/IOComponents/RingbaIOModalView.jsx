@@ -21,7 +21,7 @@ export default function RingbaIOModalView({ viewData }) {
                     <table>
                         <tbody>
                             <tr>
-                                <td style={{ width: "60%" }}>
+                                <td className="w-[60%]">
                                     <ul>
                                         <li>{billingDetailsForView?.name}</li>
                                         <li>{billingDetailsForView?.contactName}</li>
@@ -30,7 +30,7 @@ export default function RingbaIOModalView({ viewData }) {
                                         <li>{billingDetailsForView?.address}</li>
                                     </ul>
                                 </td>
-                                <td style={{ width: "40%" }}>
+                                <td className="w-[40%]">
                                     {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br />
                                     {ioFor === 'customer' ? 'Dub Order or Notification' : 'Traffic Instructions'} <br /> <br />
                                     {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetailsForView?.ioNo}
@@ -50,23 +50,23 @@ export default function RingbaIOModalView({ viewData }) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th style={{ width: "20%" }}>Title Name</th>
-                                    <th style={{ width: "40%" }}>Description</th>
-                                    <th style={{ width: "10%" }}>Terms</th>
-                                    <th style={{ width: "20%" }}>Phone</th>
-                                    <th style={{ width: "10%" }}>{ioFor === 'customer' ? 'Rate' : 'Net Payout'}</th>
+                                    <th className="w-[20%]">Title Name</th>
+                                    <th className="w-[40%]">Description</th>
+                                    <th className="w-[10%]">Terms</th>
+                                    <th className="w-[20%]">Phone</th>
+                                    <th className="w-[10%]">{ioFor === 'customer' ? 'Rate' : 'Net Payout'}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {orderDetailsForView.map((item, index) => (
                                     <tr key={index + 1}>
                                         <td>{item.titleName}</td>
-                                        <td style={{ fontSize: "12px" }}>
+                                        <td className="text-xs">
                                             {item.description}
                                             {(item.videoUrl && ioFor === 'affiliate') &&
                                                 <>
                                                     <br />
-                                                    <a href={item.videoUrl} target="_blank" style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Download TV Commercial</a>
+                                                    <a href={item.videoUrl} target="_blank" className="underline font-bold">Download TV Commercial</a>
                                                 </>
                                             }
                                         </td>
@@ -76,7 +76,7 @@ export default function RingbaIOModalView({ viewData }) {
                                     </tr>
                                 ))}
                                 {/* <tr>
-                                    <td colSpan="3" rowSpan="3" style={{ textAlign: "center" }}>Thank You</td>
+                                    <td colSpan="3" rowSpan="3" className="text-center">Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${orderDetailsForView.netPrice.toFixed(2)}</td>
                                 </tr>

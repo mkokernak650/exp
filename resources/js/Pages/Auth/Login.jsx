@@ -25,92 +25,47 @@ const Login = () => {
 
   return (
     <div
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-      }}
+      className="bg-no-repeat bg-cover h-screen flex justify-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div
-        style={{
-          width: "600px",
-          height: "350px",
-          marginTop: "150px",
-          padding: "30px",
-          borderRadius: "40px 146px 40px 146px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-          background: "#fff",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
-        }}
-      >
-        <div
-          style={{
-            height: "100px",
-            background: "#ffcc00",
-            width: "100px",
-            position: "absolute",
-            borderRadius: "100%",
-            right: "-50px",
-          }}
-        />
-        <div
-          style={{
-            height: "100px",
-            background: "#f3327f",
-            width: "100px",
-            position: "absolute",
-            borderRadius: "100%",
-            left: "-50px",
-          }}
-        />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            justifyContent: "center",
-          }}
-        >
+      <div className="w-[600px] h-[350px] mt-[150px] p-[30px] rounded-[40px_146px_40px_146px] flex justify-center items-center relative bg-white shadow">
+        <div className="h-[100px] bg-[#ffcc00] w-[100px] absolute rounded-full -right-[50px]" />
+        <div className="h-[100px] bg-[#f3327f] w-[100px] absolute rounded-full -left-[50px]" />
+        <div className="flex flex-col h-full justify-center">
           <div className="max-w-sm mx-auto">
             <form validate="true" onSubmit={handleSubmit}>
-              <div style={{ marginBottom: 24 }}>
-                <Typography.Title level={4} style={{ textAlign: "center" }}>
+              <div className="mb-6">
+                <Typography.Title level={4} className="text-center">
                   Sign in
                 </Typography.Title>
               </div>
               {errors.email && (
-                <div style={{ color: "#f71328" }}>{errors.email}</div>
+                <div className="text-[#f71328]">{errors.email}</div>
               )}
-              <div style={{ marginTop: 16, marginBottom: 8 }}>
-                <label style={{ display: "block", marginBottom: 4 }}>Email Address</label>
+              <div className="mt-4 mb-2">
+                <label className="block mb-1">Email Address</label>
                 <Input
                   name="email"
                   onChange={onHandleChange}
                   type="email"
                   value={data.email}
                   required
-                  style={{ width: "100%" }}
+                  className="w-full"
                 />
               </div>
-              <div style={{ marginTop: 16, marginBottom: 8 }}>
-                <label style={{ display: "block", marginBottom: 4 }}>Password</label>
+              <div className="mt-4 mb-2">
+                <label className="block mb-1">Password</label>
                 <Input
                   name="password"
                   onChange={onHandleChange}
                   type={showPassword ? 'text' : 'password'}
                   value={data.password}
                   required
-                  style={{ width: "100%" }}
+                  className="w-full"
                   suffix={
                     <span
                       onClick={handleClickShowPassword}
-                      style={{ cursor: "pointer" }}
+                      className="cursor-pointer"
                       aria-label="toggle password visibility"
                     >
                       {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
@@ -119,19 +74,15 @@ const Login = () => {
                 />
               </div>
               {errors.password && (
-                <div style={{ color: "#f71328" }}>{errors.password}</div>
+                <div className="text-[#f71328]">{errors.password}</div>
               )}
 
-              <div style={{ paddingTop: 16, paddingBottom: 16 }}>
+              <div className="py-4">
                 <Button
                   type="primary"
                   size="large"
                   htmlType="submit"
-                  style={{
-                    backgroundColor: "#3b3e61",
-                    textTransform: "none",
-                    borderColor: "#3b3e61",
-                  }}
+                  className="bg-[#3b3e61] normal-case border-[#3b3e61]"
                 >
                   Sign in
                 </Button>

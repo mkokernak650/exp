@@ -67,7 +67,7 @@ const SendCampaign = () => {
                         <div>
                             <p className="font-medium pl-1">Select Affiliates</p>
                             <MultiSelect
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Select Affiliates"
                                 options={[{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateOptions]}
                                 defaultValue={data.selectedAffiliates}
@@ -77,7 +77,7 @@ const SendCampaign = () => {
                         <div>
                             <p className="font-medium pl-1">Add additional emails</p>
                             <MultiSelect
-                                style={{ width: '100%' }}
+                                className="w-full"
                                 placeholder="Write and press enter or comma(,) to add additional emails"
                                 defaultValue={data.additionalEmails}
                                 onChange={(value) => setData('additionalEmails', value)}

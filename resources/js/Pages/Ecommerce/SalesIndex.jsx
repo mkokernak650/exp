@@ -16,7 +16,7 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { Pagination } from 'react-laravel-paginex'
-import { columns as defaultColumns, styles, fields, groups, filter } from './Helpers/SalesIndexProps'
+import { columns as defaultColumns, fields, groups, filter } from './Helpers/SalesIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -402,7 +402,7 @@ const SalesIndex = () => {
                 type="primary"
                 onClick={exportHandler}
                 disabled={sales == ''}
-                style={styles.button}
+                className="capitalize text-sm"
                 loading={loading}
               >
                 Searched Export
@@ -412,21 +412,21 @@ const SalesIndex = () => {
               <MultiSelect
                 options={campaignOptions}
                 placeholder="Campaign"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 onChange={(value) => setFilterByCampaigns(value)}
                 defaultValue={filterByCampaigns}
               />
               <MultiSelect
                 options={customerOptions}
                 placeholder="Customer"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
               />
               <MultiSelect
                 options={affiliateOptions}
                 placeholder="Affiliate"
-                style={{ width: '250px' }}
+                className="w-[250px]"
                 onChange={(value) => setFilterByAffiliates(value)}
                 defaultValue={filterByAffiliates}
               />
@@ -435,7 +435,7 @@ const SalesIndex = () => {
                 <DatePicker
                   value={filterByDate.startDate ? dayjs(filterByDate.startDate) : null}
                   onChange={(date, dateString) => dateHandleChange({ target: { name: 'startDate', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
               <div>
@@ -443,7 +443,7 @@ const SalesIndex = () => {
                 <DatePicker
                   value={filterByDate.endDate ? dayjs(filterByDate.endDate) : null}
                   onChange={(date, dateString) => dateHandleChange({ target: { name: 'endDate', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -677,7 +677,7 @@ const SalesIndex = () => {
             <Button
               type="primary"
               onClick={handleEditSubmit}
-              style={styles.editButton}
+              className="mt-[15px]"
             >
               Update
             </Button>

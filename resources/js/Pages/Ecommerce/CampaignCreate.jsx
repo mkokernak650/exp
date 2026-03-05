@@ -70,8 +70,8 @@ const CampaignCreate = () => {
   return (
     <>
       <Helmet title="Create Campaign" />
-      <div style={{ display: "grid", width: "500px", margin: "auto", marginTop: "2rem", padding: "40px", flexGrow: 1, minHeight: "500px" }} className="shadow-md rounded-lg bg-white">
-        <Title level={5} style={{ textAlign: "center", marginBottom: "35px" }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 grow min-h-[500px] shadow-md rounded-lg bg-white">
+        <Title level={5} className="text-center mb-[35px]">
           Create Campaign
         </Title>
         <form onSubmit={handleSubmit}>
@@ -98,7 +98,7 @@ const CampaignCreate = () => {
                 options={customersOption}
                 defaultValue={values.customer_id}
                 onChange={value => CustomerHandleChange(value)}
-                style={{ width: '100%' }}
+                className="w-full"
               />
             </Col>
 

@@ -37,8 +37,8 @@ const AnnotationCreate = () => {
   return (
     <>
       <Helmet title="Create Annotations" />
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Create Annotations
         </Typography.Title>
         <form onSubmit={handleSubmit}>
@@ -47,7 +47,7 @@ const AnnotationCreate = () => {
               <Select
                 placeholder="Select Campaign"
                 onChange={(value) => handleChange({ target: { name: 'campaign_id', value } })}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {allCampaigns.map((option, indx) => (
                   <Select.Option key={indx} value={option.id}>
@@ -64,7 +64,7 @@ const AnnotationCreate = () => {
                   type="text"
                   name="annotation_name"
                   onChange={handleChange}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   required
                 />
               </div>

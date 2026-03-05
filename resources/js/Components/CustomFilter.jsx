@@ -152,7 +152,7 @@ const CustomFilter = (props) => {
                     }
                   }, indx);
                 }}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {fields?.map((fieldName, uniqueKey) => (
                   <Select.Option
@@ -169,7 +169,7 @@ const CustomFilter = (props) => {
               <Select
                 value={cItem.operator}
                 onChange={(value) => handleChange({ target: { name: 'operator', value } }, indx)}
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {fields[fields.findIndex((item) => item.name === cItem.field)]?.operators?.map(
                   (operator, uniqueKey) => (

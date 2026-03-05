@@ -16,7 +16,7 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/TVHouseholdsReportProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/TVHouseholdsReportProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -189,9 +189,9 @@ const CustomerReport = () => {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
-              <Button type="primary" style={styles.button} onClick={openImportModal}>Import</Button>
-              <Button type="primary" style={styles.button} onClick={exportHandler} disabled={allTVHouseholds == ''} loading={loading}>Searched Export</Button>
-              <div className="top-left"><MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" style={{ width: '280px' }} defaultValue={orderByValue} singleSelect /></div>
+              <Button type="primary" className="capitalize text-sm" onClick={openImportModal}>Import</Button>
+              <Button type="primary" className="capitalize text-sm" onClick={exportHandler} disabled={allTVHouseholds == ''} loading={loading}>Searched Export</Button>
+              <div className="top-left"><MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect /></div>
             </div>
             <div className="search-icon" onClick={handleSearch}><span>Search Here</span><Search /></div>
             {serachSidebar ? (<div className="search-sidebar"><div className="search-top"><div className="title"><span>Search</span></div><a className="close-nav" onClick={closeSidebar}><Cancel /></a></div><div className="top-element"><FilterControl {...{ fields, groups, filterValue, onFilterValueChanged: onFilterChanged }} /></div></div>) : ''}
@@ -213,10 +213,10 @@ const CustomerReport = () => {
       <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit TV Households'}>
         <div className="edit_target">
           <form>
-            <div className="mb-4"><span>Market:</span><Input value={editData ? editData.market : ''} name="market" onChange={handleEditChange} style={{ width: '100%' }} /></div>
-            <div className="mb-4"><span>State:</span><Input value={editData ? editData.state : ''} name="state" onChange={handleEditChange} style={{ width: '100%' }} /></div>
-            <div className="mb-4"><span>TV Households:</span><Input value={editData ? editData.tv_households : ''} name="tv_households" onChange={handleEditChange} style={{ width: '100%' }} /></div>
-            <Button type="primary" onClick={handleEditSubmit} style={styles.editButton}>Edit</Button>
+            <div className="mb-4"><span>Market:</span><Input value={editData ? editData.market : ''} name="market" onChange={handleEditChange} className="w-full" /></div>
+            <div className="mb-4"><span>State:</span><Input value={editData ? editData.state : ''} name="state" onChange={handleEditChange} className="w-full" /></div>
+            <div className="mb-4"><span>TV Households:</span><Input value={editData ? editData.tv_households : ''} name="tv_households" onChange={handleEditChange} className="w-full" /></div>
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
           </form>
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
         </div>

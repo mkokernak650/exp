@@ -15,7 +15,7 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
 import TextInput from '@/Components/Global/TextInput'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -188,7 +188,7 @@ const AffiliateReport = () => {
         <Tooltip title="Delete">
           <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
-        <Button type="primary" style={styles.button} onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</Button>
+        <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</Button>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
@@ -239,7 +239,7 @@ const AffiliateReport = () => {
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
               <div className="top-left">
-                <MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" style={{ width: '280px' }} defaultValue={orderByValue} singleSelect />
+                <MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect />
               </div>
             </div>
             <div className="search-icon" onClick={handleSearch}><span>Search Here</span><Search /></div>
@@ -272,15 +272,15 @@ const AffiliateReport = () => {
             <TextInput label="Email" name="email" type="email" handleChange={handleEditChange} value={editData ? editData.email : ''} />
             <TextInput label="Telephone" name="telephone" handleChange={handleEditChange} value={editData ? editData.telephone : ''} />
             <TextInput label="Address" name="address" handleChange={handleEditChange} value={editData ? editData.address : ''} />
-            <div style={styles.formControl}>
-              <div style={{ marginBottom: 4 }}><label>Select Market</label></div>
-              <Select id="market" placeholder="Select Market" value={editData ? editData.market : undefined} onChange={(value) => handleEditChange({ target: { name: 'market', value } })} style={{ width: '100%' }} allowClear>
+            <div className="mt-[15px] mb-[10px]">
+              <div className="mb-1"><label>Select Market</label></div>
+              <Select id="market" placeholder="Select Market" value={editData ? editData.market : undefined} onChange={(value) => handleEditChange({ target: { name: 'market', value } })} className="w-full" allowClear>
                 {allMarkets.map((item) => (<Select.Option key={item.market} value={item.market}>{item.market}</Select.Option>))}
               </Select>
             </div>
             <TextInput label="Contact Name" name="contact_name" handleChange={handleEditChange} value={editData ? editData.contact_name : ''} />
             <TextInput label="Contact Telephone" name="contact_telephone" handleChange={handleEditChange} value={editData ? editData.contact_telephone : ''} />
-            <Button type="primary" onClick={handleEditSubmit} style={styles.editButton}>Edit</Button>
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
           </form>
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
         </div>

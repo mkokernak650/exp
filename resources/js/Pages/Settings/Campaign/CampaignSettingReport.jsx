@@ -15,7 +15,7 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { columns as defaultColumns, styles, fields, groups, filter } from './Helpers/CampaignSettingReportProps'
+import { columns as defaultColumns, fields, groups, filter } from './Helpers/CampaignSettingReportProps'
 
 const CampaignSettingReport = () => {
   const { allCampaigns, columnsData } = usePage().props
@@ -176,7 +176,7 @@ const CampaignSettingReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button type="text" icon={<DeleteOutlined className="text-[#031b4e]" />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -267,18 +267,18 @@ const CampaignSettingReport = () => {
       }
       if (col.key === 'actions') {
         base.render = (value) => (
-          <div style={{ display: 'flex' }}>
+          <div className="flex">
             <InertiaLink href={route('campaign.annotations', value)}>
               <Button type="primary">
                 Annotations
               </Button>
             </InertiaLink>
-            <InertiaLink href={route('campaign.exceptions', value)} style={{ paddingLeft: '4px' }}>
+            <InertiaLink href={route('campaign.exceptions', value)} className="pl-1">
               <Button type="primary">
                 Exceptions
               </Button>
             </InertiaLink>
-            <div style={{ paddingLeft: '4px' }}>
+            <div className="pl-1">
               <Button type="primary" onClick={() => handleDescriptionModal(value)}>
                 Description and URLs
               </Button>
@@ -368,7 +368,7 @@ const CampaignSettingReport = () => {
               name="customer_id"
               type="text"
               onChange={handleEditChange}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <span>Market:</span>
             <Input
@@ -376,18 +376,18 @@ const CampaignSettingReport = () => {
               name="market_id"
               type="text"
               onChange={handleEditChange}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <span>Start Date:</span>
             <DatePicker
               value={editData?.start_date ? dayjs(editData.start_date) : null}
               onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
-              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
+              className="w-full mb-4 mt-2"
             />
             <Button
               type="primary"
               onClick={handleEditSubmit}
-              style={styles.editButton}
+              className="mt-[15px]"
             >
               Edit
             </Button>
@@ -407,28 +407,28 @@ const CampaignSettingReport = () => {
       >
         <div>
           <div>
-            <p style={{ textAlign: "center", marginBottom: "20px", marginTop: "-5px" }}>
+            <p className="text-center mb-5 -mt-[5px]">
               Description, Length & URLs for <strong>{descriptionModalData?.campaign_name}</strong>
             </p>
-            <div style={{ marginBottom: '4px' }}><label>Description</label></div>
+            <div className="mb-1"><label>Description</label></div>
             <Input.TextArea
               name="description"
               onChange={handleDescriptionChange}
               value={descriptionModalData.description === null ? '' : descriptionModalData?.description}
               spellCheck
               rows={4}
-              style={{ width: '100%' }}
+              className="w-full"
             />
-            <div style={{ marginBottom: '4px', marginTop: '30px' }}><label>Length and URL</label></div>
+            <div className="mb-1 mt-[30px]"><label>Length and URL</label></div>
             <Input.TextArea
               name="length_url"
               onChange={handleLengthUrlChange}
               value={descriptionModalData.length_url === null ? '' : descriptionModalData?.length_url}
               spellCheck
               rows={3}
-              style={{ width: '100%' }}
+              className="w-full"
             />
-            <div style={{ display: "flex", marginTop: "20px", justifyContent: "flex-end" }}>
+            <div className="flex mt-5 justify-end">
               <Button
                 type="primary"
                 onClick={updateDescription}

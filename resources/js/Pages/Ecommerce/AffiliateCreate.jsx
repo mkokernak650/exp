@@ -108,8 +108,8 @@ const AffiliateCreate = () => {
   return (
     <>
       <Helmet title="Create Coupon Code" />
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
-        <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
+        <Title level={5} className="text-center mb-[35px]">
           Create Coupon Code
         </Title>
         <form onSubmit={handleSubmit}>
@@ -232,12 +232,11 @@ const AffiliateCreate = () => {
 
             <Col span={24}>
               <MultiSelect
-                className='multiselect-for-affiliate-create'
+                className="multiselect-for-affiliate-create w-full"
                 name="lengths"
                 defaultValue={values?.lengths}
                 onChange={(val) => lengthHandleChange(val)}
                 options={lengthOptions}
-                style={{ width: '100%' }}
                 placeholder="Select Length"
               />
             </Col>

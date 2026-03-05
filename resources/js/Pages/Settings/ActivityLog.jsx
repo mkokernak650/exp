@@ -15,7 +15,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/ActivityLogProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/ActivityLogProps'
 import { DateTimeFormat } from '../../Helpers/DateTimeFormat'
 
 const ActivityLog = () => {
@@ -225,7 +225,7 @@ const ActivityLog = () => {
                 type="primary"
                 onClick={viewExport}
                 disabled={data.length < 1}
-                style={styles.button}
+                className="w-auto capitalize text-sm"
               >
                 View Export
               </Button>

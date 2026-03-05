@@ -79,7 +79,7 @@ const AddUser = () => {
                                 error={errors?.password}
                                 helperText={errors?.password?.[0]}
                                 suffix={
-                                    <span onClick={() => handleClickShowPassword('password')} style={{ cursor: 'pointer' }}>
+                                    <span onClick={() => handleClickShowPassword('password')} className="cursor-pointer">
                                         {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                                     </span>
                                 }
@@ -92,7 +92,7 @@ const AddUser = () => {
                                 error={errors?.password}
                                 helperText={errors?.password?.[0]}
                                 suffix={
-                                    <span onClick={() => handleClickShowPassword('cpassword')} style={{ cursor: 'pointer' }}>
+                                    <span onClick={() => handleClickShowPassword('cpassword')} className="cursor-pointer">
                                         {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                                     </span>
                                 }

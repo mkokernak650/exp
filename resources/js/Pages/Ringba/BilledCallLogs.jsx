@@ -186,7 +186,7 @@ const BilledCallLogs = () => {
 
       if (col.key === 'Recording_Url') {
         base.render = (value) => (
-          <audio className="audio-data" controls style={{ width: '100%' }}>
+          <audio className="audio-data w-full" controls>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
@@ -221,7 +221,7 @@ const BilledCallLogs = () => {
               defaultValue={arrayValue[0] || undefined}
               onChange={(value) => updateAnnotation(value, arrayValue[2], arrayValue[3])}
               size="small"
-              style={{ width: '100%' }}
+              className="w-full"
             >
               <Select.Option value="">Select Annotation</Select.Option>
               {campaignsWithAnnotations

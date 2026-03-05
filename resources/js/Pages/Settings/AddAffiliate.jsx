@@ -57,8 +57,8 @@ const AddAffiliate = () => {
         <p>For Ringba affiliates, fetching the Ringba data will fetch affiliates as well.</p>
         <p>To avoid duplicate affiliates, update Ringba data first, and then this page will prevent users from inserting duplicates.</p>
       </Note>
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Add Affiliate
         </Typography.Title>
         <form onSubmit={handleSubmit}>
@@ -93,8 +93,8 @@ const AddAffiliate = () => {
                 name="address"
                 handleChange={handleChange}
               />
-              <div style={{ paddingTop: 18 }}>
-                <div style={{ marginBottom: 4 }}>
+              <div className="pt-[18px]">
+                <div className="mb-1">
                   <label>Select Market</label>
                 </div>
                 <Select
@@ -104,7 +104,7 @@ const AddAffiliate = () => {
                   onChange={(value) => {
                     handleChange({ target: { name: 'market', value } })
                   }}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   status={errors?.market ? 'error' : undefined}
                   allowClear
                 >
@@ -112,7 +112,7 @@ const AddAffiliate = () => {
                     <Select.Option key={item.market} value={item.market}>{item.market}</Select.Option>
                   ))}
                 </Select>
-                {errors?.market && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.market?.[0]}</div>}
+                {errors?.market && <div className="text-red-500 text-xs">{errors?.market?.[0]}</div>}
               </div>
               <TextInput
                 label="Contact Name"

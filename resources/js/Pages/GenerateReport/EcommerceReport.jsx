@@ -513,13 +513,13 @@ const EcommerceReport = () => {
   return (
     <>
       <Helmet title="Reports" />
-      <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
+      <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Reports
         </Typography.Title>
         <form validate="true" className="generate-report">
           <Row gutter={[0, 16]}>
-            <Col span={24} style={{ paddingBottom: 5 }}>
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 singleSelect
                 name="reportFor"
@@ -529,11 +529,11 @@ const EcommerceReport = () => {
                   { label: 'Pay Per Order', value: 'payPerOrder' },
                   { label: 'Cash Buy', value: 'cashBuy' },
                 ]}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Report For"
               />
             </Col>
-            <Col span={24} style={{ paddingBottom: 5 }}>
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 singleSelect
                 name="order_type"
@@ -544,11 +544,11 @@ const EcommerceReport = () => {
                   { label: 'E-commerce', value: '1' },
                   { label: 'Phone', value: '2' },
                 ]}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Order Type"
               />
             </Col>
-            <Col span={24} style={{ paddingBottom: 5, marginBottom: 15 }}>
+            <Col span={24} className="pb-[5px] mb-[15px]">
               <MultiSelect
                 singleSelect
                 name="reportOn"
@@ -560,93 +560,93 @@ const EcommerceReport = () => {
                   { label: 'Summary Report', value: 'summary' },
                   { label: 'Export CSV Report', value: 'exportCSV' },
                 ]}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Report On"
               />
             </Col>
-            <Col span={24} style={{ paddingTop: 0, marginBottom: -10 }}>
+            <Col span={24} className="pt-0 mb-[-10px]">
               <Divider />
             </Col>
             {market.length < 1 && (
-              <Col span={24} style={{ paddingBottom: 5 }}>
+              <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="states"
                   onChange={(val) => stateHandleChange(val, 'states')}
                   options={[{ label: 'All States', value: 'allStates,' }].concat(stateOptions)}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   placeholder="Select States"
                 />
               </Col>
             )}
             {state.length < 1 && (
-              <Col span={24} style={{ paddingBottom: 5 }}>
+              <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="markets"
                   onChange={(val) => marketHandleChange(val, 'markets')}
                   options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   placeholder="Select Markets"
                 />
               </Col>
             )}
-            <Col span={24} style={{ paddingBottom: 5 }}>
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="campaign_id"
                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                 options={campaignOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Campaign"
               />
             </Col>
-            <Col span={24} style={{ paddingBottom: 5 }}>
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="customer_id"
                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                 options={customerOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Customer"
               />
             </Col>
-            <Col span={24} style={{ paddingBottom: 5 }}>
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
                 options={affiliateOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Affiliates"
                 singleSelect
               />
             </Col>
             {(orderType.orderType === 'both' || orderType.orderType == 1) && (
-              <Col span={24} style={{ paddingBottom: 5 }}>
+              <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="couponCodes"
                   defaultValue={couponCode?.couponCodes}
                   onChange={(val) => couponCodeHandleChange(val, 'couponCodes')}
                   options={couponCodeList}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   placeholder="Select Coupon Codes"
                 />
               </Col>
             )}
             {(orderType.orderType === 'both' || orderType.orderType == 2) && (
-              <Col span={24} style={{ paddingBottom: 5 }}>
+              <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="dialed"
                   defaultValue={dialed?.dialed}
                   onChange={(val) => dialedHandleChange(val, 'dialed')}
                   options={dialedPhoneList}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   placeholder="Select Dialed Phone"
                 />
               </Col>
             )}
-            <Col span={24} style={{ paddingBottom: 5 }}>
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
-                style={{ width: '100%' }}
+                className="w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -657,7 +657,7 @@ const EcommerceReport = () => {
                     onChange={monthHandleChange}
                     placeholder="Select Broadcast Month"
                     allowClear
-                    style={{ width: '100%' }}
+                    className="w-full"
                   >
                     {broadCastMonths.map((option, indx) => (
                       <Select.Option key={indx} value={option.broad_cast_month}>
@@ -671,7 +671,7 @@ const EcommerceReport = () => {
                     onChange={weekHandleChange}
                     placeholder="Select Broadcast Week"
                     allowClear
-                    style={{ width: '100%' }}
+                    className="w-full"
                   >
                     {broadCastWeeks.map((option, indx) => (
                       <Select.Option key={indx} value={option.broad_cast_week}>
@@ -686,7 +686,7 @@ const EcommerceReport = () => {
                     <DatePicker
                       value={startDate.start_date ? dayjs(startDate.start_date) : null}
                       onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
-                      style={{ width: '100%' }}
+                      className="w-full"
                     />
                   </div>
                 </Col>
@@ -696,7 +696,7 @@ const EcommerceReport = () => {
                     <DatePicker
                       value={endDate.end_date ? dayjs(endDate.end_date) : null}
                       onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
-                      style={{ width: '100%' }}
+                      className="w-full"
                     />
                   </div>
                 </Col>

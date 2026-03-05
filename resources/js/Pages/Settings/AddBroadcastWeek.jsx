@@ -41,13 +41,13 @@ const AddBroadcastWeek = () => {
   return (
     <>
       <Helmet title="Add Broadcast Week" />
-      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
-        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
+      <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
+        <Typography.Title level={5} className="text-center mb-[35px]">
           Add Broadcast Week
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
           <Row gutter={[16, 16]}>
-            <Col span={24} style={{ padding: '4px', marginBottom: '15px' }}>
+            <Col span={24} className="p-1 mb-[15px]">
               <div>
                 <label>Broadcast Week</label>
                 <Input
@@ -55,28 +55,28 @@ const AddBroadcastWeek = () => {
                   onChange={handleChange}
                   type="text"
                   required
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>
-            <Col span={24} style={{ padding: '4px', marginBottom: '15px' }}>
+            <Col span={24} className="p-1 mb-[15px]">
               <div>
                 <label>Start Date</label>
                 <DatePicker
                   defaultValue={dayjs()}
                   onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>
 
-            <Col span={24} style={{ padding: '4px', marginBottom: '15px' }}>
+            <Col span={24} className="p-1 mb-[15px]">
               <div>
                 <label>End Date</label>
                 <DatePicker
                   defaultValue={dayjs()}
                   onChange={(date, dateString) => handleChange({ target: { name: 'end_date', value: dateString } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
               </div>
             </Col>

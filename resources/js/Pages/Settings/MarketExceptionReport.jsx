@@ -16,7 +16,7 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
+import { fields, groups, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
 import { Row, Col } from 'antd'
 
 const MarketExceptionReport = () => {
@@ -224,7 +224,7 @@ const MarketExceptionReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button type="text" icon={<DeleteOutlined className="text-[#031b4e]" />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -280,7 +280,7 @@ const MarketExceptionReport = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                style={styles.button}
+                className="w-[130px] capitalize text-sm"
                 onClick={openExportModal}
                 disabled={marketExceptions == ''}
               >
@@ -350,7 +350,7 @@ const MarketExceptionReport = () => {
                 <Select
                   placeholder="Select Campaign"
                   onChange={(value) => handleEditChange({ target: { name: 'campaign_id', value } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   value={editData?.campaign_id ? editData.campaign_id : undefined}
                 >
                   {allCampaigns.map((option, indx) => (
@@ -364,7 +364,7 @@ const MarketExceptionReport = () => {
                 <Select
                   placeholder="Select State"
                   onChange={(value) => handleEditChange({ target: { name: 'state', value } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   value={editData?.state ? editData.state : undefined}
                 >
                   {allStates.map((option, indx) => (
@@ -378,7 +378,7 @@ const MarketExceptionReport = () => {
                 <Select
                   placeholder="Select Market"
                   onChange={(value) => handleEditChange({ target: { name: 'market_id', value } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   value={editData?.market_id}
                 >
                   {allMarkets.map((option, indx) => (
@@ -392,7 +392,7 @@ const MarketExceptionReport = () => {
                 <Select
                   placeholder="Call Type"
                   onChange={(value) => handleEditChange({ target: { name: 'call_type', value } })}
-                  style={{ width: '100%' }}
+                  className="w-full"
                   value={editData?.call_type ? editData.call_type : undefined}
                 >
                   <Select.Option value="L">Landline (L)</Select.Option>
@@ -405,7 +405,7 @@ const MarketExceptionReport = () => {
                   <DatePicker
                     value={editData?.start_date ? dayjs(editData.start_date) : null}
                     onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
-                    style={{ width: '100%' }}
+                    className="w-full"
                   />
                 </div>
               </Col>
@@ -416,7 +416,7 @@ const MarketExceptionReport = () => {
                   name="ranks"
                   type="text"
                   onChange={handleEditChange}
-                  style={{ width: '100%', marginTop: '8px' }}
+                  className="w-full mt-2"
                 />
               </Col>
               <Col span={24}>
@@ -426,14 +426,14 @@ const MarketExceptionReport = () => {
                   name="nielsen_households"
                   type="text"
                   onChange={handleEditChange}
-                  style={{ width: '100%', marginTop: '8px' }}
+                  className="w-full mt-2"
                 />
               </Col>
               <Col span={24}>
                 <Button
                   type="primary"
                   onClick={handleEditSubmit}
-                  style={styles.editButton}
+                  className="mt-[15px]"
                 >
                   Edit
                 </Button>
@@ -461,8 +461,8 @@ const MarketExceptionReport = () => {
       ></ConfirmModal>
 
       <NormalModal open={exportModal.open} setOpen={setExportModal} width={'500px'} title={''}>
-        <div style={styles.topBtn}>
-          <div style={{ marginBottom: 8 }}>Select Type</div>
+        <div className="flex gap-2.5 ml-2.5">
+          <div className="mb-2">Select Type</div>
           <Radio.Group value={type} onChange={(e) => setType(e.target.value)}>
             <Radio value="xlsx">XLSX</Radio>
             <Radio value="csv">CSV</Radio>

@@ -17,7 +17,7 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import { Pagination } from 'react-laravel-paginex'
-import { columns as defaultColumns, buttonStyle } from './Helpers/ArchivedCallLogReportsProps'
+import { columns as defaultColumns } from './Helpers/ArchivedCallLogReportsProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -292,7 +292,7 @@ const ArchivedCallLogReports = () => {
 
         <Button
           type="primary"
-          style={buttonStyle}
+          className="w-auto capitalize text-sm"
           onClick={() => handleOpenModal(setShowCallLogModal)}
         >
           Move Call Log
