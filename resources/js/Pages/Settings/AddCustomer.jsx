@@ -1,37 +1,13 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Spin } from 'antd'
+import { Row, Col } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import TextInput from '@/Components/Global/TextInput'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-  snackbar: {
-    maxWidth: '500px',
-  },
-}))
-
 const AddCustomer = () => {
-  const classes = useStyles()
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
 
@@ -61,12 +37,12 @@ const AddCustomer = () => {
   return (
     <>
       <Helmet title="Add Customer" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Add Customer
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+        </Typography.Title>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={[16, 16]}>
             <TextInput
               label="Customer Name"
               name="customer"
@@ -99,18 +75,14 @@ const AddCustomer = () => {
               name="contact_telephone"
               handleChange={handleChange}
             />
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? (
-                  <CircularProgress color="secondary" thickness={3} size="2rem" />
-                ) : (
-                  'Submit'
-                )}
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Submit
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

@@ -1,7 +1,4 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -15,7 +12,7 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}))
+}
 
 export const fields = [
   {
@@ -207,49 +204,49 @@ export const columns = [
   {
     key: 'sl',
     title: 'SL',
-    dataType: DataType.Number,
+    dataType: 'number',
     style: { width: 100 },
     visible: false,
   },
   {
     key: 'campaign',
     title: 'Campaign',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
   {
     key: 'market_id',
     title: 'Market',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 350 },
     visible: true,
   },
   {
     key: 'state',
     title: 'State',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'call_type',
     title: 'Call Type',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'ranks',
     title: 'Rank',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'nielsen_households',
     title: 'Nielsen Households',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
@@ -257,7 +254,7 @@ export const columns = [
   {
     key: 'start_date',
     title: 'Start Date',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },

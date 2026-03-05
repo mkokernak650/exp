@@ -1,31 +1,26 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
 import { usePage } from '@inertiajs/inertia-react'
-import 'ka-table/style.scss'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import Eye from '@/Components/Icons/Eye.jsx'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { useStyles, columns } from './Helpers/CampaignAffiliateListProps'
-import { Button, CircularProgress } from '@material-ui/core'
+import { styles, columns as defaultColumns } from './Helpers/CampaignAffiliateListProps'
+import { Button, Table, Select } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const CampaignAffiliateList = () => {
-  const classes = useStyles()
   const { affiliateList, campaignId, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [tableLoading, setTableLoading] = useState(false)
   const showColumnRef = useRef()
   const [campaignAffiliateList, setCampaignAffiliateList] = useState(affiliateList)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
-  const [searchedData, setSearchData] = useState([])
   const [orderByValue, setOrderByValue] = useState('affiliates.affiliate_name@ASC')
 
   const mapDataArr = (data) => {
@@ -36,39 +31,30 @@ const CampaignAffiliateList = () => {
       tv_households: item.tv_households,
       created_at: item.created_at,
       id: item.id,
+      key: item.id,
     }))
   }
 
   const dataArray = mapDataArr(affiliateList)
+
+  const [data, setData] = useState(dataArray)
 
   const optionKey = 'campaign-affiliate-list'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-      //   ? JSON.parse(columnsData[0])?.[optionKey]
-      //   : 
-      columns,
-    loading: {
-      enabled: false,
-      text: 'Loading...',
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'affiliate_fee_type') {
-        return (value == 1 ? 'Payout Per Order' : 'Cash Buy')
-      }
-    }
-  }
+  const [columns, setColumns] = useState(defaultColumns)
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
+    })
+  }
 
   const orderByOptions = [
     { label: 'Affiliate Name (Ascending)', value: 'affiliates.affiliate_name@ASC' },
@@ -78,17 +64,6 @@ const CampaignAffiliateList = () => {
     { label: 'Created At (Ascending)', value: 'affiliates.created_at@ASC' },
     { label: 'Created At (Descending)', value: 'affiliates.created_at@DESC' }
   ]
-
-  const dispatch = (action) => {
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
-    })
-  }
 
   const handleColumns = () => {
     setShowColumns(true)
@@ -109,7 +84,7 @@ const CampaignAffiliateList = () => {
 
   const getSearchingData = async (data) => {
     setCurerentPage(data)
-    dispatch(showLoading())
+    setTableLoading(true)
     await axios
       .get(
         `/ecommerce-campaigns-affiliates/${campaignId}?page=` +
@@ -120,13 +95,13 @@ const CampaignAffiliateList = () => {
       )
       .then((res) => {
         setCampaignAffiliateList(res.data)
-        dispatch(hideLoading())
-        setSearchData(res.data.data)
+        setTableLoading(false)
+        setData(mapDataArr(res.data))
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
@@ -155,6 +130,26 @@ const CampaignAffiliateList = () => {
       })
   }
 
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+      if (col.key === 'affiliate_fee_type') {
+        base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
+      }
+      return base
+    })
+
   return (
     <>
       <Helmet title="Campaign Affiliate List" />
@@ -165,18 +160,13 @@ const CampaignAffiliateList = () => {
               <Eye />
             </div>
             <Button
-              variant="contained"
-              type="submit"
-              color="primary"
-              className={classes.button}
+              type="primary"
               onClick={exportHandler}
               disabled={campaignAffiliateList == ''}
+              style={styles.button}
+              loading={loading}
             >
-              {loading ? (
-                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-              ) : (
-                'Export'
-              )}
+              Export
             </Button>
           </div>
           <div className="top-left">
@@ -191,34 +181,33 @@ const CampaignAffiliateList = () => {
           </div>
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
-              <ColumnSettings {...tableProps} dispatch={dispatch} />
+              <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
             </div>
           ) : (
             ''
           )}
         </div>
         <Table
-          {...tableProps}
-          childComponents={{
-            noDataRow: {
-              content: () => 'No Data Found',
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => searchedData}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          loading={tableLoading}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
+          locale={{ emptyText: 'No Data Found' }}
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={campaignAffiliateList} />
         </div>
       </div>

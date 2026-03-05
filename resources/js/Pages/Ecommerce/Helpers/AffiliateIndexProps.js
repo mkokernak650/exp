@@ -1,7 +1,4 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -25,7 +22,7 @@ export const useStyles = makeStyles(() => ({
     borderRadius: '5px',
     marginRight: '6px',
   },
-}))
+}
 
 const operators = [
   {
@@ -141,126 +138,126 @@ export const columns = [
   {
     key: 'created_at',
     title: 'Created At',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 180 },
     visible: true,
   },
   {
     key: 'campaign',
     title: 'Campaign',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'customer',
     title: 'Customer',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'affiliate',
     title: 'Affiliate',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'order_type',
     title: 'Order Type',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'affiliate_fee_type',
     title: 'Affiliate Fee Type',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'product_code',
     title: 'ISCI Code',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'coupon_code',
     title: 'Coupon Code',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'dialed',
     title: 'Dialed',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'pay_on_multiple_orders',
     title: 'Pay on multiple orders',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'lengths',
     title: 'Lengths',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'revenue',
     title: 'Payout',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'affiliate_fee',
     title: 'Affiliate Fee',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'percentage',
     title: 'Commission',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 120 },
     visible: true,
   },
   {
     key: 'cash_buy',
     title: 'Cash Buy',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 120 },
     visible: true,
   },
   {
     key: 'description',
     title: 'Description',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 300 },
     visible: true,
   },
   {
     key: 'video_url',
     title: 'DRTV Download Link',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 300 },
     visible: true,
   },
   {
     key: 'updated_at',
     title: 'Last Updated',
-    dataType: DataType.Date,
+    dataType: 'date',
     style: { width: 180 },
     visible: true,
   },

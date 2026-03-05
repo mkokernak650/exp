@@ -1,13 +1,10 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   button: {
     width: 'auto',
     textTransform: 'capitalize',
     fontSize: '14px',
   },
-}))
+}
 
 const operators = [
   {
@@ -88,49 +85,49 @@ export const columns = [
   {
     key: 'properties.name',
     title: 'User Name',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: '10%' },
     visible: true,
   },
   {
     key: 'properties.email',
     title: 'User Email',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: '10%' },
     visible: true,
   },
   {
     key: 'event',
     title: 'Event',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: '5%' },
     visible: true,
   },
   {
     key: 'log_name',
     title: 'Module',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: '10%' },
     visible: true,
   },
   {
     key: 'description',
     title: 'Description',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: '15%' },
     visible: true,
   }, 
   {
     key: 'properties.ids',
     title: 'Effected Ids',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: '15%' },
     visible: true,
   }, 
   {
     key: 'created_at',
     title: 'Activity Time (EST)',
-    dataType: DataType.Date,
+    dataType: 'date',
     style: { width: '10%' },
     visible: true,
   },

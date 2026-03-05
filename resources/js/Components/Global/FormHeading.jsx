@@ -1,17 +1,11 @@
-import { makeStyles, Typography } from '@material-ui/core'
+import { Typography } from 'antd'
+
+const { Title } = Typography;
 
 export default function FormHeading({ title }) {
-    const useStyles = makeStyles(() => ({
-        title: {
-            textAlign: 'center',
-            marginBottom: '35px',
-        }
-    }))
-    const classes = useStyles()
-
     return (
-        <Typography variant="h5" className={classes.title}>
+        <Title level={4} className="text-center" style={{ marginBottom: '35px' }}>
             {title}
-        </Typography>
+        </Title>
     )
 }

@@ -1,14 +1,11 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import { showColumn, hideLoading, showLoading } from 'ka-table/actionCreators'
-import { Button, CircularProgress } from '@material-ui/core'
+import { Table, Button, Select } from 'antd'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
@@ -18,10 +15,9 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
-import { useStyles, fields, groups, filter, columns } from './Helpers/ZipcodeByTelevisionMarketNewProps'
+import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/ZipcodeByTelevisionMarketNewProps'
 
 const ZipcodeByTelevisionMarketNew = () => {
-  const classes = useStyles()
   const { allZipcodesByTelevisionMarket, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -29,7 +25,6 @@ const ZipcodeByTelevisionMarketNew = () => {
   const [zipcodeTelMarket, setZipcodeTelMarket] = useState(allZipcodesByTelevisionMarket)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
-  const [searchedData, setSearchData] = useState([])
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -49,43 +44,29 @@ const ZipcodeByTelevisionMarketNew = () => {
       race_hispanic: item.race_hispanic,
       race_other: item.race_other,
       id: item.id,
-      key: index,
+      key: item.id,
     }))
   }
-
-  const dataArray = mapDataArr(allZipcodesByTelevisionMarket)
 
   const optionKey = 'zipcode-television-by-market'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    loading: {
-      enabled: false,
-      text: 'Loading...',
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-  }
+  const [data, setData] = useState(mapDataArr(allZipcodesByTelevisionMarket))
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -129,7 +110,7 @@ const ZipcodeByTelevisionMarketNew = () => {
   }
 
   const viewExport = () => {
-    const filterdData = tableProps.data.map((item) => {
+    const filterdData = data.map((item) => {
       delete item.id
       delete item.key
       return item
@@ -139,14 +120,14 @@ const ZipcodeByTelevisionMarketNew = () => {
     const ws = XLSX.utils.json_to_sheet(filterdData, 'ZipCodeTelevisionByMarketView')
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
-    const data = new Blob([excelBuffer], { type: fileType })
-    FileSaver.saveAs(data, 'ZipCodeTelevisionByMarketView' + '.xlsx')
+    const xlsData = new Blob([excelBuffer], { type: fileType })
+    FileSaver.saveAs(xlsData, 'ZipCodeTelevisionByMarketView' + '.xlsx')
     toast.success('Report Exported Successfully')
   }
 
   useEffect(() => {
     const closeColumnSetting = (e) => {
-      CheckOutsideClick(e, showColumn, setShowColumns, showColumnRef)
+      CheckOutsideClick(e, showColumns, setShowColumns, showColumnRef)
     }
     document.addEventListener('mousedown', closeColumnSetting)
     return () => {
@@ -154,25 +135,25 @@ const ZipcodeByTelevisionMarketNew = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (data) => {
-    setCurerentPage(data)
-    dispatch(showLoading())
+  const getSearchingData = async (pageData) => {
+    setCurerentPage(pageData)
+    setLoading(true)
     await axios
       .get(
         'tv-markets-by-zip-codes?page=' +
-          data.page +
+          pageData.page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
           JSON.stringify(filterValue)
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = res.data.data
-        changeTableProps(tmpTableProps)
+        setData(res.data.data.map((item, index) => ({
+          ...item,
+          key: item.id,
+        })))
         setZipcodeTelMarket(res.data)
-        dispatch(hideLoading())
-        setSearchData(res.data.data)
+        setLoading(false)
       })
   }
 
@@ -180,13 +161,31 @@ const ZipcodeByTelevisionMarketNew = () => {
     changeFilter(newFilterValue)
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
     getSearchingData(curerentPage)
   }, [itemPerPage, filterValue])
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      return base
+    })
 
   return (
     <>
@@ -200,26 +199,19 @@ const ZipcodeByTelevisionMarketNew = () => {
               </div>
 
               <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
+                type="primary"
                 onClick={exportHandler}
                 disabled={allZipcodesByTelevisionMarket == ''}
+                loading={loading}
+                style={styles.button}
               >
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Searched Export'
-                )}
+                Searched Export
               </Button>
               <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
+                type="primary"
                 onClick={viewExport}
-                disabled={tableProps.data.length < 1}
+                disabled={data.length < 1}
+                style={styles.button}
               >
                 View Export
               </Button>
@@ -257,34 +249,32 @@ const ZipcodeByTelevisionMarketNew = () => {
             )}
             {showColumns && (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             )}
           </div>
         }
         <Table
-          {...tableProps}
-          childComponents={{
-            noDataRow: {
-              content: () => 'No Data Found',
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={() => searchedData}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          loading={loading}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
 
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={zipcodeTelMarket} />
         </div>
       </div>

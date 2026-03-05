@@ -1,35 +1,16 @@
 import React from "react";
-import { Snackbar, makeStyles } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
-
-const useStyles = makeStyles(() => ({}));
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+import { message } from "antd";
+import { useEffect } from "react";
 
 const SnackBar = ({ open, setOpen, severity = 'success', response }) => {
-  const classes = useStyles();
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+  useEffect(() => {
+    if (open) {
+      message[severity](response, 3);
+      setOpen(false);
     }
-    setOpen(false);
-  };
+  }, [open]);
 
-  return (
-    <div>
-      <Snackbar
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleClose}
-        className={classes.snackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert severity={severity}>{response}</Alert>
-      </Snackbar>
-    </div>
-  );
+  return null;
 };
 
 export default SnackBar;

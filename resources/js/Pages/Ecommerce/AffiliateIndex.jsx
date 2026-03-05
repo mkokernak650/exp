@@ -1,19 +1,11 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'
-import 'ka-table/style.scss'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import { Button, TextField, CircularProgress } from '@material-ui/core'
-import Grid from '@material-ui/core/Grid'
+import { Tooltip, Button, Input, Select, Row, Col, Table } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -21,12 +13,9 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-import { columns, useStyles, filter } from './Helpers/AffiliateIndexProps'
+import { columns as defaultColumns, styles, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -52,11 +41,10 @@ const AffiliateIndex = () => {
     video_url: '',
   }
 
-  const classes = useStyles()
   const { ecommerceAffiliates, affiliates, campaigns, customers, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState(defaultState)
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -64,6 +52,7 @@ const AffiliateIndex = () => {
   const [importModal, setImportModal] = useState({ open: false })
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [tableLoading, setTableLoading] = useState(false)
   const [eAffiliatesData, seteAffiliatesData] = useState(ecommerceAffiliates)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
@@ -76,10 +65,13 @@ const AffiliateIndex = () => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
   }
 
-  const campaginHandleChange = (e) => {
+  const handleEditSelectChange = (name, value) => {
+    setEditData((oldEditData) => ({ ...oldEditData, [name]: value ?? '' }))
+  }
+
+  const campaginHandleChange = (value) => {
     setEditData((oldEditData) => ({ ...oldEditData, description: '' }))
-    const value = e.target.value
-    setEditData((oldEditData) => ({ ...oldEditData, campaign_id: value }))
+    setEditData((oldEditData) => ({ ...oldEditData, campaign_id: value ?? '' }))
 
     if (value) {
       const selectedCampaign = campaigns.filter(campaign => campaign.id == value)
@@ -132,40 +124,41 @@ const AffiliateIndex = () => {
         let campaignName = getCampaignNameById(editData.campaign_id)
         let customerName = getCustomerNameById(editData.customer_id)
         let affiliateName = getAffiliateNameById(editData.affiliate_id)
-        const tmpTableProps = { ...tableProps }
-        tablePropsRef.current.filter((item) => {
+        setData((prev) => prev.map((item) => {
           if (item.id === editData.id) {
-            item.campaign = campaignName
-            item.campaign_id = editData.campaign_id
-            item.customer = customerName
-            item.customer_id = editData.customer_id
-            item.affiliate = affiliateName
-            item.affiliate_id = editData.affiliate_id
-            item.product_code = res.data.data.product_code
-            item.revenue = res.data.data.revenue
-            item.lengths = res.data.data.lengths
-            item.pay_on_multiple_orders = res.data.data.pay_on_multiple_orders
-            item.affiliate_fee = res.data.data.affiliate_fee
-            item.order_type = res.data.data.order_type
-            item.coupon_code = res.data.data.coupon_code
-            item.dialed = res.data.data.dialed
-            item.affiliate_fee_type = res.data.data.affiliate_fee_type
-            item.cash_buy = res.data.data.cash_buy
-            if (res.data.data.affiliate_fee_type == "2") {
-              item.percentage = res.data.data.consumerEXP_cash_buy_fee
-              item.consumerEXP_cash_buy_fee_type = res.data.data.consumerEXP_cash_buy_fee_type
-              item.consumerEXP_cash_buy_fee = `${res.data.data.consumerEXP_cash_buy_fee_type == "1" ? ((res.data.data.consumerEXP_cash_buy_fee / item?.cash_buy) * 100) : res.data.data.consumerEXP_cash_buy_fee}`
-            } else {
-              item.percentage = editData.revenue - editData.affiliate_fee
+            const updated = {
+              ...item,
+              campaign: campaignName,
+              campaign_id: editData.campaign_id,
+              customer: customerName,
+              customer_id: editData.customer_id,
+              affiliate: affiliateName,
+              affiliate_id: editData.affiliate_id,
+              product_code: res.data.data.product_code,
+              revenue: res.data.data.revenue,
+              lengths: res.data.data.lengths,
+              pay_on_multiple_orders: res.data.data.pay_on_multiple_orders,
+              affiliate_fee: res.data.data.affiliate_fee,
+              order_type: res.data.data.order_type,
+              coupon_code: res.data.data.coupon_code,
+              dialed: res.data.data.dialed,
+              affiliate_fee_type: res.data.data.affiliate_fee_type,
+              cash_buy: res.data.data.cash_buy,
+              description: res.data.data.description,
+              video_url: res.data.data.video_url,
+              updated_at: res.data.updated_at,
             }
-            item.description = res.data.data.description
-            item.video_url = res.data.data.video_url
-            item.updated_at = res.data.updated_at
+            if (res.data.data.affiliate_fee_type == "2") {
+              updated.percentage = res.data.data.consumerEXP_cash_buy_fee
+              updated.consumerEXP_cash_buy_fee_type = res.data.data.consumerEXP_cash_buy_fee_type
+              updated.consumerEXP_cash_buy_fee = `${res.data.data.consumerEXP_cash_buy_fee_type == "1" ? ((res.data.data.consumerEXP_cash_buy_fee / res.data.data.cash_buy) * 100) : res.data.data.consumerEXP_cash_buy_fee}`
+            } else {
+              updated.percentage = editData.revenue - editData.affiliate_fee
+            }
+            return updated
           }
-          return tablePropsRef.current
-        })
-        tmpTableProps.data = tablePropsRef.current
-        changeTableProps(tmpTableProps)
+          return item
+        }))
         setEditData()
         setShowEditModal({ open: false })
         toast.success(res.data.msg)
@@ -238,15 +231,17 @@ const AffiliateIndex = () => {
         description: item.description,
         video_url: item.video_url,
         id: item.id,
-        key: index,
+        key: item.id,
       }
     })
   }
 
   const dataArray = mapDataArr(ecommerceAffiliates.data)
 
+  const [data, setData] = useState(dataArray)
+
   const handleEdit = (itemId) => {
-    tablePropsRef.current.filter((item) => {
+    data.filter((item) => {
       if (item.id == itemId) {
         setEditData(item)
       }
@@ -259,76 +254,15 @@ const AffiliateIndex = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-      //   ? JSON.parse(columnsData[0])?.[optionKey]
-      //   : 
-      columns,
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (column.key === 'status') {
-        return value == 1 ? 'Active' : 'Inactive'
-      }
-      if (column.key === 'order_type') {
-        return value == 1 ? 'E-commerce' : 'Phone'
-      }
-      if (column.key === 'affiliate_fee_type') {
-        return value == 1 ? 'Payout Per Order' : 'Cash Buy'
-      }
-      if (column.key === 'created_at' || column.key === 'updated_at') {
-        return DateTimeFormat(value)
-      }
-      if (column.key === 'pay_on_multiple_orders') {
-        if (value == '0') {
-          return 'No'
-        } else if (value == '1') {
-          return 'Yes'
-        }
-      }
-      if (column.key === 'lengths') {
-        if (value != null) {
-          return value.toString().replace(/,/g, ', ')
-        }
-      }
-    },
-  }
+  const [columns, setColumns] = useState(defaultColumns)
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-  const tablePropsRef = useRef(tableProps.data)
-
-  const dispatch = (action) => {
-    if (
-      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
-        action?.type
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
       )
-    ) {
-      handleSelects({
-        action,
-        selectedRowIds,
-        setSelectedRowIds,
-        tableProps,
-        setTableToolbar,
-      })
-    }
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -370,15 +304,11 @@ const AffiliateIndex = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('ecommerce-affiliates.deleteSelected'), { selectedRowIds })
+      .post(route('ecommerce-affiliates.deleteSelected'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          tablePropsRef.current = filteredData?.data
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           getSearchingData(currentPage)
           setTableToolbar(false)
           toast.success(res.data.msg)
@@ -396,7 +326,7 @@ const AffiliateIndex = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -416,7 +346,7 @@ const AffiliateIndex = () => {
 
   const getSearchingData = async (data) => {
     setcurrentPage(data)
-    dispatch(showLoading())
+    setTableLoading(true)
     await axios
       .get(
         'ecommerce-affiliates?page=' +
@@ -430,17 +360,14 @@ const AffiliateIndex = () => {
         '&filterByAffiliates=' + filterByAffiliates
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = mapDataArr(res.data.data)
-        changeTableProps(tmpTableProps)
-        tablePropsRef.current = mapDataArr(res.data.data)
+        setData(mapDataArr(res.data.data))
         seteAffiliatesData(res.data)
-        dispatch(hideLoading())
+        setTableLoading(false)
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
@@ -464,13 +391,66 @@ const AffiliateIndex = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={{ color: '#031b4e' }} />} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+      if (col.key === 'edit') {
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <Edit />
+          </div>
+        )
+      }
+      if (col.key === 'status') {
+        base.render = (value) => (value == 1 ? 'Active' : 'Inactive')
+      }
+      if (col.key === 'order_type') {
+        base.render = (value) => (value == 1 ? 'E-commerce' : 'Phone')
+      }
+      if (col.key === 'affiliate_fee_type') {
+        base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
+      }
+      if (col.key === 'created_at' || col.key === 'updated_at') {
+        base.render = (value) => DateTimeFormat(value)
+      }
+      if (col.key === 'pay_on_multiple_orders') {
+        base.render = (value) => {
+          if (value == '0') return 'No'
+          else if (value == '1') return 'Yes'
+        }
+      }
+      if (col.key === 'lengths') {
+        base.render = (value) => {
+          if (value != null) return value.toString().replace(/,/g, ', ')
+        }
+      }
+      return base
+    })
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
   }
 
   return (
@@ -486,26 +466,19 @@ const AffiliateIndex = () => {
                 <Eye />
               </div>
               <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
+                type="primary"
                 onClick={openImportModal}
+                style={styles.button}
               >
                 Import
               </Button>
               <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
+                type="primary"
                 onClick={exportHandler}
+                style={styles.button}
+                loading={loading}
               >
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Export'
-                )}
+                Export
               </Button>
             </div>
             <div className="top-left">
@@ -541,7 +514,7 @@ const AffiliateIndex = () => {
             </div>
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -549,43 +522,26 @@ const AffiliateIndex = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={() => tableProps.data}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={tableLoading}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={eAffiliatesData} />
         </div>
       </div>
@@ -597,139 +553,128 @@ const AffiliateIndex = () => {
         title={'Edit E-commerce Affiliate'}
       >
         <div className="edit_target">
-          <form className={classes.form}>
-            <Grid container spacing={4}>
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.campaign_id}
-                  select
-                  name="campaign_id"
-                  onChange={campaginHandleChange}
-                  fullWidth
-                  required={false}
-                >
-                  <option value="">Select Campaign</option>
-                  {campaigns.map((option, indx) => (
-                    <option key={indx + `-1`} value={option.id}>
-                      {option.campaign_name}
-                    </option>
-                  ))}
-                </TextField>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.customer_id}
-                  select
-                  name="customer_id"
-                  onChange={handleEditChange}
-                  fullWidth
-                  required={true}
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map((option, indx) => (
-                    <option key={indx + `-2`} value={option.id}>
-                      {option.customer_name}
-                    </option>
-                  ))}
-                </TextField>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.affiliate_id}
-                  select
-                  name="affiliate_id"
-                  onChange={handleEditChange}
-                  fullWidth
-                  required={true}
-                >
-                  <option value="">Select Affiliate</option>
-                  {affiliates.map((option, indx) => (
-                    <option key={indx + `-3`} value={option.id}>
-                      {`${option.affiliate_name} (${option.market})`}
-                    </option>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.product_code}
-                  id="product_code"
-                  label="Product Code (ISCI Code)"
-                  type="text"
-                  name="product_code"
-                  placeholder="ISCI Code"
-                  onChange={handleEditChange}
-                  className={classes.textField}
-                  fullWidth
+          <form>
+            <Row gutter={[0, 16]}>
+              <Col span={24}>
+                <Select
+                  value={editData?.campaign_id || undefined}
+                  onChange={(value) => campaginHandleChange(value)}
+                  className="w-full"
+                  placeholder="Select Campaign"
+                  allowClear
+                  options={campaigns.map((option, indx) => ({
+                    key: indx + '-1',
+                    value: option.id,
+                    label: option.campaign_name,
+                  }))}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  select
-                  fullWidth
-                  required={true}
-                  name="order_type"
-                  onChange={handleEditChange}
-                  value={editData?.order_type}
-                >
-                  <option value="">Select Order Type</option>
-                  <option value="1">E-commerce</option>
-                  <option value="2">Phone</option>
-                </TextField>
-              </Grid>
+              </Col>
+
+              <Col span={24}>
+                <Select
+                  value={editData?.customer_id || undefined}
+                  onChange={(value) => handleEditSelectChange('customer_id', value)}
+                  className="w-full"
+                  placeholder="Select Customer"
+                  allowClear
+                  options={customers.map((option, indx) => ({
+                    key: indx + '-2',
+                    value: option.id,
+                    label: option.customer_name,
+                  }))}
+                />
+              </Col>
+
+              <Col span={24}>
+                <Select
+                  value={editData?.affiliate_id || undefined}
+                  onChange={(value) => handleEditSelectChange('affiliate_id', value)}
+                  className="w-full"
+                  placeholder="Select Affiliate"
+                  allowClear
+                  options={affiliates.map((option, indx) => ({
+                    key: indx + '-3',
+                    value: option.id,
+                    label: `${option.affiliate_name} (${option.market})`,
+                  }))}
+                />
+              </Col>
+              <Col span={24}>
+                <div>
+                  <label>Product Code (ISCI Code)</label>
+                  <Input
+                    value={editData?.product_code}
+                    type="text"
+                    name="product_code"
+                    placeholder="ISCI Code"
+                    onChange={handleEditChange}
+                    className="w-full"
+                  />
+                </div>
+              </Col>
+              <Col span={24}>
+                <Select
+                  value={editData?.order_type || undefined}
+                  onChange={(value) => handleEditSelectChange('order_type', value)}
+                  className="w-full"
+                  placeholder="Select Order Type"
+                  allowClear
+                  options={[
+                    { value: '1', label: 'E-commerce' },
+                    { value: '2', label: 'Phone' },
+                  ]}
+                />
+              </Col>
 
               {editData?.order_type && editData.order_type == 1 && (
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    type="text"
-                    required={true}
-                    name="coupon_code"
-                    label="Coupon Code"
-                    onChange={handleEditChange}
-                    placeholder="Exp: #CX12345"
-                    value={editData?.coupon_code}
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>Coupon Code</label>
+                    <Input
+                      className="w-full"
+                      type="text"
+                      name="coupon_code"
+                      onChange={handleEditChange}
+                      placeholder="Exp: #CX12345"
+                      value={editData?.coupon_code}
+                      required
+                    />
+                  </div>
+                </Col>
               )}
 
               {editData?.order_type && editData.order_type == 2 && (
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    type="text"
-                    name="dialed"
-                    required={true}
-                    label="Dialed Phone"
-                    placeholder="123123123"
-                    onChange={handleEditChange}
-                    value={editData?.dialed}
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>Dialed Phone</label>
+                    <Input
+                      className="w-full"
+                      type="text"
+                      name="dialed"
+                      placeholder="123123123"
+                      onChange={handleEditChange}
+                      value={editData?.dialed}
+                      required
+                    />
+                  </div>
+                </Col>
               )}
 
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.pay_on_multiple_orders}
-                  id="pay_on_multiple_orders"
-                  select
-                  name="pay_on_multiple_orders"
-                  onChange={handleEditChange}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  fullWidth
-                  required={true}
-                >
-                  <option value="">Pay on multiple orders</option>
-                  <option value="1">Yes</option>
-                  <option value="0">No</option>
-                </TextField>
-              </Grid>
+              <Col span={24}>
+                <Select
+                  value={editData?.pay_on_multiple_orders || undefined}
+                  onChange={(value) => handleEditSelectChange('pay_on_multiple_orders', value)}
+                  className="w-full"
+                  placeholder="Pay on multiple orders"
+                  allowClear
+                  options={[
+                    { value: '1', label: 'Yes' },
+                    { value: '0', label: 'No' },
+                  ]}
+                />
+              </Col>
 
-              <Grid item xs={12}>
+              <Col span={24}>
                 <MultiSelect
                   className='multiselect-for-affiliate-create'
                   name="lengths"
@@ -739,145 +684,139 @@ const AffiliateIndex = () => {
                   style={{ width: '100%' }}
                   placeholder="Select Length"
                 />
-              </Grid>
+              </Col>
 
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.affiliate_fee_type}
-                  id="affiliate_fee_type"
-                  select
-                  name="affiliate_fee_type"
-                  onChange={handleEditChange}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  fullWidth
-                  required={true}
-                >
-                  <option value="">Select Affiliate Fee Type</option>
-                  <option value="1">Payout Per Order</option>
-                  <option value="2">Cash Buy</option>
-                </TextField>
-              </Grid>
+              <Col span={24}>
+                <Select
+                  value={editData?.affiliate_fee_type || undefined}
+                  onChange={(value) => handleEditSelectChange('affiliate_fee_type', value)}
+                  className="w-full"
+                  placeholder="Select Affiliate Fee Type"
+                  allowClear
+                  options={[
+                    { value: '1', label: 'Payout Per Order' },
+                    { value: '2', label: 'Cash Buy' },
+                  ]}
+                />
+              </Col>
 
               {editData?.affiliate_fee_type && editData.affiliate_fee_type == 1 && (
                 <>
-                  <Grid item xs={12}>
-                    <TextField
-                      value={editData?.revenue}
-                      label="Revenue"
-                      type="text"
-                      name="revenue"
-                      placeholder="Exp: 100"
-                      onChange={handleEditChange}
-                      fullWidth
-                      required={true}
-                    />
-                  </Grid>
+                  <Col span={24}>
+                    <div>
+                      <label>Revenue</label>
+                      <Input
+                        value={editData?.revenue}
+                        type="text"
+                        name="revenue"
+                        placeholder="Exp: 100"
+                        onChange={handleEditChange}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                  </Col>
 
-                  <Grid item xs={12}>
-                    <TextField
-                      value={editData?.affiliate_fee}
-                      label="Affiliate Fee"
-                      type="text"
-                      name="affiliate_fee"
-                      placeholder="Exp: 100"
-                      onChange={handleEditChange}
-                      fullWidth
-                      required={true}
-                    />
-                  </Grid>
+                  <Col span={24}>
+                    <div>
+                      <label>Affiliate Fee</label>
+                      <Input
+                        value={editData?.affiliate_fee}
+                        type="text"
+                        name="affiliate_fee"
+                        placeholder="Exp: 100"
+                        onChange={handleEditChange}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                  </Col>
                 </>
               )}
               {editData?.affiliate_fee_type && editData.affiliate_fee_type == 2 && (
                 <>
-                  <Grid item xs={12}>
-                    <TextField
-                      value={editData?.cash_buy}
-                      id="cash_buy"
-                      label="Cash Buy"
-                      type="text"
-                      name="cash_buy"
-                      placeholder="10000"
-                      onChange={handleEditChange}
-                      className={classes.textField}
-                      fullWidth
+                  <Col span={24}>
+                    <div>
+                      <label>Cash Buy</label>
+                      <Input
+                        value={editData?.cash_buy}
+                        type="text"
+                        name="cash_buy"
+                        placeholder="10000"
+                        onChange={handleEditChange}
+                        className="w-full"
+                      />
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <Select
+                      value={editData?.consumerEXP_cash_buy_fee_type || undefined}
+                      onChange={(value) => handleEditSelectChange('consumerEXP_cash_buy_fee_type', value)}
+                      className="w-full"
+                      placeholder="Select ConsumerEXP Fee Type"
+                      allowClear
+                      options={[
+                        { value: '1', label: 'Percentage' },
+                        { value: '2', label: 'Fixed' },
+                      ]}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      value={editData?.consumerEXP_cash_buy_fee_type}
-                      id="consumerEXP_cash_buy_fee_type"
-                      select
-                      name="consumerEXP_cash_buy_fee_type"
-                      onChange={handleEditChange}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      fullWidth
-                      required={true}
-                    >
-                      <option value="">Select ConsumerEXP Fee Type</option>
-                      <option value="1">Percentage</option>
-                      <option value="2">Fixed</option>
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      value={editData?.consumerEXP_cash_buy_fee}
-                      id="consumerEXP_cash_buy_fee"
-                      label={editData?.consumerEXP_cash_buy_fee_type == 1 ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}
-                      type="number"
-                      InputProps={{ inputProps: { min: 0 } }}
-                      name="consumerEXP_cash_buy_fee"
-                      placeholder="consumerEXP Cash Buy Fee"
-                      onChange={handleEditChange}
-                      className={classes.textField}
-                      fullWidth
-                      required
-                      disabled={!editData?.consumerEXP_cash_buy_fee_type}
-                    />
-                  </Grid>
+                  </Col>
+                  <Col span={24}>
+                    <div>
+                      <label>{editData?.consumerEXP_cash_buy_fee_type == 1 ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}</label>
+                      <Input
+                        value={editData?.consumerEXP_cash_buy_fee}
+                        type="number"
+                        min={0}
+                        name="consumerEXP_cash_buy_fee"
+                        placeholder="consumerEXP Cash Buy Fee"
+                        onChange={handleEditChange}
+                        className="w-full"
+                        required
+                        disabled={!editData?.consumerEXP_cash_buy_fee_type}
+                      />
+                    </div>
+                  </Col>
                 </>
               )}
 
-              <Grid item xs={12}>
-                <TextField
-                  value={editData?.video_url}
-                  id="video_url"
-                  label="DRTV Download Link"
-                  type="text"
-                  name="video_url"
-                  placeholder="DRTV Download Link"
-                  onChange={handleEditChange}
-                  className={classes.textField}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  onChange={handleEditChange}
-                  value={editData?.description}
-                  spellCheck
-                  fullWidth
-                  multiline
-                  maxRows="4"
-                ></TextField>
-              </Grid>
+              <Col span={24}>
+                <div>
+                  <label>DRTV Download Link</label>
+                  <Input
+                    value={editData?.video_url}
+                    type="text"
+                    name="video_url"
+                    placeholder="DRTV Download Link"
+                    onChange={handleEditChange}
+                    className="w-full"
+                  />
+                </div>
+              </Col>
+              <Col span={24}>
+                <div>
+                  <label>Description</label>
+                  <Input.TextArea
+                    name="description"
+                    onChange={handleEditChange}
+                    value={editData?.description}
+                    spellCheck
+                    className="w-full"
+                    rows={4}
+                  />
+                </div>
+              </Col>
 
-              <Grid item xs={12}>
+              <Col span={24}>
                 <Button
-                  variant="contained"
-                  color="primary"
+                  type="primary"
                   onClick={handleEditSubmit}
-                  className={classes.editButton}
+                  style={styles.editButton}
                 >
                   Update
                 </Button>
-              </Grid>
-            </Grid>
+              </Col>
+            </Row>
           </form>
 
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
@@ -888,16 +827,16 @@ const AffiliateIndex = () => {
 
       <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>
         <form onSubmit={importHandler}>
-          <div className={classes.import}>
+          <div style={styles.import}>
             <input
               id="importFile"
               type="file"
               name="importFile"
               onChange={handleImportChange}
-              className={classes.importFile}
+              style={styles.importFile}
             />
-            <Button variant="contained" color="primary" type="submit" disabled={!selectedFile}>
-              {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : 'Next'}
+            <Button type="primary" htmlType="submit" disabled={!selectedFile} loading={loading}>
+              Next
             </Button>
           </div>
         </form>
@@ -909,7 +848,7 @@ const AffiliateIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowIds.length > 1
+        title={`${selectedRowKeys.length > 1
           ? 'Do you want to delete these records?'
           : 'Do you want to delete this record?'
           }`}

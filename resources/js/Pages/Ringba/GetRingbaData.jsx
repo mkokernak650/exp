@@ -1,51 +1,14 @@
-import { React, useState } from 'react'
+import { useState } from 'react'
 import Layout from '../Layout/Layout'
-import {
-  CircularProgress,
-  Typography,
-  TextField,
-  Button,
-  makeStyles,
-  Paper,
-} from '@material-ui/core'
+import { Button, Typography, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import { Helmet } from 'react-helmet'
 import { currentDate } from '../../Helpers/CurrentDate'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    width: 600,
-    margin: 'auto',
-    flexDirection: 'column',
-    marginTop: 60,
-    textAlign: 'center',
-    padding: '20px',
-  },
-  textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 300,
-    margin: '10px',
-  },
-  button: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 300,
-    margin: '10px',
-  },
-
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-}))
-
 const GetRingbaData = () => {
-  const classes = useStyles()
   const { lastDataFetchedDate } = usePage().props
 
   const getEndDate = () => {
@@ -97,51 +60,47 @@ const GetRingbaData = () => {
   return (
     <div>
       <Helmet title="Get Ringba Data" />
-      <Paper className={classes.container}>
-        <Typography variant="h5" className={classes.title}>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          width: 600,
+          margin: 'auto',
+          flexDirection: 'column',
+          marginTop: 60,
+          textAlign: 'center',
+          padding: 20,
+        }}
+        className="bg-white shadow rounded"
+      >
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
           Fetch Ringba Data
-        </Typography>
+        </Typography.Title>
         <form validate="true" onSubmit={handleSubmit}>
-          <TextField
-            id="date"
-            label="Data has been fetched up to this date"
-            type="date"
-            name="start_date"
-            onChange={handleChange}
-            defaultValue={values.start_date}
-            className={classes.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            required
-          />
+          <div style={{ margin: 10, width: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+            <label className="block text-sm mb-1">Data has been fetched up to this date</label>
+            <DatePicker
+              value={values.start_date ? dayjs(values.start_date) : null}
+              onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+              style={{ width: '100%' }}
+            />
+          </div>
 
-          <TextField
-            id="date"
-            label="End Date"
-            type="date"
-            name="end_date"
-            defaultValue={values.end_date}
-            className={classes.textField}
-            onChange={handleChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            required
-          />
-          <Button variant="contained" type="submit" color="primary" className={classes.button}>
-            {'Get Ringba Data'}
-            {loading && (
-              <CircularProgress
-                color="inherit"
-                size="1rem"
-                thickness={2}
-                style={{ marginLeft: '10px' }}
-              />
-            )}
-          </Button>
+          <div style={{ margin: 10, width: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+            <label className="block text-sm mb-1">End Date</label>
+            <DatePicker
+              value={values.end_date ? dayjs(values.end_date) : null}
+              onChange={(date, dateString) => handleChange({ target: { name: 'end_date', value: dateString } })}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div style={{ margin: 10, width: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+            <Button type="primary" htmlType="submit" loading={loading} block>
+              Get Ringba Data
+            </Button>
+          </div>
         </form>
-      </Paper>
+      </div>
     </div>
   )
 }

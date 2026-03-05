@@ -1,25 +1,14 @@
-import Checkbox from '@material-ui/core/Checkbox'
-import { deselectRow, selectRow, selectRowsRange } from 'ka-table/actionCreators'
+import { Checkbox } from 'antd'
 
 export default function SelectionCell({
   rowKeyValue,
-  dispatch,
   isSelectedRow,
-  selectedRows
+  onChange,
 }) {
   return (
     <Checkbox
       checked={isSelectedRow}
-      color="primary"
-      onChange={(event) => {
-        if (event.nativeEvent.shiftKey) {
-          dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-        } else if (event.currentTarget.checked) {
-          dispatch(selectRow(rowKeyValue))
-        } else {
-          dispatch(deselectRow(rowKeyValue))
-        }
-      }}
+      onChange={(e) => onChange(rowKeyValue, e.target.checked)}
     />
   )
 }

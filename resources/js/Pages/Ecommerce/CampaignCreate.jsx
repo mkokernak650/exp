@@ -1,14 +1,6 @@
 import { React, useState } from "react";
 import Layout from "../Layout/Layout";
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
+import { Button, Input, Row, Col, Typography } from "antd";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import toast from "react-hot-toast";
@@ -16,25 +8,8 @@ import { usePage } from "@inertiajs/inertia-react";
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
-    flexGrow: 1,
-    minHeight: "500px",
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "35px",
-  }
-}));
+const { Title } = Typography;
+const { TextArea } = Input;
 
 const CampaignCreate = () => {
   const defaultState = {
@@ -43,7 +18,6 @@ const CampaignCreate = () => {
     description: "",
     length_url: "",
   };
-  const classes = useStyles();
   const [values, setValues] = useState(defaultState);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -96,28 +70,28 @@ const CampaignCreate = () => {
   return (
     <>
       <Helmet title="Create Campaign" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: "grid", width: "500px", margin: "auto", marginTop: "2rem", padding: "40px", flexGrow: 1, minHeight: "500px" }} className="shadow-md rounded-lg bg-white">
+        <Title level={5} style={{ textAlign: "center", marginBottom: "35px" }}>
           Create Campaign
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit}>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <TextField
-                value={values?.campaign_name}
-                id="campaign_name"
-                label="Campaign Name"
-                type="text"
-                name="campaign_name"
-                placeholder=""
-                onChange={handleChange}
-                className={classes.textField}
-                fullWidth
-                required={true}
-              />
-            </Grid>
+        </Title>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={[0, 24]}>
+            <Col span={24}>
+              <div>
+                <label>Campaign Name</label>
+                <Input
+                  value={values?.campaign_name}
+                  id="campaign_name"
+                  type="text"
+                  name="campaign_name"
+                  onChange={handleChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12}>
+            <Col span={24}>
               <MultiSelect
                 singleSelect
                 placeholder="Select Customer"
@@ -126,50 +100,44 @@ const CampaignCreate = () => {
                 onChange={value => CustomerHandleChange(value)}
                 style={{ width: '100%' }}
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                name="description"
-                label="Description"
-                onChange={handleChange}
-                value={values?.description}
-                spellCheck
-                fullWidth
-                multiline
-                maxRows="4"
-              ></TextField>
-            </Grid>
+            <Col span={24}>
+              <div>
+                <label>Description</label>
+                <TextArea
+                  name="description"
+                  onChange={handleChange}
+                  value={values?.description}
+                  spellCheck
+                  className="w-full"
+                  rows={4}
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                name="length_url"
-                label="Length and URL"
-                onChange={handleChange}
-                value={values?.length_url}
-                spellCheck
-                fullWidth
-                multiline
-                maxRows="3"
-              ></TextField>
-            </Grid>
+            <Col span={24}>
+              <div>
+                <label>Length and URL</label>
+                <TextArea
+                  name="length_url"
+                  onChange={handleChange}
+                  value={values?.length_url}
+                  spellCheck
+                  className="w-full"
+                  rows={3}
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? (
-                  <CircularProgress
-                    color="inherit"
-                    thickness={3}
-                    size="1.5rem"
-                  />
-                ) : (
-                  "Save"
-                )}
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Save
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   );
 };

@@ -1,12 +1,12 @@
 import { Helmet } from "react-helmet";
-import { Typography } from "@material-ui/core";
+import { Typography } from "antd";
 import Layout from "../Layout/Layout";
 const Dashboard = () => (
   <>
     <Helmet>
       <title>Consumer EXP</title>
     </Helmet>
-    <Typography variant="h5">Dashboard</Typography>
+    <Typography.Title level={5}>Dashboard</Typography.Title>
   </>
 );
 

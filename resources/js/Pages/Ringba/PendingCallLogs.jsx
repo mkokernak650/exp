@@ -1,41 +1,29 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import { Button, TextField } from '@material-ui/core'
+import { Tooltip, Button, Table, Select } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import CustomFilter from '@/Components/CustomFilter'
-import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import toast from 'react-hot-toast'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-import { columns, useStyles } from './Helpers/PendingCallLogsProps'
+import { columns as defaultColumns, buttonStyle } from './Helpers/PendingCallLogsProps'
 
 const PendingCallLogsReport = () => {
-  const classes = useStyles()
   const { pendingCallLogs, campaignsWithAnnotations, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [showCallLogModal, setShowCallLogModal] = useState({
@@ -55,24 +43,22 @@ const PendingCallLogsReport = () => {
     delete: false,
   })
 
-  const updateAnnotation = (e, tableIndex) => {
-    e.preventDefault()
+  const updateAnnotation = (value, tableIndex) => {
     axios
       .post(route('change.annotation', 'PendingCallLogs'), {
         indexId: tableIndex,
-        annotation_id: e.target.value,
+        annotation_id: value,
       })
       .then((res) => {
         if (res.status === 200) {
           toast.success(res.data.msg)
-          const tmpTableProps = { ...tableProps }
-          tablePropsRef.current.filter((item) => {
-            if (item.id == tableIndex) {
-              item.Has_Annotation = res.data.has_annotation
-            }
-          })
-          tmpTableProps.data = tablePropsRef.current
-          changeTableProps(tmpTableProps)
+          setData((prev) =>
+            prev.map((item) =>
+              item.id == tableIndex
+                ? { ...item, Has_Annotation: res.data.has_annotation }
+                : item
+            )
+          )
         }
       })
       .catch((err) => {})
@@ -109,7 +95,7 @@ const PendingCallLogsReport = () => {
         Annotation_Tag: [item.Annotation_Tag, item.Campaign, item.id],
         Has_Annotation: item.Has_Annotation,
         id: item.id,
-        key: index,
+        key: item.id,
       }
     })
   }
@@ -121,89 +107,96 @@ const PendingCallLogsReport = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'Call_Date') {
-        if (value !== undefined || '') {
-          let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-          let format_date = value
-          let dd = String(format_date.getDate()).padStart(2, '0')
-          let yyyy = format_date.getFullYear()
-          format_date = dd + '-' + shortMonth + '-' + yyyy
-          return format_date
-        }
-      }
-      if (column.key === 'Call_Date_Time') {
-        if (value !== undefined || '') {
-          return DateTimeFormat(value)
-        }
-      }
-      if (column.key === 'Annotation_Tag') {
-        let arrayValue = value.split(',')
-        return (
-          <TextField
-            id="annotation_id"
-            select
-            name="annotation_id"
-            onChange={(e) => updateAnnotation(e, arrayValue[2])}
-            SelectProps={{
-              native: true,
-            }}
-            fullWidth
-            defaultValue={arrayValue[0]}
-          >
-            <option value="">Select Annotation</option>
-            {campaignsWithAnnotations
-              .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
-              ?.annotations.map((annotation, index) => (
-                <option key={index} value={annotation.id}>
-                  {annotation.annotation_name}
-                </option>
-              ))}
-          </TextField>
-        )
-      }
+  const initialColumns =
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+
+  const fields = SearchedFields(initialColumns)
+  const [columns, setColumns] = useState(initialColumns)
+  const [data, setData] = useState(dataArray)
+  const [loading, setLoading] = useState(false)
+
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
+    })
+  }
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+      setInbounIds(selectedRows.map((row) => row.Inbound_Id))
     },
   }
 
-  const fields = SearchedFields(tablePropsInit.columns)
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-  const tablePropsRef = useRef(tableProps)
-
-  const dispatch = (action) => {
-    if (
-      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
-        action?.type
-      )
-    ) {
-      handleSelects({
-        action,
-        selectedRowIds,
-        setSelectedRowIds,
-        tableProps,
-        setTableToolbar,
-        inboundIds,
-        setInbounIds,
-      })
-    }
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter:
+          col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
       }
-      return newState
+
+      if (col.key === 'Call_Date') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+            let format_date = value
+            let dd = String(format_date.getDate()).padStart(2, '0')
+            let yyyy = format_date.getFullYear()
+            return dd + '-' + shortMonth + '-' + yyyy
+          }
+        }
+      }
+
+      if (col.key === 'Call_Date_Time') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            return DateTimeFormat(value)
+          }
+        }
+      }
+
+      if (col.key === 'Annotation_Tag') {
+        base.render = (value) => {
+          let arrayValue = Array.isArray(value) ? value : String(value).split(',')
+          return (
+            <Select
+              defaultValue={arrayValue[0] || undefined}
+              onChange={(value) => updateAnnotation(value, arrayValue[2])}
+              size="small"
+              style={{ width: '100%' }}
+            >
+              <Select.Option value="">Select Annotation</Select.Option>
+              {campaignsWithAnnotations
+                .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
+                ?.annotations.map((annotation, index) => (
+                  <Select.Option key={index} value={annotation.id}>
+                    {annotation.annotation_name}
+                  </Select.Option>
+                ))}
+            </Select>
+          )
+        }
+      }
+
+      return base
     })
-  }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 
@@ -222,15 +215,12 @@ const PendingCallLogsReport = () => {
   const deleteHandler = () => {
     setIsLoading({ ...isLoading, delete: true })
     axios
-      .post(route('pending.delete'), { selectedRowIds })
+      .post(route('pending.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
           setIsLoading({ ...isLoading, delete: false })
-          changeTableProps(filteredData)
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           getSearchingData(currentPage)
           setTableToolbar(false)
           toast.success(res.data.msg)
@@ -238,13 +228,13 @@ const PendingCallLogsReport = () => {
         } else {
           setIsLoading({ ...isLoading, delete: false })
           toast.error(res.data.msg)
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
         setIsLoading({ ...isLoading, delete: false })
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setShowDeleteModal({ open: false })
       })
   }
@@ -256,35 +246,30 @@ const PendingCallLogsReport = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           toast.success(res.data.msg)
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
-          filteredData.data = newData
+          setData((prev) => prev.filter((item) => !inboundIds.includes(item.Inbound_Id)))
           setIsLoading({ ...isLoading, callLog: false })
-          changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
           getSearchingData(currentPage)
           setShowCallLogModal({ open: false })
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
         } else {
           setIsLoading({ ...isLoading, callLog: false })
-          changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
           setShowCallLogModal({ open: false })
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
         }
       })
       .catch((err) => {
         setIsLoading({ ...isLoading, callLog: false })
-        changeTableProps(filteredData)
         setTableToolbar(false)
         setInbounIds([])
         setShowCallLogModal({ open: false })
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
       })
   }
 
@@ -295,28 +280,25 @@ const PendingCallLogsReport = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           toast.success(res.data.msg)
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
-          filteredData.data = newData
+          setData((prev) => prev.filter((item) => !inboundIds.includes(item.Inbound_Id)))
           setIsLoading({ ...isLoading, billed: false })
-          changeTableProps(filteredData)
           setTableToolbar(false)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           getSearchingData(currentPage)
           setShowBilledModal({ open: false })
         } else {
           setIsLoading({ ...isLoading, billed: false })
           toast.error(res.data.msg)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setShowBilledModal({ open: false })
         }
       })
       .catch((err) => {
         setIsLoading({ ...isLoading, billed: false })
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setShowBilledModal({ open: false })
       })
   }
@@ -328,32 +310,29 @@ const PendingCallLogsReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
-  const getSearchingData = async (data) => {
-    setcurrentPage(data)
-    dispatch(showLoading())
+  const getSearchingData = async (pageData) => {
+    setcurrentPage(pageData)
+    setLoading(true)
     await axios
       .get(
         'pending-call-log-report?page=' +
-          data.page +
+          pageData.page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
           JSON.stringify(filterValue)
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = mapDataArr(res.data.data)
-        changeTableProps(tmpTableProps)
-        tablePropsRef.current = mapDataArr(res.data.data)
+        setData(mapDataArr(res.data.data))
         setPendingData(res.data)
-        dispatch(hideLoading())
+        setLoading(false)
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
@@ -377,30 +356,24 @@ const PendingCallLogsReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
 
         <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
+          type="primary"
+          style={buttonStyle}
           onClick={() => handleOpenModal(setShowCallLogModal)}
         >
           Move Call Log
         </Button>
         <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
+          type="primary"
+          style={buttonStyle}
           onClick={() => handleOpenModal(setShowBilledModal)}
         >
           Billed
         </Button>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
@@ -434,7 +407,7 @@ const PendingCallLogsReport = () => {
 
                 <div className="top-element">
                   <CustomFilter
-                    mainData={tableProps.data}
+                    mainData={data}
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
@@ -448,7 +421,7 @@ const PendingCallLogsReport = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -456,43 +429,26 @@ const PendingCallLogsReport = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={loading}
+          pagination={false}
+          scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
+          size="small"
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={pendingData} />
         </div>
       </div>

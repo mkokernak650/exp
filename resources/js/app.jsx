@@ -1,11 +1,11 @@
 import "../css/app.css";
 import "../css/utilities.css";
-import "ka-table/style.scss"
 import { render } from "react-dom";
 import { Toaster } from "react-hot-toast";
 import { createInertiaApp } from "@inertiajs/inertia-react";
 import { InertiaProgress } from "@inertiajs/progress";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { ConfigProvider } from "antd";
 
 if (window?.Ziggy?.baseProtocol === "http") {
   window.Ziggy.baseProtocol = "https";
@@ -25,7 +25,15 @@ createInertiaApp({
     ),
   setup({ el, App, props }) {
     return render(
-      <>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: "#1976d2",
+            borderRadius: 4,
+            fontFamily: '"Roboto", sans-serif',
+          },
+        }}
+      >
         <Toaster
           position="bottom-right"
           containerStyle={{ inset: "-25px 30px 20px -10px" }}
@@ -42,7 +50,7 @@ createInertiaApp({
           }}
         />
         <App {...props} />
-      </>,
+      </ConfigProvider>,
       el
     );
   },

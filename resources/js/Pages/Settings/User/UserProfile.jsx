@@ -1,40 +1,14 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button, InputAdornment, IconButton } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Input, Row, Col } from 'antd'
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { VisibilityOff } from '@material-ui/icons'
-import { Visibility } from '@material-ui/icons'
 import { usePage } from '@inertiajs/inertia-react'
-
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-        width: '500px',
-        margin: 'auto',
-        marginTop: '2rem',
-        padding: '40px',
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing(2),
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '35px',
-    },
-    snackbar: {
-        maxWidth: '500px',
-    },
-}))
 
 const UserProfile = () => {
     const { user } = usePage().props
-    const classes = useStyles()
     const [values, setValues] = useState()
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({})
@@ -85,143 +59,124 @@ const UserProfile = () => {
     return (
         <>
             <Helmet title="Edit Info" />
-            <Paper className={classes.root}>
-                <Typography variant="h5" className={classes.title}>
+            <div style={{
+                display: 'grid',
+                width: '500px',
+                margin: 'auto',
+                marginTop: '2rem',
+                padding: '40px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                borderRadius: '4px',
+                background: '#fff',
+            }}>
+                <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
                     Edit Info
-                </Typography>
-                <form validate="true" onSubmit={handleSubmit}>
-                    <Grid id container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label="First Name*"
-                                margin="normal"
-                                name="firstname"
-                                onChange={handleChange}
-                                type="text"
-                                variant="outlined"
-                                defaultValue={user[0].firstname}
-                                error={errors?.firstname}
-                                helperText={errors?.firstname?.[0]}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Last Name*"
-                                margin="normal"
-                                name="lastname"
-                                onChange={handleChange}
-                                type="text"
-                                variant="outlined"
-                                defaultValue={user[0].lastname}
-                                error={errors?.lastname}
-                                helperText={errors?.lastname?.[0]}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Email*"
-                                margin="normal"
-                                name="email"
-                                onChange={handleChange}
-                                type="email"
-                                variant="outlined"
-                                defaultValue={user[0].email}
-                                error={errors?.email}
-                                helperText={errors?.email?.[0]}
-                            />
+                </Typography.Title>
+                <form onSubmit={handleSubmit}>
+                    <Row gutter={[16, 16]}>
+                        <Col span={24}>
+                            <div className="mb-4">
+                                <label>First Name*</label>
+                                <Input
+                                    name="firstname"
+                                    onChange={handleChange}
+                                    type="text"
+                                    defaultValue={user[0].firstname}
+                                    status={errors?.firstname ? 'error' : ''}
+                                    style={{ width: '100%' }}
+                                />
+                                {errors?.firstname && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.firstname?.[0]}</div>}
+                            </div>
+                            <div className="mb-4">
+                                <label>Last Name*</label>
+                                <Input
+                                    name="lastname"
+                                    onChange={handleChange}
+                                    type="text"
+                                    defaultValue={user[0].lastname}
+                                    status={errors?.lastname ? 'error' : ''}
+                                    style={{ width: '100%' }}
+                                />
+                                {errors?.lastname && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.lastname?.[0]}</div>}
+                            </div>
+                            <div className="mb-4">
+                                <label>Email*</label>
+                                <Input
+                                    name="email"
+                                    onChange={handleChange}
+                                    type="email"
+                                    defaultValue={user[0].email}
+                                    status={errors?.email ? 'error' : ''}
+                                    style={{ width: '100%' }}
+                                />
+                                {errors?.email && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.email?.[0]}</div>}
+                            </div>
                             {!showPasswordFields &&
-                                <span className='change-password' onClick={handleChangePassword} style={{ color: "#3f51b5", cursor: "pointer" }}>Change Password</span>
+                                <span className='change-password' onClick={handleChangePassword} style={{ color: "#1677ff", cursor: "pointer" }}>Change Password</span>
                             }
 
                             {showPasswordFields &&
                                 <>
-                                    <TextField
-                                        fullWidth
-                                        label="Old Password"
-                                        margin="normal"
-                                        name="password"
-                                        onChange={handleChange}
-                                        type={showPassword?.password ? 'text' : 'password'}
-                                        variant="outlined"
-                                        error={errors?.password}
-                                        helperText={errors?.password?.[0]}
-                                        InputProps={{
-                                            endAdornment:
-                                                <InputAdornment position="end">
-                                                    <IconButton
-                                                        aria-label="toggle password visibility"
-                                                        onClick={() => handleClickShowPassword('password')}
-                                                        edge="end"
-                                                    >
-                                                        {showPassword?.password ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
-
-                                        }}
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        label="New Password"
-                                        margin="normal"
-                                        name="new_password"
-                                        onChange={handleChange}
-                                        type={showPassword?.new_password ? 'text' : 'password'}
-                                        variant="outlined"
-                                        error={errors?.new_password}
-                                        helperText={errors?.new_password?.[0]}
-                                        InputProps={{
-                                            endAdornment:
-                                                <InputAdornment position="end">
-                                                    <IconButton
-                                                        aria-label="toggle password visibility"
-                                                        onClick={() => handleClickShowPassword('new_password')}
-                                                        edge="end"
-                                                    >
-                                                        {showPassword?.new_password ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
-
-                                        }}
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        label="Confirm Password"
-                                        margin="normal"
-                                        name="password_confirmation"
-                                        onChange={handleChange}
-                                        type={showPassword?.cpassword ? 'text' : 'password'}
-                                        variant="outlined"
-                                        error={errors?.password_confirmation}
-                                        helperText={errors?.password_confirmation?.[0]}
-                                        InputProps={{
-                                            endAdornment:
-                                                <InputAdornment position="end">
-                                                    <IconButton
-                                                        aria-label="toggle password visibility"
-                                                        onClick={() => handleClickShowPassword('cpassword')}
-                                                        edge="end"
-                                                    >
-                                                        {showPassword?.cpassword ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
-
-                                        }}
-                                    />
+                                    <div className="mb-4">
+                                        <label>Old Password</label>
+                                        <Input
+                                            name="password"
+                                            onChange={handleChange}
+                                            type={showPassword?.password ? 'text' : 'password'}
+                                            status={errors?.password ? 'error' : ''}
+                                            style={{ width: '100%' }}
+                                            suffix={
+                                                <span onClick={() => handleClickShowPassword('password')} style={{ cursor: 'pointer' }}>
+                                                    {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                                </span>
+                                            }
+                                        />
+                                        {errors?.password && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.password?.[0]}</div>}
+                                    </div>
+                                    <div className="mb-4">
+                                        <label>New Password</label>
+                                        <Input
+                                            name="new_password"
+                                            onChange={handleChange}
+                                            type={showPassword?.new_password ? 'text' : 'password'}
+                                            status={errors?.new_password ? 'error' : ''}
+                                            style={{ width: '100%' }}
+                                            suffix={
+                                                <span onClick={() => handleClickShowPassword('new_password')} style={{ cursor: 'pointer' }}>
+                                                    {showPassword?.new_password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                                </span>
+                                            }
+                                        />
+                                        {errors?.new_password && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.new_password?.[0]}</div>}
+                                    </div>
+                                    <div className="mb-4">
+                                        <label>Confirm Password</label>
+                                        <Input
+                                            name="password_confirmation"
+                                            onChange={handleChange}
+                                            type={showPassword?.cpassword ? 'text' : 'password'}
+                                            status={errors?.password_confirmation ? 'error' : ''}
+                                            style={{ width: '100%' }}
+                                            suffix={
+                                                <span onClick={() => handleClickShowPassword('cpassword')} style={{ cursor: 'pointer' }}>
+                                                    {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                                </span>
+                                            }
+                                        />
+                                        {errors?.password_confirmation && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.password_confirmation?.[0]}</div>}
+                                    </div>
                                 </>
                             }
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <Button variant="contained" color="primary" type="submit">
-                                {loading ? (
-                                    <CircularProgress color="secondary" thickness={3} size="2rem" />
-                                ) : (
-                                    'Update'
-                                )}
+                        <Col span={24}>
+                            <Button type="primary" htmlType="submit" loading={loading}>
+                                Update
                             </Button>
-                        </Grid>
-                    </Grid>
+                        </Col>
+                    </Row>
                 </form>
-            </Paper>
+            </div>
         </>
     )
 }

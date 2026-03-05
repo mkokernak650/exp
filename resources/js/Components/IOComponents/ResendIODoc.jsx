@@ -1,4 +1,5 @@
-import { CircularProgress, Tooltip } from "@material-ui/core"
+import { Spin, Tooltip } from "antd"
+import { LoadingOutlined } from "@ant-design/icons"
 import axios from "axios"
 import { useState } from "react"
 import toast from "react-hot-toast"
@@ -35,7 +36,7 @@ export default function ResendIODoc({ data, routeName }) {
                     className={`resend ${loading ? 'resend-disabled' : ''}`}
                     onClick={resendIoDocument}
                 >{loading &&
-                    <CircularProgress size={15} />
+                    <Spin indicator={<LoadingOutlined style={{ fontSize: 15, color: '#fff' }} />} size="small" />
                     }
                     Resend
                 </button>

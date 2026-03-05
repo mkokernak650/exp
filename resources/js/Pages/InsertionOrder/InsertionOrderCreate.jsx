@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, CircularProgress, FormControlLabel, Grid, Paper, Radio, RadioGroup, Typography, makeStyles } from '@material-ui/core'
+import { Button, Row, Col, Typography, Radio } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -11,27 +11,9 @@ import NormalModal from '../../Shared/NormalModal'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import IoModalView from '../../Components/IOComponents/IOModalView'
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-        width: '800px',
-        margin: 'auto',
-        marginTop: '2rem',
-        padding: '40px',
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing(2),
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '35px',
-    },
-}))
+const { Title } = Typography
 
 const InsertionOrderCreate = () => {
-    const classes = useStyles()
     const { campaigns, customers } = usePage().props
     const [campaignIds, setCampaignIds] = useState('')
     const [customerIds, setCustomerIds] = useState('')
@@ -180,13 +162,13 @@ const InsertionOrderCreate = () => {
     return (
         <>
             <Helmet title="Insertion Order - Create" />
-            <Paper className={classes.root}>
-                <Typography variant="h6" className={classes.title}>
+            <div style={{ display: 'grid', width: '800px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
+                <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
                     Insertion Order
-                </Typography>
-                <form validate="true" onSubmit={handleSubmit}>
-                    <Grid container spacing={4}>
-                        <Grid item xs={12}>
+                </Title>
+                <form onSubmit={handleSubmit}>
+                    <Row gutter={[0, 16]}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="campaign_ids"
                                 onChange={(value) => handleCampaignChange(value)}
@@ -195,8 +177,8 @@ const InsertionOrderCreate = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Campaigns"
                             />
-                        </Grid>
-                        <Grid item xs={12}>
+                        </Col>
+                        <Col span={24}>
                             <MultiSelect
                                 name="customer_ids"
                                 onChange={(value) => handleCustomerChange(value)}
@@ -205,9 +187,9 @@ const InsertionOrderCreate = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Customers"
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="affiliate_ids"
                                 onChange={(value) => handleAffiliateChange(value)}
@@ -217,9 +199,9 @@ const InsertionOrderCreate = () => {
                                 placeholder="Select Affiliates"
                                 disabled={!campaignIds && !customerIds}
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="codes_and_Phones"
                                 onChange={(value) => setSelectedCodesAndPhones(value)}
@@ -228,9 +210,9 @@ const InsertionOrderCreate = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Codes or Phones"
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="term"
                                 onChange={(value) => setSelectedTerm(value)}
@@ -240,73 +222,53 @@ const InsertionOrderCreate = () => {
                                 placeholder="Select Terms"
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <RadioGroup
+                        <Col span={24}>
+                            <Radio.Group
                                 name="insertion_order_for"
                                 value={insertionOrderFor}
                                 onChange={(e) => setInsertionOrderFor(e.target.value)}
                                 style={{ display: 'flex', flexDirection: 'row' }}
                             >
-                                <FormControlLabel
-                                    value="customer"
-                                    control={<Radio color="primary" />}
-                                    label="For Customer"
-                                />
-                                <FormControlLabel
-                                    value="affiliate"
-                                    control={<Radio color="primary" />}
-                                    label="For Affiliate"
-                                />
-                            </RadioGroup>
-                        </Grid>
+                                <Radio value="customer">For Customer</Radio>
+                                <Radio value="affiliate">For Affiliate</Radio>
+                            </Radio.Group>
+                        </Col>
 
-                        <Grid container justifyContent="flex-end">
-                            <Grid item style={{ marginRight: '8px' }}>
+                        <Row justify="end" className="w-full">
+                            <Col style={{ marginRight: '8px' }}>
                                 <Button
-                                    variant="outlined"
                                     disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.view}
-                                    type="button"
                                     onClick={handleView}
+                                    loading={loading.view}
                                 >
-                                    {loading.view && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                        <CircularProgress size={20} color="inherit" />
-                                    </span>)}
                                     View
                                 </Button>
-                            </Grid>
-                            <Grid item style={{ marginRight: '8px' }}>
+                            </Col>
+                            <Col style={{ marginRight: '8px' }}>
                                 <Button
-                                    variant="outlined"
-                                    color="primary"
                                     disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.save || loading.submit}
-                                    type="button"
                                     onClick={(e) => handleSubmit(e, 'save')}
+                                    loading={loading.save}
                                 >
-                                    {loading.save && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                        <CircularProgress size={20} color="inherit" />
-                                    </span>)}
                                     Save
                                 </Button>
-                            </Grid>
-                            <Grid item>
+                            </Col>
+                            <Col>
                                 <Button
-                                    variant="contained"
-                                    color="primary"
+                                    type="primary"
                                     disabled={(insertionOrderFor === 'affiliate' && !selectedAffiliates) || (insertionOrderFor === 'customer' && !customerIds) || !selectedCodesAndPhones || loading.submit || loading.save}
-                                    type="submit"
+                                    htmlType="submit"
+                                    loading={loading.submit}
                                 >
-                                    {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                        <CircularProgress size={20} color="inherit" />
-                                    </span>)}
                                     CREATE & SEND
                                 </Button>
-                            </Grid>
-                        </Grid>
-                    </Grid>
+                            </Col>
+                        </Row>
+                    </Row>
                 </form>
-            </Paper>
+            </div>
             <NormalModal
                 open={showViewModal.open}
                 setOpen={setShowViewModal}

@@ -1,21 +1,14 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import TextField from '@material-ui/core/TextField'
-import { Button } from '@material-ui/core'
-import Switch from '@material-ui/core/Switch'
+import { Table, Tooltip, Button, Input, Switch, Select, DatePicker } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -23,21 +16,16 @@ import NormalModal from '@/Shared/NormalModal'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
-import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
-import { useStyles, fields, groups, filter, columns } from './Helpers/BroadcastMonthReportProps'
+import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/BroadcastMonthReportProps'
 import mergeColumns from '@/Helpers/MergeColumns'
-import { hideLoading, showColumn, showLoading } from 'ka-table/actionCreators'
 import { Pagination } from 'react-laravel-paginex'
 
 const BroadcastMonthReport = () => {
-  const classes = useStyles()
   const { allBroadCastMonths, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [editData, setEditData] = useState()
@@ -45,6 +33,18 @@ const BroadcastMonthReport = () => {
   const [broadCastMonths, setBroadCastMonths] = useState(allBroadCastMonths)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
+  const [loading, setLoading] = useState(false)
+
+  const optionKey = 'broadcast-month-report'
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
+  const [columns, setColumns] = useState(
+    mergeColumns(
+      defaultColumns,
+      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
+    )
+  )
 
   const mapDataArr = (data) => {
     return data.map((item, index) => ({
@@ -56,70 +56,24 @@ const BroadcastMonthReport = () => {
       days_count: item.days_count,
       status: [item.status, item.id],
       id: item.id,
-      key: index,
+      key: item.id,
     }))
   }
 
-  const dataArray = mapDataArr(allBroadCastMonths.data)
-
-  const optionKey = 'broadcast-month-report'
-  const [columnDetails, setColumnDetails] = useState(
-    columnsData.length ? JSON.parse(columnsData[0]) : {}
-  )
-
-  const tablePropsInit = {
-    columns: mergeColumns(
-      columns,
-      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
-    ),
-    loading: {
-      enabled: false,
-      text: 'Loading...',
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (column.key === 'status') {
-        return (
-          <Switch
-            checked={value[0] === 1 && true}
-            color="primary"
-            onChange={() => handleStatus(value[0], value[1])}
-          />
-        )
-      }
-    },
-  }
-
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-  const tablePropsRef = useRef(tableProps.data)
+  const [data, setData] = useState(mapDataArr(allBroadCastMonths.data))
 
   const handleStatus = (value, rowId) => {
     axios
       .post(route('broadcast.month.status.update'), { value: value, rowId: rowId })
       .then((res) => {
-        let tmpData = { ...tableProps }
-        tablePropsRef.current.filter((item) => {
-          if (item.id === rowId) {
-            if (item.status[0] == 1) {
-              item.status = [0, rowId]
-            } else {
-              item.status = [1, rowId]
+        setData((prev) =>
+          prev.map((item) => {
+            if (item.id === rowId) {
+              return { ...item, status: [item.status[0] === 1 ? 0 : 1, rowId] }
             }
-          }
-        })
-        tmpData.data = tablePropsRef.current
-        changeTableProps(tmpData)
+            return item
+          })
+        )
         toast.success(res.data.msg)
       })
       .catch((err) => {
@@ -127,21 +81,13 @@ const BroadcastMonthReport = () => {
       })
   }
 
-  const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-    })
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -165,12 +111,11 @@ const BroadcastMonthReport = () => {
   }
 
   const handleEdit = (itemId) => {
-    tablePropsRef.current.filter((item) => {
-      if (item.id == itemId) {
-        setEditData(item)
-      }
-    })
-    setShowEditModal({ open: true })
+    const item = data.find((item) => item.id === itemId)
+    if (item) {
+      setEditData(item)
+      setShowEditModal({ open: true })
+    }
   }
 
   const handleEditChange = (e) => {
@@ -182,21 +127,25 @@ const BroadcastMonthReport = () => {
       .post(route('broadcast.month.edit'), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          filteredData.data.filter((item, indx) => {
-            if (item.id === editData.id) {
-              filteredData.data[indx].broad_cast_month = editData.broad_cast_month
-              filteredData.data[indx].start_date = editData.start_date
-              filteredData.data[indx].end_date = editData.end_date
-              filteredData.data[indx].days_count = res.data.days_count
-            }
-          })
-          setEditData([])
-          tablePropsRef.current = filteredData.data
+          setData((prev) =>
+            prev.map((item) => {
+              if (item.id === editData.id) {
+                return {
+                  ...item,
+                  broad_cast_month: editData.broad_cast_month,
+                  start_date: editData.start_date,
+                  end_date: editData.end_date,
+                  days_count: res.data.days_count,
+                }
+              }
+              return item
+            })
+          )
+          setEditData(undefined)
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
         } else {
-          setEditData([])
+          setEditData(undefined)
           setShowEditModal({ open: false })
           toast.error(res.data.msg)
         }
@@ -209,7 +158,7 @@ const BroadcastMonthReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -218,20 +167,16 @@ const BroadcastMonthReport = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('broadcast.month.delete'), { selectedRowIds })
+      .post(route('broadcast.month.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          tablePropsRef.current = newData
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -244,7 +189,7 @@ const BroadcastMonthReport = () => {
 
   useEffect(() => {
     const closeColumnSetting = (e) => {
-      CheckOutsideClick(e, showColumn, setShowColumns, showColumnRef)
+      CheckOutsideClick(e, showColumns, setShowColumns, showColumnRef)
     }
     document.addEventListener('mousedown', closeColumnSetting)
     return () => {
@@ -252,26 +197,22 @@ const BroadcastMonthReport = () => {
     }
   }, [showColumns])
 
-
-  const getSearchingData = async (data) => {
-    setCurerentPage(data)
-    dispatch(showLoading())
+  const getSearchingData = async (pageData) => {
+    setCurerentPage(pageData)
+    setLoading(true)
     await axios
       .get(
         'broadcast-month-report?page=' +
-        data.page +
+        pageData.page +
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
         JSON.stringify(filterValue)
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = mapDataArr(res.data.data)
-        changeTableProps(tmpTableProps)
-        tablePropsRef.current = mapDataArr(res.data.data)
+        setData(mapDataArr(res.data.data))
         setBroadCastMonths(res.data)
-        dispatch(hideLoading())
+        setLoading(false)
       })
   }
 
@@ -279,11 +220,9 @@ const BroadcastMonthReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
@@ -295,6 +234,48 @@ const BroadcastMonthReport = () => {
   useEffect(() => {
     getSearchingData(curerentPage)
   }, [itemPerPage, filterValue])
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      if (col.key === 'edit') {
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <Edit />
+          </div>
+        )
+      }
+      if (col.key === 'status') {
+        base.render = (value) => (
+          <Switch
+            checked={value[0] === 1}
+            onChange={() => handleStatus(value[0], value[1])}
+          />
+        )
+      }
+
+      return base
+    })
 
   return (
     <>
@@ -340,7 +321,7 @@ const BroadcastMonthReport = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -348,43 +329,26 @@ const BroadcastMonthReport = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={() => tableProps.data}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={loading}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => setItemPerPage(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={broadCastMonths} />
         </div>
       </div>
@@ -396,44 +360,32 @@ const BroadcastMonthReport = () => {
         title={'Edit BroadCast Month'}
       >
         <div className="edit-broadcast-month">
-          <form className={classes.form}>
+          <form>
             <span>BroadCast Month:</span>
-            <TextField
+            <Input
               value={editData ? editData.broad_cast_month : ''}
-              fullWidth
-              margin="normal"
               name="broad_cast_month"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Start Date:</span>
-            <TextField
-              defaultValue={editData ? editData.start_date : ''}
-              fullWidth
-              margin="normal"
-              name="start_date"
-              type="date"
-              variant="outlined"
-              onChange={handleEditChange}
+            <DatePicker
+              value={editData?.start_date ? dayjs(editData.start_date) : null}
+              onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>End Date:</span>
-
-            <TextField
-              defaultValue={editData ? editData.end_date : ''}
-              fullWidth
-              margin="normal"
-              name="end_date"
-              type="date"
-              variant="outlined"
-              onChange={handleEditChange}
+            <DatePicker
+              value={editData?.end_date ? dayjs(editData.end_date) : null}
+              onChange={(date, dateString) => handleEditChange({ target: { name: 'end_date', value: dateString } })}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
 
             <Button
-              variant="contained"
-              color="primary"
+              type="primary"
               onClick={handleEditSubmit}
-              className={classes.editButton}
+              style={styles.editButton}
             >
               Edit
             </Button>
@@ -451,7 +403,7 @@ const BroadcastMonthReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowIds.length > 1
+        title={`${selectedRowKeys.length > 1
           ? 'Do you want to delete these records?'
           : 'Do you want to delete this record?'
           }`}

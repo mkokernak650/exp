@@ -1,7 +1,4 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -14,7 +11,7 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}))
+}
 
 const operators = [
   {
@@ -175,140 +172,140 @@ export const columns = [
   {
     key: 'campaign',
     title: 'Campaign',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'customer',
     title: 'Customer',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'affiliate_name',
     title: 'Affiliate Name',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'order_at',
     title: 'Order AT',
-    dataType: DataType.Date,
+    dataType: 'date',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'order_type',
     title: 'Order Type',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'order_no',
     title: 'Order No',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'coupon_code',
     title: 'Coupon Code',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'dialed',
     title: 'Dialed',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'user_ip',
     title: 'User IP',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'inbound',
     title: 'Inbound',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'shipping_city',
     title: 'Shipping City',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'shipping_state',
     title: 'Shipping State',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 140 },
     visible: true,
   },
   {
     key: 'shipping_zip',
     title: 'Shipping Zip',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 140 },
     visible: true,
   },
   {
     key: 'billing_zip',
     title: 'Billing Zip',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 120 },
     visible: true,
   },
   {
     key: 'quantity',
     title: 'Quantity',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 120 },
     visible: true,
   },
   {
     key: 'subtotal',
     title: 'Subtotal',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 140 },
     visible: true,
   },
   {
     key: 'shipping_cost',
     title: 'Shipping Cost',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 140 },
     visible: true,
   },
   {
     key: 'total',
     title: 'Total',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 140 },
     visible: true,
   },
   {
     key: 'created_at',
     title: 'Created At',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'updated_at',
     title: 'Last Updated',
-    dataType: DataType.Date,
+    dataType: 'date',
     style: { width: 200 },
     visible: true,
   },

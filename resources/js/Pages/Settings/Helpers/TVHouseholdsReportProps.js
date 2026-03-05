@@ -1,7 +1,4 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -14,7 +11,7 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}))
+}
 
 export const fields = [
   {
@@ -170,42 +167,42 @@ export const columns = [
   {
     key: 'sl',
     title: 'SL',
-    dataType: DataType.Number,
+    dataType: 'number',
     style: { width: 20 },
     visible: false,
   },
   {
     key: 'market',
     title: 'Market',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'state',
     title: 'State',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'tv_households',
     title: 'TV Households',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'created_at',
     title: 'Created At',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'updated_at',
     title: 'Last Updated',
-    dataType: DataType.Date,
+    dataType: 'date',
     style: { width: 100 },
     visible: true,
   },

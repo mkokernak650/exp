@@ -1,29 +1,14 @@
 import Layout from '../../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { DataType, SortingMode, PagingPosition } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
-import {
-  deselectAllFilteredRows,
-  deselectRow,
-  selectAllFilteredRows,
-  selectRow,
-  selectRowsRange,
-} from 'ka-table/actionCreators'
 import FilterControl from 'react-filter-control'
-import { filterData } from '../../filterData'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import Checkbox from '@material-ui/core/Checkbox'
-import TextField from '@material-ui/core/TextField'
-import { Button, makeStyles } from '@material-ui/core'
+import { Table, Tooltip, Button, Input, DatePicker } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -32,7 +17,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 
-const useStyles = makeStyles(() => ({
+const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -46,96 +31,42 @@ const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}))
+}
 
 export const fields = [
   {
     caption: 'annotation',
     name: 'annotation',
     operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
+      { caption: 'Contains', name: 'contains' },
+      { caption: 'Not Contains', name: 'doesNotContain' },
+      { caption: 'Is Empty', name: 'isEmpty' },
+      { caption: 'Is Not Empty', name: 'isNotEmpty' },
+      { caption: 'Starts With', name: 'startswith' },
+      { caption: 'Ends With', name: 'endsWith' },
+      { caption: 'Is', name: 'is' },
+      { caption: 'Is Not', name: 'isnot' },
     ],
   },
   {
     caption: 'status',
     name: 'status',
     operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
+      { caption: 'Contains', name: 'contains' },
+      { caption: 'Not Contains', name: 'doesNotContain' },
+      { caption: 'Is Empty', name: 'isEmpty' },
+      { caption: 'Is Not Empty', name: 'isNotEmpty' },
+      { caption: 'Starts With', name: 'startswith' },
+      { caption: 'Ends With', name: 'endsWith' },
+      { caption: 'Is', name: 'is' },
+      { caption: 'Is Not', name: 'isnot' },
     ],
   },
 ]
 
 export const groups = [
-  {
-    caption: 'And',
-    name: 'and',
-  },
-  {
-    caption: 'Or',
-    name: 'or',
-  },
+  { caption: 'And', name: 'and' },
+  { caption: 'Or', name: 'or' },
 ]
 export const filter = {
   groupName: 'and',
@@ -148,11 +79,10 @@ export const filter = {
 }
 
 const CampaignAnnotations = () => {
-  const classes = useStyles()
   const { annotation, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -186,86 +116,21 @@ const CampaignAnnotations = () => {
     annotation: item.annotation_name,
     status: item.status,
     id: item.id,
-    key: index,
+    key: item.id,
   }))
 
-  const SelectionCell = ({ rowKeyValue, dispatch, isSelectedRow, selectedRows }) => {
-    return (
-      <Checkbox
-        checked={isSelectedRow}
-        color="primary"
-        onChange={(event) => {
-          if (event.nativeEvent.shiftKey) {
-            dispatch(selectRowsRange(rowKeyValue, [...selectedRows].pop()))
-          } else if (event.currentTarget.checked) {
-            dispatch(selectRow(rowKeyValue))
-            setTableToolbar(true)
-            const id = parseInt(rowKeyValue)
-            if (!selectedRowIds.includes(id)) {
-              selectedRowIds.push(id)
-            }
-          } else {
-            dispatch(deselectRow(rowKeyValue))
-            const id = parseInt(rowKeyValue)
-            const itemIndx = selectedRowIds.indexOf(id)
-            selectedRowIds.splice(itemIndx, 1)
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
-
-  const SelectionHeader = ({ dispatch, areAllRowsSelected }) => {
-    return (
-      <Checkbox
-        checked={areAllRowsSelected}
-        color="primary"
-        onChange={(event) => {
-          if (event.currentTarget.checked) {
-            dispatch(selectAllFilteredRows()) // also available: selectAllVisibleRows(), selectAllRows()
-            setTableToolbar(true)
-            let i = 0
-            while (i < tableProps.data.length) {
-              if (!selectedRowIds.includes(tableProps.data[i].id)) {
-                selectedRowIds.push(tableProps.data[i].id)
-                continue
-              }
-              i++
-            }
-          } else {
-            dispatch(deselectAllFilteredRows()) // also available: deselectAllVisibleRows(), deselectAllRows()
-            if (selectedRowIds) {
-              selectedRowIds.splice(0, selectedRowIds.length)
-            }
-            if (selectedRowIds.length < 1) {
-              setTableToolbar(false)
-            }
-          }
-        }}
-      />
-    )
-  }
-
-  const columns = [
-    {
-      key: 'selection-cell',
-      style: { width: 40 },
-      visible: true,
-    },
+  const defaultColumns = [
     {
       key: 'annotation',
       title: 'Annotation',
-      dataType: DataType.String,
+      dataType: 'string',
       style: { width: 240 },
       visible: true,
     },
     {
       key: 'status',
       title: 'Status',
-      dataType: DataType.String,
+      dataType: 'string',
       style: { width: 100 },
       visible: true,
     },
@@ -275,66 +140,23 @@ const CampaignAnnotations = () => {
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    rowReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (column.key === 'status') {
-        return value == 1 ? 'Active' : 'Pushed'
-      }
-    },
-  }
+  const [data, setData] = useState(dataArray)
 
-  const [columnChooserProps, changeColumnChooserProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
-
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const ordering = []
-  useEffect(() => {
-    for (const [indx, item] of columnChooserProps.data.entries()) {
-      ordering.push({ order: indx, id: item.id })
-    }
-    if (ordering.length > 0) {
-      axios
-        .post(route('store.annotations.row.order'), ordering)
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err))
-    }
-  }, [columnChooserProps])
 
   const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
@@ -357,14 +179,11 @@ const CampaignAnnotations = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('annotation.delete'), { selectedRowIds })
+      .post(route('annotation.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -381,7 +200,7 @@ const CampaignAnnotations = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -397,7 +216,6 @@ const CampaignAnnotations = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
@@ -406,14 +224,49 @@ const CampaignAnnotations = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      if (col.key === 'edit') {
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <Edit />
+          </div>
+        )
+      }
+      if (col.key === 'status') {
+        base.render = (value) => value == 1 ? 'Active' : 'Pushed'
+      }
+
+      return base
+    })
 
   return (
     <>
@@ -461,7 +314,7 @@ const CampaignAnnotations = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -469,52 +322,13 @@ const CampaignAnnotations = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            filterRowCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <></>
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                      // areAllRowsSelected={kaPropsUtils.areAllVisibleRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-            cell: {
-              content: (props) => {
-                switch (props.column.key) {
-                  case 'drag':
-                    return (
-                      <img
-                        style={{ cursor: 'move' }}
-                        src="https://komarovalexander.github.io/ka-table/static/icons/draggable.svg"
-                        alt="draggable"
-                      />
-                    )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
       </div>
 
@@ -525,42 +339,33 @@ const CampaignAnnotations = () => {
         title={'Edit Campaign Annotations'}
       >
         <div className="edit_target">
-          <form className={classes.form}>
+          <form>
             <span>Customer:</span>
-            <TextField
+            <Input
               value={editData ? editData.customer_id : ''}
-              fullWidth
-              margin="normal"
               name="customer_id"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Market:</span>
-            <TextField
+            <Input
               value={editData ? editData.market_id : ''}
-              fullWidth
-              margin="normal"
               name="market_id"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Start Date:</span>
-
-            <TextField
-              type="date"
-              name="start_date"
-              onChange={handleEditChange}
-              defaultValue={editData ? editData.start_date : ''}
-              margin="normal"
-              fullWidth
+            <DatePicker
+              value={editData?.start_date ? dayjs(editData.start_date) : null}
+              onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <Button
-              variant="contained"
-              color="primary"
+              type="primary"
               onClick={handleEditSubmit}
-              className={classes.editButton}
+              style={styles.editButton}
             >
               Edit
             </Button>
@@ -579,7 +384,7 @@ const CampaignAnnotations = () => {
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
         title={`${
-          selectedRowIds.length > 1
+          selectedRowKeys.length > 1
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}

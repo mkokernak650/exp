@@ -1,637 +1,205 @@
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import StoreIcon from '@material-ui/icons/Store';
-import DialpadIcon from '@material-ui/icons/Dialpad';
-import SettingsIcon from '@material-ui/icons/Settings';
-import PeopleIcon from '@material-ui/icons/People';
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import { User as UserIcon, Minus as MinusIcon } from 'react-feather';
-import { CalendarToday, ExpandLess, ExpandMore, History, Language, Storage, GroupAddOutlined } from '@material-ui/icons';
+import { Layout, Menu, Button, Divider, Dropdown } from 'antd';
+import {
+  MenuOutlined,
+  LeftOutlined,
+  ShopOutlined,
+  PhoneOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  ReadOutlined,
+  BarChartOutlined,
+  UserOutlined,
+  GlobalOutlined,
+  CalendarOutlined,
+  HistoryOutlined,
+  DatabaseOutlined,
+  UsergroupAddOutlined,
+  EllipsisOutlined,
+} from '@ant-design/icons';
+import { Minus as MinusIcon } from 'react-feather';
 import { InertiaLink } from '@inertiajs/inertia-react';
 import { usePage } from '@inertiajs/inertia-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Logo from '../../../images/webform/logo.png';
-import MoreIcon from '@material-ui/icons/MoreVert';
 
+const { Header, Sider, Content } = Layout;
 const drawerWidth = 280;
 
-const useStyles = makeStyles((theme) => ({
-  grow: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    display: 'none',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
-    },
-  },
-  sectionDesktop: {
-    display: 'none',
-    [theme.breakpoints.up('md')]: {
-      display: 'flex',
-    },
-  },
-  sectionMobile: {
-    display: 'flex',
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  paper: {
-    top: 64,
-  },
-  root: {
-    display: 'flex',
-  },
-  appBar: {
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  hide: {
-    display: 'none',
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    overflow: 'auto',
-  },
-  drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'space-between',
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: -drawerWidth,
-  },
-  contentShift: {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  },
-  menuIcon: {
-    minWidth: 30,
-  },
-  menuText: {
-    color: 'rgb(69 72 77)',
-    '& span, & svg': {
-      fontSize: '15px',
-    },
-    fontWeight: '500!important',
-  },
-  link: {
-    textDecoration: 'none',
-  },
-  nested: {
-    paddingLeft: '25px',
-    backgroundColor: '#f9f9f9',
-  },
-  item: {
-    color: 'rgb(107, 119, 140)',
-    '& span, & svg': {
-      fontSize: '13px',
-    },
-  },
-  selectedNested: {
-    backgroundColor: '#e2e7ed !important',
-  },
-}));
-
 export default function PersistentDrawerLeft(props) {
-  const classes = useStyles();
-  const theme = useTheme();
   const { url } = usePage();
   const [open, setOpen] = useState(() => {
-    if (typeof window === 'undefined') {
-      return true;
-    }
-
-    const savedOpenState = window.localStorage.getItem('sidebar-drawer-open');
-    return savedOpenState !== null ? savedOpenState === 'true' : true;
+    if (typeof window === 'undefined') return true;
+    const saved = window.localStorage.getItem('sidebar-drawer-open');
+    return saved !== null ? saved === 'true' : true;
   });
-  const [anchorEl, setAnchorEl] = useState(null);
-  const isMenuOpen = Boolean(anchorEl);
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const isCurrentRoute = (routeName) => {
+    if (!routeName) return false;
+    try { return route().current(routeName); } catch (e) { return false; }
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const handleOpenModal = (setOpenModal) => {
-    setOpenModal({ open: true });
-  };
-
-  const handleCloseModal = (setOpenModal) => {
-    setOpenModal({ open: false });
-  };
-
-  const menuId = 'primary-search-account-menu';
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <InertiaLink href={route('user.profile.index')} className={classes.link} as="div">
-        <MenuItem onClick={handleMenuClose}> My Profile</MenuItem>
-      </InertiaLink>
-      <InertiaLink method="post" href={route('logout')} className={classes.link} as="div">
-        <MenuItem onClick={handleMenuClose}> Logout</MenuItem>
-      </InertiaLink>
-    </Menu>
-  );
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-
-  const items = [
+  const menuItems = [
     {
-      id: 2,
-      Icon: <Language size="20" />,
-      title: 'Ringba',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Get Ringba Data',
-          href: 'get.ringba.data.form',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Call Logs Report',
-          href: 'call-logs-report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Archived Call Logs Report',
-          href: 'archived-call-log-report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Pending Call Logs Report',
-          href: 'pending-call-log-report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Exceptions',
-          href: 'get.exceptions',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Billed Call Logs Report',
-          href: 'billed-call-log-report',
-          Icon: <UserIcon />,
-        },
-      ],
-    },
-
-    {
-      id: 3,
-      Icon: <LibraryBooksIcon size="20" />,
-      title: 'Generate Reports',
-      active: false,
-      collapse: true,
-      submenu: [
-        // {
-        //   title: 'Pay Per Call-Affiliate',
-        //   href: 'generate.report.affiliate',
-        //   Icon: <UserIcon />,
-        // },
-        // {
-        //   title: 'Pay Per Call-Customer',
-        //   href: 'generate.report.target',
-        //   Icon: <UserIcon />,
-        // },
-        // {
-        //   title: 'Pay Per Call-Exceptions',
-        //   href: 'generate.report.market.exception',
-        //   Icon: <UserIcon />,
-        // },
-        // {
-        //   title: 'Pay Per Call-Summary',
-        //   href: 'generate.report.destination',
-        //   Icon: <UserIcon />,
-        // },
-        // {
-        //   title: 'Pay Per Call-Length',
-        //   href: 'generate.report.call.length',
-        //   Icon: <UserIcon />,
-        // },
-        // {
-        //   title: 'Pay Per Call-Homes per call',
-        //   href: 'generate.report.market.target',
-        //   Icon: <UserIcon />,
-        // },
-        {
-          title: 'Phone and Coupon Codes',
-          href: 'ecommerce.report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Ringa Reports',
-          href: 'ringba.reports',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Custom Email',
-          href: 'custom.email',
-          // Icon: <UserIcon />,
-        },
-        {
-          title: 'Roster Campaign',
-          href: 'send.campaign',
-          // Icon: <UserIcon />,
-        },
+      key: 'ringba',
+      icon: <GlobalOutlined />,
+      label: 'Ringba',
+      children: [
+        { key: 'get.ringba.data.form', label: <InertiaLink href={route('get.ringba.data.form')}>Get Ringba Data</InertiaLink> },
+        { key: 'call-logs-report', label: <InertiaLink href={route('call-logs-report')}>Call Logs Report</InertiaLink> },
+        { key: 'archived-call-log-report', label: <InertiaLink href={route('archived-call-log-report')}>Archived Call Logs Report</InertiaLink> },
+        { key: 'pending-call-log-report', label: <InertiaLink href={route('pending-call-log-report')}>Pending Call Logs Report</InertiaLink> },
+        { key: 'get.exceptions', label: <InertiaLink href={route('get.exceptions')}>Exceptions</InertiaLink> },
+        { key: 'billed-call-log-report', label: <InertiaLink href={route('billed-call-log-report')}>Billed Call Logs Report</InertiaLink> },
       ],
     },
     {
-      id: 4,
-      Icon: <DialpadIcon size="20" />,
-      title: 'Pay Per Call Setup',
-      active: false,
-      collapse: true,
-      submenu: [
+      key: 'generate-reports',
+      icon: <ReadOutlined />,
+      label: 'Generate Reports',
+      children: [
+        { key: 'ecommerce.report', label: <InertiaLink href={route('ecommerce.report')}>Phone and Coupon Codes</InertiaLink> },
+        { key: 'ringba.reports', label: <InertiaLink href={route('ringba.reports')}>Ringa Reports</InertiaLink> },
+        { key: 'custom.email', label: <InertiaLink href={route('custom.email')}>Custom Email</InertiaLink> },
+        { key: 'send.campaign', label: <InertiaLink href={route('send.campaign')}>Roster Campaign</InertiaLink> },
+      ],
+    },
+    {
+      key: 'pay-per-call',
+      icon: <PhoneOutlined />,
+      label: 'Pay Per Call Setup',
+      children: [
+        { key: 'campaign.setting.report', label: <InertiaLink href={route('campaign.setting.report')}>Campaign List</InertiaLink> },
+        { key: 'campaign.setting.form', label: <InertiaLink href={route('campaign.setting.form')}>Set Duration</InertiaLink> },
+        { key: 'annotation.create', label: <InertiaLink href={route('annotation.create')}>Create Annotations</InertiaLink> },
+        { key: 'market.exception.form', label: <InertiaLink href={route('market.exception.form')}>Add Exceptions</InertiaLink> },
+        { key: 'market.exception.report', label: <InertiaLink href={route('market.exception.report')}>Market Exception Report</InertiaLink> },
         {
-          title: 'Campaign List',
-          href: 'campaign.setting.report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Set Duration',
-          href: 'campaign.setting.form',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Create Annotations',
-          href: 'annotation.create',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Add Exceptions',
-          href: 'market.exception.form',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Market Exception Report',
-          href: 'market.exception.report',
-          Icon: <UserIcon />,
-        },
-        {
-          id: 7,
-          Icon: <SettingsIcon size="20" />,
-          title: 'Targets',
-          active: false,
-          collapse: true,
-          name: 'sub-child',
-          submenu: [
-            {
-              title: 'Add Target',
-              href: 'target.form',
-              Icon: <UserIcon />,
-            },
-            {
-              title: 'Targets',
-              href: 'target.report',
-              Icon: <UserIcon />,
-            },
-            {
-              title: 'Target Names',
-              href: 'target_names.report',
-              Icon: <UserIcon />,
-            },
+          key: 'targets',
+          icon: <SettingOutlined />,
+          label: 'Targets',
+          children: [
+            { key: 'target.form', label: <InertiaLink href={route('target.form')}>Add Target</InertiaLink> },
+            { key: 'target.report', label: <InertiaLink href={route('target.report')}>Targets</InertiaLink> },
+            { key: 'target_names.report', label: <InertiaLink href={route('target_names.report')}>Target Names</InertiaLink> },
           ],
         },
       ],
     },
     {
-      id: 5,
-      Icon: <StoreIcon size="20" />,
-      title: 'Phone and Coupon Codes',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Create Campaign',
-          href: 'ecommerce-campaigns.create',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'All Campaigns',
-          href: 'ecommerce-campaigns.index',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Import Sales Report',
-          href: 'ecommerce-sales.import',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Historical sales',
-          href: 'ecommerce-sales.index',
-          Icon: <UserIcon />,
-        },
+      key: 'ecommerce',
+      icon: <ShopOutlined />,
+      label: 'Phone and Coupon Codes',
+      children: [
+        { key: 'ecommerce-campaigns.create', label: <InertiaLink href={route('ecommerce-campaigns.create')}>Create Campaign</InertiaLink> },
+        { key: 'ecommerce-campaigns.index', label: <InertiaLink href={route('ecommerce-campaigns.index')}>All Campaigns</InertiaLink> },
+        { key: 'ecommerce-sales.import', label: <InertiaLink href={route('ecommerce-sales.import')}>Import Sales Report</InertiaLink> },
+        { key: 'ecommerce-sales.index', label: <InertiaLink href={route('ecommerce-sales.index')}>Historical sales</InertiaLink> },
       ],
     },
     {
-      id: 14,
-      Icon: <AssessmentIcon size="20" />,
-      title: 'Insertion Order',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Phone and Code Worksheet',
-          href: 'ecommerce-affiliates.create',
-        },
-        {
-          title: 'All Phone and Code Worksheets',
-          href: 'ecommerce-affiliates.index',
-        },
-        {
-          title: 'Create Insertion Order',
-          href: 'insertion.order.create',
-        },
-        {
-          title: 'All Insertion Orders',
-          href: 'insertion.order',
-        },
-        {
-          title: 'Create Pay Per Call IO',
-          href: 'insertion.order.ringba.term.create',
-        },
-        {
-          title: 'All Pay Per Call IO',
-          href: 'insertion.order.ringba',
-        },
+      key: 'insertion-order',
+      icon: <BarChartOutlined />,
+      label: 'Insertion Order',
+      children: [
+        { key: 'ecommerce-affiliates.create', label: <InertiaLink href={route('ecommerce-affiliates.create')}>Phone and Code Worksheet</InertiaLink> },
+        { key: 'ecommerce-affiliates.index', label: <InertiaLink href={route('ecommerce-affiliates.index')}>All Phone and Code Worksheets</InertiaLink> },
+        { key: 'insertion.order.create', label: <InertiaLink href={route('insertion.order.create')}>Create Insertion Order</InertiaLink> },
+        { key: 'insertion.order', label: <InertiaLink href={route('insertion.order')}>All Insertion Orders</InertiaLink> },
+        { key: 'insertion.order.ringba.term.create', label: <InertiaLink href={route('insertion.order.ringba.term.create')}>Create Pay Per Call IO</InertiaLink> },
+        { key: 'insertion.order.ringba', label: <InertiaLink href={route('insertion.order.ringba')}>All Pay Per Call IO</InertiaLink> },
       ],
     },
     {
-      id: 6,
-      Icon: <SettingsIcon size="20" />,
-      title: 'Affiliates',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Add Affiliate',
-          href: 'add.affiliate',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Affiliate Report',
-          href: 'affiliate.report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Archived Affiliates',
-          href: 'archived.affiliates',
-          Icon: <UserIcon />,
-        },
+      key: 'affiliates',
+      icon: <SettingOutlined />,
+      label: 'Affiliates',
+      children: [
+        { key: 'add.affiliate', label: <InertiaLink href={route('add.affiliate')}>Add Affiliate</InertiaLink> },
+        { key: 'affiliate.report', label: <InertiaLink href={route('affiliate.report')}>Affiliate Report</InertiaLink> },
+        { key: 'archived.affiliates', label: <InertiaLink href={route('archived.affiliates')}>Archived Affiliates</InertiaLink> },
       ],
     },
     {
-      id: 8,
-      Icon: <PeopleIcon size="20" />,
-      title: 'Customers',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Add Customer',
-          href: 'add.customer',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Customer Report',
-          href: 'customer.report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Archived Customers',
-          href: 'archived.customers',
-          Icon: <UserIcon />,
-        },
+      key: 'customers',
+      icon: <TeamOutlined />,
+      label: 'Customers',
+      children: [
+        { key: 'add.customer', label: <InertiaLink href={route('add.customer')}>Add Customer</InertiaLink> },
+        { key: 'customer.report', label: <InertiaLink href={route('customer.report')}>Customer Report</InertiaLink> },
+        { key: 'archived.customers', label: <InertiaLink href={route('archived.customers')}>Archived Customers</InertiaLink> },
       ],
     },
     {
-      id: 9,
-      Icon: <Storage size="20" />,
-      title: 'Database',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'TV Markets By Zip Codes',
-          href: 'zipcode.television.market',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Telephone and Zip Codes',
-          href: 'zipcode.data',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Add TV Households',
-          href: 'add.tv.households',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'TV Households Report',
-          href: 'tv.households.report',
-          Icon: <UserIcon />,
-        },
+      key: 'database',
+      icon: <DatabaseOutlined />,
+      label: 'Database',
+      children: [
+        { key: 'zipcode.television.market', label: <InertiaLink href={route('zipcode.television.market')}>TV Markets By Zip Codes</InertiaLink> },
+        { key: 'zipcode.data', label: <InertiaLink href={route('zipcode.data')}>Telephone and Zip Codes</InertiaLink> },
+        { key: 'add.tv.households', label: <InertiaLink href={route('add.tv.households')}>Add TV Households</InertiaLink> },
+        { key: 'tv.households.report', label: <InertiaLink href={route('tv.households.report')}>TV Households Report</InertiaLink> },
       ],
     },
     {
-      id: 10,
-      Icon: <CalendarToday size="20" />,
-      title: 'Calendar',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Add Broadcast Month',
-          href: 'add.broadcast.month',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Broadcast Month Report',
-          href: 'broadcast.month.report',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Add Broadcast Week',
-          href: 'add.broadcast.week',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Broadcast Week Report',
-          href: 'broadcast.week.report',
-          Icon: <UserIcon />,
-        },
+      key: 'calendar',
+      icon: <CalendarOutlined />,
+      label: 'Calendar',
+      children: [
+        { key: 'add.broadcast.month', label: <InertiaLink href={route('add.broadcast.month')}>Add Broadcast Month</InertiaLink> },
+        { key: 'broadcast.month.report', label: <InertiaLink href={route('broadcast.month.report')}>Broadcast Month Report</InertiaLink> },
+        { key: 'add.broadcast.week', label: <InertiaLink href={route('add.broadcast.week')}>Add Broadcast Week</InertiaLink> },
+        { key: 'broadcast.week.report', label: <InertiaLink href={route('broadcast.week.report')}>Broadcast Week Report</InertiaLink> },
       ],
     },
     {
-      id: 11,
-      href: 'webform.reports',
-      Icon: <AssessmentIcon size="20" />,
-      title: 'Webform Reports',
-      active: false,
-      collapse: false,
+      key: 'webform.reports',
+      icon: <BarChartOutlined />,
+      label: <InertiaLink href={route('webform.reports')}>Webform Reports</InertiaLink>,
     },
     {
-      id: 12,
-      href: 'activity.log',
-      Icon: <History size="20" />,
-      title: 'Activity Log',
-      active: false,
-      collapse: false,
+      key: 'activity.log',
+      icon: <HistoryOutlined />,
+      label: <InertiaLink href={route('activity.log')}>Activity Log</InertiaLink>,
     },
-
     {
-      id: 13,
-      Icon: <GroupAddOutlined size="20" />,
-      title: 'Users',
-      active: false,
-      collapse: true,
-      submenu: [
-        {
-          title: 'Add User',
-          href: 'user.create',
-          Icon: <UserIcon />,
-        },
-        {
-          title: 'Show User',
-          href: 'user.index',
-          Icon: <UserIcon />,
-        }
+      key: 'users',
+      icon: <UsergroupAddOutlined />,
+      label: 'Users',
+      children: [
+        { key: 'user.create', label: <InertiaLink href={route('user.create')}>Add User</InertiaLink> },
+        { key: 'user.index', label: <InertiaLink href={route('user.index')}>Show User</InertiaLink> },
       ],
     },
   ];
 
-  const [activeItems, setActiveItems] = useState({
-    id: '',
-    active: false,
-    submenu: {
-      id: '',
-      active: false,
-    },
-  });
+  const findSelectedAndOpenKeys = () => {
+    const selectedKeys = [];
+    const openKeys = [];
 
-  const isCurrentRoute = (routeName) => {
-    if (!routeName) {
-      return false;
-    }
-
-    try {
-      return route().current(routeName);
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const getActiveItemsFromRoute = () => {
-    const defaultState = {
-      id: '',
-      active: false,
-      submenu: {
-        id: '',
-        active: false,
-      },
-    };
-
-    for (const menu of items) {
-      if (!menu?.collapse || !menu?.submenu) {
-        continue;
-      }
-
-      for (const submenu of menu.submenu) {
-        if (submenu?.name && submenu?.submenu) {
-          const matchingChild = submenu.submenu.find((child) => isCurrentRoute(child.href));
-
-          if (matchingChild) {
-            return {
-              id: menu.id,
-              active: true,
-              submenu: {
-                id: submenu.id,
-                active: true,
-              },
-            };
-          }
-        } else if (isCurrentRoute(submenu?.href)) {
-          return {
-            id: menu.id,
-            active: true,
-            submenu: {
-              id: '',
-              active: false,
-            },
-          };
+    const findInItems = (items, parentKeys = []) => {
+      for (const item of items) {
+        if (item.children) {
+          findInItems(item.children, [...parentKeys, item.key]);
+        } else if (isCurrentRoute(item.key)) {
+          selectedKeys.push(item.key);
+          openKeys.push(...parentKeys);
         }
       }
-    }
-
-    return defaultState;
+    };
+    findInItems(menuItems);
+    return { selectedKeys, openKeys };
   };
+
+  const { selectedKeys, openKeys: initialOpenKeys } = useMemo(findSelectedAndOpenKeys, [url]);
+  const [openKeys, setOpenKeys] = useState(initialOpenKeys);
+
+  useEffect(() => {
+    const { openKeys: newOpenKeys } = findSelectedAndOpenKeys();
+    setOpenKeys(prev => {
+      const merged = new Set([...prev, ...newOpenKeys]);
+      return [...merged];
+    });
+  }, [url]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -639,268 +207,108 @@ export default function PersistentDrawerLeft(props) {
     }
   }, [open]);
 
-  useEffect(() => {
-    setActiveItems(getActiveItemsFromRoute());
-  }, [url]);
-
-  const handleClick = (id, type) => {
-    items.forEach((item) => {
-      if (type === 'parent') {
-        if (item.id === id && activeItems.id === id && activeItems.active) {
-          let tmpActiveItems = { ...activeItems };
-          tmpActiveItems.id = item.id;
-          tmpActiveItems.active = false;
-          item.submenu.forEach((child) => {
-            if (child?.name) {
-              if (child.id === activeItems.submenu.id && activeItems.submenu.active) {
-                tmpActiveItems.submenu.id = child.id;
-                tmpActiveItems.submenu.active = false;
-              }
-            }
-          });
-          setActiveItems(tmpActiveItems);
-        } else if (item.id === id) {
-          let tmpActiveItems = { ...activeItems };
-          tmpActiveItems.id = item.id;
-          tmpActiveItems.active = true;
-          setActiveItems(tmpActiveItems);
-        }
-      } else {
-        item?.submenu?.forEach((child) => {
-          if (child?.name) {
-            if (child.id === activeItems.submenu.id && activeItems.submenu.active) {
-              let tmpActiveItems = { ...activeItems };
-              tmpActiveItems.submenu.id = child.id;
-              tmpActiveItems.submenu.active = false;
-              setActiveItems(tmpActiveItems);
-            } else if (child.id === id) {
-              let tmpActiveItems = { ...activeItems };
-              tmpActiveItems.submenu.id = child.id;
-              tmpActiveItems.submenu.active = true;
-              setActiveItems(tmpActiveItems);
-            }
-          }
-        });
-      }
-    });
-  };
+  const profileMenuItems = [
+    {
+      key: 'profile',
+      label: <InertiaLink href={route('user.profile.index')}>My Profile</InertiaLink>,
+    },
+    {
+      key: 'logout',
+      label: <InertiaLink method="post" href={route('logout')}>Logout</InertiaLink>,
+    },
+  ];
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
-          >
-            <MenuIcon />
-          </IconButton>
-          {!open ? (
-            <div className="logo">
-              <img src={Logo} alt="consumer-exp-logo"></img>
-            </div>
-          ) : (
-            ''
-          )}
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-          </div>
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </div>
-        </Toolbar>
-      </AppBar>
-
-      {renderMenu}
-      <Drawer
-        className={classes.drawer}
-        variant="persistent"
-        anchor="left"
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header
+        style={{
+          position: 'fixed',
+          zIndex: 1000,
+          width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
+          marginLeft: open ? drawerWidth : 0,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 16px',
+          background: '#1976d2',
+          transition: 'all 0.2s ease',
+          height: 64,
         }}
       >
-        <div className={classes.drawerHeader}>
+        {!open && (
+          <Button
+            type="text"
+            icon={<MenuOutlined style={{ color: '#fff', fontSize: 20 }} />}
+            onClick={() => setOpen(true)}
+            style={{ marginRight: 16 }}
+          />
+        )}
+        {!open && (
+          <div className="logo">
+            <img src={Logo} alt="consumer-exp-logo" />
+          </div>
+        )}
+        <div style={{ flex: 1 }} />
+        <div className="hidden md:flex">
+          <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight">
+            <Button type="text" icon={<UserOutlined style={{ color: '#fff', fontSize: 20 }} />} />
+          </Dropdown>
+        </div>
+        <div className="flex md:hidden">
+          <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight">
+            <Button type="text" icon={<EllipsisOutlined style={{ color: '#fff', fontSize: 20 }} />} />
+          </Dropdown>
+        </div>
+      </Header>
+
+      <Sider
+        width={drawerWidth}
+        trigger={null}
+        collapsedWidth={0}
+        collapsed={!open}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 1001,
+          background: '#fff',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', minHeight: 64 }}>
           <div className="logo">
             <InertiaLink href="/home">
-              <img src={Logo} alt="consumer-exp-logo"></img>
+              <img src={Logo} alt="consumer-exp-logo" />
             </InertiaLink>
           </div>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
+          <Button
+            type="text"
+            icon={<LeftOutlined />}
+            onClick={() => setOpen(false)}
+          />
         </div>
-        <Divider />
-        <List>
-          {items.map((menu) => {
-            return (
-              <div key={menu.id}>
-                {menu.collapse ? (
-                  <ListItem
-                    button
-                    onClick={() => handleClick(menu.id, 'parent')}
-                    key={menu.id}
-                  >
-                    <ListItemIcon className={classes.menuIcon}>{menu.Icon}</ListItemIcon>
-                    <ListItemText primary={menu.title} className={classes.menuText} />
-                    {activeItems.id === menu.id && activeItems.active ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    )}
-                  </ListItem>
-                ) : (
-                  <InertiaLink href={route(menu.href)} style={{ textDecoration: 'none' }}>
-                    <ListItem button>
-                      <ListItemIcon className={classes.menuIcon}>{menu.Icon}</ListItemIcon>
-                      <ListItemText primary={menu.title} className={classes.menuText} />
-                    </ListItem>
-                  </InertiaLink>
-                )}
+        <Divider style={{ margin: 0 }} />
+        <Menu
+          mode="inline"
+          selectedKeys={selectedKeys}
+          openKeys={openKeys}
+          onOpenChange={setOpenKeys}
+          items={menuItems}
+          style={{ borderRight: 0 }}
+        />
+      </Sider>
 
-                {menu.collapse && (
-                  <Collapse
-                    in={activeItems.id === menu.id && activeItems.active}
-                    timeout="auto"
-                    unmountOnExit
-                    style={{ overflow: 'hidden' }}
-                  >
-                    <List component="div" disablePadding>
-                      {menu.submenu.map((submenu) => {
-                        if (submenu?.name) {
-                          return (
-                            <List component="div" disablePadding>
-                              <ListItem
-                                button
-                                onClick={() => handleClick(submenu.id, 'child')}
-                                key={submenu.id}
-                                style={{ paddingLeft: '22px' }}
-                              >
-                                <ListItemIcon className={classes.menuIcon}>
-                                  {submenu.Icon}
-                                </ListItemIcon>
-                                <ListItemText
-                                  primary={submenu.title}
-                                  className={classes.menuText}
-                                />
-                                {activeItems?.submenu?.id === submenu?.id &&
-                                  activeItems?.submenu?.active ? (
-                                  <ExpandLess />
-                                ) : (
-                                  <ExpandMore />
-                                )}
-                              </ListItem>
-                              <Collapse
-                                in={
-                                  activeItems?.submenu?.id === submenu?.id &&
-                                  activeItems?.submenu?.active
-                                }
-                                timeout="auto"
-                                unmountOnExit
-                                style={{ overflow: 'hidden' }}
-                              >
-                                {submenu.submenu.map((child) => {
-                                  return (
-                                    <List component="div" disablePadding>
-                                      <InertiaLink
-                                        href={route(child.href)}
-                                        style={{ textDecoration: 'none' }}
-                                        key={child.title}
-                                      >
-                                        <ListItem
-                                          button
-                                          key={submenu?.id}
-                                          className={clsx(
-                                            classes.nested,
-                                            isCurrentRoute(child.href) && classes.selectedNested
-                                          )}
-                                          selected={isCurrentRoute(child.href)}
-                                        >
-                                          <ListItemIcon className={classes.menuIcon}>
-                                            <MinusIcon size="15" />
-                                          </ListItemIcon>
-                                          <ListItemText
-                                            primary={child.title}
-                                            className={classes.item}
-                                          />
-                                        </ListItem>
-                                      </InertiaLink>
-                                    </List>
-                                  );
-                                })}
-                              </Collapse>
-                            </List>
-                          );
-                        } else {
-                          return (
-                            <InertiaLink
-                              href={route(submenu.href)}
-                              style={{ textDecoration: 'none' }}
-                              key={submenu.title}
-                            >
-                              <ListItem
-                                button
-                                className={clsx(
-                                  classes.nested,
-                                  isCurrentRoute(submenu.href) && classes.selectedNested
-                                )}
-                                key={submenu.id}
-                                selected={isCurrentRoute(submenu.href)}
-                              >
-                                <ListItemIcon className={classes.menuIcon}>
-                                  <MinusIcon size="15" />
-                                </ListItemIcon>
-                                <ListItemText primary={submenu.title} className={classes.item} />
-                              </ListItem>
-                            </InertiaLink>
-                          );
-                        }
-                      })}
-                    </List>
-                  </Collapse>
-                )}
-              </div>
-            );
-          })}
-        </List>
-      </Drawer>
-      <main
-        className={clsx(classes.content, {
-          [classes.contentShift]: open,
-        })}
+      <Layout
+        style={{
+          marginLeft: open ? drawerWidth : 0,
+          transition: 'margin-left 0.2s ease',
+        }}
       >
-        <div className={classes.drawerHeader} />
-        {props.main}
-      </main>
-
-    </div>
+        <Content style={{ marginTop: 64, padding: 24 }}>
+          {props.main}
+        </Content>
+      </Layout>
+    </Layout>
   );
 }

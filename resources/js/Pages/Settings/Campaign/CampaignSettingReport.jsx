@@ -1,39 +1,27 @@
 import Layout from '../../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode, PagingPosition } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { InertiaLink, usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
-import { filterData } from '../../filterData'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import TextField from '@material-ui/core/TextField'
-import { Button, CircularProgress } from '@material-ui/core'
+import { Table, Tooltip, Button, Input, Switch, DatePicker } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
-import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { Switch } from '@material-ui/core'
-import { columns, useStyles, fields, groups, filter } from './Helpers/CampaignSettingReportProps'
+import { columns as defaultColumns, styles, fields, groups, filter } from './Helpers/CampaignSettingReportProps'
 
 const CampaignSettingReport = () => {
-  const classes = useStyles()
   const { allCampaigns, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -72,87 +60,31 @@ const CampaignSettingReport = () => {
     status: [item.status, item.id, index],
     actions: item.id,
     id: item.id,
-    key: index,
+    key: item.id,
   }))
 
   const optionKey = 'campaign-setting-report'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'status') {
-        if (typeof value === 'string') {
-          value = value.split(',')
-        }
-        return (
-          <Switch
-            checked={parseInt(value[0]) === 1 && true}
-            color="primary"
-            onChange={() => handleStatus(value[0], value[1], value[2])}
-          />
-        )
-      }
-      if (column.key === 'actions') {
-        return (
-          <div style={{ display: 'flex' }}>
-            <InertiaLink href={route('campaign.annotations', value)}>
-              <Button variant="contained" color="primary">
-                Annotations
-              </Button>
-            </InertiaLink>
-            <InertiaLink href={route('campaign.exceptions', value)} style={{ paddingLeft: '4px' }}>
-              <Button variant="contained" color="primary">
-                Exceptions
-              </Button>
-            </InertiaLink>
-            <div style={{ paddingLeft: '4px' }}>
-              <Button variant="contained" color="primary" onClick={() => handleDescriptionModal(value)}>
-                Description and URLs
-              </Button>
-            </div>
-          </div>
-        )
-      }
-    },
-  }
+  const [data, setData] = useState(dataArray)
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-    })
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
+
   const [filterValue, changeFilter] = useState(filter)
   const onFilterChanged = (newFilterValue) => {
     changeFilter(newFilterValue)
@@ -180,9 +112,14 @@ const CampaignSettingReport = () => {
     axios
       .post(route('campaigns.status.update', rowId), { status }, headers)
       .then((res) => {
-        let tmpData = { ...tableProps }
-        tmpData.data[index].status = [status, rowId, index]
-        changeTableProps({ ...tmpData })
+        setData((prev) =>
+          prev.map((item) => {
+            if (item.id === rowId) {
+              return { ...item, status: [status, rowId, index] }
+            }
+            return item
+          })
+        )
         toast.success(res.data.msg)
       })
       .catch((err) => {
@@ -194,14 +131,11 @@ const CampaignSettingReport = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('campaign.delete'), { selectedRowIds })
+      .post(route('campaign.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -218,8 +152,7 @@ const CampaignSettingReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
-    emptyCheckbox()
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -235,7 +168,6 @@ const CampaignSettingReport = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
@@ -244,11 +176,9 @@ const CampaignSettingReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
@@ -299,6 +229,67 @@ const CampaignSettingReport = () => {
       })
   }
 
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      if (col.key === 'status') {
+        base.render = (value) => {
+          if (typeof value === 'string') {
+            value = value.split(',')
+          }
+          return (
+            <Switch
+              checked={parseInt(value[0]) === 1}
+              onChange={() => handleStatus(value[0], value[1], value[2])}
+            />
+          )
+        }
+      }
+      if (col.key === 'actions') {
+        base.render = (value) => (
+          <div style={{ display: 'flex' }}>
+            <InertiaLink href={route('campaign.annotations', value)}>
+              <Button type="primary">
+                Annotations
+              </Button>
+            </InertiaLink>
+            <InertiaLink href={route('campaign.exceptions', value)} style={{ paddingLeft: '4px' }}>
+              <Button type="primary">
+                Exceptions
+              </Button>
+            </InertiaLink>
+            <div style={{ paddingLeft: '4px' }}>
+              <Button type="primary" onClick={() => handleDescriptionModal(value)}>
+                Description and URLs
+              </Button>
+            </div>
+          </div>
+        )
+      }
+
+      return base
+    })
+
   return (
     <>
       <Helmet title="Campaign Setting Report" />
@@ -345,7 +336,7 @@ const CampaignSettingReport = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -353,30 +344,13 @@ const CampaignSettingReport = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
       </div>
 
@@ -387,42 +361,33 @@ const CampaignSettingReport = () => {
         title={'Edit Campaign Setting'}
       >
         <div className="edit_target">
-          <form className={classes.form}>
+          <form>
             <span>Customer:</span>
-            <TextField
+            <Input
               value={editData ? editData.customer_id : ''}
-              fullWidth
-              margin="normal"
               name="customer_id"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Market:</span>
-            <TextField
+            <Input
               value={editData ? editData.market_id : ''}
-              fullWidth
-              margin="normal"
               name="market_id"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Start Date:</span>
-
-            <TextField
-              type="date"
-              name="start_date"
-              onChange={handleEditChange}
-              defaultValue={editData ? editData.start_date : ''}
-              margin="normal"
-              fullWidth
+            <DatePicker
+              value={editData?.start_date ? dayjs(editData.start_date) : null}
+              onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <Button
-              variant="contained"
-              color="primary"
+              type="primary"
               onClick={handleEditSubmit}
-              className={classes.editButton}
+              style={styles.editButton}
             >
               Edit
             </Button>
@@ -445,42 +410,31 @@ const CampaignSettingReport = () => {
             <p style={{ textAlign: "center", marginBottom: "20px", marginTop: "-5px" }}>
               Description, Length & URLs for <strong>{descriptionModalData?.campaign_name}</strong>
             </p>
-            <TextField
+            <div style={{ marginBottom: '4px' }}><label>Description</label></div>
+            <Input.TextArea
               name="description"
-              label="Description"
-              variant="outlined"
               onChange={handleDescriptionChange}
               value={descriptionModalData.description === null ? '' : descriptionModalData?.description}
               spellCheck
-              fullWidth
-              multiline
-              minRows="4"
-              maxRows="6"
+              rows={4}
+              style={{ width: '100%' }}
             />
-            <TextField
+            <div style={{ marginBottom: '4px', marginTop: '30px' }}><label>Length and URL</label></div>
+            <Input.TextArea
               name="length_url"
-              label="Length and URL"
-              variant="outlined"
-              style={{ marginTop: '30px' }}
               onChange={handleLengthUrlChange}
               value={descriptionModalData.length_url === null ? '' : descriptionModalData?.length_url}
               spellCheck
-              fullWidth
-              multiline
-              minRows="3"
-              maxRows="5"
+              rows={3}
+              style={{ width: '100%' }}
             />
             <div style={{ display: "flex", marginTop: "20px", justifyContent: "flex-end" }}>
               <Button
-                variant="contained"
-                color="primary"
-                type="button"
+                type="primary"
                 onClick={updateDescription}
-                disabled={!descriptionModalData?.description || loading.description}
+                disabled={!descriptionModalData?.description}
+                loading={loading.description}
               >
-                {loading.description && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                  <CircularProgress size={15} color="inherit" />
-                </span>)}
                 Update
               </Button>
             </div>
@@ -497,7 +451,7 @@ const CampaignSettingReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowIds.length > 1
+        title={`${selectedRowKeys.length > 1
           ? 'Do you want to delete these records?'
           : 'Do you want to delete this record?'
           }`}

@@ -1,41 +1,13 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Input, DatePicker } from 'antd'
+import { Row, Col } from 'antd'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import { currentDate } from '../../Helpers/CurrentDate'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-  snackbar: {
-    maxWidth: '500px',
-  },
-  MuiGridItem: {
-    padding: '4px',
-    marginBottom: '15px',
-  },
-}))
-
 const AddBroadcastWeek = () => {
-  const classes = useStyles()
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
 
@@ -69,68 +41,54 @@ const AddBroadcastWeek = () => {
   return (
     <>
       <Helmet title="Add Broadcast Week" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Add Broadcast Week
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit} className="add-target">
-          <Grid container spacing={4}>
-            <Grid item xs={12} className={classes.MuiGridItem}>
-              <TextField
-                fullWidth
-                label="Broadcast Week"
-                margin="normal"
-                name="broad_cast_week"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
-                required={true}
-              />
-            </Grid>
-            <Grid item xs={12} className={classes.MuiGridItem}>
-              <TextField
-                id="date"
-                label="Start Date"
-                type="date"
-                name="start_date"
-                onChange={handleChange}
-                defaultValue={currentDate}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-                required={true}
-              />
-            </Grid>
+        </Typography.Title>
+        <form onSubmit={handleSubmit} className="add-target">
+          <Row gutter={[16, 16]}>
+            <Col span={24} style={{ padding: '4px', marginBottom: '15px' }}>
+              <div>
+                <label>Broadcast Week</label>
+                <Input
+                  name="broad_cast_week"
+                  onChange={handleChange}
+                  type="text"
+                  required
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
+            <Col span={24} style={{ padding: '4px', marginBottom: '15px' }}>
+              <div>
+                <label>Start Date</label>
+                <DatePicker
+                  defaultValue={dayjs()}
+                  onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12} className={classes.MuiGridItem}>
-              <TextField
-                id="date"
-                label="End Date"
-                type="date"
-                name="end_date"
-                onChange={handleChange}
-                defaultValue={currentDate}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-                required={true}
-              />
-            </Grid>
+            <Col span={24} style={{ padding: '4px', marginBottom: '15px' }}>
+              <div>
+                <label>End Date</label>
+                <DatePicker
+                  defaultValue={dayjs()}
+                  onChange={(date, dateString) => handleChange({ target: { name: 'end_date', value: dateString } })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Submit'
-                )}
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Submit
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

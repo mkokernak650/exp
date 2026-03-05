@@ -1,18 +1,7 @@
-import { React, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Layout from '../Layout/Layout'
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Radio,
-  FormControlLabel,
-  RadioGroup,
-  Divider,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Radio, Row, Col, Divider, Select, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -21,27 +10,7 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import toast from 'react-hot-toast'
 import { exportReportEcommerce } from '@/Helpers/ExportReport'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-}))
-
 const EcommerceReport = () => {
-  const classes = useStyles()
   const [loading, setLoading] = useState(false)
   const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, acesMarketingId } = usePage().props
   const [affiliateList, setAffiliateList] = useState([])
@@ -142,7 +111,6 @@ const EcommerceReport = () => {
     setCouponCodeList([...couponOptions])
     setDialedPhoneList([...dialedOptions])
 
-    //dynamically set the selected values depending on the customer and campaign
     let filteredAffiliates = []
     if (affiliate?.affiliate_id.includes('allAffiliates')) {
       filteredAffiliates = 'allAffiliates'
@@ -272,9 +240,9 @@ const EcommerceReport = () => {
     setAffiliate({ [key]: affiliate_ids })
   }
 
-  const monthHandleChange = (e) => {
-    const { name, value } = e.target
-    setMonth({ [name]: value })
+  const monthHandleChange = (value) => {
+    value = value ?? ''
+    setMonth({ broad_cast_month: value })
     broadCastMonths.filter((item) => {
       if (item.broad_cast_month === value) {
         setStartDate({ ...startDate, start_date: item.start_date })
@@ -330,9 +298,9 @@ const EcommerceReport = () => {
     }
   }
 
-  const weekHandleChange = (e) => {
-    const { name, value } = e.target
-    setWeek({ [name]: value })
+  const weekHandleChange = (value) => {
+    value = value ?? ''
+    setWeek({ broad_cast_week: value })
     broadCastWeeks.filter((item) => {
       if (item.broad_cast_week === value) {
         setStartDate({ ...startDate, start_date: item.start_date })
@@ -545,13 +513,13 @@ const EcommerceReport = () => {
   return (
     <>
       <Helmet title="Reports" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
           Reports
-        </Typography>
+        </Typography.Title>
         <form validate="true" className="generate-report">
-          <Grid container spacing={4}>
-            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+          <Row gutter={[0, 16]}>
+            <Col span={24} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 singleSelect
                 name="reportFor"
@@ -564,8 +532,8 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Report For"
               />
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+            </Col>
+            <Col span={24} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 singleSelect
                 name="order_type"
@@ -579,8 +547,8 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Order Type"
               />
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: 5, marginBottom: 15 }}>
+            </Col>
+            <Col span={24} style={{ paddingBottom: 5, marginBottom: 15 }}>
               <MultiSelect
                 singleSelect
                 name="reportOn"
@@ -595,12 +563,12 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Report On"
               />
-            </Grid>
-            <Grid item xs={12} style={{ paddingTop: 0, marginBottom: -10 }}>
+            </Col>
+            <Col span={24} style={{ paddingTop: 0, marginBottom: -10 }}>
               <Divider />
-            </Grid>
+            </Col>
             {market.length < 1 && (
-              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <Col span={24} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="states"
                   onChange={(val) => stateHandleChange(val, 'states')}
@@ -608,10 +576,10 @@ const EcommerceReport = () => {
                   style={{ width: '100%' }}
                   placeholder="Select States"
                 />
-              </Grid>
+              </Col>
             )}
             {state.length < 1 && (
-              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <Col span={24} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="markets"
                   onChange={(val) => marketHandleChange(val, 'markets')}
@@ -619,9 +587,9 @@ const EcommerceReport = () => {
                   style={{ width: '100%' }}
                   placeholder="Select Markets"
                 />
-              </Grid>
+              </Col>
             )}
-            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+            <Col span={24} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="campaign_id"
                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
@@ -629,8 +597,8 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Campaign"
               />
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+            </Col>
+            <Col span={24} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="customer_id"
                 onChange={(val) => customerHandleChange(val, 'customer_id')}
@@ -638,8 +606,8 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Customer"
               />
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+            </Col>
+            <Col span={24} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
@@ -648,9 +616,9 @@ const EcommerceReport = () => {
                 placeholder="Select Affiliates"
                 singleSelect
               />
-            </Grid>
+            </Col>
             {(orderType.orderType === 'both' || orderType.orderType == 1) && (
-              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <Col span={24} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="couponCodes"
                   defaultValue={couponCode?.couponCodes}
@@ -659,10 +627,10 @@ const EcommerceReport = () => {
                   style={{ width: '100%' }}
                   placeholder="Select Coupon Codes"
                 />
-              </Grid>
+              </Col>
             )}
             {(orderType.orderType === 'both' || orderType.orderType == 2) && (
-              <Grid item xs={12} style={{ paddingBottom: 5 }}>
+              <Col span={24} style={{ paddingBottom: 5 }}>
                 <MultiSelect
                   name="dialed"
                   defaultValue={dialed?.dialed}
@@ -671,9 +639,9 @@ const EcommerceReport = () => {
                   style={{ width: '100%' }}
                   placeholder="Select Dialed Phone"
                 />
-              </Grid>
+              </Col>
             )}
-            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+            <Col span={24} style={{ paddingBottom: 5 }}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
@@ -681,129 +649,92 @@ const EcommerceReport = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Years"
               />
-            </Grid>
+            </Col>
             {((Array.isArray(year) && year.length < 1) || !year) && (
               <>
-                <Grid item xs={12}>
-                  <TextField
-                    select
-                    name="broad_cast_month"
+                <Col span={24}>
+                  <Select
                     onChange={monthHandleChange}
-                    SelectProps={{
-                      native: true,
-                    }}
-                    fullWidth
+                    placeholder="Select Broadcast Month"
+                    allowClear
+                    style={{ width: '100%' }}
                   >
-                    <option value="">Select Broadcast Month</option>
                     {broadCastMonths.map((option, indx) => (
-                      <option key={indx} value={option.broad_cast_month}>
+                      <Select.Option key={indx} value={option.broad_cast_month}>
                         {option.broad_cast_month}
-                      </option>
+                      </Select.Option>
                     ))}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    select
-                    name="broad_cast_week"
+                  </Select>
+                </Col>
+                <Col span={24}>
+                  <Select
                     onChange={weekHandleChange}
-                    SelectProps={{
-                      native: true,
-                    }}
-                    fullWidth
+                    placeholder="Select Broadcast Week"
+                    allowClear
+                    style={{ width: '100%' }}
                   >
-                    <option value="">Select Broadcast Week</option>
                     {broadCastWeeks.map((option, indx) => (
-                      <option key={indx} value={option.broad_cast_week}>
+                      <Select.Option key={indx} value={option.broad_cast_week}>
                         {option.broad_cast_week}
-                      </option>
+                      </Select.Option>
                     ))}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    id="date"
-                    label="Start Date"
-                    type="date"
-                    name="start_date"
-                    onChange={startDateHandleChange}
-                    value={startDate.start_date}
-                    className={classes.textField}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    id="date"
-                    label="End Date"
-                    type="date"
-                    name="end_date"
-                    onChange={endDateHandleChange}
-                    value={endDate.end_date}
-                    className={classes.textField}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    fullWidth
-                  />
-                </Grid>
+                  </Select>
+                </Col>
+                <Col span={24}>
+                  <div>
+                    <label className="block text-sm mb-1">Start Date</label>
+                    <DatePicker
+                      value={startDate.start_date ? dayjs(startDate.start_date) : null}
+                      onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </Col>
+                <Col span={24}>
+                  <div>
+                    <label className="block text-sm mb-1">End Date</label>
+                    <DatePicker
+                      value={endDate.end_date ? dayjs(endDate.end_date) : null}
+                      onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </Col>
               </>
             )}
-            <Grid item xs={12}>
-              <Grid item xs={12}>
-                <RadioGroup
-                  aria-label="type"
+            <Col span={24}>
+              <Col span={24}>
+                <Radio.Group
                   name="type"
                   value={reportType.type}
                   onChange={reportTypeHandleChange}
                 >
-                  <FormControlLabel
-                    value="customer"
-                    control={<Radio color="primary" />}
-                    label="For Customer"
-                  />
-                  <FormControlLabel
-                    value="affiliate"
-                    control={<Radio color="primary" />}
-                    label="For Affiliate"
-                  />
-                </RadioGroup>
-              </Grid>
-              <RadioGroup
-                aria-label="report-type"
+                  <Radio value="customer">For Customer</Radio>
+                  <Radio value="affiliate">For Affiliate</Radio>
+                </Radio.Group>
+              </Col>
+              <Radio.Group
                 name="report_type"
                 value={ecommerceReportType.report_type}
                 onChange={ecommerceReportTypeHandleChange}
               >
-                <FormControlLabel
-                  value="export-report"
-                  control={<Radio color="primary" />}
-                  label="Export Report"
-                />
-                <FormControlLabel
-                  value="email-report"
-                  control={<Radio color="primary" />}
-                  label="Email Report"
-                />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12}>
+                <Radio value="export-report">Export Report</Radio>
+                <Radio value="email-report">Email Report</Radio>
+              </Radio.Group>
+            </Col>
+            <Col span={24}>
               <Button
-                variant="contained"
-                color="primary"
+                type="primary"
                 onClick={(e) => handleSubmit()}
                 disabled={loading}
+                loading={loading}
               >
-                Generate &nbsp;
-                {loading && <CircularProgress color="inherit" thickness={3} size="1.5rem" />}
+                Generate
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

@@ -1,13 +1,10 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   button: {
     width: 'auto',
     textTransform: 'capitalize',
     fontSize: '14px',
   },
-}))
+}
 
 export const columns = [
   {
@@ -18,91 +15,91 @@ export const columns = [
   {
     key: 'formatted_created_at',
     title: 'Created At',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 250 },
     visible: true,
   },
   {
     key: 'id',
     title: 'IO No',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'io_for',
     title: 'IO For',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'campaign',
     title: 'Campaign',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 250 },
     visible: true,
   },
   {
     key: 'customer',
     title: 'Customer',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'affiliate',
     title: 'Affiliate',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'phone',
     title: 'Phone',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'term',
     title: 'Term',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'call_length',
     title: 'Call Length (Sec.)',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'payout',
     title: 'Payout',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'revenue',
     title: 'Revenue',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'status',
     title: 'Status',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 100 },
     visible: true,
   },
   {
     key: 'io_link',
     title: 'IO Public Link',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },

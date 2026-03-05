@@ -1,29 +1,14 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode, PagingPosition } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
-import { filterData } from '../filterData'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import TextField from '@material-ui/core/TextField'
-import {
-  Button,
-  CircularProgress,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-} from '@material-ui/core'
-import Grid from '@material-ui/core/Grid'
+import { Table, Tooltip, Button, Select, Input, Radio, DatePicker } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -31,18 +16,15 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
-import handleSelects from '@/Helpers/HandleSelects'
-import { useStyles, fields, groups, filter, columns } from './Helpers/MarketExceptionReportProps'
+import { styles, fields, groups, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
+import { Row, Col } from 'antd'
 
 const MarketExceptionReport = () => {
-  const classes = useStyles()
   const { marketExceptions, campaignId, allCampaigns, allStates, allMarkets, columnsData } =
     usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [open, setOpen] = useState(false)
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
@@ -61,18 +43,23 @@ const MarketExceptionReport = () => {
       .post(route('market.exception.edit'), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = { ...tableProps }
-          filteredData.data.filter((item, indx) => {
-            if (item.id === editData.id) {
-              filteredData.data[indx].campaign = editData.campaign
-              filteredData.data[indx].market_id = editData.market_id
-              filteredData.data[indx].state = editData.state
-              filteredData.data[indx].ranks = editData.ranks
-              filteredData.data[indx].nielsen_households = editData.nielsen_households
-              filteredData.data[indx].call_type = editData.call_type
-              filteredData.data[indx].start_date = editData.start_date
-            }
-          })
+          setData((prev) =>
+            prev.map((item) => {
+              if (item.id === editData.id) {
+                return {
+                  ...item,
+                  campaign: editData.campaign,
+                  market_id: editData.market_id,
+                  state: editData.state,
+                  ranks: editData.ranks,
+                  nielsen_households: editData.nielsen_households,
+                  call_type: editData.call_type,
+                  start_date: editData.start_date,
+                }
+              }
+              return item
+            })
+          )
           setEditData()
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
@@ -99,7 +86,7 @@ const MarketExceptionReport = () => {
     ranks: item.ranks,
     nielsen_households: item.nielsen_households,
     id: item.id,
-    key: index,
+    key: item.id,
     campaign_id: item.campaign_id,
   }))
 
@@ -107,52 +94,21 @@ const MarketExceptionReport = () => {
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-    },
-  }
+  const [data, setData] = useState(dataArray)
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-    })
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -178,14 +134,11 @@ const MarketExceptionReport = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('market.exception.delete'), { selectedRowIds })
+      .post(route('market.exception.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -200,19 +153,17 @@ const MarketExceptionReport = () => {
   }
 
   const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
-      if (item.id === itemId) {
-        setEditData(item)
-      }
-    })
-    setShowEditModal({ open: true })
+    const item = data.find((item) => item.id === itemId)
+    if (item) {
+      setEditData(item)
+      setShowEditModal({ open: true })
+    }
   }
 
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
-    emptyCheckbox()
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -228,7 +179,6 @@ const MarketExceptionReport = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
@@ -274,14 +224,46 @@ const MarketExceptionReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      if (col.key === 'edit') {
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <Edit />
+          </div>
+        )
+      }
+
+      return base
+    })
 
   return (
     <>
@@ -296,10 +278,9 @@ const MarketExceptionReport = () => {
                 <Eye />
               </div>
               <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
+                type="primary"
+                htmlType="submit"
+                style={styles.button}
                 onClick={openExportModal}
                 disabled={marketExceptions == ''}
               >
@@ -338,7 +319,7 @@ const MarketExceptionReport = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -346,30 +327,13 @@ const MarketExceptionReport = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
       </div>
 
@@ -381,132 +345,100 @@ const MarketExceptionReport = () => {
       >
         <div className="edit_target">
           <form>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  id="campaign_id"
-                  select
-                  name="campaign_id"
-                  onChange={handleEditChange}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  fullWidth
-                  value={editData?.campaign_id ? editData.campaign_id : ''}
+            <Row gutter={[16, 16]}>
+              <Col span={24}>
+                <Select
+                  placeholder="Select Campaign"
+                  onChange={(value) => handleEditChange({ target: { name: 'campaign_id', value } })}
+                  style={{ width: '100%' }}
+                  value={editData?.campaign_id ? editData.campaign_id : undefined}
                 >
-                  <option value="">Select Campaign</option>
                   {allCampaigns.map((option, indx) => (
-                    <option key={indx} value={option.id}>
+                    <Select.Option key={indx} value={option.id}>
                       {option.campaign_name}
-                    </option>
+                    </Select.Option>
                   ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="state"
-                  select
-                  name="state"
-                  onChange={handleEditChange}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  fullWidth
-                  value={editData?.state ? editData.state : ''}
+                </Select>
+              </Col>
+              <Col span={24}>
+                <Select
+                  placeholder="Select State"
+                  onChange={(value) => handleEditChange({ target: { name: 'state', value } })}
+                  style={{ width: '100%' }}
+                  value={editData?.state ? editData.state : undefined}
                 >
-                  <option value="">Select State</option>
                   {allStates.map((option, indx) => (
-                    <option key={indx} value={option.state}>
+                    <Select.Option key={indx} value={option.state}>
                       {option.state}
-                    </option>
+                    </Select.Option>
                   ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="market_id"
-                  select
-                  name="market_id"
-                  onChange={handleEditChange}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  fullWidth
+                </Select>
+              </Col>
+              <Col span={24}>
+                <Select
+                  placeholder="Select Market"
+                  onChange={(value) => handleEditChange({ target: { name: 'market_id', value } })}
+                  style={{ width: '100%' }}
                   value={editData?.market_id}
                 >
-                  <option value="">Select Market</option>
                   {allMarkets.map((option, indx) => (
-                    <option key={indx} value={option.market_id}>
+                    <Select.Option key={indx} value={option.market_id}>
                       {option.market}
-                    </option>
+                    </Select.Option>
                   ))}
-                </TextField>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  id="call_type"
-                  select
-                  name="call_type"
-                  onChange={handleEditChange}
-                  SelectProps={{
-                    native: true,
-                  }}
-                  fullWidth
-                  value={editData?.call_type ? editData.call_type : ''}
+                </Select>
+              </Col>
+              <Col span={24}>
+                <Select
+                  placeholder="Call Type"
+                  onChange={(value) => handleEditChange({ target: { name: 'call_type', value } })}
+                  style={{ width: '100%' }}
+                  value={editData?.call_type ? editData.call_type : undefined}
                 >
-                  <option value="">Call Type</option>
-                  <option value="L">Landline (L)</option>
-                  <option value="W">Wireless (W)</option>
-                  <option value="B">Both L & W</option>
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  type="date"
-                  name="start_date"
-                  onChange={handleEditChange}
-                  defaultValue={editData?.start_date ? editData.start_date : ''}
-                  margin="normal"
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12}>
+                  <Select.Option value="L">Landline (L)</Select.Option>
+                  <Select.Option value="W">Wireless (W)</Select.Option>
+                  <Select.Option value="B">Both L & W</Select.Option>
+                </Select>
+              </Col>
+              <Col span={24}>
+                <div>
+                  <DatePicker
+                    value={editData?.start_date ? dayjs(editData.start_date) : null}
+                    onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              </Col>
+              <Col span={24}>
                 <span>Rank:</span>
-                <TextField
+                <Input
                   value={editData?.ranks ? editData.ranks : ''}
-                  fullWidth
-                  margin="normal"
                   name="ranks"
                   type="text"
-                  variant="outlined"
                   onChange={handleEditChange}
+                  style={{ width: '100%', marginTop: '8px' }}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Col>
+              <Col span={24}>
                 <span>Nielsen Households:</span>
-
-                <TextField
+                <Input
                   value={editData?.nielsen_households ? editData.nielsen_households : ''}
-                  fullWidth
-                  margin="normal"
                   name="nielsen_households"
                   type="text"
-                  variant="outlined"
                   onChange={handleEditChange}
+                  style={{ width: '100%', marginTop: '8px' }}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Col>
+              <Col span={24}>
                 <Button
-                  variant="contained"
-                  color="primary"
+                  type="primary"
                   onClick={handleEditSubmit}
-                  className={classes.editButton}
+                  style={styles.editButton}
                 >
                   Edit
                 </Button>
-              </Grid>
-            </Grid>
+              </Col>
+            </Row>
           </form>
 
           <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
@@ -522,23 +454,23 @@ const MarketExceptionReport = () => {
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
         title={`${
-          selectedRowIds.length > 1
+          selectedRowKeys.length > 1
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}
       ></ConfirmModal>
 
       <NormalModal open={exportModal.open} setOpen={setExportModal} width={'500px'} title={''}>
-        <div className={classes.import}>
-          <FormLabel component="legend">Select Type</FormLabel>
-          <RadioGroup aria-label="type" name="type" value={type} onChange={handleExportTypeChange}>
-            <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
-            <FormControlLabel value="csv" control={<Radio />} label="CSV" />
-            <FormControlLabel value="xls" control={<Radio />} label="XLS" />
-            <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
-          </RadioGroup>
-          <Button variant="contained" color="primary" onClick={exportHandler}>
-            {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : 'Next'}
+        <div style={styles.topBtn}>
+          <div style={{ marginBottom: 8 }}>Select Type</div>
+          <Radio.Group value={type} onChange={(e) => setType(e.target.value)}>
+            <Radio value="xlsx">XLSX</Radio>
+            <Radio value="csv">CSV</Radio>
+            <Radio value="xls">XLS</Radio>
+            <Radio value="tsv">TSV</Radio>
+          </Radio.Group>
+          <Button type="primary" onClick={exportHandler} loading={loading}>
+            Next
           </Button>
         </div>
       </NormalModal>

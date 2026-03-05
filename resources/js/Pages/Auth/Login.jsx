@@ -1,70 +1,10 @@
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-  Paper,
-  makeStyles,
-  InputAdornment,
-  IconButton,
-} from "@material-ui/core"
+import { Button, Input, Typography } from "antd"
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons"
 import backgroundImage from "../../../images/background_image_compress.jpg"
 import { useForm } from "@inertiajs/inertia-react"
-import { VisibilityOff } from "@material-ui/icons"
-import { Visibility } from "@material-ui/icons"
 import { useState } from "react"
 
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    width: "600px",
-    height: "350px",
-    marginTop: "150px",
-    padding: "30px",
-    borderRadius: "40px 146px 40px 146px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-  },
-  loginForm: {
-    backgroundImage: `url(${backgroundImage})`,
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-  },
-  submitBtn: {
-    backgroundColor: "#3b3e61",
-    textTransform: "none",
-    "&:hover": {
-      backgroundColor: "#232b61",
-    },
-  },
-  box1: {
-    height: "100px",
-    background: "#ffcc00",
-    width: "100px",
-    position: "absolute",
-    borderRadius: "100%",
-    right: "-50px",
-  },
-  box2: {
-    height: "100px",
-    background: "#f3327f",
-    width: "100px",
-    position: "absolute",
-    borderRadius: "100%",
-    left: "-50px",
-  },
-  errorMessage: {
-    color: "#f71328",
-  },
-}))
-
 const Login = () => {
-  const classes = useStyles()
   const { data, setData, post, errors } = useForm({
     email: '',
     password: '',
@@ -84,83 +24,122 @@ const Login = () => {
   }
 
   return (
-    <div className={classes.loginForm}>
-      <Paper className={classes.paper}>
-        <div className={classes.box1}></div>
-        <div className={classes.box2}></div>
-        <Box
-          sx={{
-            backgroundColor: "background.default",
+    <div
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          width: "600px",
+          height: "350px",
+          marginTop: "150px",
+          padding: "30px",
+          borderRadius: "40px 146px 40px 146px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+          background: "#fff",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+        }}
+      >
+        <div
+          style={{
+            height: "100px",
+            background: "#ffcc00",
+            width: "100px",
+            position: "absolute",
+            borderRadius: "100%",
+            right: "-50px",
+          }}
+        />
+        <div
+          style={{
+            height: "100px",
+            background: "#f3327f",
+            width: "100px",
+            position: "absolute",
+            borderRadius: "100%",
+            left: "-50px",
+          }}
+        />
+        <div
+          style={{
             display: "flex",
             flexDirection: "column",
             height: "100%",
             justifyContent: "center",
           }}
         >
-          <Container maxWidth="sm">
+          <div className="max-w-sm mx-auto">
             <form validate="true" onSubmit={handleSubmit}>
-              <Box sx={{ mb: 3 }}>
-                <Typography color="textPrimary" variant="h4" align="center">
+              <div style={{ marginBottom: 24 }}>
+                <Typography.Title level={4} style={{ textAlign: "center" }}>
                   Sign in
-                </Typography>
-              </Box>
+                </Typography.Title>
+              </div>
               {errors.email && (
-                <div className={classes.errorMessage}>{errors.email}</div>
+                <div style={{ color: "#f71328" }}>{errors.email}</div>
               )}
-              <TextField
-                fullWidth
-                label="Email Address"
-                margin="normal"
-                name="email"
-                onChange={onHandleChange}
-                type="email"
-                value={data.email}
-                variant="outlined"
-                required={true}
-              />
-              <TextField
-                fullWidth
-                label="Password"
-                margin="normal"
-                name="password"
-                onChange={onHandleChange}
-                type={showPassword ? 'text' : 'password'}
-                value={data.password}
-                variant="outlined"
-                required={true}
-                InputProps={{
-                  endAdornment:
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-
-                }}
-              />
+              <div style={{ marginTop: 16, marginBottom: 8 }}>
+                <label style={{ display: "block", marginBottom: 4 }}>Email Address</label>
+                <Input
+                  name="email"
+                  onChange={onHandleChange}
+                  type="email"
+                  value={data.email}
+                  required
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div style={{ marginTop: 16, marginBottom: 8 }}>
+                <label style={{ display: "block", marginBottom: 4 }}>Password</label>
+                <Input
+                  name="password"
+                  onChange={onHandleChange}
+                  type={showPassword ? 'text' : 'password'}
+                  value={data.password}
+                  required
+                  style={{ width: "100%" }}
+                  suffix={
+                    <span
+                      onClick={handleClickShowPassword}
+                      style={{ cursor: "pointer" }}
+                      aria-label="toggle password visibility"
+                    >
+                      {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                    </span>
+                  }
+                />
+              </div>
               {errors.password && (
-                <div className={classes.errorMessage}>{errors.password}</div>
+                <div style={{ color: "#f71328" }}>{errors.password}</div>
               )}
 
-              <Box sx={{ py: 2 }}>
+              <div style={{ paddingTop: 16, paddingBottom: 16 }}>
                 <Button
-                  color="primary"
+                  type="primary"
                   size="large"
-                  type="submit"
-                  variant="contained"
-                  className={classes.submitBtn}
+                  htmlType="submit"
+                  style={{
+                    backgroundColor: "#3b3e61",
+                    textTransform: "none",
+                    borderColor: "#3b3e61",
+                  }}
                 >
                   Sign in
                 </Button>
-              </Box>
+              </div>
             </form>
-          </Container>
-        </Box>
-      </Paper>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

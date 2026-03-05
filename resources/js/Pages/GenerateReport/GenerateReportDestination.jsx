@@ -1,17 +1,6 @@
-import { React, useState } from 'react'
+import { useState } from 'react'
 import Layout from '../Layout/Layout'
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Radio,
-  FormControlLabel,
-  RadioGroup,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Radio, Row, Col, Select } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -21,28 +10,7 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { ExportReportWithoutTag } from '@/Helpers/ExportReport'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-}))
-
 const GenerateReportDestination = () => {
-  const classes = useStyles()
-
   const [loading, setLoading] = useState(false)
   const { broadCastMonths, broadCastWeeks, targets, campaigns, customers } = usePage().props
   const [customer, setCustomer] = useState()
@@ -60,9 +28,9 @@ const GenerateReportDestination = () => {
     setReportType({ [name]: value })
   }
 
-  const customerHandleChange = (e) => {
-    const { name, value } = e.target
-    setCustomer({ [name]: value })
+  const customerHandleChange = (value) => {
+    value = value ?? ''
+    setCustomer({ customer_name: value })
     if (value === '') {
       setCustomerEmails([])
     }
@@ -140,35 +108,6 @@ const GenerateReportDestination = () => {
         setMonth([])
       }
     }
-    // if (val !== '') {
-    //   const weekArray = []
-    //   for (let i = 0; i < months.length; i++) {
-    //     const weekStartDate = findWeekStartDateBySelectedMonth(months[i])
-    //     broadCastWeeks.forEach((week) => {
-    //       if (
-    //         new Date(week.start_date).getFullYear().toString() ===
-    //         new Date(weekStartDate).getFullYear().toString()
-    //       ) {
-    //         const startDateMonthName = new Date(week.start_date).toLocaleString('default', {
-    //           month: 'short',
-    //         })
-    //         const endDateMonthName = new Date(week.end_date).toLocaleString('default', {
-    //           month: 'short',
-    //         })
-
-    //         if (
-    //           months[i].indexOf(startDateMonthName)>0||
-    //           months[i].indexOf(endDateMonthName)>0
-    //         ) {
-    //           weekArray.push({ broad_cast_week: week.broad_cast_week })
-    //         }
-    //       }
-    //     })
-    //   }
-    //   setWeekByMonth(weekArray)
-    // } else {
-    //   setWeekByMonth(broadCastWeeks)
-    // }
   }
 
   const findWeekStartDateBySelectedMonth = (param) => {
@@ -192,9 +131,9 @@ const GenerateReportDestination = () => {
     }
   }
 
-  const campaignHandleChange = (e) => {
-    const { name, value } = e.target
-    setCampaign({ [name]: value })
+  const campaignHandleChange = (value) => {
+    value = value ?? ''
+    setCampaign({ campaign_id: value })
   }
 
   const values = {
@@ -256,73 +195,54 @@ const GenerateReportDestination = () => {
   return (
     <>
       <Helmet title="Summary Report" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
           Generate Report Summary
-        </Typography>
+        </Typography.Title>
         <form validate="true" className="generate-report">
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <RadioGroup
-                aria-label="report-type"
+          <Row gutter={[0, 16]}>
+            <Col span={24}>
+              <Radio.Group
                 name="report_type"
                 value={reportType.report_type}
                 onChange={reportTypeHandleChange}
               >
-                <FormControlLabel
-                  value="export-report"
-                  control={<Radio color="primary" />}
-                  label="Export Report"
-                />
-                <FormControlLabel
-                  value="email-report"
-                  control={<Radio color="primary" />}
-                  label="Email Report (Customer)"
-                />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="campaign_id"
+                <Radio value="export-report">Export Report</Radio>
+                <Radio value="email-report">Email Report (Customer)</Radio>
+              </Radio.Group>
+            </Col>
+            <Col span={24}>
+              <Select
                 onChange={campaignHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Campaign"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Campaign</option>
                 {campaigns.map((campaign, key) => (
-                  <option key={key} value={campaign.id}>
+                  <Select.Option key={key} value={campaign.id}>
                     {campaign.campaign_name}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="customer_name"
+              </Select>
+            </Col>
+            <Col span={24}>
+              <Select
                 onChange={customerHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Customer"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Customer</option>
                 {targets
                   .map((option) => option.Customer)
                   .filter((item, i, arr) => arr.indexOf(item) === i)
                   .map((test, key) => (
-                    <option key={key} value={test}>
+                    <Select.Option key={key} value={test}>
                       {test}
-                    </option>
+                    </Select.Option>
                   ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
+              </Select>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val)}
@@ -330,8 +250,8 @@ const GenerateReportDestination = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Years"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="broad_cast_month"
                 onChange={(val) => monthHandleChange(val)}
@@ -339,8 +259,8 @@ const GenerateReportDestination = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Broadcast Month"
               />
-            </Grid>{' '}
-            <Grid item xs={12}>
+            </Col>{' '}
+            <Col span={24}>
               <MultiSelect
                 name="broad_cast_week"
                 onChange={(val) => weekHandleChange(val)}
@@ -348,19 +268,15 @@ const GenerateReportDestination = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Broadcast Week"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={(e) => handleSubmit()}>
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Generate'
-                )}
+            </Col>
+            <Col span={24}>
+              <Button type="primary" onClick={(e) => handleSubmit()} loading={loading}>
+                Generate
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

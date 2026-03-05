@@ -1,20 +1,12 @@
-import { makeStyles, Paper } from '@material-ui/core'
-export default function Card({children}) {
-    const useStyles = makeStyles(() => ({
-        root: {
-            display: 'grid',
-            width: '500px',
-            margin: 'auto',
-            marginTop: '2rem',
-            padding: '40px',
-        }
-    }))
-    const classes = useStyles()
+import { Card as AntCard } from 'antd'
 
+export default function Card({ children }) {
     return (
-        <Paper className={classes.root}>
+        <AntCard
+            style={{ width: 500, margin: 'auto', marginTop: '2rem' }}
+            styles={{ body: { padding: 40 } }}
+        >
             {children}
-
-        </Paper>
+        </AntCard>
     )
 }

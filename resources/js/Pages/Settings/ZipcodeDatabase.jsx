@@ -1,24 +1,20 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
 import { usePage } from '@inertiajs/inertia-react'
-import 'ka-table/style.scss'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import Eye from '@/Components/Icons/Eye.jsx'
-import { Button, CircularProgress, RadioGroup, Radio, FormControlLabel, FormLabel, TextField } from '@material-ui/core'
+import { Table, Button, Input, Radio, Spin, Select } from 'antd'
 import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { useStyles, filter, columns } from './Helpers/ZipcodeDatabaseProps'
+import { styles, filter, columns as defaultColumns } from './Helpers/ZipcodeDatabaseProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
+import toast from 'react-hot-toast'
 
 const ZipcodeDatabase = () => {
-  const classes = useStyles()
   const { allZipcodes, columnsData, states } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -30,7 +26,6 @@ const ZipcodeDatabase = () => {
   const [zipCodeData, setZipcodeData] = useState(allZipcodes)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
-  const [searchedData, setSearchData] = useState([])
   const [filterByState, setFilterByState] = useState('')
   const [filterByTimeZone, setFilterByTimeZone] = useState('')
   const [filterBySearchBoxValue, setFilterBySearchBoxValue] = useState({ county: '', city: '', zipCode: '', npa: '', nxx: '' })
@@ -70,16 +65,21 @@ const ZipcodeDatabase = () => {
       WeightedLat: item.WeightedLat,
       WeightedLon: item.WeightedLon,
       id: item.id,
-      key: index,
+      key: item.id,
     }))
   }
-
-  const dataArray = mapDataArr(allZipcodes)
 
   const optionKey = 'zipcode-database'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
+
+  const [data, setData] = useState(mapDataArr(allZipcodes))
 
   const statesOptions = states.map(state => ({ label: state, value: state }))
   const timeZones = [4, 5, 6, 7, 8, 9, 10, 11, 14, 20]
@@ -89,32 +89,13 @@ const ZipcodeDatabase = () => {
     setFilterBySearchBoxValue((oldValues) => ({ ...oldValues, [event.target.name]: event.target.value }))
   }
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    loading: {
-      enabled: false,
-      text: 'Loading...',
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-  }
-
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -143,7 +124,6 @@ const ZipcodeDatabase = () => {
         setSelectedFile(null)
         setLoading(false)
         if (res.status === 200) {
-          setMainData(res.data)
           setImportModal({ open: false })
           toast.success('Imported Successfully')
         } else {
@@ -166,13 +146,13 @@ const ZipcodeDatabase = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (data) => {
-    setCurerentPage(data)
-    dispatch(showLoading())
+  const getSearchingData = async (pageData) => {
+    setCurerentPage(pageData)
+    setLoading(true)
     await axios
       .get(
         'telephone-and-zip-codes?page=' +
-        data.page +
+        pageData.page +
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
@@ -183,13 +163,17 @@ const ZipcodeDatabase = () => {
       )
       .then((res) => {
         setZipcodeData(res.data)
-        dispatch(hideLoading())
-        setSearchData(res.data.data)
+        setData(res.data.data.map((item, index) => ({
+          ...item,
+          sl: index + 1,
+          key: item.id,
+        })))
+        setLoading(false)
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
@@ -220,6 +204,24 @@ const ZipcodeDatabase = () => {
       })
   }
 
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      return base
+    })
+
   return (
     <>
       <Helmet title="ZipCode Database" />
@@ -230,18 +232,13 @@ const ZipcodeDatabase = () => {
               <Eye />
             </div>
             <Button
-              variant="contained"
-              type="submit"
-              color="primary"
-              className={classes.button}
+              type="primary"
               onClick={exportHandler}
               disabled={zipCodeData == ''}
+              loading={loading}
+              style={styles.button}
             >
-              {loading ? (
-                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-              ) : (
-                'Export'
-              )}
+              Export
             </Button>
           </div>
           <div className="top-left" style={{ gap: '5px' }}>
@@ -259,53 +256,48 @@ const ZipcodeDatabase = () => {
               onChange={(value) => setFilterByTimeZone(value)}
               defaultValue={filterByTimeZone}
             />
-            <TextField
+            <Input
               id="county"
               name="county"
-              label="County"
-              variant="outlined"
+              placeholder="County"
               size="small"
               style={{ width: '180px' }}
               value={filterBySearchBoxValue.county}
               onChange={handleSearchBoxChange}
             />
-            <TextField
+            <Input
               id="city"
               name="city"
-              label="City"
-              variant="outlined"
+              placeholder="City"
               size="small"
               style={{ width: '180px' }}
               value={filterBySearchBoxValue.city}
               onChange={handleSearchBoxChange}
             />
-            <TextField
+            <Input
               id="zipCode"
               name="zipCode"
-              label="Zip Code"
-              variant="outlined"
+              placeholder="Zip Code"
               size="small"
               type="number"
               style={{ width: '180px' }}
               value={filterBySearchBoxValue.zipCode}
               onChange={handleSearchBoxChange}
             />
-            <TextField
+            <Input
               id="npa"
               name="npa"
-              label="NPA"
-              variant="outlined"
+              placeholder="NPA"
               size="small"
               type="number"
               style={{ width: '180px' }}
               value={filterBySearchBoxValue.npa}
               onChange={handleSearchBoxChange}
             />
-            <TextField
+            <Input
               id="nxx"
               name="nxx"
-              label="NXX"
-              variant="outlined"
+              placeholder="NXX"
               size="small"
               type="number"
               style={{ width: '180px' }}
@@ -315,62 +307,60 @@ const ZipcodeDatabase = () => {
           </div>
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
-              <ColumnSettings {...tableProps} dispatch={dispatch} />
+              <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
             </div>
           ) : (
             ''
           )}
         </div>
         <Table
-          {...tableProps}
-          childComponents={{
-            noDataRow: {
-              content: () => 'No Data Found',
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => searchedData}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          loading={loading}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={zipCodeData} />
         </div>
 
         <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>
-          <div className={classes.import}>
+          <div>
             <input id="importfile" type="file" name="importfile" onChange={handleImportChange} />
             <Button
-              variant="contained"
-              color="primary"
+              type="primary"
               onClick={importHandler}
               disabled={!selectedFile}
+              loading={loading}
             >
-              {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : 'Next'}
+              Next
             </Button>
           </div>
         </NormalModal>
 
         <NormalModal open={exportModal.open} setOpen={setExportModal} width={'500px'} title={''}>
-          <div className={classes.import}>
-            <FormLabel component="legend">Select Type</FormLabel>
-            <RadioGroup aria-label="type" name="type" value={type} onChange={handleExportChange}>
-              <FormControlLabel value="xlsx" control={<Radio />} label="XLSX" />
-              <FormControlLabel value="csv" control={<Radio />} label="CSV" />
-              <FormControlLabel value="xls" control={<Radio />} label="XLS" />
-              <FormControlLabel value="tsv" control={<Radio />} label="TSV" />
-            </RadioGroup>
-            <Button variant="contained" color="primary" onClick={exportHandler}>
-              {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : 'Next'}
+          <div>
+            <label>Select Type</label>
+            <Radio.Group value={type} onChange={handleExportChange}>
+              <Radio value="xlsx">XLSX</Radio>
+              <Radio value="csv">CSV</Radio>
+              <Radio value="xls">XLS</Radio>
+              <Radio value="tsv">TSV</Radio>
+            </Radio.Group>
+            <Button type="primary" onClick={exportHandler} loading={loading}>
+              Next
             </Button>
           </div>
         </NormalModal>

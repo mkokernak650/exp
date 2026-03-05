@@ -1,37 +1,16 @@
 import React, { useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, CircularProgress, Grid, Paper, TextField, Typography, makeStyles } from '@material-ui/core'
+import { Button, Input, Typography, Spin, Card, Row, Col } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-        width: '800px',
-        margin: 'auto',
-        marginTop: '2rem',
-        padding: '40px',
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing(2),
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '35px',
-    },
-    snackbar: {
-        maxWidth: '500px',
-    },
-}))
+const { TextArea } = Input
 
 const CustomEmail = () => {
-    const classes = useStyles()
     const { campaigns } = usePage().props
     const [campaignIds, setCampaignIds] = useState()
     const [affiliateOptions, setAffiliateOptions] = useState()
@@ -123,13 +102,21 @@ const CustomEmail = () => {
     return (
         <>
             <Helmet title="Email Affiliate (Custom Email)" />
-            <Paper className={classes.root}>
-                <Typography variant="h6" className={classes.title}>
+            <Card
+                style={{
+                    display: 'grid',
+                    width: '800px',
+                    margin: 'auto',
+                    marginTop: '2rem',
+                    padding: '40px',
+                }}
+            >
+                <Typography.Title level={4} style={{ textAlign: 'center', marginBottom: '35px' }}>
                     Compose Email
-                </Typography>
+                </Typography.Title>
                 <form validate="true" onSubmit={handleSubmit}>
-                    <Grid container spacing={4}>
-                        <Grid item xs={12}>
+                    <Row gutter={[0, 16]}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="campaign_ids"
                                 onChange={(value) => handleCampaignChange(value)}
@@ -138,9 +125,9 @@ const CustomEmail = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Campaigns"
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="affiliate_emails"
                                 onChange={(value) => setSelectedAffiliates(value)}
@@ -150,9 +137,9 @@ const CustomEmail = () => {
                                 placeholder="Select Affiliates"
                                 disabled={!campaignIds}
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="additional_emails"
                                 onChange={(value) => setAdditionalEmails(value)}
@@ -161,43 +148,40 @@ const CustomEmail = () => {
                                 placeholder="Additional Emails (Write and press enter or comma(,) to add additional emails)"
                                 customValue
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <TextField
+                        <Col span={24}>
+                            <label style={{ display: 'block', marginBottom: 4 }}>Subject</label>
+                            <Input
                                 name="subject"
-                                label="Subject"
-                                variant="outlined"
                                 onChange={handleChange}
                                 spellCheck
-                                fullWidth
                                 required
-                            ></TextField>
-                        </Grid>
+                                style={{ width: '100%' }}
+                            />
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <TextField
+                        <Col span={24}>
+                            <label style={{ display: 'block', marginBottom: 4 }}>Message</label>
+                            <TextArea
                                 name="message"
-                                label="Message"
-                                variant="outlined"
                                 onChange={handleChange}
                                 spellCheck
-                                fullWidth
-                                multiline
-                                minRows="8"
-                                maxRows="10"
+                                rows={8}
                                 required
-                            ></TextField>
-                        </Grid>
+                                style={{ width: '100%', resize: 'vertical' }}
+                            />
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <Button variant="outlined" component="label">
+                        <Col span={24}>
+                            <Button component="label" style={{ position: 'relative' }}>
                                 Attach Files
                                 <input
                                     type="file"
                                     multiple
                                     onChange={handleFileSelect}
                                     hidden
+                                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
                                 />
                             </Button>
                             <span className="custom-email-file-list-line"></span>
@@ -206,24 +190,25 @@ const CustomEmail = () => {
                                     'No files selected. (Multiple files can be added.)' :
                                     'Selected files: ' + files.map(file => file.name).toString()}
                             </span>
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <Button
-                                variant="contained"
-                                color="primary"
+                                type="primary"
                                 disabled={(!selectedAffiliates && !additionalEmails) || loading}
-                                type="submit"
+                                htmlType="submit"
                             >
-                                {loading && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                    <CircularProgress size={20} color="inherit" />
-                                </span>)}
+                                {loading && (
+                                    <span style={{ marginRight: '8px', marginBottom: '-5px', display: 'inline-flex' }}>
+                                        <Spin size="small" />
+                                    </span>
+                                )}
                                 SEND
                             </Button>
-                        </Grid>
-                    </Grid>
+                        </Col>
+                    </Row>
                 </form>
-            </Paper>
+            </Card>
         </>
     )
 }

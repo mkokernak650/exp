@@ -9,6 +9,7 @@ import { usePage } from '@inertiajs/inertia-react';
 import consumerExpLogo from '../../../images/webform/logo.png'
 import toast from 'react-hot-toast';
 import { Inertia } from '@inertiajs/inertia';
+import { Input } from 'antd';
 
 const SendCampaign = () => {
     const { affiliates, allCampaigns, topMessage } = usePage().props
@@ -90,7 +91,7 @@ const SendCampaign = () => {
                             >
                                 Subject
                             </label>
-                            <input
+                            <Input
                                 type="text"
                                 id="subject"
                                 className="border border-gray-400 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -107,7 +108,7 @@ const SendCampaign = () => {
                             >
                                 Message
                             </label>
-                            <textarea
+                            <Input.TextArea
                                 id="top_message"
                                 rows={4}
                                 className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-400 focus:ring-blue-500 focus:border-blue-500"

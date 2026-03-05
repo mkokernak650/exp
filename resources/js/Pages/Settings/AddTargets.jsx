@@ -1,15 +1,7 @@
 import { React, useState } from "react";
 import Layout from "../Layout/Layout";
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Snackbar,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
+import { Button, Typography, Select, Input } from "antd";
+import { Row, Col } from "antd";
 import { usePage } from "@inertiajs/inertia-react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
@@ -17,36 +9,10 @@ import MultiSelect from "react-multiple-select-dropdown-lite";
 import "react-multiple-select-dropdown-lite/dist/index.css";
 import toast from 'react-hot-toast'
 
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
-  },
-}));
-
-
 const AddTargets = () => {
-  const classes = useStyles();
   const [values, setValues] = useState();
   const [loading, setLoading] = useState(false);
   const { allCustomers, allTargetNames } = usePage().props;
-
 
   const options = allTargetNames.map((item) => ({
     label: item.target_name,
@@ -90,34 +56,27 @@ const AddTargets = () => {
   return (
     <>
       <Helmet title="Add Target" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Add Target
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit} className="add-target">
-          <Grid container spacing={4}>
-            <Grid item xs={12} classes={classes.MuiGridItem}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="Customer"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
+        </Typography.Title>
+        <form onSubmit={handleSubmit} className="add-target">
+          <Row gutter={[16, 16]}>
+            <Col span={24}>
+              <Select
+                placeholder="Select Customer"
+                onChange={(value) => handleChange({ target: { name: 'Customer', value } })}
+                style={{ width: '100%' }}
               >
-                <option value="">Select Customer</option>
                 {allCustomers.map((option, indx) => (
-                  <option key={indx} value={option.customer_name}>
+                  <Select.Option key={indx} value={option.customer_name}>
                     {option.customer_name}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
+              </Select>
+            </Col>
 
-            <Grid item xs={12} classes={classes.MuiGridItem}>
+            <Col span={24}>
               <MultiSelect
                 name="Ringba_Targets_Name"
                 onChange={(val) =>
@@ -127,27 +86,28 @@ const AddTargets = () => {
                 placeholder="Select Targets"
                 style={{ width: '100%' }}
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12} classes={classes.MuiGridItem}>
-              <TextField
-                fullWidth
-                label="Description"
-                name="Description"
-                onChange={handleChange}
-                type="text"
-                variant="outlined"
-                required={true}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? <CircularProgress color="inherit" thickness={3} size="1.5rem" /> : "Submit"}
+            <Col span={24}>
+              <div>
+                <label>Description</label>
+                <Input
+                  name="Description"
+                  onChange={handleChange}
+                  type="text"
+                  required
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Submit
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   );
 };

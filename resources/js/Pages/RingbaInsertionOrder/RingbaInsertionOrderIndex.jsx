@@ -1,25 +1,17 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
 import { usePage } from '@inertiajs/inertia-react'
-import 'ka-table/style.scss'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import Eye from '@/Components/Icons/Eye.jsx'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import { useStyles, columns } from './Helpers/RingbaInsertionOrderIndexProps'
-import { Button, CircularProgress, IconButton, Tooltip } from '@material-ui/core'
-import DeleteIcon from '@material-ui/icons/Delete'
+import { styles, columns as defaultColumns } from './Helpers/RingbaInsertionOrderIndexProps'
+import { Button, Tooltip, Table, Select } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import IOPublicLink from '../../Components/IOComponents/IOPublicLink'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import ConfirmModal from '@/Shared/ConfirmModal'
-import { kaPropsUtils } from 'ka-table/utils'
-import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -27,15 +19,15 @@ import ResendIODoc from '../../Components/IOComponents/ResendIODoc'
 import CancelIO from '../../Components/IOComponents/CancelIO'
 
 const RingbaInsertionOrderIndex = () => {
-    const classes = useStyles()
     const { ringbaInsertionOrders, columnsData } = usePage().props
     const [showColumns, setShowColumns] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [tableLoading, setTableLoading] = useState(false)
     const showColumnRef = useRef()
     const [insertionOrderList, setInsertionOrderList] = useState(ringbaInsertionOrders)
     const [itemPerPage, setItemPerPage] = useState(10)
     const [curerentPage, setCurerentPage] = useState(1)
-    const [selectedRowIds, setSelectedRowIds] = useState([])
+    const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [tableToolbar, setTableToolbar] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
     const [filterByStatus, setFilterByStatus] = useState('')
@@ -58,10 +50,13 @@ const RingbaInsertionOrderIndex = () => {
             io_link: item.io_link,
             resend_io_doc: item.status + ',' + item.io_no,
             cancel_io: item.status + ',' + item.io_no,
+            key: item.id,
         }))
     }
 
     const dataArray = mapDataArr(ringbaInsertionOrders)
+
+    const [data, setData] = useState(dataArray)
 
     const status = ['pending', 'accepted', 'declined', 'canceled']
 
@@ -75,63 +70,15 @@ const RingbaInsertionOrderIndex = () => {
         columnsData.length ? JSON.parse(columnsData[0]) : {}
     )
 
-    const tablePropsInit = {
-        columns:
-            // columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-            //     ? JSON.parse(columnsData[0])?.[optionKey]
-            //     : 
-            columns,
-        loading: {
-            enabled: false,
-            text: 'Loading...',
-        },
-        data: dataArray,
-        rowKeyField: 'id',
-        sortingMode: SortingMode.Single,
-        columnResizing: true,
-        columnReordering: true,
-        format: ({ column, value }) => {
-            if (column.key === 'id') {
-                return 'IO-' + value.padStart(3, '0')
-            }
-            if (column.key === 'io_link') {
-                return <IOPublicLink link={`${baseUrl}/insertion-order/ringba/public${value}`} />
-            }
-            if (column.key === 'resend_io_doc') {
-                return <ResendIODoc data={value} routeName="insertion.order.ringba.resend.io.document" />
-            }
-            if (column.key === 'cancel_io') {
-                return <CancelIO data={value} routeName="insertion.order.ringba.resend.io.document" />
-            }
-            if (column.key === 'phone') {
-                return value.toString().replace(/,/g, ', ')
-            }
-        }
-    }
+    const [columns, setColumns] = useState(defaultColumns)
 
-    const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-    const dispatch = (action) => {
-        if (
-            ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
-                action?.type
+    const handleToggleColumn = (key) => {
+        setColumns((prev) => {
+            const updated = prev.map((c) =>
+                c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
             )
-        ) {
-            handleSelects({
-                action,
-                selectedRowIds,
-                setSelectedRowIds,
-                tableProps,
-                setTableToolbar,
-            })
-        }
-        changeTableProps((prevState) => {
-            const newState = kaReducer(prevState, action)
-            const { data, ...settingsWithoutData } = newState
-            if (action?.type === 'ReorderColumns') {
-                addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-            }
-            return newState
+            addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+            return updated
         })
     }
 
@@ -154,7 +101,7 @@ const RingbaInsertionOrderIndex = () => {
 
     const getSearchingData = async (data) => {
         setCurerentPage(data)
-        dispatch(showLoading())
+        setTableLoading(true)
         await axios
             .get(
                 '/insertion-order/ringba?page=' +
@@ -164,16 +111,14 @@ const RingbaInsertionOrderIndex = () => {
                 '&filterByStatus=' + filterByStatus
             )
             .then((res) => {
-                const tmpTableProps = { ...tableProps }
-                tmpTableProps.data = mapDataArr(res.data)
-                changeTableProps(tmpTableProps)
+                setData(mapDataArr(res.data))
                 setInsertionOrderList(res.data)
-                dispatch(hideLoading())
+                setTableLoading(false)
             })
     }
 
-    const itemPerPageHandleChange = (e) => {
-        setItemPerPage(e.target.value)
+    const itemPerPageHandleChange = (value) => {
+        setItemPerPage(value)
     }
 
     useEffect(() => {
@@ -206,25 +151,20 @@ const RingbaInsertionOrderIndex = () => {
         return (
             <div className="table-toolbar">
                 <Tooltip title="Delete">
-                    <IconButton aria-label="delete" onClick={() => setShowDeleteModal({ open: true })}>
-                        <DeleteIcon style={{ color: '#031b4e' }} />
-                    </IconButton>
+                    <Button type="text" onClick={() => setShowDeleteModal({ open: true })} icon={<DeleteOutlined style={{ color: '#031b4e' }} />} />
                 </Tooltip>
-                <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+                <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
             </div>
         )
     }
 
     const deleteHandler = () => {
         axios
-            .post(route('insertion.order.ringba.term.delete'), { selectedRowIds })
+            .post(route('insertion.order.ringba.term.delete'), { selectedRowIds: selectedRowKeys })
             .then((res) => {
                 if (res.data.success === true) {
-                    let filteredData = tableProps
-                    const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-                    filteredData.data = newData
-                    changeTableProps(filteredData)
-                    setSelectedRowIds([])
+                    setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+                    setSelectedRowKeys([])
                     getSearchingData(curerentPage)
                     setTableToolbar(false)
                     toast.success(res.data.msg)
@@ -239,6 +179,46 @@ const RingbaInsertionOrderIndex = () => {
             })
     }
 
+    const antdColumns = columns
+        .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+        .map((col) => {
+            const base = {
+                key: col.key,
+                dataIndex: col.key,
+                title: col.title || '',
+                width: col.style?.width || col.width,
+                sorter: col.dataType === 'number'
+                    ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+                    : col.dataType === 'string'
+                        ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                        : undefined,
+            }
+            if (col.key === 'id') {
+                base.render = (value) => 'IO-' + String(value).padStart(3, '0')
+            }
+            if (col.key === 'io_link') {
+                base.render = (value) => <IOPublicLink link={`${baseUrl}/insertion-order/ringba/public${value}`} />
+            }
+            if (col.key === 'resend_io_doc') {
+                base.render = (value) => <ResendIODoc data={value} routeName="insertion.order.ringba.resend.io.document" />
+            }
+            if (col.key === 'cancel_io') {
+                base.render = (value) => <CancelIO data={value} routeName="insertion.order.ringba.resend.io.document" />
+            }
+            if (col.key === 'phone') {
+                base.render = (value) => value ? value.toString().replace(/,/g, ', ') : ''
+            }
+            return base
+        })
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (newSelectedRowKeys) => {
+            setSelectedRowKeys(newSelectedRowKeys)
+            setTableToolbar(newSelectedRowKeys.length > 0)
+        },
+    }
+
     return (
         <>
             <Helmet title="Pay Per Call Insertion Order - Index" />
@@ -250,20 +230,6 @@ const RingbaInsertionOrderIndex = () => {
                         <div className="columns-show-hide" onClick={handleColumns}>
                             <Eye />
                         </div>
-                        {/* <Button
-                            variant="contained"
-                            type="submit"
-                            color="primary"
-                            className={classes.button}
-                            onClick={exportHandler}
-                            disabled={insertionOrderList == ''}
-                        >
-                            {loading ? (
-                                <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                            ) : (
-                                'Export'
-                            )}
-                        </Button> */}
                     </div>
                     <div className="top-left">
                         <MultiSelect
@@ -275,53 +241,34 @@ const RingbaInsertionOrderIndex = () => {
                     </div>
                     {showColumns ? (
                         <div className="column-settings" ref={showColumnRef}>
-                            <ColumnSettings {...tableProps} dispatch={dispatch} />
+                            <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
                         </div>
                     ) : (
                         ''
                     )}
                 </div>}
                 <Table
-                    {...tableProps}
-                    childComponents={{
-                        noDataRow: {
-                            content: () => 'No Data Found',
-                        },
-                        cellText: {
-                            content: (props) => {
-                                if (props.column.key === 'selection-cell') {
-                                    return <SelectionCell {...props} />
-                                }
-                            },
-                        },
-                        headCell: {
-                            content: (props) => {
-                                if (props.column.key === 'selection-cell') {
-                                    return (
-                                        <SelectionHeader
-                                            {...props}
-                                            areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                                        />
-                                    )
-                                }
-                            },
-                        },
-                    }}
-                    dispatch={dispatch}
-                    extendedFilter={(data) => tableProps.data}
+                    columns={antdColumns}
+                    dataSource={data}
+                    rowKey="id"
+                    rowSelection={rowSelection}
+                    loading={tableLoading}
+                    pagination={false}
+                    scroll={{ y: 'calc(100vh - 217px)' }}
+                    size="small"
+                    locale={{ emptyText: 'No Data Found' }}
                 />
                 <div className="table-bottom">
-                    <select
-                        name="item-per-page"
-                        id="item-per-page"
+                    <Select
                         value={itemPerPage}
-                        onChange={(e) => itemPerPageHandleChange(e)}
-                    >
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
+                        onChange={(value) => itemPerPageHandleChange(value)}
+                        options={[
+                            { value: 10, label: '10' },
+                            { value: 20, label: '20' },
+                            { value: 50, label: '50' },
+                            { value: 100, label: '100' },
+                        ]}
+                    />
                     <Pagination changePage={getSearchingData} data={insertionOrderList} />
                 </div>
             </div>
@@ -331,7 +278,7 @@ const RingbaInsertionOrderIndex = () => {
                 btnAction={deleteHandler}
                 closeAction={() => setShowDeleteModal({ open: false })}
                 width={'400px'}
-                title={`${selectedRowIds.length > 1
+                title={`${selectedRowKeys.length > 1
                     ? 'Do you want to delete these records?'
                     : 'Do you want to delete this record?'
                     }`}

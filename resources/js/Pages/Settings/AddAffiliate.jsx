@@ -1,8 +1,7 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, Button, Select, InputLabel, FormControl, MenuItem, FormHelperText } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Select, Spin } from 'antd'
+import { Row, Col } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -10,26 +9,7 @@ import TextInput from '@/Components/Global/TextInput'
 import { usePage } from '@inertiajs/inertia-react'
 import Note from '../../Components/Note'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-  snackbar: {
-    maxWidth: '500px',
-  },
-}))
-
 const AddAffiliate = () => {
-  const classes = useStyles()
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
@@ -77,13 +57,13 @@ const AddAffiliate = () => {
         <p>For Ringba affiliates, fetching the Ringba data will fetch affiliates as well.</p>
         <p>To avoid duplicate affiliates, update Ringba data first, and then this page will prevent users from inserting duplicates.</p>
       </Note>
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Add Affiliate
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+        </Typography.Title>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={[16, 16]}>
+            <Col span={24}>
               <TextInput
                 label="Affiliate Id"
                 name="affiliate_id"
@@ -113,29 +93,27 @@ const AddAffiliate = () => {
                 name="address"
                 handleChange={handleChange}
               />
-              <Grid item style={{ paddingTop: 18 }}>
-                <FormControl variant="outlined" className={classes.formControl} fullWidth>
-                  <InputLabel id="market-label">Select Market</InputLabel>
-                  <Select
-                    labelId="market-label"
-                    id="market"
-                    name="market"
-                    value={values?.market ?? ""}
-                    defaultValue=""
-                    onChange={handleChange}
-                    label="Select Market"
-                    error={errors?.market}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    {allMarkets.map((item) => (
-                      <MenuItem key={item.market} value={item.market}>{item.market}</MenuItem>
-                    ))}
-                  </Select>
-                  {errors?.market && <FormHelperText style={{ color: 'red' }}>{errors?.market?.[0]}</FormHelperText>}
-                </FormControl>
-              </Grid>
+              <div style={{ paddingTop: 18 }}>
+                <div style={{ marginBottom: 4 }}>
+                  <label>Select Market</label>
+                </div>
+                <Select
+                  id="market"
+                  placeholder="Select Market"
+                  value={values?.market ?? undefined}
+                  onChange={(value) => {
+                    handleChange({ target: { name: 'market', value } })
+                  }}
+                  style={{ width: '100%' }}
+                  status={errors?.market ? 'error' : undefined}
+                  allowClear
+                >
+                  {allMarkets.map((item) => (
+                    <Select.Option key={item.market} value={item.market}>{item.market}</Select.Option>
+                  ))}
+                </Select>
+                {errors?.market && <div style={{ color: 'red', fontSize: '12px' }}>{errors?.market?.[0]}</div>}
+              </div>
               <TextInput
                 label="Contact Name"
                 name="contact_name"
@@ -146,20 +124,16 @@ const AddAffiliate = () => {
                 name="contact_telephone"
                 handleChange={handleChange}
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? (
-                  <CircularProgress color="secondary" thickness={3} size="2rem" />
-                ) : (
-                  'Submit'
-                )}
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Submit
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

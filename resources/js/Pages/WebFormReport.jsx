@@ -1,34 +1,26 @@
 import Layout from './Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode, PagingPosition } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
 import { filterData } from './filterData'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
+import { Tooltip, Button, Table } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '../Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
-import handleSelects from '@/Helpers/HandleSelects'
 import toast from 'react-hot-toast'
-import { fields, groups, filter, columns } from './Settings/Helpers/WebFormReportProps'
+import { fields, groups, filter, columns as defaultColumns } from './Settings/Helpers/WebFormReportProps'
 
 const WebFormReport = () => {
   const { allReports, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const dataArray = allReports.map((item, index) => ({
     sl: index + 1,
     Company: item.company,
@@ -45,9 +37,10 @@ const WebFormReport = () => {
     Comment: item.comment,
     Created_Time: item.created_at,
     id: item.id,
-    key: index,
+    key: item.id,
   }))
 
+  const [data, setData] = useState(dataArray)
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const showColumnRef = useRef()
 
@@ -56,51 +49,19 @@ const WebFormReport = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [5, 10, 15],
-      position: PagingPosition.Bottom,
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'Website') {
-        return (
-          <a target="_blank" href={value}>
-            {value}
-          </a>
-        )
-      }
-    },
-  }
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-    })
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -125,18 +86,16 @@ const WebFormReport = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('webform.reports.delete'), { selectedRowIds })
+      .post(route('webform.reports.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
@@ -150,7 +109,7 @@ const WebFormReport = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -166,7 +125,6 @@ const WebFormReport = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
@@ -175,14 +133,51 @@ const WebFormReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button
+            type="text"
+            aria-label="delete"
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+          />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+      if (col.key === 'Website') {
+        base.render = (value) => (
+          <a target="_blank" href={value}>
+            {value}
+          </a>
+        )
+      }
+      return base
+    })
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
+  const filteredData = filterData(data, filterValue)
 
   return (
     <>
@@ -227,7 +222,7 @@ const WebFormReport = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -235,30 +230,13 @@ const WebFormReport = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {  
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={filteredData}
+          rowKey="id"
+          rowSelection={rowSelection}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
       </div>
       <ConfirmModal
@@ -268,7 +246,7 @@ const WebFormReport = () => {
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
         title={`${
-          selectedRowIds.length > 1
+          selectedRowKeys.length > 1
             ? 'Do you want to delete these records?'
             : 'Do you want to delete this record?'
         }`}

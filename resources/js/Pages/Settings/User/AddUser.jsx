@@ -1,12 +1,10 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { InputAdornment, IconButton } from '@material-ui/core'
-import Grid from '@material-ui/core/Grid'
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
+import { Row, Col } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { VisibilityOff } from '@material-ui/icons'
-import { Visibility } from '@material-ui/icons'
 import TextInput from '@/Components/Global/TextInput'
 import Card from '@/Components/Global/Card'
 import FormHeading from '@/Components/Global/FormHeading'
@@ -48,9 +46,9 @@ const AddUser = () => {
             <Helmet title="Add User" />
             <Card>
                 <FormHeading title="Add User" />
-                <form validate="true" onSubmit={handleSubmit}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
+                <form onSubmit={handleSubmit}>
+                    <Row gutter={[16, 16]}>
+                        <Col span={24}>
                             <TextInput
                                 label="First Name*"
                                 name="firstname"
@@ -80,19 +78,11 @@ const AddUser = () => {
                                 type={showPassword?.password ? 'text' : 'password'}
                                 error={errors?.password}
                                 helperText={errors?.password?.[0]}
-                                InputProps={{
-                                    endAdornment:
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => handleClickShowPassword('password')}
-                                                edge="end"
-                                            >
-                                                {showPassword?.password ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-
-                                }}
+                                suffix={
+                                    <span onClick={() => handleClickShowPassword('password')} style={{ cursor: 'pointer' }}>
+                                        {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                    </span>
+                                }
                             />
                             <TextInput
                                 label="Confirm Password*"
@@ -101,28 +91,20 @@ const AddUser = () => {
                                 type={showPassword?.cpassword ? 'text' : 'password'}
                                 error={errors?.password}
                                 helperText={errors?.password?.[0]}
-                                InputProps={{
-                                    endAdornment:
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => handleClickShowPassword('cpassword')}
-                                                edge="end"
-                                            >
-                                                {showPassword?.cpassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-
-                                }}
+                                suffix={
+                                    <span onClick={() => handleClickShowPassword('cpassword')} style={{ cursor: 'pointer' }}>
+                                        {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                    </span>
+                                }
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <PrimaryButton
                                 btnText="Submit" loading={loading} type="submit"
                             />
-                        </Grid>
-                    </Grid>
+                        </Col>
+                    </Row>
                 </form>
             </Card>
         </>

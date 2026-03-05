@@ -1,4 +1,5 @@
-import { CircularProgress, Tooltip } from "@material-ui/core"
+import { Spin, Tooltip } from "antd"
+import { LoadingOutlined } from "@ant-design/icons"
 import axios from "axios"
 import { useState } from "react"
 import toast from "react-hot-toast"
@@ -38,7 +39,7 @@ export default function CancelIO({ data, routeName }) {
                     onClick={resendIoDocument}
                     style={{ backgroundColor: '#ff0e0e' }}
                 >{loading &&
-                    <CircularProgress size={15} />
+                    <Spin indicator={<LoadingOutlined style={{ fontSize: 15, color: '#fff' }} />} size="small" />
                     }
                     Cancel
                 </button>

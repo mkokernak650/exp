@@ -1,8 +1,6 @@
 import { React, useState } from 'react';
 import Layout from '../Layout/Layout';
-import { CircularProgress, Paper, Typography, TextField, Button, FormControlLabel, Checkbox } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
+import { Button, Input, Select, Row, Col, Typography, Spin, Checkbox } from 'antd';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import FileImportMap from './FileImportMap';
@@ -13,27 +11,7 @@ import toast from 'react-hot-toast';
 import { exportReportAlreadyExist } from '../../Helpers/ExportReport';
 import Note from '../../Components/Note';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '600px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-  snackbar: {
-    maxWidth: '500px',
-  },
-}));
+const { Title } = Typography;
 
 const SalesImport = () => {
   const defaultState = {
@@ -42,7 +20,6 @@ const SalesImport = () => {
     order_type: '',
     file: '',
   };
-  const classes = useStyles();
   const [values, setValues] = useState(defaultState);
   const [loading, setLoading] = useState({ import: false, fieldMap: false, gettingFieldsMap: false });
   const [fileSelected, setFileSelected] = useState(false);
@@ -54,19 +31,14 @@ const SalesImport = () => {
   const [applyKeyChecked, setApplyKeyChecked] = useState(false)
 
   const handleFile = (file) => {
-    // Boilerplate to set up FileReader
     const reader = new FileReader();
     const rABS = !!reader.readAsBinaryString;
     reader.onload = (e) => {
-      // Parse data
       const bstr = e.target.result;
       const wb = XLSX.read(bstr, { type: rABS ? 'binary' : 'array' });
-      // Get first worksheet
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
-      // Convert array of arrays
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      // Update state
       setReportFields(data);
       setFileSelected(true);
     };
@@ -93,6 +65,10 @@ const SalesImport = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setValues((oldValues) => ({ ...oldValues, [name]: value }));
+  };
+
+  const handleSelectChange = (name, value) => {
+    setValues((oldValues) => ({ ...oldValues, [name]: value ?? '' }));
   };
 
   const handleFileChange = (e) => {
@@ -230,7 +206,7 @@ const SalesImport = () => {
     if (loading.gettingFieldsMap) {
       message = (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <CircularProgress color="inherit" thickness={3} size="0.8rem" style={{ marginRight: '5px' }} /> Fetching fields map...
+          <Spin size="small" style={{ marginRight: '5px' }} /> Fetching fields map...
         </div >
       )
     } else if (savedFieldsMap === null) {
@@ -243,17 +219,13 @@ const SalesImport = () => {
           <span style={{ marginRight: '5px' }}>
             Key (fields map) available.
           </span>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={applyKeyChecked}
-                onChange={handleApplyKeyChange}
-                name="apply_key"
-                color="primary"
-              />
-            }
-            label="Apply key"
-          />
+          <Checkbox
+            checked={applyKeyChecked}
+            onChange={handleApplyKeyChange}
+            name="apply_key"
+          >
+            Apply key
+          </Checkbox>
         </div>
       )
     } else if (savedFieldsMap.length && !fileSelected) {
@@ -274,6 +246,23 @@ const SalesImport = () => {
     }
   }
 
+  const campaignSelectOptions = campaigns.map((option, indx) => ({
+    key: indx + '-1',
+    value: option.id.toString(),
+    label: option.campaign_name,
+  }))
+
+  const customerSelectOptions = customers.map((option, indx) => ({
+    key: indx + '-2',
+    value: option.id.toString(),
+    label: option.customer_name,
+  }))
+
+  const orderTypeOptions = [
+    { value: '1', label: 'E-commerce' },
+    { value: '2', label: 'Phone' },
+  ]
+
   return (
     <>
       <Helmet title="Import Sales Report" />
@@ -283,105 +272,72 @@ const SalesImport = () => {
         <b>Caution:</b> For CSV import, pick the call date and call time both; otherwise, an error will be generated.
         Additionally, if the date format is incorrect, the order will be uploaded with the current date.
       </Note >
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '600px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
+        <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Import Sales Report
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
-              <TextField
-                value={values?.campaign_id}
-                id="campaign_id"
-                select
-                name="campaign_id"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                label="Select Campaign"
-                variant="outlined"
-                size="small"
-                fullWidth
-                required={true}
-              >
-                <option value=""></option>
-                {campaigns.map((option, indx) => (
-                  <option key={indx + `-1`} value={option.id}>
-                    {option.campaign_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
-              <TextField
-                value={values?.customer_id}
-                id="customer_id"
-                select
-                name="customer_id"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                label="Select Customer"
-                variant="outlined"
-                size="small"
-                fullWidth
-                required={true}
-              >
-                <option value=""></option>
-                {customers.map((option, indx) => (
-                  <option key={indx + `-2`} value={option.id}>
-                    {option.customer_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
-              <TextField
-                value={values?.order_type}
-                id="order_type"
-                select
-                name="order_type"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                label="Select Order Type"
-                variant="outlined"
-                size="small"
-                fullWidth
-                required={true}
-              >
-                <option value=""></option>
-                <option value="1">E-commerce</option>
-                <option value="2">Phone</option>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }}>
+        </Title>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={[0, 16]}>
+            <Col span={24} style={{ paddingBottom: '5px' }}>
+              <div>
+                <label>Select Campaign</label>
+                <Select
+                  value={values?.campaign_id || undefined}
+                  onChange={(value) => handleSelectChange('campaign_id', value)}
+                  className="w-full"
+                  placeholder="Select Campaign"
+                  allowClear
+                  options={campaignSelectOptions}
+                />
+              </div>
+            </Col>
+            <Col span={24} style={{ paddingBottom: '5px' }}>
+              <div>
+                <label>Select Customer</label>
+                <Select
+                  value={values?.customer_id || undefined}
+                  onChange={(value) => handleSelectChange('customer_id', value)}
+                  className="w-full"
+                  placeholder="Select Customer"
+                  allowClear
+                  options={customerSelectOptions}
+                />
+              </div>
+            </Col>
+            <Col span={24} style={{ paddingBottom: '5px' }}>
+              <div>
+                <label>Select Order Type</label>
+                <Select
+                  value={values?.order_type || undefined}
+                  onChange={(value) => handleSelectChange('order_type', value)}
+                  className="w-full"
+                  placeholder="Select Order Type"
+                  allowClear
+                  options={orderTypeOptions}
+                />
+              </div>
+            </Col>
+            <Col span={24} style={{ paddingBottom: '5px' }}>
               <label htmlFor="file">Select Sales Report</label>
-              <TextField
+              <input
                 id="file"
                 type="file"
                 name="file"
                 onChange={handleFileChange}
-                className={classes.textField}
-                fullWidth
-                variant="outlined"
-                size="small"
-                required={true}
+                className="w-full"
+                required
               />
               <small>
                 <b>Supported File Type: csv, xlsx</b>
               </small>
-            </Grid>
-            <Grid item xs={12} style={{ paddingBottom: '5px' }} >
+            </Col>
+            <Col span={24} style={{ paddingBottom: '5px' }} >
               <div className="apply-fields-map">
                 {showApplyFieldsMap()}
               </div>
-            </Grid>
+            </Col>
             {fileSelected && (
-              <Grid item xs={12}>
+              <Col span={24}>
                 <div className="flx flx-around mt-4 mb-2" style={{ marginRight: 40 }}>
                   <b>Application Field</b>
                   <b>Report Field</b>
@@ -406,41 +362,36 @@ const SalesImport = () => {
                     +
                   </button>
                 </div>
-              </Grid>
+              </Col>
             )}
-          </Grid>
-          <Grid container justifyContent="flex-end" style={{ marginTop: '20px' }}>
-            <Grid item style={{ marginRight: '8px' }}>
+          </Row>
+          <Row justify="end" style={{ marginTop: '20px' }}>
+            <Col style={{ marginRight: '8px' }}>
               <Button
-                variant="outlined"
-                color={fieldsMapSaveError ? 'secondary' : 'primary'}
-                type="button"
+                danger={!!fieldsMapSaveError}
                 disabled={!checkMappedFields() || !values.campaign_id || !values.customer_id || !values.order_type || loading.fieldMap || loading.import}
                 onClick={saveOrUpdateFieldsMap}
+                loading={loading.fieldMap}
               >
-                {loading.fieldMap &&
-                  <CircularProgress color="inherit" thickness={3} size="1.2rem" style={{ marginRight: '5px' }} />}
                 {savedFieldsMap?.length ? 'Update' : 'Save'} Fields Map
               </Button>
-            </Grid>
-            <Grid item>
+            </Col>
+            <Col>
               <Button
                 disabled={!checkMappedFields() || loading.import || loading.fieldMap}
-                variant="contained"
-                color="primary"
-                type="submit"
+                type="primary"
+                htmlType="submit"
+                loading={loading.import}
               >
-                {loading.import &&
-                  <CircularProgress color="inherit" thickness={3} size="1.2rem" style={{ marginRight: '5px' }} />}
                 Import
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
         {fieldsMapSaveError &&
           <div className="fields-map-save-error">{fieldsMapSaveError}</div>
         }
-      </Paper>
+      </div>
     </>
   );
 };

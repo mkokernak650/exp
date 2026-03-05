@@ -1,8 +1,7 @@
-import { React, useState } from 'react'
+import { useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button, Radio, FormControlLabel, RadioGroup, Divider } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Radio, Row, Col, Divider, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -11,27 +10,7 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import toast from 'react-hot-toast'
 import { exportRingbaReports } from '@/Helpers/ExportReport'
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-        width: '500px',
-        margin: 'auto',
-        marginTop: '2rem',
-        padding: '40px',
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing(2),
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '35px',
-    },
-}))
-
 const RingbaReports = () => {
-    const classes = useStyles()
     const [loading, setLoading] = useState(false)
     const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets } = usePage().props
     const [affiliateList, setAffiliateList] = useState([])
@@ -450,13 +429,13 @@ const RingbaReports = () => {
     return (
         <>
             <Helmet title="Ringba Reports" />
-            <Paper className={classes.root}>
-                <Typography variant="h5" className={classes.title}>
+            <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
+                <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
                     Ringba Reports
-                </Typography>
+                </Typography.Title>
                 <form validate="true" className="generate-report">
-                    <Grid container spacing={4}>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                    <Row gutter={[0, 16]}>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 singleSelect
                                 name="reportFor"
@@ -464,13 +443,12 @@ const RingbaReports = () => {
                                 onChange={(val) => reportForHandleChange(val)}
                                 options={[
                                     { label: 'Pay Per Order', value: 'payPerOrder' },
-                                    // { label: 'Cash Buy', value: 'cashBuy' },
                                 ]}
                                 style={{ width: '100%' }}
                                 placeholder="Select Report For"
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 singleSelect
                                 name="order_type"
@@ -483,8 +461,8 @@ const RingbaReports = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Order Type"
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingBottom: 5, marginBottom: 15 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingBottom: 5, marginBottom: 15 }}>
                             <MultiSelect
                                 singleSelect
                                 name="reportOn"
@@ -496,17 +474,16 @@ const RingbaReports = () => {
                                     { label: 'Exceptions Report', value: 'exceptions' },
                                     { label: 'Call Length Report', value: 'callLength' },
                                     { label: 'Homes Per Call Report', value: 'homesPerCall' },
-                                    // { label: 'Export CSV Report', value: 'exportCSV' },
                                 ]}
                                 style={{ width: '100%' }}
                                 placeholder="Select Report On"
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingTop: 0, marginBottom: -10 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingTop: 0, marginBottom: -10 }}>
                             <Divider />
-                        </Grid>
+                        </Col>
                         {market.length < 1 && (
-                            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                            <Col span={24} style={{ paddingBottom: 5 }}>
                                 <MultiSelect
                                     name="states"
                                     onChange={(val) => stateHandleChange(val, 'states')}
@@ -514,10 +491,10 @@ const RingbaReports = () => {
                                     style={{ width: '100%' }}
                                     placeholder="Select States"
                                 />
-                            </Grid>
+                            </Col>
                         )}
                         {state.length < 1 && (
-                            <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                            <Col span={24} style={{ paddingBottom: 5 }}>
                                 <MultiSelect
                                     name="markets"
                                     onChange={(val) => marketHandleChange(val, 'markets')}
@@ -525,9 +502,9 @@ const RingbaReports = () => {
                                     style={{ width: '100%' }}
                                     placeholder="Select Markets"
                                 />
-                            </Grid>
+                            </Col>
                         )}
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="campaign_id"
                                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
@@ -535,8 +512,8 @@ const RingbaReports = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Campaign"
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="customer_id"
                                 onChange={(val) => customerHandleChange(val, 'customer_id')}
@@ -544,8 +521,8 @@ const RingbaReports = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Customer"
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="affiliate_id"
                                 onChange={(value) => affiliateHandleChange(value)}
@@ -555,8 +532,8 @@ const RingbaReports = () => {
                                 placeholder="Select Affiliates"
                                 singleSelect
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="dialedPhone"
                                 onChange={(value) => handleDialedPhoneChange(value)}
@@ -565,8 +542,8 @@ const RingbaReports = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Dialed Phone"
                             />
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingBottom: 5 }}>
+                        </Col>
+                        <Col span={24} style={{ paddingBottom: 5 }}>
                             <MultiSelect
                                 name="year"
                                 onChange={(val) => yearHandleChange(val, 'year')}
@@ -574,10 +551,10 @@ const RingbaReports = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Years"
                             />
-                        </Grid>
+                        </Col>
                         {((Array.isArray(year) && year.length < 1) || !year) && (
                             <>
-                                <Grid item xs={12}>
+                                <Col span={24}>
                                     <MultiSelect
                                         placeholder="Select Broadcast Month"
                                         style={{ width: '100%' }}
@@ -585,8 +562,8 @@ const RingbaReports = () => {
                                         onChange={(value) => monthHandleChange(value)}
                                         singleSelect
                                     />
-                                </Grid>
-                                <Grid item xs={12}>
+                                </Col>
+                                <Col span={24}>
                                     <MultiSelect
                                         placeholder="Select Broadcast Week"
                                         style={{ width: '100%' }}
@@ -594,91 +571,62 @@ const RingbaReports = () => {
                                         onChange={(value) => weekHandleChange(value)}
                                         singleSelect
                                     />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        id="date"
-                                        label="Start Date"
-                                        type="date"
-                                        name="start_date"
-                                        onChange={startDateHandleChange}
-                                        value={startDate.start_date}
-                                        className={classes.textField}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        id="date"
-                                        label="End Date"
-                                        type="date"
-                                        name="end_date"
-                                        onChange={endDateHandleChange}
-                                        value={endDate.end_date}
-                                        className={classes.textField}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        fullWidth
-                                    />
-                                </Grid>
+                                </Col>
+                                <Col span={24}>
+                                    <div>
+                                        <label className="block text-sm mb-1">Start Date</label>
+                                        <DatePicker
+                                            value={startDate.start_date ? dayjs(startDate.start_date) : null}
+                                            onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                </Col>
+                                <Col span={24}>
+                                    <div>
+                                        <label className="block text-sm mb-1">End Date</label>
+                                        <DatePicker
+                                            value={endDate.end_date ? dayjs(endDate.end_date) : null}
+                                            onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                </Col>
                             </>
                         )}
-                        <Grid item xs={12}>
-                            <Grid item xs={12}>
-                                <RadioGroup
-                                    aria-label="type"
+                        <Col span={24}>
+                            <Col span={24}>
+                                <Radio.Group
                                     name="type"
                                     value={reportType.type}
                                     onChange={reportTypeHandleChange}
                                 >
-                                    <FormControlLabel
-                                        value="customer"
-                                        control={<Radio color="primary" />}
-                                        label="For Customer"
-                                    />
-                                    <FormControlLabel
-                                        value="affiliate"
-                                        control={<Radio color="primary" />}
-                                        label="For Affiliate"
-                                    />
-                                </RadioGroup>
-                            </Grid>
-                            <RadioGroup
-                                aria-label="report-type"
+                                    <Radio value="customer">For Customer</Radio>
+                                    <Radio value="affiliate">For Affiliate</Radio>
+                                </Radio.Group>
+                            </Col>
+                            <Radio.Group
                                 name="report_type"
                                 value={ecommerceReportType.report_type}
                                 onChange={ecommerceReportTypeHandleChange}
                             >
-                                <FormControlLabel
-                                    value="export-report"
-                                    control={<Radio color="primary" />}
-                                    label="Export Report"
-                                />
-                                <FormControlLabel
-                                    value="email-report"
-                                    control={<Radio color="primary" />}
-                                    label="Email Report"
-                                />
-                            </RadioGroup>
-                        </Grid>
-                        <Grid item xs={12}>
+                                <Radio value="export-report">Export Report</Radio>
+                                <Radio value="email-report">Email Report</Radio>
+                            </Radio.Group>
+                        </Col>
+                        <Col span={24}>
                             <Button
-                                variant="contained"
-                                color="primary"
+                                type="primary"
                                 onClick={(e) => handleSubmit()}
                                 disabled={loading}
+                                loading={loading}
                             >
-                                Generate &nbsp;
-                                {loading && <CircularProgress color="inherit" thickness={3} size="1.5rem" />}
+                                Generate
                             </Button>
-                        </Grid>
-                    </Grid>
+                        </Col>
+                    </Row>
                 </form>
-            </Paper>
+            </div>
         </>
     )
 }

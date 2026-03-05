@@ -1,4 +1,4 @@
-import ClearIcon from "@material-ui/icons/Clear";
+import { CloseOutlined } from "@ant-design/icons";
 
 export default function FileImportMap({
   index,
@@ -74,7 +74,7 @@ export default function FileImportMap({
         type="button"
         aria-label="btn"
       >
-        <ClearIcon style={{ fontSize: "1rem" }} />
+        <CloseOutlined style={{ fontSize: "1rem" }} />
       </button>
     </div>
   );

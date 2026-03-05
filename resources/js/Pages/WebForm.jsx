@@ -8,46 +8,10 @@ import separate from "../../images/webform/separate.svg";
 import mail from "../../images/webform/mail.svg";
 import { useState } from "react";
 import axios from "axios";
-import MuiAlert from "@material-ui/lab/Alert";
-import { Snackbar } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "grid",
-    width: "500px",
-    margin: "auto",
-    marginTop: "2rem",
-    padding: "40px",
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "35px",
-  },
-  snackbar: {
-    maxWidth: "500px",
-  },
-}));
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+import { message, Input } from "antd";
 
 export default function WebForm() {
-  const classes = useStyles();
   const [values, setValues] = useState();
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
@@ -57,24 +21,17 @@ export default function WebForm() {
       .post(route("webform.store"), values, setValues)
       .then((res) => {
         if (res.status_code === 200) {
-          setResponse(res.data.msg);
-          setOpen(true);
+          message.success(res.data.msg);
           e.target.reset()
         } else {
-          setResponse(res.data.msg);
-          setOpen(true);
+          message.success(res.data.msg);
         }
       })
       .catch((err) => {
-        setResponse(err.response.data.msg);
-        setOpen(true);
+        message.error(err.response.data.msg);
       })
 
   };
-
-
-
-
 
   return (
     <div className="web-form">
@@ -146,81 +103,81 @@ export default function WebForm() {
             <h2 className="mt-4">Complete This Form To Sign Up</h2>
           </div>
           <form className="mt-6" onSubmit={handleSubmit} method="post">
-            <input
+            <Input
               type="text"
               name="company"
               placeholder="Company Name *"
               onChange={handleChange}
               required
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="lname"
               placeholder="Last Name *"
               onChange={handleChange}
               required
-            ></input>
-            <input
+            />
+            <Input
               type="email"
               name="email"
               placeholder="E-mail Address *"
               onChange={handleChange}
               required
-            ></input>
-            <input
+            />
+            <Input
               type="tel"
               name="phone"
               placeholder="Phone Number"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="skype"
               placeholder="Skype ID"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="street"
               placeholder="Street"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="city"
               placeholder="City"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="state"
               placeholder="State"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="zipcode"
               placeholder="Zip Code"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="text"
               name="country"
               placeholder="Country"
               onChange={handleChange}
-            ></input>
-            <input
+            />
+            <Input
               type="url"
               name="website"
               placeholder="Website"
               onChange={handleChange}
-            ></input>
-            <textarea
+            />
+            <Input.TextArea
               name="omment"
               placeholder="Write your comment"
-              rows="5"
+              rows={5}
               onChange={handleChange}
-            ></textarea>
+            />
             <div className="form-button">
               <button type="submit" className="btn">
                 Apply Now
@@ -287,18 +244,6 @@ export default function WebForm() {
           </div>
         </div>
       </div>
-
-      <>
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          className={classes.snackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="success">{response}</Alert>
-        </Snackbar>
-      </>
     </div>
   );
 }

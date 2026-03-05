@@ -1,66 +1,30 @@
-import { DataType, EditingMode, ActionType } from 'ka-table/enums'
-import { Table } from 'ka-table'
-import CellEditorBoolean from 'ka-table/Components/CellEditorBoolean/CellEditorBoolean'
-import { hideColumn, showColumn } from 'ka-table/actionCreators'
+import { Switch } from 'antd'
 
-const ColumnSettings = (tableProps) => {
+const ColumnSettings = ({ columns, onToggleColumn }) => {
   const hiddenColumns = ['sl', 'edit', 'selection-cell']
-  
-  const columnsSettingsProps = {
-    data: tableProps.columns.filter((c) => {
-      if (!hiddenColumns.includes(c.key)) {
-        return c
-      }
-    }),
-    rowKeyField: 'key',
-    columns: [
-      {
-        key: 'visible',
-        title: 'Visible',
-        isEditable: false,
-        style: { textAlign: 'center' },
-        width: 80,
-        dataType: DataType.Boolean,
-      },
-      {
-        key: 'title',
-        isEditable: false,
-        title: 'Fields',
-        dataType: DataType.String,
-      },
-    ],
-    editingMode: EditingMode.None,
-  }
 
-  const dispatchSettings = (action) => {
-    if (action.type === ActionType.UpdateCellValue) {
-      tableProps.dispatch(
-        action.value ? showColumn(action.rowKeyValue) : hideColumn(action.rowKeyValue)
-      )
-    }
-  }
+  const filteredColumns = columns.filter((c) => !hiddenColumns.includes(c.key))
 
   return (
-    <Table
-      {...columnsSettingsProps}
-      childComponents={{
-        rootDiv: {
-          elementAttributes: () => ({
-            style: { width: 400, marginBottom: 20 },
-          }),
-        },
-
-        cell: {
-          content: (props) => {
-            switch (props.column.key) {
-              case 'visible':
-                return <CellEditorBoolean {...props} />
-            }
-          },
-        },
-      }}
-      dispatch={dispatchSettings}
-    />
+    <div style={{ width: 200, marginBottom: 20 }}>
+      {filteredColumns.map((col) => (
+        <div
+          key={col.key}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 7px',
+            borderBottom: '1px solid #eaeaf1',
+            cursor: 'pointer',
+          }}
+          onClick={() => onToggleColumn(col.key)}
+        >
+          <span style={{ fontSize: 13, color: '#4b5668' }}>{col.title || col.key}</span>
+          <Switch size="small" checked={col.visible !== false} />
+        </div>
+      ))}
+    </div>
   )
 }
 

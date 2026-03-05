@@ -1,7 +1,4 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -15,7 +12,7 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}))
+}
 
 const operators = [
   {
@@ -105,42 +102,42 @@ export const columns = [
   {
     key: 'customer',
     title: 'Customer',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
   {
     key: 'email',
     title: 'Email',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 300 },
     visible: true,
   },
   {
     key: 'telephone',
     title: 'Telephone',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'address',
     title: 'Address',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
   {
     key: 'contact_name',
     title: 'Contact Name',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'contact_telephone',
     title: 'Contact Telephone',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },

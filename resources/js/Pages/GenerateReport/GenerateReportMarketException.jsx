@@ -1,17 +1,6 @@
-import { React, useState } from 'react'
+import { useState } from 'react'
 import Layout from '../Layout/Layout'
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Radio, Row, Col } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -21,27 +10,7 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { ExportReportWithoutTag } from '@/Helpers/ExportReport'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-}))
-
 const GenerateReportMarketException = () => {
-  const classes = useStyles()
   const [loading, setLoading] = useState(false)
   const { affiliates, broadCastMonths, targets, markets, campaigns, customers } = usePage().props
   const [customer, setCustomer] = useState()
@@ -337,32 +306,23 @@ const GenerateReportMarketException = () => {
   return (
     <>
       <Helmet title="Market Exception" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
           Generate Report Market Exception
-        </Typography>
+        </Typography.Title>
         <form validate="true" className="generate-report">
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <RadioGroup
-                aria-label="report-type"
+          <Row gutter={[0, 16]}>
+            <Col span={24}>
+              <Radio.Group
                 name="report_type"
                 value={reportType.report_type}
                 onChange={reportTypeHandleChange}
               >
-                <FormControlLabel
-                  value="export-report"
-                  control={<Radio color="primary" />}
-                  label="Export Report"
-                />
-                <FormControlLabel
-                  value="email-report"
-                  control={<Radio color="primary" />}
-                  label="Email Report"
-                />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12}>
+                <Radio value="export-report">Export Report</Radio>
+                <Radio value="email-report">Email Report</Radio>
+              </Radio.Group>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="market"
                 onChange={(val) => marketHandleChange(val, 'market')}
@@ -370,17 +330,12 @@ const GenerateReportMarketException = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Market"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
+            </Col>
+            <Col span={24}>
+              <select
                 name="customer_name"
                 onChange={customerHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                className="w-full border border-gray-300 rounded-md p-2 text-sm"
               >
                 <option value="">Select Customer</option>
                 {targets
@@ -391,18 +346,13 @@ const GenerateReportMarketException = () => {
                       {test}
                     </option>
                   ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
+              </select>
+            </Col>
+            <Col span={24}>
+              <select
                 name="campaign"
                 onChange={campaignHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                className="w-full border border-gray-300 rounded-md p-2 text-sm"
               >
                 <option value="">Select Campaign</option>
                 {campaigns.map((campaign, key) => (
@@ -410,9 +360,9 @@ const GenerateReportMarketException = () => {
                     {campaign.campaign_name}
                   </option>
                 ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
+              </select>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="target_name"
                 onChange={(val) => targetHandleChange(val)}
@@ -420,9 +370,9 @@ const GenerateReportMarketException = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Targets"
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
+            <Col span={24}>
               <MultiSelect
                 name="annotation"
                 onChange={(val) => annotationHandleChange(val)}
@@ -430,8 +380,8 @@ const GenerateReportMarketException = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Annotation"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val)}
@@ -439,9 +389,9 @@ const GenerateReportMarketException = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
+            <Col span={24}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val)}
@@ -449,9 +399,9 @@ const GenerateReportMarketException = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Years"
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
+            <Col span={24}>
               <MultiSelect
                 name="broad_cast_month"
                 onChange={(val) => monthHandleChange(val)}
@@ -459,20 +409,16 @@ const GenerateReportMarketException = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Broadcast Month"
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={(e) => handleSubmit()}>
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Generate'
-                )}
+            <Col span={24}>
+              <Button type="primary" onClick={(e) => handleSubmit()} loading={loading}>
+                Generate
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

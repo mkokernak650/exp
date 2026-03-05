@@ -5,6 +5,7 @@ import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { groups } from '@/Helpers/SearchingGroups'
 import Trash from '../../images/trash.svg'
+import { Select, Input } from 'antd'
 
 const CustomFilter = (props) => {
   const { mainData, fields, filterValue, setFilterValue, currentPage, getSearchingData } = props
@@ -116,11 +117,15 @@ const CustomFilter = (props) => {
     <>
       <div className="custom-filter">
         <div className="groups">
-          <select name="groupname" onChange={handleChange} className="select-box">
+          <Select
+            onChange={(value) => handleChange({ target: { name: 'groupname', value } })}
+            className="select-box"
+            defaultValue={groups?.[0]?.name}
+          >
             {groups?.map((groupName) => (
-              <option value={groupName.name}>{groupName.caption}</option>
+              <Select.Option key={groupName.name} value={groupName.name}>{groupName.caption}</Select.Option>
             ))}
-          </select>
+          </Select>
           <div className="add">
             <span className="add-icon" onClick={addCondition}>
               + Add Condition
@@ -134,35 +139,49 @@ const CustomFilter = (props) => {
               <img src={Trash} alt="delete-icon"></img>
             </div>
             <div className="fields">
-              <select name="field" id="fields" onChange={() => handleChange(event, indx)}>
+              <Select
+                value={cItem.field}
+                onChange={(value) => {
+                  const selectedIndex = fields?.findIndex(f => f.name === value);
+                  handleChange({
+                    target: {
+                      name: 'field',
+                      value,
+                      selectedIndex,
+                      childNodes: fields?.map(f => ({ dataset: { type: f.dataType } })),
+                    }
+                  }, indx);
+                }}
+                style={{ width: '100%' }}
+              >
                 {fields?.map((fieldName, uniqueKey) => (
-                  <option
-                    value={fieldName?.name}
-                    data-type={fieldName.dataType}
-                    data-fkey={uniqueKey}
+                  <Select.Option
                     key={uniqueKey}
-                    selected={cItem.field === fieldName.name && fieldName.name}
+                    value={fieldName?.name}
                   >
                     {fieldName.name}
-                  </option>
+                  </Select.Option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div className="operators">
-              <select name="operator" id="operator" onChange={() => handleChange(event, indx)}>
+              <Select
+                value={cItem.operator}
+                onChange={(value) => handleChange({ target: { name: 'operator', value } }, indx)}
+                style={{ width: '100%' }}
+              >
                 {fields[fields.findIndex((item) => item.name === cItem.field)]?.operators?.map(
                   (operator, uniqueKey) => (
-                    <option
-                      value={operator.name}
+                    <Select.Option
                       key={uniqueKey}
-                      selected={cItem.operator === operator.name && operator.name}
+                      value={operator.name}
                     >
                       {operator.caption}
-                    </option>
+                    </Select.Option>
                   )
                 )}
-              </select>
+              </Select>
             </div>
 
             <div
@@ -173,13 +192,13 @@ const CustomFilter = (props) => {
               }`}
             >
               {cItem.dataType === 'string' && cItem.operator !== 'contains' ? (
-                <input
+                <Input
                   type="text"
                   name="value"
-                  onChange={() => handleChange(event, indx)}
+                  onChange={(e) => handleChange(e, indx)}
                   value={cItem.value}
                   placeholder="value"
-                ></input>
+                />
               ) : cItem.dataType === 'string' && cItem.operator === 'contains' ? (
                 <MultiSelect
                   onChange={(val) => handleChange('multi-select', indx, val)}
@@ -196,28 +215,28 @@ const CustomFilter = (props) => {
                   isClearable={true}
                 />
               ) : cItem.dataType === 'number' && cItem.operator !== 'between' ? (
-                <input
+                <Input
                   type="number"
                   name="value"
-                  onChange={() => handleChange(event, indx)}
+                  onChange={(e) => handleChange(e, indx)}
                   value={cItem.value}
-                ></input>
+                />
               ) : cItem.dataType === 'number' && cItem.operator === 'between' ? (
                 <div className="between">
-                  <input
+                  <Input
                     type="text"
                     name="value"
                     from="from"
-                    onChange={() => handleChange(event, indx, [], 'between')}
+                    onChange={(e) => handleChange(e, indx, [], 'between')}
                     placeholder="From"
-                  ></input>
-                  <input
+                  />
+                  <Input
                     type="text"
                     name="value"
                     data-to="to"
-                    onChange={() => handleChange(event, indx, [], 'between')}
+                    onChange={(e) => handleChange(e, indx, [], 'between')}
                     placeholder="To"
-                  ></input>
+                  />
                 </div>
               ) : (
                 ''

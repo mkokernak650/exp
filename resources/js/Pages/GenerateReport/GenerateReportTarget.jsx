@@ -1,17 +1,7 @@
-import { React, useState } from 'react'
+import { useState } from 'react'
 import Layout from '../Layout/Layout'
-import {
-  CircularProgress,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Radio,
-  FormControlLabel,
-  RadioGroup,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Radio, Row, Col, Select, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -21,27 +11,7 @@ import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { ExportReportWithTag } from '@/Helpers/ExportReport'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-}))
-
 const GenerateReportTarget = () => {
-  const classes = useStyles()
   const [loading, setLoading] = useState(false)
   const { affiliates, broadCastMonths, broadCastWeeks, targets, campaigns, customers } =
     usePage().props
@@ -71,9 +41,9 @@ const GenerateReportTarget = () => {
     setReportType({ [name]: value })
   }
 
-  const customerHandleChange = (e) => {
-    const { name, value } = e.target
-    setCustomer({ [name]: value })
+  const customerHandleChange = (value) => {
+    value = value ?? ''
+    setCustomer({ customer_name: value })
     if (value === '') {
       setTargetByCustomer([])
       setCustomer([])
@@ -136,9 +106,9 @@ const GenerateReportTarget = () => {
     }
   }
 
-  const monthHandleChange = (e) => {
-    const { name, value } = e.target
-    setMonth({ [name]: value })
+  const monthHandleChange = (value) => {
+    value = value ?? ''
+    setMonth({ broad_cast_month: value })
     broadCastMonths.filter((item) => {
       if (item.broad_cast_month === value) {
         setStartDate({ ...startDate, start_date: item.start_date })
@@ -192,9 +162,9 @@ const GenerateReportTarget = () => {
     value: year,
   }))
 
-  const weekHandleChange = (e) => {
-    const { name, value } = e.target
-    setWeek({ [name]: value })
+  const weekHandleChange = (value) => {
+    value = value ?? ''
+    setWeek({ broad_cast_week: value })
     broadCastWeeks.filter((item) => {
       if (item.broad_cast_week === value) {
         setStartDate({ ...startDate, start_date: item.start_date })
@@ -218,17 +188,17 @@ const GenerateReportTarget = () => {
     setEndDate({ [name]: value })
   }
 
-  const campaignHandleChange = (e) => {
-    const { name, value } = e.target
-    setCampaign({ [name]: value })
+  const campaignHandleChange = (value) => {
+    value = value ?? ''
+    setCampaign({ campaign: value })
     if (value === '') {
       setCampaign([])
     }
   }
 
-  const annotationHandleChange = (e) => {
-    const { name, value } = e.target
-    setAnnotation({ [name]: value })
+  const annotationHandleChange = (value) => {
+    value = value ?? ''
+    setAnnotation({ annotation: value })
     if (value === '') {
       setAnnotation([])
     }
@@ -348,93 +318,65 @@ const GenerateReportTarget = () => {
   return (
     <>
       <Helmet title="Generate Report Customer" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: 500, margin: 'auto', marginTop: '2rem', padding: 40 }} className="bg-white shadow rounded">
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: 35 }}>
           Generate Report Customer
-        </Typography>
+        </Typography.Title>
         <form validate="true" className="generate-report">
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <RadioGroup
-                aria-label="type"
+          <Row gutter={[0, 16]}>
+            <Col span={24}>
+              <Radio.Group
                 name="type"
                 value={type.type}
                 onChange={typeHandleChange}
               >
-                <FormControlLabel
-                  value="general"
-                  control={<Radio color="primary" />}
-                  label="General"
-                />
-                <FormControlLabel
-                  value="billed"
-                  control={<Radio color="primary" />}
-                  label="Billed"
-                />
-              </RadioGroup>
-            </Grid>
+                <Radio value="general">General</Radio>
+                <Radio value="billed">Billed</Radio>
+              </Radio.Group>
+            </Col>
 
-            <Grid item xs={12}>
-              <RadioGroup
-                aria-label="report-type"
+            <Col span={24}>
+              <Radio.Group
                 name="report_type"
                 value={reportType.report_type}
                 onChange={reportTypeHandleChange}
               >
-                <FormControlLabel
-                  value="export-report"
-                  control={<Radio color="primary" />}
-                  label="Export Report"
-                />
-                <FormControlLabel
-                  value="email-report"
-                  control={<Radio color="primary" />}
-                  label="Email Report"
-                />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="customer_name"
+                <Radio value="export-report">Export Report</Radio>
+                <Radio value="email-report">Email Report</Radio>
+              </Radio.Group>
+            </Col>
+            <Col span={24}>
+              <Select
                 onChange={customerHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Customer"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Customer</option>
                 {targets
                   .map((option) => option.Customer)
                   .filter((item, i, arr) => arr.indexOf(item) === i)
                   .map((test, key) => (
-                    <option key={key} value={test}>
+                    <Select.Option key={key} value={test}>
                       {test}
-                    </option>
+                    </Select.Option>
                   ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="campaign"
+              </Select>
+            </Col>
+            <Col span={24}>
+              <Select
                 onChange={campaignHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Campaign"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Campaign</option>
                 {campaigns.map((campaign, key) => (
-                  <option key={key} value={campaign.id}>
+                  <Select.Option key={key} value={campaign.id}>
                     {campaign.campaign_name}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
+              </Select>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="target_name"
                 onChange={(val) => targetHandleChange(val)}
@@ -442,25 +384,20 @@ const GenerateReportTarget = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Targets"
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="annotation"
+            <Col span={24}>
+              <Select
                 onChange={annotationHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Annotation"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Annotation</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
+                <Select.Option value="yes">Yes</Select.Option>
+                <Select.Option value="no">No</Select.Option>
+              </Select>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
@@ -468,8 +405,8 @@ const GenerateReportTarget = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Affiliates"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Col>
+            <Col span={24}>
               <MultiSelect
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
@@ -477,89 +414,65 @@ const GenerateReportTarget = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Years"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="broad_cast_month"
+            </Col>
+            <Col span={24}>
+              <Select
                 onChange={monthHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Broadcast Month"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Broadcast Month</option>
                 {monthByYear.map((option, indx) => (
-                  <option key={indx} value={option.broad_cast_month}>
+                  <Select.Option key={indx} value={option.broad_cast_month}>
                     {option.broad_cast_month}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
+              </Select>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                id="standard-select-currency-native"
-                select
-                name="broad_cast_week"
+            <Col span={24}>
+              <Select
                 onChange={weekHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
+                placeholder="Select Broadcast Week"
+                allowClear
+                style={{ width: '100%' }}
               >
-                <option value="">Select Broadcast Week</option>
                 {broadCastWeeks.map((option, indx) => (
-                  <option key={indx} value={option.broad_cast_week}>
+                  <Select.Option key={indx} value={option.broad_cast_week}>
                     {option.broad_cast_week}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
+              </Select>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                id="date"
-                label="Start Date"
-                type="date"
-                name="start_date"
-                onChange={startDateHandleChange}
-                value={startDate.start_date}
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="date"
-                label="End Date"
-                type="date"
-                name="end_date"
-                onChange={endDateHandleChange}
-                value={endDate.end_date}
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={(e) => handleSubmit()}>
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Generate'
-                )}
+            <Col span={24}>
+              <div>
+                <label className="block text-sm mb-1">Start Date</label>
+                <DatePicker
+                  value={startDate.start_date ? dayjs(startDate.start_date) : null}
+                  onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
+            <Col span={24}>
+              <div>
+                <label className="block text-sm mb-1">End Date</label>
+                <DatePicker
+                  value={endDate.end_date ? dayjs(endDate.end_date) : null}
+                  onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
+            <Col span={24}>
+              <Button type="primary" onClick={(e) => handleSubmit()} loading={loading}>
+                Generate
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

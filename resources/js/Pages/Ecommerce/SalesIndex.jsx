@@ -1,22 +1,12 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
-import 'ka-table/style.scss'
-import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import TextField from '@material-ui/core/TextField'
-import { Button } from '@material-ui/core'
+import { Tooltip, Button, Input, Select, Row, Col, Table, DatePicker } from 'antd'
+import dayjs from 'dayjs'
+import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -24,25 +14,22 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-import { columns, useStyles, fields, groups, filter } from './Helpers/SalesIndexProps'
+import { columns as defaultColumns, styles, fields, groups, filter } from './Helpers/SalesIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const SalesIndex = () => {
-  const classes = useStyles()
   const { sales, campaigns, customers, affiliates, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [loading, setLoading] = useState(false)
+  const [tableLoading, setTableLoading] = useState(false)
   const [salesData, seteSalesData] = useState(sales)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
@@ -54,6 +41,10 @@ const SalesIndex = () => {
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
+  }
+
+  const handleEditSelectChange = (name, value) => {
+    setEditData((oldEditData) => ({ ...oldEditData, [name]: value ?? '' }))
   }
 
   const headers = {
@@ -96,31 +87,31 @@ const SalesIndex = () => {
         console.log(res)
         let campaignName = getCampaignNameById(editData?.campaign_id)
         let customerName = getCustomerNameById(editData?.customer_id)
-        const tmpTableProps = { ...tableProps }
-        tablePropsRef.current.filter((item) => {
+        setData((prev) => prev.map((item) => {
           if (item.id === editData.id) {
-            item.campaign = campaignName
-            item.campaign_id = editData.campaign_id
-            item.customer = customerName
-            item.customer_id = editData.customer_id
-            item.coupon_code = res.data.data.coupon_code
-            item.user_ip = res.data.data.user_ip
-            item.order_no = res.data.data.order_no
-            item.subtotal = res.data.data.subtotal
-            item.total = res.data.data.total
-            item.shipping_cost = res.data.data.shipping_cost
-            item.shipping_zip = res.data.data.shipping_zip
-            item.shipping_state = res.data.data.shipping_state
-            item.shipping_city = res.data.data.shipping_city
-            item.billing_zip = res.data.data.billing_zip
-            item.dialed = res.data.data.dialed
-            item.inbound = res.data.data.inbound
-            item.updated_at = res.data.updated_at
+            return {
+              ...item,
+              campaign: campaignName,
+              campaign_id: editData.campaign_id,
+              customer: customerName,
+              customer_id: editData.customer_id,
+              coupon_code: res.data.data.coupon_code,
+              user_ip: res.data.data.user_ip,
+              order_no: res.data.data.order_no,
+              subtotal: res.data.data.subtotal,
+              total: res.data.data.total,
+              shipping_cost: res.data.data.shipping_cost,
+              shipping_zip: res.data.data.shipping_zip,
+              shipping_state: res.data.data.shipping_state,
+              shipping_city: res.data.data.shipping_city,
+              billing_zip: res.data.data.billing_zip,
+              dialed: res.data.data.dialed,
+              inbound: res.data.data.inbound,
+              updated_at: res.data.updated_at,
+            }
           }
-        })
-
-        tmpTableProps.data = tablePropsRef.current
-        changeTableProps(tmpTableProps)
+          return item
+        }))
         setEditData()
         setShowEditModal({ open: false })
         toast.success(res.data.msg)
@@ -166,15 +157,17 @@ const SalesIndex = () => {
         created_at: item.created_at,
         updated_at: item.updated_at,
         id: item.id,
-        key: index,
+        key: item.id,
       }
     })
   }
 
   const dataArray = mapDataArr(sales.data)
 
+  const [data, setData] = useState(dataArray)
+
   const handleEdit = (itemId) => {
-    tablePropsRef.current.filter((item) => {
+    data.filter((item) => {
       if (item.id == itemId) {
         setEditData(item)
       }
@@ -187,83 +180,20 @@ const SalesIndex = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (column.key === 'order_at') {
-        if (value !== undefined) {
-          let d = new Date(value)
-          let hours = d.getHours()
-          let minutes = d.getMinutes()
-          let ampm = hours >= 12 ? 'PM' : 'AM'
-          hours = hours % 12
-          hours = hours ? hours : 12 // the hour "0" should be "12"
-          minutes = minutes < 10 ? '0' + minutes : minutes
-          let strTime = hours + ':' + minutes + ' ' + ampm
-          return (
-            d.getDate() +
-            '-' +
-            new Intl.DateTimeFormat('en', { month: 'short' }).format(d) +
-            '-' +
-            d.getFullYear().toString() +
-            ' ' +
-            strTime
-          )
-        }
-      }
-      if (column.key === 'created_at' || column.key === 'updated_at') {
-        if (value !== undefined) {
-          return DateTimeFormat(value)
-        }
-      }
-    },
-  }
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-  const tablePropsRef = useRef(tableProps.data)
-
-  const dispatch = (action) => {
-    if (
-      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
-        action?.type
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
       )
-    ) {
-      handleSelects({
-        action,
-        selectedRowIds,
-        setSelectedRowIds,
-        tableProps,
-        setTableToolbar,
-      })
-    }
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
-  }
-
-  const [filterValue, changeFilter] = useState(filter)
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
   }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
@@ -281,14 +211,10 @@ const SalesIndex = () => {
 
   const deleteHandler = () => {
     axios
-      .post(route('ecommerce-sales.deleteSelected'), { selectedRowIds })
+      .post(route('ecommerce-sales.deleteSelected'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
-        let filteredData = tableProps
-        const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-        filteredData.data = newData
-        changeTableProps(filteredData)
-        tablePropsRef.current = filteredData?.data
-        setSelectedRowIds([])
+        setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+        setSelectedRowKeys([])
         getSearchingData(currentPage)
         setTableToolbar(false)
         toast.success(res.data.msg)
@@ -303,7 +229,7 @@ const SalesIndex = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -312,7 +238,7 @@ const SalesIndex = () => {
 
   const getSearchingData = async (data) => {
     setcurrentPage(data)
-    dispatch(showLoading())
+    setTableLoading(true)
     await axios
       .get(
         'ecommerce-sales?page=' +
@@ -327,17 +253,19 @@ const SalesIndex = () => {
         '&filterByDate=' + JSON.stringify(filterByDate)
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = mapDataArr(res.data.data)
-        changeTableProps(tmpTableProps)
-        tablePropsRef.current = mapDataArr(res.data.data)
+        setData(mapDataArr(res.data.data))
         seteSalesData(res.data)
-        dispatch(hideLoading())
+        setTableLoading(false)
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+  }
+
+  const [filterValue, changeFilter] = useState(filter)
+  const onFilterChanged = (newFilterValue) => {
+    changeFilter(newFilterValue)
   }
 
   useEffect(() => {
@@ -353,7 +281,6 @@ const SalesIndex = () => {
 
     document.addEventListener('mousedown', checkIfClickedOutside)
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
@@ -362,11 +289,9 @@ const SalesIndex = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={{ color: '#031b4e' }} />} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
@@ -399,6 +324,68 @@ const SalesIndex = () => {
       })
   }
 
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+      if (col.key === 'edit') {
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <Edit />
+          </div>
+        )
+      }
+      if (col.key === 'order_at') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            let d = new Date(value)
+            let hours = d.getHours()
+            let minutes = d.getMinutes()
+            let ampm = hours >= 12 ? 'PM' : 'AM'
+            hours = hours % 12
+            hours = hours ? hours : 12
+            minutes = minutes < 10 ? '0' + minutes : minutes
+            let strTime = hours + ':' + minutes + ' ' + ampm
+            return (
+              d.getDate() +
+              '-' +
+              new Intl.DateTimeFormat('en', { month: 'short' }).format(d) +
+              '-' +
+              d.getFullYear().toString() +
+              ' ' +
+              strTime
+            )
+          }
+        }
+      }
+      if (col.key === 'created_at' || col.key === 'updated_at') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            return DateTimeFormat(value)
+          }
+        }
+      }
+      return base
+    })
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
   return (
     <>
       <Helmet title="Sales Index" />
@@ -412,18 +399,13 @@ const SalesIndex = () => {
                 <Eye />
               </div>
               <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className={classes.button}
+                type="primary"
                 onClick={exportHandler}
                 disabled={sales == ''}
+                style={styles.button}
+                loading={loading}
               >
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Searched Export'
-                )}
+                Searched Export
               </Button>
             </div>
             <div className="top-left">
@@ -449,71 +431,25 @@ const SalesIndex = () => {
                 defaultValue={filterByAffiliates}
               />
               <div>
-                <TextField
-                  label="Start Date"
-                  id="startDate"
-                  variant="outlined"
-                  size="small"
-                  type="date"
-                  name="startDate"
-                  onChange={dateHandleChange}
-                  value={filterByDate.startDate}
-                  className={classes.textField}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                <label>Start Date</label>
+                <DatePicker
+                  value={filterByDate.startDate ? dayjs(filterByDate.startDate) : null}
+                  onChange={(date, dateString) => dateHandleChange({ target: { name: 'startDate', value: dateString } })}
+                  style={{ width: '100%' }}
                 />
               </div>
               <div>
-                <TextField
-                  label="End Date"
-                  id="endDate"
-                  variant="outlined"
-                  size="small"
-                  type="date"
-                  name="endDate"
-                  onChange={dateHandleChange}
-                  value={filterByDate.endDate}
-                  className={classes.textField}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                <label>End Date</label>
+                <DatePicker
+                  value={filterByDate.endDate ? dayjs(filterByDate.endDate) : null}
+                  onChange={(date, dateString) => dateHandleChange({ target: { name: 'endDate', value: dateString } })}
+                  style={{ width: '100%' }}
                 />
               </div>
             </div>
-            {/* <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
-            </div>
-
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              ''
-            )} */}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -521,44 +457,27 @@ const SalesIndex = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={() => tableProps.data}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={tableLoading}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
 
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={salesData} />
         </div>
       </div>
@@ -570,187 +489,195 @@ const SalesIndex = () => {
         title={'Edit E-commerce Affiliate'}
       >
         <div className="edit_target">
-          <form className={classes.form}>
-            <TextField
-              value={editData ? editData?.campaign_id : ''}
-              select
-              name="campaign_id"
-              margin="normal"
-              onChange={handleEditChange}
-              fullWidth
-              required={false}
-            >
-              <option value="">Select Campaign</option>
-              {campaigns.map((option, indx) => (
-                <option key={indx + `-1`} value={option.id}>
-                  {option.campaign_name}
-                </option>
-              ))}
-            </TextField>
-            <TextField
-              value={editData ? editData?.customer_id : ''}
-              select
-              name="customer_id"
-              margin="normal"
-              onChange={handleEditChange}
-              fullWidth
-              required={true}
-            >
-              <option value="">Select Customer</option>
-              {customers.map((option, indx) => (
-                <option key={indx + `-2`} value={option.id}>
-                  {option.customer_name}
-                </option>
-              ))}
-            </TextField>
-            <TextField
-              select
-              fullWidth
-              required={true}
-              name="order_type"
-              margin="normal"
-              onChange={handleEditChange}
-              value={editData ? editData?.order_type : ''}
-            >
-              <option value="">Select Order Type</option>
-              <option value="E-commerce">E-commerce</option>
-              <option value="Phone">Phone</option>
-            </TextField>
-            <TextField
-              value={editData ? editData?.order_no : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="order_no"
-              label="Order No"
-              onChange={handleEditChange}
-            />
+          <form>
+            <div className="mb-4">
+              <Select
+                value={editData?.campaign_id || undefined}
+                onChange={(value) => handleEditSelectChange('campaign_id', value)}
+                className="w-full"
+                placeholder="Select Campaign"
+                allowClear
+                options={campaigns.map((option, indx) => ({
+                  key: indx + '-1',
+                  value: option.id,
+                  label: option.campaign_name,
+                }))}
+              />
+            </div>
+            <div className="mb-4">
+              <Select
+                value={editData?.customer_id || undefined}
+                onChange={(value) => handleEditSelectChange('customer_id', value)}
+                className="w-full"
+                placeholder="Select Customer"
+                allowClear
+                options={customers.map((option, indx) => ({
+                  key: indx + '-2',
+                  value: option.id,
+                  label: option.customer_name,
+                }))}
+              />
+            </div>
+            <div className="mb-4">
+              <Select
+                value={editData?.order_type || undefined}
+                onChange={(value) => handleEditSelectChange('order_type', value)}
+                className="w-full"
+                placeholder="Select Order Type"
+                allowClear
+                options={[
+                  { value: 'E-commerce', label: 'E-commerce' },
+                  { value: 'Phone', label: 'Phone' },
+                ]}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Order No</label>
+              <Input
+                value={editData ? editData?.order_no : ''}
+                className="w-full"
+                type="text"
+                name="order_no"
+                onChange={handleEditChange}
+              />
+            </div>
 
             {editData?.order_type && editData.order_type == 'E-commerce' && (
               <>
-                <TextField
-                  value={editData ? editData?.coupon_code : ''}
-                  fullWidth
-                  type="text"
-                  margin="normal"
-                  required={true}
-                  name="coupon_code"
-                  label="Coupon Code"
-                  onChange={handleEditChange}
-                />
-                <TextField
-                  value={editData ? editData?.user_ip : ''}
-                  fullWidth
-                  type="text"
-                  margin="normal"
-                  name="user_ip"
-                  label="User IP"
-                  onChange={handleEditChange}
-                />
+                <div className="mb-4">
+                  <label>Coupon Code</label>
+                  <Input
+                    value={editData ? editData?.coupon_code : ''}
+                    className="w-full"
+                    type="text"
+                    name="coupon_code"
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label>User IP</label>
+                  <Input
+                    value={editData ? editData?.user_ip : ''}
+                    className="w-full"
+                    type="text"
+                    name="user_ip"
+                    onChange={handleEditChange}
+                  />
+                </div>
               </>
             )}
 
             {editData?.order_type && editData.order_type == 'Phone' && (
               <>
-                <TextField
-                  value={editData ? editData?.dialed : ''}
-                  fullWidth
-                  type="text"
-                  margin="normal"
-                  required={true}
-                  name="dialed"
-                  label="Dialed"
-                  onChange={handleEditChange}
-                />
-                <TextField
-                  value={editData ? editData?.inbound : ''}
-                  fullWidth
-                  type="text"
-                  margin="normal"
-                  name="inbound"
-                  label="Inbound"
-                  onChange={handleEditChange}
-                />
+                <div className="mb-4">
+                  <label>Dialed</label>
+                  <Input
+                    value={editData ? editData?.dialed : ''}
+                    className="w-full"
+                    type="text"
+                    name="dialed"
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label>Inbound</label>
+                  <Input
+                    value={editData ? editData?.inbound : ''}
+                    className="w-full"
+                    type="text"
+                    name="inbound"
+                    onChange={handleEditChange}
+                  />
+                </div>
               </>
             )}
 
-            <TextField
-              value={editData ? editData?.quantity : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="quantity"
-              label="Quantity"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.subtotal : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="subtotal"
-              label="Subtotal"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.shipping_cost : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="shipping_cost"
-              label="Shipping Cost"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.total : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="total"
-              label="Total"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.shipping_state : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="shipping_state"
-              label="Shipping State"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.shipping_city : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="shipping_city"
-              label="Shipping City"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.shipping_zip : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="shipping_zip"
-              label="Shipping Zip"
-              onChange={handleEditChange}
-            />
-            <TextField
-              value={editData ? editData?.billing_zip : ''}
-              fullWidth
-              type="text"
-              margin="normal"
-              name="billing_zip"
-              label="Billing Zip"
-              onChange={handleEditChange}
-            />
+            <div className="mb-4">
+              <label>Quantity</label>
+              <Input
+                value={editData ? editData?.quantity : ''}
+                className="w-full"
+                type="text"
+                name="quantity"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Subtotal</label>
+              <Input
+                value={editData ? editData?.subtotal : ''}
+                className="w-full"
+                type="text"
+                name="subtotal"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Shipping Cost</label>
+              <Input
+                value={editData ? editData?.shipping_cost : ''}
+                className="w-full"
+                type="text"
+                name="shipping_cost"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Total</label>
+              <Input
+                value={editData ? editData?.total : ''}
+                className="w-full"
+                type="text"
+                name="total"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Shipping State</label>
+              <Input
+                value={editData ? editData?.shipping_state : ''}
+                className="w-full"
+                type="text"
+                name="shipping_state"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Shipping City</label>
+              <Input
+                value={editData ? editData?.shipping_city : ''}
+                className="w-full"
+                type="text"
+                name="shipping_city"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Shipping Zip</label>
+              <Input
+                value={editData ? editData?.shipping_zip : ''}
+                className="w-full"
+                type="text"
+                name="shipping_zip"
+                onChange={handleEditChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label>Billing Zip</label>
+              <Input
+                value={editData ? editData?.billing_zip : ''}
+                className="w-full"
+                type="text"
+                name="billing_zip"
+                onChange={handleEditChange}
+              />
+            </div>
             <Button
-              variant="contained"
-              color="primary"
+              type="primary"
               onClick={handleEditSubmit}
-              className={classes.editButton}
+              style={styles.editButton}
             >
               Update
             </Button>
@@ -768,7 +695,7 @@ const SalesIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowIds.length > 1
+        title={`${selectedRowKeys.length > 1
           ? 'Do you want to delete these records?'
           : 'Do you want to delete this record?'
           }`}

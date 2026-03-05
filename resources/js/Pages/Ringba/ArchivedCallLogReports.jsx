@@ -1,18 +1,11 @@
 import Layout from '../Layout/Layout'
 import { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
 import { usePage } from '@inertiajs/inertia-react'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import { Button } from '@material-ui/core'
+import { Tooltip, Button, Table, Select } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -22,21 +15,17 @@ import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import toast from 'react-hot-toast'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-import { columns, useStyles } from './Helpers/ArchivedCallLogReportsProps'
+import { columns as defaultColumns, buttonStyle } from './Helpers/ArchivedCallLogReportsProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const ArchivedCallLogReports = () => {
-  const classes = useStyles()
   const { archivedCallLogs, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [showCallLogModal, setShowCallLogModal] = useState({
@@ -85,7 +74,7 @@ const ArchivedCallLogReports = () => {
         State: item.State,
         Zipcode: item.Zipcode,
         id: item.id,
-        key: index,
+        key: item.id,
       }
     })
   }
@@ -97,64 +86,73 @@ const ArchivedCallLogReports = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'Call_Date') {
-        if (value !== undefined) {
-          let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-          let format_date = value
-          let dd = String(format_date.getDate()).padStart(2, '0')
-          let yyyy = format_date.getFullYear()
-          format_date = dd + '-' + shortMonth + '-' + yyyy
-          return format_date
-        }
-      }
-      if (column.key === 'Call_Date_Time') {
-        if (value !== undefined) {
-          return DateTimeFormat(value)
-        }
-      }
+  const initialColumns =
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+
+  const fields = SearchedFields(initialColumns)
+  const [columns, setColumns] = useState(initialColumns)
+  const [data, setData] = useState(dataArray)
+  const [loading, setLoading] = useState(false)
+
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
+    })
+  }
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+      setInbounIds(selectedRows.map((row) => row.Inbound_Id))
     },
   }
 
-  const fields = SearchedFields(tablePropsInit.columns)
-
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    if (
-      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
-        action?.type
-      )
-    ) {
-      handleSelects({
-        action,
-        selectedRowIds,
-        setSelectedRowIds,
-        tableProps,
-        setTableToolbar,
-        inboundIds,
-        setInbounIds,
-      })
-    }
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter:
+          col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
       }
-      return newState
+
+      if (col.key === 'Call_Date') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+            let format_date = value
+            let dd = String(format_date.getDate()).padStart(2, '0')
+            let yyyy = format_date.getFullYear()
+            return dd + '-' + shortMonth + '-' + yyyy
+          }
+        }
+      }
+
+      if (col.key === 'Call_Date_Time') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            return DateTimeFormat(value)
+          }
+        }
+      }
+
+      return base
     })
-  }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 
@@ -173,16 +171,13 @@ const ArchivedCallLogReports = () => {
   const deleteHandler = () => {
     setIsLoading({ ...isLoading, delete: true })
     axios
-      .post('archive-delete', { selectedRowIds })
+      .post('archive-delete', { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
           setIsLoading({ ...isLoading, delete: false })
-          changeTableProps(filteredData)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           getSearchingData(currentPage)
           setTableToolbar(false)
           toast.success(res.data.msg)
@@ -191,14 +186,14 @@ const ArchivedCallLogReports = () => {
           setIsLoading({ ...isLoading, delete: false })
           toast.error(res.data.msg)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
         setIsLoading({ ...isLoading, delete: false })
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setShowDeleteModal({ open: false })
       })
   }
@@ -211,13 +206,10 @@ const ArchivedCallLogReports = () => {
         if (res.data.status_code === 200) {
           setIsLoading({ ...isLoading, archive: false })
           toast.success(res.data.msg)
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
+          setData((prev) => prev.filter((item) => !inboundIds.includes(item.Inbound_Id)))
           setTableToolbar(false)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           getSearchingData(currentPage)
           setInbounIds([])
           setShowCallLogModal({ open: false })
@@ -226,7 +218,7 @@ const ArchivedCallLogReports = () => {
           toast.error(res.data.msg)
           setTableToolbar(false)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setInbounIds([])
           setShowCallLogModal({ open: false })
         }
@@ -235,7 +227,7 @@ const ArchivedCallLogReports = () => {
         setIsLoading({ ...isLoading, archive: false })
         setTableToolbar(false)
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setInbounIds([])
         setShowCallLogModal({ open: false })
       })
@@ -248,32 +240,30 @@ const ArchivedCallLogReports = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
-  const getSearchingData = async (data) => {
-    setcurrentPage(data)
-    dispatch(showLoading())
+  const getSearchingData = async (pageData) => {
+    setcurrentPage(pageData)
+    setLoading(true)
     await axios
       .get(
         'archived-call-log-report?page=' +
-        data.page +
+        pageData.page +
         '&itemPerPage=' +
         itemPerPage +
         '&filteredValue=' +
         JSON.stringify(filterValue) + '&orderBy=' + orderByValue
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = mapDataArr(res.data.data)
-        changeTableProps(tmpTableProps)
+        setData(mapDataArr(res.data.data))
         setArchivedDataData(res.data)
-        dispatch(hideLoading())
+        setLoading(false)
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
@@ -293,38 +283,21 @@ const ArchivedCallLogReports = () => {
     }
   }, [showColumns])
 
-  useEffect(() => {
-    const checkIfClickedOutside = (e) => {
-      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
-        setShowColumns(false)
-      }
-    }
-
-    document.addEventListener('mousedown', checkIfClickedOutside)
-    return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside)
-    }
-  }, [showColumns])
-
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
 
         <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
+          type="primary"
+          style={buttonStyle}
           onClick={() => handleOpenModal(setShowCallLogModal)}
         >
           Move Call Log
         </Button>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
@@ -368,7 +341,7 @@ const ArchivedCallLogReports = () => {
 
                 <div className="top-element">
                   <CustomFilter
-                    mainData={tableProps.data}
+                    mainData={data}
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
@@ -382,7 +355,7 @@ const ArchivedCallLogReports = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -390,43 +363,26 @@ const ArchivedCallLogReports = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={() => tableProps.data}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={loading}
+          pagination={false}
+          scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
+          size="small"
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={archivedData} />
         </div>
       </div>

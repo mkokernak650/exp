@@ -1,13 +1,10 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   button: {
     width: 'auto',
     textTransform: 'capitalize',
     fontSize: '14px',
   },
-}))
+}
 
 const operators = [
   {
@@ -148,105 +145,105 @@ export const columns = [
   {
     key: 'market',
     title: 'Market',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 250 },
     visible: true,
   },
   {
     key: 'state',
     title: 'State',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 130 },
     visible: true,
   },
   {
     key: 'county',
     title: 'County',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'city',
     title: 'City',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 230 },
     visible: true,
   },
   {
     key: 'population',
     title: 'Population',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 130 },
     visible: true,
   },
   {
     key: 'zip_code',
     title: 'ZipCode',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'fips',
     title: 'Fips',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 190 },
     visible: true,
   },
   {
     key: 'median_household_income_2007_2011',
     title: 'Median_household_income_2007_2011',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 310 },
     visible: true,
   },
   {
     key: 'race_americanindian',
     title: 'Race_americanindian',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 220 },
     visible: true,
   },
   {
     key: 'race_asian',
     title: 'Race_asian',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 170 },
     visible: true,
   },
   {
     key: 'race_white',
     title: 'Race_white',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'race_black',
     title: 'Race_black',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'race_hawaiian',
     title: 'Race_hawaiian',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 180 },
     visible: true,
   },
   {
     key: 'race_hispanic',
     title: 'Race_hispanic',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 160 },
     visible: true,
   },
   {
     key: 'race_other',
     title: 'Race_other',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },

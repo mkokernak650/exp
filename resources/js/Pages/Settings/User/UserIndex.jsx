@@ -1,21 +1,13 @@
 import Layout from '../../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode, PagingPosition } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
 import { usePage } from '@inertiajs/inertia-react'
 import FilterControl from 'react-filter-control'
-import { filterData } from '../../filterData'
-import 'ka-table/style.scss'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import IconButton from '@material-ui/core/IconButton'
-import TextField from '@material-ui/core/TextField'
-import { Button } from '@material-ui/core'
+import { Table, Tooltip, Button, Input } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -23,17 +15,13 @@ import NormalModal from '@/Shared/NormalModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
-import handleSelects from '@/Helpers/HandleSelects'
-import { useStyles, fields, groups, filter, columns } from '../Helpers/UserIndexProps'
+import { styles, fields, groups, filter, columns as defaultColumns } from '../Helpers/UserIndexProps'
 
 const UserIndex = () => {
-  const classes = useStyles()
   const { users, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [editData, setEditData] = useState()
   const [showEditModal, setShowEditModal] = useState({ open: false })
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
@@ -46,59 +34,28 @@ const UserIndex = () => {
     email: item.email,
     role: item.role,
     id: item.id,
-    key: index,
+    key: item.id,
   }))
 
   const optionKey = 'user-index'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    paging: {
-      enabled: true,
-      pageIndex: 0,
-      pageSize: 10,
-      pageSizes: [10, 20, 50, 100],
-      position: PagingPosition.Bottom,
-    },
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-    },
-  }
+  const [data, setData] = useState(dataArray)
 
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-
-  const dispatch = (action) => {
-    handleSelects({
-      action,
-      selectedRowIds,
-      setSelectedRowIds,
-      tableProps,
-      setTableToolbar,
-    })
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
     })
   }
 
@@ -122,45 +79,37 @@ const UserIndex = () => {
     setSearchSidebar(false)
   }
 
-  console.log(selectedRowIds)
   const deleteHandler = () => {
     axios
-      .delete(`user/${selectedRowIds}`)
+      .delete(`user/${selectedRowKeys}`)
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
-          changeTableProps(filteredData)
-          setSelectedRowIds([])
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
         } else {
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setTableToolbar(false)
           toast.error(res.data.msg)
           setShowDeleteModal({ open: false })
         }
       })
       .catch((err) => {
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
       })
   }
 
-
   const handleEdit = (itemId) => {
-    tableProps.data.filter((item) => {
-      if (item.id == itemId) {
-        setEditData(item)
-      }
-    })
-    setShowEditModal({ open: true })
+    const item = data.find((item) => item.id === itemId)
+    if (item) {
+      setEditData(item)
+      setShowEditModal({ open: true })
+    }
   }
-
-
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
@@ -171,16 +120,21 @@ const UserIndex = () => {
       .post(route('affiliate.edit'), editData)
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          filteredData.data.filter((item, indx) => {
-            if (item.id === editData.id) {
-              filteredData.data[indx].firstname = editData.firstname
-              filteredData.data[indx].lastname = editData.lastname
-              filteredData.data[indx].email = editData.email
-              filteredData.data[indx].password = editData.password
-              filteredData.data[indx].role = editData.role
-            }
-          })
+          setData((prev) =>
+            prev.map((item) => {
+              if (item.id === editData.id) {
+                return {
+                  ...item,
+                  firstname: editData.firstname,
+                  lastname: editData.lastname,
+                  email: editData.email,
+                  password: editData.password,
+                  role: editData.role,
+                }
+              }
+              return item
+            })
+          )
           setEditData()
           setShowEditModal({ open: false })
           toast.success(res.data.msg)
@@ -196,7 +150,7 @@ const UserIndex = () => {
   const handleCloseModal = (setOpenModal) => {
     setOpenModal({ open: false })
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
   }
 
   const handleOpenModal = (setOpenModal) => {
@@ -220,14 +174,46 @@ const UserIndex = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+    },
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter: col.dataType === 'number'
+          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+          : col.dataType === 'string'
+            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+            : undefined,
+      }
+
+      if (col.key === 'edit') {
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleEdit(value)}>
+            <Edit />
+          </div>
+        )
+      }
+
+      return base
+    })
 
   return (
     <>
@@ -271,7 +257,7 @@ const UserIndex = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -279,30 +265,13 @@ const UserIndex = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+          scroll={{ y: 'calc(100vh - 217px)' }}
+          size="small"
         />
       </div>
 
@@ -313,45 +282,38 @@ const UserIndex = () => {
         title={'Edit Affiliate'}
       >
         <div className="edit_target">
-          <form className={classes.form}>
+          <form>
             <span>First Name:</span>
-            <TextField
+            <Input
               value={editData ? editData.firstname : ''}
-              fullWidth
-              margin="normal"
               name="firstname"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
-              required={true}
+              required
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Last Name:</span>
-            <TextField
+            <Input
               value={editData ? editData.lastname : ''}
-              fullWidth
-              margin="normal"
               name="lastname"
               type="text"
-              variant="outlined"
               onChange={handleEditChange}
-              required={true}
+              required
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <span>Email:</span>
-            <TextField
+            <Input
               value={editData ? editData.email : ''}
-              fullWidth
-              margin="normal"
               name="email"
               type="email"
-              variant="outlined"
               onChange={handleEditChange}
-              required={true}
+              required
+              style={{ width: '100%', marginBottom: '16px', marginTop: '8px' }}
             />
             <Button
-              variant="contained"
-              color="primary"
+              type="primary"
               onClick={handleEditSubmit}
-              className={classes.editButton}
+              style={styles.editButton}
             >
               Edit
             </Button>
@@ -369,7 +331,7 @@ const UserIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowIds.length > 1
+        title={`${selectedRowKeys.length > 1
           ? 'Do you want to delete these records?'
           : 'Do you want to delete this record?'
           }`}

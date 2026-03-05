@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, CircularProgress, FormControlLabel, Grid, Paper, Radio, RadioGroup, TextField, Typography, makeStyles } from '@material-ui/core'
+import { Button, Input, Row, Col, Typography, Spin, Radio } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -11,27 +11,10 @@ import NormalModal from '../../Shared/NormalModal'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import RingbaIOModalView from '../../Components/IOComponents/RingbaIOModalView'
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-        width: '600px',
-        margin: 'auto',
-        marginTop: '2rem',
-        padding: '40px',
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing(2),
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '35px',
-    },
-}))
+const { Title } = Typography
+const { TextArea } = Input
 
 const RingbaInsertionOrderTermCreate = () => {
-    const classes = useStyles()
     const { campaigns, customers } = usePage().props
     const [selectedCampaign, setSelectedCampaign] = useState('')
     const [selectedCustomer, setSelectedCustomer] = useState('')
@@ -232,19 +215,6 @@ const RingbaInsertionOrderTermCreate = () => {
             .post(route('insertion.order.ringba.term.store'), formData)
             .then((response) => {
                 if (response.data.success) {
-                    // setSelectedCampaign('')
-                    // setSelectedCustomer('')
-                    // setSelectedAffiliate('')
-                    // setSelectedPhone('')
-                    // setOrderType('')
-                    // setSelectedTerm('')
-                    // setSelectedPayout('')
-                    // setSelectedRevenue('')
-                    // setSelectedCallLength('')
-                    // setInsertionOrderFor('customer')
-                    // setDescription('')
-                    // setVideoUrl('')
-                    // setSelectedLengths('')
                     toast.success(response.data.msg)
                     setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
                 } else {
@@ -296,13 +266,13 @@ const RingbaInsertionOrderTermCreate = () => {
     return (
         <>
             <Helmet title="Pay Per Call Insertion Order Term - Create" />
-            <Paper className={classes.root}>
-                <Typography variant="h6" className={classes.title}>
+            <div style={{ display: 'grid', width: '600px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
+                <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
                     Pay Per Call Insertion Order Term
-                </Typography>
-                <form validate="true" onSubmit={handleSubmit}>
-                    <Grid container spacing={4}>
-                        <Grid item xs={12}>
+                </Title>
+                <form onSubmit={handleSubmit}>
+                    <Row gutter={[0, 16]}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_campaign"
                                 onChange={(value) => campaignHandleChange(value)}
@@ -312,13 +282,13 @@ const RingbaInsertionOrderTermCreate = () => {
                                 placeholder="Select Campaign"
                                 singleSelect
                             />
-                        </Grid>
-                        {loading.campaignData && <Grid item xs={12}>
+                        </Col>
+                        {loading.campaignData && <Col span={24}>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <CircularProgress color="inherit" thickness={3} size="0.8rem" style={{ marginRight: '5px' }} /> Fetching campaign related data...
+                                <Spin size="small" style={{ marginRight: '5px' }} /> Fetching campaign related data...
                             </div>
-                        </Grid>}
-                        <Grid item xs={12}>
+                        </Col>}
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_customer"
                                 onChange={(value) => setSelectedCustomer(value)}
@@ -328,9 +298,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 placeholder="Select Customer"
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_affiliate"
                                 onChange={(value) => affiliateHandleChange(value)}
@@ -341,9 +311,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect={insertionOrderFor === 'affiliate'}
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             {showPhoneFiled ? <MultiSelect
                                 name="ringba_phone"
                                 onChange={(value) => setSelectedPhone(value)}
@@ -355,12 +325,12 @@ const RingbaInsertionOrderTermCreate = () => {
                                 singleSelect={insertionOrderFor === 'affiliate'}
                             /> :
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <CircularProgress color="inherit" thickness={3} size="0.8rem" style={{ marginRight: '5px' }} /> loading phone filed...
+                                    <Spin size="small" style={{ marginRight: '5px' }} /> loading phone filed...
                                 </div>
                             }
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="order_type"
                                 onChange={(value) => setOrderType(value)}
@@ -370,9 +340,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 placeholder="Select Order Type"
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="term"
                                 onChange={(value) => setSelectedTerm(value)}
@@ -382,9 +352,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 placeholder="Select Terms"
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_payout"
                                 onChange={(value) => setSelectedPayout(value)}
@@ -395,9 +365,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_revenue"
                                 onChange={(value) => setSelectedRevenue(value)}
@@ -408,9 +378,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_call_length"
                                 onChange={(value) => setSelectedCallLength(value)}
@@ -421,9 +391,9 @@ const RingbaInsertionOrderTermCreate = () => {
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
+                        <Col span={24}>
                             <MultiSelect
                                 name="select_lengths"
                                 onChange={(value) => setSelectedLengths(value)}
@@ -432,104 +402,78 @@ const RingbaInsertionOrderTermCreate = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Select Lengths"
                             />
-                        </Grid>
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <TextField
-                                name="video_url"
-                                label="DRTV Download Link"
-                                variant="outlined"
-                                value={videoUrl}
-                                onChange={(e) => setVideoUrl(e.target.value)}
-                                fullWidth
-                                size="small"
-                            />
-                        </Grid>
+                        <Col span={24}>
+                            <div>
+                                <label>DRTV Download Link</label>
+                                <Input
+                                    name="video_url"
+                                    value={videoUrl}
+                                    onChange={(e) => setVideoUrl(e.target.value)}
+                                    className="w-full"
+                                />
+                            </div>
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <TextField
-                                name="description"
-                                label="Description (read only)"
-                                variant="outlined"
-                                value={description}
-                                fullWidth
-                                multiline
-                                minRows="2"
-                                maxRows="4"
-                                inputProps={
-                                    { readOnly: true, }
-                                }
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                            />
-                        </Grid>
+                        <Col span={24}>
+                            <div>
+                                <label>Description (read only)</label>
+                                <TextArea
+                                    name="description"
+                                    value={description}
+                                    className="w-full"
+                                    rows={3}
+                                    readOnly
+                                />
+                            </div>
+                        </Col>
 
-                        <Grid item xs={12}>
-                            <RadioGroup
+                        <Col span={24}>
+                            <Radio.Group
                                 name="insertion_order_for"
                                 value={insertionOrderFor}
                                 onChange={handleInsertionOrderFor}
                                 style={{ display: 'flex', flexDirection: 'row' }}
                             >
-                                <FormControlLabel
-                                    value="customer"
-                                    control={<Radio color="primary" />}
-                                    label="For Customer"
-                                />
-                                <FormControlLabel
-                                    value="affiliate"
-                                    control={<Radio color="primary" />}
-                                    label="For Affiliate"
-                                />
-                            </RadioGroup>
-                        </Grid>
+                                <Radio value="customer">For Customer</Radio>
+                                <Radio value="affiliate">For Affiliate</Radio>
+                            </Radio.Group>
+                        </Col>
 
-                        <Grid container justifyContent="flex-end">
-                            <Grid item style={{ marginRight: '8px' }}>
+                        <Row justify="end" className="w-full">
+                            <Col style={{ marginRight: '8px' }}>
                                 <Button
-                                    variant="outlined"
                                     disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedPayout)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedRevenue)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save || loading.view}
-                                    type="button"
                                     onClick={handleView}
+                                    loading={loading.view}
                                 >
-                                    {loading.view && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                        <CircularProgress size={20} color="inherit" />
-                                    </span>)}
                                     View
                                 </Button>
-                            </Grid>
-                            <Grid item style={{ marginRight: '8px' }}>
+                            </Col>
+                            <Col style={{ marginRight: '8px' }}>
                                 <Button
-                                    variant="outlined"
-                                    color="primary"
                                     disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedPayout)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedRevenue)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
-                                    type="button"
                                     onClick={(e) => handleSubmit(e, 'save')}
+                                    loading={loading.save}
                                 >
-                                    {loading.save && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                        <CircularProgress size={20} color="inherit" />
-                                    </span>)}
                                     Save
                                 </Button>
-                            </Grid>
-                            <Grid item>
+                            </Col>
+                            <Col>
                                 <Button
-                                    variant="contained"
-                                    color="primary"
+                                    type="primary"
                                     disabled={(insertionOrderFor === 'affiliate' && (!selectedAffiliate || !selectedPayout)) || (insertionOrderFor === 'customer' && (!selectedCustomer || !selectedRevenue)) || !selectedCampaign || !selectedPhone || loading.submit || loading.save}
-                                    type="submit"
+                                    htmlType="submit"
+                                    loading={loading.submit}
                                 >
-                                    {loading.submit && (<span style={{ marginRight: '8px', marginBottom: '-5px' }}>
-                                        <CircularProgress size={20} color="inherit" />
-                                    </span>)}
                                     Create and Send
                                 </Button>
-                            </Grid>
-                        </Grid>
-                    </Grid>
+                            </Col>
+                        </Row>
+                    </Row>
                 </form>
-            </Paper>
+            </div>
             <NormalModal
                 open={showViewModal.open}
                 setOpen={setShowViewModal}

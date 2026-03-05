@@ -1,7 +1,4 @@
-import { makeStyles } from '@material-ui/core'
-import { DataType } from 'ka-table/enums'
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -15,58 +12,28 @@ export const useStyles = makeStyles(() => ({
   editButton: {
     marginTop: '15px',
   },
-}))
+}
 
 export const fields = [
   {
     caption: 'Broadcast Week',
     name: 'broad_cast_week',
     operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
+      { caption: 'Contains', name: 'contains' },
+      { caption: 'Not Contains', name: 'doesNotContain' },
+      { caption: 'Is Empty', name: 'isEmpty' },
+      { caption: 'Is Not Empty', name: 'isNotEmpty' },
+      { caption: 'Starts With', name: 'startswith' },
+      { caption: 'Ends With', name: 'endsWith' },
+      { caption: 'Is', name: 'is' },
+      { caption: 'Is Not', name: 'isnot' },
     ],
   },
 ]
 
 export const groups = [
-  {
-    caption: 'And',
-    name: 'and',
-  },
-  {
-    caption: 'Or',
-    name: 'or',
-  },
+  { caption: 'And', name: 'and' },
+  { caption: 'Or', name: 'or' },
 ]
 
 export const filter = {
@@ -93,35 +60,35 @@ export const columns = [
   {
     key: 'sl',
     title: 'SL',
-    dataType: DataType.Number,
+    dataType: 'number',
     style: { width: 100 },
     visible: false,
   },
   {
     key: 'broad_cast_week',
     title: 'Broadcast Week',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'start_date',
     title: 'Start Date',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'end_date',
     title: 'End Date',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'days_count',
     title: 'Days Count',
-    dataType: DataType.Number,
+    dataType: 'number',
     style: { width: 100 },
     visible: true,
   },

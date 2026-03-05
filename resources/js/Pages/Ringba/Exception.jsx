@@ -1,44 +1,32 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
-import { kaReducer, Table } from 'ka-table'
-import { SortingMode } from 'ka-table/enums'
-import { kaPropsUtils } from 'ka-table/utils'
-import { hideLoading, showLoading } from 'ka-table/actionCreators'
-import 'ka-table/style.scss'
 import { usePage } from '@inertiajs/inertia-react'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
+import { Tooltip, Button, Table, Select } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import produce from 'immer'
-import IconButton from '@material-ui/core/IconButton'
-import { Button, CircularProgress } from '@material-ui/core'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import CustomFilter from '@/Components/CustomFilter'
-import { filterData } from '@/Helpers/filterData'
 import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
-import SelectionHeader from '@/Components/TableComponents/SelectionHeader'
-import SelectionCell from '@/Components/TableComponents/SelectionCell'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import handleSelects from '@/Helpers/HandleSelects'
 import { Pagination } from 'react-laravel-paginex'
-import { columns, useStyles } from './Helpers/ExceptionProps'
+import { columns as defaultColumns, buttonStyle } from './Helpers/ExceptionProps'
 
 const Exceptions = () => {
-  const classes = useStyles()
-  const { Exceptions, columnsData } = usePage().props
+  const { Exceptions: ExceptionsData, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
-  const [selectedRowIds, setSelectedRowIds] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [inboundIds, setInbounIds] = useState([])
   const [editData, setEditData] = useState([])
   const [sn, setSn] = useState('')
@@ -61,7 +49,7 @@ const Exceptions = () => {
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
-  const [exceptionData, setExceptionData] = useState(Exceptions)
+  const [exceptionData, setExceptionData] = useState(ExceptionsData)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState({
@@ -120,91 +108,103 @@ const Exceptions = () => {
         State: item.State,
         Zipcode: item.Zipcode,
         id: item.id,
-        key: index,
+        key: item.id,
       }
     })
   }
 
-  const dataArray = mapDataArr(Exceptions.data)
+  const dataArray = mapDataArr(ExceptionsData.data)
 
   const optionKey = 'exception-call-logs-report'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const tablePropsInit = {
-    columns:
-      columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-        ? JSON.parse(columnsData[0])?.[optionKey]
-        : columns,
-    data: dataArray,
-    rowKeyField: 'id',
-    sortingMode: SortingMode.Single,
-    columnResizing: true,
-    columnReordering: true,
-    format: ({ column, value }) => {
-      if (column.key === 'Recording_Url') {
-        return (
+  const initialColumns =
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+
+  const fields = SearchedFields(initialColumns)
+  const [columns, setColumns] = useState(initialColumns)
+  const [data, setData] = useState(dataArray)
+  const [loading, setLoading] = useState(false)
+
+  const handleToggleColumn = (key) => {
+    setColumns((prev) => {
+      const updated = prev.map((c) =>
+        c.key === key ? { ...c, visible: c.visible === false ? true : false } : c
+      )
+      addTableDetails(columnDetails, setColumnDetails, updated, optionKey)
+      return updated
+    })
+  }
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setTableToolbar(newSelectedRowKeys.length > 0)
+      setInbounIds(selectedRows.map((row) => row.Inbound_Id))
+    },
+  }
+
+  const antdColumns = columns
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .map((col) => {
+      const base = {
+        key: col.key,
+        dataIndex: col.key,
+        title: col.title || '',
+        width: col.style?.width || col.width,
+        sorter:
+          col.dataType === 'number'
+            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+            : col.dataType === 'string'
+              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+              : undefined,
+      }
+
+      if (col.key === 'edit') {
+        base.fixed = 'left'
+        base.render = (value) => (
+          <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
+            <ThreeDots />
+          </div>
+        )
+      }
+
+      if (col.key === 'Recording_Url') {
+        base.render = (value) => (
           <audio className="audio-data" controls style={{ width: '100%' }}>
             <source src={value} type="audio/mp3" />
             Your browser does not support the <code>audio</code> element.
           </audio>
         )
       }
-      if (column.key === 'edit') {
-        return (
-          <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-            <ThreeDots />
-          </div>
-        )
-      }
-      if (column.key === 'Call_Date_Time') {
-        if (value !== undefined) {
-          return DateTimeFormat(value)
+
+      if (col.key === 'Call_Date_Time') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            return DateTimeFormat(value)
+          }
         }
       }
-      if (column.key === 'Call_Date') {
-        if (value !== undefined) {
-          let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-          let format_date = value
-          let dd = String(format_date.getDate()).padStart(2, '0')
-          let yyyy = format_date.getFullYear()
-          format_date = dd + '-' + shortMonth + '-' + yyyy
-          return format_date
+
+      if (col.key === 'Call_Date') {
+        base.render = (value) => {
+          if (value !== undefined) {
+            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+            let format_date = value
+            let dd = String(format_date.getDate()).padStart(2, '0')
+            let yyyy = format_date.getFullYear()
+            return dd + '-' + shortMonth + '-' + yyyy
+          }
         }
       }
-    },
-  }
 
-  const fields = SearchedFields(tablePropsInit.columns)
-  const [tableProps, changeTableProps] = useState(tablePropsInit)
-  const tablePropsRef = useRef(tableProps)
-
-  const dispatch = (action) => {
-    if (
-      ['SelectRow', 'DeselectRow', 'SelectAllFilteredRows', 'DeselectAllFilteredRows'].includes(
-        action?.type
-      )
-    ) {
-      handleSelects({
-        action,
-        selectedRowIds,
-        setSelectedRowIds,
-        tableProps,
-        setTableToolbar,
-        inboundIds,
-        setInbounIds,
-      })
-    }
-    changeTableProps((prevState) => {
-      const newState = kaReducer(prevState, action)
-      const { data, ...settingsWithoutData } = newState
-      if (action?.type === 'ReorderColumns') {
-        addTableDetails(columnDetails, setColumnDetails, settingsWithoutData, optionKey)
-      }
-      return newState
+      return base
     })
-  }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 
@@ -223,15 +223,12 @@ const Exceptions = () => {
   const deleteHandler = () => {
     setIsLoading({ ...isLoading, delete: true })
     axios
-      .post(route('exception.delete'), { selectedRowIds })
+      .post(route('exception.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          let filteredData = tableProps
-          const newData = filteredData.data.filter((item) => !selectedRowIds.includes(item.id))
-          filteredData.data = newData
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
           setIsLoading({ ...isLoading, delete: false })
-          changeTableProps(filteredData)
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setInbounIds([])
           getSearchingData(currentPage)
           setTableToolbar(false)
@@ -239,7 +236,7 @@ const Exceptions = () => {
           setShowDeleteModal({ open: false })
         } else {
           setIsLoading({ ...isLoading, delete: false })
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setInbounIds([])
           setTableToolbar(false)
           toast.error(res.data.msg)
@@ -248,7 +245,7 @@ const Exceptions = () => {
       })
       .catch((err) => {
         setIsLoading({ ...isLoading, delete: false })
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setInbounIds([])
         setTableToolbar(false)
         setShowDeleteModal({ open: false })
@@ -263,24 +260,19 @@ const Exceptions = () => {
         if (res.data.status_code === 200) {
           setIsLoading({ ...isLoading, pending: false })
           toast.success(res.data.msg)
-          let columnsData = produce(tableProps, (draft) => {
-            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
-            draft.selectedRows = []
-            draft.data = filteredData
-          })
-          changeTableProps(columnsData)
+          setData((prev) => prev.filter((item) => !inboundIds.includes(item.Inbound_Id)))
           setTableToolbar(false)
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setInbounIds([])
           getSearchingData(currentPage)
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         } else {
           setIsLoading({ ...isLoading, pending: false })
           toast.error(res.data.msg)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setOpenRowFunctionalities(false)
           setShowPendingModal({ open: false })
         }
@@ -288,7 +280,7 @@ const Exceptions = () => {
       .catch((err) => {
         setIsLoading({ ...isLoading, pending: false })
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setOpenRowFunctionalities(false)
       })
   }
@@ -301,15 +293,10 @@ const Exceptions = () => {
         if (res.data.status_code === 200) {
           setIsLoading({ ...isLoading, archive: false })
           toast.success(res.data.msg)
-          let columnsData = produce(tableProps, (draft) => {
-            const filteredData = draft.data.filter((item) => !inboundIds.includes(item.Inbound_Id))
-            draft.selectedRows = []
-            draft.data = filteredData
-          })
-          changeTableProps(columnsData)
+          setData((prev) => prev.filter((item) => !inboundIds.includes(item.Inbound_Id)))
           setTableToolbar(false)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           getSearchingData(currentPage)
           setOpenRowFunctionalities(false)
           setShowArchivedModal({ open: false })
@@ -317,7 +304,7 @@ const Exceptions = () => {
           setIsLoading({ ...isLoading, archive: false })
           toast.error(res.data.msg)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setShowArchivedModal({ open: false })
         }
       })
@@ -325,7 +312,7 @@ const Exceptions = () => {
         setIsLoading({ ...isLoading, archive: false })
         setTableToolbar(false)
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setOpenRowFunctionalities(false)
       })
   }
@@ -346,34 +333,29 @@ const Exceptions = () => {
         if (res.status === 200) {
           if (!res.data[0].edit) res.data[0].edit = ''
           res.data[0].edit = res.data[0].id
-          const tmpTableProps = { ...tableProps }
           const mappedData = mapDataArr(res.data)
-          for (let i = 0; i < tmpTableProps.data.length; i++) {
-            if (tmpTableProps.data[i].id === res.data[0].id) {
-              tmpTableProps.data[i] = mappedData[0]
-            }
-          }
+          setData((prev) =>
+            prev.map((item) => (item.id === res.data[0].id ? mappedData[0] : item))
+          )
           if (id === inboundIdsParam.length - 1) {
             toast.success(`${inboundIdsParam.length} Record Updated`)
-            setSelectedRowIds([])
+            setSelectedRowKeys([])
             setIsLoading({ ...isLoading, update: false })
             setTableToolbar(false)
             setInbounIds([])
             setOpenRowFunctionalities(false)
-            tmpTableProps.selectedRows = []
           }
-          changeTableProps(tmpTableProps)
         } else if (res.status === 204) {
           toast.error("The record isn't exist in Ringba")
           setIsLoading({ ...isLoading, update: false })
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setOpenRowFunctionalities(false)
         } else {
           toast.error('Updating failed')
           setIsLoading({ ...isLoading, update: false })
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
           setOpenRowFunctionalities(false)
         }
       })
@@ -381,7 +363,7 @@ const Exceptions = () => {
         toast.error('Updating failed')
         setIsLoading({ ...isLoading, update: false })
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
       })
   }
 
@@ -393,42 +375,38 @@ const Exceptions = () => {
         if (res.status === 200) {
           setIsLoading({ ...isLoading, revenue: false })
           toast.success('Successfully Updated')
-          let columnsData = produce(tableProps, (draft) => {
-            draft.data.filter((item) => {
-              if (item.Inbound_Id === editData[0]) {
-                item.Revenue = ''
-                item.payoutAmount = ''
-              }
-            })
-          })
-          changeTableProps(columnsData)
+          setData((prev) =>
+            prev.map((item) =>
+              item.Inbound_Id === editData[0]
+                ? { ...item, Revenue: '', payoutAmount: '' }
+                : item
+            )
+          )
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
         } else {
           setIsLoading({ ...isLoading, revenue: false })
           toast.error(res.data.msg)
           setShowRevenueClearModal({ open: false })
           setOpenRowFunctionalities(false)
           setInbounIds([])
-          setSelectedRowIds([])
+          setSelectedRowKeys([])
         }
       })
       .catch((err) => {
         setIsLoading({ ...isLoading, revenue: false })
         setInbounIds([])
-        setSelectedRowIds([])
+        setSelectedRowKeys([])
         setOpenRowFunctionalities(false)
-        emptyCheckbox('exception-report', tableProps, changeTableProps)
       })
   }
 
   const handleOpenModal = (setOpenModal, tableData) => {
     setOpenModal({ open: true })
     if (tableData) {
-      let filteredData = tableProps
-      filteredData.data.filter((item) => {
+      data.forEach((item) => {
         if (item.Inbound_Id === editData[0]) {
           setSn(item.SN)
         }
@@ -441,7 +419,7 @@ const Exceptions = () => {
     setOpenModal({ open: false })
     setOpenRowFunctionalities(false)
     setTableToolbar(false)
-    setSelectedRowIds([])
+    setSelectedRowKeys([])
     setInbounIds([])
   }
 
@@ -449,75 +427,57 @@ const Exceptions = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => handleOpenModal(setShowDeleteModal)}>
-            <DeleteIcon style={{ color: '#031b4e' }} />
-          </IconButton>
+          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
         </Tooltip>
 
         <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
+          type="primary"
+          style={buttonStyle}
           onClick={() => handleOpenModal(setShowPendingModal)}
         >
           Pending
         </Button>
         <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
+          type="primary"
+          style={buttonStyle}
           onClick={() => handleOpenModal(setShowArchivedModal)}
         >
           Archived
         </Button>
         <Button
-          variant="contained"
-          type="submit"
-          color="primary"
-          className={classes.button}
+          type="primary"
+          style={buttonStyle}
           onClick={() => handleUpdate(inboundIds)}
+          loading={isLoading.update}
         >
-          {'Update'}
-          {isLoading.update && (
-            <CircularProgress
-              color="inherit"
-              size="1rem"
-              thickness={2}
-              style={{ marginLeft: '5px' }}
-            />
-          )}
+          Update
         </Button>
-        <div className="selection-rows">{selectedRowIds.length} Row Selected</div>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
   }
 
-  const getSearchingData = async (data) => {
-    setcurrentPage(data)
-    dispatch(showLoading())
+  const getSearchingData = async (pageData) => {
+    setcurrentPage(pageData)
+    setLoading(true)
     await axios
       .get(
         'exceptions?page=' +
-          data.page +
+          pageData.page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
           JSON.stringify(filterValue)
       )
       .then((res) => {
-        const tmpTableProps = { ...tableProps }
-        tmpTableProps.data = mapDataArr(res.data.data)
-        changeTableProps(tmpTableProps)
-        tablePropsRef.current = mapDataArr(res.data.data)
+        setData(mapDataArr(res.data.data))
         setExceptionData(res.data)
-        dispatch(hideLoading())
+        setLoading(false)
       })
   }
 
-  const itemPerPageHandleChange = (e) => {
-    setItemPerPage(e.target.value)
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
   }
 
   useEffect(() => {
@@ -563,10 +523,7 @@ const Exceptions = () => {
           <span onClick={() => handleUpdate(editData)}>
             Update <PulseLoader color={color} loading={isLoading.update} size={5} />
           </span>
-          {/* <span onClick={() => handleAnnotation(editData)}>
-            Get Annotation <PulseLoader color={color} loading={annotationLoading} size={5} />
-          </span> */}
-          <span onClick={() => handleOpenModal(setShowRevenueClearModal, tableProps)}>Clear</span>
+          <span onClick={() => handleOpenModal(setShowRevenueClearModal, true)}>Clear</span>
         </div>
       </div>
     )
@@ -579,7 +536,7 @@ const Exceptions = () => {
       const itemIndx = editData.indexOf(id)
       editData.splice(itemIndx, 1)
     }
-    const tempData = tableProps.data.filter((item) => item.id == id)
+    const tempData = data.filter((item) => item.id == id)
     editData.push(tempData[0].Inbound_Id)
   }
 
@@ -613,7 +570,7 @@ const Exceptions = () => {
 
                 <div className="top-element">
                   <CustomFilter
-                    mainData={tableProps.data}
+                    mainData={data}
                     fields={fields}
                     filterValue={filterValue}
                     setFilterValue={setFilterValue}
@@ -627,7 +584,7 @@ const Exceptions = () => {
             )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings {...tableProps} dispatch={dispatch} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
               </div>
             ) : (
               ''
@@ -635,70 +592,26 @@ const Exceptions = () => {
           </div>
         )}
         <Table
-          {...tableProps}
-          childComponents={{
-            cellText: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return <SelectionCell {...props} />
-                }
-              },
-            },
-            headCell: {
-              content: (props) => {
-                if (props.column.key === 'selection-cell') {
-                  return (
-                    <SelectionHeader
-                      {...props}
-                      areAllRowsSelected={kaPropsUtils.areAllFilteredRowsSelected(tableProps)}
-                    />
-                  )
-                }
-              },
-
-              elementAttributes: (props) => {
-                if (props.column.key === 'edit') {
-                  return {
-                    style: {
-                      ...props.column.style,
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 10,
-                    },
-                  }
-                }
-              },
-            },
-            cell: {
-              elementAttributes: (props) => {
-                if (props.column.key === 'edit') {
-                  return {
-                    style: {
-                      ...props.column.style,
-                      position: 'sticky',
-                      left: 0,
-                      backgroundColor: '#fff',
-                    },
-                  }
-                }
-              },
-            },
-          }}
-          dispatch={dispatch}
-          extendedFilter={(data) => filterData(data, filterValue)}
+          columns={antdColumns}
+          dataSource={data}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={loading}
+          pagination={false}
+          scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
+          size="small"
         />
         <div className="table-bottom">
-          <select
-            name="item-per-page"
-            id="item-per-page"
+          <Select
             value={itemPerPage}
-            onChange={(e) => itemPerPageHandleChange(e)}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+          />
           <Pagination changePage={getSearchingData} data={exceptionData} />
         </div>
       </div>

@@ -1,7 +1,4 @@
-import { makeStyles } from "@material-ui/core"
-import { DataType } from "ka-table/enums"
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   topBtn: {
     display: 'flex',
     gap: '10px',
@@ -19,7 +16,7 @@ export const useStyles = makeStyles(() => ({
     marginTop: '15px',
     marginBottom: '10px',
   },
-}))
+}
 
 const operators = [
   {
@@ -119,56 +116,56 @@ export const columns = [
   {
     key: 'affiliate_id',
     title: 'Affiliate Id',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 350 },
     visible: true,
   },
   {
     key: 'affiliate_name',
     title: 'Affiliate Name',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
   {
     key: 'market',
     title: 'Market',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
   {
     key: 'email',
     title: 'Email',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 350 },
     visible: true,
   },
   {
     key: 'telephone',
     title: 'Telephone',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'address',
     title: 'Address',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 240 },
     visible: true,
   },
   {
     key: 'contact_name',
     title: 'Contact Name',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },
   {
     key: 'contact_telephone',
     title: 'Contact Telephone',
-    dataType: DataType.String,
+    dataType: 'string',
     style: { width: 200 },
     visible: true,
   },

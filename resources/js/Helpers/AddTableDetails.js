@@ -1,15 +1,13 @@
 import axios from 'axios'
 
-const addTableDetails = (columnDetails, setColumnDetails, settingsWithoutData, optionKey) => {
+const addTableDetails = (columnDetails, setColumnDetails, columns, optionKey) => {
   const tmpColumnDetails = { ...columnDetails }
-  tmpColumnDetails[optionKey] = settingsWithoutData?.columns
+  tmpColumnDetails[optionKey] = columns
   setColumnDetails(tmpColumnDetails)
 
   axios
     .post(route('add.table.details'), { columnsData: tmpColumnDetails })
-    .then((res) => {
-      console.log(res)
-    })
+    .then(() => {})
     .catch((err) => {
       console.log(err)
     })

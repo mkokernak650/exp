@@ -1,23 +1,13 @@
-import { deselectAllFilteredRows, selectAllFilteredRows } from 'ka-table/actionCreators'
-import Checkbox from '@material-ui/core/Checkbox'
+import { Checkbox } from 'antd'
+
 export default function SelectionHeader({
-  dispatch,
   areAllRowsSelected,
-  selectedRowIds,
-  setTableToolbar,
-  searchedData,
+  onChange,
 }) {
   return (
     <Checkbox
       checked={areAllRowsSelected}
-      color="primary"
-      onChange={(event) => {
-        if (event.currentTarget.checked) {
-          dispatch(selectAllFilteredRows())
-        } else {
-          dispatch(deselectAllFilteredRows())
-        }
-      }}
+      onChange={(e) => onChange(e.target.checked)}
     />
   )
 }

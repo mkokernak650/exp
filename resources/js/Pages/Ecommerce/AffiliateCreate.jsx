@@ -1,8 +1,6 @@
 import { React, useEffect, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Input, Select, Row, Col, Typography } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -10,27 +8,8 @@ import toast from 'react-hot-toast'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-  snackbar: {
-    maxWidth: '500px',
-  },
-}))
+const { Title } = Typography
+const { TextArea } = Input
 
 const AffiliateCreate = () => {
   const defaultState = {
@@ -53,7 +32,6 @@ const AffiliateCreate = () => {
     description: '',
     video_url: '',
   }
-  const classes = useStyles()
   const [values, setValues] = useState(defaultState)
   const [loading, setLoading] = useState(false)
   const { affiliates, campaigns, customers } = usePage().props
@@ -70,10 +48,13 @@ const AffiliateCreate = () => {
     setValues((oldValues) => ({ ...oldValues, [name]: value }))
   }
 
-  const campaginHandleChange = (e) => {
+  const handleSelectChange = (name, value) => {
+    setValues((oldValues) => ({ ...oldValues, [name]: value ?? '' }))
+  }
+
+  const campaginHandleChange = (value) => {
     setValues((oldValues) => ({ ...oldValues, description: '' }))
-    const value = e.target.value
-    setValues((oldValues) => ({ ...oldValues, campaign_id: value }))
+    setValues((oldValues) => ({ ...oldValues, campaign_id: value ?? '' }))
 
     if (value) {
       const selectedCampaign = campaigns.filter(campaign => campaign.id == value)
@@ -127,160 +108,129 @@ const AffiliateCreate = () => {
   return (
     <>
       <Helmet title="Create Coupon Code" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', flexGrow: 1 }} className="shadow-md rounded-lg bg-white">
+        <Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Create Coupon Code
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit}>
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <TextField
-                value={values?.campaign_id}
-                id="campaign_id"
-                select
-                name="campaign_id"
-                onChange={campaginHandleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={false}
-              >
-                <option value="">Select Campaign</option>
-                {campaigns.map((option, indx) => (
-                  <option key={indx + `-1`} value={option.id}>
-                    {option.campaign_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={values?.customer_id}
-                id="customer_id"
-                select
-                name="customer_id"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Customer</option>
-                {customers.map((option, indx) => (
-                  <option key={indx + `-2`} value={option.id}>
-                    {option.customer_name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={values?.affiliate_id}
-                id="affiliate_id"
-                select
-                name="affiliate_id"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Affiliate</option>
-                {affiliates.map((option, indx) => (
-                  <option key={indx + `-3`} value={option.id}>
-                    {`${option.affiliate_name} (${option.market})`}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={values?.product_code}
-                id="product_code"
-                label="Product Code (ISCI Code)"
-                type="text"
-                name="product_code"
-                placeholder="ISCI Code"
-                onChange={handleChange}
-                className={classes.textField}
-                fullWidth
+        </Title>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={[0, 16]}>
+            <Col span={24}>
+              <Select
+                value={values?.campaign_id || undefined}
+                onChange={(value) => campaginHandleChange(value)}
+                className="w-full"
+                placeholder="Select Campaign"
+                allowClear
+                options={campaigns.map((option, indx) => ({
+                  key: indx + '-1',
+                  value: option.id.toString(),
+                  label: option.campaign_name,
+                }))}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={values?.order_type}
-                id="order_type"
-                select
-                name="order_type"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Order Type</option>
-                <option value="1">E-commerce</option>
-                <option value="2">Phone</option>
-              </TextField>
-            </Grid>
+            </Col>
+            <Col span={24}>
+              <Select
+                value={values?.customer_id || undefined}
+                onChange={(value) => handleSelectChange('customer_id', value)}
+                className="w-full"
+                placeholder="Select Customer"
+                allowClear
+                options={customers.map((option, indx) => ({
+                  key: indx + '-2',
+                  value: option.id.toString(),
+                  label: option.customer_name,
+                }))}
+              />
+            </Col>
+            <Col span={24}>
+              <Select
+                value={values?.affiliate_id || undefined}
+                onChange={(value) => handleSelectChange('affiliate_id', value)}
+                className="w-full"
+                placeholder="Select Affiliate"
+                allowClear
+                options={affiliates.map((option, indx) => ({
+                  key: indx + '-3',
+                  value: option.id.toString(),
+                  label: `${option.affiliate_name} (${option.market})`,
+                }))}
+              />
+            </Col>
+            <Col span={24}>
+              <div>
+                <label>Product Code (ISCI Code)</label>
+                <Input
+                  value={values?.product_code}
+                  type="text"
+                  name="product_code"
+                  placeholder="ISCI Code"
+                  onChange={handleChange}
+                  className="w-full"
+                />
+              </div>
+            </Col>
+            <Col span={24}>
+              <Select
+                value={values?.order_type || undefined}
+                onChange={(value) => handleSelectChange('order_type', value)}
+                className="w-full"
+                placeholder="Select Order Type"
+                allowClear
+                options={[
+                  { value: '1', label: 'E-commerce' },
+                  { value: '2', label: 'Phone' },
+                ]}
+              />
+            </Col>
 
             {values?.order_type &&
               (values.order_type == 1 ? (
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.coupon_code}
-                    id="coupon_code"
-                    label="Coupon Code"
-                    type="text"
-                    name="coupon_code"
-                    placeholder="Exp: #CX12345"
-                    onChange={handleChange}
-                    className={classes.textField}
-                    fullWidth
-                    required={true}
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>Coupon Code</label>
+                    <Input
+                      value={values?.coupon_code}
+                      type="text"
+                      name="coupon_code"
+                      placeholder="Exp: #CX12345"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
               ) : (
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.dialed}
-                    id="dialed"
-                    label="Dialed Phone"
-                    type="text"
-                    name="dialed"
-                    placeholder="123123123"
-                    onChange={handleChange}
-                    className={classes.textField}
-                    fullWidth
-                    required={true}
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>Dialed Phone</label>
+                    <Input
+                      value={values?.dialed}
+                      type="text"
+                      name="dialed"
+                      placeholder="123123123"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
               ))}
 
-            <Grid item xs={12}>
-              <TextField
-                value={values?.pay_on_multiple_orders}
-                id="pay_on_multiple_orders"
-                select
-                name="pay_on_multiple_orders"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Pay on multiple orders</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-              </TextField>
-            </Grid>
+            <Col span={24}>
+              <Select
+                value={values?.pay_on_multiple_orders || undefined}
+                onChange={(value) => handleSelectChange('pay_on_multiple_orders', value)}
+                className="w-full"
+                placeholder="Pay on multiple orders"
+                allowClear
+                options={[
+                  { value: '1', label: 'Yes' },
+                  { value: '0', label: 'No' },
+                ]}
+              />
+            </Col>
 
-            <Grid item xs={12}>
+            <Col span={24}>
               <MultiSelect
                 className='multiselect-for-affiliate-create'
                 name="lengths"
@@ -290,172 +240,154 @@ const AffiliateCreate = () => {
                 style={{ width: '100%' }}
                 placeholder="Select Length"
               />
-            </Grid>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                value={values?.affiliate_fee_type}
-                id="affiliate_fee_type"
-                select
-                name="affiliate_fee_type"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
-              >
-                <option value="">Select Affiliate Fee Type</option>
-                <option value="1">Payout Per Order</option>
-                <option value="2">Cash Buy</option>
-              </TextField>
-            </Grid>
+            <Col span={24}>
+              <Select
+                value={values?.affiliate_fee_type || undefined}
+                onChange={(value) => handleSelectChange('affiliate_fee_type', value)}
+                className="w-full"
+                placeholder="Select Affiliate Fee Type"
+                allowClear
+                options={[
+                  { value: '1', label: 'Payout Per Order' },
+                  { value: '2', label: 'Cash Buy' },
+                ]}
+              />
+            </Col>
 
             {values?.affiliate_fee_type && values.affiliate_fee_type == 1 && (
               <>
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.revenue}
-                    id="revenue"
-                    label="Payout Per Order"
-                    type="text"
-                    name="revenue"
-                    placeholder="Exp: 100"
-                    onChange={handleChange}
-                    className={classes.textField}
-                    fullWidth
-                    required={true}
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>Payout Per Order</label>
+                    <Input
+                      value={values?.revenue}
+                      type="text"
+                      name="revenue"
+                      placeholder="Exp: 100"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
 
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.affiliate_fee}
-                    id="affiliate_fee"
-                    label="Affiliate Fee"
-                    type="text"
-                    name="affiliate_fee"
-                    placeholder="Exp: 100"
-                    onChange={handleChange}
-                    className={classes.textField}
-                    fullWidth
-                    required={true}
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>Affiliate Fee</label>
+                    <Input
+                      value={values?.affiliate_fee}
+                      type="text"
+                      name="affiliate_fee"
+                      placeholder="Exp: 100"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
 
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.consumerExp_fee}
-                    id="consumerExp_fee"
-                    label="ConsumerEXP Fee"
-                    type="text"
-                    name="consumerExp_fee"
-                    className={classes.textField}
-                    fullWidth
-                    aria-readonly="true"
-                    disabled
-                  />
-                </Grid>
+                <Col span={24}>
+                  <div>
+                    <label>ConsumerEXP Fee</label>
+                    <Input
+                      value={values?.consumerExp_fee}
+                      type="text"
+                      name="consumerExp_fee"
+                      className="w-full"
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                </Col>
               </>
             )}
 
             {values.affiliate_fee_type == 2 && (
               <>
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.cash_buy}
-                    id="cash_buy"
-                    label="Cash Buy"
-                    type="number"
-                    InputProps={{ inputProps: { min: 0 } }}
-                    name="cash_buy"
-                    placeholder="10000"
-                    onChange={handleChange}
-                    className={classes.textField}
-                    fullWidth
-                    required
+                <Col span={24}>
+                  <div>
+                    <label>Cash Buy</label>
+                    <Input
+                      value={values?.cash_buy}
+                      type="number"
+                      min={0}
+                      name="cash_buy"
+                      placeholder="10000"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
+                <Col span={24}>
+                  <Select
+                    value={values?.consumerEXP_cash_buy_fee_type || undefined}
+                    onChange={(value) => handleSelectChange('consumerEXP_cash_buy_fee_type', value)}
+                    className="w-full"
+                    placeholder="Select ConsumerEXP Fee Type"
+                    allowClear
+                    options={[
+                      { value: '1', label: 'Percentage' },
+                      { value: '2', label: 'Fixed' },
+                    ]}
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.consumerEXP_cash_buy_fee_type}
-                    id="consumerEXP_cash_buy_fee_type"
-                    select
-                    name="consumerEXP_cash_buy_fee_type"
-                    onChange={handleChange}
-                    SelectProps={{
-                      native: true,
-                    }}
-                    fullWidth
-                    required={true}
-                  >
-                    <option value="">Select ConsumerEXP Fee Type</option>
-                    <option value="1">Percentage</option>
-                    <option value="2">Fixed</option>
-                  </TextField>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    value={values?.consumerEXP_cash_buy_fee}
-                    id="consumerEXP_cash_buy_fee"
-                    label={values?.consumerEXP_cash_buy_fee_type === "1" ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}
-                    type="number"
-                    InputProps={{ inputProps: { min: 0 } }}
-                    name="consumerEXP_cash_buy_fee"
-                    placeholder="consumerEXP Cash Buy Fee"
-                    onChange={handleChange}
-                    className={classes.textField}
-                    fullWidth
-                    required
-                    disabled={!values?.consumerEXP_cash_buy_fee_type}
-                  />
-                </Grid>
+                </Col>
+                <Col span={24}>
+                  <div>
+                    <label>{values?.consumerEXP_cash_buy_fee_type === "1" ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}</label>
+                    <Input
+                      value={values?.consumerEXP_cash_buy_fee}
+                      type="number"
+                      min={0}
+                      name="consumerEXP_cash_buy_fee"
+                      placeholder="consumerEXP Cash Buy Fee"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                      disabled={!values?.consumerEXP_cash_buy_fee_type}
+                    />
+                  </div>
+                </Col>
               </>
             )}
 
-            <Grid item xs={12}>
-              <TextField
-                value={values?.video_url}
-                id="video_url"
-                label="DRTV Download Link"
-                type="text"
-                name="video_url"
-                placeholder="DRTV Download Link"
-                onChange={handleChange}
-                className={classes.textField}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="description"
-                label="Description (Read Only)"
-                value={values?.description}
-                spellCheck
-                fullWidth
-                multiline
-                maxRows="4"
-                inputProps={
-                  { readOnly: true, }
-                }
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              ></TextField>
-            </Grid>
+            <Col span={24}>
+              <div>
+                <label>DRTV Download Link</label>
+                <Input
+                  value={values?.video_url}
+                  type="text"
+                  name="video_url"
+                  placeholder="DRTV Download Link"
+                  onChange={handleChange}
+                  className="w-full"
+                />
+              </div>
+            </Col>
+            <Col span={24}>
+              <div>
+                <label>Description (Read Only)</label>
+                <TextArea
+                  name="description"
+                  value={values?.description}
+                  spellCheck
+                  className="w-full"
+                  rows={4}
+                  readOnly
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Save'
-                )}
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Save
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }

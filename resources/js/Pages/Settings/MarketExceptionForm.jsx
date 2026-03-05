@@ -1,43 +1,27 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { CircularProgress, Paper, Typography, TextField, Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography, Select, Spin, DatePicker } from 'antd'
+import { Row, Col } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import toast from 'react-hot-toast'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'grid',
-    width: '500px',
-    margin: 'auto',
-    marginTop: '2rem',
-    padding: '40px',
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '35px',
-  },
-  snackbar: {
-    maxWidth: '500px',
-  },
-}))
-
 const MarketExceptionForm = () => {
-  const classes = useStyles()
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
   const { allMarkets, allCampaigns, allStates } = usePage().props
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    setValues((oldValues) => ({
+      ...oldValues,
+      [name]: value,
+    }))
+  }
+
+  const handleSelectChange = (name, value) => {
     setValues((oldValues) => ({
       ...oldValues,
       [name]: value,
@@ -61,123 +45,88 @@ const MarketExceptionForm = () => {
   return (
     <>
       <Helmet title="Add Exceptions" />
-      <Paper className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+      <div style={{ display: 'grid', width: '500px', margin: 'auto', marginTop: '2rem', padding: '40px', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', borderRadius: '4px', background: '#fff' }}>
+        <Typography.Title level={5} style={{ textAlign: 'center', marginBottom: '35px' }}>
           Add Exceptions
-        </Typography>
-        <form validate="true" onSubmit={handleSubmit} className={classes.form}>
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <TextField
+        </Typography.Title>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={[16, 16]}>
+            <Col span={24}>
+              <Select
                 id="campaign_id"
-                select
-                name="campaign_id"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-                required={true}
+                placeholder="Select Campaign"
+                onChange={(value) => handleSelectChange('campaign_id', value)}
+                style={{ width: '100%' }}
               >
-                <option value="">Select Campaign</option>
                 {allCampaigns.map((option, indx) => (
-                  <option key={indx} value={option.id}>
+                  <Select.Option key={indx} value={option.id}>
                     {option.campaign_name}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
+              </Select>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
+            <Col span={24}>
+              <Select
                 id="state"
-                select
-                name="state"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              // required={true}
+                placeholder="Select State"
+                onChange={(value) => handleSelectChange('state', value)}
+                style={{ width: '100%' }}
               >
-                <option value="">Select State</option>
                 {allStates.map((option, indx) => (
-                  <option key={indx} value={option.state}>
+                  <Select.Option key={indx} value={option.state}>
                     {option.state}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
+              </Select>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
+            <Col span={24}>
+              <Select
                 id="market"
-                select
-                name="market"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              // required={true}
+                placeholder="Select Market"
+                onChange={(value) => handleSelectChange('market', value)}
+                style={{ width: '100%' }}
               >
-                <option value="">Select Market</option>
                 {allMarkets.map((option, indx) => (
-                  <option key={indx} value={option.market}>
+                  <Select.Option key={indx} value={option.market}>
                     {option.market}
-                  </option>
+                  </Select.Option>
                 ))}
-              </TextField>
-            </Grid>
+              </Select>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
+            <Col span={24}>
+              <Select
                 id="call_type"
-                select
-                name="call_type"
-                onChange={handleChange}
-                SelectProps={{
-                  native: true,
-                }}
-                fullWidth
-              // required={true}
+                placeholder="Call Type"
+                onChange={(value) => handleSelectChange('call_type', value)}
+                style={{ width: '100%' }}
               >
-                <option value="">Call Type</option>
-                <option value="L">Landline (L)</option>
-                <option value="W">Wireless (W)</option>
-                <option value="B">Both L & W</option>
-              </TextField>
-            </Grid>
+                <Select.Option value="L">Landline (L)</Select.Option>
+                <Select.Option value="W">Wireless (W)</Select.Option>
+                <Select.Option value="B">Both L & W</Select.Option>
+              </Select>
+            </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                id="date"
-                label="Start Date"
-                type="date"
-                name="start_date"
-                onChange={handleChange}
-                // defaultValue="2021-01-06"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                fullWidth
-                required={true}
-              />
-            </Grid>
+            <Col span={24}>
+              <div>
+                <label>Start Date</label>
+                <DatePicker
+                  onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </Col>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                {loading ? (
-                  <CircularProgress color="inherit" thickness={3} size="1.5rem" />
-                ) : (
-                  'Submit'
-                )}
+            <Col span={24}>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Submit
               </Button>
-            </Grid>
-          </Grid>
+            </Col>
+          </Row>
         </form>
-      </Paper>
+      </div>
     </>
   )
 }
