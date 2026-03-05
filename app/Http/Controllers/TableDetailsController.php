@@ -7,19 +7,17 @@ use App\Models\TableDetails;
 
 class TableDetailsController extends Controller
 {
-    public function store(request $request)
+    public function store(Request $request)
     {
-        $existingTableDetails = TableDetails::first();
+        $request->validate([
+            'columnsData' => ['required', 'array'],
+        ]);
 
-        if ($existingTableDetails !== null && $existingTableDetails !=='') {
-            $existingTableDetails->column_details = json_encode($request->columnsData);
-            $existingTableDetails->updated_at = now();
-            $existingTableDetails->save();
-        } else {
-            TableDetails::insert([
-                'column_details' => json_encode($request->columnsData),
-                'created_at'     => now()
-            ]);
-        }
+        TableDetails::updateOrCreate(
+            ['user_id' => auth()->id()],
+            ['column_details' => json_encode($request->columnsData)]
+        );
+
+        return response()->json(['success' => true]);
     }
 }
