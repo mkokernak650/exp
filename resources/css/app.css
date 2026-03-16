@@ -125,6 +125,7 @@ div::-webkit-scrollbar-thumb {
 
 .table-top .top-left {
     display: flex;
+    align-items: center;
     gap: 15px;
 }
 
@@ -196,7 +197,7 @@ div::-webkit-scrollbar-thumb {
     align-items: center;
     gap: 10px;
     font-weight: 500;
-    width: 120px;
+    width: auto;
     height: 35px;
 }
 
@@ -206,17 +207,70 @@ div::-webkit-scrollbar-thumb {
 }
 
 .search-sidebar {
-    top: 64px;
-    z-index: 9999;
-    width: 500px;
-    height: 100%;
-    position: fixed;
-    right: 0;
-    background-color: #000;
-    transition: 0.3s;
-    padding-top: 10px;
+    width: 360px;
+    height: calc(100vh - 217px);
+    max-height: calc(100vh - 217px);
+    overflow: hidden;
+    transition: 0.2s;
     box-shadow: 0px 0px 10px #ccc;
     background: white;
+    border-radius: 10px;
+    margin: 0;
+    border: 1px solid #e9edf5;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.report-content-layout {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    transition: gap 0.25s ease;
+    width: 100%;
+}
+
+.report-content-layout.with-filter {
+    align-items: stretch;
+    gap: 12px;
+}
+
+.report-content-layout .report-table-panel {
+    min-width: 0;
+    width: 100%;
+    flex: 1;
+}
+
+.filter-trigger {
+    border: 1px solid #d9dfeb;
+    color: #13233c;
+    background: white;
+    border-radius: 8px;
+    padding: 9px 10px;
+    min-height: 35px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-trigger.active {
+    border-color: #0069ff;
+    color: #0069ff;
+}
+
+.filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    background: #0069ff;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .close-nav {
@@ -1070,6 +1124,154 @@ div::-webkit-scrollbar-thumb {
 
 .text-field-hide {
     display: none;
+}
+
+.custom-filter-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 10px;
+}
+
+.custom-filter-v2 .filter-search-input {
+    position: relative;
+}
+
+.custom-filter-v2 .filter-search-input input {
+    border-radius: 10px;
+    height: 35px;
+}
+
+.custom-filter-v2 .filter-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 6px;
+}
+
+.custom-filter-v2 .filter-item {
+    border-radius: 10px;
+    padding: 4px 2px;
+}
+
+.custom-filter-v2 .filter-item-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #374151;
+    font-size: 15px;
+}
+
+.custom-filter-v2 .filter-item-label input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: #5a6df5;
+}
+
+.custom-filter-v2 .filter-item-controls {
+    margin: 8px 0 0 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.custom-filter-v2 .filter-item-controls .between {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.custom-filter-v2 .filter-empty-state {
+    color: #6b7280;
+    font-size: 14px;
+    padding: 8px 4px;
+}
+
+.custom-filter-v2 .filter-footer {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 12px;
+}
+
+.search-sidebar .top-element {
+    padding: 12px 15px;
+    flex: 1;
+    min-height: 0;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar {
+    height: auto;
+    max-height: none;
+    align-self: stretch;
+}
+
+.report-filter-sidebar {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.28s ease, opacity 0.2s ease, border-color 0.2s ease;
+    border-color: transparent;
+}
+
+.report-filter-sidebar.filter-open {
+    width: 360px;
+    opacity: 1;
+    border-color: #e9edf5;
+}
+
+.report-filter-sidebar.filter-closed {
+    pointer-events: none;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar .top-element {
+    height: 100%;
+    overflow: hidden;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar .custom-filter-v2 {
+    height: 100%;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar .custom-filter-v2 .filter-list {
+    overflow-y: hidden;
+    max-height: none;
+    flex: 1;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar:hover .custom-filter-v2 .filter-list {
+    overflow-y: auto;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar .custom-filter-v2 .filter-list::-webkit-scrollbar {
+    width: 0;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar:hover .custom-filter-v2 .filter-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar .custom-filter-v2 .filter-list::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+.report-content-layout.with-filter .report-filter-sidebar .custom-filter-v2 .filter-list::-webkit-scrollbar-thumb {
+    background-color: #c8d0dc;
+    border-radius: 10px;
+}
+
+.custom-filter-v2 .filter-reset {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0 16px;
+    color: #111827;
+    background: #fff;
+    cursor: pointer;
 }
 
 .audio-data {

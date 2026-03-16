@@ -1,9 +1,8 @@
 import Layout from '../Layout/Layout'
 import { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
 import { DeleteOutlined } from '@ant-design/icons'
 import produce from 'immer'
@@ -14,13 +13,13 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import { deleteHandler } from '@/Helpers/HandleRequests'
 import CustomFilter from '@/Components/CustomFilter'
-import { defaultFilter } from '@/Helpers/Filter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/CallLogsReportProps'
 
@@ -40,10 +39,12 @@ const CallLogsReport = () => {
   const rowFunctionalitiesRef = useRef()
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
   const color = '#36D7B7'
   const drawerWidth = 350
   const [filterValue, setFilterValue] = useState(
-    defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
+    { groupName: 'and', items: [] }
   )
   const [ringbaData, setRingbaData] = useState(allCallLogs)
   const [itemPerPage, setItemPerPage] = useState(10)
@@ -254,18 +255,17 @@ const CallLogsReport = () => {
   }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
+  const activeFilterCount = countActiveFilters(filterValue)
 
-  const handleSearch = () => {
+  const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
+    setOpenRowFunctionalities(false)
   }
 
   const handleColumns = () => {
     setShowColumns(true)
     setOpenRowFunctionalities(false)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const handlePending = (inboundIds) => {
@@ -533,6 +533,30 @@ const CallLogsReport = () => {
     }
   }, [showColumns])
 
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncTablePanelHeight()
+    })
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [serachSidebar, data.length, loading, itemPerPage])
+
   const RowFunctionalities = () => {
     return (
       <div className="row-functionalities" ref={rowFunctionalitiesRef} style={style}>
@@ -567,39 +591,20 @@ const CallLogsReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
-              <Eye />
-            </div>
-            <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
-            </div>
-
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <CustomFilter
-                    mainData={data}
-                    fields={fields}
-                    filterValue={filterValue}
-                    setFilterValue={setFilterValue}
-                    currentPage={currentPage}
-                    getSearchingData={getSearchingData}
-                  />
-                </div>
+            <div className="top-left">
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
               </div>
-            ) : (
-              ''
-            )}
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
+            </div>
             {showColumns && (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
@@ -608,33 +613,57 @@ const CallLogsReport = () => {
           </div>
         )}
 
-        <Table
-          columns={antdColumns}
-          dataSource={data}
-          rowKey="id"
-          rowSelection={rowSelection}
-          loading={loading}
-          pagination={false}
-          components={{
-            header: {
-              cell: ResizableTitle,
-            },
-          }}
-          scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
-        <div className="table-bottom">
-          <Select
-            value={itemPerPage}
-            onChange={(value) => itemPerPageHandleChange(value)}
-            options={[
-              { value: 10, label: '10' },
-              { value: 20, label: '20' },
-              { value: 100, label: '100' },
-              { value: 200, label: '200' },
-            ]}
-          />
-          <Pagination changePage={getSearchingData} data={ringbaData} />
+        <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
+          >
+            <div className="top-element">
+              <CustomFilter
+                mainData={data}
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={setFilterValue}
+                currentPage={currentPage}
+                getSearchingData={getSearchingData}
+              />
+            </div>
+          </div>
+
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              dataSource={data}
+              rowKey="id"
+              rowSelection={rowSelection}
+              loading={loading}
+              pagination={false}
+              components={{
+                header: {
+                  cell: ResizableTitle,
+                },
+              }}
+              scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 100, label: '100' },
+                  { value: 200, label: '200' },
+                ]}
+              />
+              <Pagination changePage={getSearchingData} data={ringbaData} />
+            </div>
+          </div>
         </div>
       </div>
 

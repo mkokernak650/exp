@@ -1,251 +1,256 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import MultiSelect from 'react-multiple-select-dropdown-lite'
-import 'react-multiple-select-dropdown-lite/dist/index.css'
-import { groups } from '@/Helpers/SearchingGroups'
-import Trash from '../../images/trash.svg'
 import { Select, Input } from 'antd'
+import Search from '@/Components/Icons/Search.jsx'
 
 const CustomFilter = (props) => {
-  const { mainData, fields, filterValue, setFilterValue, currentPage, getSearchingData } = props
+  const { fields, filterValue, setFilterValue } = props
+  const [fieldSearchValue, setFieldSearchValue] = useState('')
+  const selectedFieldMap = useMemo(() => {
+    const map = {}
+    ;(filterValue?.items ?? []).forEach((item) => {
+      map[item.field] = item
+    })
+    return map
+  }, [filterValue?.items])
 
-  const [dateBetween, setDateBetween] = useState({
-    from: '',
-    to: '',
-  })
-  const [betweenData, setbetweenData] = useState({
-    from: '',
-    to: '',
-  })
+  const getFieldConfig = (fieldName) =>
+    fields?.find((fieldItem) => fieldItem.name === fieldName) ?? fields?.[0]
 
-  const lastFkeyOfArray = filterValue?.items[filterValue?.items?.length - 1]?.fkey
-  const [options, setOptions] = useState({})
+  const getDefaultValueByOperator = (operator) => {
+    if (operator === 'between' || operator === 'dateBetween') {
+      return { from: '', to: '' }
+    }
 
-  const optionsFields = (field) => {
-    const arrayUniqueByKey = [...new Map(mainData.map((value) => [value[field], value])).values()]
-    const result = arrayUniqueByKey.map((item) => ({
-      label: item[field],
-      value: item[field],
-    }))
-    const tmpOptions = { ...options }
-    if (!tmpOptions[field]) tmpOptions[field] = result
-    setOptions(tmpOptions)
-    return tmpOptions
+    return ''
   }
 
-  const handleChange = (e, key, dateRange, operator) => {
-    const newValue = filterValue
-    if (typeof e !== 'string') {
-      const { name, value } = e.target
-      if (name === 'groupname') {
-        newValue.groupName = value
-      } else if (name === 'field') {
-        setOptions(optionsFields(value))
-        const selectedIndex = e.target.selectedIndex
-        const optionElement = e.target.childNodes[selectedIndex]
-        const { type } = optionElement.dataset
-        newValue.items[key].field = value
-        newValue.items[key].dataType = type
-        newValue.items[key].operator =
-          fields[fields.findIndex((item) => item.name === value)]?.operators[0].name
-        newValue.items[key].value = ''
-      } else if (name === 'operator') {
-        newValue.items[key].operator = value
-        newValue.items[key].value = ''
-        optionsFields(filterValue?.items[key].field)
-      } else if (name === 'value') {
-        if (operator !== '' && operator === 'between') {
-          const placeholder = e.target.placeholder
-          let temp = { ...betweenData }
-          if (placeholder === 'From') {
-            temp.from = parseInt(value)
-          } else {
-            temp.to = parseInt(value)
+  const buildDefaultItem = (fieldName, fkey = 0) => {
+    const fieldConfig = getFieldConfig(fieldName)
+    if (!fieldConfig) {
+      return null
+    }
+
+    const defaultOperator = fieldConfig.operators?.[0]?.name ?? 'is'
+    return {
+      field: fieldConfig.name,
+      operator: defaultOperator,
+      value: getDefaultValueByOperator(defaultOperator),
+      dataType: fieldConfig.dataType,
+      fkey,
+    }
+  }
+
+  const handleOperatorChange = (fieldName, value) => {
+    const normalizeValueByOperator = (nextOperator, currentValue) => {
+      if (nextOperator === 'between' || nextOperator === 'dateBetween') {
+        if (currentValue && typeof currentValue === 'object') {
+          return {
+            from: currentValue.from ?? '',
+            to: currentValue.to ?? '',
           }
-          setbetweenData(temp)
-          newValue.items[key].value = temp
-        } else {
-          newValue.items[key].value = value
         }
+
+        if (currentValue !== null && currentValue !== undefined && currentValue !== '') {
+          return { from: currentValue, to: '' }
+        }
+
+        return { from: '', to: '' }
       }
-    } else if (e === 'date-range') {
-      const tmpDateBetween = { ...dateBetween }
-      tmpDateBetween.from = dateRange[0]
-      tmpDateBetween.to = dateRange[1]
-      setDateBetween(tmpDateBetween)
-      newValue.items[key].value = tmpDateBetween
-    } else if (e === 'multi-select') {
-      const searchItems = dateRange.split(',')
-      newValue.items[key].value = searchItems
+
+      if (currentValue && typeof currentValue === 'object') {
+        return currentValue.from ?? currentValue.to ?? ''
+      }
+
+      return currentValue ?? ''
     }
-    getSearchingData(currentPage)
-    setFilterValue(newValue)
+
+    setFilterValue((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item.field === fieldName
+          ? {
+              ...item,
+              operator: value,
+              value: normalizeValueByOperator(value, item.value),
+            }
+          : item
+      ),
+    }))
   }
 
-  const addCondition = () => {
-    const tempData = { ...filterValue }
-    if (tempData?.items.length > 0) {
-      tempData.items.push({
-        field: tempData.items[0].field,
-        operator: tempData.items[0].operator,
-        value: tempData.items[0].value,
-        dataType: tempData.items[0].dataType,
-        fkey: lastFkeyOfArray + 1,
-      })
-    } else {
-      tempData.items.push({
-        field: fields?.[0].name,
-        operator: fields?.[0]?.operators?.[0].name,
-        value: '',
-        dataType: fields?.[0].dataType,
-        fkey: 0,
-      })
-      setOptions(optionsFields(filterValue?.items?.[0]?.field))
-    }
-    setFilterValue(tempData)
+  const handleValueChange = (fieldName, value, rangeKey = null) => {
+    setFilterValue((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => {
+        if (item.field !== fieldName) {
+          return item
+        }
+
+        if (item.operator === 'between' || item.operator === 'dateBetween') {
+          const currentRange = item.value && typeof item.value === 'object'
+            ? item.value
+            : { from: '', to: '' }
+
+          if (rangeKey) {
+            return {
+              ...item,
+              value: {
+                ...currentRange,
+                [rangeKey]: value,
+              },
+            }
+          }
+        }
+
+        return {
+          ...item,
+          value,
+        }
+      }),
+    }))
   }
 
-  const closeCondition = (itemIndx) => {
-    const tmpData = { ...filterValue }
-    tmpData.items.splice(itemIndx, 1)
-    setFilterValue(tmpData)
-    getSearchingData(currentPage)
+  const handleFieldToggle = (fieldName) => {
+    const isChecked = Boolean(selectedFieldMap[fieldName])
+    if (isChecked) {
+      setFilterValue((prev) => ({
+        ...prev,
+        items: prev.items.filter((item) => item.field !== fieldName),
+      }))
+      return
+    }
+
+    const nextFkey = (filterValue?.items?.[filterValue.items.length - 1]?.fkey ?? -1) + 1
+    const defaultItem = buildDefaultItem(fieldName, nextFkey)
+    if (!defaultItem) return
+
+    setFilterValue((prev) => ({
+      ...prev,
+      items: [...prev.items, defaultItem],
+    }))
   }
+
+  const filteredFields = (fields ?? []).filter((item) =>
+    String(item.caption ?? item.name ?? '')
+      .toLowerCase()
+      .includes(fieldSearchValue.toLowerCase())
+  )
 
   return (
-    <>
-      <div className="custom-filter">
-        <div className="groups">
-          <Select
-            onChange={(value) => handleChange({ target: { name: 'groupname', value } })}
-            className="select-box"
-            defaultValue={groups?.[0]?.name}
-          >
-            {groups?.map((groupName) => (
-              <Select.Option key={groupName.name} value={groupName.name}>{groupName.caption}</Select.Option>
-            ))}
-          </Select>
-          <div className="add">
-            <span className="add-icon" onClick={addCondition}>
-              + Add Condition
-            </span>
-          </div>
-        </div>
-
-        {filterValue.items.map((cItem, indx) => (
-          <div className="item" key={indx}>
-            <div className="cross-icon" onClick={() => closeCondition(indx)}>
-              <img src={Trash} alt="delete-icon"></img>
-            </div>
-            <div className="fields">
-              <Select
-                value={cItem.field}
-                onChange={(value) => {
-                  const selectedIndex = fields?.findIndex(f => f.name === value);
-                  handleChange({
-                    target: {
-                      name: 'field',
-                      value,
-                      selectedIndex,
-                      childNodes: fields?.map(f => ({ dataset: { type: f.dataType } })),
-                    }
-                  }, indx);
-                }}
-                className="w-full"
-              >
-                {fields?.map((fieldName, uniqueKey) => (
-                  <Select.Option
-                    key={uniqueKey}
-                    value={fieldName?.name}
-                  >
-                    {fieldName.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="operators">
-              <Select
-                value={cItem.operator}
-                onChange={(value) => handleChange({ target: { name: 'operator', value } }, indx)}
-                className="w-full"
-              >
-                {fields[fields.findIndex((item) => item.name === cItem.field)]?.operators?.map(
-                  (operator, uniqueKey) => (
-                    <Select.Option
-                      key={uniqueKey}
-                      value={operator.name}
-                    >
-                      {operator.caption}
-                    </Select.Option>
-                  )
-                )}
-              </Select>
-            </div>
-
-            <div
-              className={`value ${
-                cItem.operator !== 'isEmpty' && cItem.operator !== 'isNotEmpty'
-                  ? 'text-field-show'
-                  : 'text-field-hide'
-              }`}
-            >
-              {cItem.dataType === 'string' && cItem.operator !== 'contains' ? (
-                <Input
-                  type="text"
-                  name="value"
-                  onChange={(e) => handleChange(e, indx)}
-                  value={cItem.value}
-                  placeholder="value"
-                />
-              ) : cItem.dataType === 'string' && cItem.operator === 'contains' ? (
-                <MultiSelect
-                  onChange={(val) => handleChange('multi-select', indx, val)}
-                  options={options?.[cItem.field]}
-                />
-              ) : cItem.dataType === 'date' ? (
-                <DatePicker
-                  selectsRange={true}
-                  startDate={dateBetween.from}
-                  endDate={dateBetween.to}
-                  onChange={(update) => {
-                    handleChange('date-range', indx, update)
-                  }}
-                  isClearable={true}
-                />
-              ) : cItem.dataType === 'number' && cItem.operator !== 'between' ? (
-                <Input
-                  type="number"
-                  name="value"
-                  onChange={(e) => handleChange(e, indx)}
-                  value={cItem.value}
-                />
-              ) : cItem.dataType === 'number' && cItem.operator === 'between' ? (
-                <div className="between">
-                  <Input
-                    type="text"
-                    name="value"
-                    from="from"
-                    onChange={(e) => handleChange(e, indx, [], 'between')}
-                    placeholder="From"
-                  />
-                  <Input
-                    type="text"
-                    name="value"
-                    data-to="to"
-                    onChange={(e) => handleChange(e, indx, [], 'between')}
-                    placeholder="To"
-                  />
-                </div>
-              ) : (
-                ''
-              )}
-            </div>
-          </div>
-        ))}
+    <div className="custom-filter-v2">
+      <div className="filter-search-input">
+        <Input
+          placeholder="Search"
+          prefix={<Search />}
+          value={fieldSearchValue}
+          onChange={(e) => setFieldSearchValue(e.target.value)}
+        />
       </div>
-    </>
+
+      <div className="filter-list">
+        {filteredFields.map((field) => {
+          const selected = selectedFieldMap[field.name]
+          const operators = field.operators ?? []
+          return (
+            <div className="filter-item" key={field.name}>
+              <label className="filter-item-label">
+                <input
+                  type="checkbox"
+                  checked={Boolean(selected)}
+                  onChange={() => handleFieldToggle(field.name)}
+                />
+                <span>{field.caption || field.name}</span>
+              </label>
+
+              {selected ? (
+                <div className="filter-item-controls">
+                  <Select
+                    value={selected.operator}
+                    onChange={(value) => handleOperatorChange(field.name, value)}
+                    className="w-full"
+                  >
+                    {operators.map((operator) => (
+                      <Select.Option key={operator.name} value={operator.name}>
+                        {operator.caption}
+                      </Select.Option>
+                    ))}
+                  </Select>
+
+                  {selected.operator !== 'isEmpty' && selected.operator !== 'isNotEmpty' ? (
+                    selected.dataType === 'date' ? (
+                      <DatePicker
+                        selectsRange={true}
+                        startDate={selected?.value?.from ? new Date(selected.value.from) : null}
+                        endDate={selected?.value?.to ? new Date(selected.value.to) : null}
+                        onChange={(update) => {
+                          handleValueChange(field.name, update?.[0] ?? '', 'from')
+                          handleValueChange(field.name, update?.[1] ?? '', 'to')
+                        }}
+                        isClearable={true}
+                      />
+                    ) : selected.dataType === 'number' && selected.operator === 'between' ? (
+                      <div className="between">
+                        <Input
+                          type="number"
+                          placeholder="From"
+                          value={selected?.value?.from ?? ''}
+                          onChange={(e) => handleValueChange(field.name, e.target.value, 'from')}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="To"
+                          value={selected?.value?.to ?? ''}
+                          onChange={(e) => handleValueChange(field.name, e.target.value, 'to')}
+                        />
+                      </div>
+                    ) : (
+                      <Input
+                        type={selected.dataType === 'number' ? 'number' : 'text'}
+                        placeholder="Search value"
+                        value={selected.value}
+                        onChange={(e) => handleValueChange(field.name, e.target.value)}
+                      />
+                    )
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          )
+        })}
+        {filteredFields.length === 0 ? (
+          <div className="filter-empty-state">No matching fields found.</div>
+        ) : null}
+      </div>
+      <div className="filter-footer">
+        <Select
+          value={filterValue?.groupName ?? 'and'}
+          className="w-full"
+          onChange={(value) =>
+            setFilterValue((prev) => ({
+              ...prev,
+              groupName: value,
+            }))
+          }
+        >
+          <Select.Option value="and">Match all (AND)</Select.Option>
+          <Select.Option value="or">Match any (OR)</Select.Option>
+        </Select>
+        <button
+          type="button"
+          className="filter-reset"
+          onClick={() =>
+            setFilterValue((prev) => ({
+              ...prev,
+              items: [],
+            }))
+          }
+        >
+          Reset
+        </button>
+      </div>
+    </div>
   )
 }
 

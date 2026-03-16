@@ -600,21 +600,47 @@ class RingbaCallLogController extends Controller
 
     public function callLogsReport()
     {
-        $conditions = json_decode(request('filteredValue'));
-        if (request('filteredValue') && count($conditions->items)) {
+        if (request('filteredValue')) {
+            $allowedFields = [
+                'SN',
+                'Call_Date_Time',
+                'Call_Date',
+                'Has_Annotation',
+                'Annotation_Tag',
+                'call_Logs_status',
+                'Duplicate_Call',
+                'Inbound_Id',
+                'Affiliate',
+                'Market',
+                'Campaign',
+                'Inbound',
+                'Dialed',
+                'Type',
+                'Customer',
+                'Target',
+                'Target_Number',
+                'Target_Description',
+                'Source_Hangup',
+                'Time_To_Call',
+                'call_Length_In_Seconds',
+                'Revenue',
+                'Conn_Duration',
+                'payoutAmount',
+                'Total_Cost',
+                'Profit',
+                'City',
+                'State',
+                'Zipcode',
+            ];
+            $fieldMap = [
+                'Call_Status' => 'call_Logs_status',
+                'Call_Length_In_Seconds' => 'call_Length_In_Seconds',
+                'Payout' => 'payoutAmount',
+                'Time' => 'Call_Date_Time',
+            ];
+
             $ringbaDataQuery = self::$RingbaCallLog::query();
-            $groupName = $conditions->groupName;
-            foreach ($conditions->items as $cond) {
-                $ringbaDataQuery->{$this->condTypes[$groupName]}(function ($q) use ($cond, $groupName) {
-                    if ($cond->value !== null && $cond->value !== '' && gettype($cond->value) === 'array') {
-                        foreach ($cond->value as $key => $value) {
-                            $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $value, $cond->dataType, $key, 'array');
-                        }
-                    } else {
-                        $this->RingbaMakeConditionQuery($q, $groupName, $cond->field, $cond->operator, $cond->value, $cond->dataType, 0, '');
-                    }
-                });
-            }
+            $this->applyRingbaFilters($ringbaDataQuery, request('filteredValue'), $allowedFields, $fieldMap);
             return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
         }
 

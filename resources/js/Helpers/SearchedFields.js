@@ -13,14 +13,14 @@ export const SearchedFields = (fields) => {
         name: item.key,
         dataType: item.dataType,
         operators: [
-          { caption: 'Contains', name: 'contains' },
-          { caption: 'Not Contains', name: 'doesNotContain' },
-          { caption: 'Is Empty', name: 'isEmpty' },
-          { caption: 'Is Not Empty', name: 'isNotEmpty' },
-          { caption: 'Starts With', name: 'startswith' },
-          { caption: 'Ends With', name: 'endsWith' },
-          { caption: 'Is', name: 'is' },
-          { caption: 'Is Not', name: 'isnot' },
+          { caption: 'is', name: 'is' },
+          { caption: "isn't", name: 'isnot' },
+          { caption: 'contains', name: 'contains' },
+          { caption: "doesn't contain", name: 'doesNotContain' },
+          { caption: 'starts with', name: 'startswith' },
+          { caption: 'ends with', name: 'endsWith' },
+          { caption: 'is empty', name: 'isEmpty' },
+          { caption: 'is not empty', name: 'isNotEmpty' },
         ],
       }
     } else if (item.dataType === 'boolean') {
@@ -29,14 +29,14 @@ export const SearchedFields = (fields) => {
         name: item.key,
         dataType: item.dataType,
         operators: [
-          { caption: 'Contains', name: 'contains' },
-          { caption: 'Not Contains', name: 'doesNotContain' },
-          { caption: 'Is Empty', name: 'isEmpty' },
-          { caption: 'Is Not Empty', name: 'isNotEmpty' },
-          { caption: 'Starts With', name: 'startswith' },
-          { caption: 'Ends With', name: 'endsWith' },
-          { caption: 'Is', name: 'is' },
-          { caption: 'Is Not', name: 'isnot' },
+          { caption: 'is', name: 'is' },
+          { caption: "isn't", name: 'isnot' },
+          { caption: 'contains', name: 'contains' },
+          { caption: "doesn't contain", name: 'doesNotContain' },
+          { caption: 'starts with', name: 'startswith' },
+          { caption: 'ends with', name: 'endsWith' },
+          { caption: 'is empty', name: 'isEmpty' },
+          { caption: 'is not empty', name: 'isNotEmpty' },
         ],
       }
     } else if (item.dataType === 'number') {
@@ -45,13 +45,13 @@ export const SearchedFields = (fields) => {
         name: item.key,
         dataType: item.dataType,
         operators: [
-          { caption: 'Equals', name: '=' },
-          { caption: 'Does not Equal', name: '<>' },
-          { caption: 'More than', name: '>' },
-          { caption: 'Less than', name: '<' },
-          { caption: 'Is Empty', name: 'isEmpty' },
-          { caption: 'Is Not Empty', name: 'isNotEmpty' },
-          { caption: 'Between', name: 'between' },
+          { caption: 'is', name: '=' },
+          { caption: "isn't", name: '<>' },
+          { caption: 'greater than', name: '>' },
+          { caption: 'less than', name: '<' },
+          { caption: 'between', name: 'between' },
+          { caption: 'is empty', name: 'isEmpty' },
+          { caption: 'is not empty', name: 'isNotEmpty' },
         ],
       }
     } else if (item.dataType === 'date') {
@@ -60,9 +60,9 @@ export const SearchedFields = (fields) => {
         name: item.key,
         dataType: item.dataType,
         operators: [
-          { caption: 'Is Empty', name: 'isEmpty' },
-          { caption: 'Is Not Empty', name: 'isNotEmpty' },
-          { caption: 'Between', name: 'dateBetween' },
+          { caption: 'between', name: 'dateBetween' },
+          { caption: 'is empty', name: 'isEmpty' },
+          { caption: 'is not empty', name: 'isNotEmpty' },
         ],
       }
     }
