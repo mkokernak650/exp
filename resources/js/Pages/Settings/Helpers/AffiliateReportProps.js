@@ -133,7 +133,7 @@ export const columns = [
   {
     key: 'tv_households',
     title: 'TV Households',
-    dataType: DataType.String,
+    dataType: DataType.Number,
     style: { width: 240 },
     visible: true,
   },
