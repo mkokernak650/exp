@@ -91,7 +91,7 @@ const MarketExceptionReport = () => {
   const dataArray = marketExceptions.map((item, index) => ({
     edit: item.id,
     sl: index + 1,
-    campaign: item.campaign.campaign_name,
+    campaign: item?.campaign?.campaign_name,
     market_id: item.market_id,
     state: item.state,
     call_type: item.call_type,
