@@ -32,7 +32,7 @@ const AddMarket = () => {
     <>
       <Helmet title="Call Logs Report" />
       <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Add Market
         </Typography.Title>
         <form onSubmit={handleSubmit}>

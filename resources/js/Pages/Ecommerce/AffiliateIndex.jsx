@@ -496,28 +496,28 @@ const AffiliateIndex = () => {
                 options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
                 onChange={(value) => setOrderByValue(value)}
                 placeholder="Order By"
-                className="w-[250px]"
+                className="!w-full"
                 defaultValue={orderByValue}
                 singleSelect
               />
               <MultiSelect
                 options={campaignOptions}
                 placeholder="Campaign"
-                className="w-[250px]"
+                className="!w-full"
                 onChange={(value) => setFilterByCampaigns(value)}
                 defaultValue={filterByCampaigns}
               />
               <MultiSelect
                 options={customerOptions}
                 placeholder="Customer"
-                className="w-[250px]"
+                className="!w-full"
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
               />
               <MultiSelect
                 options={affiliateOptions}
                 placeholder="Affiliate"
-                className="w-[250px]"
+                className="!w-full"
                 onChange={(value) => setFilterByAffiliates(value)}
                 defaultValue={filterByAffiliates}
               />
@@ -691,12 +691,11 @@ const AffiliateIndex = () => {
 
               <Col span={24}>
                 <MultiSelect
-                  className='multiselect-for-affiliate-create'
                   name="lengths"
                   defaultValue={editData?.lengths}
                   onChange={(val) => lengthHandleChange(val)}
                   options={lengthOptions}
-                  className="w-full"
+                  className="!w-full"
                   placeholder="Select Length"
                 />
               </Col>

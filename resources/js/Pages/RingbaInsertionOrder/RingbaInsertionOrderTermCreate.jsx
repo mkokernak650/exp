@@ -267,7 +267,7 @@ const RingbaInsertionOrderTermCreate = () => {
         <>
             <Helmet title="Pay Per Call Insertion Order Term - Create" />
             <div className="grid w-[600px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
-                <Title level={5} className="text-center mb-[35px]">
+                <Title level={5} className="text-center !text-xl !mb-[35px]">
                     Pay Per Call Insertion Order Term
                 </Title>
                 <form onSubmit={handleSubmit}>
@@ -278,7 +278,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => campaignHandleChange(value)}
                                 options={campaignOptions}
                                 defaultValue={selectedCampaign}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Campaign"
                                 singleSelect
                             />
@@ -294,7 +294,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedCustomer(value)}
                                 options={customerOptions}
                                 defaultValue={selectedCustomer}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Customer"
                                 singleSelect
                             />
@@ -306,7 +306,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => affiliateHandleChange(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliate}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Affiliate"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect={insertionOrderFor === 'affiliate'}
@@ -319,7 +319,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedPhone(value)}
                                 options={phoneOptionByAffiliate}
                                 defaultValue={selectedPhone}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Phone"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect={insertionOrderFor === 'affiliate'}
@@ -336,7 +336,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setOrderType(value)}
                                 options={[{ value: '1', label: 'Pay Per Call' }]}
                                 defaultValue={orderType}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Order Type"
                                 singleSelect
                             />
@@ -348,7 +348,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedTerm(value)}
                                 options={termOptions}
                                 defaultValue={selectedTerm}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Terms"
                                 singleSelect
                             />
@@ -360,7 +360,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedPayout(value)}
                                 options={payoutOptions}
                                 defaultValue={selectedPayout}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Payout"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
@@ -373,7 +373,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedRevenue(value)}
                                 options={revenueOptions}
                                 defaultValue={selectedRevenue}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Revenue"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
@@ -386,7 +386,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedCallLength(value)}
                                 options={callLengthOptions}
                                 defaultValue={selectedCallLength}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Call Length"
                                 disabled={!selectedCampaign || loading.campaignData}
                                 singleSelect
@@ -399,7 +399,7 @@ const RingbaInsertionOrderTermCreate = () => {
                                 onChange={(value) => setSelectedLengths(value)}
                                 options={lengthOptions}
                                 defaultValue={selectedLengths}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Lengths"
                             />
                         </Col>

@@ -273,7 +273,7 @@ const SalesImport = () => {
         Additionally, if the date format is incorrect, the order will be uploaded with the current date.
       </Note >
       <div className="grid w-[600px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
-        <Title level={5} className="text-center mb-[35px]">
+        <Title level={5} className="text-center !text-xl !mb-[35px]">
           Import Sales Report
         </Title>
         <form onSubmit={handleSubmit}>

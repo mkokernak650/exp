@@ -186,7 +186,7 @@ const CampaignAffiliateList = () => {
               options={orderByOptions}
               onChange={(value) => setOrderByValue(value)}
               placeholder="Order By"
-              className="w-[280px]"
+              className="!w-full"
               defaultValue={orderByValue}
               singleSelect
             />

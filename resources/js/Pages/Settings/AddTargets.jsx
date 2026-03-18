@@ -57,7 +57,7 @@ const AddTargets = () => {
     <>
       <Helmet title="Add Target" />
       <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Add Target
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
@@ -84,7 +84,7 @@ const AddTargets = () => {
                 }
                 options={options}
                 placeholder="Select Targets"
-                className="w-full"
+                className="!w-full"
               />
             </Col>
 

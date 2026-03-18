@@ -109,7 +109,7 @@ const AffiliateCreate = () => {
     <>
       <Helmet title="Create Coupon Code" />
       <div className="grid w-[500px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
-        <Title level={5} className="text-center mb-[35px]">
+        <Title level={5} className="text-center !text-xl !mb-[35px]">
           Create Coupon Code
         </Title>
         <form onSubmit={handleSubmit}>
@@ -232,7 +232,7 @@ const AffiliateCreate = () => {
 
             <Col span={24}>
               <MultiSelect
-                className="multiselect-for-affiliate-create w-full"
+                className="!w-full"
                 name="lengths"
                 defaultValue={values?.lengths}
                 onChange={(val) => lengthHandleChange(val)}

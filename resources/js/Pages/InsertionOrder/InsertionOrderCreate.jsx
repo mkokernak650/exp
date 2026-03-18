@@ -163,7 +163,7 @@ const InsertionOrderCreate = () => {
         <>
             <Helmet title="Insertion Order - Create" />
             <div className="grid w-[800px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
-                <Title level={5} className="text-center mb-[35px]">
+                <Title level={5} className="text-center !text-xl !mb-[35px]">
                     Insertion Order
                 </Title>
                 <form onSubmit={handleSubmit}>
@@ -174,7 +174,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => handleCampaignChange(value)}
                                 options={campaignOptions}
                                 defaultValue={campaignIds}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Campaigns"
                             />
                         </Col>
@@ -184,7 +184,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => handleCustomerChange(value)}
                                 options={customerOptions}
                                 defaultValue={customerIds}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Customers"
                             />
                         </Col>
@@ -195,7 +195,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => handleAffiliateChange(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliates}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Affiliates"
                                 disabled={!campaignIds && !customerIds}
                             />
@@ -207,7 +207,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => setSelectedCodesAndPhones(value)}
                                 options={codeAndPhoneOptions}
                                 defaultValue={selectedCodesAndPhones}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Codes or Phones"
                             />
                         </Col>
@@ -218,7 +218,7 @@ const InsertionOrderCreate = () => {
                                 onChange={(value) => setSelectedTerm(value)}
                                 options={termOptions}
                                 defaultValue={selectedTerm}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Terms"
                                 singleSelect
                             />

@@ -38,10 +38,23 @@ const CustomerReport = () => {
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
-  const mapDataArr = (data) => data.map((item, index) => ({ edit: item.id, sl: index + 1, market: item.market, state: item.state, tv_households: item.tv_households, created_at: item.created_at, updated_at: item.updated_at, id: item.id, key: item.id }))
+  const mapDataArr = (data) =>
+    data.map((item, index) => ({
+      edit: item.id,
+      sl: index + 1,
+      market: item.market,
+      state: item.state,
+      tv_households: item.tv_households,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      id: item.id,
+      key: item.id,
+    }))
 
   const optionKey = 'tv-household-report'
-  const [columnDetails, setColumnDetails] = useState(columnsData.length ? JSON.parse(columnsData[0]) : {})
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
   const [columns, setColumns] = useState(
     columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
       ? JSON.parse(columnsData[0])?.[optionKey]
@@ -70,23 +83,38 @@ const CustomerReport = () => {
   const [filterValue, changeFilter] = useState(filter)
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
-  const handleFilter = () => { setSearchSidebar((prevState) => !prevState); setShowColumns(false) }
-  const handleColumns = () => { setShowColumns(true) }
-  const orderByOptions = [{ label: 'TV Households (Ascending)', value: 'tv_households@ASC' }, { label: 'TV Households (Descending)', value: 'tv_households@DESC' }, { label: 'Created At (Ascending)', value: 'created_at@ASC' }, { label: 'Created At (Descending)', value: 'created_at@DESC' }]
+  const handleFilter = () => {
+    setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
+  }
+  const handleColumns = () => {
+    setShowColumns(true)
+  }
+  const orderByOptions = [
+    { label: 'TV Households (Ascending)', value: 'tv_households@ASC' },
+    { label: 'TV Households (Descending)', value: 'tv_households@DESC' },
+    { label: 'Created At (Ascending)', value: 'created_at@ASC' },
+    { label: 'Created At (Descending)', value: 'created_at@DESC' },
+  ]
 
   const deleteHandler = () => {
-    axios.post(route('tv.households.delete'), { selectedRowIds: selectedRowKeys }).then((res) => {
-      if (res.data.status_code === 200) {
-        setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
-        setSelectedRowKeys([])
-        setTableToolbar(false)
-        toast.success(res.data.msg)
+    axios
+      .post(route('tv.households.delete'), { selectedRowIds: selectedRowKeys })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
+          setTableToolbar(false)
+          toast.success(res.data.msg)
+          setShowDeleteModal({ open: false })
+        } else {
+          toast.error(res.data.msg)
+          setShowDeleteModal({ open: false })
+        }
+      })
+      .catch((err) => {
         setShowDeleteModal({ open: false })
-      } else {
-        toast.error(res.data.msg)
-        setShowDeleteModal({ open: false })
-      }
-    }).catch((err) => { setShowDeleteModal({ open: false }) })
+      })
   }
 
   const handleEdit = (itemId) => {
@@ -98,54 +126,121 @@ const CustomerReport = () => {
     }
   }
 
-  const handleEditChange = (e) => { setEditData({ ...editData, [e.target.name]: e.target.value }) }
-
-  const handleEditSubmit = () => {
-    axios.post(route('tv.households.edit'), editData).then((res) => {
-      if (res.data.status_code === 200) {
-        setData((prev) =>
-          prev.map((item) => {
-            if (item.id === editData.id) {
-              return {
-                ...item,
-                market: editData.market,
-                state: editData.state,
-                tv_households: res.data.data.tv_households,
-                updated_at: new Date(),
-              }
-            }
-            return item
-          })
-        )
-        setEditData()
-        setShowEditModal({ open: false })
-        toast.success(res.data.msg)
-      } else {
-        setEditData()
-        setShowEditModal({ open: false })
-        toast.error(res.data.msg)
-      }
-    }).catch((err) => { console.log(err) })
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value })
   }
 
-  const handleCloseModal = (setOpenModal) => { setOpenModal({ open: false }); setTableToolbar(false); setSelectedRowKeys([]) }
-  const handleOpenModal = (setOpenModal) => { setOpenModal({ open: true }) }
-  const handleImportChange = (e) => { setSelectedFile(e.target.files[0]) }
-  const openImportModal = () => { setImportModal({ open: true }) }
-  const importHandler = (e) => { e.preventDefault(); setLoading(true); const formData = new FormData(); formData.append('importfile', selectedFile); axios.post(route('tv.households.import'), formData).then((res) => { setSelectedFile(null); setLoading(false); if (res.status === 200) { setImportModal({ open: false }); toast.success('Imported Successfully') } else { toast.error('Import failed') } }).catch((err) => { }) }
-  const triggerExportLink = (link) => { return window.open(link) }
-  const exportHandler = (e) => { e.preventDefault(); setLoading(true); axios.get('tv-households-export?filterValue=' + JSON.stringify(filterValue)).then((res) => { setLoading(false); if (res.status === 200) { triggerExportLink(res.request.responseURL) } else { toast.error('Error while importing file') } }).catch((err) => { setLoading(false) }) }
+  const handleEditSubmit = () => {
+    axios
+      .post(route('tv.households.edit'), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setData((prev) =>
+            prev.map((item) => {
+              if (item.id === editData.id) {
+                return {
+                  ...item,
+                  market: editData.market,
+                  state: editData.state,
+                  tv_households: res.data.data.tv_households,
+                  updated_at: new Date(),
+                }
+              }
+              return item
+            })
+          )
+          setEditData()
+          setShowEditModal({ open: false })
+          toast.success(res.data.msg)
+        } else {
+          setEditData()
+          setShowEditModal({ open: false })
+          toast.error(res.data.msg)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setSelectedRowKeys([])
+  }
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true })
+  }
+  const handleImportChange = (e) => {
+    setSelectedFile(e.target.files[0])
+  }
+  const openImportModal = () => {
+    setImportModal({ open: true })
+  }
+  const importHandler = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    const formData = new FormData()
+    formData.append('importfile', selectedFile)
+    axios
+      .post(route('tv.households.import'), formData)
+      .then((res) => {
+        setSelectedFile(null)
+        setLoading(false)
+        if (res.status === 200) {
+          setImportModal({ open: false })
+          toast.success('Imported Successfully')
+        } else {
+          toast.error('Import failed')
+        }
+      })
+      .catch((err) => {})
+  }
+  const triggerExportLink = (link) => {
+    return window.open(link)
+  }
+  const exportHandler = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    axios
+      .get('tv-households-export?filterValue=' + JSON.stringify(filterValue))
+      .then((res) => {
+        setLoading(false)
+        if (res.status === 200) {
+          triggerExportLink(res.request.responseURL)
+        } else {
+          toast.error('Error while importing file')
+        }
+      })
+      .catch((err) => {
+        setLoading(false)
+      })
+  }
 
   const getSearchingData = async () => {
     setLoading(true)
-    await axios.get(`/tv-households-report?orderBy=` + orderByValue + '&type=orderBy').then((res) => {
-      setData(mapDataArr(res.data))
-      setLoading(false)
-    })
+    await axios
+      .get(`/tv-households-report?orderBy=` + orderByValue + '&type=orderBy')
+      .then((res) => {
+        setData(mapDataArr(res.data))
+        setLoading(false)
+      })
   }
 
-  useEffect(() => { getSearchingData() }, [orderByValue])
-  useEffect(() => { const checkIfClickedOutside = (e) => { if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) { setShowColumns(false) } }; document.addEventListener('mousedown', checkIfClickedOutside); return () => { document.removeEventListener('mousedown', checkIfClickedOutside) } }, [showColumns])
+  useEffect(() => {
+    getSearchingData()
+  }, [orderByValue])
+  useEffect(() => {
+    const checkIfClickedOutside = (e) => {
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
+        setShowColumns(false)
+      }
+    }
+    document.addEventListener('mousedown', checkIfClickedOutside)
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
+  }, [showColumns])
   useEffect(() => {
     const syncTablePanelHeight = () => {
       if (tablePanelRef.current) {
@@ -165,7 +260,13 @@ const CustomerReport = () => {
 
   const TableToolbar = () => (
     <div className="table-toolbar">
-      <Tooltip title="Delete"><Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} /></Tooltip>
+      <Tooltip title="Delete">
+        <Button
+          type="text"
+          icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+          onClick={() => handleOpenModal(setShowDeleteModal)}
+        />
+      </Tooltip>
       <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
     </div>
   )
@@ -178,43 +279,50 @@ const CustomerReport = () => {
     },
   }
 
-  const antdColumns = withResizableColumns(columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'edit') {
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
-      if (col.key === 'created_at' || col.key === 'updated_at') {
-        base.render = (value) => DateTimeFormat(value)
-      }
+        if (col.key === 'edit') {
+          base.render = (value) => (
+            <div className="edit-icon" onClick={() => handleEdit(value)}>
+              <Edit />
+            </div>
+          )
+        }
+        if (col.key === 'created_at' || col.key === 'updated_at') {
+          base.render = (value) => DateTimeFormat(value)
+        }
 
-      return base
-    }))
+        return base
+      })
+  )
 
   return (
     <>
       <Helmet title="TV Households Report" />
       <div className="selection-demo">
-        {tableToolbar ? (<TableToolbar />) : (
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
           <div className="table-top">
             <div className="top-left">
-              <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
+              </div>
               <button
                 type="button"
                 className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
@@ -224,19 +332,54 @@ const CustomerReport = () => {
                 <Filter />
                 {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
               </button>
-              <Button type="primary" className="capitalize text-sm" onClick={openImportModal}>Import</Button>
-              <Button type="primary" className="capitalize text-sm" onClick={exportHandler} disabled={allTVHouseholds == ''} loading={loading}>Searched Export</Button>
-              <div className="top-left"><MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect /></div>
+              <Button type="primary" className="capitalize text-sm" onClick={openImportModal}>
+                Import
+              </Button>
+              <Button
+                type="primary"
+                className="capitalize text-sm"
+                onClick={exportHandler}
+                disabled={allTVHouseholds == ''}
+                loading={loading}
+              >
+                Searched Export
+              </Button>
+              <div className="top-left">
+                <MultiSelect
+                  options={orderByOptions}
+                  onChange={(value) => setOrderByValue(value)}
+                  placeholder="Order By"
+                  className="w-[280px]"
+                  defaultValue={orderByValue}
+                  singleSelect
+                />
+              </div>
             </div>
-            {showColumns ? (<div className="column-settings" ref={showColumnRef}><ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} /></div>) : ''}
+            {showColumns ? (
+              <div className="column-settings" ref={showColumnRef}>
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+              </div>
+            ) : (
+              ''
+            )}
           </div>
         )}
         <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
           <div
             className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
-            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
           >
-            <div className="top-element"><CustomFilter fields={fields} filterValue={filterValue} setFilterValue={changeFilter} /></div>
+            <div className="top-element">
+              <CustomFilter
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={changeFilter}
+              />
+            </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
             <Table
@@ -254,23 +397,68 @@ const CustomerReport = () => {
         </div>
       </div>
 
-      <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit TV Households'}>
+      <NormalModal
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
+        width={'600px'}
+        title={'Edit TV Households'}
+      >
         <div className="edit_target">
           <form>
-            <div className="mb-4"><span>Market:</span><Input value={editData ? editData.market : ''} name="market" onChange={handleEditChange} className="w-full" /></div>
-            <div className="mb-4"><span>State:</span><Input value={editData ? editData.state : ''} name="state" onChange={handleEditChange} className="w-full" /></div>
-            <div className="mb-4"><span>TV Households:</span><Input value={editData ? editData.tv_households : ''} name="tv_households" onChange={handleEditChange} className="w-full" /></div>
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
+            <div className="mb-4">
+              <span>Market:</span>
+              <Input
+                value={editData ? editData.market : ''}
+                name="market"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <span>State:</span>
+              <Input
+                value={editData ? editData.state : ''}
+                name="state"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <span>TV Households:</span>
+              <Input
+                value={editData ? editData.tv_households : ''}
+                name="tv_households"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
+              Edit
+            </Button>
           </form>
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
+            <Cancel />
+          </div>
         </div>
       </NormalModal>
 
       <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>
-        <div><input id="importfile" type="file" name="importfile" onChange={handleImportChange} /><Button type="primary" onClick={importHandler} disabled={!selectedFile} loading={loading}>Next</Button></div>
+        <div>
+          <input id="importfile" type="file" name="importfile" onChange={handleImportChange} />
+          <Button type="primary" onClick={importHandler} disabled={!selectedFile} loading={loading}>
+            Next
+          </Button>
+        </div>
       </NormalModal>
 
-      <ConfirmModal open={showDeleteModal.open} setOpen={setShowDeleteModal} btnAction={deleteHandler} closeAction={() => handleCloseModal(setShowDeleteModal)} width={'400px'} title={`${selectedRowKeys.length > 1 ? 'Do you want to delete these records?' : 'Do you want to delete this record?'}`} />
+      <ConfirmModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={'400px'}
+        title={`${selectedRowKeys.length > 1 ? 'Do you want to delete these records?' : 'Do you want to delete this record?'}`}
+      />
     </>
   )
 }

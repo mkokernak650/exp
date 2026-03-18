@@ -71,7 +71,7 @@ const CampaignCreate = () => {
     <>
       <Helmet title="Create Campaign" />
       <div className="grid w-[500px] m-auto mt-8 p-10 grow min-h-[500px] shadow-md rounded-lg bg-white">
-        <Title level={5} className="text-center !mb-[35px]">
+        <Title level={5} className="text-center !text-xl !mb-[35px]">
           Create Campaign
         </Title>
         <form onSubmit={handleSubmit}>

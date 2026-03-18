@@ -36,9 +36,7 @@ const ArchivedCallLogReports = () => {
   const [orderByValue, setOrderByValue] = useState('')
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
-  const [filterValue, setFilterValue] = useState(
-    { groupName: 'and', items: [] }
-  )
+  const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
   const [archivedData, setArchivedDataData] = useState(archivedCallLogs)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
@@ -126,43 +124,43 @@ const ArchivedCallLogReports = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter:
-          col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'Call_Date') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-            let format_date = value
-            let dd = String(format_date.getDate()).padStart(2, '0')
-            let yyyy = format_date.getFullYear()
-            return dd + '-' + shortMonth + '-' + yyyy
+        if (col.key === 'Call_Date') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+              let format_date = value
+              let dd = String(format_date.getDate()).padStart(2, '0')
+              let yyyy = format_date.getFullYear()
+              return dd + '-' + shortMonth + '-' + yyyy
+            }
           }
         }
-      }
 
-      if (col.key === 'Call_Date_Time') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            return DateTimeFormat(value)
+        if (col.key === 'Call_Date_Time') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              return DateTimeFormat(value)
+            }
           }
         }
-      }
 
-      return base
-    })
+        return base
+      })
   )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
@@ -384,7 +382,9 @@ const ArchivedCallLogReports = () => {
           </div>
         )}
 
-        <div className={`report-content-layout archived-report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+        <div
+          className={`report-content-layout archived-report-content-layout ${serachSidebar ? 'with-filter' : ''}`}
+        >
           <div
             className={`search-sidebar report-filter-sidebar archived-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
             style={

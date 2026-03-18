@@ -247,6 +247,7 @@ const RingbaInsertionOrderIndex = () => {
                             options={statusOptions}
                             onChange={(value) => setFilterByStatus(value)}
                             defaultValue={filterByStatus}
+                            className="!w-full"
                         />
                     </div>
                     {showColumns ? (

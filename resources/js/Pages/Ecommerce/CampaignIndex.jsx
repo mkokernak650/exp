@@ -403,7 +403,7 @@ const CampaignIndex = () => {
                   options={customersOption}
                   defaultValue={editData?.customer_id}
                   onChange={(value) => CustomerHandleChange(value)}
-                  className="w-full"
+                  className="!w-full"
                 />
               </Col>
 

@@ -31,7 +31,13 @@ const ZipcodeDatabase = () => {
   const [curerentPage, setCurerentPage] = useState(1)
   const [filterByState, setFilterByState] = useState('')
   const [filterByTimeZone, setFilterByTimeZone] = useState('')
-  const [filterBySearchBoxValue, setFilterBySearchBoxValue] = useState({ county: '', city: '', zipCode: '', npa: '', nxx: '' })
+  const [filterBySearchBoxValue, setFilterBySearchBoxValue] = useState({
+    county: '',
+    city: '',
+    zipCode: '',
+    npa: '',
+    nxx: '',
+  })
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -91,12 +97,18 @@ const ZipcodeDatabase = () => {
 
   const [data, setData] = useState(mapDataArr(allZipcodes))
 
-  const statesOptions = states.map(state => ({ label: state, value: state }))
+  const statesOptions = states.map((state) => ({ label: state, value: state }))
   const timeZones = [4, 5, 6, 7, 8, 9, 10, 11, 14, 20]
-  const TimeZoneOptions = timeZones.map(timeZone => ({ label: timeZone, value: timeZone.toString() }))
+  const TimeZoneOptions = timeZones.map((timeZone) => ({
+    label: timeZone,
+    value: timeZone.toString(),
+  }))
 
   const handleSearchBoxChange = (event) => {
-    setFilterBySearchBoxValue((oldValues) => ({ ...oldValues, [event.target.name]: event.target.value }))
+    setFilterBySearchBoxValue((oldValues) => ({
+      ...oldValues,
+      [event.target.name]: event.target.value,
+    }))
   }
 
   const handleToggleColumn = (key) => {
@@ -164,22 +176,27 @@ const ZipcodeDatabase = () => {
     await axios
       .get(
         'telephone-and-zip-codes?page=' +
-        pageData.page +
-        '&itemPerPage=' +
-        itemPerPage +
-        '&filteredValue=' +
-        JSON.stringify(filterValue) +
-        '&filterByState=' + filterByState +
-        '&filterByTimeZone=' + filterByTimeZone +
-        '&filterBySearchBoxValue=' + JSON.stringify(filterBySearchBoxValue)
+          pageData.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue) +
+          '&filterByState=' +
+          filterByState +
+          '&filterByTimeZone=' +
+          filterByTimeZone +
+          '&filterBySearchBoxValue=' +
+          JSON.stringify(filterBySearchBoxValue)
       )
       .then((res) => {
         setZipcodeData(res.data)
-        setData(res.data.data.map((item, index) => ({
-          ...item,
-          sl: index + 1,
-          key: item.id,
-        })))
+        setData(
+          res.data.data.map((item, index) => ({
+            ...item,
+            sl: index + 1,
+            key: item.id,
+          }))
+        )
         setTableLoading(false)
       })
       .catch(() => {
@@ -203,9 +220,14 @@ const ZipcodeDatabase = () => {
     e.preventDefault()
     setExportLoading(true)
     axios
-      .get('zipcode-data-export?filterByState=' + filterByState +
-        '&filterByTimeZone=' + filterByTimeZone +
-        '&filterBySearchBoxValue=' + JSON.stringify(filterBySearchBoxValue))
+      .get(
+        'zipcode-data-export?filterByState=' +
+          filterByState +
+          '&filterByTimeZone=' +
+          filterByTimeZone +
+          '&filterBySearchBoxValue=' +
+          JSON.stringify(filterBySearchBoxValue)
+      )
       .then((res) => {
         setExportLoading(false)
         if (res.status === 200) {
@@ -219,23 +241,26 @@ const ZipcodeDatabase = () => {
       })
   }
 
-  const antdColumns = withResizableColumns(columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      return base
-    }))
+        return base
+      })
+  )
 
   return (
     <>

@@ -422,21 +422,21 @@ const SalesIndex = () => {
               <MultiSelect
                 options={campaignOptions}
                 placeholder="Campaign"
-                className="w-[250px]"
+                className="!w-full"
                 onChange={(value) => setFilterByCampaigns(value)}
                 defaultValue={filterByCampaigns}
               />
               <MultiSelect
                 options={customerOptions}
                 placeholder="Customer"
-                className="w-[250px]"
+                className="!w-full"
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
               />
               <MultiSelect
                 options={affiliateOptions}
                 placeholder="Affiliate"
-                className="w-[250px]"
+                className="!w-full"
                 onChange={(value) => setFilterByAffiliates(value)}
                 defaultValue={filterByAffiliates}
               />

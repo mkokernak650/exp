@@ -96,7 +96,9 @@ const AffiliateReport = () => {
     setSearchSidebar((prevState) => !prevState)
     setShowColumns(false)
   }
-  const handleColumns = () => { setShowColumns(true) }
+  const handleColumns = () => {
+    setShowColumns(true)
+  }
 
   const orderByOptions = [
     { label: 'Affiliate Name (Ascending)', value: 'affiliate_name@ASC' },
@@ -106,24 +108,27 @@ const AffiliateReport = () => {
   ]
 
   const deleteHandler = () => {
-    axios.post(route('affiliate.delete'), { selectedRowIds: selectedRowKeys }).then((res) => {
-      if (res.data.status_code === 200) {
-        setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+    axios
+      .post(route('affiliate.delete'), { selectedRowIds: selectedRowKeys })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setSelectedRowKeys([])
+          setTableToolbar(false)
+          toast.success(res.data.msg)
+          setShowDeleteModal({ open: false })
+        } else {
+          setSelectedRowKeys([])
+          setTableToolbar(false)
+          toast.error(res.data.msg)
+          setShowDeleteModal({ open: false })
+        }
+      })
+      .catch((err) => {
         setSelectedRowKeys([])
         setTableToolbar(false)
-        toast.success(res.data.msg)
         setShowDeleteModal({ open: false })
-      } else {
-        setSelectedRowKeys([])
-        setTableToolbar(false)
-        toast.error(res.data.msg)
-        setShowDeleteModal({ open: false })
-      }
-    }).catch((err) => {
-      setSelectedRowKeys([])
-      setTableToolbar(false)
-      setShowDeleteModal({ open: false })
-    })
+      })
   }
 
   const handleEdit = (itemId) => {
@@ -135,53 +140,71 @@ const AffiliateReport = () => {
   }
 
   const handleArchived = () => {
-    axios.post(route('move.affiliate.archive'), { selectedRowIds: selectedRowKeys }).then((res) => {
-      if (res.data.status_code === 200) {
-        toast.success(res.data.msg)
-        setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
-        setTableToolbar(false)
-        setSelectedRowKeys([])
-        setShowArchivedModal({ open: false })
-      } else {
-        toast.error(res.data.msg)
-        setSelectedRowKeys([])
-        setShowArchivedModal({ open: false })
-      }
-    }).catch((err) => { })
+    axios
+      .post(route('move.affiliate.archive'), { selectedRowIds: selectedRowKeys })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          toast.success(res.data.msg)
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setTableToolbar(false)
+          setSelectedRowKeys([])
+          setShowArchivedModal({ open: false })
+        } else {
+          toast.error(res.data.msg)
+          setSelectedRowKeys([])
+          setShowArchivedModal({ open: false })
+        }
+      })
+      .catch((err) => {})
   }
 
-  const handleEditChange = (e) => { setEditData({ ...editData, [e.target.name]: e.target.value }) }
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value })
+  }
 
   const handleEditSubmit = () => {
-    axios.post(route('affiliate.edit'), editData).then((res) => {
-      if (res.data.status_code === 200) {
-        setData((prev) =>
-          prev.map((item) => {
-            if (item.id === editData.id) {
-              return {
-                ...item,
-                affiliate_id: editData.affiliate_id,
-                affiliate_name: editData.affiliate_name,
-                email: editData.email,
-                telephone: editData.telephone,
-                address: editData.address,
-                market: editData.market,
-                contact_name: editData.contact_name,
-                contact_telephone: editData.contact_telephone,
+    axios
+      .post(route('affiliate.edit'), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setData((prev) =>
+            prev.map((item) => {
+              if (item.id === editData.id) {
+                return {
+                  ...item,
+                  affiliate_id: editData.affiliate_id,
+                  affiliate_name: editData.affiliate_name,
+                  email: editData.email,
+                  telephone: editData.telephone,
+                  address: editData.address,
+                  market: editData.market,
+                  contact_name: editData.contact_name,
+                  contact_telephone: editData.contact_telephone,
+                }
               }
-            }
-            return item
-          })
-        )
-        setEditData()
-        setShowEditModal({ open: false })
-        toast.success(res.data.msg)
-      } else { toast.error(res.data.msg) }
-    }).catch((err) => { console.log(err) })
+              return item
+            })
+          )
+          setEditData()
+          setShowEditModal({ open: false })
+          toast.success(res.data.msg)
+        } else {
+          toast.error(res.data.msg)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
-  const handleCloseModal = (setOpenModal) => { setOpenModal({ open: false }); setTableToolbar(false); setSelectedRowKeys([]) }
-  const handleOpenModal = (setOpenModal) => { setOpenModal({ open: true }) }
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setSelectedRowKeys([])
+  }
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true })
+  }
 
   const getSearchingData = async () => {
     setLoading(true)
@@ -193,10 +216,14 @@ const AffiliateReport = () => {
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) { setShowColumns(false) }
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
+        setShowColumns(false)
+      }
     }
     document.addEventListener('mousedown', checkIfClickedOutside)
-    return () => { document.removeEventListener('mousedown', checkIfClickedOutside) }
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
   }, [showColumns])
 
   useEffect(() => {
@@ -223,15 +250,27 @@ const AffiliateReport = () => {
     }
   }, [serachSidebar, data.length, loading])
 
-  useEffect(() => { getSearchingData() }, [orderByValue])
+  useEffect(() => {
+    getSearchingData()
+  }, [orderByValue])
 
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
         </Tooltip>
-        <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowArchivedModal)}>Archived</Button>
+        <Button
+          type="primary"
+          className="w-[130px] capitalize text-sm"
+          onClick={() => handleOpenModal(setShowArchivedModal)}
+        >
+          Archived
+        </Button>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
@@ -245,38 +284,41 @@ const AffiliateReport = () => {
     },
   }
 
-  const antdColumns = withResizableColumns(columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'edit') {
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
-      }
+        if (col.key === 'edit') {
+          base.render = (value) => (
+            <div className="edit-icon" onClick={() => handleEdit(value)}>
+              <Edit />
+            </div>
+          )
+        }
 
-      if (col.key === 'tv_households') {
-        base.render = (value) =>
-          value === null || value === undefined || value === ''
-            ? ''
-            : Number(value).toLocaleString()
-      }
+        if (col.key === 'tv_households') {
+          base.render = (value) =>
+            value === null || value === undefined || value === ''
+              ? ''
+              : Number(value).toLocaleString()
+        }
 
-      return base
-    }))
+        return base
+      })
+  )
 
   return (
     <>
@@ -287,7 +329,9 @@ const AffiliateReport = () => {
         ) : (
           <div className="table-top">
             <div className="top-left">
-              <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
+              </div>
               <button
                 type="button"
                 className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
@@ -297,9 +341,22 @@ const AffiliateReport = () => {
                 <Filter />
                 {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
               </button>
-              <MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect />
+              <MultiSelect
+                options={orderByOptions}
+                onChange={(value) => setOrderByValue(value)}
+                placeholder="Order By"
+                className="w-[280px]"
+                defaultValue={orderByValue}
+                singleSelect
+              />
             </div>
-            {showColumns ? (<div className="column-settings" ref={showColumnRef}><ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} /></div>) : ''}
+            {showColumns ? (
+              <div className="column-settings" ref={showColumnRef}>
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+              </div>
+            ) : (
+              ''
+            )}
           </div>
         )}
         <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
@@ -311,7 +368,13 @@ const AffiliateReport = () => {
                 : undefined
             }
           >
-            <div className="top-element"><CustomFilter fields={fields} filterValue={filterValue} setFilterValue={changeFilter} /></div>
+            <div className="top-element">
+              <CustomFilter
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={changeFilter}
+              />
+            </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
             <Table
@@ -321,7 +384,11 @@ const AffiliateReport = () => {
               rowKey="id"
               rowSelection={rowSelection}
               loading={loading}
-              pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+              pagination={{
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50, 100],
+                showSizeChanger: true,
+              }}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
@@ -329,30 +396,104 @@ const AffiliateReport = () => {
         </div>
       </div>
 
-      <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit Affiliate'}>
+      <NormalModal
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
+        width={'600px'}
+        title={'Edit Affiliate'}
+      >
         <div className="edit_target">
           <form>
-            <TextInput label="Affiliate Id" name="affiliate_id" required={true} handleChange={handleEditChange} value={editData ? editData.affiliate_id : ''} />
-            <TextInput label="Affiliate Name" name="affiliate_name" required={true} handleChange={handleEditChange} value={editData ? editData.affiliate_name : ''} />
-            <TextInput label="Email" name="email" type="email" handleChange={handleEditChange} value={editData ? editData.email : ''} />
-            <TextInput label="Telephone" name="telephone" handleChange={handleEditChange} value={editData ? editData.telephone : ''} />
-            <TextInput label="Address" name="address" handleChange={handleEditChange} value={editData ? editData.address : ''} />
+            <TextInput
+              label="Affiliate Id"
+              name="affiliate_id"
+              required={true}
+              handleChange={handleEditChange}
+              value={editData ? editData.affiliate_id : ''}
+            />
+            <TextInput
+              label="Affiliate Name"
+              name="affiliate_name"
+              required={true}
+              handleChange={handleEditChange}
+              value={editData ? editData.affiliate_name : ''}
+            />
+            <TextInput
+              label="Email"
+              name="email"
+              type="email"
+              handleChange={handleEditChange}
+              value={editData ? editData.email : ''}
+            />
+            <TextInput
+              label="Telephone"
+              name="telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.telephone : ''}
+            />
+            <TextInput
+              label="Address"
+              name="address"
+              handleChange={handleEditChange}
+              value={editData ? editData.address : ''}
+            />
             <div className="mt-[15px] mb-[10px]">
-              <div className="mb-1"><label>Select Market</label></div>
-              <Select id="market" placeholder="Select Market" value={editData ? editData.market : undefined} onChange={(value) => handleEditChange({ target: { name: 'market', value } })} className="w-full" allowClear>
-                {allMarkets.map((item) => (<Select.Option key={item.market} value={item.market}>{item.market}</Select.Option>))}
+              <div className="mb-1">
+                <label>Select Market</label>
+              </div>
+              <Select
+                id="market"
+                placeholder="Select Market"
+                value={editData ? editData.market : undefined}
+                onChange={(value) => handleEditChange({ target: { name: 'market', value } })}
+                className="w-full"
+                allowClear
+              >
+                {allMarkets.map((item) => (
+                  <Select.Option key={item.market} value={item.market}>
+                    {item.market}
+                  </Select.Option>
+                ))}
               </Select>
             </div>
-            <TextInput label="Contact Name" name="contact_name" handleChange={handleEditChange} value={editData ? editData.contact_name : ''} />
-            <TextInput label="Contact Telephone" name="contact_telephone" handleChange={handleEditChange} value={editData ? editData.contact_telephone : ''} />
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
+            <TextInput
+              label="Contact Name"
+              name="contact_name"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_name : ''}
+            />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_telephone : ''}
+            />
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
+              Edit
+            </Button>
           </form>
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
+          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
+            <Cancel />
+          </div>
         </div>
       </NormalModal>
 
-      <ConfirmModal open={showDeleteModal.open} setOpen={setShowDeleteModal} btnAction={deleteHandler} closeAction={() => handleCloseModal(setShowDeleteModal)} width={'400px'} title={`${selectedRowKeys.length > 1 ? 'Do you want to delete these records?' : 'Do you want to delete this record?'}`} />
-      <ConfirmModal open={showArchivedModal.open} setOpen={setShowArchivedModal} btnAction={handleArchived} closeAction={() => handleCloseModal(setShowArchivedModal)} width={'450px'} title={`${selectedRowKeys.length > 1 ? 'Do you want to move these records to archive?' : 'Do you want to move this record to archive?'}`} />
+      <ConfirmModal
+        open={showDeleteModal.open}
+        setOpen={setShowDeleteModal}
+        btnAction={deleteHandler}
+        closeAction={() => handleCloseModal(setShowDeleteModal)}
+        width={'400px'}
+        title={`${selectedRowKeys.length > 1 ? 'Do you want to delete these records?' : 'Do you want to delete this record?'}`}
+      />
+      <ConfirmModal
+        open={showArchivedModal.open}
+        setOpen={setShowArchivedModal}
+        btnAction={handleArchived}
+        closeAction={() => handleCloseModal(setShowArchivedModal)}
+        width={'450px'}
+        title={`${selectedRowKeys.length > 1 ? 'Do you want to move these records to archive?' : 'Do you want to move this record to archive?'}`}
+      />
     </>
   )
 }

@@ -41,9 +41,7 @@ const BilledCallLogs = () => {
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
   const editData = []
-  const [filterValue, setFilterValue] = useState(
-    { groupName: 'and', items: [] }
-  )
+  const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
   const [sn, setSn] = useState('')
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
   const rowFunctionalitiesRef = useRef()
@@ -69,14 +67,12 @@ const BilledCallLogs = () => {
           toast.success(res.data.msg)
           setData((prev) =>
             prev.map((item) =>
-              item.id == tableIndex
-                ? { ...item, Has_Annotation: res.data.has_annotation }
-                : item
+              item.id == tableIndex ? { ...item, Has_Annotation: res.data.has_annotation } : item
             )
           )
         }
       })
-      .catch((err) => { })
+      .catch((err) => {})
   }
 
   const rowFunctionalitiesPosition = (e) => {
@@ -171,85 +167,85 @@ const BilledCallLogs = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter:
-          col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
-      }
-
-      if (col.key === 'edit') {
-        base.fixed = 'left'
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-            <img src={Edit} alt="edit-icon"></img>
-          </div>
-        )
-      }
-
-      if (col.key === 'Recording_Url') {
-        base.render = (value) => (
-          <audio className="audio-data w-full" controls>
-            <source src={value} type="audio/mp3" />
-            Your browser does not support the <code>audio</code> element.
-          </audio>
-        )
-      }
-
-      if (col.key === 'Call_Date') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-            let format_date = value
-            let dd = String(format_date.getDate()).padStart(2, '0')
-            let yyyy = format_date.getFullYear()
-            return dd + '-' + shortMonth + '-' + yyyy
-          }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
         }
-      }
 
-      if (col.key === 'Call_Date_Time') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            return DateTimeFormat(value)
-          }
-        }
-      }
-
-      if (col.key === 'Annotation_Tag') {
-        base.render = (value) => {
-          let arrayValue = Array.isArray(value) ? value : String(value).split(',')
-          const selectedAnnotation = arrayValue[0] ? String(arrayValue[0]) : undefined
-          return (
-            <Select
-              defaultValue={selectedAnnotation}
-              onChange={(value) => updateAnnotation(value, arrayValue[2], arrayValue[3])}
-              size="small"
-              className="w-full"
-            >
-              <Select.Option value="">Select Annotation</Select.Option>
-              {campaignsWithAnnotations
-                .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
-                ?.annotations.map((annotation) => (
-                  <Select.Option key={annotation.id} value={String(annotation.id)}>
-                    {annotation.annotation_name}
-                  </Select.Option>
-                ))}
-            </Select>
+        if (col.key === 'edit') {
+          base.fixed = 'left'
+          base.render = (value) => (
+            <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
+              <img src={Edit} alt="edit-icon"></img>
+            </div>
           )
         }
-      }
 
-      return base
-    })
+        if (col.key === 'Recording_Url') {
+          base.render = (value) => (
+            <audio className="audio-data w-full" controls>
+              <source src={value} type="audio/mp3" />
+              Your browser does not support the <code>audio</code> element.
+            </audio>
+          )
+        }
+
+        if (col.key === 'Call_Date') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+              let format_date = value
+              let dd = String(format_date.getDate()).padStart(2, '0')
+              let yyyy = format_date.getFullYear()
+              return dd + '-' + shortMonth + '-' + yyyy
+            }
+          }
+        }
+
+        if (col.key === 'Call_Date_Time') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              return DateTimeFormat(value)
+            }
+          }
+        }
+
+        if (col.key === 'Annotation_Tag') {
+          base.render = (value) => {
+            let arrayValue = Array.isArray(value) ? value : String(value).split(',')
+            const selectedAnnotation = arrayValue[0] ? String(arrayValue[0]) : undefined
+            return (
+              <Select
+                defaultValue={selectedAnnotation}
+                onChange={(value) => updateAnnotation(value, arrayValue[2], arrayValue[3])}
+                size="small"
+                className="w-full"
+              >
+                <Select.Option value="">Select Annotation</Select.Option>
+                {campaignsWithAnnotations
+                  .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
+                  ?.annotations.map((annotation) => (
+                    <Select.Option key={annotation.id} value={String(annotation.id)}>
+                      {annotation.annotation_name}
+                    </Select.Option>
+                  ))}
+              </Select>
+            )
+          }
+        }
+
+        return base
+      })
   )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
@@ -306,9 +302,7 @@ const BilledCallLogs = () => {
           toast.success('Successfully Updated')
           setData((prev) =>
             prev.map((item) =>
-              item.Inbound_Id === editData[0]
-                ? { ...item, Revenue: '', payoutAmount: '' }
-                : item
+              item.Inbound_Id === editData[0] ? { ...item, Revenue: '', payoutAmount: '' } : item
             )
           )
           setShowRevenueClearModal({ open: false })
@@ -361,11 +355,13 @@ const BilledCallLogs = () => {
     await axios
       .get(
         'billed-call-log-report?page=' +
-        pageData.page +
-        '&itemPerPage=' +
-        itemPerPage +
-        '&filteredValue=' +
-        JSON.stringify(filterValue) + '&orderBy=' + orderByValue
+          pageData.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue) +
+          '&orderBy=' +
+          orderByValue
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -461,7 +457,11 @@ const BilledCallLogs = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={handleDeleteOpenModal} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+            onClick={handleDeleteOpenModal}
+          />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -492,7 +492,10 @@ const BilledCallLogs = () => {
               </button>
               <div>
                 <MultiSelect
-                  options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                  options={[
+                    { label: 'Created At (Ascending)', value: 'ASC' },
+                    { label: 'Created At (Descending)', value: 'DESC' },
+                  ]}
                   onChange={(value) => setOrderByValue(value)}
                   placeholder="Order By"
                   singleSelect
@@ -583,10 +586,11 @@ const BilledCallLogs = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${inboundIds.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          inboundIds.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
         loading={isLoading.delete}
       ></ConfirmModal>
     </>
