@@ -34,12 +34,18 @@ const AffiliateReport = () => {
   const [loading, setLoading] = useState(false)
   const showColumnRef = useRef()
 
+  const parseTvHouseholds = (value) => {
+    if (value === null || value === undefined || value === '') return null
+    const parsedValue = Number(value.toString().replace(/,/g, ''))
+    return Number.isNaN(parsedValue) ? null : parsedValue
+  }
+
   const mapDataArr = (data) => {
     return data.map((item, index) => ({
       edit: item.id,
       affiliate_id: item.affiliate_id,
       affiliate_name: item.affiliate_name,
-      tv_households: item.tv_households,
+      tv_households: parseTvHouseholds(item.tv_households),
       market: item.market,
       email: item.email,
       telephone: item.telephone,
