@@ -151,7 +151,7 @@ export const columns = [
   {
     key: 'created_at',
     title: 'Created At',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 200 },
     visible: true,
   },
