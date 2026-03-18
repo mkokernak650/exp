@@ -148,6 +148,39 @@ const between = (data, item) => {
 
 };
 
+const dateNotBetween = (data, item) => {
+  const sourceValue = data[item.field]
+  const from = item?.value?.from
+  const to = item?.value?.to
+  const hasFrom = Boolean(from)
+  const hasTo = Boolean(to)
+
+  if (!hasFrom && !hasTo) {
+    return true
+  }
+
+  const sourceDate = new Date(sourceValue)
+  if (Number.isNaN(sourceDate.getTime())) {
+    return true
+  }
+
+  if (hasFrom && hasTo) {
+    const fromDate = new Date(from)
+    const toDate = new Date(to)
+    return sourceDate < fromDate || sourceDate > toDate
+  }
+
+  if (hasFrom) {
+    return sourceDate < new Date(from)
+  }
+
+  if (hasTo) {
+    return sourceDate > new Date(to)
+  }
+
+  return true
+};
+
 const dateFormat = (dataParam) => {
   let newDate = new Date(dataParam);
   let shortMonth = newDate.toLocaleString('en-us', { month: 'short' });
@@ -189,6 +222,8 @@ export const filterItem = (data, filter) => {
       return dateBetween(data, filter);
     case 'between':
       return between(data, filter);
+    case 'dateNotBetween':
+      return dateNotBetween(data, filter);
     default:
       throw Error('unknown operator');
   }

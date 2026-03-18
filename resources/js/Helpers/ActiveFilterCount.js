@@ -12,7 +12,7 @@ export const countActiveFilters = (filterValue) => {
       return true
     }
 
-    if (item.operator === 'between' || item.operator === 'dateBetween') {
+    if (item.operator === 'between' || item.operator === 'dateBetween' || item.operator === 'dateNotBetween') {
       return Boolean(item.value?.from) || Boolean(item.value?.to)
     }
 

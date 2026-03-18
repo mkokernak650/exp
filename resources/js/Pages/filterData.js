@@ -106,6 +106,102 @@ const isNotEqual = (data, item) => {
 };
 const more = (data, item) => data[item.field] > item.value;
 const less = (data, item) => data[item.field] < item.value;
+const between = (data, item) => {
+  const sourceValue = data[item.field]
+  const from = item?.value?.from
+  const to = item?.value?.to
+  const hasFrom = from !== '' && from !== null && from !== undefined
+  const hasTo = to !== '' && to !== null && to !== undefined
+
+  if (!hasFrom && !hasTo) {
+    return true
+  }
+
+  const numericValue = Number(sourceValue)
+  const numericFrom = Number(from)
+  const numericTo = Number(to)
+
+  if (!Number.isFinite(numericValue)) {
+    return false
+  }
+
+  if (hasFrom && Number.isFinite(numericFrom) && numericValue < numericFrom) {
+    return false
+  }
+
+  if (hasTo && Number.isFinite(numericTo) && numericValue > numericTo) {
+    return false
+  }
+
+  return true
+}
+
+const dateBetween = (data, item) => {
+  const sourceValue = data[item.field]
+  const from = item?.value?.from
+  const to = item?.value?.to
+  const hasFrom = Boolean(from)
+  const hasTo = Boolean(to)
+
+  if (!hasFrom && !hasTo) {
+    return true
+  }
+
+  const sourceDate = new Date(sourceValue)
+  if (Number.isNaN(sourceDate.getTime())) {
+    return false
+  }
+
+  if (hasFrom) {
+    const fromDate = new Date(from)
+    if (!Number.isNaN(fromDate.getTime()) && sourceDate < fromDate) {
+      return false
+    }
+  }
+
+  if (hasTo) {
+    const toDate = new Date(to)
+    if (!Number.isNaN(toDate.getTime()) && sourceDate > toDate) {
+      return false
+    }
+  }
+
+  return true
+}
+
+const dateNotBetween = (data, item) => {
+  const sourceValue = data[item.field]
+  const from = item?.value?.from
+  const to = item?.value?.to
+  const hasFrom = Boolean(from)
+  const hasTo = Boolean(to)
+
+  if (!hasFrom && !hasTo) {
+    return true
+  }
+
+  const sourceDate = new Date(sourceValue)
+  if (Number.isNaN(sourceDate.getTime())) {
+    return true
+  }
+
+  if (hasFrom && hasTo) {
+    const fromDate = new Date(from)
+    const toDate = new Date(to)
+    return sourceDate < fromDate || sourceDate > toDate
+  }
+
+  if (hasFrom) {
+    return sourceDate < new Date(from)
+  }
+
+  if (hasTo) {
+    return sourceDate > new Date(to)
+  }
+
+  return true
+}
+
 export const filterItem = (data, filter) => {
   switch (filter.operator) {
     case 'contains':
@@ -132,6 +228,12 @@ export const filterItem = (data, filter) => {
       return more(data, filter);
     case '<':
       return less(data, filter);
+    case 'between':
+      return between(data, filter);
+    case 'dateBetween':
+      return dateBetween(data, filter);
+    case 'dateNotBetween':
+      return dateNotBetween(data, filter);
     default:
       throw Error('unknown operator');
   }

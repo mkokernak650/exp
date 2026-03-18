@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-import { Select, Input } from 'antd'
+import { Select, Input, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import Search from '@/Components/Icons/Search.jsx'
+
+const { RangePicker } = DatePicker
 
 const CustomFilter = (props) => {
   const { fields, filterValue, setFilterValue } = props
@@ -23,7 +24,7 @@ const CustomFilter = (props) => {
     safeFields.find((fieldItem) => fieldItem.name === fieldName) ?? safeFields[0]
 
   const getDefaultValueByOperator = (operator) => {
-    if (operator === 'between' || operator === 'dateBetween') {
+    if (operator === 'between' || operator === 'dateBetween' || operator === 'dateNotBetween') {
       return { from: '', to: '' }
     }
 
@@ -48,7 +49,7 @@ const CustomFilter = (props) => {
 
   const handleOperatorChange = (fieldName, value) => {
     const normalizeValueByOperator = (nextOperator, currentValue) => {
-      if (nextOperator === 'between' || nextOperator === 'dateBetween') {
+      if (nextOperator === 'between' || nextOperator === 'dateBetween' || nextOperator === 'dateNotBetween') {
         if (currentValue && typeof currentValue === 'object') {
           return {
             from: currentValue.from ?? '',
@@ -92,7 +93,7 @@ const CustomFilter = (props) => {
           return item
         }
 
-        if (item.operator === 'between' || item.operator === 'dateBetween') {
+        if (item.operator === 'between' || item.operator === 'dateBetween' || item.operator === 'dateNotBetween') {
           const currentRange =
             item.value && typeof item.value === 'object' ? item.value : { from: '', to: '' }
 
@@ -184,15 +185,25 @@ const CustomFilter = (props) => {
 
                   {selected.operator !== 'isEmpty' && selected.operator !== 'isNotEmpty' ? (
                     selected.dataType === 'date' ? (
-                      <DatePicker
-                        selectsRange={true}
-                        startDate={selected?.value?.from ? new Date(selected.value.from) : null}
-                        endDate={selected?.value?.to ? new Date(selected.value.to) : null}
-                        onChange={(update) => {
-                          handleValueChange(field.name, update?.[0] ?? '', 'from')
-                          handleValueChange(field.name, update?.[1] ?? '', 'to')
+                      <RangePicker
+                        className="w-full"
+                        value={[
+                          selected?.value?.from ? dayjs(selected.value.from) : null,
+                          selected?.value?.to ? dayjs(selected.value.to) : null,
+                        ]}
+                        onChange={(dates) => {
+                          const from = dates?.[0]?.format('YYYY-MM-DD') ?? ''
+                          const to = dates?.[1]?.format('YYYY-MM-DD') ?? ''
+                          setFilterValue((prev) => ({
+                            ...prev,
+                            items: prev.items.map((item) =>
+                              item.field === field.name
+                                ? { ...item, value: { from, to } }
+                                : item
+                            ),
+                          }))
                         }}
-                        isClearable={true}
+                        allowClear
                       />
                     ) : selected.dataType === 'number' && selected.operator === 'between' ? (
                       <div className="between">

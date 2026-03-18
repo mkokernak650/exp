@@ -61,6 +61,7 @@ export const SearchedFields = (fields) => {
         dataType: item.dataType,
         operators: [
           { caption: 'between', name: 'dateBetween' },
+          { caption: 'not between', name: 'dateNotBetween' },
           { caption: 'is empty', name: 'isEmpty' },
           { caption: 'is not empty', name: 'isNotEmpty' },
         ],
