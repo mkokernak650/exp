@@ -196,7 +196,7 @@ const GenerateReportDestination = () => {
     <>
       <Helmet title="Summary Report" />
       <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Generate Report Summary
         </Typography.Title>
         <form validate="true" className="generate-report">
@@ -216,7 +216,7 @@ const GenerateReportDestination = () => {
                 onChange={campaignHandleChange}
                 placeholder="Select Campaign"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {campaigns.map((campaign, key) => (
                   <Select.Option key={key} value={campaign.id}>
@@ -230,7 +230,7 @@ const GenerateReportDestination = () => {
                 onChange={customerHandleChange}
                 placeholder="Select Customer"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {targets
                   .map((option) => option.Customer)
@@ -247,7 +247,7 @@ const GenerateReportDestination = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -256,7 +256,7 @@ const GenerateReportDestination = () => {
                 name="broad_cast_month"
                 onChange={(val) => monthHandleChange(val)}
                 options={optionsGenerate(monthByYear, 'broad_cast_month')}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Broadcast Month"
               />
             </Col>{' '}
@@ -265,7 +265,7 @@ const GenerateReportDestination = () => {
                 name="broad_cast_week"
                 onChange={(val) => weekHandleChange(val)}
                 options={optionsGenerate(weekByMonth, 'broad_cast_week')}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Broadcast Week"
               />
             </Col>

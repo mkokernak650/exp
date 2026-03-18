@@ -307,7 +307,7 @@ const GenerateReportMarketException = () => {
     <>
       <Helmet title="Market Exception" />
       <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Generate Report Market Exception
         </Typography.Title>
         <form validate="true" className="generate-report">
@@ -327,7 +327,7 @@ const GenerateReportMarketException = () => {
                 name="market"
                 onChange={(val) => marketHandleChange(val, 'market')}
                 options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Market"
               />
             </Col>
@@ -335,7 +335,7 @@ const GenerateReportMarketException = () => {
               <select
                 name="customer_name"
                 onChange={customerHandleChange}
-                className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                className="!w-full border border-gray-300 rounded-md p-2 text-sm"
               >
                 <option value="">Select Customer</option>
                 {targets
@@ -352,7 +352,7 @@ const GenerateReportMarketException = () => {
               <select
                 name="campaign"
                 onChange={campaignHandleChange}
-                className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                className="!w-full border border-gray-300 rounded-md p-2 text-sm"
               >
                 <option value="">Select Campaign</option>
                 {campaigns.map((campaign, key) => (
@@ -367,7 +367,7 @@ const GenerateReportMarketException = () => {
                 name="target_name"
                 onChange={(val) => targetHandleChange(val)}
                 options={targetOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Targets"
               />
             </Col>
@@ -377,7 +377,7 @@ const GenerateReportMarketException = () => {
                 name="annotation"
                 onChange={(val) => annotationHandleChange(val)}
                 options={annotationOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Annotation"
               />
             </Col>
@@ -386,7 +386,7 @@ const GenerateReportMarketException = () => {
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val)}
                 options={affiliateOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Affiliates"
               />
             </Col>
@@ -396,7 +396,7 @@ const GenerateReportMarketException = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -406,7 +406,7 @@ const GenerateReportMarketException = () => {
                 name="broad_cast_month"
                 onChange={(val) => monthHandleChange(val)}
                 options={broadCastMonthOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Broadcast Month"
               />
             </Col>

@@ -12,7 +12,15 @@ import { exportReportEcommerce } from '@/Helpers/ExportReport'
 
 const EcommerceReport = () => {
   const [loading, setLoading] = useState(false)
-  const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, acesMarketingId } = usePage().props
+  const {
+    campaigns,
+    customers,
+    broadCastMonths,
+    broadCastWeeks,
+    states,
+    markets,
+    acesMarketingId,
+  } = usePage().props
   const [affiliateList, setAffiliateList] = useState([])
   const [couponCodeList, setCouponCodeList] = useState([])
   const [dialedPhoneList, setDialedPhoneList] = useState([])
@@ -81,22 +89,24 @@ const EcommerceReport = () => {
   }))
 
   const setSelectionWiseData = (affiliates, couponCodes, dialedPhones) => {
-    const activeAffiliates = Object.values(affiliates)?.map((item) => ({
-      label: item?.[1],
-      value: item?.[0].toString(),
-      email: item?.[2],
-    })).sort((a, b) => {
-      const nameA = a.label.toLowerCase();
-      const nameB = b.label.toLowerCase();
+    const activeAffiliates = Object.values(affiliates)
+      ?.map((item) => ({
+        label: item?.[1],
+        value: item?.[0].toString(),
+        email: item?.[2],
+      }))
+      .sort((a, b) => {
+        const nameA = a.label.toLowerCase()
+        const nameB = b.label.toLowerCase()
 
-      if (nameA < nameB) {
-        return -1
-      } else if (nameA > nameB) {
-        return 1
-      } else {
-        return 0
-      }
-    })
+        if (nameA < nameB) {
+          return -1
+        } else if (nameA > nameB) {
+          return 1
+        } else {
+          return 0
+        }
+      })
 
     const couponOptions = Object.values(couponCodes)?.map((item) => ({
       label: item,
@@ -155,7 +165,7 @@ const EcommerceReport = () => {
     const affiliateNames = []
     Object.values(affiliateList).map((item) => {
       if (values.affiliate_id.includes(item.value)) {
-        affiliateNames.push(item.label.replace(/\s?\([^)]*\)/g, ""))
+        affiliateNames.push(item.label.replace(/\s?\([^)]*\)/g, ''))
       }
     })
     return affiliateNames
@@ -427,10 +437,9 @@ const EcommerceReport = () => {
       }
     }
 
-    fileName = `${values?.campaign_id ? `${getCampaignNames().toString()}` : ''}${(!values?.year && values?.start_date)
-      ? ` - ${dateRange}`
-      : ''
-      }${values?.year ? ` - ${values.year.toString()}` : ''}`
+    fileName = `${values?.campaign_id ? `${getCampaignNames().toString()}` : ''}${
+      !values?.year && values?.start_date ? ` - ${dateRange}` : ''
+    }${values?.year ? ` - ${values.year.toString()}` : ''}`
 
     if (fileName == '') {
       fileName = 'Export CSV Report'
@@ -438,17 +447,19 @@ const EcommerceReport = () => {
 
     values.file_name = fileName
   } else {
-    fileName = `${reportName}${reportType.type === 'customer'
-      ? values?.customer_id
-        ? `_For_(${getCustomerNames().toString()})`
-        : ''
-      : values?.affiliate_id.length
-        ? `_For_(${getAffiliateNames().toString()})`
-        : ''
-      }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${(!values?.year && values?.start_date)
+    fileName = `${reportName}${
+      reportType.type === 'customer'
+        ? values?.customer_id
+          ? `_For_(${getCustomerNames().toString()})`
+          : ''
+        : values?.affiliate_id.length
+          ? `_For_(${getAffiliateNames().toString()})`
+          : ''
+    }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${
+      !values?.year && values?.start_date
         ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
         : ''
-      }${values?.year ? `_For_(${values.year.toString()})` : ''}`
+    }${values?.year ? `_For_(${values.year.toString()})` : ''}`
     values.file_name = fileName
   }
 
@@ -478,7 +489,7 @@ const EcommerceReport = () => {
       return
     }
 
-    if (!values?.year && (values?.start_date && !values?.end_date)) {
+    if (!values?.year && values?.start_date && !values?.end_date) {
       toast.error('Please select start date and end date both')
       return
     }
@@ -514,7 +525,7 @@ const EcommerceReport = () => {
     <>
       <Helmet title="Reports" />
       <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Reports
         </Typography.Title>
         <form validate="true" className="generate-report">
@@ -529,7 +540,7 @@ const EcommerceReport = () => {
                   { label: 'Pay Per Order', value: 'payPerOrder' },
                   { label: 'Cash Buy', value: 'cashBuy' },
                 ]}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Report For"
               />
             </Col>
@@ -544,11 +555,11 @@ const EcommerceReport = () => {
                   { label: 'E-commerce', value: '1' },
                   { label: 'Phone', value: '2' },
                 ]}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Order Type"
               />
             </Col>
-            <Col span={24} className="pb-[5px] mb-[15px]">
+            <Col span={24} className="pb-[5px]">
               <MultiSelect
                 singleSelect
                 name="reportOn"
@@ -560,12 +571,12 @@ const EcommerceReport = () => {
                   { label: 'Summary Report', value: 'summary' },
                   { label: 'Export CSV Report', value: 'exportCSV' },
                 ]}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Report On"
               />
             </Col>
-            <Col span={24} className="pt-0 mb-[-10px]">
-              <Divider />
+            <Col span={24} className="pt-0">
+              <Divider className="my-2 bg-[#0000001f]" />
             </Col>
             {market.length < 1 && (
               <Col span={24} className="pb-[5px]">
@@ -573,7 +584,7 @@ const EcommerceReport = () => {
                   name="states"
                   onChange={(val) => stateHandleChange(val, 'states')}
                   options={[{ label: 'All States', value: 'allStates,' }].concat(stateOptions)}
-                  className="w-full"
+                  className="!w-full"
                   placeholder="Select States"
                 />
               </Col>
@@ -584,7 +595,7 @@ const EcommerceReport = () => {
                   name="markets"
                   onChange={(val) => marketHandleChange(val, 'markets')}
                   options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
-                  className="w-full"
+                  className="!w-full"
                   placeholder="Select Markets"
                 />
               </Col>
@@ -594,7 +605,7 @@ const EcommerceReport = () => {
                 name="campaign_id"
                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                 options={campaignOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Campaign"
               />
             </Col>
@@ -603,7 +614,7 @@ const EcommerceReport = () => {
                 name="customer_id"
                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                 options={customerOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Customer"
               />
             </Col>
@@ -612,7 +623,7 @@ const EcommerceReport = () => {
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val, 'affiliate_id')}
                 options={affiliateOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Affiliates"
                 singleSelect
               />
@@ -624,7 +635,7 @@ const EcommerceReport = () => {
                   defaultValue={couponCode?.couponCodes}
                   onChange={(val) => couponCodeHandleChange(val, 'couponCodes')}
                   options={couponCodeList}
-                  className="w-full"
+                  className="!w-full"
                   placeholder="Select Coupon Codes"
                 />
               </Col>
@@ -636,7 +647,7 @@ const EcommerceReport = () => {
                   defaultValue={dialed?.dialed}
                   onChange={(val) => dialedHandleChange(val, 'dialed')}
                   options={dialedPhoneList}
-                  className="w-full"
+                  className="!w-full"
                   placeholder="Select Dialed Phone"
                 />
               </Col>
@@ -646,7 +657,7 @@ const EcommerceReport = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -685,7 +696,9 @@ const EcommerceReport = () => {
                     <label className="block text-sm mb-1">Start Date</label>
                     <DatePicker
                       value={startDate.start_date ? dayjs(startDate.start_date) : null}
-                      onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
+                      onChange={(date, dateString) =>
+                        startDateHandleChange({ target: { name: 'start_date', value: dateString } })
+                      }
                       className="w-full"
                     />
                   </div>
@@ -695,19 +708,22 @@ const EcommerceReport = () => {
                     <label className="block text-sm mb-1">End Date</label>
                     <DatePicker
                       value={endDate.end_date ? dayjs(endDate.end_date) : null}
-                      onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
+                      onChange={(date, dateString) =>
+                        endDateHandleChange({ target: { name: 'end_date', value: dateString } })
+                      }
                       className="w-full"
                     />
                   </div>
                 </Col>
               </>
             )}
-            <Col span={24}>
+            <Col span={24} className="my-4">
               <Col span={24}>
                 <Radio.Group
                   name="type"
                   value={reportType.type}
                   onChange={reportTypeHandleChange}
+                  className="mb-4"
                 >
                   <Radio value="customer">For Customer</Radio>
                   <Radio value="affiliate">For Affiliate</Radio>

@@ -70,7 +70,7 @@ const CampaignAffiliateList = () => {
     { label: 'TV Households (Ascending)', value: 'tv_households@ASC' },
     { label: 'TV Households (Descending)', value: 'tv_households@DESC' },
     { label: 'Created At (Ascending)', value: 'affiliates.created_at@ASC' },
-    { label: 'Created At (Descending)', value: 'affiliates.created_at@DESC' }
+    { label: 'Created At (Descending)', value: 'affiliates.created_at@DESC' },
   ]
 
   const handleColumns = () => {
@@ -96,10 +96,11 @@ const CampaignAffiliateList = () => {
     await axios
       .get(
         `/ecommerce-campaigns-affiliates/${campaignId}?page=` +
-        data.page +
-        '&itemPerPage=' +
-        itemPerPage
-        + '&orderBy=' + orderByValue
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&orderBy=' +
+          orderByValue
       )
       .then((res) => {
         setCampaignAffiliateList(res.data)
@@ -147,11 +148,12 @@ const CampaignAffiliateList = () => {
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
         }
         if (col.key === 'affiliate_fee_type') {
           base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')

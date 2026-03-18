@@ -105,7 +105,7 @@ const CustomEmail = () => {
             <Card
                 className="grid w-[800px] m-auto mt-8 p-10"
             >
-                <Typography.Title level={4} className="text-center mb-[35px]">
+                <Typography.Title level={4} className="text-center !text-xl !mb-[35px]">
                     Compose Email
                 </Typography.Title>
                 <form validate="true" onSubmit={handleSubmit}>
@@ -116,7 +116,7 @@ const CustomEmail = () => {
                                 onChange={(value) => handleCampaignChange(value)}
                                 options={campaignOptions}
                                 defaultValue={campaignIds}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Campaigns"
                             />
                         </Col>
@@ -127,7 +127,7 @@ const CustomEmail = () => {
                                 onChange={(value) => setSelectedAffiliates(value)}
                                 options={affiliateOptions}
                                 defaultValue={selectedAffiliates}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Affiliates"
                                 disabled={!campaignIds}
                             />
@@ -138,7 +138,7 @@ const CustomEmail = () => {
                                 name="additional_emails"
                                 onChange={(value) => setAdditionalEmails(value)}
                                 defaultValue={additionalEmails}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Additional Emails (Write and press enter or comma(,) to add additional emails)"
                                 customValue
                             />

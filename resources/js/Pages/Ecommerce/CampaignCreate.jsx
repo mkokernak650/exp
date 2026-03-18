@@ -1,77 +1,77 @@
-import { React, useState } from "react";
-import Layout from "../Layout/Layout";
-import { Button, Input, Row, Col, Typography } from "antd";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import toast from "react-hot-toast";
-import { usePage } from "@inertiajs/inertia-react";
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
+import { Button, Input, Row, Col, Typography } from 'antd'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import toast from 'react-hot-toast'
+import { usePage } from '@inertiajs/inertia-react'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
-const { Title } = Typography;
-const { TextArea } = Input;
+const { Title } = Typography
+const { TextArea } = Input
 
 const CampaignCreate = () => {
   const defaultState = {
-    campaign_name: "",
-    customer_id: "",
-    description: "",
-    length_url: "",
-  };
-  const [values, setValues] = useState(defaultState);
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [response, setResponse] = useState();
-  const [responseType, setResponseType] = useState();
+    campaign_name: '',
+    customer_id: '',
+    description: '',
+    length_url: '',
+  }
+  const [values, setValues] = useState(defaultState)
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [response, setResponse] = useState()
+  const [responseType, setResponseType] = useState()
   const { customers } = usePage().props
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((oldValues) => ({ ...oldValues, [name]: value }));
-  };
+    const { name, value } = e.target
+    setValues((oldValues) => ({ ...oldValues, [name]: value }))
+  }
 
   const headers = {
-    headers: { Accept: "application/json" },
-  };
+    headers: { Accept: 'application/json' },
+  }
 
-  const customersOption = customers.map(customer => ({
+  const customersOption = customers.map((customer) => ({
     value: customer.id.toString(),
     label: customer.customer_name,
   }))
 
   const CustomerHandleChange = (value) => {
-    setValues((oldValues) => ({ ...oldValues, customer_id: value }));
+    setValues((oldValues) => ({ ...oldValues, customer_id: value }))
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
-      .post(route("ecommerce-campaigns.store"), values, headers)
+      .post(route('ecommerce-campaigns.store'), values, headers)
       .then((res) => {
-        setLoading(false);
-        setValues(defaultState);
-        toast.success(res.data.msg);
+        setLoading(false)
+        setValues(defaultState)
+        toast.success(res.data.msg)
       })
       .catch((err) => {
-        let errors = "";
+        let errors = ''
         if (err.response.data?.errors) {
           Object.values(err.response.data?.errors).map((error) => {
-            errors += error[0] + "\n";
-          });
+            errors += error[0] + '\n'
+          })
         } else if (err.response.data?.msg) {
-          errors = err.response.data.msg;
+          errors = err.response.data.msg
         }
-        setLoading(false);
-        toast.error(errors);
-      });
-  };
+        setLoading(false)
+        toast.error(errors)
+      })
+  }
 
   return (
     <>
       <Helmet title="Create Campaign" />
       <div className="grid w-[500px] m-auto mt-8 p-10 grow min-h-[500px] shadow-md rounded-lg bg-white">
-        <Title level={5} className="text-center mb-[35px]">
+        <Title level={5} className="text-center !mb-[35px]">
           Create Campaign
         </Title>
         <form onSubmit={handleSubmit}>
@@ -97,8 +97,8 @@ const CampaignCreate = () => {
                 placeholder="Select Customer"
                 options={customersOption}
                 defaultValue={values.customer_id}
-                onChange={value => CustomerHandleChange(value)}
-                className="w-full"
+                onChange={(value) => CustomerHandleChange(value)}
+                className="!w-full"
               />
             </Col>
 
@@ -139,10 +139,8 @@ const CampaignCreate = () => {
         </form>
       </div>
     </>
-  );
-};
+  )
+}
 
-CampaignCreate.layout = (page) => (
-  <Layout title="E-commerce Campaign Create">{page}</Layout>
-);
-export default CampaignCreate;
+CampaignCreate.layout = (page) => <Layout title="E-commerce Campaign Create">{page}</Layout>
+export default CampaignCreate

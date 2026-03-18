@@ -430,7 +430,7 @@ const RingbaReports = () => {
         <>
             <Helmet title="Ringba Reports" />
             <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
-                <Typography.Title level={5} className="text-center mb-[35px]">
+                <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
                     Ringba Reports
                 </Typography.Title>
                 <form validate="true" className="generate-report">
@@ -444,7 +444,7 @@ const RingbaReports = () => {
                                 options={[
                                     { label: 'Pay Per Order', value: 'payPerOrder' },
                                 ]}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Report For"
                             />
                         </Col>
@@ -458,11 +458,11 @@ const RingbaReports = () => {
                                     { label: 'Billed', value: 'billed' },
                                     { label: 'General', value: 'general' },
                                 ]}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Order Type"
                             />
                         </Col>
-                        <Col span={24} className="pb-[5px] mb-[15px]">
+                        <Col span={24} className="pb-[5px]">
                             <MultiSelect
                                 singleSelect
                                 name="reportOn"
@@ -475,12 +475,12 @@ const RingbaReports = () => {
                                     { label: 'Call Length Report', value: 'callLength' },
                                     { label: 'Homes Per Call Report', value: 'homesPerCall' },
                                 ]}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Report On"
                             />
                         </Col>
-                        <Col span={24} className="pt-0 mb-[-10px]">
-                            <Divider />
+                        <Col span={24} className="pt-0">
+                            <Divider className="my-2 bg-[#0000001f]" />
                         </Col>
                         {market.length < 1 && (
                             <Col span={24} className="pb-[5px]">
@@ -488,7 +488,7 @@ const RingbaReports = () => {
                                     name="states"
                                     onChange={(val) => stateHandleChange(val, 'states')}
                                     options={[{ label: 'All States', value: 'allStates,' }].concat(stateOptions)}
-                                    className="w-full"
+                                    className="!w-full"
                                     placeholder="Select States"
                                 />
                             </Col>
@@ -499,7 +499,7 @@ const RingbaReports = () => {
                                     name="markets"
                                     onChange={(val) => marketHandleChange(val, 'markets')}
                                     options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
-                                    className="w-full"
+                                    className="!w-full"
                                     placeholder="Select Markets"
                                 />
                             </Col>
@@ -509,7 +509,7 @@ const RingbaReports = () => {
                                 name="campaign_id"
                                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                                 options={campaignOptions}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Campaign"
                             />
                         </Col>
@@ -518,7 +518,7 @@ const RingbaReports = () => {
                                 name="customer_id"
                                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                                 options={customerOptions}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Customer"
                             />
                         </Col>
@@ -528,7 +528,7 @@ const RingbaReports = () => {
                                 onChange={(value) => affiliateHandleChange(value)}
                                 defaultValue={selectedAffiliate}
                                 options={affiliateOptions}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Affiliates"
                                 singleSelect
                             />
@@ -539,7 +539,7 @@ const RingbaReports = () => {
                                 onChange={(value) => handleDialedPhoneChange(value)}
                                 defaultValue={selectedDialed}
                                 options={dialedOptions}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Dialed Phone"
                             />
                         </Col>
@@ -548,7 +548,7 @@ const RingbaReports = () => {
                                 name="year"
                                 onChange={(val) => yearHandleChange(val, 'year')}
                                 options={yearOptions}
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Years"
                             />
                         </Col>
@@ -557,7 +557,7 @@ const RingbaReports = () => {
                                 <Col span={24}>
                                     <MultiSelect
                                         placeholder="Select Broadcast Month"
-                                        className="w-full"
+                                        className="!w-full"
                                         options={broadCastMonthsOptions}
                                         onChange={(value) => monthHandleChange(value)}
                                         singleSelect
@@ -566,7 +566,7 @@ const RingbaReports = () => {
                                 <Col span={24}>
                                     <MultiSelect
                                         placeholder="Select Broadcast Week"
-                                        className="w-full"
+                                        className="!w-full"
                                         options={broadCastWeeksOptions}
                                         onChange={(value) => weekHandleChange(value)}
                                         singleSelect
@@ -578,7 +578,7 @@ const RingbaReports = () => {
                                         <DatePicker
                                             value={startDate.start_date ? dayjs(startDate.start_date) : null}
                                             onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
-                                            className="w-full"
+                                            className="!w-full"
                                         />
                                     </div>
                                 </Col>
@@ -588,18 +588,19 @@ const RingbaReports = () => {
                                         <DatePicker
                                             value={endDate.end_date ? dayjs(endDate.end_date) : null}
                                             onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
-                                            className="w-full"
+                                            className="!w-full"
                                         />
                                     </div>
                                 </Col>
                             </>
                         )}
-                        <Col span={24}>
+                        <Col span={24} className="my-4">
                             <Col span={24}>
                                 <Radio.Group
                                     name="type"
                                     value={reportType.type}
                                     onChange={reportTypeHandleChange}
+                                    className="mb-4"
                                 >
                                     <Radio value="customer">For Customer</Radio>
                                     <Radio value="affiliate">For Affiliate</Radio>

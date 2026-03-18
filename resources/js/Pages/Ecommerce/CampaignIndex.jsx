@@ -1,10 +1,9 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { InertiaLink, usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
 import { filterData } from '../filterData'
-import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import { Tooltip, Switch, Button, Input, Row, Col, Table } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
@@ -18,7 +17,10 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { columns as defaultColumns, fields, groups, filter } from './Helpers/CampaignIndexProps'
+import CustomFilter from '@/Components/CustomFilter'
+import { SearchedFields } from '@/Helpers/SearchedFields'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { columns as defaultColumns } from './Helpers/CampaignIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -31,6 +33,8 @@ const CampaignIndex = () => {
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
@@ -56,7 +60,7 @@ const CampaignIndex = () => {
     key: item.id,
   }))
 
-  const customersOption = customers.map(customer => ({
+  const customersOption = customers.map((customer) => ({
     value: customer.id.toString(),
     label: customer.customer_name,
   }))
@@ -96,24 +100,19 @@ const CampaignIndex = () => {
     setShowEditModal({ open: true })
   }
 
-  const [filterValue, changeFilter] = useState(filter)
-
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
+  const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
+  const activeFilterCount = countActiveFilters(filterValue)
+  const fields = SearchedFields(columns)
 
   const [serachSidebar, setSearchSidebar] = useState(false)
 
-  const handleSearch = () => {
+  const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
   }
 
   const handleColumns = () => {
     setShowColumns(true)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const headers = {
@@ -125,9 +124,11 @@ const CampaignIndex = () => {
     axios
       .post(route('ecommerce-campaigns.status.update', rowId), { status }, headers)
       .then((res) => {
-        setData((prev) => prev.map((item, idx) =>
-          item.id === rowId ? { ...item, status: [status, rowId, idx] } : item
-        ))
+        setData((prev) =>
+          prev.map((item, idx) =>
+            item.id === rowId ? { ...item, status: [status, rowId, idx] } : item
+          )
+        )
         toast.success(res.data.msg)
       })
       .catch((err) => {
@@ -157,11 +158,17 @@ const CampaignIndex = () => {
     axios
       .put(route('ecommerce-campaigns.update', editData.id), editData, headers)
       .then((res) => {
-        setData((prev) => prev.map((item) =>
-          item.id === editData.id
-            ? { ...editData, updated_at: res.data.updated_at, customer_name: res.data.customer_name }
-            : item
-        ))
+        setData((prev) =>
+          prev.map((item) =>
+            item.id === editData.id
+              ? {
+                  ...editData,
+                  updated_at: res.data.updated_at,
+                  customer_name: res.data.customer_name,
+                }
+              : item
+          )
+        )
         setEditData()
         setShowEditModal({ open: false })
         toast.success(res.data.msg)
@@ -196,11 +203,39 @@ const CampaignIndex = () => {
     }
   }, [showColumns])
 
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncTablePanelHeight()
+    })
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [serachSidebar, data.length])
+
   const TableToolbar = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={{ color: '#031b4e' }} />} />
+          <Button
+            type="text"
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+          />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -216,11 +251,12 @@ const CampaignIndex = () => {
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
         }
         if (col.key === 'edit') {
           base.render = (value) => (
@@ -231,7 +267,9 @@ const CampaignIndex = () => {
         }
         if (col.key === 'affiliates') {
           base.render = (value) => (
-            <InertiaLink href={route('ecommerce.campaigns.affiliates', value)}>Affiliates</InertiaLink>
+            <InertiaLink href={route('ecommerce.campaigns.affiliates', value)}>
+              Affiliates
+            </InertiaLink>
           )
         }
         if (col.key === 'status') {
@@ -276,37 +314,17 @@ const CampaignIndex = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
-            </div>
-            <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
             </div>
 
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              ''
-            )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
@@ -316,20 +334,43 @@ const CampaignIndex = () => {
             )}
           </div>
         )}
-        <Table
-          columns={antdColumns}
-          dataSource={filteredData}
-          rowKey="id"
-          rowSelection={rowSelection}
-          pagination={false}
-          components={{
-            header: {
-              cell: ResizableTitle,
-            },
-          }}
-          scroll={{ y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
+
+        <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
+          >
+            <div className="top-element">
+              <CustomFilter
+                mainData={data}
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={setFilterValue}
+              />
+            </div>
+          </div>
+
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              dataSource={filteredData}
+              rowKey="id"
+              rowSelection={rowSelection}
+              pagination={false}
+              components={{
+                header: {
+                  cell: ResizableTitle,
+                },
+              }}
+              scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
+          </div>
+        </div>
       </div>
 
       <NormalModal
@@ -361,7 +402,7 @@ const CampaignIndex = () => {
                   placeholder="Select Customer"
                   options={customersOption}
                   defaultValue={editData?.customer_id}
-                  onChange={value => CustomerHandleChange(value)}
+                  onChange={(value) => CustomerHandleChange(value)}
                   className="w-full"
                 />
               </Col>
@@ -395,11 +436,7 @@ const CampaignIndex = () => {
               </Col>
 
               <Col span={24}>
-                <Button
-                  type="primary"
-                  onClick={handleEditSubmit}
-                  className="mt-[15px]"
-                >
+                <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
                   Update
                 </Button>
               </Col>
@@ -418,10 +455,11 @@ const CampaignIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowKeys.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          selectedRowKeys.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
   )

@@ -263,21 +263,28 @@ const GenerateReportAffiliate = () => {
     return affiliateNames
   }
 
-  const fileName = `${values?.type}${values.customer_name ? `_(${values.customer_name})` : ''
-    }${values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''}${values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''
-    }${(year?.year) ? `_Years(${year.year.toString()})` : ''}${(values?.start_date && !year?.year)
+  const fileName = `${values?.type}${
+    values.customer_name ? `_(${values.customer_name})` : ''
+  }${values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''}${
+    values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''
+  }${year?.year ? `_Years(${year.year.toString()})` : ''}${
+    values?.start_date && !year?.year
       ? `_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }`
+  }`
   values.file_name = fileName
 
-  const fileNameForEmailCriteria = `${values?.type}_Report${values.customer_name ? `_For_Customers(${values.customer_name})` : ''
-    }${values?.annotation ? `_For_Annotations(${values.annotation})` : ''}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''
-    }${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''
-    }${year?.year ? `_For_Years(${year.year.toString()})` : ''}${(values?.start_date && !year?.year)
+  const fileNameForEmailCriteria = `${values?.type}_Report${
+    values.customer_name ? `_For_Customers(${values.customer_name})` : ''
+  }${values?.annotation ? `_For_Annotations(${values.annotation})` : ''}${
+    values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''
+  }${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''}${
+    values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''
+  }${year?.year ? `_For_Years(${year.year.toString()})` : ''}${
+    values?.start_date && !year?.year
       ? `_For_Date_Range(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }_Created@${currentDate()}`
+  }_Created@${currentDate()}`
   values.fileNameForEmailCriteria = fileNameForEmailCriteria
 
   const handleSubmit = () => {
@@ -311,17 +318,13 @@ const GenerateReportAffiliate = () => {
     <>
       <Helmet title="Generate Report Affiliate" />
       <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Generate Report Affiliate
         </Typography.Title>
         <form validate="true" className="generate-report">
           <Row gutter={[0, 16]}>
             <Col span={24}>
-              <Radio.Group
-                name="type"
-                value={type.type}
-                onChange={typeHandleChange}
-              >
+              <Radio.Group name="type" value={type.type} onChange={typeHandleChange}>
                 <Radio value="general">General</Radio>
                 <Radio value="billed">Billed</Radio>
               </Radio.Group>
@@ -342,7 +345,7 @@ const GenerateReportAffiliate = () => {
                 onChange={customerHandleChange}
                 placeholder="Select Customer"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {targets
                   .map((option) => option.Customer)
@@ -359,7 +362,7 @@ const GenerateReportAffiliate = () => {
                 onChange={campaignHandleChange}
                 placeholder="Select Campaign"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {campaigns.map((campaign, key) => (
                   <Select.Option key={key} value={campaign.id}>
@@ -373,7 +376,7 @@ const GenerateReportAffiliate = () => {
                 name="target_name"
                 onChange={(val) => targetHandleChange(val)}
                 options={targetOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Targets"
               />
             </Col>
@@ -383,7 +386,7 @@ const GenerateReportAffiliate = () => {
                 onChange={annotationHandleChange}
                 placeholder="Select Annotation"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 <Select.Option value="yes">Yes</Select.Option>
                 <Select.Option value="no">No</Select.Option>
@@ -394,7 +397,7 @@ const GenerateReportAffiliate = () => {
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val)}
                 options={affiliateOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Affiliates"
               />
             </Col>
@@ -404,7 +407,7 @@ const GenerateReportAffiliate = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -413,7 +416,7 @@ const GenerateReportAffiliate = () => {
                 onChange={monthHandleChange}
                 placeholder="Select Broadcast Month"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {monthByYear.map((option, indx) => (
                   <Select.Option key={indx} value={option.broad_cast_month}>
@@ -428,7 +431,7 @@ const GenerateReportAffiliate = () => {
                 onChange={weekHandleChange}
                 placeholder="Select Broadcast Week"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {broadCastWeeks.map((option, indx) => (
                   <Select.Option key={indx} value={option.broad_cast_week}>
@@ -443,8 +446,10 @@ const GenerateReportAffiliate = () => {
                 <label className="block text-sm mb-1">Start Date</label>
                 <DatePicker
                   value={startDate.start_date ? dayjs(startDate.start_date) : null}
-                  onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
-                  className="w-full"
+                  onChange={(date, dateString) =>
+                    startDateHandleChange({ target: { name: 'start_date', value: dateString } })
+                  }
+                  className="!w-full"
                 />
               </div>
             </Col>
@@ -453,8 +458,10 @@ const GenerateReportAffiliate = () => {
                 <label className="block text-sm mb-1">End Date</label>
                 <DatePicker
                   value={endDate.end_date ? dayjs(endDate.end_date) : null}
-                  onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
-                  className="w-full"
+                  onChange={(date, dateString) =>
+                    endDateHandleChange({ target: { name: 'end_date', value: dateString } })
+                  }
+                  className="!w-full"
                 />
               </div>
             </Col>

@@ -298,7 +298,7 @@ const GenerateReportAffiliate = () => {
     <>
       <Helmet title="Generate Report Call Length" />
       <div className="grid w-[500px] mx-auto mt-8 p-10 bg-white shadow rounded">
-        <Typography.Title level={5} className="text-center mb-[35px]">
+        <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Generate Report Call Length
         </Typography.Title>
         <form validate="true" className="generate-report">
@@ -330,7 +330,7 @@ const GenerateReportAffiliate = () => {
                 onChange={customerHandleChange}
                 placeholder="Select Customer"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {targets
                   .map((option) => option.Customer)
@@ -347,7 +347,7 @@ const GenerateReportAffiliate = () => {
                 onChange={campaignHandleChange}
                 placeholder="Select Campaign"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {campaigns.map((campaign, key) => (
                   <Select.Option key={key} value={campaign.id}>
@@ -362,7 +362,7 @@ const GenerateReportAffiliate = () => {
                 <Input
                   name="destination_number"
                   onChange={handleDestinationNumberChange}
-                  className="w-full"
+                  className="!w-full"
                 />
               </div>
             </Col>
@@ -372,7 +372,7 @@ const GenerateReportAffiliate = () => {
                 onChange={annotationHandleChange}
                 placeholder="Select Annotation"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 <Select.Option value="yes">Yes</Select.Option>
                 <Select.Option value="no">No</Select.Option>
@@ -383,7 +383,7 @@ const GenerateReportAffiliate = () => {
                 name="affiliate_id"
                 onChange={(val) => affiliateHandleChange(val)}
                 options={affiliateOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Affiliates"
               />
             </Col>
@@ -393,7 +393,7 @@ const GenerateReportAffiliate = () => {
                 name="year"
                 onChange={(val) => yearHandleChange(val)}
                 options={yearOptions}
-                className="w-full"
+                className="!w-full"
                 placeholder="Select Years"
               />
             </Col>
@@ -402,7 +402,7 @@ const GenerateReportAffiliate = () => {
                 onChange={monthHandleChange}
                 placeholder="Select Broadcast Month"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {monthByYear.map((option, indx) => (
                   <Select.Option key={indx} value={option.broad_cast_month}>
@@ -417,7 +417,7 @@ const GenerateReportAffiliate = () => {
                 onChange={weekHandleChange}
                 placeholder="Select Broadcast Week"
                 allowClear
-                className="w-full"
+                className="!w-full"
               >
                 {broadCastWeeks.map((option, indx) => (
                   <Select.Option key={indx} value={option.broad_cast_week}>
@@ -433,7 +433,7 @@ const GenerateReportAffiliate = () => {
                 <DatePicker
                   value={startDate.start_date ? dayjs(startDate.start_date) : null}
                   onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
-                  className="w-full"
+                  className="!w-full"
                 />
               </div>
             </Col>
@@ -443,7 +443,7 @@ const GenerateReportAffiliate = () => {
                 <DatePicker
                   value={endDate.end_date ? dayjs(endDate.end_date) : null}
                   onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
-                  className="w-full"
+                  className="!w-full"
                 />
               </div>
             </Col>

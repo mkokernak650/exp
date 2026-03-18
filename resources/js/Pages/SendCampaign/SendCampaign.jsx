@@ -60,14 +60,14 @@ const SendCampaign = () => {
     return (
         <>
             <Helmet title="Roster Campaign" />
-            <div className="max-w-4xl mx-auto mt-10">
+            <div className="max-w-4xl mx-auto mt-8">
                 <h4 className="text-2xl font-medium">Roster Campaign</h4>
-                <div className="mt-8 p-8 rounded-2xl shadow">
+                <div className="mt-8 p-10 bg-white shadow-sm rounded">
                     <form className="space-y-5" onSubmit={submit}>
                         <div>
-                            <p className="font-medium pl-1">Select Affiliates</p>
+                            <p className="block text-sm mb-1 font-medium">Select Affiliates</p>
                             <MultiSelect
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Select Affiliates"
                                 options={[{ label: 'All Affiliates', value: 'allAffiliates' }, ...affiliateOptions]}
                                 defaultValue={data.selectedAffiliates}
@@ -75,9 +75,9 @@ const SendCampaign = () => {
                             />
                         </div>
                         <div>
-                            <p className="font-medium pl-1">Add additional emails</p>
+                            <p className="block text-sm mb-1 font-medium">Add additional emails</p>
                             <MultiSelect
-                                className="w-full"
+                                className="!w-full"
                                 placeholder="Write and press enter or comma(,) to add additional emails"
                                 defaultValue={data.additionalEmails}
                                 onChange={(value) => setData('additionalEmails', value)}
@@ -87,14 +87,14 @@ const SendCampaign = () => {
                         <div>
                             <label
                                 htmlFor="subject"
-                                className="block mb-2 font-medium"
+                                className="block text-sm mb-1 font-medium"
                             >
                                 Subject
                             </label>
                             <Input
                                 type="text"
                                 id="subject"
-                                className="border border-gray-400 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                className="border border-gray-400 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block !w-full p-2.5"
                                 placeholder="Email subject"
                                 value={data.subject}
                                 onChange={(e) => setData('subject', e.target.value)}
@@ -104,14 +104,14 @@ const SendCampaign = () => {
                         <div>
                             <label
                                 htmlFor="top_message"
-                                className="block mb-2 font-medium"
+                                className="block text-sm mb-1 font-medium"
                             >
                                 Message
                             </label>
                             <Input.TextArea
                                 id="top_message"
                                 rows={4}
-                                className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-400 focus:ring-blue-500 focus:border-blue-500"
+                                className="block p-2.5 !w-full text-sm text-gray-900 rounded-lg border border-gray-400 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Write the top message..."
                                 value={data.topMessage}
                                 onChange={(e) => setData('topMessage', e.target.value)}
@@ -139,9 +139,9 @@ const SendCampaign = () => {
                     </form>
                 </div>
             </div>
-            <div className="max-w-4xl mx-auto mt-10">
+            <div className="max-w-4xl mx-auto mt-8">
                 <h4 className="text-xl font-medium">Campaign List (preview)</h4>
-                <div className="mt-8 p-8 rounded-2xl shadow space-y-5">
+                <div className="mt-8 p-10 bg-white shadow rounded space-y-5">
                     <div>
                         <img src={consumerExpLogo} alt="consumer-exp-logo" className="-ml-4" />
                     </div>
