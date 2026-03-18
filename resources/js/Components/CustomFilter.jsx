@@ -7,6 +7,10 @@ import Search from '@/Components/Icons/Search.jsx'
 const CustomFilter = (props) => {
   const { fields, filterValue, setFilterValue } = props
   const [fieldSearchValue, setFieldSearchValue] = useState('')
+  const safeFields = useMemo(
+    () => (Array.isArray(fields) ? fields.filter((fieldItem) => Boolean(fieldItem?.name)) : []),
+    [fields]
+  )
   const selectedFieldMap = useMemo(() => {
     const map = {}
     ;(filterValue?.items ?? []).forEach((item) => {
@@ -16,7 +20,7 @@ const CustomFilter = (props) => {
   }, [filterValue?.items])
 
   const getFieldConfig = (fieldName) =>
-    fields?.find((fieldItem) => fieldItem.name === fieldName) ?? fields?.[0]
+    safeFields.find((fieldItem) => fieldItem.name === fieldName) ?? safeFields[0]
 
   const getDefaultValueByOperator = (operator) => {
     if (operator === 'between' || operator === 'dateBetween') {
@@ -89,9 +93,8 @@ const CustomFilter = (props) => {
         }
 
         if (item.operator === 'between' || item.operator === 'dateBetween') {
-          const currentRange = item.value && typeof item.value === 'object'
-            ? item.value
-            : { from: '', to: '' }
+          const currentRange =
+            item.value && typeof item.value === 'object' ? item.value : { from: '', to: '' }
 
           if (rangeKey) {
             return {
@@ -132,7 +135,8 @@ const CustomFilter = (props) => {
     }))
   }
 
-  const filteredFields = (fields ?? []).filter((item) =>
+  console.log(fields)
+  const filteredFields = safeFields.filter((item) =>
     String(item.caption ?? item.name ?? '')
       .toLowerCase()
       .includes(fieldSearchValue.toLowerCase())

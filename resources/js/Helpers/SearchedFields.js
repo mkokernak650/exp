@@ -66,5 +66,6 @@ export const SearchedFields = (fields) => {
         ],
       }
     }
-  })
+    return null
+  }).filter(Boolean)
 }
