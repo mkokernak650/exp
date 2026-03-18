@@ -268,6 +268,13 @@ const AffiliateReport = () => {
         )
       }
 
+      if (col.key === 'tv_households') {
+        base.render = (value) =>
+          value === null || value === undefined || value === ''
+            ? ''
+            : Number(value).toLocaleString()
+      }
+
       return base
     }))
 
