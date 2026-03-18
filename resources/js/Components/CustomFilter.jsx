@@ -5,6 +5,19 @@ import Search from '@/Components/Icons/Search.jsx'
 
 const { RangePicker } = DatePicker
 
+const formatFilterLabel = (label) => {
+  const normalizedLabel = String(label ?? '')
+    .replace(/_/g, ' ')
+    .trim()
+
+  if (!normalizedLabel) return ''
+
+  return normalizedLabel
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 const CustomFilter = (props) => {
   const { fields, filterValue, setFilterValue } = props
   const [fieldSearchValue, setFieldSearchValue] = useState('')
@@ -136,9 +149,8 @@ const CustomFilter = (props) => {
     }))
   }
 
-  console.log(fields)
   const filteredFields = safeFields.filter((item) =>
-    String(item.caption ?? item.name ?? '')
+    formatFilterLabel(item.caption ?? item.name ?? '')
       .toLowerCase()
       .includes(fieldSearchValue.toLowerCase())
   )
@@ -166,7 +178,7 @@ const CustomFilter = (props) => {
                   checked={Boolean(selected)}
                   onChange={() => handleFieldToggle(field.name)}
                 />
-                <span>{field.caption || field.name}</span>
+                <span>{formatFilterLabel(field.caption || field.name)}</span>
               </label>
 
               {selected ? (
