@@ -1,9 +1,9 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
-import Search from '@/Components/Icons/Search.jsx'
+import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
 import { Table, Tooltip, Button, Select } from 'antd'
@@ -16,7 +16,8 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { fields, groups, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { fields, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
 import TextInput from '@/Components/Global/TextInput'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -33,6 +34,8 @@ const AffiliateReport = () => {
   const [orderByValue, setOrderByValue] = useState('affiliate_name@ASC')
   const [loading, setLoading] = useState(false)
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
   const parseTvHouseholds = (value) => {
     if (value === null || value === undefined || value === '') return null
@@ -87,11 +90,13 @@ const AffiliateReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
-  const onFilterChanged = (newFilterValue) => { changeFilter(newFilterValue) }
   const [serachSidebar, setSearchSidebar] = useState(false)
-  const handleSearch = () => { setSearchSidebar((prevState) => !prevState) }
+  const activeFilterCount = countActiveFilters(filterValue)
+  const handleFilter = () => {
+    setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
+  }
   const handleColumns = () => { setShowColumns(true) }
-  const closeSidebar = () => { setSearchSidebar(false) }
 
   const orderByOptions = [
     { label: 'Affiliate Name (Ascending)', value: 'affiliate_name@ASC' },
@@ -194,6 +199,30 @@ const AffiliateReport = () => {
     return () => { document.removeEventListener('mousedown', checkIfClickedOutside) }
   }, [showColumns])
 
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncTablePanelHeight()
+    })
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [serachSidebar, data.length, loading])
+
   useEffect(() => { getSearchingData() }, [orderByValue])
 
   const TableToolbar = () => {
@@ -252,31 +281,45 @@ const AffiliateReport = () => {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
-              <div className="top-left">
-                <MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect />
-              </div>
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
+              <MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect />
             </div>
-            <div className="search-icon" onClick={handleSearch}><span>Search Here</span><Search /></div>
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top"><div className="title"><span>Search</span></div><a className="close-nav" onClick={closeSidebar}><Cancel /></a></div>
-                <div className="top-element"><FilterControl {...{ fields, groups, filterValue, onFilterValueChanged: onFilterChanged }} /></div>
-              </div>
-            ) : ''}
             {showColumns ? (<div className="column-settings" ref={showColumnRef}><ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} /></div>) : ''}
           </div>
         )}
-        <Table
-          columns={antdColumns}
-          components={{ header: { cell: ResizableTitle } }}
-          dataSource={data}
-          rowKey="id"
-          rowSelection={rowSelection}
-          loading={loading}
-          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
-          scroll={{ y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
+        <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
+          >
+            <div className="top-element"><CustomFilter fields={fields} filterValue={filterValue} setFilterValue={changeFilter} /></div>
+          </div>
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              components={{ header: { cell: ResizableTitle } }}
+              dataSource={data}
+              rowKey="id"
+              rowSelection={rowSelection}
+              loading={loading}
+              pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+              scroll={{ y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
+          </div>
+        </div>
       </div>
 
       <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit Affiliate'}>

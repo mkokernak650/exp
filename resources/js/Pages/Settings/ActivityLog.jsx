@@ -1,10 +1,9 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
-import Search from '@/Components/Icons/Search.jsx'
+import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import { Table, Button, Select } from 'antd'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -15,15 +14,18 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
-import { fields, groups, filter, columns as defaultColumns } from './Helpers/ActivityLogProps'
+import { fields, filter, columns as defaultColumns } from './Helpers/ActivityLogProps'
 import { DateTimeFormat } from '../../Helpers/DateTimeFormat'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 
 const ActivityLog = () => {
   const { allActivityLog, columnsData } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [loading, setLoading] = useState(false)
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
   const [activityLog, setActivityLog] = useState(allActivityLog)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
@@ -75,17 +77,15 @@ const ActivityLog = () => {
   const [filterValue, changeFilter] = useState(filter)
 
   const [serachSidebar, setSearchSidebar] = useState(false)
+  const activeFilterCount = countActiveFilters(filterValue)
 
-  const handleSearch = () => {
+  const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
   }
 
   const handleColumns = () => {
     setShowColumns(true)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const triggerExportLink = (link) => {
@@ -181,9 +181,6 @@ const ActivityLog = () => {
       })
   }
 
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
 
   const itemPerPageHandleChange = (value) => {
     setItemPerPage(value)
@@ -192,6 +189,23 @@ const ActivityLog = () => {
   useEffect(() => {
     getSearchingData(curerentPage)
   }, [itemPerPage, filterValue])
+
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') return
+    const resizeObserver = new ResizeObserver(() => syncTablePanelHeight())
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [serachSidebar, data.length, loading, itemPerPage])
 
   const antdColumns = withResizableColumns(
     columns
@@ -231,6 +245,15 @@ const ActivityLog = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
               <Button
                 type="primary"
                 onClick={viewExport}
@@ -240,37 +263,6 @@ const ActivityLog = () => {
                 View Export
               </Button>
             </div>
-
-            <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
-            </div>
-
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              ''
-            )}
             {showColumns && (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
@@ -278,29 +270,45 @@ const ActivityLog = () => {
             )}
           </div>
         }
-        <Table
-          columns={antdColumns}
-          components={{ header: { cell: ResizableTitle } }}
-          dataSource={data}
-          rowKey="id"
-          loading={loading}
-          pagination={false}
-          scroll={{ y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
+        <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+          >
+            <div className="top-element">
+              <CustomFilter
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={changeFilter}
+              />
+            </div>
+          </div>
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              components={{ header: { cell: ResizableTitle } }}
+              dataSource={data}
+              rowKey="id"
+              loading={loading}
+              pagination={false}
+              scroll={{ y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
 
-        <div className="table-bottom">
-          <Select
-            value={itemPerPage}
-            onChange={(value) => itemPerPageHandleChange(value)}
-            options={[
-              { value: 10, label: '10' },
-              { value: 20, label: '20' },
-              { value: 100, label: '100' },
-              { value: 200, label: '200' },
-            ]}
-          />
-          <Pagination changePage={getSearchingData} data={activityLog} />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 100, label: '100' },
+                  { value: 200, label: '200' },
+                ]}
+              />
+              <Pagination changePage={getSearchingData} data={activityLog} />
+            </div>
+          </div>
         </div>
       </div>
     </>

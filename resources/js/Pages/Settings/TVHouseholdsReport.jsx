@@ -1,9 +1,9 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
-import Search from '@/Components/Icons/Search.jsx'
+import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
 import { Table, Tooltip, Button, Input } from 'antd'
@@ -16,8 +16,9 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import toast from 'react-hot-toast'
-import { fields, groups, filter, columns as defaultColumns } from './Helpers/TVHouseholdsReportProps'
+import { fields, filter, columns as defaultColumns } from './Helpers/TVHouseholdsReportProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -34,6 +35,8 @@ const CustomerReport = () => {
   const [loading, setLoading] = useState(false)
   const [orderByValue, setOrderByValue] = useState('tv_households@DESC')
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
   const mapDataArr = (data) => data.map((item, index) => ({ edit: item.id, sl: index + 1, market: item.market, state: item.state, tv_households: item.tv_households, created_at: item.created_at, updated_at: item.updated_at, id: item.id, key: item.id }))
 
@@ -65,11 +68,10 @@ const CustomerReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
-  const onFilterChanged = (newFilterValue) => { changeFilter(newFilterValue) }
   const [serachSidebar, setSearchSidebar] = useState(false)
-  const handleSearch = () => { setSearchSidebar((prevState) => !prevState) }
+  const activeFilterCount = countActiveFilters(filterValue)
+  const handleFilter = () => { setSearchSidebar((prevState) => !prevState); setShowColumns(false) }
   const handleColumns = () => { setShowColumns(true) }
-  const closeSidebar = () => { setSearchSidebar(false) }
   const orderByOptions = [{ label: 'TV Households (Ascending)', value: 'tv_households@ASC' }, { label: 'TV Households (Descending)', value: 'tv_households@DESC' }, { label: 'Created At (Ascending)', value: 'created_at@ASC' }, { label: 'Created At (Descending)', value: 'created_at@DESC' }]
 
   const deleteHandler = () => {
@@ -144,6 +146,22 @@ const CustomerReport = () => {
 
   useEffect(() => { getSearchingData() }, [orderByValue])
   useEffect(() => { const checkIfClickedOutside = (e) => { if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) { setShowColumns(false) } }; document.addEventListener('mousedown', checkIfClickedOutside); return () => { document.removeEventListener('mousedown', checkIfClickedOutside) } }, [showColumns])
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') return
+    const resizeObserver = new ResizeObserver(() => syncTablePanelHeight())
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [serachSidebar, data.length, loading])
 
   const TableToolbar = () => (
     <div className="table-toolbar">
@@ -197,26 +215,43 @@ const CustomerReport = () => {
           <div className="table-top">
             <div className="top-left">
               <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
               <Button type="primary" className="capitalize text-sm" onClick={openImportModal}>Import</Button>
               <Button type="primary" className="capitalize text-sm" onClick={exportHandler} disabled={allTVHouseholds == ''} loading={loading}>Searched Export</Button>
               <div className="top-left"><MultiSelect options={orderByOptions} onChange={(value) => setOrderByValue(value)} placeholder="Order By" className="w-[280px]" defaultValue={orderByValue} singleSelect /></div>
             </div>
-            <div className="search-icon" onClick={handleSearch}><span>Search Here</span><Search /></div>
-            {serachSidebar ? (<div className="search-sidebar"><div className="search-top"><div className="title"><span>Search</span></div><a className="close-nav" onClick={closeSidebar}><Cancel /></a></div><div className="top-element"><FilterControl {...{ fields, groups, filterValue, onFilterValueChanged: onFilterChanged }} /></div></div>) : ''}
             {showColumns ? (<div className="column-settings" ref={showColumnRef}><ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} /></div>) : ''}
           </div>
         )}
-        <Table
-          columns={antdColumns}
-          components={{ header: { cell: ResizableTitle } }}
-          dataSource={data}
-          rowKey="id"
-          rowSelection={rowSelection}
-          loading={loading}
-          pagination={false}
-          scroll={{ y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
+        <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+          >
+            <div className="top-element"><CustomFilter fields={fields} filterValue={filterValue} setFilterValue={changeFilter} /></div>
+          </div>
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              components={{ header: { cell: ResizableTitle } }}
+              dataSource={data}
+              rowKey="id"
+              rowSelection={rowSelection}
+              loading={loading}
+              pagination={false}
+              scroll={{ y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
+          </div>
+        </div>
       </div>
 
       <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit TV Households'}>

@@ -1,7 +1,7 @@
 import Layout from '../../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
+import CustomFilter from '@/Components/CustomFilter'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
@@ -49,10 +49,6 @@ export const fields = [
   },
 ]
 
-export const groups = [
-  { caption: 'And', name: 'and' },
-  { caption: 'Or', name: 'or' },
-]
 export const filter = {
   groupName: 'and',
   items: [
@@ -151,10 +147,6 @@ const CampaignAnnotations = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
-
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -293,13 +285,10 @@ const CampaignAnnotations = () => {
                 </div>
 
                 <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
+                  <CustomFilter
+                    fields={fields}
+                    filterValue={filterValue}
+                    setFilterValue={changeFilter}
                   />
                 </div>
               </div>

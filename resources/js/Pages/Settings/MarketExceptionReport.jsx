@@ -1,9 +1,9 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import FilterControl from 'react-filter-control'
-import Search from '@/Components/Icons/Search.jsx'
+import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import Edit from '@/Components/Icons/Edit.jsx'
 import { Table, Tooltip, Button, Select, Input, Radio, DatePicker } from 'antd'
@@ -17,7 +17,8 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { fields, groups, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { fields, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
 import { Row, Col } from 'antd'
 
 const MarketExceptionReport = () => {
@@ -31,6 +32,8 @@ const MarketExceptionReport = () => {
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
   const [exportModal, setExportModal] = useState({ open: false })
   const [type, setType] = useState('xlsx')
   const [loading, setLoading] = useState(false)
@@ -122,22 +125,17 @@ const MarketExceptionReport = () => {
 
   const [filterValue, changeFilter] = useState(filter)
 
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
 
   const [searchSidebar, setSearchSidebar] = useState(false)
+  const activeFilterCount = countActiveFilters(filterValue)
 
-  const handleSearch = () => {
+  const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
   }
 
   const handleColumns = () => {
     setShowColumns(true)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const deleteHandler = () => {
@@ -190,6 +188,30 @@ const MarketExceptionReport = () => {
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
+
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncTablePanelHeight()
+    })
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [searchSidebar, data.length])
 
   const handleExportTypeChange = (e) => {
     setType(e.target.value)
@@ -287,6 +309,15 @@ const MarketExceptionReport = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
               <Button
                 type="primary"
                 htmlType="submit"
@@ -297,36 +328,6 @@ const MarketExceptionReport = () => {
                 Export
               </Button>
             </div>
-            <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
-            </div>
-
-            {searchSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              ''
-            )}
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
@@ -336,16 +337,36 @@ const MarketExceptionReport = () => {
             )}
           </div>
         )}
-        <Table
-          columns={antdColumns}
-          components={{ header: { cell: ResizableTitle } }}
-          dataSource={data}
-          rowKey="id"
-          rowSelection={rowSelection}
-          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
-          scroll={{ y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
+        <div className={`report-content-layout ${searchSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${searchSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
+          >
+            <div className="top-element">
+              <CustomFilter
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={changeFilter}
+              />
+            </div>
+          </div>
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              components={{ header: { cell: ResizableTitle } }}
+              dataSource={data}
+              rowKey="id"
+              rowSelection={rowSelection}
+              pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+              scroll={{ y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
+          </div>
+        </div>
       </div>
 
       <NormalModal

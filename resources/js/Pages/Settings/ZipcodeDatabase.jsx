@@ -18,7 +18,9 @@ import toast from 'react-hot-toast'
 const ZipcodeDatabase = () => {
   const { allZipcodes, columnsData, states } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [tableLoading, setTableLoading] = useState(false)
+  const [exportLoading, setExportLoading] = useState(false)
+  const [importLoading, setImportLoading] = useState(false)
   const [importModal, setImportModal] = useState({ open: false })
   const [exportModal, setExportModal] = useState({ open: false })
   const [selectedFile, setSelectedFile] = useState(null)
@@ -123,14 +125,14 @@ const ZipcodeDatabase = () => {
 
   const importHandler = (e) => {
     e.preventDefault()
-    setLoading(true)
+    setImportLoading(true)
     const formData = new FormData()
     formData.append('importfile', selectedFile)
     axios
       .post(route('zipcode.data.import'), formData)
       .then((res) => {
         setSelectedFile(null)
-        setLoading(false)
+        setImportLoading(false)
         if (res.status === 200) {
           setImportModal({ open: false })
           toast.success('Imported Successfully')
@@ -138,7 +140,9 @@ const ZipcodeDatabase = () => {
           toast.error('Import failed')
         }
       })
-      .catch((err) => { })
+      .catch(() => {
+        setImportLoading(false)
+      })
   }
 
   useEffect(() => {
@@ -156,7 +160,7 @@ const ZipcodeDatabase = () => {
 
   const getSearchingData = async (pageData) => {
     setCurerentPage(pageData)
-    setLoading(true)
+    setTableLoading(true)
     await axios
       .get(
         'telephone-and-zip-codes?page=' +
@@ -176,7 +180,10 @@ const ZipcodeDatabase = () => {
           sl: index + 1,
           key: item.id,
         })))
-        setLoading(false)
+        setTableLoading(false)
+      })
+      .catch(() => {
+        setTableLoading(false)
       })
   }
 
@@ -194,21 +201,21 @@ const ZipcodeDatabase = () => {
 
   const exportHandler = (e) => {
     e.preventDefault()
-    setLoading(true)
+    setExportLoading(true)
     axios
       .get('zipcode-data-export?filterByState=' + filterByState +
         '&filterByTimeZone=' + filterByTimeZone +
         '&filterBySearchBoxValue=' + JSON.stringify(filterBySearchBoxValue))
       .then((res) => {
-        setLoading(false)
+        setExportLoading(false)
         if (res.status === 200) {
           triggerExportLink(res.request.responseURL)
         } else {
           toast.error('Error while importing file')
         }
       })
-      .catch((err) => {
-        setLoading(false)
+      .catch(() => {
+        setExportLoading(false)
       })
   }
 
@@ -243,7 +250,7 @@ const ZipcodeDatabase = () => {
               type="primary"
               onClick={exportHandler}
               disabled={zipCodeData == ''}
-              loading={loading}
+              loading={exportLoading}
               className="w-auto capitalize text-sm"
             >
               Export
@@ -326,7 +333,7 @@ const ZipcodeDatabase = () => {
           components={{ header: { cell: ResizableTitle } }}
           dataSource={data}
           rowKey="id"
-          loading={loading}
+          loading={tableLoading}
           pagination={false}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
@@ -352,7 +359,7 @@ const ZipcodeDatabase = () => {
               type="primary"
               onClick={importHandler}
               disabled={!selectedFile}
-              loading={loading}
+              loading={importLoading}
             >
               Next
             </Button>
@@ -368,7 +375,7 @@ const ZipcodeDatabase = () => {
               <Radio value="xls">XLS</Radio>
               <Radio value="tsv">TSV</Radio>
             </Radio.Group>
-            <Button type="primary" onClick={exportHandler} loading={loading}>
+            <Button type="primary" onClick={exportHandler} loading={exportLoading}>
               Next
             </Button>
           </div>

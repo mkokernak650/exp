@@ -13,13 +13,14 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import mergeColumns from '@/Helpers/MergeColumns'
 import toast from 'react-hot-toast'
-import { fields, groups, filter, columns as defaultColumns } from './Helpers/BroadcastWeekReportProps'
+import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastWeekReportProps'
 import { Pagination } from 'react-laravel-paginex'
-import FilterControl from 'react-filter-control'
-import Search from '@/Components/Icons/Search.jsx'
+import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
+import Filter from '@/Components/Icons/Filter.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 
 const BroadcastWeekReport = () => {
   const { allBroadCastWeeks, columnsData } = usePage().props
@@ -30,6 +31,8 @@ const BroadcastWeekReport = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [editData, setEditData] = useState()
   const showColumnRef = useRef()
+  const tablePanelRef = useRef()
+  const [tablePanelHeight, setTablePanelHeight] = useState(0)
   const [broadCastWeeks, setBroadCastWeeks] = useState(allBroadCastWeeks)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
@@ -100,22 +103,17 @@ const BroadcastWeekReport = () => {
 
   const [filterValue, changeFilter] = useState(filter)
 
-  const onFilterChanged = (newFilterValue) => {
-    changeFilter(newFilterValue)
-  }
 
   const [serachSidebar, setSearchSidebar] = useState(false)
+  const activeFilterCount = countActiveFilters(filterValue)
 
-  const handleSearch = () => {
+  const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
   }
 
   const handleColumns = () => {
     setShowColumns(true)
-  }
-
-  const closeSidebar = () => {
-    setSearchSidebar(false)
   }
 
   const handleEdit = (itemId) => {
@@ -243,6 +241,23 @@ const BroadcastWeekReport = () => {
     getSearchingData(curerentPage)
   }, [itemPerPage, filterValue])
 
+  useEffect(() => {
+    const syncTablePanelHeight = () => {
+      if (tablePanelRef.current) {
+        setTablePanelHeight(tablePanelRef.current.offsetHeight)
+      }
+    }
+    syncTablePanelHeight()
+    if (!tablePanelRef.current || typeof ResizeObserver === 'undefined') return
+    const resizeObserver = new ResizeObserver(() => syncTablePanelHeight())
+    resizeObserver.observe(tablePanelRef.current)
+    window.addEventListener('resize', syncTablePanelHeight)
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncTablePanelHeight)
+    }
+  }, [serachSidebar, data.length, loading, itemPerPage])
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys) => {
@@ -295,39 +310,20 @@ const BroadcastWeekReport = () => {
           <TableToolbar />
         ) : (
           <div className="table-top">
-            <div className="columns-show-hide" onClick={handleColumns}>
-              <Eye />
-            </div>
-            <div className="search-icon" onClick={handleSearch}>
-              <span>Search Here</span>
-              <Search />
-            </div>
-
-            {serachSidebar ? (
-              <div className="search-sidebar">
-                <div className="search-top">
-                  <div className="title">
-                    <span>Search</span>
-                  </div>
-                  <a className="close-nav" onClick={closeSidebar}>
-                    <Cancel />
-                  </a>
-                </div>
-
-                <div className="top-element">
-                  <FilterControl
-                    {...{
-                      fields,
-                      groups,
-                      filterValue,
-                      onFilterValueChanged: onFilterChanged,
-                    }}
-                  />
-                </div>
+            <div className="top-left">
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
               </div>
-            ) : (
-              ''
-            )}
+              <button
+                type="button"
+                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                onClick={handleFilter}
+                aria-label="Open filters"
+              >
+                <Filter />
+                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+              </button>
+            </div>
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
                 <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
@@ -337,29 +333,45 @@ const BroadcastWeekReport = () => {
             )}
           </div>
         )}
-        <Table
-          columns={antdColumns}
-          components={{ header: { cell: ResizableTitle } }}
-          dataSource={data}
-          rowKey="id"
-          rowSelection={rowSelection}
-          loading={loading}
-          pagination={false}
-          scroll={{ y: 'calc(100vh - 217px)' }}
-          size="small"
-        />
-        <div className="table-bottom">
-          <Select
-            value={itemPerPage}
-            onChange={(value) => setItemPerPage(value)}
-            options={[
-              { value: 10, label: '10' },
-              { value: 20, label: '20' },
-              { value: 100, label: '100' },
-              { value: 200, label: '200' },
-            ]}
-          />
-          <Pagination changePage={getSearchingData} data={broadCastWeeks} />
+        <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
+          <div
+            className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
+            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+          >
+            <div className="top-element">
+              <CustomFilter
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={changeFilter}
+              />
+            </div>
+          </div>
+          <div className="report-table-panel" ref={tablePanelRef}>
+            <Table
+              columns={antdColumns}
+              components={{ header: { cell: ResizableTitle } }}
+              dataSource={data}
+              rowKey="id"
+              rowSelection={rowSelection}
+              loading={loading}
+              pagination={false}
+              scroll={{ y: 'calc(100vh - 217px)' }}
+              size="small"
+            />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => setItemPerPage(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 100, label: '100' },
+                  { value: 200, label: '200' },
+                ]}
+              />
+              <Pagination changePage={getSearchingData} data={broadCastWeeks} />
+            </div>
+          </div>
         </div>
       </div>
 
