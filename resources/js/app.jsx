@@ -1,5 +1,4 @@
 import "../css/app.css";
-import "../css/utilities.css";
 import { render } from "react-dom";
 import { Toaster } from "react-hot-toast";
 import { createInertiaApp } from "@inertiajs/inertia-react";
