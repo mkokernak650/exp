@@ -80,12 +80,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'email',
-      operator: 'isNotEmpty',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [

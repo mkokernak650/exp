@@ -68,12 +68,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'broad_cast_month',
-      operator: 'isNotEmpty',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [

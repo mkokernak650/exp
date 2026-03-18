@@ -508,12 +508,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'Last_Name',
-      operator: 'isNotEmpty',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [

@@ -115,13 +115,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'order_type',
-      operator: 'isNotEmpty',
-      value: '',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [

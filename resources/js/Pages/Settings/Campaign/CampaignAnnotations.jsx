@@ -51,12 +51,7 @@ export const fields = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'annotation',
-      operator: 'isNotEmpty',
-    },
-  ],
+  items: [],
 }
 
 const CampaignAnnotations = () => {

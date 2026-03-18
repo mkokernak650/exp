@@ -1200,13 +1200,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'ZipCode',
-      operator: 'contains',
-      value: '',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [

@@ -94,12 +94,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'affiliate_id',
-      operator: 'isNotEmpty',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [

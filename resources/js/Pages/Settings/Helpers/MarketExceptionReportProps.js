@@ -182,12 +182,7 @@ export const groups = [
 
 export const filter = {
   groupName: 'and',
-  items: [
-    {
-      field: 'campaign',
-      operator: 'isNotEmpty',
-    },
-  ],
+  items: [],
 }
 
 export const columns = [
