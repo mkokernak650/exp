@@ -55,7 +55,10 @@ const AddAffiliate = () => {
       <Helmet title="Add Affiliate" />
       <Note>
         <p>For Ringba affiliates, fetching the Ringba data will fetch affiliates as well.</p>
-        <p>To avoid duplicate affiliates, update Ringba data first, and then this page will prevent users from inserting duplicates.</p>
+        <p>
+          To avoid duplicate affiliates, update Ringba data first, and then this page will prevent
+          users from inserting duplicates.
+        </p>
       </Note>
       <div className="grid w-[500px] m-auto mt-8 p-10 shadow rounded bg-white">
         <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
@@ -78,22 +81,10 @@ const AddAffiliate = () => {
                 error={errors?.affiliate_name || similarAffiliates}
                 helperText={errors?.affiliate_name?.[0] || similarAffiliates}
               />
-              <TextInput
-                label="Email"
-                name="email"
-                handleChange={handleChange}
-              />
-              <TextInput
-                label="Telephone"
-                name="telephone"
-                handleChange={handleChange}
-              />
-              <TextInput
-                label="Address"
-                name="address"
-                handleChange={handleChange}
-              />
-              <div className="pt-[18px]">
+              <TextInput label="Email" name="email" handleChange={handleChange} />
+              <TextInput label="Telephone" name="telephone" handleChange={handleChange} />
+              <TextInput label="Address" name="address" handleChange={handleChange} />
+              <div>
                 <div className="mb-1">
                   <label>Select Market</label>
                 </div>
@@ -104,21 +95,21 @@ const AddAffiliate = () => {
                   onChange={(value) => {
                     handleChange({ target: { name: 'market', value } })
                   }}
-                  className="w-full"
+                  className="w-full mb-4"
                   status={errors?.market ? 'error' : undefined}
                   allowClear
                 >
                   {allMarkets.map((item) => (
-                    <Select.Option key={item.market} value={item.market}>{item.market}</Select.Option>
+                    <Select.Option key={item.market} value={item.market}>
+                      {item.market}
+                    </Select.Option>
                   ))}
                 </Select>
-                {errors?.market && <div className="text-red-500 text-xs">{errors?.market?.[0]}</div>}
+                {errors?.market && (
+                  <div className="text-red-500 text-xs">{errors?.market?.[0]}</div>
+                )}
               </div>
-              <TextInput
-                label="Contact Name"
-                name="contact_name"
-                handleChange={handleChange}
-              />
+              <TextInput label="Contact Name" name="contact_name" handleChange={handleChange} />
               <TextInput
                 label="Contact Telephone"
                 name="contact_telephone"

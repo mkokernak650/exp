@@ -47,7 +47,7 @@ const AddBroadcastMonth = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
           <Row gutter={[16, 16]}>
-            <Col span={24} className="p-1 mb-[15px]">
+            <Col span={24} className="p-1">
               <div>
                 <label>Broadcast Month</label>
                 <Input
@@ -59,23 +59,27 @@ const AddBroadcastMonth = () => {
                 />
               </div>
             </Col>
-            <Col span={24} className="p-1 mb-[15px]">
+            <Col span={24} className="p-1">
               <div>
                 <label>Start Date</label>
                 <DatePicker
                   defaultValue={dayjs()}
-                  onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    handleChange({ target: { name: 'start_date', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>
             </Col>
 
-            <Col span={24} className="p-1 mb-[15px]">
+            <Col span={24} className="p-1">
               <div>
                 <label>End Date</label>
                 <DatePicker
                   defaultValue={dayjs()}
-                  onChange={(date, dateString) => handleChange({ target: { name: 'end_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    handleChange({ target: { name: 'end_date', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>

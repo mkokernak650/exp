@@ -47,7 +47,7 @@ const AddBroadcastWeek = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
           <Row gutter={[16, 16]}>
-            <Col span={24} className="p-1 mb-[15px]">
+            <Col span={24} className="p-1">
               <div>
                 <label>Broadcast Week</label>
                 <Input
@@ -59,7 +59,7 @@ const AddBroadcastWeek = () => {
                 />
               </div>
             </Col>
-            <Col span={24} className="p-1 mb-[15px]">
+            <Col span={24} className="p-1">
               <div>
                 <label>Start Date</label>
                 <DatePicker
@@ -70,7 +70,7 @@ const AddBroadcastWeek = () => {
               </div>
             </Col>
 
-            <Col span={24} className="p-1 mb-[15px]">
+            <Col span={24} className="p-1">
               <div>
                 <label>End Date</label>
                 <DatePicker
