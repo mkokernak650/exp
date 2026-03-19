@@ -55,7 +55,7 @@ export const fields = [
   },
   {
     caption: 'market',
-    name: 'market',
+    name: 'market_id',
     operators: [
       {
         caption: 'Contains',
