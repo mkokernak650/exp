@@ -56,7 +56,7 @@ export const fields = [
     caption: 'Description',
     name: 'Description',
     operators,
-  }
+  },
 ]
 
 export const groups = [
@@ -80,50 +80,49 @@ export const columns = [
     key: 'properties.name',
     title: 'User Name',
     dataType: 'string',
-    style: { width: '10%' },
+    style: { width: '120px' },
     visible: true,
   },
   {
     key: 'properties.email',
     title: 'User Email',
     dataType: 'string',
-    style: { width: '10%' },
+    style: { width: '200px' },
     visible: true,
   },
   {
     key: 'event',
     title: 'Event',
     dataType: 'string',
-    style: { width: '5%' },
+    style: { width: '100px' },
     visible: true,
   },
   {
     key: 'log_name',
     title: 'Module',
     dataType: 'string',
-    style: { width: '10%' },
+    style: { width: '120px' },
     visible: true,
   },
   {
     key: 'description',
     title: 'Description',
     dataType: 'string',
-    style: { width: '15%' },
+    style: { width: '200px' },
     visible: true,
-  }, 
+  },
   {
     key: 'properties.ids',
     title: 'Effected Ids',
     dataType: 'string',
-    style: { width: '15%' },
+    style: { width: '100px' },
     visible: true,
-  }, 
+  },
   {
     key: 'created_at',
     title: 'Activity Time (EST)',
     dataType: 'date',
-    style: { width: '10%' },
+    style: { width: '120px' },
     visible: true,
   },
-
 ]
