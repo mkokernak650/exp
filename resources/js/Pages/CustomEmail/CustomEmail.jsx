@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
 import { Button, Input, Typography, Spin, Card, Row, Col } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -19,6 +20,7 @@ const CustomEmail = () => {
     const [values, setValues] = useState()
     const [files, setFiles] = useState([])
     const [loading, setLoading] = useState(false)
+    const fileInputRef = useRef(null)
 
     const campaignOptions = campaigns.map((item) => ({
         label: item.campaign_name,
@@ -54,7 +56,19 @@ const CustomEmail = () => {
     }
 
     const handleFileSelect = (e) => {
-        setFiles([...files, ...e.target.files])
+        setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files || [])])
+        e.target.value = ''
+    }
+
+    const handleRemoveFile = (fileIndex) => {
+        setFiles((prevFiles) => prevFiles.filter((_, index) => index !== fileIndex))
+    }
+
+    const handleRemoveAllFiles = () => {
+        setFiles([])
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
     }
 
     const handleSubmit = (e) => {
@@ -85,6 +99,9 @@ const CustomEmail = () => {
                     setSelectedAffiliates('')
                     setAdditionalEmails('')
                     setFiles([])
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = ''
+                    }
                     e.target.reset()
                     toast.success(response.data.msg)
                     setLoading(false)
@@ -168,22 +185,54 @@ const CustomEmail = () => {
                         </Col>
 
                         <Col span={24}>
-                            <Button component="label" className="relative">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                multiple
+                                onChange={handleFileSelect}
+                                hidden
+                            />
+                            <Button onClick={() => fileInputRef.current?.click()}>
                                 Attach Files
-                                <input
-                                    type="file"
-                                    multiple
-                                    onChange={handleFileSelect}
-                                    hidden
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                />
                             </Button>
-                            <span className="custom-email-file-list-line"></span>
-                            <span className="custom-email-file-list">
-                                {files.length === 0 ?
-                                    'No files selected. (Multiple files can be added.)' :
-                                    'Selected files: ' + files.map(file => file.name).toString()}
-                            </span>
+                            <div className="">
+                                {files.length === 0 ? 
+                                    (<div className="mt-1">No files selected. (Multiple files can be added.)</div>
+                                ) : (
+                                    <>
+                                        <div className='flex items-center'>
+                                            Selected files:
+                                            <Button
+                                                type="link"
+                                                danger
+                                                className="!p-0 !ml-2"
+                                                onClick={handleRemoveAllFiles}
+                                                title="Remove all files"
+                                            >
+                                                <DeleteOutlined />
+                                            </Button>
+                                        </div>
+                                        <ul className="list-disc pl-6">
+                                            {files.map((file, index) => (
+                                                <li key={`${file.name}-${file.lastModified}-${index}`} className=''>
+                                                    <div className='flex items-center gap-2'>
+                                                        <span>{file.name}</span>
+                                                        <Button
+                                                            type="link"
+                                                            danger
+                                                            className="!p-0"
+                                                            onClick={() => handleRemoveFile(index)}
+                                                            title="Remove file"
+                                                        >
+                                                            <DeleteOutlined />
+                                                        </Button>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
+                            </div>
                         </Col>
 
                         <Col span={24}>
