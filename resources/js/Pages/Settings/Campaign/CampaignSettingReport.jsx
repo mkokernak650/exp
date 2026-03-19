@@ -4,7 +4,6 @@ import { InertiaLink, usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
 import { Table, Tooltip, Button, Input, Switch, DatePicker } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -425,9 +424,6 @@ const CampaignSettingReport = () => {
             </Button>
           </form>
 
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <Cancel />
-          </div>
         </div>
       </NormalModal>
 
@@ -470,9 +466,6 @@ const CampaignSettingReport = () => {
                 Update
               </Button>
             </div>
-          </div>
-          <div onClick={() => { setShowDescriptionModal({ open: false }); setDescriptionModalData({}) }} className="close-modal-icon">
-            <Cancel />
           </div>
         </div>
       </NormalModal>

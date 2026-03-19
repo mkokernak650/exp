@@ -159,61 +159,61 @@ const Exceptions = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter:
-          col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'edit') {
-        base.fixed = 'left'
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-            <ThreeDots />
-          </div>
-        )
-      }
+        if (col.key === 'edit') {
+          base.fixed = 'left'
+          base.render = (value) => (
+            <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
+              <ThreeDots />
+            </div>
+          )
+        }
 
-      if (col.key === 'Recording_Url') {
-        base.render = (value) => (
-          <audio className="audio-data w-full" controls>
-            <source src={value} type="audio/mp3" />
-            Your browser does not support the <code>audio</code> element.
-          </audio>
-        )
-      }
+        if (col.key === 'Recording_Url') {
+          base.render = (value) => (
+            <audio className="audio-data w-full" controls>
+              <source src={value} type="audio/mp3" />
+              Your browser does not support the <code>audio</code> element.
+            </audio>
+          )
+        }
 
-      if (col.key === 'Call_Date_Time') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            return DateTimeFormat(value)
+        if (col.key === 'Call_Date_Time') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              return DateTimeFormat(value)
+            }
           }
         }
-      }
 
-      if (col.key === 'Call_Date') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-            let format_date = value
-            let dd = String(format_date.getDate()).padStart(2, '0')
-            let yyyy = format_date.getFullYear()
-            return dd + '-' + shortMonth + '-' + yyyy
+        if (col.key === 'Call_Date') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+              let format_date = value
+              let dd = String(format_date.getDate()).padStart(2, '0')
+              let yyyy = format_date.getFullYear()
+              return dd + '-' + shortMonth + '-' + yyyy
+            }
           }
         }
-      }
 
-      return base
-    })
+        return base
+      })
   )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
@@ -344,9 +344,7 @@ const Exceptions = () => {
           if (!res.data[0].edit) res.data[0].edit = ''
           res.data[0].edit = res.data[0].id
           const mappedData = mapDataArr(res.data)
-          setData((prev) =>
-            prev.map((item) => (item.id === res.data[0].id ? mappedData[0] : item))
-          )
+          setData((prev) => prev.map((item) => (item.id === res.data[0].id ? mappedData[0] : item)))
           if (id === inboundIdsParam.length - 1) {
             toast.success(`${inboundIdsParam.length} Record Updated`)
             setSelectedRowKeys([])
@@ -387,9 +385,7 @@ const Exceptions = () => {
           toast.success('Successfully Updated')
           setData((prev) =>
             prev.map((item) =>
-              item.Inbound_Id === editData[0]
-                ? { ...item, Revenue: '', payoutAmount: '' }
-                : item
+              item.Inbound_Id === editData[0] ? { ...item, Revenue: '', payoutAmount: '' } : item
             )
           )
           setShowRevenueClearModal({ open: false })
@@ -437,7 +433,11 @@ const Exceptions = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
         </Tooltip>
 
         <Button

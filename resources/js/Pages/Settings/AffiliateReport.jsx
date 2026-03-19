@@ -4,10 +4,8 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
-import Edit from '@/Components/Icons/Edit.jsx'
 import { Table, Tooltip, Button, Select } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -139,6 +137,14 @@ const AffiliateReport = () => {
     }
   }
 
+  const handleToolbarEdit = () => {
+    if (selectedRowKeys.length !== 1) {
+      toast.error('Please select exactly one row to edit')
+      return
+    }
+    handleEdit(selectedRowKeys[0])
+  }
+
   const handleArchived = () => {
     axios
       .post(route('move.affiliate.archive'), { selectedRowIds: selectedRowKeys })
@@ -255,13 +261,22 @@ const AffiliateReport = () => {
   }, [orderByValue])
 
   const TableToolbar = () => {
+    const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
+
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
           <Button
             type="text"
-            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+            icon={<DeleteOutlined style={toolbarIconStyle} />}
             onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
+        </Tooltip>
+        <Tooltip title="Edit">
+          <Button
+            type="text"
+            icon={<EditOutlined style={toolbarIconStyle} />}
+            onClick={handleToolbarEdit}
           />
         </Tooltip>
         <Button
@@ -286,7 +301,7 @@ const AffiliateReport = () => {
 
   const antdColumns = withResizableColumns(
     columns
-      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
         const base = {
           key: col.key,
@@ -299,14 +314,6 @@ const AffiliateReport = () => {
               : col.dataType === 'string'
                 ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
                 : undefined,
-        }
-
-        if (col.key === 'edit') {
-          base.render = (value) => (
-            <div className="edit-icon" onClick={() => handleEdit(value)}>
-              <Edit />
-            </div>
-          )
         }
 
         if (col.key === 'tv_households') {
@@ -472,9 +479,6 @@ const AffiliateReport = () => {
               Edit
             </Button>
           </form>
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <Cancel />
-          </div>
         </div>
       </NormalModal>
 

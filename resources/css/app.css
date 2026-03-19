@@ -476,35 +476,6 @@ div::-webkit-scrollbar-thumb {
     margin: 0 10px;
 }
 
-.close-modal {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.close-modal-icon {
-    top: 6px;
-    right: 8px;
-    width: 32px;
-    height: 32px;
-    background: #edeaea;
-    border-radius: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: hover 0.3s;
-    cursor: pointer;
-    position: absolute;
-}
-
-.close-modal-icon:hover {
-    background: #dcd8d8;
-}
-
-.close-modal-icon img {
-    width: 13px;
-    height: 13px;
-}
-
 /*conditon-style*/
 
 /*antd table*/

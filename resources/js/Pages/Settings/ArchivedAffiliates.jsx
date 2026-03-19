@@ -4,9 +4,8 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
-import Edit from '@/Components/Icons/Edit.jsx'
 import { Table, Button, Input, Select } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import NormalModal from '@/Shared/NormalModal'
@@ -74,6 +73,14 @@ const ArchivedAffiliates = () => {
       setEditData(item)
       setShowEditModal({ open: true })
     }
+  }
+
+  const handleToolbarEdit = () => {
+    if (selectedRowKeys.length !== 1) {
+      toast.error('Please select exactly one row to edit')
+      return
+    }
+    handleEdit(selectedRowKeys[0])
   }
 
   const handleActive = () => {
@@ -148,12 +155,17 @@ const ArchivedAffiliates = () => {
     }
   }, [serachSidebar, data.length])
 
-  const TableToolbar = () => (
-    <div className="table-toolbar">
-      <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowActiveModal)}>Active</Button>
-      <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
-    </div>
-  )
+  const TableToolbar = () => {
+    const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
+
+    return (
+      <div className="table-toolbar">
+        <Button type="text" icon={<EditOutlined style={toolbarIconStyle} />} onClick={handleToolbarEdit} />
+        <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowActiveModal)}>Active</Button>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
+      </div>
+    )
+  }
 
   const rowSelection = {
     selectedRowKeys,
@@ -164,7 +176,7 @@ const ArchivedAffiliates = () => {
   }
 
   const antdColumns = withResizableColumns(columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+    .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
     .map((col) => {
       const base = {
         key: col.key,
@@ -176,14 +188,6 @@ const ArchivedAffiliates = () => {
           : col.dataType === 'string'
             ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
             : undefined,
-      }
-
-      if (col.key === 'edit') {
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Edit />
-          </div>
-        )
       }
 
       return base
@@ -250,7 +254,6 @@ const ArchivedAffiliates = () => {
             <TextInput label="Contact Telephone" name="contact_telephone" handleChange={handleEditChange} value={editData ? editData.contact_telephone : ''} />
             <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
           </form>
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon"><Cancel /></div>
         </div>
       </NormalModal>
 

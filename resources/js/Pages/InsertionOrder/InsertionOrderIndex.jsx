@@ -237,7 +237,6 @@ const InsertionOrderIndex = () => {
                             options={statusOptions}
                             onChange={(value) => setFilterByStatus(value)}
                             defaultValue={filterByStatus}
-                            className="!w-full"
                         />
                     </div>
                     {showColumns ? (

@@ -1,24 +1,21 @@
-import React from "react";
-import { Modal, Typography } from "antd";
-
-const { Title } = Typography;
+import React from 'react'
+import { Modal } from 'antd'
 
 export default function NormalModal({ open, setOpen, children, width, title }) {
   const handleClose = () => {
-    setOpen({ open: false });
-  };
+    setOpen({ open: false })
+  }
 
   return (
     <Modal
       open={open}
       width={width}
-      title={<Title level={5} className="text-center mb-0">{title}</Title>}
+      title={title}
       onCancel={handleClose}
       footer={null}
       centered
-      styles={{ body: { maxHeight: '70vh', overflow: 'auto' } }}
     >
       {children}
     </Modal>
-  );
+  )
 }

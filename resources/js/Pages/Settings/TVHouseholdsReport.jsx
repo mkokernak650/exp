@@ -4,10 +4,8 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
-import Edit from '@/Components/Icons/Edit.jsx'
 import { Table, Tooltip, Button, Input } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -124,6 +122,14 @@ const CustomerReport = () => {
       setEditData(editItem)
       setShowEditModal({ open: true })
     }
+  }
+
+  const handleToolbarEdit = () => {
+    if (selectedRowKeys.length !== 1) {
+      toast.error('Please select exactly one row to edit')
+      return
+    }
+    handleEdit(selectedRowKeys[0])
   }
 
   const handleEditChange = (e) => {
@@ -258,18 +264,29 @@ const CustomerReport = () => {
     }
   }, [serachSidebar, data.length, loading])
 
-  const TableToolbar = () => (
-    <div className="table-toolbar">
-      <Tooltip title="Delete">
-        <Button
-          type="text"
-          icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
-          onClick={() => handleOpenModal(setShowDeleteModal)}
-        />
-      </Tooltip>
-      <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
-    </div>
-  )
+  const TableToolbar = () => {
+    const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
+
+    return (
+      <div className="table-toolbar">
+        <Tooltip title="Delete">
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={toolbarIconStyle} />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
+        </Tooltip>
+        <Tooltip title="Edit">
+          <Button
+            type="text"
+            icon={<EditOutlined style={toolbarIconStyle} />}
+            onClick={handleToolbarEdit}
+          />
+        </Tooltip>
+        <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
+      </div>
+    )
+  }
 
   const rowSelection = {
     selectedRowKeys,
@@ -281,7 +298,7 @@ const CustomerReport = () => {
 
   const antdColumns = withResizableColumns(
     columns
-      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
         const base = {
           key: col.key,
@@ -296,13 +313,6 @@ const CustomerReport = () => {
                 : undefined,
         }
 
-        if (col.key === 'edit') {
-          base.render = (value) => (
-            <div className="edit-icon" onClick={() => handleEdit(value)}>
-              <Edit />
-            </div>
-          )
-        }
         if (col.key === 'created_at' || col.key === 'updated_at') {
           base.render = (value) => DateTimeFormat(value)
         }
@@ -436,9 +446,6 @@ const CustomerReport = () => {
               Edit
             </Button>
           </form>
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <Cancel />
-          </div>
         </div>
       </NormalModal>
 

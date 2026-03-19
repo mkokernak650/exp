@@ -8,7 +8,6 @@ import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import NormalModal from '../../Shared/NormalModal'
-import Cancel from '@/Components/Icons/Cancel.jsx'
 import RingbaIOModalView from '../../Components/IOComponents/RingbaIOModalView'
 
 const { Title } = Typography
@@ -482,9 +481,6 @@ const RingbaInsertionOrderTermCreate = () => {
             >
                 <div>
                     <RingbaIOModalView viewData={viewData} />
-                    <div onClick={() => setShowViewModal({ open: false })} className="close-modal-icon">
-                        <Cancel />
-                    </div>
                 </div>
             </NormalModal>
         </>

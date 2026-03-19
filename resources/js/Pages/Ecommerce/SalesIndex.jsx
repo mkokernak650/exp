@@ -2,11 +2,9 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
-import Edit from '@/Components/Icons/Edit.jsx'
 import { Tooltip, Button, Input, Select, Row, Col, Table, DatePicker } from 'antd'
 import dayjs from 'dayjs'
-import { DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -176,6 +174,14 @@ const SalesIndex = () => {
     setShowEditModal({ open: true })
   }
 
+  const handleToolbarEdit = () => {
+    if (selectedRowKeys.length !== 1) {
+      toast.error('Please select exactly one row to edit')
+      return
+    }
+    handleEdit(selectedRowKeys[0])
+  }
+
   const optionKey = 'sales-index'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
@@ -294,10 +300,15 @@ const SalesIndex = () => {
   }, [showColumns])
 
   const TableToolbar = () => {
+    const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
+
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={{ color: '#031b4e' }} />} />
+          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={toolbarIconStyle} />} />
+        </Tooltip>
+        <Tooltip title="Edit">
+          <Button type="text" onClick={handleToolbarEdit} icon={<EditOutlined style={toolbarIconStyle} />} />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -334,7 +345,7 @@ const SalesIndex = () => {
 
   const antdColumns = withResizableColumns(
     columns
-      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
         const base = {
           key: col.key,
@@ -346,13 +357,6 @@ const SalesIndex = () => {
             : col.dataType === 'string'
               ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
               : undefined,
-        }
-        if (col.key === 'edit') {
-          base.render = (value) => (
-            <div className="edit-icon" onClick={() => handleEdit(value)}>
-              <Edit />
-            </div>
-          )
         }
         if (col.key === 'order_at') {
           base.render = (value) => {
@@ -698,9 +702,6 @@ const SalesIndex = () => {
             </Button>
           </form>
 
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <Cancel />
-          </div>
         </div>
       </NormalModal>
 

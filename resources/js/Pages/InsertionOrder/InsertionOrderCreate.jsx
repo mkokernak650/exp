@@ -8,7 +8,6 @@ import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import NormalModal from '../../Shared/NormalModal'
-import Cancel from '@/Components/Icons/Cancel.jsx'
 import IoModalView from '../../Components/IOComponents/IOModalView'
 
 const { Title } = Typography
@@ -277,9 +276,6 @@ const InsertionOrderCreate = () => {
             >
                 <div>
                     <IoModalView viewData={viewData} />
-                    <div onClick={() => setShowViewModal({ open: false })} className="close-modal-icon">
-                        <Cancel />
-                    </div>
                 </div>
             </NormalModal>
         </>

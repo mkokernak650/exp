@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import { Table, Tooltip, Button, Input, Switch, Select, DatePicker } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -18,7 +18,6 @@ import { Pagination } from 'react-laravel-paginex'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import Cancel from '@/Components/Icons/Cancel.jsx'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 
@@ -103,7 +102,6 @@ const BroadcastWeekReport = () => {
 
   const [filterValue, changeFilter] = useState(filter)
 
-
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
 
@@ -122,6 +120,14 @@ const BroadcastWeekReport = () => {
       setEditData(item)
       setShowEditModal({ open: true })
     }
+  }
+
+  const handleToolbarEdit = () => {
+    if (selectedRowKeys.length !== 1) {
+      toast.error('Please select exactly one row to edit')
+      return
+    }
+    handleEdit(selectedRowKeys[0])
   }
 
   const handleEditChange = (e) => {
@@ -209,11 +215,11 @@ const BroadcastWeekReport = () => {
     await axios
       .get(
         'broadcast-week-report?page=' +
-        pageData.page +
-        '&itemPerPage=' +
-        itemPerPage +
-        '&filteredValue=' +
-        JSON.stringify(filterValue)
+          pageData.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue)
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -223,10 +229,23 @@ const BroadcastWeekReport = () => {
   }
 
   const TableToolbar = () => {
+    const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
+
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined className="text-[#031b4e]" />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={toolbarIconStyle} />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
+        </Tooltip>
+        <Tooltip title="Edit">
+          <Button
+            type="text"
+            icon={<EditOutlined style={toolbarIconStyle} />}
+            onClick={handleToolbarEdit}
+          />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -268,38 +287,29 @@ const BroadcastWeekReport = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'edit') {
-        base.render = (value) => (
-          <div className="edit-icon" onClick={() => handleEdit(value)}>
-            <Eye />
-          </div>
-        )
-      }
-      if (col.key === 'status') {
-        base.render = (value) => (
-          <Switch
-            checked={value[0] === 1}
-            onChange={() => handleStatus(value[0], value[1])}
-          />
-        )
-      }
+        if (col.key === 'status') {
+          base.render = (value) => (
+            <Switch checked={value[0] === 1} onChange={() => handleStatus(value[0], value[1])} />
+          )
+        }
 
-      return base
-    })
+        return base
+      })
   )
 
   return (
@@ -336,7 +346,11 @@ const BroadcastWeekReport = () => {
         <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
           <div
             className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
-            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
           >
             <div className="top-element">
               <CustomFilter
@@ -394,28 +408,24 @@ const BroadcastWeekReport = () => {
             <span>Start Date:</span>
             <DatePicker
               value={editData?.start_date ? dayjs(editData.start_date) : null}
-              onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+              onChange={(date, dateString) =>
+                handleEditChange({ target: { name: 'start_date', value: dateString } })
+              }
               className="w-full mb-4 mt-2"
             />
             <span>End Date:</span>
             <DatePicker
               value={editData?.end_date ? dayjs(editData.end_date) : null}
-              onChange={(date, dateString) => handleEditChange({ target: { name: 'end_date', value: dateString } })}
+              onChange={(date, dateString) =>
+                handleEditChange({ target: { name: 'end_date', value: dateString } })
+              }
               className="w-full mb-4 mt-2"
             />
 
-            <Button
-              type="primary"
-              onClick={handleEditSubmit}
-              className="mt-[15px]"
-            >
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
               Edit
             </Button>
           </form>
-
-          <div onClick={() => handleCloseModal(setShowEditModal)} className="close-modal-icon">
-            <Cancel />
-          </div>
         </div>
       </NormalModal>
 
@@ -425,10 +435,11 @@ const BroadcastWeekReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowKeys.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          selectedRowKeys.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
   )

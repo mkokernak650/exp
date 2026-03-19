@@ -1,6 +1,5 @@
-import React from "react";
-import { Modal, Button } from "antd";
-import Cancel from "../../images/cancel.svg";
+import React from 'react'
+import { Modal } from 'antd'
 
 export default function ConfirmModal({
   open,
@@ -10,39 +9,31 @@ export default function ConfirmModal({
   editData,
   width,
   title,
-  loading
+  loading,
 }) {
   const handleClose = () => {
-    setOpen({ open: false });
-  };
+    setOpen({ open: false })
+  }
+
+  const handleCancel = () => {
+    if (typeof closeAction === 'function') {
+      closeAction()
+      return
+    }
+    handleClose()
+  }
 
   return (
     <Modal
       open={open}
       width={width}
-      onCancel={handleClose}
-      footer={null}
+      title={title}
+      onCancel={handleCancel}
+      onOk={() => btnAction(editData)}
+      okText="Yes"
+      cancelText="No"
+      confirmLoading={loading}
       centered
-      closable={false}
-    >
-      <div className="confirm-modal">
-        <span>{title}</span>
-        <div className="button">
-          <Button
-            type="primary"
-            onClick={() => btnAction(editData)}
-            loading={loading}
-          >
-            Yes
-          </Button>
-          <Button type="primary" onClick={closeAction}>
-            No
-          </Button>
-        </div>
-        <div onClick={closeAction} className="close-modal-icon">
-          <img src={Cancel} alt="close-modal-icon" />
-        </div>
-      </div>
-    </Modal>
-  );
+    />
+  )
 }
