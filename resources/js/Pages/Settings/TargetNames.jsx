@@ -15,6 +15,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { filterData } from '@/Helpers/filterData'
 import { fields, filter, columns as defaultColumns } from './Helpers/TargetNamesProps'
 
 const Targets = () => {
@@ -91,6 +92,7 @@ const Targets = () => {
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
+  const filteredData = filterData(data, filterValue)
 
   const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
@@ -332,7 +334,7 @@ const Targets = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={data}
+              dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
               pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}

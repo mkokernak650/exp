@@ -16,6 +16,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { filterData } from '@/Helpers/filterData'
 import { columns as defaultColumns, fields, filter } from './Helpers/CampaignSettingReportProps'
 
 const CampaignSettingReport = () => {
@@ -99,6 +100,7 @@ const CampaignSettingReport = () => {
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
+  const filteredData = filterData(data, filterValue)
 
   const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
@@ -374,7 +376,7 @@ const CampaignSettingReport = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={data}
+              dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
               pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
