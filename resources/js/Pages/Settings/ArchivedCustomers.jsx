@@ -3,6 +3,7 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
+import { filterData } from '../filterData'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
 import { Table, Button, Input } from 'antd'
@@ -179,6 +180,8 @@ const ArchivedCustomers = () => {
     },
   }
 
+  const filteredData = filterData(data, filterValue)
+
   const antdColumns = withResizableColumns(columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
     .map((col) => {
@@ -229,7 +232,7 @@ const ArchivedCustomers = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={data}
+              dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
               pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
