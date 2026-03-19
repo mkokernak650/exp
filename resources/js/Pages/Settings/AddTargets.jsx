@@ -91,11 +91,11 @@ const AddTargets = () => {
             <Col span={24}>
               <div>
                 <label>Description</label>
-                <Input
+                <Input.TextArea
                   name="Description"
                   onChange={handleChange}
-                  type="text"
                   required
+                  rows={4}
                   className="w-full"
                 />
               </div>
