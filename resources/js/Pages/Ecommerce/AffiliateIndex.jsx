@@ -500,28 +500,29 @@ const AffiliateIndex = () => {
                 options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
                 onChange={(value) => setOrderByValue(value)}
                 placeholder="Order By"
-                className="!w-full"
+                className="w-full"
                 defaultValue={orderByValue}
                 singleSelect
+                width="280px"
               />
               <MultiSelect
                 options={campaignOptions}
                 placeholder="Campaign"
-                className="!w-full"
+                className="w-full"
                 onChange={(value) => setFilterByCampaigns(value)}
                 defaultValue={filterByCampaigns}
               />
               <MultiSelect
                 options={customerOptions}
                 placeholder="Customer"
-                className="!w-full"
+                className="w-full"
                 onChange={(value) => setFilterByCustomers(value)}
                 defaultValue={filterByCustomers}
               />
               <MultiSelect
                 options={affiliateOptions}
                 placeholder="Affiliate"
-                className="!w-full"
+                className="w-full"
                 onChange={(value) => setFilterByAffiliates(value)}
                 defaultValue={filterByAffiliates}
               />
