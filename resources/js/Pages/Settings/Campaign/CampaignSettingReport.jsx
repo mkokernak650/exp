@@ -43,11 +43,11 @@ const CampaignSettingReport = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.success(res.data.msg)
         } else {
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.error(res.data.msg)
         }
       })

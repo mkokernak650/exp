@@ -148,7 +148,7 @@ const ArchivedAffiliates = () => {
             })
           )
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.success(res.data.msg)
         } else {
           toast.error(res.data.msg)

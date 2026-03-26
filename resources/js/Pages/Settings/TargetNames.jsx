@@ -160,12 +160,12 @@ const Targets = () => {
             })
           )
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.success(res.data.msg)
           setSelectedRowKeys([])
         } else {
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.error(res.data.msg)
           setSelectedRowKeys([])
         }

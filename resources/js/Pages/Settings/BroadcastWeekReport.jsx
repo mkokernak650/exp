@@ -154,11 +154,11 @@ const BroadcastWeekReport = () => {
             })
           )
           setEditData(undefined)
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.success(res.data.msg)
         } else {
           setEditData(undefined)
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.error(res.data.msg)
         }
       })

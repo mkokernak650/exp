@@ -157,11 +157,11 @@ const CustomerReport = () => {
             })
           )
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.success(res.data.msg)
         } else {
           setEditData()
-          setShowEditModal({ open: false })
+          handleCloseModal(setShowEditModal)
           toast.error(res.data.msg)
         }
       })

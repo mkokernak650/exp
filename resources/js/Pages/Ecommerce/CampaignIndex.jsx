@@ -176,7 +176,7 @@ const CampaignIndex = () => {
           )
         )
         setEditData()
-        setShowEditModal({ open: false })
+        handleCloseModal(setShowEditModal)
         toast.success(res.data.msg)
       })
       .catch((err) => {
