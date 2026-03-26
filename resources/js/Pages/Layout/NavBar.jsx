@@ -388,15 +388,26 @@ export default function PersistentDrawerLeft(props) {
     return { selectedKeys, openKeys }
   }
 
+  const rootSubmenuKeys = useMemo(
+    () => menuItems.filter((item) => item.children).map((item) => item.key),
+    [],
+  )
+
   const { selectedKeys, openKeys: initialOpenKeys } = useMemo(findSelectedAndOpenKeys, [url])
   const [openKeys, setOpenKeys] = useState(initialOpenKeys)
 
+  const handleOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1)
+    if (latestOpenKey && rootSubmenuKeys.includes(latestOpenKey)) {
+      setOpenKeys(keys.filter((key) => !rootSubmenuKeys.includes(key) || key === latestOpenKey))
+    } else {
+      setOpenKeys(keys)
+    }
+  }
+
   useEffect(() => {
     const { openKeys: newOpenKeys } = findSelectedAndOpenKeys()
-    setOpenKeys((prev) => {
-      const merged = new Set([...prev, ...newOpenKeys])
-      return [...merged]
-    })
+    setOpenKeys(newOpenKeys)
   }, [url])
 
   useEffect(() => {
@@ -481,7 +492,7 @@ export default function PersistentDrawerLeft(props) {
           mode="inline"
           selectedKeys={selectedKeys}
           openKeys={openKeys}
-          onOpenChange={setOpenKeys}
+          onOpenChange={handleOpenChange}
           items={styledMenuItems}
           className="border-r-0"
         />
