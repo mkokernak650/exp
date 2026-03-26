@@ -101,7 +101,7 @@ const AddUser = () => {
 
                         <Col span={24}>
                             <PrimaryButton
-                                btnText="Submit" loading={loading} type="submit"
+                                btnText="Submit" loading={loading} htmlType="submit"
                             />
                         </Col>
                     </Row>
