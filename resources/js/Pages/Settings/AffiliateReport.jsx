@@ -16,6 +16,7 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
+import { filterData } from '../filterData'
 import TextInput from '@/Components/Global/TextInput'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -299,6 +300,8 @@ const AffiliateReport = () => {
     },
   }
 
+  const filteredData = filterData(data, filterValue)
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
@@ -387,7 +390,7 @@ const AffiliateReport = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={data}
+              dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
               loading={loading}
