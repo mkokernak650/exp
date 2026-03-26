@@ -16,6 +16,7 @@ import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/ArchivedAffiliatesProps'
+import { filterData } from '../filterData'
 import TextInput from '@/Components/Global/TextInput'
 
 const ArchivedAffiliates = () => {
@@ -175,6 +176,8 @@ const ArchivedAffiliates = () => {
     },
   }
 
+  const filteredData = filterData(data, filterValue)
+
   const antdColumns = withResizableColumns(columns
     .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
     .map((col) => {
@@ -225,7 +228,7 @@ const ArchivedAffiliates = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={data}
+              dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
               pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
