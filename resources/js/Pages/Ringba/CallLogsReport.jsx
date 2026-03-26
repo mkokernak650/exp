@@ -173,9 +173,10 @@ const CallLogsReport = () => {
         if (col.key === 'Annotation_Tag') {
           base.render = (value) => {
             let arrayValue = Array.isArray(value) ? value : String(value).split(',')
+            const selectedValue = arrayValue[0] ? String(arrayValue[0]) : ''
             return (
               <Select
-                defaultValue={arrayValue[0] || undefined}
+                defaultValue={selectedValue}
                 onChange={(value) => updateAnnotation(value, arrayValue[2])}
                 size="small"
                 className="w-full"
@@ -184,7 +185,7 @@ const CallLogsReport = () => {
                 {campaignsWithAnnotations
                   .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
                   ?.annotations.map((annotation, index) => (
-                    <Select.Option key={index} value={annotation.id}>
+                    <Select.Option key={index} value={String(annotation.id)}>
                       {annotation.annotation_name}
                     </Select.Option>
                   ))}
