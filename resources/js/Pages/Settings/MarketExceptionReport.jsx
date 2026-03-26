@@ -82,7 +82,7 @@ const MarketExceptionReport = () => {
     edit: item.id,
     sl: index + 1,
     campaign: item?.campaign?.campaign_name,
-    market_id: item.market_id,
+    market_id: item.market_name || item.market_id,
     state: item.state,
     call_type: item.call_type,
     start_date: item.start_date,
@@ -166,10 +166,6 @@ const MarketExceptionReport = () => {
   }
 
   const handleToolbarEdit = () => {
-    if (selectedRowKeys.length !== 1) {
-      toast.error('Please select exactly one row to edit')
-      return
-    }
     handleEdit(selectedRowKeys[0])
   }
 
@@ -269,13 +265,15 @@ const MarketExceptionReport = () => {
             onClick={() => handleOpenModal(setShowDeleteModal)}
           />
         </Tooltip>
-        <Tooltip title="Edit">
-          <Button
-            type="text"
-            icon={<EditOutlined style={toolbarIconStyle} />}
-            onClick={handleToolbarEdit}
-          />
-        </Tooltip>
+        {selectedRowKeys.length === 1 && (
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditOutlined style={toolbarIconStyle} />}
+              onClick={handleToolbarEdit}
+            />
+          </Tooltip>
+        )}
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
@@ -431,7 +429,7 @@ const MarketExceptionReport = () => {
                   value={editData?.market_id}
                 >
                   {allMarkets.map((option, indx) => (
-                    <Select.Option key={indx} value={option.market_id}>
+                    <Select.Option key={indx} value={option.market}>
                       {option.market}
                     </Select.Option>
                   ))}
