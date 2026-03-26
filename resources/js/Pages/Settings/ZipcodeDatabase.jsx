@@ -10,7 +10,7 @@ import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { filter, columns as defaultColumns } from './Helpers/ZipcodeDatabaseProps'
+import { columns as defaultColumns } from './Helpers/ZipcodeDatabaseProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import toast from 'react-hot-toast'
@@ -121,8 +121,6 @@ const ZipcodeDatabase = () => {
     })
   }
 
-  const [filterValue, changeFilter] = useState(filter)
-
   const handleColumns = () => {
     setShowColumns(true)
   }
@@ -171,16 +169,15 @@ const ZipcodeDatabase = () => {
   }, [showColumns])
 
   const getSearchingData = async (pageData) => {
+    const page = typeof pageData === 'object' ? pageData.page : pageData
     setCurerentPage(pageData)
     setTableLoading(true)
     await axios
       .get(
         'telephone-and-zip-codes?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
-          '&filteredValue=' +
-          JSON.stringify(filterValue) +
           '&filterByState=' +
           filterByState +
           '&filterByTimeZone=' +
@@ -209,7 +206,7 @@ const ZipcodeDatabase = () => {
   }
 
   useEffect(() => {
-    getSearchingData(curerentPage)
+    getSearchingData(1)
   }, [itemPerPage, filterByState, filterByTimeZone, filterBySearchBoxValue])
 
   const triggerExportLink = (link) => {

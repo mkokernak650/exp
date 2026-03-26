@@ -20,20 +20,19 @@ class ZipcodeDataController extends Controller
 
     public function index()
     {
-        $conditions = json_decode(request('filteredValue'));
-        if (request('filteredValue') && count($conditions->items)) {
-            $zipDataQuery = ZipCodeData::query();
+        $zipDataQuery = ZipCodeData::query();
 
-            if (!empty(request('filterByState'))) {
-                $filterByState = explode(',', request('filterByState'));
-                $zipDataQuery->whereIn('State', $filterByState);
-            }
+        if (!empty(request('filterByState'))) {
+            $filterByState = explode(',', request('filterByState'));
+            $zipDataQuery->whereIn('State', $filterByState);
+        }
 
-            if (!empty(request('filterByTimeZone'))) {
-                $filterByTimeZone = explode(',', request('filterByTimeZone'));
-                $zipDataQuery->whereIn('TimeZone', $filterByTimeZone);
-            }
+        if (!empty(request('filterByTimeZone'))) {
+            $filterByTimeZone = explode(',', request('filterByTimeZone'));
+            $zipDataQuery->whereIn('TimeZone', $filterByTimeZone);
+        }
 
+        if (request('filterBySearchBoxValue')) {
             $filterBySearchBoxValue = json_decode(request('filterBySearchBoxValue'));
 
             if (!empty($filterBySearchBoxValue->county)) {
@@ -55,13 +54,11 @@ class ZipcodeDataController extends Controller
             if (!empty($filterBySearchBoxValue->nxx)) {
                 $zipDataQuery->where('NXX', 'LIKE', "%{$filterBySearchBoxValue->nxx}%");
             }
-
-            return $zipDataQuery->paginate(request('itemPerPage') ?? 15);
         }
 
         $states = ZipCodeData::select('State')->whereNotNull('State')->orderBy('State')->distinct()->pluck('State');
 
-        $allZipcodes = ZipCodeData::paginate(request('itemPerPage') ?? 15);
+        $allZipcodes = $zipDataQuery->paginate(request('itemPerPage') ?? 15);
         if (request('page')) {
             return $allZipcodes;
         }
