@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
 import { DeleteOutlined } from '@ant-design/icons'
 import produce from 'immer'
 import { Button, Tooltip, Table, Select } from 'antd'
@@ -168,11 +167,7 @@ const CallLogsReport = () => {
 
         if (col.key === 'edit') {
           base.fixed = 'left'
-          base.render = (value) => (
-            <div className="edit-icon" onClick={() => handleRowFunctionalities(value)}>
-              <ThreeDots />
-            </div>
-          )
+          base.render = () => null
         }
 
         if (col.key === 'Annotation_Tag') {
