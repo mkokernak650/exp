@@ -1,16 +1,16 @@
-import React from "react";
-import { message } from "antd";
-import { useEffect } from "react";
+import React from 'react'
+import { message } from 'antd'
+import { useEffect } from 'react'
 
 const SnackBar = ({ open, setOpen, severity = 'success', response }) => {
   useEffect(() => {
     if (open) {
-      message[severity](response, 3);
-      setOpen(false);
+      message[severity](response, 3)
+      setOpen(false)
     }
-  }, [open]);
+  }, [open])
 
-  return null;
-};
+  return null
+}
 
-export default SnackBar;
+export default SnackBar

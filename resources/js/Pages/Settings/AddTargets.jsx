@@ -1,57 +1,57 @@
-import { React, useState } from "react";
-import Layout from "../Layout/Layout";
-import { Button, Typography, Select, Input } from "antd";
-import { Row, Col } from "antd";
-import { usePage } from "@inertiajs/inertia-react";
-import axios from "axios";
-import { Helmet } from "react-helmet";
-import MultiSelect from "react-multiple-select-dropdown-lite";
-import "react-multiple-select-dropdown-lite/dist/index.css";
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
+import { Button, Typography, Select, Input } from 'antd'
+import { Row, Col } from 'antd'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import MultiSelect from 'react-multiple-select-dropdown-lite'
+import 'react-multiple-select-dropdown-lite/dist/index.css'
 import toast from 'react-hot-toast'
 
 const AddTargets = () => {
-  const [values, setValues] = useState();
-  const [loading, setLoading] = useState(false);
-  const { allCustomers, allTargetNames } = usePage().props;
+  const [values, setValues] = useState()
+  const [loading, setLoading] = useState(false)
+  const { allCustomers, allTargetNames } = usePage().props
 
   const options = allTargetNames.map((item) => ({
     label: item.target_name,
     value: item.target_name,
-  }));
+  }))
 
-  const [target, setTarget] = useState();
+  const [target, setTarget] = useState()
   const targetHandleChange = (val, key) => {
-    setTarget({ [key]: val });
-  };
+    setTarget({ [key]: val })
+  }
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setValues((oldValues) => ({
       ...oldValues,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const finalData = {
     ...target,
     ...values,
-  };
+  }
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
-      .post(route("add.target"), finalData)
+      .post(route('add.target'), finalData)
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          toast.success(res.data.msg);
-          e.target.reset();
+          toast.success(res.data.msg)
+          e.target.reset()
         }
       })
       .catch((err) => {
-        setLoading(false);
-      });
-  };
+        setLoading(false)
+      })
+  }
 
   return (
     <>
@@ -79,9 +79,7 @@ const AddTargets = () => {
             <Col span={24}>
               <MultiSelect
                 name="Ringba_Targets_Name"
-                onChange={(val) =>
-                  targetHandleChange(val, "Ringba_Targets_Name")
-                }
+                onChange={(val) => targetHandleChange(val, 'Ringba_Targets_Name')}
                 options={options}
                 placeholder="Select Targets"
                 className="!w-full"
@@ -109,8 +107,8 @@ const AddTargets = () => {
         </form>
       </div>
     </>
-  );
-};
+  )
+}
 
-AddTargets.layout = (page) => <Layout title="Add Targets">{page}</Layout>;
-export default AddTargets;
+AddTargets.layout = (page) => <Layout title="Add Targets">{page}</Layout>
+export default AddTargets

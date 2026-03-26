@@ -1,6 +1,6 @@
-import { Helmet } from "react-helmet";
-import { Typography } from "antd";
-import Layout from "../Layout/Layout";
+import { Helmet } from 'react-helmet'
+import { Typography } from 'antd'
+import Layout from '../Layout/Layout'
 const Dashboard = () => (
   <>
     <Helmet>
@@ -8,7 +8,7 @@ const Dashboard = () => (
     </Helmet>
     <Typography.Title level={5}>Dashboard</Typography.Title>
   </>
-);
+)
 
-Dashboard.layout = (page) => <Layout title="Dashboard">{page}</Layout>;
-export default Dashboard;
+Dashboard.layout = (page) => <Layout title="Dashboard">{page}</Layout>
+export default Dashboard

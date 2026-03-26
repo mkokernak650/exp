@@ -1,37 +1,36 @@
-import React from "react";
-import logo from "../../images/webform/logo.png";
-import facebook from "../../images/webform/facebook.svg";
-import twitter from "../../images/webform/twitter.svg";
-import linkedin from "../../images/webform/linkedin.svg";
-import phone from "../../images/webform/phone.svg";
-import separate from "../../images/webform/separate.svg";
-import mail from "../../images/webform/mail.svg";
-import { useState } from "react";
-import axios from "axios";
-import { message, Input } from "antd";
+import React from 'react'
+import logo from '../../images/webform/logo.png'
+import facebook from '../../images/webform/facebook.svg'
+import twitter from '../../images/webform/twitter.svg'
+import linkedin from '../../images/webform/linkedin.svg'
+import phone from '../../images/webform/phone.svg'
+import separate from '../../images/webform/separate.svg'
+import mail from '../../images/webform/mail.svg'
+import { useState } from 'react'
+import axios from 'axios'
+import { message, Input } from 'antd'
 
 export default function WebForm() {
-  const [values, setValues] = useState();
+  const [values, setValues] = useState()
   const handleChange = (e) => {
-    setValues({ ...values, [e.target.name]: e.target.value });
-  };
+    setValues({ ...values, [e.target.name]: e.target.value })
+  }
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     axios
-      .post(route("webform.store"), values, setValues)
+      .post(route('webform.store'), values, setValues)
       .then((res) => {
         if (res.status_code === 200) {
-          message.success(res.data.msg);
+          message.success(res.data.msg)
           e.target.reset()
         } else {
-          message.success(res.data.msg);
+          message.success(res.data.msg)
         }
       })
       .catch((err) => {
-        message.error(err.response.data.msg);
+        message.error(err.response.data.msg)
       })
-
-  };
+  }
 
   return (
     <div className="web-form">
@@ -75,11 +74,7 @@ export default function WebForm() {
               >
                 <img src={facebook} alt="consumer exp Facebook Page"></img>
               </a>
-              <a
-                href="https://twitter.com/videothreezero"
-                className="twitter"
-                target="_blank"
-              >
+              <a href="https://twitter.com/videothreezero" className="twitter" target="_blank">
                 <img src={twitter} alt="consumer exp twitter"></img>
               </a>
               <a
@@ -124,54 +119,14 @@ export default function WebForm() {
               onChange={handleChange}
               required
             />
-            <Input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              name="skype"
-              placeholder="Skype ID"
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              name="street"
-              placeholder="Street"
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              name="city"
-              placeholder="City"
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              name="state"
-              placeholder="State"
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              name="zipcode"
-              placeholder="Zip Code"
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              name="country"
-              placeholder="Country"
-              onChange={handleChange}
-            />
-            <Input
-              type="url"
-              name="website"
-              placeholder="Website"
-              onChange={handleChange}
-            />
+            <Input type="tel" name="phone" placeholder="Phone Number" onChange={handleChange} />
+            <Input type="text" name="skype" placeholder="Skype ID" onChange={handleChange} />
+            <Input type="text" name="street" placeholder="Street" onChange={handleChange} />
+            <Input type="text" name="city" placeholder="City" onChange={handleChange} />
+            <Input type="text" name="state" placeholder="State" onChange={handleChange} />
+            <Input type="text" name="zipcode" placeholder="Zip Code" onChange={handleChange} />
+            <Input type="text" name="country" placeholder="Country" onChange={handleChange} />
+            <Input type="url" name="website" placeholder="Website" onChange={handleChange} />
             <Input.TextArea
               name="omment"
               placeholder="Write your comment"
@@ -220,11 +175,7 @@ export default function WebForm() {
               >
                 <img src={facebook} alt="consumer exp facebook page"></img>
               </a>
-              <a
-                href="https://twitter.com/videothreezero"
-                className="twitter"
-                target="_blank"
-              >
+              <a href="https://twitter.com/videothreezero" className="twitter" target="_blank">
                 <img src={twitter} alt="consumer exp twitter"></img>
               </a>
               <a
@@ -239,11 +190,9 @@ export default function WebForm() {
         </div>
 
         <div className="container text-center mt-4 mb-2">
-          <div className="copyright">
-            Copyright © 2021 ConsumerEXP Inc. All Rights Reserved.
-          </div>
+          <div className="copyright">Copyright © 2021 ConsumerEXP Inc. All Rights Reserved.</div>
         </div>
       </div>
     </div>
-  );
+  )
 }

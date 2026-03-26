@@ -7,14 +7,7 @@ export default function NormalModal({ open, setOpen, children, width, title }) {
   }
 
   return (
-    <Modal
-      open={open}
-      width={width}
-      title={title}
-      onCancel={handleClose}
-      footer={null}
-      centered
-    >
+    <Modal open={open} width={width} title={title} onCancel={handleClose} footer={null} centered>
       {children}
     </Modal>
   )

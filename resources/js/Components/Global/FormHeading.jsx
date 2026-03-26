@@ -1,11 +1,11 @@
 import { Typography } from 'antd'
 
-const { Title } = Typography;
+const { Title } = Typography
 
 export default function FormHeading({ title }) {
-    return (
-        <Title level={4} className="text-center mb-[35px]">
-            {title}
-        </Title>
-    )
+  return (
+    <Title level={4} className="text-center mb-[35px]">
+      {title}
+    </Title>
+  )
 }

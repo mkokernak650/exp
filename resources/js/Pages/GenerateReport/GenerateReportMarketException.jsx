@@ -257,23 +257,30 @@ const GenerateReportMarketException = () => {
     return affiliateNames
   }
 
-  const fileName = `MarketException${values?.customer_name ? `_(${values.customer_name})` : ''}${values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''
-    }${values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''}${values?.market ? `_(${values.market})` : ''
-    }${year?.year ? `_(${year.year.toString()})` : ''
-    }${(values?.start_date && !year?.year)
+  const fileName = `MarketException${values?.customer_name ? `_(${values.customer_name})` : ''}${
+    values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''
+  }${values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''}${
+    values?.market ? `_(${values.market})` : ''
+  }${year?.year ? `_(${year.year.toString()})` : ''}${
+    values?.start_date && !year?.year
       ? `_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }`
+  }`
   values.file_name = fileName
 
-  const fileNameForEmailCriteria = `MarketException_Report${values?.market ? `_For_Markets(${values.market})` : ''
-    }${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''}${values?.annotation ? `_For_Annotations(${values.annotation})` : ''
-    }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
-    }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${year?.year ? `_For_Years(${year.year.toString()})` : ''
-    }${values?.start_date
+  const fileNameForEmailCriteria = `MarketException_Report${
+    values?.market ? `_For_Markets(${values.market})` : ''
+  }${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''}${
+    values?.annotation ? `_For_Annotations(${values.annotation})` : ''
+  }${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''}${
+    values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''
+  }${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''}${
+    year?.year ? `_For_Years(${year.year.toString()})` : ''
+  }${
+    values?.start_date
       ? `_For_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }_Created@${currentDate()}`
+  }_Created@${currentDate()}`
   values.fileNameForEmailCriteria = fileNameForEmailCriteria
 
   const handleSubmit = () => {

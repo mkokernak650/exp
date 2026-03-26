@@ -4,132 +4,134 @@ $dp-txt: #545582;
 $dp-blue: #031b4e;
 
 .flx {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 .align-center {
-    align-items: center;
+  align-items: center;
 }
 
 .justify-center {
-    justify-content: center;
+  justify-content: center;
 }
 
 .txt-center {
-    text-align: center;
+  text-align: center;
 }
 
 .icn-btn {
-    background: transparent;
-    color: $dp-blue;
-    position: relative;
-    cursor: pointer;
-    font-size: 20px;
-    border: 0;
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    border-radius: 50%;
-    line-height: 1px;
-    outline: none;
+  background: transparent;
+  color: $dp-blue;
+  position: relative;
+  cursor: pointer;
+  font-size: 20px;
+  border: 0;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 50%;
+  line-height: 1px;
+  outline: none;
 
-    &:hover {
-        background: #f3f3f3;
-    }
+  &:hover {
+    background: #f3f3f3;
+  }
 
-    &:active {
-        background: #dcdcdc;
-    }
+  &:active {
+    background: #dcdcdc;
+  }
 }
 
 .btn,
 .icn-btn {
-    transition: transform 0.1s;
+  transition: transform 0.1s;
 
-    &:active {
-        transform: scale(0.95);
-        box-shadow: none;
-    }
+  &:active {
+    transform: scale(0.95);
+    box-shadow: none;
+  }
 }
 
 .custom-input {
-    color: $dp-bg;
-    box-shadow: none !important;
-    height: auto;
-    width: 100%;
-    font-family: inherit;
-    line-height: 1.2 !important;
-    font-size: 15px !important;
-    padding: 10px 10px 10px 10px !important;
-    outline: none !important;
-    border-radius: 8px !important;
-    min-height: 15px !important;
-    border: 1px solid #c4c4c4 !important;
-    transition: box-shadow 0.3s !important;
+  color: $dp-bg;
+  box-shadow: none !important;
+  height: auto;
+  width: 100%;
+  font-family: inherit;
+  line-height: 1.2 !important;
+  font-size: 15px !important;
+  padding: 10px 10px 10px 10px !important;
+  outline: none !important;
+  border-radius: 8px !important;
+  min-height: 15px !important;
+  border: 1px solid #c4c4c4 !important;
+  transition: box-shadow 0.3s !important;
 
-    &:hover:not(:disabled, :focus) {
-        border-color: $dp-txt !important;
-    }
+  &:hover:not(:disabled, :focus) {
+    border-color: $dp-txt !important;
+  }
 
-    &:focus {
-        border-color: $blue !important;
-        box-shadow: 0 0 0 0px $blue, 0 0 0 4px rgba(0, 131, 243, 0.1) !important;
-    }
+  &:focus {
+    border-color: $blue !important;
+    box-shadow:
+      0 0 0 0px $blue,
+      0 0 0 4px rgba(0, 131, 243, 0.1) !important;
+  }
 
-    &:disabled {
-        color: #000 !important;
-        background-color: #eee !important;
-    }
+  &:disabled {
+    color: #000 !important;
+    background-color: #eee !important;
+  }
 }
 
 .sh-sm {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.32);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.32);
 }
 
 .ml-1 {
-    margin-left: 5px;
+  margin-left: 5px;
 }
 
 .mr-2 {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .w-full {
-    width: 100%;
+  width: 100%;
 }
 
 .note {
-    color: #3a3a3a;
-    padding: 15px;
-    border: 2px dotted #bebebe;
-    border-radius: 8px;
-    margin: 1rem auto 0;
-    width: 600px;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  color: #3a3a3a;
+  padding: 15px;
+  border: 2px dotted #bebebe;
+  border-radius: 8px;
+  margin: 1rem auto 0;
+  width: 600px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  & * {
+    margin: 0;
+  }
+
+  .note-text {
+    color: #595959;
 
     & * {
-        margin: 0;
+      line-height: 22px !important;
     }
 
-    .note-text {
-        color: #595959;
-
-        & * {
-            line-height: 22px !important;
-        }
-
-        ul {
-            margin-left: 15px;
-            list-style: disc;
-        }
-
-        b {
-            color: #3a3a3a;
-        }
+    ul {
+      margin-left: 15px;
+      list-style: disc;
     }
+
+    b {
+      color: #3a3a3a;
+    }
+  }
 }

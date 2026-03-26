@@ -62,7 +62,11 @@ const CustomFilter = (props) => {
 
   const handleOperatorChange = (fieldName, value) => {
     const normalizeValueByOperator = (nextOperator, currentValue) => {
-      if (nextOperator === 'between' || nextOperator === 'dateBetween' || nextOperator === 'dateNotBetween') {
+      if (
+        nextOperator === 'between' ||
+        nextOperator === 'dateBetween' ||
+        nextOperator === 'dateNotBetween'
+      ) {
         if (currentValue && typeof currentValue === 'object') {
           return {
             from: currentValue.from ?? '',
@@ -106,7 +110,11 @@ const CustomFilter = (props) => {
           return item
         }
 
-        if (item.operator === 'between' || item.operator === 'dateBetween' || item.operator === 'dateNotBetween') {
+        if (
+          item.operator === 'between' ||
+          item.operator === 'dateBetween' ||
+          item.operator === 'dateNotBetween'
+        ) {
           const currentRange =
             item.value && typeof item.value === 'object' ? item.value : { from: '', to: '' }
 
@@ -209,9 +217,7 @@ const CustomFilter = (props) => {
                           setFilterValue((prev) => ({
                             ...prev,
                             items: prev.items.map((item) =>
-                              item.field === field.name
-                                ? { ...item, value: { from, to } }
-                                : item
+                              item.field === field.name ? { ...item, value: { from, to } } : item
                             ),
                           }))
                         }}

@@ -57,7 +57,7 @@ const AffiliateCreate = () => {
     setValues((oldValues) => ({ ...oldValues, campaign_id: value ?? '' }))
 
     if (value) {
-      const selectedCampaign = campaigns.filter(campaign => campaign.id == value)
+      const selectedCampaign = campaigns.filter((campaign) => campaign.id == value)
       if (selectedCampaign[0].description) {
         setValues((oldValues) => ({ ...oldValues, description: selectedCampaign[0].description }))
       } else {
@@ -335,7 +335,11 @@ const AffiliateCreate = () => {
                 </Col>
                 <Col span={24}>
                   <div>
-                    <label>{values?.consumerEXP_cash_buy_fee_type === "1" ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}</label>
+                    <label>
+                      {values?.consumerEXP_cash_buy_fee_type === '1'
+                        ? 'ConsumerEXP Fee (In Percentage)'
+                        : 'ConsumerEXP Fee (Fixed)'}
+                    </label>
                     <Input
                       value={values?.consumerEXP_cash_buy_fee}
                       type="number"

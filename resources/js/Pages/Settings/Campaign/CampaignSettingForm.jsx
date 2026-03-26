@@ -1,38 +1,38 @@
-import { React, useState } from "react";
-import Layout from "../../Layout/Layout";
-import { Button, Typography, Select, Input } from "antd";
-import { Row, Col } from "antd";
-import { usePage } from "@inertiajs/inertia-react";
-import axios from "axios";
-import { Helmet } from "react-helmet";
+import { React, useState } from 'react'
+import Layout from '../../Layout/Layout'
+import { Button, Typography, Select, Input } from 'antd'
+import { Row, Col } from 'antd'
+import { usePage } from '@inertiajs/inertia-react'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
 import toast from 'react-hot-toast'
 
 const CampaignSettingForm = () => {
-  const [values, setValues] = useState();
-  const [loading, setLoading] = useState(false);
-  const { allCampaigns } = usePage().props;
+  const [values, setValues] = useState()
+  const [loading, setLoading] = useState(false)
+  const { allCampaigns } = usePage().props
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setValues((oldValues) => ({
       ...oldValues,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     axios
-      .post(route("campaign.setting.update"), values)
+      .post(route('campaign.setting.update'), values)
       .then((res) => {
-        setLoading(false);
+        setLoading(false)
         if (res.status === 200) {
-          toast.success(res.data.msg);
+          toast.success(res.data.msg)
         }
       })
-      .catch((err) => {});
-  };
+      .catch((err) => {})
+  }
 
   return (
     <>
@@ -78,10 +78,8 @@ const CampaignSettingForm = () => {
         </form>
       </div>
     </>
-  );
-};
+  )
+}
 
-CampaignSettingForm.layout = (page) => (
-  <Layout title="Market Exception">{page}</Layout>
-);
-export default CampaignSettingForm;
+CampaignSettingForm.layout = (page) => <Layout title="Market Exception">{page}</Layout>
+export default CampaignSettingForm

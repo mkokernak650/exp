@@ -64,7 +64,9 @@ const AddBroadcastWeek = () => {
                 <label>Start Date</label>
                 <DatePicker
                   defaultValue={dayjs()}
-                  onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    handleChange({ target: { name: 'start_date', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>
@@ -75,7 +77,9 @@ const AddBroadcastWeek = () => {
                 <label>End Date</label>
                 <DatePicker
                   defaultValue={dayjs()}
-                  onChange={(date, dateString) => handleChange({ target: { name: 'end_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    handleChange({ target: { name: 'end_date', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>

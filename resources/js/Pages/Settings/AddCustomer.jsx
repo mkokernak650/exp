@@ -31,7 +31,7 @@ const AddCustomer = () => {
           e.target.reset()
         }
       })
-      .catch((err) => { })
+      .catch((err) => {})
   }
 
   return (
@@ -49,27 +49,10 @@ const AddCustomer = () => {
               handleChange={handleChange}
               required={true}
             />
-            <TextInput
-              label="Email"
-              name="email"
-              handleChange={handleChange}
-              type="email"
-            />
-            <TextInput
-              label="Telephone"
-              name="telephone"
-              handleChange={handleChange}
-            />
-            <TextInput
-              label="Address"
-              name="address"
-              handleChange={handleChange}
-            />
-            <TextInput
-              label="Contact Name"
-              name="contact_name"
-              handleChange={handleChange}
-            />
+            <TextInput label="Email" name="email" handleChange={handleChange} type="email" />
+            <TextInput label="Telephone" name="telephone" handleChange={handleChange} />
+            <TextInput label="Address" name="address" handleChange={handleChange} />
+            <TextInput label="Contact Name" name="contact_name" handleChange={handleChange} />
             <TextInput
               label="Contact Telephone"
               name="contact_telephone"

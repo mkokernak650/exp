@@ -55,12 +55,7 @@ const AddTvHousehold = () => {
               </div>
               <div className="mb-4">
                 <label>State</label>
-                <Input
-                  name="state"
-                  onChange={handleChange}
-                  type="text"
-                  className="w-full"
-                />
+                <Input name="state" onChange={handleChange} type="text" className="w-full" />
               </div>
               <div className="mb-4">
                 <label>TV Households</label>

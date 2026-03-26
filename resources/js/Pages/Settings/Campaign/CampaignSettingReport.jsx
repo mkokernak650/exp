@@ -207,7 +207,11 @@ const CampaignSettingReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined className="text-[#031b4e]" />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined className="text-[#031b4e]" />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -216,8 +220,9 @@ const CampaignSettingReport = () => {
 
   const handleDescriptionModal = (id) => {
     setDescriptionModalData({})
-    axios.get(route('campaign.get.description', id))
-      .then(response => {
+    axios
+      .get(route('campaign.get.description', id))
+      .then((response) => {
         if (response.data.success) {
           setDescriptionModalData(response.data.data)
           setShowDescriptionModal({ open: true })
@@ -225,7 +230,7 @@ const CampaignSettingReport = () => {
           toast.error('Something went wrong!')
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err)
         toast.error('Something went wrong!')
       })
@@ -242,8 +247,9 @@ const CampaignSettingReport = () => {
   const updateDescription = () => {
     setLoading((oldValues) => ({ ...oldValues, description: true }))
 
-    axios.post(route('campaign.update.description'), { data: descriptionModalData })
-      .then(response => {
+    axios
+      .post(route('campaign.update.description'), { data: descriptionModalData })
+      .then((response) => {
         if (response.data.success) {
           setShowDescriptionModal({ open: false })
           setDescriptionModalData({})
@@ -253,7 +259,7 @@ const CampaignSettingReport = () => {
         }
         setLoading((oldValues) => ({ ...oldValues, description: false }))
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err)
         toast.error('Something went wrong!')
         setLoading((oldValues) => ({ ...oldValues, description: false }))
@@ -270,57 +276,54 @@ const CampaignSettingReport = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'status') {
-        base.render = (value) => {
-          if (typeof value === 'string') {
-            value = value.split(',')
+        if (col.key === 'status') {
+          base.render = (value) => {
+            if (typeof value === 'string') {
+              value = value.split(',')
+            }
+            return (
+              <Switch
+                checked={parseInt(value[0]) === 1}
+                onChange={() => handleStatus(value[0], value[1], value[2])}
+              />
+            )
           }
-          return (
-            <Switch
-              checked={parseInt(value[0]) === 1}
-              onChange={() => handleStatus(value[0], value[1], value[2])}
-            />
+        }
+        if (col.key === 'actions') {
+          base.render = (value) => (
+            <div className="flex">
+              <InertiaLink href={route('campaign.annotations', value)}>
+                <Button type="primary">Annotations</Button>
+              </InertiaLink>
+              <InertiaLink href={route('campaign.exceptions', value)} className="pl-1">
+                <Button type="primary">Exceptions</Button>
+              </InertiaLink>
+              <div className="pl-1">
+                <Button type="primary" onClick={() => handleDescriptionModal(value)}>
+                  Description and URLs
+                </Button>
+              </div>
+            </div>
           )
         }
-      }
-      if (col.key === 'actions') {
-        base.render = (value) => (
-          <div className="flex">
-            <InertiaLink href={route('campaign.annotations', value)}>
-              <Button type="primary">
-                Annotations
-              </Button>
-            </InertiaLink>
-            <InertiaLink href={route('campaign.exceptions', value)} className="pl-1">
-              <Button type="primary">
-                Exceptions
-              </Button>
-            </InertiaLink>
-            <div className="pl-1">
-              <Button type="primary" onClick={() => handleDescriptionModal(value)}>
-                Description and URLs
-              </Button>
-            </div>
-          </div>
-        )
-      }
 
-      return base
-    })
+        return base
+      })
   )
 
   return (
@@ -379,7 +382,11 @@ const CampaignSettingReport = () => {
               dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+              pagination={{
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50, 100],
+                showSizeChanger: true,
+              }}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
@@ -414,18 +421,15 @@ const CampaignSettingReport = () => {
             <span>Start Date:</span>
             <DatePicker
               value={editData?.start_date ? dayjs(editData.start_date) : null}
-              onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+              onChange={(date, dateString) =>
+                handleEditChange({ target: { name: 'start_date', value: dateString } })
+              }
               className="w-full mb-4 mt-2"
             />
-            <Button
-              type="primary"
-              onClick={handleEditSubmit}
-              className="mt-[15px]"
-            >
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
               Edit
             </Button>
           </form>
-
         </div>
       </NormalModal>
 
@@ -440,20 +444,28 @@ const CampaignSettingReport = () => {
             <p className="text-center mb-5 -mt-[5px]">
               Description, Length & URLs for <strong>{descriptionModalData?.campaign_name}</strong>
             </p>
-            <div className="mb-1"><label>Description</label></div>
+            <div className="mb-1">
+              <label>Description</label>
+            </div>
             <Input.TextArea
               name="description"
               onChange={handleDescriptionChange}
-              value={descriptionModalData.description === null ? '' : descriptionModalData?.description}
+              value={
+                descriptionModalData.description === null ? '' : descriptionModalData?.description
+              }
               spellCheck
               rows={4}
               className="w-full"
             />
-            <div className="mb-1 mt-[30px]"><label>Length and URL</label></div>
+            <div className="mb-1 mt-[30px]">
+              <label>Length and URL</label>
+            </div>
             <Input.TextArea
               name="length_url"
               onChange={handleLengthUrlChange}
-              value={descriptionModalData.length_url === null ? '' : descriptionModalData?.length_url}
+              value={
+                descriptionModalData.length_url === null ? '' : descriptionModalData?.length_url
+              }
               spellCheck
               rows={3}
               className="w-full"
@@ -478,10 +490,11 @@ const CampaignSettingReport = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowKeys.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          selectedRowKeys.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
   )

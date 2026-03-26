@@ -241,22 +241,23 @@ const UserIndex = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      return base
-    })
+        return base
+      })
   )
 
   return (
@@ -314,7 +315,11 @@ const UserIndex = () => {
               dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+              pagination={{
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50, 100],
+                showSizeChanger: true,
+              }}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
@@ -357,15 +362,10 @@ const UserIndex = () => {
               required
               className="w-full mb-4 mt-2"
             />
-            <Button
-              type="primary"
-              onClick={handleEditSubmit}
-              className="mt-[15px]"
-            >
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
               Edit
             </Button>
           </form>
-
         </div>
       </NormalModal>
 
@@ -375,10 +375,11 @@ const UserIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowKeys.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          selectedRowKeys.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
   )

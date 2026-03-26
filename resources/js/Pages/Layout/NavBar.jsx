@@ -365,9 +365,7 @@ export default function PersistentDrawerLeft(props) {
     items.map((item) => ({
       ...item,
       label: hasParent ? withLinePrefix(item.label) : item.label,
-      ...(item.children
-        ? { children: applyLinePrefixToChildren(item.children, true) }
-        : {}),
+      ...(item.children ? { children: applyLinePrefixToChildren(item.children, true) } : {}),
     }))
 
   const styledMenuItems = applyLinePrefixToChildren(menuItems)

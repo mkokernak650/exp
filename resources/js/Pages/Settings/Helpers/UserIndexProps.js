@@ -64,7 +64,7 @@ export const fields = [
     caption: 'email',
     name: 'email',
     operators,
-  }
+  },
 ]
 
 export const groups = [
@@ -114,5 +114,5 @@ export const columns = [
     dataType: 'string',
     style: { width: 350 },
     visible: true,
-  }
+  },
 ]

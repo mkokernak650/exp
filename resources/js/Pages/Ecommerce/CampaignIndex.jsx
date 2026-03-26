@@ -450,7 +450,6 @@ const CampaignIndex = () => {
               </Col>
             </Row>
           </form>
-
         </div>
       </NormalModal>
 

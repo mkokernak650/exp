@@ -32,28 +32,30 @@ const useResizableTableColumns = ({
     )
   }, [])
 
-  const handleColumnResize = useCallback((columnKey, nextWidth) => {
-    setColumns((prev) =>
-      prev.map((column) => {
-        if (column.key !== columnKey) {
-          return column
-        }
+  const handleColumnResize = useCallback(
+    (columnKey, nextWidth) => {
+      setColumns((prev) =>
+        prev.map((column) => {
+          if (column.key !== columnKey) {
+            return column
+          }
 
-        return {
-          ...column,
-          width: nextWidth,
-          style: { ...(column.style || {}), width: nextWidth },
-        }
-      })
-    )
-  }, [setColumns])
+          return {
+            ...column,
+            width: nextWidth,
+            style: { ...(column.style || {}), width: nextWidth },
+          }
+        })
+      )
+    },
+    [setColumns]
+  )
 
   const ResizableTitle = ({ children, width, columnKey, ...restProps }) => {
     if (!width || !columnKey) {
       return <th {...restProps}>{children}</th>
     }
-    const isSeparatorVisible =
-      activeResizeKey === columnKey || hoveredResizeKey === columnKey
+    const isSeparatorVisible = activeResizeKey === columnKey || hoveredResizeKey === columnKey
 
     const startResize = (event) => {
       event.preventDefault()
@@ -70,12 +72,7 @@ const useResizableTableColumns = ({
 
       const onMouseUp = () => {
         setActiveResizeKey(null)
-        addTableDetails(
-          columnDetailsRef.current,
-          setColumnDetails,
-          columnsRef.current,
-          optionKey
-        )
+        addTableDetails(columnDetailsRef.current, setColumnDetails, columnsRef.current, optionKey)
         document.removeEventListener('mousemove', onMouseMove)
         document.removeEventListener('mouseup', onMouseUp)
       }
@@ -143,19 +140,22 @@ const useResizableTableColumns = ({
     )
   }
 
-  const withResizableColumns = useCallback((tableColumns = []) => {
-    return tableColumns.map((column) => {
-      const normalizedWidth = getNormalizedWidth(column)
-      return {
-        ...column,
-        width: normalizedWidth,
-        onHeaderCell: () => ({
+  const withResizableColumns = useCallback(
+    (tableColumns = []) => {
+      return tableColumns.map((column) => {
+        const normalizedWidth = getNormalizedWidth(column)
+        return {
+          ...column,
           width: normalizedWidth,
-          columnKey: column.key,
-        }),
-      }
-    })
-  }, [getNormalizedWidth])
+          onHeaderCell: () => ({
+            width: normalizedWidth,
+            columnKey: column.key,
+          }),
+        }
+      })
+    },
+    [getNormalizedWidth]
+  )
 
   return { ResizableTitle, withResizableColumns, getNormalizedWidth }
 }

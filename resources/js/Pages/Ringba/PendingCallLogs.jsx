@@ -33,9 +33,7 @@ const PendingCallLogsReport = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
-  const [filterValue, setFilterValue] = useState(
-    { groupName: 'and', items: [] }
-  )
+  const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
   const [pendingData, setPendingData] = useState(pendingCallLogs)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
@@ -56,9 +54,7 @@ const PendingCallLogsReport = () => {
           toast.success(res.data.msg)
           setData((prev) =>
             prev.map((item) =>
-              item.id == tableIndex
-                ? { ...item, Has_Annotation: res.data.has_annotation }
-                : item
+              item.id == tableIndex ? { ...item, Has_Annotation: res.data.has_annotation } : item
             )
           )
         }
@@ -147,66 +143,66 @@ const PendingCallLogsReport = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter:
-          col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'Call_Date') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            let shortMonth = value.toLocaleString('en-us', { month: 'short' })
-            let format_date = value
-            let dd = String(format_date.getDate()).padStart(2, '0')
-            let yyyy = format_date.getFullYear()
-            return dd + '-' + shortMonth + '-' + yyyy
+        if (col.key === 'Call_Date') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              let shortMonth = value.toLocaleString('en-us', { month: 'short' })
+              let format_date = value
+              let dd = String(format_date.getDate()).padStart(2, '0')
+              let yyyy = format_date.getFullYear()
+              return dd + '-' + shortMonth + '-' + yyyy
+            }
           }
         }
-      }
 
-      if (col.key === 'Call_Date_Time') {
-        base.render = (value) => {
-          if (value !== undefined) {
-            return DateTimeFormat(value)
+        if (col.key === 'Call_Date_Time') {
+          base.render = (value) => {
+            if (value !== undefined) {
+              return DateTimeFormat(value)
+            }
           }
         }
-      }
 
-      if (col.key === 'Annotation_Tag') {
-        base.render = (value) => {
-          let arrayValue = Array.isArray(value) ? value : String(value).split(',')
-          return (
-            <Select
-              defaultValue={arrayValue[0] || undefined}
-              onChange={(value) => updateAnnotation(value, arrayValue[2])}
-              size="small"
-              className="w-full"
-            >
-              <Select.Option value="">Select Annotation</Select.Option>
-              {campaignsWithAnnotations
-                .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
-                ?.annotations.map((annotation, index) => (
-                  <Select.Option key={index} value={annotation.id}>
-                    {annotation.annotation_name}
-                  </Select.Option>
-                ))}
-            </Select>
-          )
+        if (col.key === 'Annotation_Tag') {
+          base.render = (value) => {
+            let arrayValue = Array.isArray(value) ? value : String(value).split(',')
+            return (
+              <Select
+                defaultValue={arrayValue[0] || undefined}
+                onChange={(value) => updateAnnotation(value, arrayValue[2])}
+                size="small"
+                className="w-full"
+              >
+                <Select.Option value="">Select Annotation</Select.Option>
+                {campaignsWithAnnotations
+                  .filter((campaign) => campaign.campaign_name == arrayValue[1])[0]
+                  ?.annotations.map((annotation, index) => (
+                    <Select.Option key={index} value={annotation.id}>
+                      {annotation.annotation_name}
+                    </Select.Option>
+                  ))}
+              </Select>
+            )
+          }
         }
-      }
 
-      return base
-    })
+        return base
+      })
   )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
@@ -389,7 +385,11 @@ const PendingCallLogsReport = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" icon={<DeleteOutlined style={{ color: '#031b4e' }} />} onClick={() => handleOpenModal(setShowDeleteModal)} />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+          />
         </Tooltip>
 
         <Button

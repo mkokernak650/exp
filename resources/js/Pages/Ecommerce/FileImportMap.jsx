@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined } from '@ant-design/icons'
 
 export default function FileImportMap({
   index,
@@ -8,25 +8,25 @@ export default function FileImportMap({
   reportFields,
 }) {
   const handleReminderFieldMapping = (e) => {
-    const newFieldMap = [...fieldMap];
-    newFieldMap[index][e.target.name] = e.target.value;
-    setFieldMap([...newFieldMap]);
-  };
+    const newFieldMap = [...fieldMap]
+    newFieldMap[index][e.target.name] = e.target.value
+    setFieldMap([...newFieldMap])
+  }
 
   const delReminderFieldMap = () => {
-    const newFieldMap = [...fieldMap];
+    const newFieldMap = [...fieldMap]
     if (newFieldMap.length > 1) {
-      newFieldMap.splice(index, 1);
+      newFieldMap.splice(index, 1)
     }
-    setFieldMap([...newFieldMap]);
-  };
+    setFieldMap([...newFieldMap])
+  }
 
   return (
     <div className="flx mt-2 align-center">
       <select
         className="custom-input mr-2"
         name="applicationField"
-        value={reminderField.applicationField || ""}
+        value={reminderField.applicationField || ''}
         onChange={(e) => handleReminderFieldMapping(e)}
       >
         <option value="">Select Application Field</option>
@@ -57,7 +57,7 @@ export default function FileImportMap({
       <select
         className="custom-input"
         name="reportField"
-        value={reminderField.reportField || ""}
+        value={reminderField.reportField || ''}
         onChange={(e) => handleReminderFieldMapping(e)}
       >
         <option value="">Select Report Field</option>
@@ -74,8 +74,8 @@ export default function FileImportMap({
         type="button"
         aria-label="btn"
       >
-        <CloseOutlined style={{ fontSize: "1rem" }} />
+        <CloseOutlined style={{ fontSize: '1rem' }} />
       </button>
     </div>
-  );
+  )
 }

@@ -1,8 +1,4 @@
-export const stateStore = (tablePropsInit, optionKey) =>
-(
-    {
-        ...tablePropsInit,
-        ...JSON.parse(localStorage.getItem(optionKey) || "0"),
-    }
-
-)
+export const stateStore = (tablePropsInit, optionKey) => ({
+  ...tablePropsInit,
+  ...JSON.parse(localStorage.getItem(optionKey) || '0'),
+})

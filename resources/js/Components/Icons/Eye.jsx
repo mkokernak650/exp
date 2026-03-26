@@ -6,7 +6,7 @@ export default function Eye() {
       height="20"
       width="20"
       viewBox="0 0 488.85 488.85"
-     enableBackground= 'new 0 0 488.85 488.85' 
+      enableBackground="new 0 0 488.85 488.85"
     >
       <path
         d="M244.425,98.725c-93.4,0-178.1,51.1-240.6,134.1c-5.1,6.8-5.1,16.3,0,23.1c62.5,83.1,147.2,134.2,240.6,134.2

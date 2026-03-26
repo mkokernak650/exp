@@ -1,81 +1,93 @@
-import Logo from "../../../images/webform/logo.png";
+import Logo from '../../../images/webform/logo.png'
 
 export default function RingbaIOModalView({ viewData }) {
-    const { billingDetailsForView, orderDetailsForView, ioFor } = viewData
+  const { billingDetailsForView, orderDetailsForView, ioFor } = viewData
 
-    return (
-        <>
-            <section id="insertion-order-modal-view" className="insertion-order-modal-view">
-                <div className="consumerexp-heading">
-                    <img src={Logo} alt="consumer-exp-logo"></img>
-                    <ul className="consumerexp-info">
-                        <li>650 Huntington Avenue, Floor 22M</li>
-                        <li>Boston, MA 02115</li>
-                        <li>Tel/Text: 617-874-4247</li>
-                        <li>FEIN: 83-2614795</li>
-                        <li><a href="mailto:info@consumerexp.com">info@consumerexp.com</a></li>
-                        <li><a href="https://www.consumerexp.com/">www.consumerexp.com</a></li>
-                    </ul>
-                </div>
-                <div className="io-table">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td className="w-[60%]">
-                                    <ul>
-                                        <li>{billingDetailsForView?.name}</li>
-                                        <li>{billingDetailsForView?.contactName}</li>
-                                        <li>{billingDetailsForView?.contactPhone}</li>
-                                        <li>{billingDetailsForView?.email}</li>
-                                        <li>{billingDetailsForView?.address}</li>
-                                    </ul>
-                                </td>
-                                <td className="w-[40%]">
-                                    {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br />
-                                    {ioFor === 'customer' ? 'Dub Order or Notification' : 'Traffic Instructions'} <br /> <br />
-                                    {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO: {billingDetailsForView?.ioNo}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><b>BILL TO:</b></td>
-                                <td><b>DATE:</b> {billingDetailsForView?.date}</td>
-                            </tr>
-                            <tr>
-                                <td>{billingDetailsForView?.address}</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div className="io-details-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th className="w-[20%]">Title Name</th>
-                                    <th className="w-[40%]">Description</th>
-                                    <th className="w-[10%]">Terms</th>
-                                    <th className="w-[20%]">Phone</th>
-                                    <th className="w-[10%]">{ioFor === 'customer' ? 'Rate' : 'Net Payout'}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orderDetailsForView.map((item, index) => (
-                                    <tr key={index + 1}>
-                                        <td>{item.titleName}</td>
-                                        <td className="text-xs">
-                                            {item.description}
-                                            {(item.videoUrl && ioFor === 'affiliate') &&
-                                                <>
-                                                    <br />
-                                                    <a href={item.videoUrl} target="_blank" className="underline font-bold">Download TV Commercial</a>
-                                                </>
-                                            }
-                                        </td>
-                                        <td>{item.term}</td>
-                                        <td>{item.phone}</td>
-                                        <td>{item.netPrice.toFixed(2)}</td>
-                                    </tr>
-                                ))}
-                                {/* <tr>
+  return (
+    <>
+      <section id="insertion-order-modal-view" className="insertion-order-modal-view">
+        <div className="consumerexp-heading">
+          <img src={Logo} alt="consumer-exp-logo"></img>
+          <ul className="consumerexp-info">
+            <li>650 Huntington Avenue, Floor 22M</li>
+            <li>Boston, MA 02115</li>
+            <li>Tel/Text: 617-874-4247</li>
+            <li>FEIN: 83-2614795</li>
+            <li>
+              <a href="mailto:info@consumerexp.com">info@consumerexp.com</a>
+            </li>
+            <li>
+              <a href="https://www.consumerexp.com/">www.consumerexp.com</a>
+            </li>
+          </ul>
+        </div>
+        <div className="io-table">
+          <table>
+            <tbody>
+              <tr>
+                <td className="w-[60%]">
+                  <ul>
+                    <li>{billingDetailsForView?.name}</li>
+                    <li>{billingDetailsForView?.contactName}</li>
+                    <li>{billingDetailsForView?.contactPhone}</li>
+                    <li>{billingDetailsForView?.email}</li>
+                    <li>{billingDetailsForView?.address}</li>
+                  </ul>
+                </td>
+                <td className="w-[40%]">
+                  {ioFor === 'customer' ? 'THIS IS NOT A BILL' : 'THIS IS NOT AN INVOICE'} <br />
+                  {ioFor === 'customer' ? 'Dub Order or Notification' : 'Traffic Instructions'}{' '}
+                  <br /> <br />
+                  {ioFor === 'customer' ? 'Customer ' : ''}Insertion Order NO:{' '}
+                  {billingDetailsForView?.ioNo}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <b>BILL TO:</b>
+                </td>
+                <td>
+                  <b>DATE:</b> {billingDetailsForView?.date}
+                </td>
+              </tr>
+              <tr>
+                <td>{billingDetailsForView?.address}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div className="io-details-table">
+            <table>
+              <thead>
+                <tr>
+                  <th className="w-[20%]">Title Name</th>
+                  <th className="w-[40%]">Description</th>
+                  <th className="w-[10%]">Terms</th>
+                  <th className="w-[20%]">Phone</th>
+                  <th className="w-[10%]">{ioFor === 'customer' ? 'Rate' : 'Net Payout'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orderDetailsForView.map((item, index) => (
+                  <tr key={index + 1}>
+                    <td>{item.titleName}</td>
+                    <td className="text-xs">
+                      {item.description}
+                      {item.videoUrl && ioFor === 'affiliate' && (
+                        <>
+                          <br />
+                          <a href={item.videoUrl} target="_blank" className="underline font-bold">
+                            Download TV Commercial
+                          </a>
+                        </>
+                      )}
+                    </td>
+                    <td>{item.term}</td>
+                    <td>{item.phone}</td>
+                    <td>{item.netPrice.toFixed(2)}</td>
+                  </tr>
+                ))}
+                {/* <tr>
                                     <td colSpan="3" rowSpan="3" className="text-center">Thank You</td>
                                     <th>Sub Total</th>
                                     <td>${orderDetailsForView.netPrice.toFixed(2)}</td>
@@ -88,42 +100,77 @@ export default function RingbaIOModalView({ viewData }) {
                                     <th>Grand Total</th>
                                     <td>${orderDetailsForView.netPrice.toFixed(2)}</td>
                                 </tr> */}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div className="io-terms">
-                    <p>{ioFor === 'customer' ? 'Customer' : 'ConsumerEXP'} pays according to terms of this insertion order.</p>
-                    {ioFor === 'customer' ?
-                        (<p>Customer pays via ACH bank processing according to periodic sales reports to media outlet. Customer may provide an advance payment or retainer agreement.</p>)
-                        : (
-                            <>
-                                <p>A link to the dub will be contained within this insertion order or sent by separate email.</p>
-                                <p>ConsumerEXP pays via ACH bank processing according to periodic sales reports to media outlet.</p>
-                            </>
-                        )
-                    }
-                    <p>
-                        ConsumerEXP will provide {ioFor === 'customer' ? 'Customer' : 'media outlet'} log-in access to its vendor banking portal to view and download detailed bills, call or order logs,
-                        and track payments. Also, the {ioFor === 'customer' ? 'Customer' : 'vendor'} portal will provide consolidated statements of accounts and contain uploaded transaction and sales documents.
-                    </p>
-                    {ioFor === 'customer' ?
-                        (<p>The customer attests that it owns the TV commercial(s) and that they have licensed the images, spokespeople, and music for the TV commercial(s). Furthermore,
-                            the customer attests that the TV commercial(s) do not knowingly violate the rights of any individual, company, state laws, or federal laws.</p>)
-                        :
-                        (<p>ConsumerEXP agrees to indemnify and hold media outlet harmless from any claims for damages (including reasonable attorney fees)
-                            based upon a claim that a commercial run by ConsumerEXP violates applicable federal or state law.</p>)}
-                    {ioFor === 'customer' ?
-                        (<p>ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order, can be cancelled with as mentioned in this insertion order.</p>)
-                        : (<p>ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order, can be cancelled with based upon the terms of this insertion order.</p>)}
-                    {ioFor === 'customer' ?
-                        (<p>Customer may be charged for dubs, if they cannot supply dubs, as per agreement.</p>)
-                        : ''}
-                </div>
-                <div className="io-footer">
-                    <p>650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 | www.consumerexp.com</p>
-                </div>
-            </section>
-        </>
-    )
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="io-terms">
+          <p>
+            {ioFor === 'customer' ? 'Customer' : 'ConsumerEXP'} pays according to terms of this
+            insertion order.
+          </p>
+          {ioFor === 'customer' ? (
+            <p>
+              Customer pays via ACH bank processing according to periodic sales reports to media
+              outlet. Customer may provide an advance payment or retainer agreement.
+            </p>
+          ) : (
+            <>
+              <p>
+                A link to the dub will be contained within this insertion order or sent by separate
+                email.
+              </p>
+              <p>
+                ConsumerEXP pays via ACH bank processing according to periodic sales reports to
+                media outlet.
+              </p>
+            </>
+          )}
+          <p>
+            ConsumerEXP will provide {ioFor === 'customer' ? 'Customer' : 'media outlet'} log-in
+            access to its vendor banking portal to view and download detailed bills, call or order
+            logs, and track payments. Also, the {ioFor === 'customer' ? 'Customer' : 'vendor'}{' '}
+            portal will provide consolidated statements of accounts and contain uploaded transaction
+            and sales documents.
+          </p>
+          {ioFor === 'customer' ? (
+            <p>
+              The customer attests that it owns the TV commercial(s) and that they have licensed the
+              images, spokespeople, and music for the TV commercial(s). Furthermore, the customer
+              attests that the TV commercial(s) do not knowingly violate the rights of any
+              individual, company, state laws, or federal laws.
+            </p>
+          ) : (
+            <p>
+              ConsumerEXP agrees to indemnify and hold media outlet harmless from any claims for
+              damages (including reasonable attorney fees) based upon a claim that a commercial run
+              by ConsumerEXP violates applicable federal or state law.
+            </p>
+          )}
+          {ioFor === 'customer' ? (
+            <p>
+              ConsumerEXP and media outlet agree that insertion order, or titles in the insertion
+              order, can be cancelled with as mentioned in this insertion order.
+            </p>
+          ) : (
+            <p>
+              ConsumerEXP and media outlet agree that insertion order, or titles in the insertion
+              order, can be cancelled with based upon the terms of this insertion order.
+            </p>
+          )}
+          {ioFor === 'customer' ? (
+            <p>Customer may be charged for dubs, if they cannot supply dubs, as per agreement.</p>
+          ) : (
+            ''
+          )}
+        </div>
+        <div className="io-footer">
+          <p>
+            650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 |
+            www.consumerexp.com
+          </p>
+        </div>
+      </section>
+    </>
+  )
 }

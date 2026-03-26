@@ -1,32 +1,32 @@
-import { React, useState } from "react";
-import Layout from "../Layout/Layout";
-import { Button, Typography, Input, message } from "antd";
-import { Row, Col } from "antd";
-import { Helmet } from "react-helmet";
-import axios from "axios";
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
+import { Button, Typography, Input, message } from 'antd'
+import { Row, Col } from 'antd'
+import { Helmet } from 'react-helmet'
+import axios from 'axios'
 
 const AddMarket = () => {
-  const [values, setValues] = useState();
-  const [loading, setLoading] = useState(false);
+  const [values, setValues] = useState()
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setValues((oldValues) => ({
       ...oldValues,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    axios.post(route("store-market"), values).then((res) => {
-      setLoading(false);
+    e.preventDefault()
+    setLoading(true)
+    axios.post(route('store-market'), values).then((res) => {
+      setLoading(false)
       if (res.status === 200) {
-        message.success(res.data.msg);
+        message.success(res.data.msg)
       }
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -59,8 +59,8 @@ const AddMarket = () => {
         </form>
       </div>
     </>
-  );
-};
+  )
+}
 
-AddMarket.layout = (page) => <Layout title="Add Market">{page}</Layout>;
-export default AddMarket;
+AddMarket.layout = (page) => <Layout title="Add Market">{page}</Layout>
+export default AddMarket

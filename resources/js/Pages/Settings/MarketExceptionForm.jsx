@@ -39,7 +39,7 @@ const MarketExceptionForm = () => {
           toast.success(res.data.msg)
         }
       })
-      .catch((err) => { })
+      .catch((err) => {})
   }
 
   return (
@@ -113,7 +113,9 @@ const MarketExceptionForm = () => {
               <div>
                 <label>Start Date</label>
                 <DatePicker
-                  onChange={(date, dateString) => handleChange({ target: { name: 'start_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    handleChange({ target: { name: 'start_date', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>

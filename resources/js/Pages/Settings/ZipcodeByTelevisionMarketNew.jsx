@@ -14,7 +14,11 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
-import { fields, filter, columns as defaultColumns } from './Helpers/ZipcodeByTelevisionMarketNewProps'
+import {
+  fields,
+  filter,
+  columns as defaultColumns,
+} from './Helpers/ZipcodeByTelevisionMarketNewProps'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 
@@ -180,10 +184,12 @@ const ZipcodeByTelevisionMarketNew = () => {
           JSON.stringify(filterValue)
       )
       .then((res) => {
-        setData(res.data.data.map((item, index) => ({
-          ...item,
-          key: item.id,
-        })))
+        setData(
+          res.data.data.map((item, index) => ({
+            ...item,
+            key: item.id,
+          }))
+        )
         setZipcodeTelMarket(res.data)
         setTableLoading(false)
       })
@@ -191,7 +197,6 @@ const ZipcodeByTelevisionMarketNew = () => {
         setTableLoading(false)
       })
   }
-
 
   const itemPerPageHandleChange = (value) => {
     setItemPerPage(value)
@@ -203,22 +208,23 @@ const ZipcodeByTelevisionMarketNew = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      return base
-    })
+        return base
+      })
   )
 
   return (

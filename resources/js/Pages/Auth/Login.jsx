@@ -1,8 +1,8 @@
-import { Button, Input, Typography } from "antd"
-import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons"
-import backgroundImage from "../../../images/background_image_compress.jpg"
-import { useForm } from "@inertiajs/inertia-react"
-import { useState } from "react"
+import { Button, Input, Typography } from 'antd'
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
+import backgroundImage from '../../../images/background_image_compress.jpg'
+import { useForm } from '@inertiajs/inertia-react'
+import { useState } from 'react'
 
 const Login = () => {
   const { data, setData, post, errors } = useForm({
@@ -14,13 +14,16 @@ const Login = () => {
   const handleClickShowPassword = () => setShowPassword((show) => !show)
 
   const onHandleChange = (event) => {
-    setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value)
+    setData(
+      event.target.name,
+      event.target.type === 'checkbox' ? event.target.checked : event.target.value
+    )
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    post(route("login.attempt"))
+    post(route('login.attempt'))
   }
 
   return (
@@ -39,9 +42,7 @@ const Login = () => {
                   Sign in
                 </Typography.Title>
               </div>
-              {errors.email && (
-                <div className="text-[#f71328]">{errors.email}</div>
-              )}
+              {errors.email && <div className="text-[#f71328]">{errors.email}</div>}
               <div className="mt-4 mb-2">
                 <label className="block mb-1">Email Address</label>
                 <Input
@@ -73,9 +74,7 @@ const Login = () => {
                   }
                 />
               </div>
-              {errors.password && (
-                <div className="text-[#f71328]">{errors.password}</div>
-              )}
+              {errors.password && <div className="text-[#f71328]">{errors.password}</div>}
 
               <div className="py-4">
                 <Button

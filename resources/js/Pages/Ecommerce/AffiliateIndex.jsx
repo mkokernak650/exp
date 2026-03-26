@@ -73,9 +73,12 @@ const AffiliateIndex = () => {
     setEditData((oldEditData) => ({ ...oldEditData, campaign_id: value ?? '' }))
 
     if (value) {
-      const selectedCampaign = campaigns.filter(campaign => campaign.id == value)
+      const selectedCampaign = campaigns.filter((campaign) => campaign.id == value)
       if (selectedCampaign[0].description) {
-        setEditData((oldEditData) => ({ ...oldEditData, description: selectedCampaign[0].description }))
+        setEditData((oldEditData) => ({
+          ...oldEditData,
+          description: selectedCampaign[0].description,
+        }))
       } else {
         setEditData((oldEditData) => ({ ...oldEditData, description: '' }))
       }
@@ -123,41 +126,43 @@ const AffiliateIndex = () => {
         let campaignName = getCampaignNameById(editData.campaign_id)
         let customerName = getCustomerNameById(editData.customer_id)
         let affiliateName = getAffiliateNameById(editData.affiliate_id)
-        setData((prev) => prev.map((item) => {
-          if (item.id === editData.id) {
-            const updated = {
-              ...item,
-              campaign: campaignName,
-              campaign_id: editData.campaign_id,
-              customer: customerName,
-              customer_id: editData.customer_id,
-              affiliate: affiliateName,
-              affiliate_id: editData.affiliate_id,
-              product_code: res.data.data.product_code,
-              revenue: res.data.data.revenue,
-              lengths: res.data.data.lengths,
-              pay_on_multiple_orders: res.data.data.pay_on_multiple_orders,
-              affiliate_fee: res.data.data.affiliate_fee,
-              order_type: res.data.data.order_type,
-              coupon_code: res.data.data.coupon_code,
-              dialed: res.data.data.dialed,
-              affiliate_fee_type: res.data.data.affiliate_fee_type,
-              cash_buy: res.data.data.cash_buy,
-              description: res.data.data.description,
-              video_url: res.data.data.video_url,
-              updated_at: res.data.updated_at,
+        setData((prev) =>
+          prev.map((item) => {
+            if (item.id === editData.id) {
+              const updated = {
+                ...item,
+                campaign: campaignName,
+                campaign_id: editData.campaign_id,
+                customer: customerName,
+                customer_id: editData.customer_id,
+                affiliate: affiliateName,
+                affiliate_id: editData.affiliate_id,
+                product_code: res.data.data.product_code,
+                revenue: res.data.data.revenue,
+                lengths: res.data.data.lengths,
+                pay_on_multiple_orders: res.data.data.pay_on_multiple_orders,
+                affiliate_fee: res.data.data.affiliate_fee,
+                order_type: res.data.data.order_type,
+                coupon_code: res.data.data.coupon_code,
+                dialed: res.data.data.dialed,
+                affiliate_fee_type: res.data.data.affiliate_fee_type,
+                cash_buy: res.data.data.cash_buy,
+                description: res.data.data.description,
+                video_url: res.data.data.video_url,
+                updated_at: res.data.updated_at,
+              }
+              if (res.data.data.affiliate_fee_type == '2') {
+                updated.percentage = res.data.data.consumerEXP_cash_buy_fee
+                updated.consumerEXP_cash_buy_fee_type = res.data.data.consumerEXP_cash_buy_fee_type
+                updated.consumerEXP_cash_buy_fee = `${res.data.data.consumerEXP_cash_buy_fee_type == '1' ? (res.data.data.consumerEXP_cash_buy_fee / res.data.data.cash_buy) * 100 : res.data.data.consumerEXP_cash_buy_fee}`
+              } else {
+                updated.percentage = editData.revenue - editData.affiliate_fee
+              }
+              return updated
             }
-            if (res.data.data.affiliate_fee_type == "2") {
-              updated.percentage = res.data.data.consumerEXP_cash_buy_fee
-              updated.consumerEXP_cash_buy_fee_type = res.data.data.consumerEXP_cash_buy_fee_type
-              updated.consumerEXP_cash_buy_fee = `${res.data.data.consumerEXP_cash_buy_fee_type == "1" ? ((res.data.data.consumerEXP_cash_buy_fee / res.data.data.cash_buy) * 100) : res.data.data.consumerEXP_cash_buy_fee}`
-            } else {
-              updated.percentage = editData.revenue - editData.affiliate_fee
-            }
-            return updated
-          }
-          return item
-        }))
+            return item
+          })
+        )
         setEditData()
         setShowEditModal({ open: false })
         toast.success(res.data.msg)
@@ -224,7 +229,7 @@ const AffiliateIndex = () => {
         percentage: item?.percentage,
         cash_buy: item?.cash_buy,
         consumerEXP_cash_buy_fee_type: item?.consumerEXP_cash_buy_fee_type,
-        consumerEXP_cash_buy_fee: `${item?.consumerEXP_cash_buy_fee_type === 1 ? ((item?.consumerEXP_cash_buy_fee / item?.cash_buy) * 100) : item?.consumerEXP_cash_buy_fee}`,
+        consumerEXP_cash_buy_fee: `${item?.consumerEXP_cash_buy_fee_type === 1 ? (item?.consumerEXP_cash_buy_fee / item?.cash_buy) * 100 : item?.consumerEXP_cash_buy_fee}`,
         created_at: item.created_at,
         updated_at: item.updated_at,
         description: item.description,
@@ -294,9 +299,12 @@ const AffiliateIndex = () => {
     setLoading(true)
     axios
       .get(
-        'ecommerce-affiliates/export?filterByCampaigns=' + filterByCampaigns +
-        '&filterByCustomers=' + filterByCustomers +
-        '&filterByAffiliates=' + filterByAffiliates
+        'ecommerce-affiliates/export?filterByCampaigns=' +
+          filterByCampaigns +
+          '&filterByCustomers=' +
+          filterByCustomers +
+          '&filterByAffiliates=' +
+          filterByAffiliates
       )
       .then((res) => {
         setLoading(false)
@@ -364,14 +372,19 @@ const AffiliateIndex = () => {
     await axios
       .get(
         'ecommerce-affiliates?page=' +
-        data.page +
-        '&itemPerPage=' +
-        itemPerPage +
-        '&filteredValue=' +
-        JSON.stringify(filterValue) + '&orderBy=' + orderByValue +
-        '&filterByCampaigns=' + filterByCampaigns +
-        '&filterByCustomers=' + filterByCustomers +
-        '&filterByAffiliates=' + filterByAffiliates
+          data.page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue) +
+          '&orderBy=' +
+          orderByValue +
+          '&filterByCampaigns=' +
+          filterByCampaigns +
+          '&filterByCustomers=' +
+          filterByCustomers +
+          '&filterByAffiliates=' +
+          filterByAffiliates
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -386,7 +399,14 @@ const AffiliateIndex = () => {
 
   useEffect(() => {
     getSearchingData(currentPage)
-  }, [itemPerPage, filterValue, orderByValue, filterByCampaigns, filterByCustomers, filterByAffiliates])
+  }, [
+    itemPerPage,
+    filterValue,
+    orderByValue,
+    filterByCampaigns,
+    filterByCustomers,
+    filterByAffiliates,
+  ])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -407,10 +427,18 @@ const AffiliateIndex = () => {
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={toolbarIconStyle} />} />
+          <Button
+            type="text"
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+            icon={<DeleteOutlined style={toolbarIconStyle} />}
+          />
         </Tooltip>
         <Tooltip title="Edit">
-          <Button type="text" onClick={handleToolbarEdit} icon={<EditOutlined style={toolbarIconStyle} />} />
+          <Button
+            type="text"
+            onClick={handleToolbarEdit}
+            icon={<EditOutlined style={toolbarIconStyle} />}
+          />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -426,11 +454,12 @@ const AffiliateIndex = () => {
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
         }
         if (col.key === 'status') {
           base.render = (value) => (value == 1 ? 'Active' : 'Inactive')
@@ -479,11 +508,7 @@ const AffiliateIndex = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
-              <Button
-                type="primary"
-                onClick={openImportModal}
-                className="capitalize text-sm"
-              >
+              <Button type="primary" onClick={openImportModal} className="capitalize text-sm">
                 Import
               </Button>
               <Button
@@ -497,7 +522,10 @@ const AffiliateIndex = () => {
             </div>
             <div className="top-left">
               <MultiSelect
-                options={[{ label: 'Created At (Ascending)', value: 'ASC' }, { label: 'Created At (Descending)', value: 'DESC' }]}
+                options={[
+                  { label: 'Created At (Ascending)', value: 'ASC' },
+                  { label: 'Created At (Descending)', value: 'DESC' },
+                ]}
                 onChange={(value) => setOrderByValue(value)}
                 placeholder="Order By"
                 className="w-full"
@@ -770,7 +798,9 @@ const AffiliateIndex = () => {
                   <Col span={24}>
                     <Select
                       value={editData?.consumerEXP_cash_buy_fee_type || undefined}
-                      onChange={(value) => handleEditSelectChange('consumerEXP_cash_buy_fee_type', value)}
+                      onChange={(value) =>
+                        handleEditSelectChange('consumerEXP_cash_buy_fee_type', value)
+                      }
                       className="w-full"
                       placeholder="Select ConsumerEXP Fee Type"
                       allowClear
@@ -782,7 +812,11 @@ const AffiliateIndex = () => {
                   </Col>
                   <Col span={24}>
                     <div>
-                      <label>{editData?.consumerEXP_cash_buy_fee_type == 1 ? "ConsumerEXP Fee (In Percentage)" : "ConsumerEXP Fee (Fixed)"}</label>
+                      <label>
+                        {editData?.consumerEXP_cash_buy_fee_type == 1
+                          ? 'ConsumerEXP Fee (In Percentage)'
+                          : 'ConsumerEXP Fee (Fixed)'}
+                      </label>
                       <Input
                         value={editData?.consumerEXP_cash_buy_fee}
                         type="number"
@@ -827,17 +861,12 @@ const AffiliateIndex = () => {
               </Col>
 
               <Col span={24}>
-                <Button
-                  type="primary"
-                  onClick={handleEditSubmit}
-                  className="mt-[15px]"
-                >
+                <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
                   Update
                 </Button>
               </Col>
             </Row>
           </form>
-
         </div>
       </NormalModal>
 
@@ -864,10 +893,11 @@ const AffiliateIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowKeys.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          selectedRowKeys.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
   )

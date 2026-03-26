@@ -164,23 +164,24 @@ const ActivityLog = () => {
           JSON.stringify(filterValue)
       )
       .then((res) => {
-        setData(res.data.data.map((item, index) => ({
-          event: item.event,
-          log_name: item.log_name,
-          description: item.description,
-          created_at: item.created_at,
-          properties: item.properties,
-          name: item.properties?.name,
-          email: item.properties?.email,
-          ids: item.properties?.ids,
-          id: item.id,
-          key: item.id,
-        })))
+        setData(
+          res.data.data.map((item, index) => ({
+            event: item.event,
+            log_name: item.log_name,
+            description: item.description,
+            created_at: item.created_at,
+            properties: item.properties,
+            name: item.properties?.name,
+            email: item.properties?.email,
+            ids: item.properties?.ids,
+            id: item.id,
+            key: item.id,
+          }))
+        )
         setActivityLog(res.data)
         setLoading(false)
       })
   }
-
 
   const itemPerPageHandleChange = (value) => {
     setItemPerPage(value)
@@ -209,30 +210,31 @@ const ActivityLog = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'created_at' || col.key === 'updated_at') {
-        base.render = (value) => DateTimeFormat(value)
-      }
-      if (col.key === 'properties.ids') {
-        base.dataIndex = 'ids'
-        base.render = (value) => value ? value.toString().replace(/,/g, ', ') : ''
-      }
+        if (col.key === 'created_at' || col.key === 'updated_at') {
+          base.render = (value) => DateTimeFormat(value)
+        }
+        if (col.key === 'properties.ids') {
+          base.dataIndex = 'ids'
+          base.render = (value) => (value ? value.toString().replace(/,/g, ', ') : '')
+        }
 
-      return base
-    })
+        return base
+      })
   )
 
   return (
@@ -273,7 +275,11 @@ const ActivityLog = () => {
         <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
           <div
             className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
-            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
           >
             <div className="top-element">
               <CustomFilter

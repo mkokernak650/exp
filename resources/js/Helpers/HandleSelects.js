@@ -1,10 +1,4 @@
-const handleSelects = ({
-  selectedRowKeys,
-  setSelectedRowIds,
-  setTableToolbar,
-  data,
-  ...rest
-}) => {
+const handleSelects = ({ selectedRowKeys, setSelectedRowIds, setTableToolbar, data, ...rest }) => {
   setSelectedRowIds(selectedRowKeys)
   setTableToolbar(selectedRowKeys.length > 0)
 

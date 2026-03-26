@@ -32,11 +32,23 @@ const ArchivedAffiliates = () => {
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
   const dataArray = allAffiliates.map((item, index) => ({
-    edit: item.id, affiliate_id: item.affiliate_id, affiliate_name: item.affiliate_name, market: item.market, email: item.email, telephone: item.telephone, address: item.address, contact_name: item.contact_name, contact_telephone: item.contact_telephone, id: item.id, key: item.id,
+    edit: item.id,
+    affiliate_id: item.affiliate_id,
+    affiliate_name: item.affiliate_name,
+    market: item.market,
+    email: item.email,
+    telephone: item.telephone,
+    address: item.address,
+    contact_name: item.contact_name,
+    contact_telephone: item.contact_telephone,
+    id: item.id,
+    key: item.id,
   }))
 
   const optionKey = 'affiliate-archived'
-  const [columnDetails, setColumnDetails] = useState(columnsData.length ? JSON.parse(columnsData[0]) : {})
+  const [columnDetails, setColumnDetails] = useState(
+    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  )
   const [columns, setColumns] = useState(
     columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
       ? JSON.parse(columnsData[0])?.[optionKey]
@@ -65,8 +77,13 @@ const ArchivedAffiliates = () => {
   const [filterValue, changeFilter] = useState(filter)
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
-  const handleFilter = () => { setSearchSidebar((prevState) => !prevState); setShowColumns(false) }
-  const handleColumns = () => { setShowColumns(true) }
+  const handleFilter = () => {
+    setSearchSidebar((prevState) => !prevState)
+    setShowColumns(false)
+  }
+  const handleColumns = () => {
+    setShowColumns(true)
+  }
 
   const handleEdit = (itemId) => {
     const item = data.find((item) => item.id === itemId)
@@ -85,58 +102,82 @@ const ArchivedAffiliates = () => {
   }
 
   const handleActive = () => {
-    axios.post(route('active.affiliate'), { selectedRowIds: selectedRowKeys }).then((res) => {
-      if (res.data.status_code === 200) {
-        toast.success(res.data.msg)
-        setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
-        setTableToolbar(false)
-        setSelectedRowKeys([])
-        setShowActiveModal({ open: false })
-      } else {
-        toast.error(res.data.msg)
-        setSelectedRowKeys([])
-        setShowActiveModal({ open: false })
-      }
-    }).catch((err) => { })
+    axios
+      .post(route('active.affiliate'), { selectedRowIds: selectedRowKeys })
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          toast.success(res.data.msg)
+          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          setTableToolbar(false)
+          setSelectedRowKeys([])
+          setShowActiveModal({ open: false })
+        } else {
+          toast.error(res.data.msg)
+          setSelectedRowKeys([])
+          setShowActiveModal({ open: false })
+        }
+      })
+      .catch((err) => {})
   }
 
-  const handleEditChange = (e) => { setEditData({ ...editData, [e.target.name]: e.target.value }) }
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value })
+  }
 
   const handleEditSubmit = () => {
-    axios.post(route('affiliate.edit'), editData).then((res) => {
-      if (res.data.status_code === 200) {
-        setData((prev) =>
-          prev.map((item) => {
-            if (item.id === editData.id) {
-              return {
-                ...item,
-                affiliate_id: editData.affiliate_id,
-                affiliate_name: editData.affiliate_name,
-                market: editData.market,
-                email: editData.email,
-                telephone: editData.telephone,
-                address: editData.address,
-                contact_name: editData.contact_name,
-                contact_telephone: editData.contact_telephone,
+    axios
+      .post(route('affiliate.edit'), editData)
+      .then((res) => {
+        if (res.data.status_code === 200) {
+          setData((prev) =>
+            prev.map((item) => {
+              if (item.id === editData.id) {
+                return {
+                  ...item,
+                  affiliate_id: editData.affiliate_id,
+                  affiliate_name: editData.affiliate_name,
+                  market: editData.market,
+                  email: editData.email,
+                  telephone: editData.telephone,
+                  address: editData.address,
+                  contact_name: editData.contact_name,
+                  contact_telephone: editData.contact_telephone,
+                }
               }
-            }
-            return item
-          })
-        )
-        setEditData()
-        setShowEditModal({ open: false })
-        toast.success(res.data.msg)
-      } else { toast.error(res.data.msg) }
-    }).catch((err) => { console.log(err) })
+              return item
+            })
+          )
+          setEditData()
+          setShowEditModal({ open: false })
+          toast.success(res.data.msg)
+        } else {
+          toast.error(res.data.msg)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
-  const handleCloseModal = (setOpenModal) => { setOpenModal({ open: false }); setTableToolbar(false); setSelectedRowKeys([]) }
-  const handleOpenModal = (setOpenModal) => { setOpenModal({ open: true }) }
+  const handleCloseModal = (setOpenModal) => {
+    setOpenModal({ open: false })
+    setTableToolbar(false)
+    setSelectedRowKeys([])
+  }
+  const handleOpenModal = (setOpenModal) => {
+    setOpenModal({ open: true })
+  }
 
   useEffect(() => {
-    const checkIfClickedOutside = (e) => { if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) { setShowColumns(false) } }
+    const checkIfClickedOutside = (e) => {
+      if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
+        setShowColumns(false)
+      }
+    }
     document.addEventListener('mousedown', checkIfClickedOutside)
-    return () => { document.removeEventListener('mousedown', checkIfClickedOutside) }
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside)
+    }
   }, [showColumns])
 
   useEffect(() => {
@@ -161,8 +202,18 @@ const ArchivedAffiliates = () => {
 
     return (
       <div className="table-toolbar">
-        <Button type="text" icon={<EditOutlined style={toolbarIconStyle} />} onClick={handleToolbarEdit} />
-        <Button type="primary" className="w-[130px] capitalize text-sm" onClick={() => handleOpenModal(setShowActiveModal)}>Active</Button>
+        <Button
+          type="text"
+          icon={<EditOutlined style={toolbarIconStyle} />}
+          onClick={handleToolbarEdit}
+        />
+        <Button
+          type="primary"
+          className="w-[130px] capitalize text-sm"
+          onClick={() => handleOpenModal(setShowActiveModal)}
+        >
+          Active
+        </Button>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
@@ -178,32 +229,39 @@ const ArchivedAffiliates = () => {
 
   const filteredData = filterData(data, filterValue)
 
-  const antdColumns = withResizableColumns(columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+  const antdColumns = withResizableColumns(
+    columns
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      return base
-    }))
+        return base
+      })
+  )
 
   return (
     <>
       <Helmet title="Archived Affiliates" />
       <div className="selection-demo">
-        {tableToolbar ? (<TableToolbar />) : (
+        {tableToolbar ? (
+          <TableToolbar />
+        ) : (
           <div className="table-top">
             <div className="top-left">
-              <div className="columns-show-hide" onClick={handleColumns}><Eye /></div>
+              <div className="columns-show-hide" onClick={handleColumns}>
+                <Eye />
+              </div>
               <button
                 type="button"
                 className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
@@ -214,15 +272,31 @@ const ArchivedAffiliates = () => {
                 {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
               </button>
             </div>
-            {showColumns ? (<div className="column-settings" ref={showColumnRef}><ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} /></div>) : ''}
+            {showColumns ? (
+              <div className="column-settings" ref={showColumnRef}>
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+              </div>
+            ) : (
+              ''
+            )}
           </div>
         )}
         <div className={`report-content-layout ${serachSidebar ? 'with-filter' : ''}`}>
           <div
             className={`search-sidebar report-filter-sidebar ${serachSidebar ? 'filter-open' : 'filter-closed'}`}
-            style={tablePanelHeight ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` } : undefined}
+            style={
+              tablePanelHeight
+                ? { height: `${tablePanelHeight}px`, maxHeight: `${tablePanelHeight}px` }
+                : undefined
+            }
           >
-            <div className="top-element"><CustomFilter fields={fields} filterValue={filterValue} setFilterValue={changeFilter} /></div>
+            <div className="top-element">
+              <CustomFilter
+                fields={fields}
+                filterValue={filterValue}
+                setFilterValue={changeFilter}
+              />
+            </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
             <Table
@@ -231,7 +305,11 @@ const ArchivedAffiliates = () => {
               dataSource={filteredData}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+              pagination={{
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50, 100],
+                showSizeChanger: true,
+              }}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
@@ -239,28 +317,105 @@ const ArchivedAffiliates = () => {
         </div>
       </div>
 
-      <NormalModal open={showEditModal.open} setOpen={setShowEditModal} width={'600px'} title={'Edit Affiliate'}>
+      <NormalModal
+        open={showEditModal.open}
+        setOpen={setShowEditModal}
+        width={'600px'}
+        title={'Edit Affiliate'}
+      >
         <div className="edit_target">
           <form>
-            <div className="mb-4"><label>Affiliate Id</label><Input value={editData ? editData.affiliate_id : ''} name="affiliate_id" onChange={handleEditChange} className="w-full" /></div>
-            <div className="mb-4"><label>Affiliate Name</label><Input value={editData ? editData.affiliate_name : ''} name="affiliate_name" onChange={handleEditChange} className="w-full" /></div>
-            <div className="mb-4"><label>Email</label><Input value={editData ? editData.email : ''} name="email" type="email" onChange={handleEditChange} className="w-full" /></div>
-            <div className="mb-4"><label>Telephone</label><Input value={editData ? editData.telephone : ''} name="telephone" onChange={handleEditChange} className="w-full" /></div>
-            <div className="mb-4"><label>Address</label><Input value={editData ? editData.address : ''} name="address" onChange={handleEditChange} className="w-full" /></div>
+            <div className="mb-4">
+              <label>Affiliate Id</label>
+              <Input
+                value={editData ? editData.affiliate_id : ''}
+                name="affiliate_id"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label>Affiliate Name</label>
+              <Input
+                value={editData ? editData.affiliate_name : ''}
+                name="affiliate_name"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label>Email</label>
+              <Input
+                value={editData ? editData.email : ''}
+                name="email"
+                type="email"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label>Telephone</label>
+              <Input
+                value={editData ? editData.telephone : ''}
+                name="telephone"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label>Address</label>
+              <Input
+                value={editData ? editData.address : ''}
+                name="address"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+            </div>
             <div className="mt-[15px] mb-[10px]">
-              <div className="mb-1"><label>Select Market</label></div>
-              <Select placeholder="Select Market" value={editData ? editData.market : undefined} onChange={(value) => handleEditChange({ target: { name: 'market', value } })} className="w-full" allowClear>
-                {allMarkets.map((item) => (<Select.Option key={item.market} value={item.market}>{item.market}</Select.Option>))}
+              <div className="mb-1">
+                <label>Select Market</label>
+              </div>
+              <Select
+                placeholder="Select Market"
+                value={editData ? editData.market : undefined}
+                onChange={(value) => handleEditChange({ target: { name: 'market', value } })}
+                className="w-full"
+                allowClear
+              >
+                {allMarkets.map((item) => (
+                  <Select.Option key={item.market} value={item.market}>
+                    {item.market}
+                  </Select.Option>
+                ))}
               </Select>
             </div>
-            <TextInput label="Contact Name" name="contact_name" handleChange={handleEditChange} value={editData ? editData.contact_name : ''} />
-            <TextInput label="Contact Telephone" name="contact_telephone" handleChange={handleEditChange} value={editData ? editData.contact_telephone : ''} />
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">Edit</Button>
+            <TextInput
+              label="Contact Name"
+              name="contact_name"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_name : ''}
+            />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleEditChange}
+              value={editData ? editData.contact_telephone : ''}
+            />
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
+              Edit
+            </Button>
           </form>
         </div>
       </NormalModal>
 
-      <ConfirmModal open={showActiveModal.open} setOpen={setShowActiveModal} btnAction={handleActive} closeAction={() => handleCloseModal(setShowActiveModal)} width={'450px'} title={`${selectedRowKeys.length > 1 ? 'Do you want to active these affiliate?' : 'Do you want to active this affiliate?'}`} />
+      <ConfirmModal
+        open={showActiveModal.open}
+        setOpen={setShowActiveModal}
+        btnAction={handleActive}
+        closeAction={() => handleCloseModal(setShowActiveModal)}
+        width={'450px'}
+        title={`${selectedRowKeys.length > 1 ? 'Do you want to active these affiliate?' : 'Do you want to active this affiliate?'}`}
+      />
     </>
   )
 }

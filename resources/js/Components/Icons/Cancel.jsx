@@ -8,7 +8,7 @@ export default function Cancel() {
       height="20"
       width="20"
       viewBox="0 0 488.85 488.85"
-      style={{enableBackground:"new 0 0 492 492"}}
+      style={{ enableBackground: 'new 0 0 492 492' }}
     >
       <path
         d="M300.188,246L484.14,62.04c5.06-5.064,7.852-11.82,7.86-19.024c0-7.208-2.792-13.972-7.86-19.028L468.02,7.872

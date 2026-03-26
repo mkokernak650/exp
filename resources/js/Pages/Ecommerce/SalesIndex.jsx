@@ -313,7 +313,6 @@ const SalesIndex = () => {
     }
   }, [showColumns])
 
-
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
 

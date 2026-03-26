@@ -4,7 +4,8 @@ import toast from 'react-hot-toast'
 
 const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
 export const ExportReportWithoutTag = (apiData, fileName) => {
-  let mainDataOrigin = 'A1', headerLength = 0
+  let mainDataOrigin = 'A1',
+    headerLength = 0
 
   if (apiData.header) {
     if (Object.keys(apiData.header).length) {
@@ -17,7 +18,7 @@ export const ExportReportWithoutTag = (apiData, fileName) => {
 
   if (apiData.header && Object.keys(apiData.header).length) {
     const header = []
-    Object.keys(apiData.header).forEach(headerKey => {
+    Object.keys(apiData.header).forEach((headerKey) => {
       header.push([headerKey, apiData.header[headerKey]])
     })
     XLSX.utils.sheet_add_aoa(ws, header)
@@ -37,7 +38,8 @@ export const ExportReportWithoutTag = (apiData, fileName) => {
 }
 
 export const ExportReportWithTag = (apiData, fileName) => {
-  let mainDataOrigin = 'A1', headerLength = 0
+  let mainDataOrigin = 'A1',
+    headerLength = 0
 
   if (apiData.header) {
     if (Object.keys(apiData.header).length) {
@@ -63,7 +65,7 @@ export const ExportReportWithTag = (apiData, fileName) => {
 
   if (apiData.header && Object.keys(apiData.header).length) {
     const header = []
-    Object.keys(apiData.header).forEach(headerKey => {
+    Object.keys(apiData.header).forEach((headerKey) => {
       header.push([headerKey, apiData.header[headerKey]])
     })
     XLSX.utils.sheet_add_aoa(ws, header)
@@ -80,14 +82,41 @@ export const ExportReportWithTag = (apiData, fileName) => {
 
 export const exportReportEcommerce = (apiData, fileName, reportOn) => {
   if (reportOn.reportOn === 'exportCSV' && apiData.data === 'csvEmptyTemplateAces') {
-    const emptyTemplate = new Blob([['Vendor', 'ProductCode', 'CreativeCode', 'Station', 'Dnis', 'CallDate', 'CallTime', 'ANI', 'CallerCity', 'CallerState',
-      'CallerZip', 'CallerCountry', 'CallerGender', 'City', 'State', 'Zip', 'Revenue', 'CallLength', 'PaymentMethod', 'R1', 'R2']], { type: fileType })
+    const emptyTemplate = new Blob(
+      [
+        [
+          'Vendor',
+          'ProductCode',
+          'CreativeCode',
+          'Station',
+          'Dnis',
+          'CallDate',
+          'CallTime',
+          'ANI',
+          'CallerCity',
+          'CallerState',
+          'CallerZip',
+          'CallerCountry',
+          'CallerGender',
+          'City',
+          'State',
+          'Zip',
+          'Revenue',
+          'CallLength',
+          'PaymentMethod',
+          'R1',
+          'R2',
+        ],
+      ],
+      { type: fileType }
+    )
     FileSaver.saveAs(emptyTemplate, fileName + '.csv')
     toast.success('Report generated successfully')
     return
   }
 
-  let mainDataOrigin, headerLength = 0
+  let mainDataOrigin,
+    headerLength = 0
 
   if (Object.keys(apiData.header).length) {
     mainDataOrigin = `A${Object.keys(apiData.header).length + 2}`
@@ -100,12 +129,11 @@ export const exportReportEcommerce = (apiData, fileName, reportOn) => {
 
   if (apiData.header && Object.keys(apiData.header).length) {
     const header = []
-    Object.keys(apiData.header).forEach(headerKey => {
+    Object.keys(apiData.header).forEach((headerKey) => {
       header.push([headerKey, apiData.header[headerKey]])
     })
     XLSX.utils.sheet_add_aoa(ws, header)
   }
-
 
   if (apiData?.summary && Object.keys(apiData.summary).length) {
     const secondData = apiData.data.length + 5 + headerLength
@@ -129,7 +157,9 @@ export const exportReportEcommerce = (apiData, fileName, reportOn) => {
 }
 
 export const exportRingbaReports = (apiData, fileName) => {
-  let mainDataOrigin, headerLength = 0, summaryLength = 0
+  let mainDataOrigin,
+    headerLength = 0,
+    summaryLength = 0
 
   if (Object.keys(apiData.header).length) {
     mainDataOrigin = `A${Object.keys(apiData.header).length + 2}`
@@ -142,7 +172,7 @@ export const exportRingbaReports = (apiData, fileName) => {
 
   if (apiData.header && Object.keys(apiData.header).length) {
     const header = []
-    Object.keys(apiData.header).forEach(headerKey => {
+    Object.keys(apiData.header).forEach((headerKey) => {
       header.push([headerKey, apiData.header[headerKey]])
     })
     XLSX.utils.sheet_add_aoa(ws, header)
@@ -164,7 +194,7 @@ export const exportRingbaReports = (apiData, fileName) => {
   if (apiData.tagsData && apiData.tagsData.length) {
     const thirdData = apiData.data.length + 5 + headerLength + summaryLength + 2
     const tagsData = []
-    apiData.tagsData.forEach(tagdata => {
+    apiData.tagsData.forEach((tagdata) => {
       tagsData.push(tagdata)
     })
     XLSX.utils.sheet_add_aoa(ws, tagsData, { origin: `C${thirdData}` })

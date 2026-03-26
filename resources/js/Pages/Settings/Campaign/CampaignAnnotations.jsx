@@ -248,26 +248,27 @@ const CampaignAnnotations = () => {
 
   const antdColumns = withResizableColumns(
     columns
-    .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
-    .map((col) => {
-      const base = {
-        key: col.key,
-        dataIndex: col.key,
-        title: col.title || '',
-        width: col.style?.width || col.width,
-        sorter: col.dataType === 'number'
-          ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-          : col.dataType === 'string'
-            ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-            : undefined,
-      }
+      .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
+      .map((col) => {
+        const base = {
+          key: col.key,
+          dataIndex: col.key,
+          title: col.title || '',
+          width: col.style?.width || col.width,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
+        }
 
-      if (col.key === 'status') {
-        base.render = (value) => value == 1 ? 'Active' : 'Pushed'
-      }
+        if (col.key === 'status') {
+          base.render = (value) => (value == 1 ? 'Active' : 'Pushed')
+        }
 
-      return base
-    })
+        return base
+      })
   )
 
   return (
@@ -359,18 +360,15 @@ const CampaignAnnotations = () => {
             <span>Start Date:</span>
             <DatePicker
               value={editData?.start_date ? dayjs(editData.start_date) : null}
-              onChange={(date, dateString) => handleEditChange({ target: { name: 'start_date', value: dateString } })}
+              onChange={(date, dateString) =>
+                handleEditChange({ target: { name: 'start_date', value: dateString } })
+              }
               className="w-full mb-4 mt-2"
             />
-            <Button
-              type="primary"
-              onClick={handleEditSubmit}
-              className="mt-[15px]"
-            >
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
               Edit
             </Button>
           </form>
-
         </div>
       </NormalModal>
 

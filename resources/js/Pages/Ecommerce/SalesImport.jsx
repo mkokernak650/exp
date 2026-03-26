@@ -1,17 +1,17 @@
-import { React, useState } from 'react';
-import Layout from '../Layout/Layout';
-import { Button, Input, Select, Row, Col, Typography, Spin, Checkbox } from 'antd';
-import axios from 'axios';
-import { Helmet } from 'react-helmet';
-import FileImportMap from './FileImportMap';
-import * as XLSX from 'xlsx';
-import { useEffect } from 'react';
-import { usePage } from '@inertiajs/inertia-react';
-import toast from 'react-hot-toast';
-import { exportReportAlreadyExist } from '../../Helpers/ExportReport';
-import Note from '../../Components/Note';
+import { React, useState } from 'react'
+import Layout from '../Layout/Layout'
+import { Button, Input, Select, Row, Col, Typography, Spin, Checkbox } from 'antd'
+import axios from 'axios'
+import { Helmet } from 'react-helmet'
+import FileImportMap from './FileImportMap'
+import * as XLSX from 'xlsx'
+import { useEffect } from 'react'
+import { usePage } from '@inertiajs/inertia-react'
+import toast from 'react-hot-toast'
+import { exportReportAlreadyExist } from '../../Helpers/ExportReport'
+import Note from '../../Components/Note'
 
-const { Title } = Typography;
+const { Title } = Typography
 
 const SalesImport = () => {
   const defaultState = {
@@ -19,141 +19,144 @@ const SalesImport = () => {
     customer_id: '',
     order_type: '',
     file: '',
-  };
-  const [values, setValues] = useState(defaultState);
-  const [loading, setLoading] = useState({ import: false, fieldMap: false, gettingFieldsMap: false });
-  const [fileSelected, setFileSelected] = useState(false);
-  const [fieldMap, setFieldMap] = useState([]);
-  const [reportFields, setReportFields] = useState([]);
-  const { campaigns, customers } = usePage().props;
+  }
+  const [values, setValues] = useState(defaultState)
+  const [loading, setLoading] = useState({
+    import: false,
+    fieldMap: false,
+    gettingFieldsMap: false,
+  })
+  const [fileSelected, setFileSelected] = useState(false)
+  const [fieldMap, setFieldMap] = useState([])
+  const [reportFields, setReportFields] = useState([])
+  const { campaigns, customers } = usePage().props
   const [fieldsMapSaveError, setFieldsMapSaveError] = useState('')
   const [savedFieldsMap, setSavedFieldsMap] = useState(null)
   const [applyKeyChecked, setApplyKeyChecked] = useState(false)
 
   const handleFile = (file) => {
-    const reader = new FileReader();
-    const rABS = !!reader.readAsBinaryString;
+    const reader = new FileReader()
+    const rABS = !!reader.readAsBinaryString
     reader.onload = (e) => {
-      const bstr = e.target.result;
-      const wb = XLSX.read(bstr, { type: rABS ? 'binary' : 'array' });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      setReportFields(data);
-      setFileSelected(true);
-    };
-    if (rABS) reader.readAsBinaryString(file);
-    else reader.readAsArrayBuffer(file);
-  };
+      const bstr = e.target.result
+      const wb = XLSX.read(bstr, { type: rABS ? 'binary' : 'array' })
+      const wsname = wb.SheetNames[0]
+      const ws = wb.Sheets[wsname]
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1 })
+      setReportFields(data)
+      setFileSelected(true)
+    }
+    if (rABS) reader.readAsBinaryString(file)
+    else reader.readAsArrayBuffer(file)
+  }
 
   const generateReportFields = () => {
-    let newFieldMap = [];
+    let newFieldMap = []
 
     reportFields[0] &&
       reportFields[0].forEach((item) => {
-        newFieldMap.push({ applicationField: '', reportField: item });
-      });
+        newFieldMap.push({ applicationField: '', reportField: item })
+      })
 
-    setFieldMap([...newFieldMap]);
+    setFieldMap([...newFieldMap])
     setApplyKeyChecked(false)
   }
 
   useEffect(() => {
     generateReportFields()
-  }, [reportFields]);
+  }, [reportFields])
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((oldValues) => ({ ...oldValues, [name]: value }));
-  };
+    const { name, value } = e.target
+    setValues((oldValues) => ({ ...oldValues, [name]: value }))
+  }
 
   const handleSelectChange = (name, value) => {
-    setValues((oldValues) => ({ ...oldValues, [name]: value ?? '' }));
-  };
+    setValues((oldValues) => ({ ...oldValues, [name]: value ?? '' }))
+  }
 
   const handleFileChange = (e) => {
     if (e.target?.files[0] !== undefined) {
-      const { name, files } = e.target;
-      handleFile(e.target.files[0]);
-      setValues((oldValues) => ({ ...oldValues, [name]: files[0] }));
+      const { name, files } = e.target
+      handleFile(e.target.files[0])
+      setValues((oldValues) => ({ ...oldValues, [name]: files[0] }))
     } else {
-      setFileSelected(false);
-      setReportFields([]);
-      setValues((oldValues) => ({ ...oldValues, [e.target.name]: '' }));
+      setFileSelected(false)
+      setReportFields([])
+      setValues((oldValues) => ({ ...oldValues, [e.target.name]: '' }))
     }
-  };
+  }
 
   const checkMappedFields = () => {
-    const checkedField = fieldMap?.filter((item) => !item.applicationField || !item.reportField);
+    const checkedField = fieldMap?.filter((item) => !item.applicationField || !item.reportField)
 
-    const shippingZipIndex = fieldMap?.findIndex(
-      (item) => item.applicationField === 'shipping_zip'
-    );
+    const shippingZipIndex = fieldMap?.findIndex((item) => item.applicationField === 'shipping_zip')
 
-    if (checkedField.length > 0 || shippingZipIndex < 0) return false;
-    return true;
-  };
+    if (checkedField.length > 0 || shippingZipIndex < 0) return false
+    return true
+  }
 
   const headers = {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  };
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!checkMappedFields()) {
-      toast.error('Please map all fields');
-      return;
+      toast.error('Please map all fields')
+      return
     }
 
     setLoading((oldValues) => ({ ...oldValues, import: true }))
-    const formData = new FormData();
-    formData.append('file', values.file);
-    formData.append('campaign_id', values.campaign_id);
-    formData.append('customer_id', values.customer_id);
-    formData.append('order_type', values.order_type);
-    formData.append('fieldMap', JSON.stringify(fieldMap));
+    const formData = new FormData()
+    formData.append('file', values.file)
+    formData.append('campaign_id', values.campaign_id)
+    formData.append('customer_id', values.customer_id)
+    formData.append('order_type', values.order_type)
+    formData.append('fieldMap', JSON.stringify(fieldMap))
 
     axios
       .post(route('ecommerce-sales.importStore'), formData, headers)
       .then((res) => {
-        setFileSelected(false);
-        setReportFields([]);
-        setValues(defaultState);
-        e.target.reset();
+        setFileSelected(false)
+        setReportFields([])
+        setValues(defaultState)
+        e.target.reset()
 
         if (res.data?.alreadyExists) {
-          exportReportAlreadyExist(res.data.alreadyExists);
+          exportReportAlreadyExist(res.data.alreadyExists)
         }
         setLoading((oldValues) => ({ ...oldValues, import: false }))
-        toast.success(res.data.msg, { duration: 10000 });
+        toast.success(res.data.msg, { duration: 10000 })
       })
       .catch((err) => {
-        let errors = '';
+        let errors = ''
         if (err.response.data?.errors) {
           Object.values(err.response.data?.errors).map((error) => {
-            errors += error[0] + '\n';
-          });
+            errors += error[0] + '\n'
+          })
         } else if (err.response.data?.msg) {
-          errors = err.response.data.msg;
+          errors = err.response.data.msg
         }
         setLoading((oldValues) => ({ ...oldValues, import: false }))
-        toast.error(errors, { duration: 5000 });
-      });
-  };
+        toast.error(errors, { duration: 5000 })
+      })
+  }
 
   const addFieldMap = (i) => {
-    const newFieldMap = [...fieldMap];
-    newFieldMap.splice(i, 0, {});
-    setFieldMap([...newFieldMap]);
-  };
+    const newFieldMap = [...fieldMap]
+    newFieldMap.splice(i, 0, {})
+    setFieldMap([...newFieldMap])
+  }
 
   const saveOrUpdateFieldsMap = () => {
     setFieldsMapSaveError('')
     setLoading((oldValues) => ({ ...oldValues, fieldMap: true }))
 
-    axios.post(route('sales.import.save.fields.map'), { values, fieldMap })
+    axios
+      .post(route('sales.import.save.fields.map'), { values, fieldMap })
       .then((response) => {
         if (response.data.success === false && response.data.responseType === 'empty') {
           setFieldsMapSaveError(response.data.msg)
@@ -161,7 +164,8 @@ const SalesImport = () => {
           toast.success(response.data.msg)
         }
         setLoading((oldValues) => ({ ...oldValues, fieldMap: false }))
-      }).catch((err) => {
+      })
+      .catch((err) => {
         console.log(err)
         toast.error('Something went wrong!')
         setLoading((oldValues) => ({ ...oldValues, fieldMap: false }))
@@ -177,7 +181,8 @@ const SalesImport = () => {
 
     setLoading((oldValues) => ({ ...oldValues, gettingFieldsMap: true }))
 
-    axios.post(route('sales.import.get.fields.map'), data)
+    axios
+      .post(route('sales.import.get.fields.map'), data)
       .then((response) => {
         if (response.data.success) {
           setSavedFieldsMap(response.data.data)
@@ -185,7 +190,8 @@ const SalesImport = () => {
           setSavedFieldsMap([])
         }
         setLoading((oldValues) => ({ ...oldValues, gettingFieldsMap: false }))
-      }).catch((err) => {
+      })
+      .catch((err) => {
         console.log(err)
         setLoading((oldValues) => ({ ...oldValues, gettingFieldsMap: false }))
       })
@@ -207,23 +213,20 @@ const SalesImport = () => {
       message = (
         <div className="flex items-center">
           <Spin size="small" className="mr-[5px]" /> Fetching fields map...
-        </div >
+        </div>
       )
     } else if (savedFieldsMap === null) {
       message = (
-        <div>For applying <b>key</b> (fields map), select <b>campaign</b>, <b>customer</b>, and <b>order type</b> first.</div>
+        <div>
+          For applying <b>key</b> (fields map), select <b>campaign</b>, <b>customer</b>, and{' '}
+          <b>order type</b> first.
+        </div>
       )
     } else if (savedFieldsMap.length && fileSelected) {
       message = (
         <div>
-          <span className="mr-[5px]">
-            Key (fields map) available.
-          </span>
-          <Checkbox
-            checked={applyKeyChecked}
-            onChange={handleApplyKeyChange}
-            name="apply_key"
-          >
+          <span className="mr-[5px]">Key (fields map) available.</span>
+          <Checkbox checked={applyKeyChecked} onChange={handleApplyKeyChange} name="apply_key">
             Apply key
           </Checkbox>
         </div>
@@ -240,7 +243,7 @@ const SalesImport = () => {
   const handleApplyKeyChange = (e) => {
     if (e.target.checked) {
       setFieldMap(savedFieldsMap)
-      setApplyKeyChecked(current => !current)
+      setApplyKeyChecked((current) => !current)
     } else {
       generateReportFields()
     }
@@ -269,9 +272,10 @@ const SalesImport = () => {
       <Note>
         Remember to <b>Create all Coupon/Dialed Phone</b>, otherwise report will be wrong. <br />
         <br />
-        <b>Caution:</b> For CSV import, pick the call date and call time both; otherwise, an error will be generated.
-        Additionally, if the date format is incorrect, the order will be uploaded with the current date.
-      </Note >
+        <b>Caution:</b> For CSV import, pick the call date and call time both; otherwise, an error
+        will be generated. Additionally, if the date format is incorrect, the order will be uploaded
+        with the current date.
+      </Note>
       <div className="grid w-[600px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
         <Title level={5} className="text-center !text-xl !mb-[35px]">
           Import Sales Report
@@ -331,10 +335,8 @@ const SalesImport = () => {
                 <b>Supported File Type: csv, xlsx</b>
               </small>
             </Col>
-            <Col span={24} className="pb-[5px]" >
-              <div className="apply-fields-map">
-                {showApplyFieldsMap()}
-              </div>
+            <Col span={24} className="pb-[5px]">
+              <div className="apply-fields-map">{showApplyFieldsMap()}</div>
             </Col>
             {fileSelected && (
               <Col span={24}>
@@ -369,7 +371,14 @@ const SalesImport = () => {
             <Col className="mr-2">
               <Button
                 danger={!!fieldsMapSaveError}
-                disabled={!checkMappedFields() || !values.campaign_id || !values.customer_id || !values.order_type || loading.fieldMap || loading.import}
+                disabled={
+                  !checkMappedFields() ||
+                  !values.campaign_id ||
+                  !values.customer_id ||
+                  !values.order_type ||
+                  loading.fieldMap ||
+                  loading.import
+                }
                 onClick={saveOrUpdateFieldsMap}
                 loading={loading.fieldMap}
               >
@@ -388,13 +397,11 @@ const SalesImport = () => {
             </Col>
           </Row>
         </form>
-        {fieldsMapSaveError &&
-          <div className="fields-map-save-error">{fieldsMapSaveError}</div>
-        }
+        {fieldsMapSaveError && <div className="fields-map-save-error">{fieldsMapSaveError}</div>}
       </div>
     </>
-  );
-};
+  )
+}
 
-SalesImport.layout = (page) => <Layout title="Import Sales Report">{page}</Layout>;
-export default SalesImport;
+SalesImport.layout = (page) => <Layout title="Import Sales Report">{page}</Layout>
+export default SalesImport

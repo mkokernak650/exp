@@ -154,14 +154,18 @@ const GenerateReportDestination = () => {
     campaignName = campaigns.filter((item) => item.id == values.campaign_id)
   }
 
-  const fileName = `Summary_Report${values?.customer_name ? `_(${values.customer_name})` : ''
-    }${campaignName.length > 0 ? `_(${campaignName[0]?.campaign_name})` : ''}${values?.broad_cast_month ? `_(${values.broad_cast_month.toString()})` : ''
-    }`
+  const fileName = `Summary_Report${
+    values?.customer_name ? `_(${values.customer_name})` : ''
+  }${campaignName.length > 0 ? `_(${campaignName[0]?.campaign_name})` : ''}${
+    values?.broad_cast_month ? `_(${values.broad_cast_month.toString()})` : ''
+  }`
   values.file_name = fileName
 
-  const fileNameForEmailCriteria = `Summary_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
-    }${campaignName.length > 0 ? `_For_Campaigns(${campaignName[0]?.campaign_name})` : ''}${values?.broad_cast_month ? `_For_BroadCastMonths(${values.broad_cast_month.toString()})` : ''
-    }_Created@${currentDate()}`
+  const fileNameForEmailCriteria = `Summary_Report${
+    values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
+  }${campaignName.length > 0 ? `_For_Campaigns(${campaignName[0]?.campaign_name})` : ''}${
+    values?.broad_cast_month ? `_For_BroadCastMonths(${values.broad_cast_month.toString()})` : ''
+  }_Created@${currentDate()}`
   values.fileNameForEmailCriteria = fileNameForEmailCriteria
 
   const handleSubmit = () => {
@@ -281,7 +285,5 @@ const GenerateReportDestination = () => {
   )
 }
 
-GenerateReportDestination.layout = (page) => (
-  <Layout title="Generate Report Summary">{page}</Layout>
-)
+GenerateReportDestination.layout = (page) => <Layout title="Generate Report Summary">{page}</Layout>
 export default GenerateReportDestination

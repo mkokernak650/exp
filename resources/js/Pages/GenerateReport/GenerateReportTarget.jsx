@@ -270,21 +270,28 @@ const GenerateReportTarget = () => {
     values.emails = mergeEmail
   }
 
-  const fileName = `${values?.type}_Target${values?.customer_name ? `_(${values.customer_name})` : ''
-    }${values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''}${values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''
-    }${year?.year ? `_Years(${year.year.toString()})` : ''}${(values?.start_date && !year?.year)
+  const fileName = `${values?.type}_Target${
+    values?.customer_name ? `_(${values.customer_name})` : ''
+  }${values?.affiliate_id ? `_(${getAffiliateNames().toString()})` : ''}${
+    values?.campaign ? `_(${getCampaignNames(values.campaign).toString()})` : ''
+  }${year?.year ? `_Years(${year.year.toString()})` : ''}${
+    values?.start_date && !year?.year
       ? `_(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }`
+  }`
   values.file_name = fileName
 
-  const fileNameForEmailCriteria = `${values?.type}_Target_Report${values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
-    }${values?.annotation ? `_For_Annotations(${values.annotation})` : ''}${values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''
-    }${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''}${values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''
-    }${year?.year ? `_For_Years(${year.year.toString()})` : ''}${values?.start_date
+  const fileNameForEmailCriteria = `${values?.type}_Target_Report${
+    values?.customer_name ? `_For_Customers(${values.customer_name})` : ''
+  }${values?.annotation ? `_For_Annotations(${values.annotation})` : ''}${
+    values?.campaign ? `_For_Campaigns(${getCampaignNames(values.campaign).toString()})` : ''
+  }${values?.affiliate_id ? `_For_Affiliates(${getAffiliateNames().toString()})` : ''}${
+    values?.target_name ? `_For_Targets(${values.target_name.toString()})` : ''
+  }${year?.year ? `_For_Years(${year.year.toString()})` : ''}${
+    values?.start_date
       ? `_For_Date_Range(${dateFormat(values.start_date)}_To_${dateFormat(values?.end_date)})`
       : ''
-    }_Created@${currentDate()}`
+  }_Created@${currentDate()}`
   values.fileNameForEmailCriteria = fileNameForEmailCriteria
 
   const handleSubmit = () => {
@@ -325,11 +332,7 @@ const GenerateReportTarget = () => {
         <form validate="true" className="generate-report">
           <Row gutter={[0, 16]}>
             <Col span={24}>
-              <Radio.Group
-                name="type"
-                value={type.type}
-                onChange={typeHandleChange}
-              >
+              <Radio.Group name="type" value={type.type} onChange={typeHandleChange}>
                 <Radio value="general">General</Radio>
                 <Radio value="billed">Billed</Radio>
               </Radio.Group>
@@ -450,7 +453,9 @@ const GenerateReportTarget = () => {
                 <label className="block text-sm mb-1">Start Date</label>
                 <DatePicker
                   value={startDate.start_date ? dayjs(startDate.start_date) : null}
-                  onChange={(date, dateString) => startDateHandleChange({ target: { name: 'start_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    startDateHandleChange({ target: { name: 'start_date', value: dateString } })
+                  }
                   className="!w-full"
                 />
               </div>
@@ -460,7 +465,9 @@ const GenerateReportTarget = () => {
                 <label className="block text-sm mb-1">End Date</label>
                 <DatePicker
                   value={endDate.end_date ? dayjs(endDate.end_date) : null}
-                  onChange={(date, dateString) => endDateHandleChange({ target: { name: 'end_date', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    endDateHandleChange({ target: { name: 'end_date', value: dateString } })
+                  }
                   className="!w-full"
                 />
               </div>
