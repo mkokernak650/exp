@@ -389,6 +389,7 @@ const MarketExceptionReport = () => {
         setOpen={setShowEditModal}
         width={'600px'}
         title={'Edit Market Exception'}
+        onClose={() => handleCloseModal(setShowEditModal)}
       >
         <div className="edit_target">
           <form>

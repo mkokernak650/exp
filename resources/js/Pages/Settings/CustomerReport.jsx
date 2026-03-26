@@ -230,13 +230,15 @@ const CustomerReport = () => {
             onClick={() => handleOpenModal(setShowDeleteModal)}
           />
         </Tooltip>
-        <Tooltip title="Edit">
-          <Button
-            type="text"
-            icon={<EditOutlined style={toolbarIconStyle} />}
-            onClick={handleToolbarEdit}
-          />
-        </Tooltip>
+        {selectedRowKeys.length === 1 && (
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditOutlined style={toolbarIconStyle} />}
+              onClick={handleToolbarEdit}
+            />
+          </Tooltip>
+        )}
         <Button
           type="primary"
           className="w-[130px] capitalize text-sm"
@@ -351,6 +353,7 @@ const CustomerReport = () => {
         setOpen={setShowEditModal}
         width={'600px'}
         title={'Edit Customer'}
+        onClose={() => handleCloseModal(setShowEditModal)}
       >
         <div className="edit_target">
           <form>

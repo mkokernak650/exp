@@ -10,9 +10,11 @@ export default function ConfirmModal({
   width,
   title,
   loading,
+  onClose,
 }) {
   const handleClose = () => {
     setOpen({ open: false })
+    if (typeof onClose === 'function') onClose()
   }
 
   const handleCancel = () => {

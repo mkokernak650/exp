@@ -1,9 +1,13 @@
 import React from 'react'
 import { Modal } from 'antd'
 
-export default function NormalModal({ open, setOpen, children, width, title }) {
+export default function NormalModal({ open, setOpen, children, width, title, onClose }) {
   const handleClose = () => {
-    setOpen({ open: false })
+    if (typeof onClose === 'function') {
+      onClose()
+    } else {
+      setOpen({ open: false })
+    }
   }
 
   return (

@@ -322,6 +322,7 @@ const ArchivedCustomers = () => {
         setOpen={setShowEditModal}
         width={'600px'}
         title={'Edit Customer'}
+        onClose={() => handleCloseModal(setShowEditModal)}
       >
         <div className="edit_target">
           <form>

@@ -217,13 +217,15 @@ const UserIndex = () => {
             onClick={() => handleOpenModal(setShowDeleteModal)}
           />
         </Tooltip>
-        <Tooltip title="Edit">
-          <Button
-            type="text"
-            icon={<EditOutlined style={toolbarIconStyle} />}
-            onClick={handleToolbarEdit}
-          />
-        </Tooltip>
+        {selectedRowKeys.length === 1 && (
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditOutlined style={toolbarIconStyle} />}
+              onClick={handleToolbarEdit}
+            />
+          </Tooltip>
+        )}
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
@@ -332,6 +334,7 @@ const UserIndex = () => {
         setOpen={setShowEditModal}
         width={'600px'}
         title={'Edit Affiliate'}
+        onClose={() => handleCloseModal(setShowEditModal)}
       >
         <div className="edit_target">
           <form>

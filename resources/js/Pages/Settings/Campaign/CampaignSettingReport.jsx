@@ -399,6 +399,7 @@ const CampaignSettingReport = () => {
         setOpen={setShowEditModal}
         width={'600px'}
         title={'Edit Campaign Setting'}
+        onClose={() => handleCloseModal(setShowEditModal)}
       >
         <div className="edit_target">
           <form>

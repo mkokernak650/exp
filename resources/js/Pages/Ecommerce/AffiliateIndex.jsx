@@ -433,13 +433,15 @@ const AffiliateIndex = () => {
             icon={<DeleteOutlined style={toolbarIconStyle} />}
           />
         </Tooltip>
-        <Tooltip title="Edit">
-          <Button
-            type="text"
-            onClick={handleToolbarEdit}
-            icon={<EditOutlined style={toolbarIconStyle} />}
-          />
-        </Tooltip>
+        {selectedRowKeys.length === 1 && (
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              onClick={handleToolbarEdit}
+              icon={<EditOutlined style={toolbarIconStyle} />}
+            />
+          </Tooltip>
+        )}
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
     )
@@ -599,6 +601,7 @@ const AffiliateIndex = () => {
         setOpen={setShowEditModal}
         width={'600px'}
         title={'Edit E-commerce Affiliate'}
+        onClose={() => handleCloseModal(setShowEditModal)}
       >
         <div className="edit_target">
           <form>
