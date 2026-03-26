@@ -407,7 +407,7 @@ export default function PersistentDrawerLeft(props) {
 
   useEffect(() => {
     const { openKeys: newOpenKeys } = findSelectedAndOpenKeys()
-    setOpenKeys(newOpenKeys)
+    setOpenKeys((prev) => [...new Set([...prev, ...newOpenKeys])])
   }, [url])
 
   useEffect(() => {
