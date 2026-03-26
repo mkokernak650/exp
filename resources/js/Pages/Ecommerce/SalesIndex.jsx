@@ -86,31 +86,33 @@ const SalesIndex = () => {
         console.log(res)
         let campaignName = getCampaignNameById(editData?.campaign_id)
         let customerName = getCustomerNameById(editData?.customer_id)
-        setData((prev) => prev.map((item) => {
-          if (item.id === editData.id) {
-            return {
-              ...item,
-              campaign: campaignName,
-              campaign_id: editData.campaign_id,
-              customer: customerName,
-              customer_id: editData.customer_id,
-              coupon_code: res.data.data.coupon_code,
-              user_ip: res.data.data.user_ip,
-              order_no: res.data.data.order_no,
-              subtotal: res.data.data.subtotal,
-              total: res.data.data.total,
-              shipping_cost: res.data.data.shipping_cost,
-              shipping_zip: res.data.data.shipping_zip,
-              shipping_state: res.data.data.shipping_state,
-              shipping_city: res.data.data.shipping_city,
-              billing_zip: res.data.data.billing_zip,
-              dialed: res.data.data.dialed,
-              inbound: res.data.data.inbound,
-              updated_at: res.data.updated_at,
+        setData((prev) =>
+          prev.map((item) => {
+            if (item.id === editData.id) {
+              return {
+                ...item,
+                campaign: campaignName,
+                campaign_id: editData.campaign_id,
+                customer: customerName,
+                customer_id: editData.customer_id,
+                coupon_code: res.data.data.coupon_code,
+                user_ip: res.data.data.user_ip,
+                order_no: res.data.data.order_no,
+                subtotal: res.data.data.subtotal,
+                total: res.data.data.total,
+                shipping_cost: res.data.data.shipping_cost,
+                shipping_zip: res.data.data.shipping_zip,
+                shipping_state: res.data.data.shipping_state,
+                shipping_city: res.data.data.shipping_city,
+                billing_zip: res.data.data.billing_zip,
+                dialed: res.data.data.dialed,
+                inbound: res.data.data.inbound,
+                updated_at: res.data.updated_at,
+              }
             }
-          }
-          return item
-        }))
+            return item
+          })
+        )
         setEditData()
         setShowEditModal({ open: false })
         toast.success(res.data.msg)
@@ -250,21 +252,26 @@ const SalesIndex = () => {
     setOpenModal({ open: true })
   }
 
-  const getSearchingData = async (data) => {
-    setcurrentPage(data)
+  const getSearchingData = async (pageData) => {
+    const page = typeof pageData === 'object' ? pageData.page : pageData
+    setcurrentPage(page)
     setTableLoading(true)
     await axios
       .get(
         'ecommerce-sales?page=' +
-        data.page +
-        '&itemPerPage=' +
-        itemPerPage +
-        '&filteredValue=' +
-        JSON.stringify(filterValue) +
-        '&filterByCampaigns=' + filterByCampaigns +
-        '&filterByCustomers=' + filterByCustomers +
-        '&filterByAffiliates=' + filterByAffiliates +
-        '&filterByDate=' + JSON.stringify(filterByDate)
+          page +
+          '&itemPerPage=' +
+          itemPerPage +
+          '&filteredValue=' +
+          JSON.stringify(filterValue) +
+          '&filterByCampaigns=' +
+          filterByCampaigns +
+          '&filterByCustomers=' +
+          filterByCustomers +
+          '&filterByAffiliates=' +
+          filterByAffiliates +
+          '&filterByDate=' +
+          JSON.stringify(filterByDate)
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -283,8 +290,15 @@ const SalesIndex = () => {
   }
 
   useEffect(() => {
-    getSearchingData(currentPage)
-  }, [itemPerPage, filterValue, filterByCampaigns, filterByCustomers, filterByAffiliates, filterByDate])
+    getSearchingData(1)
+  }, [
+    itemPerPage,
+    filterValue,
+    filterByCampaigns,
+    filterByCustomers,
+    filterByAffiliates,
+    filterByDate,
+  ])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -299,16 +313,25 @@ const SalesIndex = () => {
     }
   }, [showColumns])
 
+
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
 
     return (
       <div className="table-toolbar">
         <Tooltip title="Delete">
-          <Button type="text" onClick={() => handleOpenModal(setShowDeleteModal)} icon={<DeleteOutlined style={toolbarIconStyle} />} />
+          <Button
+            type="text"
+            onClick={() => handleOpenModal(setShowDeleteModal)}
+            icon={<DeleteOutlined style={toolbarIconStyle} />}
+          />
         </Tooltip>
         <Tooltip title="Edit">
-          <Button type="text" onClick={handleToolbarEdit} icon={<EditOutlined style={toolbarIconStyle} />} />
+          <Button
+            type="text"
+            onClick={handleToolbarEdit}
+            icon={<EditOutlined style={toolbarIconStyle} />}
+          />
         </Tooltip>
         <div className="selection-rows">{selectedRowKeys.length} Row Selected</div>
       </div>
@@ -324,10 +347,14 @@ const SalesIndex = () => {
     setLoading(true)
     axios
       .get(
-        'ecommerce-sales-export?filterByCampaigns=' + filterByCampaigns +
-        '&filterByCustomers=' + filterByCustomers +
-        '&filterByAffiliates=' + filterByAffiliates +
-        '&filterByDate=' + JSON.stringify(filterByDate)
+        'ecommerce-sales-export?filterByCampaigns=' +
+          filterByCampaigns +
+          '&filterByCustomers=' +
+          filterByCustomers +
+          '&filterByAffiliates=' +
+          filterByAffiliates +
+          '&filterByDate=' +
+          JSON.stringify(filterByDate)
       )
       .then((res) => {
         setLoading(false)
@@ -352,11 +379,12 @@ const SalesIndex = () => {
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: col.dataType === 'number'
-            ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-            : col.dataType === 'string'
-              ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-              : undefined,
+          sorter:
+            col.dataType === 'number'
+              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              : col.dataType === 'string'
+                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                : undefined,
         }
         if (col.key === 'order_at') {
           base.render = (value) => {
@@ -445,7 +473,9 @@ const SalesIndex = () => {
                 <label>Start Date</label>
                 <DatePicker
                   value={filterByDate.startDate ? dayjs(filterByDate.startDate) : null}
-                  onChange={(date, dateString) => dateHandleChange({ target: { name: 'startDate', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    dateHandleChange({ target: { name: 'startDate', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>
@@ -453,7 +483,9 @@ const SalesIndex = () => {
                 <label>End Date</label>
                 <DatePicker
                   value={filterByDate.endDate ? dayjs(filterByDate.endDate) : null}
-                  onChange={(date, dateString) => dateHandleChange({ target: { name: 'endDate', value: dateString } })}
+                  onChange={(date, dateString) =>
+                    dateHandleChange({ target: { name: 'endDate', value: dateString } })
+                  }
                   className="w-full"
                 />
               </div>
@@ -690,15 +722,10 @@ const SalesIndex = () => {
                 onChange={handleEditChange}
               />
             </div>
-            <Button
-              type="primary"
-              onClick={handleEditSubmit}
-              className="mt-[15px]"
-            >
+            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
               Update
             </Button>
           </form>
-
         </div>
       </NormalModal>
 
@@ -708,10 +735,11 @@ const SalesIndex = () => {
         btnAction={deleteHandler}
         closeAction={() => handleCloseModal(setShowDeleteModal)}
         width={'400px'}
-        title={`${selectedRowKeys.length > 1
-          ? 'Do you want to delete these records?'
-          : 'Do you want to delete this record?'
-          }`}
+        title={`${
+          selectedRowKeys.length > 1
+            ? 'Do you want to delete these records?'
+            : 'Do you want to delete this record?'
+        }`}
       ></ConfirmModal>
     </>
   )

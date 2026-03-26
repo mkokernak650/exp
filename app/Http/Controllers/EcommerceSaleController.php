@@ -25,7 +25,8 @@ class EcommerceSaleController extends Controller
         $campaigns  = EcommerceCampaign::active()->get();
         $customers  = Customer::active()->get();
         $affiliates = Affiliate::orderBy('affiliate_name')->select('id', 'affiliate_name')->active()->get();
-        $sales      = EcommerceSale::query()
+
+        $salesQuery = EcommerceSale::query()
             ->select(
                 '*',
                 DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
@@ -35,49 +36,33 @@ class EcommerceSaleController extends Controller
                                     as affiliate_name")
             )
             ->with('campaign:id,campaign_name')
-            ->with('customer:id,customer_name')
-            ->paginate(request('itemPerPage') ?? 10);
+            ->with('customer:id,customer_name');
 
-        $conditions = json_decode(request('filteredValue'));
-        if (request('filteredValue') && count($conditions->items)) {
-            $salesQuery = EcommerceSale::query()
-                ->select(
-                    '*',
-                    DB::raw("DATE_FORMAT(order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
-                    DB::raw("(SELECT affiliate_name FROM affiliates WHERE affiliates.id = 
-                                        (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code = 
-                                        ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1)) 
-                                        as affiliate_name")
-                )
-                ->with('campaign:id,campaign_name')
-                ->with('customer:id,customer_name');
-
-            if (!empty(request('filterByCampaigns'))) {
-                $filterByCampaigns = explode(',', request('filterByCampaigns'));
-                $salesQuery->whereIn('campaign_id', $filterByCampaigns);
-            }
-
-            if (!empty(request('filterByCustomers'))) {
-                $filterByCustomers = explode(',', request('filterByCustomers'));
-                $salesQuery->whereIn('customer_id', $filterByCustomers);
-            }
-
-            if (!empty(request('filterByAffiliates'))) {
-                $salesQuery->whereRaw("(SELECT id FROM affiliates WHERE affiliates.id =
-                                    (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code =
-                                    ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1))
-                                    IN (" . request('filterByAffiliates') . ")");
-            }
-
-            $filterByDate = json_decode(request('filterByDate'));
-
-            if (!empty($filterByDate->startDate) && !empty($filterByDate->endDate)) {
-                $salesQuery->whereDate('order_at', '>=', $filterByDate->startDate)
-                    ->whereDate('order_at', '<=', $filterByDate->endDate);
-            }
-
-            return $salesQuery->paginate(request('itemPerPage') ?? 10);
+        if (!empty(request('filterByCampaigns'))) {
+            $filterByCampaigns = explode(',', request('filterByCampaigns'));
+            $salesQuery->whereIn('campaign_id', $filterByCampaigns);
         }
+
+        if (!empty(request('filterByCustomers'))) {
+            $filterByCustomers = explode(',', request('filterByCustomers'));
+            $salesQuery->whereIn('customer_id', $filterByCustomers);
+        }
+
+        if (!empty(request('filterByAffiliates'))) {
+            $salesQuery->whereRaw("(SELECT id FROM affiliates WHERE affiliates.id =
+                                (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code =
+                                ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1))
+                                IN (" . request('filterByAffiliates') . ")");
+        }
+
+        $filterByDate = json_decode(request('filterByDate'));
+
+        if (!empty($filterByDate->startDate) && !empty($filterByDate->endDate)) {
+            $salesQuery->whereDate('order_at', '>=', $filterByDate->startDate)
+                ->whereDate('order_at', '<=', $filterByDate->endDate);
+        }
+
+        $sales = $salesQuery->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $sales;
