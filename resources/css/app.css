@@ -1540,6 +1540,42 @@ div::-webkit-scrollbar-thumb {
 
 /* public io style end */
 
+/* Ant Design form fields — slightly taller */
+.ant-input {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  min-height: 38px !important;
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+}
+
+.ant-select-single .ant-select-selector .ant-select-selection-search-input {
+  height: 100% !important;
+}
+
+.ant-picker {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.ant-input-number {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.ant-input-affix-wrapper {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Ant Design form field spacing — match WebForm space-y-5 (20px) */
+form .ant-row {
+  row-gap: 20px !important;
+}
+
 /* sales import fields map save */
 
 .fields-map-save-error {
