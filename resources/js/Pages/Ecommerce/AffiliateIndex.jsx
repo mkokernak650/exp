@@ -447,6 +447,11 @@ const AffiliateIndex = () => {
     )
   }
 
+  const hasActiveFilter =
+    filterByCampaigns !== '' ||
+    filterByCustomers !== '' ||
+    filterByAffiliates !== ''
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
@@ -513,14 +518,25 @@ const AffiliateIndex = () => {
               <Button type="primary" onClick={openImportModal} className="capitalize text-sm">
                 Import
               </Button>
-              <Button
-                type="primary"
-                onClick={exportHandler}
-                className="capitalize text-sm"
-                loading={loading}
+              <Tooltip
+                title={
+                  !hasActiveFilter
+                    ? 'Please select at least one filter condition before exporting'
+                    : data.length === 0
+                      ? 'No records available to export'
+                      : ''
+                }
               >
-                Export
-              </Button>
+                <Button
+                  type="primary"
+                  onClick={exportHandler}
+                  disabled={!hasActiveFilter || data.length === 0}
+                  className="capitalize text-sm"
+                  loading={loading}
+                >
+                  Export
+                </Button>
+              </Tooltip>
             </div>
             <div className="top-left">
               <MultiSelect

@@ -350,15 +350,25 @@ const CustomerReport = () => {
               <Button type="primary" className="capitalize text-sm" onClick={openImportModal}>
                 Import
               </Button>
-              <Button
-                type="primary"
-                className="capitalize text-sm"
-                onClick={exportHandler}
-                disabled={allTVHouseholds == ''}
-                loading={loading}
+              <Tooltip
+                title={
+                  !activeFilterCount
+                    ? 'Please select at least one filter condition before exporting'
+                    : filteredData.length === 0
+                      ? 'No records available to export'
+                      : ''
+                }
               >
-                Searched Export
-              </Button>
+                <Button
+                  type="primary"
+                  className="capitalize text-sm"
+                  onClick={exportHandler}
+                  disabled={!activeFilterCount || filteredData.length === 0}
+                  loading={loading}
+                >
+                  Searched Export
+                </Button>
+              </Tooltip>
               <div className="top-left">
                 <MultiSelect
                   options={orderByOptions}

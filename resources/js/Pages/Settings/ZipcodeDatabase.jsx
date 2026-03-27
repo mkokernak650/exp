@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
-import { Table, Button, Input, Radio, Spin, Select } from 'antd'
+import { Table, Tooltip, Button, Input, Radio, Spin, Select } from 'antd'
 import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -238,6 +238,11 @@ const ZipcodeDatabase = () => {
       })
   }
 
+  const hasActiveFilter =
+    filterByState !== '' ||
+    filterByTimeZone !== '' ||
+    Object.values(filterBySearchBoxValue).some((v) => v !== '')
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
@@ -268,15 +273,25 @@ const ZipcodeDatabase = () => {
             <div className="columns-show-hide" onClick={handleColumns}>
               <Eye />
             </div>
-            <Button
-              type="primary"
-              onClick={exportHandler}
-              disabled={zipCodeData == ''}
-              loading={exportLoading}
-              className="w-auto capitalize text-sm"
+            <Tooltip
+              title={
+                !hasActiveFilter
+                  ? 'Please select at least one filter condition before exporting'
+                  : data.length === 0
+                    ? 'No records available to export'
+                    : ''
+              }
             >
-              Export
-            </Button>
+              <Button
+                type="primary"
+                onClick={exportHandler}
+                disabled={!hasActiveFilter || data.length === 0}
+                loading={exportLoading}
+                className="w-auto capitalize text-sm"
+              >
+                Export
+              </Button>
+            </Tooltip>
           </div>
           <div className="top-left gap-[5px]">
             <MultiSelect

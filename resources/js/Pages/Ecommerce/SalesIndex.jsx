@@ -371,6 +371,13 @@ const SalesIndex = () => {
       })
   }
 
+  const hasActiveFilter =
+    filterByCampaigns !== '' ||
+    filterByCustomers !== '' ||
+    filterByAffiliates !== '' ||
+    filterByDate.startDate !== '' ||
+    filterByDate.endDate !== ''
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
@@ -441,15 +448,25 @@ const SalesIndex = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
-              <Button
-                type="primary"
-                onClick={exportHandler}
-                disabled={sales == ''}
-                className="capitalize text-sm"
-                loading={loading}
+              <Tooltip
+                title={
+                  !hasActiveFilter
+                    ? 'Please select at least one filter condition before exporting'
+                    : data.length === 0
+                      ? 'No records available to export'
+                      : ''
+                }
               >
-                Searched Export
-              </Button>
+                <Button
+                  type="primary"
+                  onClick={exportHandler}
+                  disabled={!hasActiveFilter || data.length === 0}
+                  className="capitalize text-sm"
+                  loading={loading}
+                >
+                  Searched Export
+                </Button>
+              </Tooltip>
             </div>
             <div className="top-left">
               <MultiSelect

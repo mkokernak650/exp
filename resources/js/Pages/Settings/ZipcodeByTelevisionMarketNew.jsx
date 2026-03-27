@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Button, Select } from 'antd'
+import { Table, Tooltip, Button, Select } from 'antd'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import { Pagination } from 'react-laravel-paginex'
@@ -247,15 +247,25 @@ const ZipcodeByTelevisionMarketNew = () => {
                 {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
               </button>
 
-              <Button
-                type="primary"
-                onClick={exportHandler}
-                disabled={allZipcodesByTelevisionMarket == ''}
-                loading={exportLoading}
-                className="w-auto capitalize text-sm"
+              <Tooltip
+                title={
+                  !activeFilterCount
+                    ? 'Please select at least one filter condition before exporting'
+                    : data.length === 0
+                      ? 'No records available to export'
+                      : ''
+                }
               >
-                Searched Export
-              </Button>
+                <Button
+                  type="primary"
+                  onClick={exportHandler}
+                  disabled={!activeFilterCount || data.length === 0}
+                  loading={exportLoading}
+                  className="w-auto capitalize text-sm"
+                >
+                  Searched Export
+                </Button>
+              </Tooltip>
               <Button
                 type="primary"
                 onClick={viewExport}
