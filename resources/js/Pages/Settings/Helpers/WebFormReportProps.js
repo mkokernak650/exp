@@ -458,14 +458,15 @@ export const fields = [
   {
     caption: 'Created Time',
     name: 'Created_Time',
+    dataType: 'date',
     operators: [
       {
-        caption: 'Contains',
-        name: 'contains',
+        caption: 'Between',
+        name: 'dateBetween',
       },
       {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
+        caption: 'Not Between',
+        name: 'dateNotBetween',
       },
       {
         caption: 'Is Empty',
@@ -474,22 +475,6 @@ export const fields = [
       {
         caption: 'Is Not Empty',
         name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
       },
     ],
   },
@@ -611,7 +596,7 @@ export const columns = [
   {
     key: 'Created_Time',
     title: 'Created Time',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 280 },
     visible: true,
   },

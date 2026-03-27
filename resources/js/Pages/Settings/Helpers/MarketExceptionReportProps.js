@@ -167,6 +167,29 @@ export const fields = [
       },
     ],
   },
+  {
+    caption: 'Start Date',
+    name: 'start_date',
+    dataType: 'date',
+    operators: [
+      {
+        caption: 'Between',
+        name: 'dateBetween',
+      },
+      {
+        caption: 'Not Between',
+        name: 'dateNotBetween',
+      },
+      {
+        caption: 'Is Empty',
+        name: 'isEmpty',
+      },
+      {
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
+      },
+    ],
+  },
 ]
 
 export const groups = [
@@ -249,7 +272,7 @@ export const columns = [
   {
     key: 'start_date',
     title: 'Start Date',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 200 },
     visible: true,
   },

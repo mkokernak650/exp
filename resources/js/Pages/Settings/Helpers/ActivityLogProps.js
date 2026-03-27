@@ -57,6 +57,29 @@ export const fields = [
     name: 'Description',
     operators,
   },
+  {
+    caption: 'Activity Time (EST)',
+    name: 'created_at',
+    dataType: 'date',
+    operators: [
+      {
+        caption: 'Between',
+        name: 'dateBetween',
+      },
+      {
+        caption: 'Not Between',
+        name: 'dateNotBetween',
+      },
+      {
+        caption: 'Is Empty',
+        name: 'isEmpty',
+      },
+      {
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
+      },
+    ],
+  },
 ]
 
 export const groups = [

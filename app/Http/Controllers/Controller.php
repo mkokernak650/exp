@@ -31,6 +31,7 @@ class Controller extends BaseController
         '<',
         'between',
         'dateBetween',
+        'dateNotBetween',
     ];
 
     public function getSearchOperator($operator)
@@ -138,7 +139,7 @@ class Controller extends BaseController
             return '';
         }
 
-        if ($operator === 'between' || $operator === 'dateBetween') {
+        if ($operator === 'between' || $operator === 'dateBetween' || $operator === 'dateNotBetween') {
             if (!is_array($value)) {
                 return null;
             }
@@ -261,6 +262,27 @@ class Controller extends BaseController
         } elseif ($operator === 'isNotEmpty') {
             return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), null);
         }
+
+        if ($operator === 'dateBetween' || $operator === 'between') {
+            $betweenQuery = $this->findBetweenQuery($field, $val, 'date');
+            if (!empty($betweenQuery)) {
+                return $dataQuery->{$this->condTypes[$condType]}($betweenQuery);
+            }
+            return $dataQuery;
+        }
+
+        if ($operator === 'dateNotBetween') {
+            $val = is_array($val) ? $val : (is_object($val) ? (array) $val : []);
+            $from = $val['from'] ?? null;
+            $to = $val['to'] ?? null;
+            if ($from && $to) {
+                return $dataQuery->{$this->condTypes[$condType]}(function ($q) use ($field, $from, $to) {
+                    $q->where($field, '<', $from)->orWhere($field, '>', $to);
+                });
+            }
+            return $dataQuery;
+        }
+
         return  $dataQuery->{$this->condTypes[$condType]}($field, $this->getSearchOperator($operator), $this->findValue($operator, $val));
     }
 
@@ -293,6 +315,18 @@ class Controller extends BaseController
                     return $dataQuery->{$this->condTypes[$condType]}($betweenQuery);
                 }
 
+                return $dataQuery;
+            }
+
+            if ($operator === 'dateNotBetween') {
+                $val = is_array($val) ? $val : (is_object($val) ? (array) $val : []);
+                $from = $val['from'] ?? null;
+                $to = $val['to'] ?? null;
+                if ($from && $to) {
+                    return $dataQuery->{$this->condTypes[$condType]}(function ($q) use ($field, $from, $to) {
+                        $q->where($field, '<', $from)->orWhere($field, '>', $to);
+                    });
+                }
                 return $dataQuery;
             }
 

@@ -100,6 +100,52 @@ export const fields = [
     name: 'cash_buy',
     operators,
   },
+  {
+    caption: 'Created At',
+    name: 'created_at',
+    dataType: 'date',
+    operators: [
+      {
+        caption: 'Between',
+        name: 'dateBetween',
+      },
+      {
+        caption: 'Not Between',
+        name: 'dateNotBetween',
+      },
+      {
+        caption: 'Is Empty',
+        name: 'isEmpty',
+      },
+      {
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
+      },
+    ],
+  },
+  {
+    caption: 'Last Updated',
+    name: 'updated_at',
+    dataType: 'date',
+    operators: [
+      {
+        caption: 'Between',
+        name: 'dateBetween',
+      },
+      {
+        caption: 'Not Between',
+        name: 'dateNotBetween',
+      },
+      {
+        caption: 'Is Empty',
+        name: 'isEmpty',
+      },
+      {
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
+      },
+    ],
+  },
 ]
 
 export const groups = [
@@ -132,7 +178,7 @@ export const columns = [
   {
     key: 'created_at',
     title: 'Created At',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 180 },
     visible: true,
   },

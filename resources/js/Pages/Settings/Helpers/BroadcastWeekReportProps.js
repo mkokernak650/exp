@@ -29,6 +29,52 @@ export const fields = [
       { caption: 'Is Not', name: 'isnot' },
     ],
   },
+  {
+    caption: 'Start Date',
+    name: 'start_date',
+    dataType: 'date',
+    operators: [
+      {
+        caption: 'Between',
+        name: 'dateBetween',
+      },
+      {
+        caption: 'Not Between',
+        name: 'dateNotBetween',
+      },
+      {
+        caption: 'Is Empty',
+        name: 'isEmpty',
+      },
+      {
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
+      },
+    ],
+  },
+  {
+    caption: 'End Date',
+    name: 'end_date',
+    dataType: 'date',
+    operators: [
+      {
+        caption: 'Between',
+        name: 'dateBetween',
+      },
+      {
+        caption: 'Not Between',
+        name: 'dateNotBetween',
+      },
+      {
+        caption: 'Is Empty',
+        name: 'isEmpty',
+      },
+      {
+        caption: 'Is Not Empty',
+        name: 'isNotEmpty',
+      },
+    ],
+  },
 ]
 
 export const groups = [
@@ -69,14 +115,14 @@ export const columns = [
   {
     key: 'start_date',
     title: 'Start Date',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 150 },
     visible: true,
   },
   {
     key: 'end_date',
     title: 'End Date',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 150 },
     visible: true,
   },

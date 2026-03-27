@@ -52,7 +52,7 @@ export const columns = [
   {
     key: 'created_at',
     title: 'Created At',
-    dataType: 'string',
+    dataType: 'date',
     style: { width: 100 },
     visible: true,
   },

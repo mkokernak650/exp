@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -19,7 +19,7 @@ import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastMo
 import mergeColumns from '@/Helpers/MergeColumns'
 import { Pagination } from 'react-laravel-paginex'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 
 const BroadcastMonthReport = () => {
   const { allBroadCastMonths, columnsData } = usePage().props
@@ -101,6 +101,10 @@ const BroadcastMonthReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -218,7 +222,7 @@ const BroadcastMonthReport = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
-          JSON.stringify(filterValue)
+          activeFilterJSON
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -259,7 +263,7 @@ const BroadcastMonthReport = () => {
 
   useEffect(() => {
     getSearchingData(curerentPage)
-  }, [itemPerPage, filterValue])
+  }, [itemPerPage, activeFilterJSON])
 
   useEffect(() => {
     const syncTablePanelHeight = () => {

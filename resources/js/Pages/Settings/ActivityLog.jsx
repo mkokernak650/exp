@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -17,7 +17,7 @@ import * as XLSX from 'xlsx'
 import { fields, filter, columns as defaultColumns } from './Helpers/ActivityLogProps'
 import { DateTimeFormat } from '../../Helpers/DateTimeFormat'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 
 const ActivityLog = () => {
   const { allActivityLog, columnsData } = usePage().props
@@ -75,6 +75,10 @@ const ActivityLog = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -161,7 +165,7 @@ const ActivityLog = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
-          JSON.stringify(filterValue)
+          activeFilterJSON
       )
       .then((res) => {
         setData(
@@ -189,7 +193,7 @@ const ActivityLog = () => {
 
   useEffect(() => {
     getSearchingData(curerentPage)
-  }, [itemPerPage, filterValue])
+  }, [itemPerPage, activeFilterJSON])
 
   useEffect(() => {
     const syncTablePanelHeight = () => {
