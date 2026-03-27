@@ -18,9 +18,9 @@ export default function WebForm() {
   const handleSubmit = (e) => {
     e.preventDefault()
     axios
-      .post(route('webform.store'), values, setValues)
+      .post(route('webform.store'), values)
       .then((res) => {
-        if (res.status_code === 200) {
+        if (res.status === 200) {
           message.success(res.data.msg)
           e.target.reset()
         } else {
@@ -128,7 +128,7 @@ export default function WebForm() {
             <Input type="text" name="country" placeholder="Country" onChange={handleChange} />
             <Input type="url" name="website" placeholder="Website" onChange={handleChange} />
             <Input.TextArea
-              name="omment"
+              name="comment"
               placeholder="Write your comment"
               rows={5}
               onChange={handleChange}

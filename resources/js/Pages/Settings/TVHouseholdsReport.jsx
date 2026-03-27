@@ -313,9 +313,11 @@ const CustomerReport = () => {
           sorter:
             col.dataType === 'number'
               ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'string'
-                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                : undefined,
+              : col.dataType === 'date'
+                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
+                : col.dataType === 'string'
+                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                  : undefined,
         }
 
         if (col.key === 'created_at' || col.key === 'updated_at') {

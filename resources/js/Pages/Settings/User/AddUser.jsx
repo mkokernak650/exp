@@ -1,6 +1,5 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
 import { Row, Col } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
@@ -15,8 +14,6 @@ const AddUser = () => {
   const [values, setValues] = useState()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const [showPassword, setShowPassword] = useState({ password: false, cpassword: false })
-
   const handleSubmit = (e) => {
     e.preventDefault()
     setLoading(true)
@@ -35,9 +32,6 @@ const AddUser = () => {
         setLoading(false)
       })
   }
-
-  const handleClickShowPassword = (name) =>
-    setShowPassword((prevState) => ({ ...prevState, [name]: !prevState?.[name] }))
 
   return (
     <>
@@ -72,33 +66,17 @@ const AddUser = () => {
               label="Password*"
               name="password"
               handleChange={(e) => handleChange(e, setValues)}
-              type={showPassword?.password ? 'text' : 'password'}
+              type="password"
               error={errors?.password}
               helperText={errors?.password?.[0]}
-              suffix={
-                <span
-                  onClick={() => handleClickShowPassword('password')}
-                  className="cursor-pointer"
-                >
-                  {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                </span>
-              }
             />
             <TextInput
               label="Confirm Password*"
               name="password_confirmation"
               handleChange={(e) => handleChange(e, setValues)}
-              type={showPassword?.cpassword ? 'text' : 'password'}
+              type="password"
               error={errors?.password}
               helperText={errors?.password?.[0]}
-              suffix={
-                <span
-                  onClick={() => handleClickShowPassword('cpassword')}
-                  className="cursor-pointer"
-                >
-                  {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                </span>
-              }
             />
 
             <PrimaryButton btnText="Submit" loading={loading} htmlType="submit" />

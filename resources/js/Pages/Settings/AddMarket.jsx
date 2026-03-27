@@ -25,6 +25,9 @@ const AddMarket = () => {
       if (res.status === 200) {
         message.success(res.data.msg)
       }
+    }).catch(() => {
+      setLoading(false)
+      message.error('Something went wrong')
     })
   }
 

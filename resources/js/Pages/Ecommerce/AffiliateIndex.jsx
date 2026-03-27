@@ -266,7 +266,11 @@ const AffiliateIndex = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const [columns, setColumns] = useState(defaultColumns)
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
   const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
     columns,
     setColumns,
@@ -366,13 +370,14 @@ const AffiliateIndex = () => {
     setEditData((oldEditData) => ({ ...oldEditData, lengths: val }))
   }
 
-  const getSearchingData = async (data) => {
-    setcurrentPage(data)
+  const getSearchingData = async (pageData) => {
+    const page = typeof pageData === 'object' ? pageData.page : pageData
+    setcurrentPage(page)
     setTableLoading(true)
     await axios
       .get(
         'ecommerce-affiliates?page=' +
-          data.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -464,9 +469,11 @@ const AffiliateIndex = () => {
           sorter:
             col.dataType === 'number'
               ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'string'
-                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                : undefined,
+              : col.dataType === 'date'
+                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
+                : col.dataType === 'string'
+                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                  : undefined,
         }
         if (col.key === 'status') {
           base.render = (value) => (value == 1 ? 'Active' : 'Inactive')

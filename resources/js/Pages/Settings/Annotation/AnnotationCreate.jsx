@@ -31,7 +31,10 @@ const AnnotationCreate = () => {
           toast.success(res.data.msg)
         }
       })
-      .catch((err) => {})
+      .catch((err) => {
+        setLoading(false)
+        toast.error(err.response?.data?.msg || 'Something went wrong')
+      })
   }
 
   return (

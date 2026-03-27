@@ -51,7 +51,7 @@ const CampaignIndex = () => {
     customer_id: item?.customer?.id.toString(),
     description: item.description,
     length_url: item.length_url,
-    status: [item.status, item.id, index],
+    status: item.status,
     created_at: item.created_at,
     updated_at: item.updated_at,
     id: item.id,
@@ -70,7 +70,11 @@ const CampaignIndex = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
 
-  const [columns, setColumns] = useState(defaultColumns)
+  const [columns, setColumns] = useState(
+    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
+      ? JSON.parse(columnsData[0])?.[optionKey]
+      : defaultColumns
+  )
   const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
     columns,
     setColumns,
@@ -125,14 +129,14 @@ const CampaignIndex = () => {
     headers: { Accept: 'application/json' },
   }
 
-  const handleStatus = (value, rowId, index) => {
+  const handleStatus = (value, rowId) => {
     let status = parseInt(value) === 1 ? 0 : 1
     axios
       .post(route('ecommerce-campaigns.status.update', rowId), { status }, headers)
       .then((res) => {
         setData((prev) =>
-          prev.map((item, idx) =>
-            item.id === rowId ? { ...item, status: [status, rowId, idx] } : item
+          prev.map((item) =>
+            item.id === rowId ? { ...item, status } : item
           )
         )
         toast.success(res.data.msg)
@@ -271,9 +275,11 @@ const CampaignIndex = () => {
           sorter:
             col.dataType === 'number'
               ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'string'
-                ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                : undefined,
+              : col.dataType === 'date'
+                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
+                : col.dataType === 'string'
+                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                  : undefined,
         }
         if (col.key === 'affiliates') {
           base.render = (value) => (
@@ -283,14 +289,11 @@ const CampaignIndex = () => {
           )
         }
         if (col.key === 'status') {
-          base.render = (value) => {
-            if (typeof value === 'string') {
-              value = value.split(',')
-            }
+          base.render = (value, record) => {
             return (
               <Switch
-                checked={parseInt(value[0]) === 1}
-                onChange={() => handleStatus(value[0], value[1], value[2])}
+                checked={parseInt(value) === 1}
+                onChange={() => handleStatus(value, record.id)}
               />
             )
           }

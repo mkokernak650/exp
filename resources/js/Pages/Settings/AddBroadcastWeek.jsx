@@ -8,7 +8,10 @@ import { Helmet } from 'react-helmet'
 import toast from 'react-hot-toast'
 
 const AddBroadcastWeek = () => {
-  const [values, setValues] = useState()
+  const [values, setValues] = useState({
+    start_date: dayjs().format('YYYY-MM-DD'),
+    end_date: dayjs().format('YYYY-MM-DD'),
+  })
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {

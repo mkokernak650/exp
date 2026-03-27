@@ -129,30 +129,66 @@ const isNotEqual = (data, item) => {
 }
 
 const dateBetween = (data, item) => {
-  let value
-  if (item.value != '' || item.value != null) {
-    value = data[item.field]
-  } else {
+  const sourceValue = data[item.field]
+  const from = item?.value?.from
+  const to = item?.value?.to
+  const hasFrom = Boolean(from)
+  const hasTo = Boolean(to)
+
+  if (!hasFrom && !hasTo) {
     return true
   }
-  const startDate = dateFormat(item.value[0])
-  const endDate = dateFormat(item.value[1])
-  const tableDate = dateFormat(data[item.field])
-  if (tableDate >= startDate && tableDate <= endDate) {
-    return true
+
+  const sourceDate = new Date(sourceValue)
+  if (Number.isNaN(sourceDate.getTime())) {
+    return false
   }
+
+  if (hasFrom) {
+    const fromDate = new Date(from)
+    if (!Number.isNaN(fromDate.getTime()) && sourceDate < fromDate) {
+      return false
+    }
+  }
+
+  if (hasTo) {
+    const toDate = new Date(to)
+    if (!Number.isNaN(toDate.getTime()) && sourceDate > toDate) {
+      return false
+    }
+  }
+
+  return true
 }
 
 const between = (data, item) => {
-  let value
-  if (item?.value?.from != '' && item?.value?.to != null) {
-    value = data[item.field]
-  } else {
+  const sourceValue = data[item.field]
+  const from = item?.value?.from
+  const to = item?.value?.to
+  const hasFrom = from !== '' && from !== null && from !== undefined
+  const hasTo = to !== '' && to !== null && to !== undefined
+
+  if (!hasFrom && !hasTo) {
     return true
   }
-  if (value >= item?.value?.from && value <= item?.value?.to) {
-    return true
+
+  const numericValue = Number(sourceValue)
+  const numericFrom = Number(from)
+  const numericTo = Number(to)
+
+  if (!Number.isFinite(numericValue)) {
+    return false
   }
+
+  if (hasFrom && Number.isFinite(numericFrom) && numericValue < numericFrom) {
+    return false
+  }
+
+  if (hasTo && Number.isFinite(numericTo) && numericValue > numericTo) {
+    return false
+  }
+
+  return true
 }
 
 const dateNotBetween = (data, item) => {

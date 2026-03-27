@@ -31,7 +31,10 @@ const AddCustomer = () => {
           e.target.reset()
         }
       })
-      .catch((err) => {})
+      .catch((err) => {
+        setLoading(false)
+        toast.error(err.response?.data?.msg || 'Something went wrong')
+      })
   }
 
   return (
