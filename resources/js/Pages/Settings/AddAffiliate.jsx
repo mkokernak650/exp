@@ -66,62 +66,56 @@ const AddAffiliate = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <TextInput
-                label="Affiliate Id"
-                name="affiliate_id"
-                handleChange={handleChange}
-                error={errors?.affiliate_id}
-                helperText={errors?.affiliate_id?.[0]}
-              />
-              <TextInput
-                label="Affiliate Name"
-                name="affiliate_name"
-                handleChange={handleChange}
-                error={errors?.affiliate_name || similarAffiliates}
-                helperText={errors?.affiliate_name?.[0] || similarAffiliates}
-              />
-              <TextInput label="Email" name="email" handleChange={handleChange} />
-              <TextInput label="Telephone" name="telephone" handleChange={handleChange} />
-              <TextInput label="Address" name="address" handleChange={handleChange} />
-              <div>
-                <div className="mb-1">
-                  <label>Select Market</label>
-                </div>
-                <Select
-                  id="market"
-                  placeholder="Select Market"
-                  value={values?.market ?? undefined}
-                  onChange={(value) => {
-                    handleChange({ target: { name: 'market', value } })
-                  }}
-                  className="w-full mb-4"
-                  status={errors?.market ? 'error' : undefined}
-                  allowClear
-                >
-                  {allMarkets.map((item) => (
-                    <Select.Option key={item.market} value={item.market}>
-                      {item.market}
-                    </Select.Option>
-                  ))}
-                </Select>
-                {errors?.market && (
-                  <div className="text-red-500 text-xs">{errors?.market?.[0]}</div>
-                )}
+            <TextInput
+              label="Affiliate Id"
+              name="affiliate_id"
+              handleChange={handleChange}
+              error={errors?.affiliate_id}
+              helperText={errors?.affiliate_id?.[0]}
+            />
+            <TextInput
+              label="Affiliate Name"
+              name="affiliate_name"
+              handleChange={handleChange}
+              error={errors?.affiliate_name || similarAffiliates}
+              helperText={errors?.affiliate_name?.[0] || similarAffiliates}
+            />
+            <TextInput label="Email" name="email" handleChange={handleChange} />
+            <TextInput label="Telephone" name="telephone" handleChange={handleChange} />
+            <TextInput label="Address" name="address" handleChange={handleChange} />
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Market</label>
               </div>
-              <TextInput label="Contact Name" name="contact_name" handleChange={handleChange} />
-              <TextInput
-                label="Contact Telephone"
-                name="contact_telephone"
-                handleChange={handleChange}
-              />
-            </Col>
+              <Select
+                id="market"
+                placeholder="Select Market"
+                value={values?.market ?? undefined}
+                onChange={(value) => {
+                  handleChange({ target: { name: 'market', value } })
+                }}
+                className="w-full "
+                status={errors?.market ? 'error' : undefined}
+                allowClear
+              >
+                {allMarkets.map((item) => (
+                  <Select.Option key={item.market} value={item.market}>
+                    {item.market}
+                  </Select.Option>
+                ))}
+              </Select>
+              {errors?.market && <div className="text-red-500 text-xs">{errors?.market?.[0]}</div>}
+            </div>
+            <TextInput label="Contact Name" name="contact_name" handleChange={handleChange} />
+            <TextInput
+              label="Contact Telephone"
+              name="contact_telephone"
+              handleChange={handleChange}
+            />
 
-            <Col span={24}>
               <Button type="primary" htmlType="submit" loading={loading}>
                 Submit
               </Button>
-            </Col>
           </Row>
         </form>
       </div>

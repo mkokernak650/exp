@@ -58,11 +58,9 @@ const AddCustomer = () => {
               name="contact_telephone"
               handleChange={handleChange}
             />
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>
