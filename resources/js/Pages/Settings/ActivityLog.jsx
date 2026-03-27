@@ -247,15 +247,17 @@ const ActivityLog = () => {
               <div className="columns-show-hide" onClick={handleColumns}>
                 <Eye />
               </div>
-              <button
-                type="button"
-                className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
-                onClick={handleFilter}
-                aria-label="Open filters"
-              >
-                <Filter />
-                {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
-              </button>
+              {data.length > 0 && (
+                <button
+                  type="button"
+                  className={`filter-trigger ${activeFilterCount ? 'active' : ''}`}
+                  onClick={handleFilter}
+                  aria-label="Open filters"
+                >
+                  <Filter />
+                  {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+                </button>
+              )}
               <Button
                 type="primary"
                 onClick={viewExport}
