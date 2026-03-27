@@ -46,66 +46,62 @@ const AddUser = () => {
         <FormHeading title="Add User" />
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <TextInput
-                label="First Name*"
-                name="firstname"
-                handleChange={(e) => handleChange(e, setValues)}
-                error={errors?.firstname}
-                helperText={errors?.firstname?.[0]}
-              />
-              <TextInput
-                label="Last Name*"
-                name="lastname"
-                handleChange={(e) => handleChange(e, setValues)}
-                error={errors?.lastname}
-                helperText={errors?.lastname?.[0]}
-              />
-              <TextInput
-                label="Email*"
-                name="email"
-                handleChange={(e) => handleChange(e, setValues)}
-                type="email"
-                error={errors?.email}
-                helperText={errors?.email?.[0]}
-              />
-              <TextInput
-                label="Password*"
-                name="password"
-                handleChange={(e) => handleChange(e, setValues)}
-                type={showPassword?.password ? 'text' : 'password'}
-                error={errors?.password}
-                helperText={errors?.password?.[0]}
-                suffix={
-                  <span
-                    onClick={() => handleClickShowPassword('password')}
-                    className="cursor-pointer"
-                  >
-                    {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                  </span>
-                }
-              />
-              <TextInput
-                label="Confirm Password*"
-                name="password_confirmation"
-                handleChange={(e) => handleChange(e, setValues)}
-                type={showPassword?.cpassword ? 'text' : 'password'}
-                error={errors?.password}
-                helperText={errors?.password?.[0]}
-                suffix={
-                  <span
-                    onClick={() => handleClickShowPassword('cpassword')}
-                    className="cursor-pointer"
-                  >
-                    {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                  </span>
-                }
-              />
-            </Col>
+            <TextInput
+              label="First Name*"
+              name="firstname"
+              handleChange={(e) => handleChange(e, setValues)}
+              error={errors?.firstname}
+              helperText={errors?.firstname?.[0]}
+            />
+            <TextInput
+              label="Last Name*"
+              name="lastname"
+              handleChange={(e) => handleChange(e, setValues)}
+              error={errors?.lastname}
+              helperText={errors?.lastname?.[0]}
+            />
+            <TextInput
+              label="Email*"
+              name="email"
+              handleChange={(e) => handleChange(e, setValues)}
+              type="email"
+              error={errors?.email}
+              helperText={errors?.email?.[0]}
+            />
+            <TextInput
+              label="Password*"
+              name="password"
+              handleChange={(e) => handleChange(e, setValues)}
+              type={showPassword?.password ? 'text' : 'password'}
+              error={errors?.password}
+              helperText={errors?.password?.[0]}
+              suffix={
+                <span
+                  onClick={() => handleClickShowPassword('password')}
+                  className="cursor-pointer"
+                >
+                  {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                </span>
+              }
+            />
+            <TextInput
+              label="Confirm Password*"
+              name="password_confirmation"
+              handleChange={(e) => handleChange(e, setValues)}
+              type={showPassword?.cpassword ? 'text' : 'password'}
+              error={errors?.password}
+              helperText={errors?.password?.[0]}
+              suffix={
+                <span
+                  onClick={() => handleClickShowPassword('cpassword')}
+                  className="cursor-pointer"
+                >
+                  {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                </span>
+              }
+            />
 
-            <Col span={24}>
-              <PrimaryButton btnText="Submit" loading={loading} htmlType="submit" />
-            </Col>
+            <PrimaryButton btnText="Submit" loading={loading} htmlType="submit" />
           </Row>
         </form>
       </Card>
