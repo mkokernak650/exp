@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Select, Input, Radio, DatePicker } from 'antd'
+import { Table, Tooltip, Button, Select, Input, Radio, DatePicker, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import axios from 'axios'
@@ -16,9 +16,26 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { filterData } from '@/Helpers/filterData'
 import { fields, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
 import { Row, Col } from 'antd'
+
+function mapMarketExceptionRows(items, page, perPage) {
+  const offset = (page - 1) * perPage
+  return (items || []).map((item, index) => ({
+    edit: item.id,
+    sl: offset + index + 1,
+    campaign: item?.campaign?.campaign_name,
+    market_id: item.market_name || item.market_id,
+    state: item.state,
+    call_type: item.call_type,
+    start_date: item.start_date,
+    ranks: item.ranks,
+    nielsen_households: item.nielsen_households,
+    id: item.id,
+    key: item.id,
+    campaign_id: item.campaign_id,
+  }))
+}
 
 const MarketExceptionReport = () => {
   const { marketExceptions, campaignId, allCampaigns, allStates, allMarkets, columnsData } =
@@ -36,6 +53,9 @@ const MarketExceptionReport = () => {
   const [exportModal, setExportModal] = useState({ open: false })
   const [type, setType] = useState('xlsx')
   const [loading, setLoading] = useState(false)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(marketExceptions.total || 0)
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
@@ -78,21 +98,6 @@ const MarketExceptionReport = () => {
       })
   }
 
-  const dataArray = marketExceptions.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    campaign: item?.campaign?.campaign_name,
-    market_id: item.market_name || item.market_id,
-    state: item.state,
-    call_type: item.call_type,
-    start_date: item.start_date,
-    ranks: item.ranks,
-    nielsen_households: item.nielsen_households,
-    id: item.id,
-    key: item.id,
-    campaign_id: item.campaign_id,
-  }))
-
   const optionKey = 'market-exception-report'
   const [columnDetails, setColumnDetails] = useState(
     columnsData.length ? JSON.parse(columnsData[0]) : {}
@@ -110,7 +115,9 @@ const MarketExceptionReport = () => {
     optionKey,
   })
 
-  const [data, setData] = useState(dataArray)
+  const [data, setData] = useState(() =>
+    mapMarketExceptionRows(marketExceptions?.data || [], 1, 10)
+  )
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -126,7 +133,6 @@ const MarketExceptionReport = () => {
 
   const [searchSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
-  const filteredData = filterData(data, filterValue)
 
   const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
@@ -142,7 +148,7 @@ const MarketExceptionReport = () => {
       .post(route('market.exception.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          getSearchingData(currentPage)
           setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
@@ -177,6 +183,21 @@ const MarketExceptionReport = () => {
 
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
+  }
+
+  const getSearchingData = async (page = 1) => {
+    setCurrentPage(page)
+    await axios
+      .get(`/market-exception-report?page=${page}&itemPerPage=${itemPerPage}`)
+      .then((res) => {
+        setData(mapMarketExceptionRows(res.data.data || [], page, itemPerPage))
+        setTotalRecords(res.data.total ?? 0)
+      })
+  }
+
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+    setCurrentPage(1)
   }
 
   useEffect(() => {
@@ -215,6 +236,10 @@ const MarketExceptionReport = () => {
       window.removeEventListener('resize', syncTablePanelHeight)
     }
   }, [searchSidebar, data.length])
+
+  useEffect(() => {
+    getSearchingData(1)
+  }, [itemPerPage])
 
   const handleExportTypeChange = (e) => {
     setType(e.target.value)
@@ -338,7 +363,7 @@ const MarketExceptionReport = () => {
                 htmlType="submit"
                 className="w-[130px] capitalize text-sm"
                 onClick={openExportModal}
-                disabled={marketExceptions == ''}
+                disabled={totalRecords === 0}
               >
                 Export
               </Button>
@@ -373,17 +398,32 @@ const MarketExceptionReport = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={filteredData}
+              dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50, 100],
-                showSizeChanger: true,
-              }}
+              pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+              />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </div>

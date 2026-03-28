@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Switch, Tooltip, Button, Input, Modal } from 'antd'
+import { Table, Switch, Tooltip, Button, Input, Modal, Select, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -13,7 +13,6 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { filterData } from '@/Helpers/filterData'
 import { fields, filter, columns as defaultColumns } from './Helpers/TargetsProps'
 
 const Targets = () => {
@@ -27,17 +26,23 @@ const Targets = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(allTargets.total || 0)
 
-  const dataArray = allTargets.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    customer: item.Customer,
-    Ringba_Target_Name: item.Ringba_Targets_Name,
-    Description: item.Description,
-    status: [item.status, item.id],
-    id: item.id,
-    key: item.id,
-  }))
+  const mapTargetRows = (rows, page) =>
+    (rows || []).map((item, index) => ({
+      edit: item.id,
+      sl: (page - 1) * itemPerPage + index + 1,
+      customer: item.Customer,
+      Ringba_Target_Name: item.Ringba_Targets_Name,
+      Description: item.Description,
+      status: [item.status, item.id],
+      id: item.id,
+      key: item.id,
+    }))
+
+  const dataArray = mapTargetRows(allTargets.data, 1)
 
   const optionKey = 'target-report'
   const [columnDetails, setColumnDetails] = useState(
@@ -91,7 +96,6 @@ const Targets = () => {
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
-  const filteredData = filterData(data, filterValue)
 
   const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
@@ -107,7 +111,7 @@ const Targets = () => {
       .post(route('target.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          getSearchingData(currentPage)
           setSelectedRowKeys([])
           setTableToolbar(false)
           setShowDeleteModal({ open: false })
@@ -189,6 +193,23 @@ const Targets = () => {
   const handleOpenModal = (setOpenModal) => {
     setOpenModal({ open: true })
   }
+
+  const getSearchingData = async (page = 1) => {
+    setCurrentPage(page)
+    await axios.get(`/target-report?page=${page}&itemPerPage=${itemPerPage}`).then((res) => {
+      setData(mapTargetRows(res.data.data, page))
+      setTotalRecords(res.data.total)
+    })
+  }
+
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+    setCurrentPage(1)
+  }
+
+  useEffect(() => {
+    getSearchingData(1)
+  }, [itemPerPage])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -344,17 +365,32 @@ const Targets = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={filteredData}
+              dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50, 100],
-                showSizeChanger: true,
-              }}
+              pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+              />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </div>

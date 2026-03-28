@@ -4,12 +4,11 @@ import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { columns as defaultColumns } from './Helpers/CampaignAffiliateListProps'
-import { Button, Table, Select } from 'antd'
+import { Button, Table, Select, Pagination } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
@@ -19,7 +18,7 @@ const CampaignAffiliateList = () => {
   const [loading, setLoading] = useState(false)
   const [tableLoading, setTableLoading] = useState(false)
   const showColumnRef = useRef()
-  const [campaignAffiliateList, setCampaignAffiliateList] = useState(affiliateList)
+  const [totalRecords, setTotalRecords] = useState(affiliateList.total)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [orderByValue, setOrderByValue] = useState('affiliates.affiliate_name@ASC')
@@ -90,20 +89,20 @@ const CampaignAffiliateList = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (data) => {
-    setCurerentPage(data)
+  const getSearchingData = async (page = 1) => {
+    setCurerentPage(page)
     setTableLoading(true)
     await axios
       .get(
         `/ecommerce-campaigns-affiliates/${campaignId}?page=` +
-          data.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&orderBy=' +
           orderByValue
       )
       .then((res) => {
-        setCampaignAffiliateList(res.data)
+        setTotalRecords(res.data.total)
         setTableLoading(false)
         setData(mapDataArr(res.data))
       })
@@ -176,7 +175,7 @@ const CampaignAffiliateList = () => {
             <Button
               type="primary"
               onClick={exportHandler}
-              disabled={campaignAffiliateList == ''}
+              disabled={totalRecords === 0}
               className="w-auto capitalize text-sm"
               loading={loading}
             >
@@ -227,7 +226,13 @@ const CampaignAffiliateList = () => {
               { value: 100, label: '100' },
             ]}
           />
-          <Pagination changePage={getSearchingData} data={campaignAffiliateList} />
+          <Pagination
+            current={curerentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={getSearchingData}
+            showSizeChanger={false}
+          />
         </div>
       </div>
     </>

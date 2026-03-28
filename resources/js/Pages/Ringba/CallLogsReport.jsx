@@ -5,7 +5,7 @@ import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
 import { DeleteOutlined } from '@ant-design/icons'
 import produce from 'immer'
-import { Button, Tooltip, Table, Select } from 'antd'
+import { Button, Tooltip, Table, Select, Pagination } from 'antd'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -19,7 +19,6 @@ import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/CallLogsReportProps'
 
 const CallLogsReport = () => {
@@ -43,7 +42,7 @@ const CallLogsReport = () => {
   const color = '#36D7B7'
   const drawerWidth = 350
   const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
-  const [ringbaData, setRingbaData] = useState(allCallLogs)
+  const [totalRecords, setTotalRecords] = useState(allCallLogs.total || 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState({
@@ -432,13 +431,13 @@ const CallLogsReport = () => {
     setInbounIds([])
   }
 
-  const getSearchingData = async (pageData) => {
-    setCurrentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setCurrentPage(page)
     setLoading(true)
     await axios
       .get(
         'call-logs-report?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -446,7 +445,7 @@ const CallLogsReport = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setRingbaData(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -657,7 +656,13 @@ const CallLogsReport = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={ringbaData} />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>

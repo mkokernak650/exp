@@ -5,7 +5,7 @@ import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import ThreeDots from '@/Components/Icons/ThreeDots.jsx'
-import { Tooltip, Button, Table, Select } from 'antd'
+import { Tooltip, Button, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import produce from 'immer'
 import axios from 'axios'
@@ -20,7 +20,6 @@ import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/ExceptionProps'
 
 const Exceptions = () => {
@@ -50,7 +49,7 @@ const Exceptions = () => {
   const [filterValue, setFilterValue] = useState(
     defaultFilter('and', 'SN', 'isNotEmpty', 'string', 0, '')
   )
-  const [exceptionData, setExceptionData] = useState(ExceptionsData)
+  const [totalRecords, setTotalRecords] = useState(ExceptionsData.total || 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState({
@@ -469,13 +468,13 @@ const Exceptions = () => {
     )
   }
 
-  const getSearchingData = async (pageData) => {
-    setcurrentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setcurrentPage(page)
     setLoading(true)
     await axios
       .get(
         'exceptions?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -483,7 +482,7 @@ const Exceptions = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setExceptionData(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -629,7 +628,13 @@ const Exceptions = () => {
               { value: 200, label: '200' },
             ]}
           />
-          <Pagination changePage={getSearchingData} data={exceptionData} />
+          <Pagination
+            current={currentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={(page) => getSearchingData(page)}
+            showSizeChanger={false}
+          />
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
-import { Tooltip, Button, Input, Select, Row, Col, Table } from 'antd'
+import { Tooltip, Button, Input, Select, Row, Col, Table, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -13,7 +13,6 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -52,7 +51,7 @@ const AffiliateIndex = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [tableLoading, setTableLoading] = useState(false)
-  const [eAffiliatesData, seteAffiliatesData] = useState(ecommerceAffiliates)
+  const [totalRecords, setTotalRecords] = useState(ecommerceAffiliates?.total ?? 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const [orderByValue, setOrderByValue] = useState('')
@@ -370,8 +369,7 @@ const AffiliateIndex = () => {
     setEditData((oldEditData) => ({ ...oldEditData, lengths: val }))
   }
 
-  const getSearchingData = async (pageData) => {
-    const page = typeof pageData === 'object' ? pageData.page : pageData
+  const getSearchingData = async (page = 1) => {
     setcurrentPage(page)
     setTableLoading(true)
     await axios
@@ -393,7 +391,7 @@ const AffiliateIndex = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        seteAffiliatesData(res.data)
+        setTotalRecords(res.data.total)
         setTableLoading(false)
       })
   }
@@ -615,7 +613,13 @@ const AffiliateIndex = () => {
               { value: 200, label: '200' },
             ]}
           />
-          <Pagination changePage={getSearchingData} data={eAffiliatesData} />
+          <Pagination
+            current={currentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={getSearchingData}
+            showSizeChanger={false}
+          />
         </div>
       </div>
 

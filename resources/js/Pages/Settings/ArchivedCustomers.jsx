@@ -2,10 +2,9 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
-import { filterData } from '../filterData'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Button, Input } from 'antd'
+import { Table, Button, Input, Select, Pagination } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -30,9 +29,12 @@ const ArchivedCustomers = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(allCustomers.total || 0)
   const [errors, setErrors] = useState({})
 
-  const dataArray = allCustomers.map((item, index) => ({
+  const dataArray = (allCustomers.data || []).map((item, index) => ({
     edit: item.id,
     sl: index + 1,
     customer: item.customer_name,
@@ -107,7 +109,7 @@ const ArchivedCustomers = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           toast.success(res.data.msg)
-          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          getSearchingData(currentPage)
           setTableToolbar(false)
           setSelectedRowKeys([])
           setShowActiveModal({ open: false })
@@ -168,6 +170,34 @@ const ArchivedCustomers = () => {
     setOpenModal({ open: true })
   }
 
+  const getSearchingData = async (page = 1) => {
+    setCurrentPage(page)
+    await axios
+      .get(`/archived-customers?page=${page}&itemPerPage=${itemPerPage}`)
+      .then((res) => {
+        setData(
+          (res.data.data || []).map((item) => ({
+            edit: item.id,
+            sl: 0,
+            customer: item.customer_name,
+            email: item.email,
+            telephone: item.telephone,
+            address: item.address,
+            contact_name: item.contact_name,
+            contact_telephone: item.contact_telephone,
+            id: item.id,
+            key: item.id,
+          }))
+        )
+        setTotalRecords(res.data.total)
+      })
+  }
+
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+    setCurrentPage(1)
+  }
+
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
@@ -196,6 +226,10 @@ const ArchivedCustomers = () => {
       window.removeEventListener('resize', syncTablePanelHeight)
     }
   }, [serachSidebar, data.length])
+
+  useEffect(() => {
+    getSearchingData(1)
+  }, [itemPerPage])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
@@ -226,8 +260,6 @@ const ArchivedCustomers = () => {
       setTableToolbar(newSelectedRowKeys.length > 0)
     },
   }
-
-  const filteredData = filterData(data, filterValue)
 
   const antdColumns = withResizableColumns(
     columns
@@ -306,17 +338,32 @@ const ArchivedCustomers = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={filteredData}
+              dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50, 100],
-                showSizeChanger: true,
-              }}
+              pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+              />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </div>

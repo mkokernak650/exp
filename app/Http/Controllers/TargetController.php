@@ -30,7 +30,13 @@ class TargetController extends Controller
 
     public function TargetsReport()
     {
-        $allTargets = Target::all();
+        $itemPerPage = request('itemPerPage', 10);
+        $allTargets  = Target::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allTargets;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Settings/Targets', [
@@ -41,7 +47,13 @@ class TargetController extends Controller
 
     public function TargetNamesReport()
     {
-        $allTargetNames = TargetNames::all();
+        $itemPerPage    = request('itemPerPage', 10);
+        $allTargetNames = TargetNames::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allTargetNames;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/TargetNames', [
             'allTargetNames' => $allTargetNames,

@@ -43,7 +43,13 @@ class CorporationController extends Controller
 
     public function broadcastGroupNamesReport()
     {
-        $allBroadcastGroupNames = BroadcastGroupName::all();
+        $itemPerPage            = request('itemPerPage', 10);
+        $allBroadcastGroupNames = BroadcastGroupName::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allBroadcastGroupNames;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Settings/BroadcastGroupNames', [
@@ -132,7 +138,13 @@ class CorporationController extends Controller
 
     public function msoNamesReport()
     {
-        $allMsoNames = MsoName::all();
+        $itemPerPage = request('itemPerPage', 10);
+        $allMsoNames = MsoName::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allMsoNames;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Settings/MsoNames', [
@@ -221,7 +233,13 @@ class CorporationController extends Controller
 
     public function networkNamesReport()
     {
-        $allNetworkNames = NetworkName::all();
+        $itemPerPage     = request('itemPerPage', 10);
+        $allNetworkNames = NetworkName::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allNetworkNames;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Settings/NetworkNames', [

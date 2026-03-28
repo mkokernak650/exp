@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
-import { Tooltip, Button, Input, Select, Row, Col, Table, DatePicker } from 'antd'
+import { Tooltip, Button, Input, Select, Row, Col, Table, DatePicker, Pagination } from 'antd'
 import dayjs from 'dayjs'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
@@ -14,7 +14,6 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns, fields, groups, filter } from './Helpers/SalesIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -29,7 +28,7 @@ const SalesIndex = () => {
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [loading, setLoading] = useState(false)
   const [tableLoading, setTableLoading] = useState(false)
-  const [salesData, seteSalesData] = useState(sales)
+  const [totalRecords, setTotalRecords] = useState(sales.total)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const showColumnRef = useRef()
@@ -252,8 +251,7 @@ const SalesIndex = () => {
     setOpenModal({ open: true })
   }
 
-  const getSearchingData = async (pageData) => {
-    const page = typeof pageData === 'object' ? pageData.page : pageData
+  const getSearchingData = async (page = 1) => {
     setcurrentPage(page)
     setTableLoading(true)
     await axios
@@ -275,7 +273,7 @@ const SalesIndex = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        seteSalesData(res.data)
+        setTotalRecords(res.data.total)
         setTableLoading(false)
       })
   }
@@ -546,7 +544,13 @@ const SalesIndex = () => {
               { value: 200, label: '200' },
             ]}
           />
-          <Pagination changePage={getSearchingData} data={salesData} />
+          <Pagination
+            current={currentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={getSearchingData}
+            showSizeChanger={false}
+          />
         </div>
       </div>
 

@@ -1274,6 +1274,7 @@ div::-webkit-scrollbar-thumb {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px 0;
 }
 
 .table-bottom select {

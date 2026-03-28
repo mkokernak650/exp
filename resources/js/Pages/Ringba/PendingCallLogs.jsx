@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Tooltip, Button, Table, Select } from 'antd'
+import { Tooltip, Button, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -16,7 +16,6 @@ import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/PendingCallLogsProps'
 
 const PendingCallLogsReport = () => {
@@ -34,7 +33,7 @@ const PendingCallLogsReport = () => {
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
   const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
-  const [pendingData, setPendingData] = useState(pendingCallLogs)
+  const [totalRecords, setTotalRecords] = useState(pendingCallLogs.total || 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState({
@@ -319,13 +318,13 @@ const PendingCallLogsReport = () => {
     setTableToolbar(false)
     setSelectedRowKeys([])
   }
-  const getSearchingData = async (pageData) => {
-    setcurrentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setcurrentPage(page)
     setLoading(true)
     await axios
       .get(
         'pending-call-log-report?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -333,7 +332,7 @@ const PendingCallLogsReport = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setPendingData(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -494,7 +493,13 @@ const PendingCallLogsReport = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={pendingData} />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>

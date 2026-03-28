@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Tooltip, Button, Table, Select } from 'antd'
+import { Tooltip, Button, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -16,7 +16,6 @@ import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/ArchivedCallLogReportsProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -37,7 +36,7 @@ const ArchivedCallLogReports = () => {
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
 
   const [filterValue, setFilterValue] = useState({ groupName: 'and', items: [] })
-  const [archivedData, setArchivedDataData] = useState(archivedCallLogs)
+  const [totalRecords, setTotalRecords] = useState(archivedCallLogs.total || 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState({
@@ -252,13 +251,13 @@ const ArchivedCallLogReports = () => {
     setSelectedRowKeys([])
   }
 
-  const getSearchingData = async (pageData) => {
-    setcurrentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setcurrentPage(page)
     setLoading(true)
     await axios
       .get(
         'archived-call-log-report?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -268,7 +267,7 @@ const ArchivedCallLogReports = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setArchivedDataData(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -435,7 +434,13 @@ const ArchivedCallLogReports = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={archivedData} />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>

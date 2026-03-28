@@ -19,7 +19,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $itemPerPage = request('itemPerPage', 10);
+        $users       = User::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $users;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/User/UserIndex', compact('users', 'columnsData'));
     }

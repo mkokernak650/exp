@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Search from '@/Components/Icons/Search.jsx'
 import Eye from '@/Components/Icons/Eye.jsx'
-import { Table, Tooltip, Button, Input, DatePicker } from 'antd'
+import { Table, Tooltip, Button, Input, DatePicker, Pagination, Select } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import Cancel from '@/Components/Icons/Cancel.jsx'
 import dayjs from 'dayjs'
@@ -62,6 +62,19 @@ const CampaignAnnotations = () => {
   const [editData, setEditData] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const showColumnRef = useRef()
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(annotation.total || 0)
+
+  const mapAnnotationRows = (items) =>
+    (items || []).map((item) => ({
+      edit: item.id,
+      order: item.order,
+      annotation: item.annotation_name,
+      status: item.status,
+      id: item.id,
+      key: item.id,
+    }))
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
@@ -85,14 +98,7 @@ const CampaignAnnotations = () => {
       })
   }
 
-  const dataArray = annotation.map((item, index) => ({
-    edit: item.id,
-    order: item.order,
-    annotation: item.annotation_name,
-    status: item.status,
-    id: item.id,
-    key: item.id,
-  }))
+  const dataArray = mapAnnotationRows(annotation.data || [])
 
   const defaultColumns = [
     {
@@ -129,6 +135,20 @@ const CampaignAnnotations = () => {
   })
 
   const [data, setData] = useState(dataArray)
+
+  const getSearchingData = async (page = 1) => {
+    setCurrentPage(page)
+    const baseUrl = window.location.pathname
+    await axios.get(`${baseUrl}?page=${page}&itemPerPage=${itemPerPage}`).then((res) => {
+      setData(mapAnnotationRows(res.data.data || []))
+      setTotalRecords(res.data.total)
+    })
+  }
+
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+    setCurrentPage(1)
+  }
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -213,6 +233,10 @@ const CampaignAnnotations = () => {
       document.removeEventListener('mousedown', checkIfClickedOutside)
     }
   }, [showColumns])
+
+  useEffect(() => {
+    getSearchingData(1)
+  }, [itemPerPage])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
@@ -331,10 +355,29 @@ const CampaignAnnotations = () => {
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}
-          pagination={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100], showSizeChanger: true }}
+          pagination={false}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
         />
+        <div className="table-bottom">
+          <Select
+            value={itemPerPage}
+            onChange={(value) => itemPerPageHandleChange(value)}
+            options={[
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+            ]}
+          />
+          <Pagination
+            current={currentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={(page) => getSearchingData(page)}
+            showSizeChanger={false}
+          />
+        </div>
       </div>
 
       <NormalModal

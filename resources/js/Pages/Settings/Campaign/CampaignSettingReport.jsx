@@ -4,7 +4,7 @@ import { InertiaLink, usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Input, Switch, DatePicker } from 'antd'
+import { Table, Tooltip, Button, Input, Switch, DatePicker, Pagination, Select } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import axios from 'axios'
@@ -16,7 +16,6 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { filterData } from '@/Helpers/filterData'
 import { columns as defaultColumns, fields, filter } from './Helpers/CampaignSettingReportProps'
 
 const CampaignSettingReport = () => {
@@ -33,6 +32,21 @@ const CampaignSettingReport = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(allCampaigns.total || 0)
+
+  const buildCampaignTableRows = (items, page) =>
+    items.map((item, index) => ({
+      edit: item.id,
+      sl: (page - 1) * itemPerPage + index + 1,
+      campaign: item.campaign_name,
+      duration: item.connection_duration,
+      status: [item.status, item.id, index],
+      actions: item.id,
+      id: item.id,
+      key: item.id,
+    }))
 
   const handleEditChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value })
@@ -56,16 +70,7 @@ const CampaignSettingReport = () => {
       })
   }
 
-  const dataArray = allCampaigns.map((item, index) => ({
-    edit: item.id,
-    sl: index + 1,
-    campaign: item.campaign_name,
-    duration: item.connection_duration,
-    status: [item.status, item.id, index],
-    actions: item.id,
-    id: item.id,
-    key: item.id,
-  }))
+  const dataArray = buildCampaignTableRows(allCampaigns.data || [], 1)
 
   const optionKey = 'campaign-setting-report'
   const [columnDetails, setColumnDetails] = useState(
@@ -100,7 +105,6 @@ const CampaignSettingReport = () => {
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
-  const filteredData = filterData(data, filterValue)
 
   const handleFilter = () => {
     setSearchSidebar((prevState) => !prevState)
@@ -112,6 +116,21 @@ const CampaignSettingReport = () => {
   }
   const headers = {
     headers: { Accept: 'application/json' },
+  }
+
+  const getSearchingData = async (page = 1) => {
+    setCurrentPage(page)
+    await axios
+      .get(`/campaign-setting-report?page=${page}&itemPerPage=${itemPerPage}`, headers)
+      .then((res) => {
+        setData(buildCampaignTableRows(res.data.data || [], page))
+        setTotalRecords(res.data.total ?? 0)
+      })
+  }
+
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+    setCurrentPage(1)
   }
 
   const handleStatus = (value, rowId, index) => {
@@ -141,7 +160,7 @@ const CampaignSettingReport = () => {
       .post(route('campaign.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
+          getSearchingData(currentPage)
           setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
@@ -202,6 +221,10 @@ const CampaignSettingReport = () => {
       window.removeEventListener('resize', syncTablePanelHeight)
     }
   }, [serachSidebar, data.length])
+
+  useEffect(() => {
+    getSearchingData(1)
+  }, [itemPerPage])
 
   const TableToolbar = () => {
     return (
@@ -383,17 +406,32 @@ const CampaignSettingReport = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={filteredData}
+              dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
-              pagination={{
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50, 100],
-                showSizeChanger: true,
-              }}
+              pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+              />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </div>

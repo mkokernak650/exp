@@ -4,10 +4,9 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Button, Select } from 'antd'
+import { Table, Button, Select, Pagination } from 'antd'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import { Pagination } from 'react-laravel-paginex'
 import toast from 'react-hot-toast'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
@@ -26,7 +25,7 @@ const ActivityLog = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
-  const [activityLog, setActivityLog] = useState(allActivityLog)
+  const [totalRecords, setTotalRecords] = useState(allActivityLog?.total ?? 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
 
@@ -155,13 +154,13 @@ const ActivityLog = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (pageData) => {
-    setCurerentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setCurerentPage(page)
     setLoading(true)
     await axios
       .get(
         'activity-log?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -182,7 +181,7 @@ const ActivityLog = () => {
             key: item.id,
           }))
         )
-        setActivityLog(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -320,7 +319,13 @@ const ActivityLog = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={activityLog} />
+              <Pagination
+                current={curerentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Input, Switch, Select, DatePicker } from 'antd'
+import { Table, Tooltip, Button, Input, Switch, Select, DatePicker, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import axios from 'axios'
@@ -17,7 +17,6 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastMonthReportProps'
 import mergeColumns from '@/Helpers/MergeColumns'
-import { Pagination } from 'react-laravel-paginex'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 
@@ -32,7 +31,7 @@ const BroadcastMonthReport = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
-  const [broadCastMonths, setBroadCastMonths] = useState(allBroadCastMonths)
+  const [totalRecords, setTotalRecords] = useState(allBroadCastMonths.total)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -212,13 +211,13 @@ const BroadcastMonthReport = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (pageData) => {
-    setCurerentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setCurerentPage(page)
     setLoading(true)
     await axios
       .get(
         'broadcast-month-report?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -226,7 +225,7 @@ const BroadcastMonthReport = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setBroadCastMonths(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -393,7 +392,13 @@ const BroadcastMonthReport = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={broadCastMonths} />
+              <Pagination
+                current={curerentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>

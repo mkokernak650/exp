@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout'
 import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
-import { Table, Tooltip, Button, Input, Switch, Select, DatePicker } from 'antd'
+import { Table, Tooltip, Button, Input, Switch, Select, DatePicker, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import axios from 'axios'
@@ -14,7 +14,6 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import mergeColumns from '@/Helpers/MergeColumns'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastWeekReportProps'
-import { Pagination } from 'react-laravel-paginex'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
@@ -32,7 +31,7 @@ const BroadcastWeekReport = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
-  const [broadCastWeeks, setBroadCastWeeks] = useState(allBroadCastWeeks)
+  const [totalRecords, setTotalRecords] = useState(allBroadCastWeeks.total)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -213,13 +212,13 @@ const BroadcastWeekReport = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (pageData) => {
-    setCurerentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setCurerentPage(page)
     setLoading(true)
     await axios
       .get(
         'broadcast-week-report?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -227,7 +226,7 @@ const BroadcastWeekReport = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setBroadCastWeeks(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -393,7 +392,13 @@ const BroadcastWeekReport = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={broadCastWeeks} />
+              <Pagination
+                current={curerentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>

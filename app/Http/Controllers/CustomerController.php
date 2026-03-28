@@ -24,7 +24,13 @@ class CustomerController extends Controller
 
     public function customerReport()
     {
-        $allCustomers = Customer::where('status', '=', '1')->get();
+        $itemPerPage  = request('itemPerPage', 10);
+        $allCustomers = Customer::where('status', '=', '1')->paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allCustomers;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/CustomerReport', [
             'allCustomers' => $allCustomers,
@@ -34,8 +40,14 @@ class CustomerController extends Controller
 
     public function archivedCustomers()
     {
-        $allCustomers = Customer::where('status', '=', '0')->get();
-        $columnsData  = TableDetails::all()->pluck('column_details');
+        $itemPerPage  = request('itemPerPage', 10);
+        $allCustomers = Customer::where('status', '=', '0')->paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allCustomers;
+        }
+
+        $columnsData = TableDetails::all()->pluck('column_details');
         return Inertia::render('Settings/ArchivedCustomers', [
             'allCustomers' => $allCustomers,
             'columnsData'  => $columnsData

@@ -58,17 +58,22 @@ class MarketExceptionController extends Controller
 
     public function marketExceptionReport()
     {
-        $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')->get();
+        $itemPerPage = request('itemPerPage', 10);
+        $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')->paginate($itemPerPage);
 
-        $marketIds = $marketExceptions->pluck('market_id')->unique()->filter();
+        $marketIds = $marketExceptions->getCollection()->pluck('market_id')->unique()->filter();
         $marketLookup = DB::table('zipcode_by_television_markets')
             ->whereIn('id', $marketIds)
             ->pluck('market', 'id');
 
-        $marketExceptions->transform(function ($item) use ($marketLookup) {
+        $marketExceptions->getCollection()->transform(function ($item) use ($marketLookup) {
             $item->market_name = $marketLookup[$item->market_id] ?? $item->market_id;
             return $item;
         });
+
+        if (request('page')) {
+            return $marketExceptions;
+        }
 
         $allStates = DB::table('zipcode_by_television_markets')->select('state')->distinct()->get();
         $allMarkets = DB::table('zipcode_by_television_markets')->select('market')->distinct()->get();

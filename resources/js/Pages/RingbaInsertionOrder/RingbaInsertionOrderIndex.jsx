@@ -4,12 +4,11 @@ import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { styles, columns as defaultColumns } from './Helpers/RingbaInsertionOrderIndexProps'
-import { Button, Tooltip, Table, Select } from 'antd'
+import { Button, Tooltip, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import IOPublicLink from '../../Components/IOComponents/IOPublicLink'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -25,7 +24,7 @@ const RingbaInsertionOrderIndex = () => {
   const [loading, setLoading] = useState(false)
   const [tableLoading, setTableLoading] = useState(false)
   const showColumnRef = useRef()
-  const [insertionOrderList, setInsertionOrderList] = useState(ringbaInsertionOrders)
+  const [totalRecords, setTotalRecords] = useState(ringbaInsertionOrders.total ?? 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -107,13 +106,13 @@ const RingbaInsertionOrderIndex = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (data) => {
-    setCurerentPage(data)
+  const getSearchingData = async (page = 1) => {
+    setCurerentPage(page)
     setTableLoading(true)
     await axios
       .get(
         '/insertion-order/ringba?page=' +
-          data.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filterByStatus=' +
@@ -121,7 +120,7 @@ const RingbaInsertionOrderIndex = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data))
-        setInsertionOrderList(res.data)
+        setTotalRecords(res.data.total)
         setTableLoading(false)
       })
   }
@@ -300,7 +299,13 @@ const RingbaInsertionOrderIndex = () => {
               { value: 100, label: '100' },
             ]}
           />
-          <Pagination changePage={getSearchingData} data={insertionOrderList} />
+          <Pagination
+            current={curerentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={(page) => getSearchingData(page)}
+            showSizeChanger={false}
+          />
         </div>
       </div>
       <ConfirmModal

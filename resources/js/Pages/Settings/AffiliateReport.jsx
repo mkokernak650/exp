@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Select, Row } from 'antd'
+import { Table, Tooltip, Button, Select, Row, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -16,7 +16,7 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
-import { filterData } from '../filterData'
+
 import TextInput from '@/Components/Global/TextInput'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -35,6 +35,9 @@ const AffiliateReport = () => {
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
+  const [itemPerPage, setItemPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(allAffiliates.total || 0)
 
   const parseTvHouseholds = (value) => {
     if (value === null || value === undefined || value === '') return null
@@ -79,7 +82,7 @@ const AffiliateReport = () => {
     optionKey,
   })
 
-  const [data, setData] = useState(mapDataArr(allAffiliates))
+  const [data, setData] = useState(mapDataArr(allAffiliates.data || []))
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -114,11 +117,11 @@ const AffiliateReport = () => {
       .post(route('affiliate.delete'), { selectedRowIds: selectedRowKeys })
       .then((res) => {
         if (res.data.status_code === 200) {
-          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
           setSelectedRowKeys([])
           setTableToolbar(false)
           toast.success(res.data.msg)
           setShowDeleteModal({ open: false })
+          getSearchingData(currentPage)
         } else {
           setSelectedRowKeys([])
           setTableToolbar(false)
@@ -155,10 +158,10 @@ const AffiliateReport = () => {
       .then((res) => {
         if (res.data.status_code === 200) {
           toast.success(res.data.msg)
-          setData((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)))
           setTableToolbar(false)
           setSelectedRowKeys([])
           setShowArchivedModal({ open: false })
+          getSearchingData(currentPage)
         } else {
           toast.error(res.data.msg)
           setSelectedRowKeys([])
@@ -219,12 +222,26 @@ const AffiliateReport = () => {
     setOpenModal({ open: true })
   }
 
-  const getSearchingData = async () => {
+  const getSearchingData = async (page = 1) => {
     setLoading(true)
-    await axios.get(`/affiliate-report?orderBy=` + orderByValue + '&type=orderBy').then((res) => {
-      setData(mapDataArr(res.data))
-      setLoading(false)
-    })
+    setCurrentPage(page)
+    await axios
+      .get(
+        `/affiliate-report?page=${page}&itemPerPage=${itemPerPage}&orderBy=${orderByValue}`
+      )
+      .then((res) => {
+        setData(mapDataArr(res.data.data))
+        setTotalRecords(res.data.total)
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+  }
+
+  const itemPerPageHandleChange = (value) => {
+    setItemPerPage(value)
+    setCurrentPage(1)
   }
 
   useEffect(() => {
@@ -261,11 +278,11 @@ const AffiliateReport = () => {
       resizeObserver.disconnect()
       window.removeEventListener('resize', syncTablePanelHeight)
     }
-  }, [serachSidebar, data.length, loading])
+  }, [serachSidebar, data.length, loading, itemPerPage])
 
   useEffect(() => {
-    getSearchingData()
-  }, [orderByValue])
+    getSearchingData(1)
+  }, [orderByValue, itemPerPage])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
@@ -307,8 +324,6 @@ const AffiliateReport = () => {
       setTableToolbar(newSelectedRowKeys.length > 0)
     },
   }
-
-  const filteredData = filterData(data, filterValue)
 
   const antdColumns = withResizableColumns(
     columns
@@ -402,18 +417,34 @@ const AffiliateReport = () => {
             <Table
               columns={antdColumns}
               components={{ header: { cell: ResizableTitle } }}
-              dataSource={filteredData}
+              dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
               loading={loading}
-              pagination={{
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50, 100],
-                showSizeChanger: true,
-              }}
+              pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+
+            <div className="table-bottom">
+              <Select
+                value={itemPerPage}
+                onChange={(value) => itemPerPageHandleChange(value)}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+              />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -2,11 +2,10 @@ import Layout from '../Layout/Layout'
 import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
-import { Table, Tooltip, Button, Input, Radio, Spin, Select } from 'antd'
+import { Table, Tooltip, Button, Input, Radio, Spin, Select, Pagination } from 'antd'
 import NormalModal from '@/Shared/NormalModal'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
-import { Pagination } from 'react-laravel-paginex'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
@@ -26,7 +25,7 @@ const ZipcodeDatabase = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [type, setType] = useState('xlsx')
   const showColumnRef = useRef()
-  const [zipCodeData, setZipcodeData] = useState(allZipcodes)
+  const [totalRecords, setTotalRecords] = useState(allZipcodes?.total ?? 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [filterByState, setFilterByState] = useState('')
@@ -168,9 +167,8 @@ const ZipcodeDatabase = () => {
     }
   }, [showColumns])
 
-  const getSearchingData = async (pageData) => {
-    const page = typeof pageData === 'object' ? pageData.page : pageData
-    setCurerentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setCurerentPage(page)
     setTableLoading(true)
     await axios
       .get(
@@ -186,7 +184,7 @@ const ZipcodeDatabase = () => {
           JSON.stringify(filterBySearchBoxValue)
       )
       .then((res) => {
-        setZipcodeData(res.data)
+        setTotalRecords(res.data.total)
         setData(
           res.data.data.map((item, index) => ({
             ...item,
@@ -388,7 +386,13 @@ const ZipcodeDatabase = () => {
               { value: 100, label: '100' },
             ]}
           />
-          <Pagination changePage={getSearchingData} data={zipCodeData} />
+          <Pagination
+            current={curerentPage}
+            total={totalRecords}
+            pageSize={itemPerPage}
+            onChange={(page) => getSearchingData(page)}
+            showSizeChanger={false}
+          />
         </div>
 
         <NormalModal open={importModal.open} setOpen={setImportModal} width={'500px'} title={''}>

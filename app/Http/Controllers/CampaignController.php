@@ -67,7 +67,13 @@ class CampaignController extends Controller
 
     public function campaignSettingReport(): Response
     {
-        $allCampaigns = Campaign::get();
+        $itemPerPage  = request('itemPerPage', 10);
+        $allCampaigns = Campaign::paginate($itemPerPage);
+
+        if (request('page')) {
+            return $allCampaigns;
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Settings/Campaign/CampaignSettingReport', [
@@ -76,16 +82,34 @@ class CampaignController extends Controller
         ]);
     }
 
-    public function campaignAnnotations(Campaign $campaign): Response
+    public function campaignAnnotations(Campaign $campaign)
     {
-        $campaign = $campaign->load('annotations');
-        $annotation = [...$campaign->annotations->sortBy('order')];
+        $itemPerPage = request('itemPerPage', 10);
+        $campaign    = $campaign->load('annotations');
+        $annotation  = $campaign->annotations->sortBy('order')->values();
+
+        if (request('page')) {
+            $page   = request('page', 1);
+            $sliced = $annotation->slice(($page - 1) * $itemPerPage, $itemPerPage)->values();
+            return response()->json([
+                'data'         => $sliced,
+                'total'        => $annotation->count(),
+                'current_page' => (int) $page,
+                'per_page'     => (int) $itemPerPage,
+            ]);
+        }
+
         $columnsData = TableDetails::all()->pluck('column_details');
+        $paginatedAnnotation = new \Illuminate\Pagination\LengthAwarePaginator(
+            $annotation->forPage(1, $itemPerPage)->values(),
+            $annotation->count(),
+            $itemPerPage,
+            1
+        );
 
         return Inertia::render('Settings/Campaign/CampaignAnnotations', [
-            'annotation'                       => $annotation,
+            'annotation'                       => $paginatedAnnotation,
             'columnsData'                      => $columnsData
-
         ]);
     }
 

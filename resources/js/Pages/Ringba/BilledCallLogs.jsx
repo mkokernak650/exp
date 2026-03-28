@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Tooltip, Button, Table, Select } from 'antd'
+import { Tooltip, Button, Table, Select, Pagination } from 'antd'
 import Edit from '../../../images/three-dots.svg'
 import { DeleteOutlined } from '@ant-design/icons'
 import produce from 'immer'
@@ -18,7 +18,6 @@ import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
-import { Pagination } from 'react-laravel-paginex'
 import { columns as defaultColumns } from './Helpers/BilledCallLogsProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -46,7 +45,7 @@ const BilledCallLogs = () => {
   const [openRowFunctionalities, setOpenRowFunctionalities] = useState(false)
   const rowFunctionalitiesRef = useRef()
   const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [billedData, setBilledData] = useState(billedCallLogs)
+  const [totalRecords, setTotalRecords] = useState(billedCallLogs.total || 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
   const style = {
@@ -351,13 +350,13 @@ const BilledCallLogs = () => {
     setShowDeleteModal({ open: true })
   }
 
-  const getSearchingData = async (pageData) => {
-    setcurrentPage(pageData)
+  const getSearchingData = async (page = 1) => {
+    setcurrentPage(page)
     setLoading(true)
     await axios
       .get(
         'billed-call-log-report?page=' +
-          pageData.page +
+          page +
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
@@ -367,7 +366,7 @@ const BilledCallLogs = () => {
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
-        setBilledData(res.data)
+        setTotalRecords(res.data.total)
         setLoading(false)
       })
   }
@@ -563,7 +562,13 @@ const BilledCallLogs = () => {
                   { value: 200, label: '200' },
                 ]}
               />
-              <Pagination changePage={getSearchingData} data={billedData} />
+              <Pagination
+                current={currentPage}
+                total={totalRecords}
+                pageSize={itemPerPage}
+                onChange={(page) => getSearchingData(page)}
+                showSizeChanger={false}
+              />
             </div>
           </div>
         </div>
