@@ -10,6 +10,7 @@ use App\Http\Controllers\WebFormController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\AffiliateController;
+use App\Http\Controllers\CorporationController;
 use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\TestTableController;
 use App\Http\Controllers\AnnotationController;
@@ -135,6 +136,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/move-affiliate-archive', [AffiliateController::class, 'moveArchive'])->name('move.affiliate.archive');
     Route::post('/active-affiliate', [AffiliateController::class, 'activeAffiliate'])->name('active.affiliate');
     Route::get('/archived-affiliates', [AffiliateController::class, 'archivedAffiliates'])->name('archived.affiliates');
+
+    Route::get('/broadcast-group-names-form', [CorporationController::class, 'broadcastGroupNamesForm'])->name('broadcast_group_names.form');
+    Route::post('/store-broadcast-group-name', [CorporationController::class, 'storeBroadcastGroupName'])->name('store.broadcast_group_name');
+    Route::get('/broadcast-group-names-report', [CorporationController::class, 'broadcastGroupNamesReport'])->name('broadcast_group_names.report');
+    Route::post('/broadcast-group-name-edit', [CorporationController::class, 'broadcastGroupNameEdit'])->name('broadcast_group_name.edit');
+    Route::post('/broadcast-group-names-delete', [CorporationController::class, 'broadcastGroupNamesDelete'])->name('broadcast_group_names.delete');
+    Route::post('/broadcast-group-name-status-update', [CorporationController::class, 'broadcastGroupNameStatusUpdate'])->name('broadcast_group_names.status.update');
+
+    Route::get('/mso-names-form', [CorporationController::class, 'msoNamesForm'])->name('mso_names.form');
+    Route::post('/store-mso-name', [CorporationController::class, 'storeMsoName'])->name('store.mso_name');
+    Route::get('/mso-names-report', [CorporationController::class, 'msoNamesReport'])->name('mso_names.report');
+    Route::post('/mso-name-edit', [CorporationController::class, 'msoNameEdit'])->name('mso_name.edit');
+    Route::post('/mso-names-delete', [CorporationController::class, 'msoNamesDelete'])->name('mso_names.delete');
+    Route::post('/mso-name-status-update', [CorporationController::class, 'msoNameStatusUpdate'])->name('mso_names.status.update');
+
+    Route::get('/network-names-form', [CorporationController::class, 'networkNamesForm'])->name('network_names.form');
+    Route::post('/store-network-name', [CorporationController::class, 'storeNetworkName'])->name('store.network_name');
+    Route::get('/network-names-report', [CorporationController::class, 'networkNamesReport'])->name('network_names.report');
+    Route::post('/network-name-edit', [CorporationController::class, 'networkNameEdit'])->name('network_name.edit');
+    Route::post('/network-names-delete', [CorporationController::class, 'networkNamesDelete'])->name('network_names.delete');
+    Route::post('/network-name-status-update', [CorporationController::class, 'networkNameStatusUpdate'])->name('network_names.status.update');
+
     Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add.arichived.bill.call');
     Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])->name('archived-call-log-report');
     Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToCallLog'])->name('archived.to.call.log');

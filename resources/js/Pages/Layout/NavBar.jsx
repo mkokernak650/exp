@@ -250,6 +250,37 @@ export default function PersistentDrawerLeft(props) {
           key: 'archived.affiliates',
           label: <InertiaLink href={route('archived.affiliates')}>Archived Affiliates</InertiaLink>,
         },
+        {
+          key: 'corporation',
+          icon: <SettingOutlined />,
+          label: 'Corporation',
+          children: [
+            {
+              key: 'broadcast_group_names.form',
+              label: <InertiaLink href={route('broadcast_group_names.form')}>Add Broadcast Group Names</InertiaLink>,
+            },
+            {
+              key: 'broadcast_group_names.report',
+              label: <InertiaLink href={route('broadcast_group_names.report')}>Broadcast Group Names</InertiaLink>,
+            },
+            {
+              key: 'mso_names.form',
+              label: <InertiaLink href={route('mso_names.form')}>Add Mso Names</InertiaLink>,
+            },
+            {
+              key: 'mso_names.report',
+              label: <InertiaLink href={route('mso_names.report')}>Mso Names</InertiaLink>,
+            },
+            {
+              key: 'network_names.form',
+              label: <InertiaLink href={route('network_names.form')}>Add Network Names</InertiaLink>,
+            },
+            {
+              key: 'network_names.report',
+              label: <InertiaLink href={route('network_names.report')}>Network Names</InertiaLink>,
+            },
+          ],
+        },
       ],
     },
     {
