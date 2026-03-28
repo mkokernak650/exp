@@ -2,15 +2,14 @@ import '../css/app.css'
 import { render } from 'react-dom'
 import { Toaster } from 'react-hot-toast'
 import { createInertiaApp } from '@inertiajs/inertia-react'
-import { InertiaProgress } from '@inertiajs/progress'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { ConfigProvider } from 'antd'
+import DismissInitialLoader from './Components/Global/DismissInitialLoader'
+import PageLoadOverlay from './Components/Global/PageLoadOverlay'
 
 if (window?.Ziggy?.baseProtocol === 'http') {
   window.Ziggy.baseProtocol = 'https'
 }
-
-InertiaProgress.init({ color: '#f66' })
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel'
 
@@ -29,6 +28,8 @@ createInertiaApp({
           },
         }}
       >
+        <DismissInitialLoader />
+        <PageLoadOverlay />
         <Toaster
           position="bottom-right"
           containerStyle={{ inset: '-25px 30px 20px -10px' }}
