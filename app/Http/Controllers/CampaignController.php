@@ -65,7 +65,7 @@ class CampaignController extends Controller
         return response()->json(['msg' => 'Duration Updated.']);
     }
 
-    public function campaignSettingReport(): Response
+    public function campaignSettingReport()
     {
         $itemPerPage  = request('itemPerPage', 10);
         $allCampaigns = Campaign::paginate($itemPerPage);

@@ -82,7 +82,7 @@ class CorporationController extends Controller
         $i            = 0;
 
         while ($i < $idsCount) {
-            $result = BroadcastGroupName::where('id', $ids[$i])->delete();
+            $result = $result && BroadcastGroupName::where('id', $ids[$i])->delete() > 0;
             $i++;
         }
 
@@ -177,7 +177,7 @@ class CorporationController extends Controller
         $i            = 0;
 
         while ($i < $idsCount) {
-            $result = MsoName::where('id', $ids[$i])->delete();
+            $result = $result && MsoName::where('id', $ids[$i])->delete() > 0;
             $i++;
         }
 
@@ -272,7 +272,7 @@ class CorporationController extends Controller
         $i            = 0;
 
         while ($i < $idsCount) {
-            $result = NetworkName::where('id', $ids[$i])->delete();
+            $result = $result && NetworkName::where('id', $ids[$i])->delete() > 0;
             $i++;
         }
 
