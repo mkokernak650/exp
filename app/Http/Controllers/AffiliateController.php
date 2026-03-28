@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\Affiliate;
+use App\Models\BroadcastGroupName;
+use App\Models\MsoName;
+use App\Models\NetworkName;
 use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
@@ -30,7 +33,16 @@ class AffiliateController extends Controller
         $markets    = ZipcodeByTelevisionMarket::select('market')->distinct()->orderBy('market')->get();
         $allMarkets = array_merge($customMarkets, $markets->toarray());
 
-        return Inertia::render('Settings/AddAffiliate', compact('allMarkets'));
+        $allBroadcastGroupNames = BroadcastGroupName::select('broadcast_group_name')->active()->distinct()->get();
+        $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
+        $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
+
+        return Inertia::render('Settings/AddAffiliate', compact(
+            'allMarkets',
+            'allBroadcastGroupNames',
+            'allMsoNames',
+            'allNetworkNames'
+        ));
     }
 
     public function all()
@@ -101,6 +113,8 @@ class AffiliateController extends Controller
             'telephone'         => 'nullable',
             'address'           => 'nullable',
             'market'            => 'required',
+            'ownership_type'    => 'nullable',
+            'ownership_name'    => 'nullable',
             'contact_name'      => 'nullable',
             'contact_telephone' => 'nullable'
         ]);
@@ -161,11 +175,18 @@ class AffiliateController extends Controller
             return $allAffiliates;
         }
 
-        $columnsData = TableDetails::all()->pluck('column_details');
+        $columnsData            = TableDetails::all()->pluck('column_details');
+        $allBroadcastGroupNames = BroadcastGroupName::select('broadcast_group_name')->active()->distinct()->get();
+        $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
+        $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
+
         return Inertia::render('Settings/AffiliateReport', [
-            'allAffiliates' => $allAffiliates,
-            'columnsData'   => $columnsData,
-            'allMarkets'    => $allMarkets,
+            'allAffiliates'          => $allAffiliates,
+            'columnsData'            => $columnsData,
+            'allMarkets'             => $allMarkets,
+            'allBroadcastGroupNames' => $allBroadcastGroupNames,
+            'allMsoNames'            => $allMsoNames,
+            'allNetworkNames'        => $allNetworkNames,
         ]);
     }
 
@@ -203,6 +224,8 @@ class AffiliateController extends Controller
         $data->telephone         = $request->telephone;
         $data->address           = $request->address;
         $data->market            = $request->market;
+        $data->ownership_type    = $request->ownership_type;
+        $data->ownership_name    = $request->ownership_name;
         $data->contact_name      = $request->contact_name;
         $data->contact_telephone = $request->contact_telephone;
         $result                  = $data->save();

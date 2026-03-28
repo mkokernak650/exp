@@ -65,6 +65,11 @@ export const fields = [
     operators,
   },
   {
+    caption: 'ownership',
+    name: 'ownership',
+    operators,
+  },
+  {
     caption: 'email',
     name: 'email',
     operators,
@@ -118,6 +123,13 @@ export const columns = [
   {
     key: 'affiliate_name',
     title: 'Affiliate Name',
+    dataType: 'string',
+    style: { width: 240 },
+    visible: true,
+  },
+  {
+    key: 'ownership',
+    title: 'Ownership',
     dataType: 'string',
     style: { width: 240 },
     visible: true,

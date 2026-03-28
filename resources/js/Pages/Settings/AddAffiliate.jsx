@@ -14,7 +14,7 @@ const AddAffiliate = () => {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const [similarAffiliates, setSimilarAffiliates] = useState('')
-  const { allMarkets } = usePage().props
+  const { allMarkets, allBroadcastGroupNames, allMsoNames, allNetworkNames } = usePage().props
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -80,6 +80,99 @@ const AddAffiliate = () => {
               error={errors?.affiliate_name || similarAffiliates}
               helperText={errors?.affiliate_name?.[0] || similarAffiliates}
             />
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Ownership</label>
+              </div>
+              <Select
+                id="ownership_type"
+                placeholder="Select Ownership"
+                value={values?.ownership_type ?? undefined}
+                onChange={(value) => {
+                  handleChange({ target: { name: 'ownership_type', value } })
+                  handleChange({ target: { name: 'ownership_name', value: undefined } })
+                }}
+                className="w-full"
+                allowClear
+                onClear={() => {
+                  handleChange({ target: { name: 'ownership_type', value: undefined } })
+                  handleChange({ target: { name: 'ownership_name', value: undefined } })
+                }}
+              >
+                <Select.Option value="Broadcast Group">Broadcast Group</Select.Option>
+                <Select.Option value="MSO">MSO</Select.Option>
+                <Select.Option value="Network">Network</Select.Option>
+              </Select>
+            </div>
+            {values?.ownership_type === 'Broadcast Group' && (
+              <div className="w-full">
+                <div className="mb-1">
+                  <label>Select Broadcast Group Name</label>
+                </div>
+                <Select
+                  id="ownership_name"
+                  placeholder="Select Broadcast Group Name"
+                  value={values?.ownership_name ?? undefined}
+                  onChange={(value) => {
+                    handleChange({ target: { name: 'ownership_name', value } })
+                  }}
+                  className="w-full"
+                  allowClear
+                >
+                  {allBroadcastGroupNames.map((item) => (
+                    <Select.Option key={item.broadcast_group_name} value={item.broadcast_group_name}>
+                      {item.broadcast_group_name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+            {values?.ownership_type === 'MSO' && (
+              <div className="w-full">
+                <div className="mb-1">
+                  <label>Select MSO Name</label>
+                </div>
+                <Select
+                  id="ownership_name"
+                  placeholder="Select MSO Name"
+                  value={values?.ownership_name ?? undefined}
+                  onChange={(value) => {
+                    handleChange({ target: { name: 'ownership_name', value } })
+                  }}
+                  className="w-full"
+                  allowClear
+                >
+                  {allMsoNames.map((item) => (
+                    <Select.Option key={item.mso_name} value={item.mso_name}>
+                      {item.mso_name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+            {values?.ownership_type === 'Network' && (
+              <div className="w-full">
+                <div className="mb-1">
+                  <label>Select Network Name</label>
+                </div>
+                <Select
+                  id="ownership_name"
+                  placeholder="Select Network Name"
+                  value={values?.ownership_name ?? undefined}
+                  onChange={(value) => {
+                    handleChange({ target: { name: 'ownership_name', value } })
+                  }}
+                  className="w-full"
+                  allowClear
+                >
+                  {allNetworkNames.map((item) => (
+                    <Select.Option key={item.network_name} value={item.network_name}>
+                      {item.network_name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
             <TextInput label="Email" name="email" handleChange={handleChange} />
             <TextInput label="Telephone" name="telephone" handleChange={handleChange} />
             <TextInput label="Address" name="address" handleChange={handleChange} />

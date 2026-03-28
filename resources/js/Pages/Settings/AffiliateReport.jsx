@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Select } from 'antd'
+import { Table, Tooltip, Button, Select, Row } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -22,7 +22,7 @@ import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const AffiliateReport = () => {
-  const { allAffiliates, columnsData, allMarkets } = usePage().props
+  const { allAffiliates, columnsData, allMarkets, allBroadcastGroupNames, allMsoNames, allNetworkNames } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -47,6 +47,9 @@ const AffiliateReport = () => {
       edit: item.id,
       affiliate_id: item.affiliate_id,
       affiliate_name: item.affiliate_name,
+      ownership_type: item.ownership_type,
+      ownership_name: item.ownership_name,
+      ownership: item.ownership_type || '',
       tv_households: parseTvHouseholds(item.tv_households),
       market: item.market,
       email: item.email,
@@ -181,6 +184,9 @@ const AffiliateReport = () => {
                   ...item,
                   affiliate_id: editData.affiliate_id,
                   affiliate_name: editData.affiliate_name,
+                  ownership_type: editData.ownership_type,
+                  ownership_name: editData.ownership_name,
+                  ownership: editData.ownership_type || '',
                   email: editData.email,
                   telephone: editData.telephone,
                   address: editData.address,
@@ -421,73 +427,160 @@ const AffiliateReport = () => {
       >
         <div className="edit_target">
           <form>
-            <TextInput
-              label="Affiliate Id"
-              name="affiliate_id"
-              required={true}
-              handleChange={handleEditChange}
-              value={editData ? editData.affiliate_id : ''}
-            />
-            <TextInput
-              label="Affiliate Name"
-              name="affiliate_name"
-              required={true}
-              handleChange={handleEditChange}
-              value={editData ? editData.affiliate_name : ''}
-            />
-            <TextInput
-              label="Email"
-              name="email"
-              type="email"
-              handleChange={handleEditChange}
-              value={editData ? editData.email : ''}
-            />
-            <TextInput
-              label="Telephone"
-              name="telephone"
-              handleChange={handleEditChange}
-              value={editData ? editData.telephone : ''}
-            />
-            <TextInput
-              label="Address"
-              name="address"
-              handleChange={handleEditChange}
-              value={editData ? editData.address : ''}
-            />
-            <div className="mt-[15px] mb-[10px]">
-              <div className="mb-1">
-                <label>Select Market</label>
+            <Row gutter={[16, 16]}>
+              <TextInput
+                label="Affiliate Id"
+                name="affiliate_id"
+                required={true}
+                handleChange={handleEditChange}
+                value={editData ? editData.affiliate_id : ''}
+              />
+              <TextInput
+                label="Affiliate Name"
+                name="affiliate_name"
+                required={true}
+                handleChange={handleEditChange}
+                value={editData ? editData.affiliate_name : ''}
+              />
+              <div className="w-full">
+                <div className="mb-1">
+                  <label>Select Ownership</label>
+                </div>
+                <Select
+                  id="ownership_type"
+                  placeholder="Select Ownership"
+                  value={editData?.ownership_type ?? undefined}
+                  onChange={(value) => {
+                    setEditData((prev) => ({ ...prev, ownership_type: value, ownership_name: undefined }))
+                  }}
+                  className="w-full"
+                  allowClear
+                  onClear={() => {
+                    setEditData((prev) => ({ ...prev, ownership_type: undefined, ownership_name: undefined }))
+                  }}
+                >
+                  <Select.Option value="Broadcast Group">Broadcast Group</Select.Option>
+                  <Select.Option value="MSO">MSO</Select.Option>
+                  <Select.Option value="Network">Network</Select.Option>
+                </Select>
               </div>
-              <Select
-                id="market"
-                placeholder="Select Market"
-                value={editData ? editData.market : undefined}
-                onChange={(value) => handleEditChange({ target: { name: 'market', value } })}
-                className="w-full"
-                allowClear
-              >
-                {allMarkets.map((item) => (
-                  <Select.Option key={item.market} value={item.market}>
-                    {item.market}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <TextInput
-              label="Contact Name"
-              name="contact_name"
-              handleChange={handleEditChange}
-              value={editData ? editData.contact_name : ''}
-            />
-            <TextInput
-              label="Contact Telephone"
-              name="contact_telephone"
-              handleChange={handleEditChange}
-              value={editData ? editData.contact_telephone : ''}
-            />
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-              Edit
-            </Button>
+              {editData?.ownership_type === 'Broadcast Group' && (
+                <div className="w-full">
+                  <div className="mb-1">
+                    <label>Select Broadcast Group Name</label>
+                  </div>
+                  <Select
+                    id="ownership_name"
+                    placeholder="Select Broadcast Group Name"
+                    value={editData?.ownership_name ?? undefined}
+                    onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
+                    className="w-full"
+                    allowClear
+                  >
+                    {allBroadcastGroupNames.map((item) => (
+                      <Select.Option key={item.broadcast_group_name} value={item.broadcast_group_name}>
+                        {item.broadcast_group_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+              {editData?.ownership_type === 'MSO' && (
+                <div className="w-full">
+                  <div className="mb-1">
+                    <label>Select MSO Name</label>
+                  </div>
+                  <Select
+                    id="ownership_name"
+                    placeholder="Select MSO Name"
+                    value={editData?.ownership_name ?? undefined}
+                    onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
+                    className="w-full"
+                    allowClear
+                  >
+                    {allMsoNames.map((item) => (
+                      <Select.Option key={item.mso_name} value={item.mso_name}>
+                        {item.mso_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+              {editData?.ownership_type === 'Network' && (
+                <div className="w-full">
+                  <div className="mb-1">
+                    <label>Select Network Name</label>
+                  </div>
+                  <Select
+                    id="ownership_name"
+                    placeholder="Select Network Name"
+                    value={editData?.ownership_name ?? undefined}
+                    onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
+                    className="w-full"
+                    allowClear
+                  >
+                    {allNetworkNames.map((item) => (
+                      <Select.Option key={item.network_name} value={item.network_name}>
+                        {item.network_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+              <TextInput
+                label="Email"
+                name="email"
+                type="email"
+                handleChange={handleEditChange}
+                value={editData ? editData.email : ''}
+              />
+              <TextInput
+                label="Telephone"
+                name="telephone"
+                handleChange={handleEditChange}
+                value={editData ? editData.telephone : ''}
+              />
+              <TextInput
+                label="Address"
+                name="address"
+                handleChange={handleEditChange}
+                value={editData ? editData.address : ''}
+              />
+              <div className="w-full">
+                <div className="mb-1">
+                  <label>Select Market</label>
+                </div>
+                <Select
+                  id="market"
+                  placeholder="Select Market"
+                  value={editData ? editData.market : undefined}
+                  onChange={(value) => handleEditChange({ target: { name: 'market', value } })}
+                  className="w-full"
+                  allowClear
+                >
+                  {allMarkets.map((item) => (
+                    <Select.Option key={item.market} value={item.market}>
+                      {item.market}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+              <TextInput
+                label="Contact Name"
+                name="contact_name"
+                handleChange={handleEditChange}
+                value={editData ? editData.contact_name : ''}
+              />
+              <TextInput
+                label="Contact Telephone"
+                name="contact_telephone"
+                handleChange={handleEditChange}
+                value={editData ? editData.contact_telephone : ''}
+              />
+              <Button type="primary" onClick={handleEditSubmit}>
+                Edit
+              </Button>
+            </Row>
           </form>
         </div>
       </NormalModal>
