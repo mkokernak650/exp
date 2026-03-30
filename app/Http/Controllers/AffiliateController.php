@@ -223,6 +223,7 @@ class AffiliateController extends Controller
         $archivedFieldMap = [
             'affiliate_id'   => 'affiliate_id',
             'affiliate_name' => 'affiliate_name',
+            'ownership'      => 'ownership_type',
             'email'          => 'email',
             'telephone'      => 'telephone',
             'address'        => 'address',
@@ -239,11 +240,18 @@ class AffiliateController extends Controller
             return $allAffiliates;
         }
 
-        $columnsData = TableDetails::all()->pluck('column_details');
+        $columnsData            = TableDetails::all()->pluck('column_details');
+        $allBroadcastGroupNames = BroadcastGroupName::select('broadcast_group_name')->active()->distinct()->get();
+        $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
+        $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
+
         return Inertia::render('Settings/ArchivedAffiliates', [
-            'allAffiliates' => $allAffiliates,
-            'columnsData'   => $columnsData,
-            'allMarkets'    => $allMarkets,
+            'allAffiliates'          => $allAffiliates,
+            'columnsData'            => $columnsData,
+            'allMarkets'             => $allMarkets,
+            'allBroadcastGroupNames' => $allBroadcastGroupNames,
+            'allMsoNames'            => $allMsoNames,
+            'allNetworkNames'        => $allNetworkNames,
         ]);
     }
 

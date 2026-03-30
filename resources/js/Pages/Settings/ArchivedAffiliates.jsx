@@ -20,7 +20,8 @@ import { fields, filter, columns as defaultColumns } from './Helpers/ArchivedAff
 import TextInput from '@/Components/Global/TextInput'
 
 const ArchivedAffiliates = () => {
-  const { allAffiliates, columnsData, allMarkets } = usePage().props
+  const { allAffiliates, columnsData, allMarkets, allBroadcastGroupNames, allMsoNames, allNetworkNames } =
+    usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -34,19 +35,23 @@ const ArchivedAffiliates = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState(allAffiliates.total || 0)
 
-  const dataArray = (allAffiliates.data || []).map((item, index) => ({
-    edit: item.id,
-    affiliate_id: item.affiliate_id,
-    affiliate_name: item.affiliate_name,
-    market: item.market,
-    email: item.email,
-    telephone: item.telephone,
-    address: item.address,
-    contact_name: item.contact_name,
-    contact_telephone: item.contact_telephone,
-    id: item.id,
-    key: item.id,
-  }))
+  const mapDataArr = (rows) =>
+    (rows || []).map((item) => ({
+      edit: item.id,
+      affiliate_id: item.affiliate_id,
+      affiliate_name: item.affiliate_name,
+      ownership_type: item.ownership_type,
+      ownership_name: item.ownership_name,
+      ownership: item.ownership_type || '',
+      market: item.market,
+      email: item.email,
+      telephone: item.telephone,
+      address: item.address,
+      contact_name: item.contact_name,
+      contact_telephone: item.contact_telephone,
+      id: item.id,
+      key: item.id,
+    }))
 
   const optionKey = 'affiliate-archived'
   const [columnDetails, setColumnDetails] = useState(
@@ -65,7 +70,7 @@ const ArchivedAffiliates = () => {
     optionKey,
   })
 
-  const [data, setData] = useState(dataArray)
+  const [data, setData] = useState(mapDataArr(allAffiliates.data))
 
   const handleToggleColumn = (key) => {
     setColumns((prev) => {
@@ -143,6 +148,9 @@ const ArchivedAffiliates = () => {
                   ...item,
                   affiliate_id: editData.affiliate_id,
                   affiliate_name: editData.affiliate_name,
+                  ownership_type: editData.ownership_type,
+                  ownership_name: editData.ownership_name,
+                  ownership: editData.ownership_type || '',
                   market: editData.market,
                   email: editData.email,
                   telephone: editData.telephone,
@@ -181,21 +189,7 @@ const ArchivedAffiliates = () => {
       params: { page, itemPerPage, filteredValue: activeFilterJSON },
     })
       .then((res) => {
-        setData(
-          (res.data.data || []).map((item) => ({
-            edit: item.id,
-            affiliate_id: item.affiliate_id,
-            affiliate_name: item.affiliate_name,
-            market: item.market,
-            email: item.email,
-            telephone: item.telephone,
-            address: item.address,
-            contact_name: item.contact_name,
-            contact_telephone: item.contact_telephone,
-            id: item.id,
-            key: item.id,
-          }))
-        )
+        setData(mapDataArr(res.data.data))
         setTotalRecords(res.data.total)
       })
   }
@@ -408,6 +402,91 @@ const ArchivedAffiliates = () => {
                 className="w-full"
               />
             </div>
+            <div className="mb-4 w-full">
+              <label className="block mb-1" htmlFor="archived-affiliate-ownership-type">
+                Select Ownership
+              </label>
+              <Select
+                id="archived-affiliate-ownership-type"
+                placeholder="Select Ownership"
+                value={editData?.ownership_type ?? undefined}
+                onChange={(value) => {
+                  setEditData((prev) => ({ ...prev, ownership_type: value, ownership_name: undefined }))
+                }}
+                className="w-full"
+                allowClear
+                onClear={() => {
+                  setEditData((prev) => ({ ...prev, ownership_type: undefined, ownership_name: undefined }))
+                }}
+              >
+                <Select.Option value="Broadcast Group">Broadcast Group</Select.Option>
+                <Select.Option value="MSO">MSO</Select.Option>
+                <Select.Option value="Network">Network</Select.Option>
+              </Select>
+            </div>
+            {editData?.ownership_type === 'Broadcast Group' && (
+              <div className="mb-4 w-full">
+                <label className="block mb-1" htmlFor="archived-affiliate-broadcast-group">
+                  Select Broadcast Group Name
+                </label>
+                <Select
+                  id="archived-affiliate-broadcast-group"
+                  placeholder="Select Broadcast Group Name"
+                  value={editData?.ownership_name ?? undefined}
+                  onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
+                  className="w-full"
+                  allowClear
+                >
+                  {allBroadcastGroupNames.map((item) => (
+                    <Select.Option key={item.broadcast_group_name} value={item.broadcast_group_name}>
+                      {item.broadcast_group_name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+            {editData?.ownership_type === 'MSO' && (
+              <div className="mb-4 w-full">
+                <label className="block mb-1" htmlFor="archived-affiliate-mso">
+                  Select MSO Name
+                </label>
+                <Select
+                  id="archived-affiliate-mso"
+                  placeholder="Select MSO Name"
+                  value={editData?.ownership_name ?? undefined}
+                  onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
+                  className="w-full"
+                  allowClear
+                >
+                  {allMsoNames.map((item) => (
+                    <Select.Option key={item.mso_name} value={item.mso_name}>
+                      {item.mso_name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+            {editData?.ownership_type === 'Network' && (
+              <div className="mb-4 w-full">
+                <label className="block mb-1" htmlFor="archived-affiliate-network">
+                  Select Network Name
+                </label>
+                <Select
+                  id="archived-affiliate-network"
+                  placeholder="Select Network Name"
+                  value={editData?.ownership_name ?? undefined}
+                  onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
+                  className="w-full"
+                  allowClear
+                >
+                  {allNetworkNames.map((item) => (
+                    <Select.Option key={item.network_name} value={item.network_name}>
+                      {item.network_name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
             <div className="mb-4">
               <label>Email</label>
               <Input
