@@ -1,6 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { Row, Col } from 'antd'
+import { Row } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'

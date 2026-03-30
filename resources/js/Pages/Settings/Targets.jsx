@@ -14,6 +14,7 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/TargetsProps'
+import EditModalFooter from '@/Shared/EditModalFooter'
 
 const Targets = () => {
   const { allTargets, columnsData } = usePage().props
@@ -331,7 +332,11 @@ const Targets = () => {
                   aria-label="Open filters"
                 >
                   <Filter />
-                  {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+                  {activeFilterCount ? (
+                    <span className="filter-count">{activeFilterCount}</span>
+                  ) : (
+                    ''
+                  )}
                 </button>
               )}
             </div>
@@ -398,13 +403,17 @@ const Targets = () => {
       <Modal
         open={showEditModal.open}
         onCancel={() => handleCloseModal(setShowEditModal)}
-        onOk={handleEditSubmit}
-        okText="Edit"
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
         width={600}
         title="Edit Targets"
         centered
       >
-        <div className="edit_target">
+        <div className="mt-4">
           <form onSubmit={(e) => e.preventDefault()}>
             <span>Customer:</span>
             <Input

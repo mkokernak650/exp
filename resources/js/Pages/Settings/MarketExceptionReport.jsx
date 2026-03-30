@@ -4,20 +4,29 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Select, Input, Radio, DatePicker, Pagination } from 'antd'
+import {
+  Table,
+  Tooltip,
+  Button,
+  Select,
+  Input,
+  Radio,
+  DatePicker,
+  Pagination,
+} from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
-import { Row, Col } from 'antd'
 
 function mapMarketExceptionRows(items, page, perPage) {
   const offset = (page - 1) * perPage
@@ -58,7 +67,13 @@ const MarketExceptionReport = () => {
   const [totalRecords, setTotalRecords] = useState(marketExceptions.total || 0)
 
   const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    let v = value
+    if (name === 'campaign_id' && value != null && value !== '') {
+      const n = Number(value)
+      v = Number.isFinite(n) ? n : value
+    }
+    setEditData({ ...editData, [name]: v })
   }
 
   const handleEditSubmit = () => {
@@ -166,7 +181,15 @@ const MarketExceptionReport = () => {
   const handleEdit = (itemId) => {
     const item = data.find((item) => item.id === itemId)
     if (item) {
-      setEditData(item)
+      const rawCampaignId = item.campaign_id
+      const campaignIdNum =
+        rawCampaignId != null && rawCampaignId !== ''
+          ? Number(rawCampaignId)
+          : undefined
+      setEditData({
+        ...item,
+        campaign_id: Number.isFinite(campaignIdNum) ? campaignIdNum : rawCampaignId,
+      })
       setShowEditModal({ open: true })
     }
   }
@@ -355,7 +378,11 @@ const MarketExceptionReport = () => {
                   aria-label="Open filters"
                 >
                   <Filter />
-                  {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+                  {activeFilterCount ? (
+                    <span className="filter-count">{activeFilterCount}</span>
+                  ) : (
+                    ''
+                  )}
                 </button>
               )}
               <Button
@@ -434,101 +461,94 @@ const MarketExceptionReport = () => {
         width={'600px'}
         title={'Edit Market Exception'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
       >
-        <div className="edit_target">
-          <form>
-            <Row gutter={[16, 16]}>
-              <Col span={24}>
-                <Select
-                  placeholder="Select Campaign"
-                  onChange={(value) => handleEditChange({ target: { name: 'campaign_id', value } })}
-                  className="w-full"
-                  value={editData?.campaign_id ? editData.campaign_id : undefined}
-                >
-                  {allCampaigns.map((option, indx) => (
-                    <Select.Option key={indx} value={option.id}>
-                      {option.campaign_name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col span={24}>
-                <Select
-                  placeholder="Select State"
-                  onChange={(value) => handleEditChange({ target: { name: 'state', value } })}
-                  className="w-full"
-                  value={editData?.state ? editData.state : undefined}
-                >
-                  {allStates.map((option, indx) => (
-                    <Select.Option key={indx} value={option.state}>
-                      {option.state}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col span={24}>
-                <Select
-                  placeholder="Select Market"
-                  onChange={(value) => handleEditChange({ target: { name: 'market_id', value } })}
-                  className="w-full"
-                  value={editData?.market_id}
-                >
-                  {allMarkets.map((option, indx) => (
-                    <Select.Option key={indx} value={option.market}>
-                      {option.market}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col span={24}>
-                <Select
-                  placeholder="Call Type"
-                  onChange={(value) => handleEditChange({ target: { name: 'call_type', value } })}
-                  className="w-full"
-                  value={editData?.call_type ? editData.call_type : undefined}
-                >
-                  <Select.Option value="L">Landline (L)</Select.Option>
-                  <Select.Option value="W">Wireless (W)</Select.Option>
-                  <Select.Option value="B">Both L & W</Select.Option>
-                </Select>
-              </Col>
-              <Col span={24}>
-                <div>
-                  <DatePicker
-                    value={editData?.start_date ? dayjs(editData.start_date) : null}
-                    onChange={(date, dateString) =>
-                      handleEditChange({ target: { name: 'start_date', value: dateString } })
-                    }
-                    className="w-full"
-                  />
-                </div>
-              </Col>
-              <Col span={24}>
-                <span>Rank:</span>
-                <Input
-                  value={editData?.ranks ? editData.ranks : ''}
-                  name="ranks"
-                  type="text"
-                  onChange={handleEditChange}
-                  className="w-full mt-2"
-                />
-              </Col>
-              <Col span={24}>
-                <span>Nielsen Households:</span>
-                <Input
-                  value={editData?.nielsen_households ? editData.nielsen_households : ''}
-                  name="nielsen_households"
-                  type="text"
-                  onChange={handleEditChange}
-                  className="w-full mt-2"
-                />
-              </Col>
-              <Col span={24}>
-                <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-                  Edit
-                </Button>
-              </Col>
-            </Row>
+        <div className="mt-4">
+          <form onSubmit={(e) => e.preventDefault()}>
+            <span>Select Campaign</span>
+            <Select
+              placeholder="Select Campaign"
+              onChange={(value) => handleEditChange({ target: { name: 'campaign_id', value } })}
+              className="w-full mb-4 mt-2"
+              value={(() => {
+                const v = editData?.campaign_id
+                if (v == null || v === '') return undefined
+                const n = Number(v)
+                return Number.isFinite(n) ? n : undefined
+              })()}
+            >
+              {allCampaigns.map((option, indx) => (
+                <Select.Option key={option.id ?? indx} value={Number(option.id)}>
+                  {option.campaign_name}
+                </Select.Option>
+              ))}
+            </Select>
+            <span>Select State</span>
+            <Select
+              placeholder="Select State"
+              onChange={(value) => handleEditChange({ target: { name: 'state', value } })}
+              className="w-full mb-4 mt-2"
+              value={editData?.state ? editData.state : undefined}
+            >
+              {allStates.map((option, indx) => (
+                <Select.Option key={indx} value={option.state}>
+                  {option.state}
+                </Select.Option>
+              ))}
+            </Select>
+            <span>Select Market</span>
+            <Select
+              placeholder="Select Market"
+              onChange={(value) => handleEditChange({ target: { name: 'market_id', value } })}
+              className="w-full mb-4 mt-2"
+              value={editData?.market_id}
+            >
+              {allMarkets.map((option, indx) => (
+                <Select.Option key={indx} value={option.market}>
+                  {option.market}
+                </Select.Option>
+              ))}
+            </Select>
+            <span>Call Type</span>
+            <Select
+              placeholder="Call Type"
+              onChange={(value) => handleEditChange({ target: { name: 'call_type', value } })}
+              className="w-full mb-4 mt-2"
+              value={editData?.call_type ? editData.call_type : undefined}
+            >
+              <Select.Option value="L">Landline (L)</Select.Option>
+              <Select.Option value="W">Wireless (W)</Select.Option>
+              <Select.Option value="B">Both L & W</Select.Option>
+            </Select>
+            <span>Start Date</span>
+            <DatePicker
+              value={editData?.start_date ? dayjs(editData.start_date) : null}
+              onChange={(date, dateString) =>
+                handleEditChange({ target: { name: 'start_date', value: dateString } })
+              }
+              className="w-full mb-4 mt-2"
+            />
+            <span>Rank</span>
+            <Input
+              value={editData?.ranks ? editData.ranks : ''}
+              name="ranks"
+              type="text"
+              onChange={handleEditChange}
+              className="w-full mb-4 mt-2"
+            />
+            <span>Nielsen Households</span>
+            <Input
+              value={editData?.nielsen_households ? editData.nielsen_households : ''}
+              name="nielsen_households"
+              type="text"
+              onChange={handleEditChange}
+              className="w-full mb-4 mt-2"
+            />
           </form>
         </div>
       </NormalModal>

@@ -1,7 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Input, message } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Input, message, Row } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 
@@ -40,24 +39,22 @@ const AddMarket = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Market</label>
-                <Input
-                  name="market"
-                  onChange={handleChange}
-                  type="text"
-                  required
-                  className="w-full"
-                />
               </div>
-            </Col>
+              <Input
+                name="market"
+                onChange={handleChange}
+                type="text"
+                required
+                className="w-full"
+              />
+            </div>
 
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

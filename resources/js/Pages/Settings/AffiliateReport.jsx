@@ -4,12 +4,13 @@ import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Select, Row, Pagination } from 'antd'
+import { Table, Tooltip, Button, Select, Pagination } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
@@ -455,10 +456,16 @@ const AffiliateReport = () => {
         width={'600px'}
         title={'Edit Affiliate'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
       >
-        <div className="edit_target">
-          <form>
-            <Row gutter={[16, 16]}>
+        <div className="mt-4">
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="flex flex-col gap-4 mb-4">
               <TextInput
                 label="Affiliate Id"
                 name="affiliate_id"
@@ -474,11 +481,14 @@ const AffiliateReport = () => {
                 value={editData ? editData.affiliate_name : ''}
               />
               <div className="w-full">
-                <div className="mb-1">
-                  <label>Select Ownership</label>
-                </div>
+                <label
+                  className="block mb-1 text-sm text-gray-600"
+                  htmlFor="edit-affiliate-ownership-type"
+                >
+                  Select Ownership
+                </label>
                 <Select
-                  id="ownership_type"
+                  id="edit-affiliate-ownership-type"
                   placeholder="Select Ownership"
                   value={editData?.ownership_type ?? undefined}
                   onChange={(value) => {
@@ -497,11 +507,14 @@ const AffiliateReport = () => {
               </div>
               {editData?.ownership_type === 'Broadcast Group' && (
                 <div className="w-full">
-                  <div className="mb-1">
-                    <label>Select Broadcast Group Name</label>
-                  </div>
+                  <label
+                    className="block mb-1 text-sm text-gray-600"
+                    htmlFor="edit-affiliate-broadcast-group"
+                  >
+                    Select Broadcast Group Name
+                  </label>
                   <Select
-                    id="ownership_name"
+                    id="edit-affiliate-broadcast-group"
                     placeholder="Select Broadcast Group Name"
                     value={editData?.ownership_name ?? undefined}
                     onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
@@ -518,11 +531,11 @@ const AffiliateReport = () => {
               )}
               {editData?.ownership_type === 'MSO' && (
                 <div className="w-full">
-                  <div className="mb-1">
-                    <label>Select MSO Name</label>
-                  </div>
+                  <label className="block mb-1 text-sm text-gray-600" htmlFor="edit-affiliate-mso">
+                    Select MSO Name
+                  </label>
                   <Select
-                    id="ownership_name"
+                    id="edit-affiliate-mso"
                     placeholder="Select MSO Name"
                     value={editData?.ownership_name ?? undefined}
                     onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
@@ -539,11 +552,11 @@ const AffiliateReport = () => {
               )}
               {editData?.ownership_type === 'Network' && (
                 <div className="w-full">
-                  <div className="mb-1">
-                    <label>Select Network Name</label>
-                  </div>
+                  <label className="block mb-1 text-sm text-gray-600" htmlFor="edit-affiliate-network">
+                    Select Network Name
+                  </label>
                   <Select
-                    id="ownership_name"
+                    id="edit-affiliate-network"
                     placeholder="Select Network Name"
                     value={editData?.ownership_name ?? undefined}
                     onChange={(value) => handleEditChange({ target: { name: 'ownership_name', value } })}
@@ -578,11 +591,11 @@ const AffiliateReport = () => {
                 value={editData ? editData.address : ''}
               />
               <div className="w-full">
-                <div className="mb-1">
-                  <label>Select Market</label>
-                </div>
+                <label className="block mb-1 text-sm text-gray-600" htmlFor="edit-affiliate-market">
+                  Select Market
+                </label>
                 <Select
-                  id="market"
+                  id="edit-affiliate-market"
                   placeholder="Select Market"
                   value={editData ? editData.market : undefined}
                   onChange={(value) => handleEditChange({ target: { name: 'market', value } })}
@@ -608,10 +621,7 @@ const AffiliateReport = () => {
                 handleChange={handleEditChange}
                 value={editData ? editData.contact_telephone : ''}
               />
-              <Button type="primary" onClick={handleEditSubmit}>
-                Edit
-              </Button>
-            </Row>
+            </div>
           </form>
         </div>
       </NormalModal>

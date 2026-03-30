@@ -1,7 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Input } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Input, Row } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -45,37 +44,39 @@ const AddTvHousehold = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <div className="mb-4">
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Market</label>
-                <Input
-                  name="market"
-                  onChange={handleChange}
-                  type="text"
-                  required
-                  className="w-full"
-                />
               </div>
-              <div className="mb-4">
+              <Input
+                name="market"
+                onChange={handleChange}
+                type="text"
+                required
+                className="w-full"
+              />
+            </div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>State</label>
-                <Input name="state" onChange={handleChange} type="text" className="w-full" />
               </div>
-              <div className="mb-4">
+              <Input name="state" onChange={handleChange} type="text" className="w-full" />
+            </div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>TV Households</label>
-                <Input
-                  name="tv_households"
-                  onChange={handleChange}
-                  type="text"
-                  className="w-full"
-                />
               </div>
-            </Col>
+              <Input
+                name="tv_households"
+                onChange={handleChange}
+                type="text"
+                className="w-full"
+              />
+            </div>
 
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

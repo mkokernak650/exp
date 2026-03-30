@@ -9,6 +9,7 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
@@ -560,8 +561,15 @@ const SalesIndex = () => {
         width={'600px'}
         title={'Edit E-commerce Affiliate'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+            submitLabel="Update"
+          />
+        }
       >
-        <div className="edit_target">
+        <div className="mt-4">
           <form>
             <div className="mb-4">
               <Select
@@ -747,9 +755,6 @@ const SalesIndex = () => {
                 onChange={handleEditChange}
               />
             </div>
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-              Update
-            </Button>
           </form>
         </div>
       </NormalModal>

@@ -1,7 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Input, DatePicker } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Input, DatePicker, Row } from 'antd'
 import dayjs from 'dayjs'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -50,49 +49,47 @@ const AddBroadcastMonth = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
           <Row gutter={[16, 16]}>
-            <Col span={24} className="p-1">
-              <div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Broadcast Month</label>
-                <Input
-                  name="broad_cast_month"
-                  onChange={handleChange}
-                  type="text"
-                  required
-                  className="w-full"
-                />
               </div>
-            </Col>
-            <Col span={24} className="p-1">
-              <div>
+              <Input
+                name="broad_cast_month"
+                onChange={handleChange}
+                type="text"
+                required
+                className="w-full"
+              />
+            </div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Start Date</label>
-                <DatePicker
-                  defaultValue={dayjs()}
-                  onChange={(date, dateString) =>
-                    handleChange({ target: { name: 'start_date', value: dateString } })
-                  }
-                  className="w-full"
-                />
               </div>
-            </Col>
+              <DatePicker
+                defaultValue={dayjs()}
+                onChange={(date, dateString) =>
+                  handleChange({ target: { name: 'start_date', value: dateString } })
+                }
+                className="w-full"
+              />
+            </div>
 
-            <Col span={24} className="p-1">
-              <div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>End Date</label>
-                <DatePicker
-                  defaultValue={dayjs()}
-                  onChange={(date, dateString) =>
-                    handleChange({ target: { name: 'end_date', value: dateString } })
-                  }
-                  className="w-full"
-                />
               </div>
-            </Col>
+              <DatePicker
+                defaultValue={dayjs()}
+                onChange={(date, dateString) =>
+                  handleChange({ target: { name: 'end_date', value: dateString } })
+                }
+                className="w-full"
+              />
+            </div>
 
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

@@ -9,6 +9,7 @@ import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import NormalModal from '../../Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
@@ -402,8 +403,14 @@ const Targets = () => {
         width={'600px'}
         title={'Edit Target Names'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
       >
-        <div className="edit_target">
+        <div className="mt-4">
           <form>
             <span>Target Name:</span>
             <Input
@@ -413,9 +420,6 @@ const Targets = () => {
               onChange={handleEditChange}
               className="w-full mb-4 mt-2"
             />
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-              Edit
-            </Button>
           </form>
         </div>
       </NormalModal>

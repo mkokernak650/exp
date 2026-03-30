@@ -9,6 +9,7 @@ import { EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import NormalModal from '@/Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
@@ -374,9 +375,15 @@ const ArchivedCustomers = () => {
         width={'600px'}
         title={'Edit Customer'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
       >
-        <div className="edit_target">
-          <form>
+        <div className="mt-4">
+          <form onSubmit={(e) => e.preventDefault()} className="mb-4">
             <div className="mb-4">
               <label>Customer Name</label>
               <Input
@@ -418,21 +425,20 @@ const ArchivedCustomers = () => {
                 className="w-full"
               />
             </div>
-            <TextInput
-              label="Contact Name"
-              name="contact_name"
-              handleChange={handleEditChange}
-              value={editData ? editData.contact_name : ''}
-            />
-            <TextInput
-              label="Contact Telephone"
-              name="contact_telephone"
-              handleChange={handleEditChange}
-              value={editData ? editData.contact_telephone : ''}
-            />
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-              Edit
-            </Button>
+            <div className="flex flex-col gap-4">
+              <TextInput
+                label="Contact Name"
+                name="contact_name"
+                handleChange={handleEditChange}
+                value={editData ? editData.contact_name : ''}
+              />
+              <TextInput
+                label="Contact Telephone"
+                name="contact_telephone"
+                handleChange={handleEditChange}
+                value={editData ? editData.contact_telephone : ''}
+              />
+            </div>
           </form>
         </div>
       </NormalModal>

@@ -1,7 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { Button, Typography, Select, Input } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Select, Input, Row } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -46,7 +45,10 @@ const AnnotationCreate = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Campaign</label>
+              </div>
               <Select
                 placeholder="Select Campaign"
                 onChange={(value) => handleChange({ target: { name: 'campaign_id', value } })}
@@ -58,25 +60,23 @@ const AnnotationCreate = () => {
                   </Select.Option>
                 ))}
               </Select>
-            </Col>
+            </div>
 
-            <Col span={24}>
-              <div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Annotation</label>
-                <Input
-                  type="text"
-                  name="annotation_name"
-                  onChange={handleChange}
-                  className="w-full"
-                  required
-                />
               </div>
-            </Col>
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+              <Input
+                type="text"
+                name="annotation_name"
+                onChange={handleChange}
+                className="w-full"
+                required
+              />
+            </div>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

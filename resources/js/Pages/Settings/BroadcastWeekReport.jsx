@@ -8,6 +8,7 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import CheckOutsideClick from '@/Helpers/CheckOutsideClick'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
@@ -410,8 +411,14 @@ const BroadcastWeekReport = () => {
         width={'600px'}
         title={'Edit BroadCast Week'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
       >
-        <div className="edit-broadcast-week">
+        <div className="mt-4">
           <form>
             <span>BroadCast Week:</span>
             <Input
@@ -437,10 +444,6 @@ const BroadcastWeekReport = () => {
               }
               className="w-full mb-4 mt-2"
             />
-
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-              Edit
-            </Button>
           </form>
         </div>
       </NormalModal>

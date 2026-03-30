@@ -1,7 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Select, Spin, DatePicker } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Select, DatePicker, Row } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
 import dayjs from 'dayjs'
 import axios from 'axios'
@@ -24,7 +23,10 @@ const MarketExceptionForm = () => {
   const handleSelectChange = (name, value) => {
     setValues((oldValues) => ({
       ...oldValues,
-      [name]: value,
+      [name]:
+        name === 'campaign_id' && value != null && value !== ''
+          ? Number(value)
+          : value,
     }))
   }
 
@@ -54,27 +56,39 @@ const MarketExceptionForm = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Campaign</label>
+              </div>
               <Select
                 id="campaign_id"
                 placeholder="Select Campaign"
                 onChange={(value) => handleSelectChange('campaign_id', value)}
                 className="w-full"
+                value={values?.campaign_id}
+                allowClear
+                onClear={() => handleSelectChange('campaign_id', undefined)}
               >
                 {allCampaigns.map((option, indx) => (
-                  <Select.Option key={indx} value={option.id}>
+                  <Select.Option key={option.id ?? indx} value={Number(option.id)}>
                     {option.campaign_name}
                   </Select.Option>
                 ))}
               </Select>
-            </Col>
+            </div>
 
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select State</label>
+              </div>
               <Select
                 id="state"
                 placeholder="Select State"
                 onChange={(value) => handleSelectChange('state', value)}
                 className="w-full"
+                value={values?.state}
+                allowClear
+                onClear={() => handleSelectChange('state', undefined)}
               >
                 {allStates.map((option, indx) => (
                   <Select.Option key={indx} value={option.state}>
@@ -82,14 +96,20 @@ const MarketExceptionForm = () => {
                   </Select.Option>
                 ))}
               </Select>
-            </Col>
+            </div>
 
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Market</label>
+              </div>
               <Select
                 id="market"
                 placeholder="Select Market"
                 onChange={(value) => handleSelectChange('market', value)}
                 className="w-full"
+                value={values?.market}
+                allowClear
+                onClear={() => handleSelectChange('market', undefined)}
               >
                 {allMarkets.map((option, indx) => (
                   <Select.Option key={indx} value={option.market}>
@@ -97,38 +117,43 @@ const MarketExceptionForm = () => {
                   </Select.Option>
                 ))}
               </Select>
-            </Col>
+            </div>
 
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Call Type</label>
+              </div>
               <Select
                 id="call_type"
                 placeholder="Call Type"
                 onChange={(value) => handleSelectChange('call_type', value)}
                 className="w-full"
+                value={values?.call_type}
+                allowClear
+                onClear={() => handleSelectChange('call_type', undefined)}
               >
                 <Select.Option value="L">Landline (L)</Select.Option>
                 <Select.Option value="W">Wireless (W)</Select.Option>
                 <Select.Option value="B">Both L & W</Select.Option>
               </Select>
-            </Col>
+            </div>
 
-            <Col span={24}>
-              <div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Start Date</label>
-                <DatePicker
-                  onChange={(date, dateString) =>
-                    handleChange({ target: { name: 'start_date', value: dateString } })
-                  }
-                  className="w-full"
-                />
               </div>
-            </Col>
+              <DatePicker
+                onChange={(date, dateString) =>
+                  handleChange({ target: { name: 'start_date', value: dateString } })
+                }
+                className="w-full"
+                value={values?.start_date ? dayjs(values.start_date) : null}
+              />
+            </div>
 
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

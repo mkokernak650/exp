@@ -1,6 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../../Layout/Layout'
-import { Button, Typography, Input, Row, Col } from 'antd'
+import { Button, Typography, Input, Row } from 'antd'
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
@@ -68,132 +68,142 @@ const UserProfile = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <div className="mb-4">
+            <div className="w-full">
+              <div className="mb-1">
                 <label>First Name*</label>
-                <Input
-                  name="firstname"
-                  onChange={handleChange}
-                  type="text"
-                  defaultValue={user[0].firstname}
-                  status={errors?.firstname ? 'error' : ''}
-                  className="w-full"
-                />
-                {errors?.firstname && (
-                  <div className="text-red-500 text-xs">{errors?.firstname?.[0]}</div>
-                )}
               </div>
-              <div className="mb-4">
+              <Input
+                name="firstname"
+                onChange={handleChange}
+                type="text"
+                defaultValue={user[0].firstname}
+                status={errors?.firstname ? 'error' : ''}
+                className="w-full"
+              />
+              {errors?.firstname && (
+                <div className="text-red-500 text-xs">{errors?.firstname?.[0]}</div>
+              )}
+            </div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Last Name*</label>
-                <Input
-                  name="lastname"
-                  onChange={handleChange}
-                  type="text"
-                  defaultValue={user[0].lastname}
-                  status={errors?.lastname ? 'error' : ''}
-                  className="w-full"
-                />
-                {errors?.lastname && (
-                  <div className="text-red-500 text-xs">{errors?.lastname?.[0]}</div>
-                )}
               </div>
-              <div className="mb-4">
+              <Input
+                name="lastname"
+                onChange={handleChange}
+                type="text"
+                defaultValue={user[0].lastname}
+                status={errors?.lastname ? 'error' : ''}
+                className="w-full"
+              />
+              {errors?.lastname && (
+                <div className="text-red-500 text-xs">{errors?.lastname?.[0]}</div>
+              )}
+            </div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Email*</label>
-                <Input
-                  name="email"
-                  onChange={handleChange}
-                  type="email"
-                  defaultValue={user[0].email}
-                  status={errors?.email ? 'error' : ''}
-                  className="w-full"
-                />
-                {errors?.email && <div className="text-red-500 text-xs">{errors?.email?.[0]}</div>}
               </div>
-              {!showPasswordFields && (
+              <Input
+                name="email"
+                onChange={handleChange}
+                type="email"
+                defaultValue={user[0].email}
+                status={errors?.email ? 'error' : ''}
+                className="w-full"
+              />
+              {errors?.email && <div className="text-red-500 text-xs">{errors?.email?.[0]}</div>}
+            </div>
+            {!showPasswordFields && (
+              <div className="w-full">
                 <span
                   className="change-password text-[#1677ff] cursor-pointer"
                   onClick={handleChangePassword}
                 >
                   Change Password
                 </span>
-              )}
+              </div>
+            )}
 
-              {showPasswordFields && (
-                <>
-                  <div className="mb-4">
+            {showPasswordFields && (
+              <>
+                <div className="w-full">
+                  <div className="mb-1">
                     <label>Old Password</label>
-                    <Input
-                      name="password"
-                      onChange={handleChange}
-                      type={showPassword?.password ? 'text' : 'password'}
-                      status={errors?.password ? 'error' : ''}
-                      className="w-full"
-                      suffix={
-                        <span
-                          onClick={() => handleClickShowPassword('password')}
-                          className="cursor-pointer"
-                        >
-                          {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </span>
-                      }
-                    />
-                    {errors?.password && (
-                      <div className="text-red-500 text-xs">{errors?.password?.[0]}</div>
-                    )}
                   </div>
-                  <div className="mb-4">
+                  <Input
+                    name="password"
+                    onChange={handleChange}
+                    type={showPassword?.password ? 'text' : 'password'}
+                    status={errors?.password ? 'error' : ''}
+                    className="w-full"
+                    suffix={
+                      <span
+                        onClick={() => handleClickShowPassword('password')}
+                        className="cursor-pointer"
+                      >
+                        {showPassword?.password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                      </span>
+                    }
+                  />
+                  {errors?.password && (
+                    <div className="text-red-500 text-xs">{errors?.password?.[0]}</div>
+                  )}
+                </div>
+                <div className="w-full">
+                  <div className="mb-1">
                     <label>New Password</label>
-                    <Input
-                      name="new_password"
-                      onChange={handleChange}
-                      type={showPassword?.new_password ? 'text' : 'password'}
-                      status={errors?.new_password ? 'error' : ''}
-                      className="w-full"
-                      suffix={
-                        <span
-                          onClick={() => handleClickShowPassword('new_password')}
-                          className="cursor-pointer"
-                        >
-                          {showPassword?.new_password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </span>
-                      }
-                    />
-                    {errors?.new_password && (
-                      <div className="text-red-500 text-xs">{errors?.new_password?.[0]}</div>
-                    )}
                   </div>
-                  <div className="mb-4">
+                  <Input
+                    name="new_password"
+                    onChange={handleChange}
+                    type={showPassword?.new_password ? 'text' : 'password'}
+                    status={errors?.new_password ? 'error' : ''}
+                    className="w-full"
+                    suffix={
+                      <span
+                        onClick={() => handleClickShowPassword('new_password')}
+                        className="cursor-pointer"
+                      >
+                        {showPassword?.new_password ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                      </span>
+                    }
+                  />
+                  {errors?.new_password && (
+                    <div className="text-red-500 text-xs">{errors?.new_password?.[0]}</div>
+                  )}
+                </div>
+                <div className="w-full">
+                  <div className="mb-1">
                     <label>Confirm Password</label>
-                    <Input
-                      name="password_confirmation"
-                      onChange={handleChange}
-                      type={showPassword?.cpassword ? 'text' : 'password'}
-                      status={errors?.password_confirmation ? 'error' : ''}
-                      className="w-full"
-                      suffix={
-                        <span
-                          onClick={() => handleClickShowPassword('cpassword')}
-                          className="cursor-pointer"
-                        >
-                          {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </span>
-                      }
-                    />
-                    {errors?.password_confirmation && (
-                      <div className="text-red-500 text-xs">
-                        {errors?.password_confirmation?.[0]}
-                      </div>
-                    )}
                   </div>
-                </>
-              )}
-            </Col>
+                  <Input
+                    name="password_confirmation"
+                    onChange={handleChange}
+                    type={showPassword?.cpassword ? 'text' : 'password'}
+                    status={errors?.password_confirmation ? 'error' : ''}
+                    className="w-full"
+                    suffix={
+                      <span
+                        onClick={() => handleClickShowPassword('cpassword')}
+                        className="cursor-pointer"
+                      >
+                        {showPassword?.cpassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                      </span>
+                    }
+                  />
+                  {errors?.password_confirmation && (
+                    <div className="text-red-500 text-xs">
+                      {errors?.password_confirmation?.[0]}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Update
-              </Button>
-            </Col>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Update
+            </Button>
           </Row>
         </form>
       </div>

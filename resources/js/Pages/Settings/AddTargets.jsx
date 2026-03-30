@@ -1,7 +1,6 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Select, Input } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Select, Input, Row } from 'antd'
 import { usePage } from '@inertiajs/inertia-react'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -62,7 +61,10 @@ const AddTargets = () => {
         </Typography.Title>
         <form onSubmit={handleSubmit} className="add-target">
           <Row gutter={[16, 16]}>
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Customer</label>
+              </div>
               <Select
                 placeholder="Select Customer"
                 onChange={(value) => handleChange({ target: { name: 'Customer', value } })}
@@ -74,9 +76,12 @@ const AddTargets = () => {
                   </Select.Option>
                 ))}
               </Select>
-            </Col>
+            </div>
 
-            <Col span={24}>
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select Targets</label>
+              </div>
               <MultiSelect
                 name="Ringba_Targets_Name"
                 onChange={(val) => targetHandleChange(val, 'Ringba_Targets_Name')}
@@ -84,25 +89,23 @@ const AddTargets = () => {
                 placeholder="Select Targets"
                 className="!w-full"
               />
-            </Col>
+            </div>
 
-            <Col span={24}>
-              <div>
+            <div className="w-full">
+              <div className="mb-1">
                 <label>Description</label>
-                <Input.TextArea
-                  name="Description"
-                  onChange={handleChange}
-                  required
-                  rows={4}
-                  className="w-full"
-                />
               </div>
-            </Col>
-            <Col span={24}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
-            </Col>
+              <Input.TextArea
+                name="Description"
+                onChange={handleChange}
+                required
+                rows={4}
+                className="w-full"
+              />
+            </div>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

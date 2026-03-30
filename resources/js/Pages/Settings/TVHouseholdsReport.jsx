@@ -10,6 +10,7 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import NormalModal from '@/Shared/NormalModal'
+import EditModalFooter from '@/Shared/EditModalFooter'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
@@ -432,8 +433,14 @@ const CustomerReport = () => {
         width={'600px'}
         title={'Edit TV Households'}
         onClose={() => handleCloseModal(setShowEditModal)}
+        footer={
+          <EditModalFooter
+            onCancel={() => handleCloseModal(setShowEditModal)}
+            onSubmit={handleEditSubmit}
+          />
+        }
       >
-        <div className="edit_target">
+        <div className="mt-4">
           <form>
             <div className="mb-4">
               <span>Market:</span>
@@ -462,9 +469,6 @@ const CustomerReport = () => {
                 className="w-full"
               />
             </div>
-            <Button type="primary" onClick={handleEditSubmit} className="mt-[15px]">
-              Edit
-            </Button>
           </form>
         </div>
       </NormalModal>
