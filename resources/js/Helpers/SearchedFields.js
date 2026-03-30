@@ -1,3 +1,5 @@
+import { textFilterOperators } from '@/Helpers/textFilterOperators'
+
 export const SearchedFields = (fields) => {
   const filteredData = fields.filter(
     (field) =>
@@ -13,32 +15,14 @@ export const SearchedFields = (fields) => {
           caption: item.title,
           name: item.key,
           dataType: item.dataType,
-          operators: [
-            { caption: 'is', name: 'is' },
-            { caption: "isn't", name: 'isnot' },
-            { caption: 'contains', name: 'contains' },
-            { caption: "doesn't contain", name: 'doesNotContain' },
-            { caption: 'starts with', name: 'startswith' },
-            { caption: 'ends with', name: 'endsWith' },
-            { caption: 'is empty', name: 'isEmpty' },
-            { caption: 'is not empty', name: 'isNotEmpty' },
-          ],
+          operators: textFilterOperators,
         }
       } else if (item.dataType === 'boolean') {
         return {
           caption: item.title,
           name: item.key,
           dataType: item.dataType,
-          operators: [
-            { caption: 'is', name: 'is' },
-            { caption: "isn't", name: 'isnot' },
-            { caption: 'contains', name: 'contains' },
-            { caption: "doesn't contain", name: 'doesNotContain' },
-            { caption: 'starts with', name: 'startswith' },
-            { caption: 'ends with', name: 'endsWith' },
-            { caption: 'is empty', name: 'isEmpty' },
-            { caption: 'is not empty', name: 'isNotEmpty' },
-          ],
+          operators: textFilterOperators,
         }
       } else if (item.dataType === 'number') {
         return {

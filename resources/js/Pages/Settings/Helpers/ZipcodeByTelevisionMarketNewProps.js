@@ -1,3 +1,4 @@
+import { textFilterOperators } from '@/Helpers/textFilterOperators'
 export const styles = {
   button: {
     width: 'auto',
@@ -6,41 +7,7 @@ export const styles = {
   },
 }
 
-const operators = [
-  {
-    caption: 'Contains',
-    name: 'contains',
-  },
-  {
-    caption: 'Not Contains',
-    name: 'doesNotContain',
-  },
-  {
-    caption: 'Is Empty',
-    name: 'isEmpty',
-  },
-  {
-    caption: 'Is Not Empty',
-    name: 'isNotEmpty',
-  },
-  {
-    caption: 'Starts With',
-    name: 'startswith',
-  },
-  {
-    caption: 'Ends With',
-    name: 'endsWith',
-  },
-  {
-    caption: 'Is',
-    name: 'is',
-  },
-  {
-    caption: 'Is Not',
-    name: 'isnot',
-  },
-]
-
+const operators = textFilterOperators
 export const fields = [
   {
     caption: 'Market',

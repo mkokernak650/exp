@@ -17,35 +17,18 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import { textFilterOperators } from '@/Helpers/textFilterOperators'
 
 export const fields = [
   {
     caption: 'annotation',
     name: 'annotation',
-    operators: [
-      { caption: 'Contains', name: 'contains' },
-      { caption: 'Not Contains', name: 'doesNotContain' },
-      { caption: 'Is Empty', name: 'isEmpty' },
-      { caption: 'Is Not Empty', name: 'isNotEmpty' },
-      { caption: 'Starts With', name: 'startswith' },
-      { caption: 'Ends With', name: 'endsWith' },
-      { caption: 'Is', name: 'is' },
-      { caption: 'Is Not', name: 'isnot' },
-    ],
+    operators: textFilterOperators,
   },
   {
     caption: 'status',
     name: 'status',
-    operators: [
-      { caption: 'Contains', name: 'contains' },
-      { caption: 'Not Contains', name: 'doesNotContain' },
-      { caption: 'Is Empty', name: 'isEmpty' },
-      { caption: 'Is Not Empty', name: 'isNotEmpty' },
-      { caption: 'Starts With', name: 'startswith' },
-      { caption: 'Ends With', name: 'endsWith' },
-      { caption: 'Is', name: 'is' },
-      { caption: 'Is Not', name: 'isnot' },
-    ],
+    operators: textFilterOperators,
   },
 ]
 

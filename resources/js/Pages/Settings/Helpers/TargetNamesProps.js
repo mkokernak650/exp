@@ -1,3 +1,4 @@
+import { textFilterOperators } from '@/Helpers/textFilterOperators'
 export const styles = {
   topBtn: {
     display: 'flex',
@@ -18,40 +19,7 @@ export const fields = [
   {
     caption: 'Target Name',
     name: 'target_name',
-    operators: [
-      {
-        caption: 'Contains',
-        name: 'contains',
-      },
-      {
-        caption: 'Not Contains',
-        name: 'doesNotContain',
-      },
-      {
-        caption: 'Is Empty',
-        name: 'isEmpty',
-      },
-      {
-        caption: 'Is Not Empty',
-        name: 'isNotEmpty',
-      },
-      {
-        caption: 'Starts With',
-        name: 'startswith',
-      },
-      {
-        caption: 'Ends With',
-        name: 'endsWith',
-      },
-      {
-        caption: 'Is',
-        name: 'is',
-      },
-      {
-        caption: 'Is Not',
-        name: 'isnot',
-      },
-    ],
+    operators: textFilterOperators,
   },
 ]
 
