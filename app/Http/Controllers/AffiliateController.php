@@ -157,6 +157,16 @@ class AffiliateController extends Controller
 
         $itemPerPage = request('itemPerPage', 10);
 
+        $affiliateFieldMap = [
+            'affiliate_id'   => 'affiliate_id',
+            'affiliate_name' => 'affiliate_name',
+            'ownership'      => 'ownership_type',
+            'email'          => 'email',
+            'telephone'      => 'telephone',
+            'address'        => 'address',
+        ];
+        $affiliateAllowed = array_values($affiliateFieldMap);
+
         $allAffiliates = Affiliate::where('status', '=', '1')
             ->select()
             ->addSelect(DB::raw('(SELECT tv_households FROM t_v_households WHERE t_v_households.market = affiliates.market LIMIT 1) AS tv_households'))
@@ -164,6 +174,9 @@ class AffiliateController extends Controller
                 !empty($orderBy),
                 fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
             )
+            ->tap(function ($query) use ($affiliateFieldMap, $affiliateAllowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $affiliateFieldMap, $affiliateAllowed);
+            })
             ->paginate($itemPerPage);
 
         $allAffiliates->getCollection()->transform(function ($item) {
@@ -207,7 +220,20 @@ class AffiliateController extends Controller
         $allMarkets = array_merge($customMarkets, $markets->toarray());
 
         $itemPerPage   = request('itemPerPage', 10);
-        $allAffiliates = Affiliate::where('status', '=', '0')->paginate($itemPerPage);
+        $archivedFieldMap = [
+            'affiliate_id'   => 'affiliate_id',
+            'affiliate_name' => 'affiliate_name',
+            'email'          => 'email',
+            'telephone'      => 'telephone',
+            'address'        => 'address',
+        ];
+        $archivedAllowed = array_values($archivedFieldMap);
+
+        $allAffiliates = Affiliate::where('status', '=', '0')
+            ->tap(function ($query) use ($archivedFieldMap, $archivedAllowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $archivedFieldMap, $archivedAllowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allAffiliates;

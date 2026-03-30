@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -25,7 +25,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/MarketExceptionReportProps'
 
 function mapMarketExceptionRows(items, page, perPage) {
@@ -145,6 +145,10 @@ const MarketExceptionReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
 
   const [searchSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -210,8 +214,9 @@ const MarketExceptionReport = () => {
 
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
-    await axios
-      .get(`/market-exception-report?page=${page}&itemPerPage=${itemPerPage}`)
+    await axios.get('/market-exception-report', {
+      params: { page, itemPerPage, filteredValue: activeFilterJSON },
+    })
       .then((res) => {
         setData(mapMarketExceptionRows(res.data.data || [], page, itemPerPage))
         setTotalRecords(res.data.total ?? 0)
@@ -262,7 +267,7 @@ const MarketExceptionReport = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, activeFilterJSON])
 
   const handleExportTypeChange = (e) => {
     setType(e.target.value)

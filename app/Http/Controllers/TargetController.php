@@ -31,7 +31,18 @@ class TargetController extends Controller
     public function TargetsReport()
     {
         $itemPerPage = request('itemPerPage', 10);
-        $allTargets  = Target::paginate($itemPerPage);
+        $fieldMap = [
+            'customer'           => 'Customer',
+            'Ringba_Target_Name' => 'Ringba_Targets_Name',
+            'Description'        => 'Description',
+        ];
+        $allowed = array_values($fieldMap);
+
+        $allTargets = Target::query()
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allTargets;
@@ -47,8 +58,15 @@ class TargetController extends Controller
 
     public function TargetNamesReport()
     {
-        $itemPerPage    = request('itemPerPage', 10);
-        $allTargetNames = TargetNames::paginate($itemPerPage);
+        $itemPerPage = request('itemPerPage', 10);
+        $fieldMap = ['target_name' => 'target_name'];
+        $allowed  = ['target_name'];
+
+        $allTargetNames = TargetNames::query()
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allTargetNames;

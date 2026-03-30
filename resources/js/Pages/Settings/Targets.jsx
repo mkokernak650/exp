@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -12,7 +12,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/TargetsProps'
 import EditModalFooter from '@/Shared/EditModalFooter'
 
@@ -94,6 +94,10 @@ const Targets = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -197,7 +201,11 @@ const Targets = () => {
 
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
-    await axios.get(`/target-report?page=${page}&itemPerPage=${itemPerPage}`).then((res) => {
+    await axios
+      .get('/target-report', {
+        params: { page, itemPerPage, filteredValue: activeFilterJSON },
+      })
+      .then((res) => {
       setData(mapTargetRows(res.data.data, page))
       setTotalRecords(res.data.total)
     })
@@ -210,7 +218,7 @@ const Targets = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, activeFilterJSON])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {

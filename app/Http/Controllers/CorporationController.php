@@ -43,8 +43,15 @@ class CorporationController extends Controller
 
     public function broadcastGroupNamesReport()
     {
-        $itemPerPage            = request('itemPerPage', 10);
-        $allBroadcastGroupNames = BroadcastGroupName::paginate($itemPerPage);
+        $itemPerPage = request('itemPerPage', 10);
+        $fieldMap = ['broadcast_group_name' => 'broadcast_group_name'];
+        $allowed  = ['broadcast_group_name'];
+
+        $allBroadcastGroupNames = BroadcastGroupName::query()
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allBroadcastGroupNames;
@@ -139,7 +146,14 @@ class CorporationController extends Controller
     public function msoNamesReport()
     {
         $itemPerPage = request('itemPerPage', 10);
-        $allMsoNames = MsoName::paginate($itemPerPage);
+        $fieldMap = ['mso_name' => 'mso_name'];
+        $allowed  = ['mso_name'];
+
+        $allMsoNames = MsoName::query()
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allMsoNames;
@@ -233,8 +247,15 @@ class CorporationController extends Controller
 
     public function networkNamesReport()
     {
-        $itemPerPage     = request('itemPerPage', 10);
-        $allNetworkNames = NetworkName::paginate($itemPerPage);
+        $itemPerPage = request('itemPerPage', 10);
+        $fieldMap = ['network_name' => 'network_name'];
+        $allowed  = ['network_name'];
+
+        $allNetworkNames = NetworkName::query()
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allNetworkNames;

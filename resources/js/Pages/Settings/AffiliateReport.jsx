@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -15,7 +15,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
 
 import TextInput from '@/Components/Global/TextInput'
@@ -96,6 +96,10 @@ const AffiliateReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
   const handleFilter = () => {
@@ -227,9 +231,14 @@ const AffiliateReport = () => {
     setLoading(true)
     setCurrentPage(page)
     await axios
-      .get(
-        `/affiliate-report?page=${page}&itemPerPage=${itemPerPage}&orderBy=${orderByValue}`
-      )
+      .get('/affiliate-report', {
+        params: {
+          page,
+          itemPerPage,
+          orderBy: orderByValue,
+          filteredValue: activeFilterJSON,
+        },
+      })
       .then((res) => {
         setData(mapDataArr(res.data.data))
         setTotalRecords(res.data.total)
@@ -283,7 +292,7 @@ const AffiliateReport = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [orderByValue, itemPerPage])
+  }, [orderByValue, itemPerPage, activeFilterJSON])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }

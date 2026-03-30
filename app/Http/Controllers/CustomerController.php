@@ -24,8 +24,19 @@ class CustomerController extends Controller
 
     public function customerReport()
     {
-        $itemPerPage  = request('itemPerPage', 10);
-        $allCustomers = Customer::where('status', '=', '1')->paginate($itemPerPage);
+        $itemPerPage = request('itemPerPage', 10);
+        $fieldMap = [
+            'customer'  => 'customer_name',
+            'email'     => 'email',
+            'telephone' => 'telephone',
+        ];
+        $allowed = array_values($fieldMap);
+
+        $allCustomers = Customer::where('status', '=', '1')
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allCustomers;
@@ -40,8 +51,19 @@ class CustomerController extends Controller
 
     public function archivedCustomers()
     {
-        $itemPerPage  = request('itemPerPage', 10);
-        $allCustomers = Customer::where('status', '=', '0')->paginate($itemPerPage);
+        $itemPerPage = request('itemPerPage', 10);
+        $fieldMap = [
+            'customer'  => 'customer_name',
+            'email'     => 'email',
+            'telephone' => 'telephone',
+        ];
+        $allowed = array_values($fieldMap);
+
+        $allCustomers = Customer::where('status', '=', '0')
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allCustomers;

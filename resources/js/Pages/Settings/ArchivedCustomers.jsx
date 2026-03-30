@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -14,7 +14,7 @@ import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/ArchivedCustomersProps'
 import TextInput from '../../Components/Global/TextInput'
@@ -78,6 +78,10 @@ const ArchivedCustomers = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
   const handleFilter = () => {
@@ -174,12 +178,14 @@ const ArchivedCustomers = () => {
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
     await axios
-      .get(`/archived-customers?page=${page}&itemPerPage=${itemPerPage}`)
+      .get('/archived-customers', {
+        params: { page, itemPerPage, filteredValue: activeFilterJSON },
+      })
       .then((res) => {
         setData(
-          (res.data.data || []).map((item) => ({
+          (res.data.data || []).map((item, index) => ({
             edit: item.id,
-            sl: 0,
+            sl: (page - 1) * itemPerPage + index + 1,
             customer: item.customer_name,
             email: item.email,
             telephone: item.telephone,
@@ -230,7 +236,7 @@ const ArchivedCustomers = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, activeFilterJSON])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }

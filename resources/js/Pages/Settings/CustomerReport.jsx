@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -14,7 +14,7 @@ import EditModalFooter from '@/Shared/EditModalFooter'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/CustomerReportProps'
 import TextInput from '../../Components/Global/TextInput'
@@ -77,6 +77,10 @@ const CustomerReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
   const handleFilter = () => {
@@ -194,8 +198,9 @@ const CustomerReport = () => {
 
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
-    await axios
-      .get(`/customer-list-all-types?page=${page}&itemPerPage=${itemPerPage}`)
+    await axios.get('/customer-list-all-types', {
+      params: { page, itemPerPage, filteredValue: activeFilterJSON },
+    })
       .then((res) => {
         setData(
           (res.data.data || []).map((item) => ({
@@ -250,7 +255,7 @@ const CustomerReport = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, activeFilterJSON])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }

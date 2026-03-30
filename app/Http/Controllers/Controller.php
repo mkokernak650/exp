@@ -255,6 +255,44 @@ class Controller extends BaseController
         return $dataQuery;
     }
 
+    /**
+     * Apply CustomFilter payload (filteredValue query param) to an Eloquent builder using makeConditionQuery.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array<string, string>  $fieldMap  UI filter field name => database column name
+     * @param  list<string>  $allowedFields  Column names allowed after mapping (whitelist)
+     */
+    protected function applyEloquentTableFilters($query, ?string $rawFilterValue, array $fieldMap, array $allowedFields): bool
+    {
+        $filterPayload = $this->decodeFilterPayload($rawFilterValue);
+        if (empty($filterPayload['items'])) {
+            return false;
+        }
+
+        $sanitizedItems = [];
+        foreach ($filterPayload['items'] as $condition) {
+            $sanitized = $this->sanitizeFilterCondition($condition, $allowedFields, $fieldMap);
+            if ($sanitized !== null) {
+                $sanitizedItems[] = $sanitized;
+            }
+        }
+
+        if ($sanitizedItems === []) {
+            return false;
+        }
+
+        $groupName = $filterPayload['groupName'] ?? 'and';
+        $first = $sanitizedItems[0];
+        $this->makeConditionQuery($query, 'where', $first['field'], $first['operator'], $first['value']);
+
+        for ($i = 1, $n = count($sanitizedItems); $i < $n; $i++) {
+            $cond = $sanitizedItems[$i];
+            $this->makeConditionQuery($query, $groupName, $cond['field'], $cond['operator'], $cond['value']);
+        }
+
+        return true;
+    }
+
     public function makeConditionQuery($dataQuery, $condType, $field, $operator, $val)
     {
         if ($operator === 'isEmpty') {

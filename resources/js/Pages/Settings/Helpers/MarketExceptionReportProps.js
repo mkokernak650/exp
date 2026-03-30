@@ -16,7 +16,7 @@ export const styles = {
 
 export const fields = [
   {
-    caption: ' campaign',
+    caption: 'campaign',
     name: 'campaign',
     operators: [
       {

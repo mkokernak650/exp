@@ -67,8 +67,19 @@ class CampaignController extends Controller
 
     public function campaignSettingReport()
     {
-        $itemPerPage  = request('itemPerPage', 10);
-        $allCampaigns = Campaign::paginate($itemPerPage);
+        $itemPerPage = request('itemPerPage', 10);
+        $fieldMap = [
+            'campaign' => 'campaign_name',
+            'duration' => 'connection_duration',
+            'status'   => 'status',
+        ];
+        $allowed = array_values($fieldMap);
+
+        $allCampaigns = Campaign::query()
+            ->tap(function ($query) use ($fieldMap, $allowed) {
+                $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
+            })
+            ->paginate($itemPerPage);
 
         if (request('page')) {
             return $allCampaigns;

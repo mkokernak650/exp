@@ -59,7 +59,65 @@ class MarketExceptionController extends Controller
     public function marketExceptionReport()
     {
         $itemPerPage = request('itemPerPage', 10);
-        $marketExceptions = MarketExcptions::with('campaign:id,campaign_name')->paginate($itemPerPage);
+
+        $fieldMap = [
+            'campaign'   => 'cme_filter.campaign_name',
+            'market_id'  => 'zme_filter.market',
+            'state'      => 'market_excptions.state',
+            'call_type'  => 'market_excptions.call_type',
+            'start_date' => 'market_excptions.start_date',
+        ];
+        $allowedFields = array_values($fieldMap);
+
+        $filterPayload = $this->decodeFilterPayload(request('filteredValue'));
+        $sanitizedItems = [];
+        foreach ($filterPayload['items'] as $condition) {
+            $sanitized = $this->sanitizeFilterCondition($condition, $allowedFields, $fieldMap);
+            if ($sanitized !== null) {
+                $sanitizedItems[] = $sanitized;
+            }
+        }
+
+        $query = MarketExcptions::query()
+            ->select('market_excptions.*')
+            ->with('campaign:id,campaign_name');
+
+        if ($sanitizedItems !== []) {
+            $needsCampaignJoin = false;
+            $needsMarketJoin = false;
+            foreach ($sanitizedItems as $s) {
+                if ($s['field'] === 'cme_filter.campaign_name') {
+                    $needsCampaignJoin = true;
+                }
+                if ($s['field'] === 'zme_filter.market') {
+                    $needsMarketJoin = true;
+                }
+            }
+            if ($needsCampaignJoin) {
+                $query->leftJoin('campaigns as cme_filter', 'market_excptions.campaign_id', '=', 'cme_filter.id');
+            }
+            if ($needsMarketJoin) {
+                $query->leftJoin(
+                    'zipcode_by_television_markets as zme_filter',
+                    'market_excptions.market_id',
+                    '=',
+                    'zme_filter.id'
+                );
+            }
+            if ($needsCampaignJoin || $needsMarketJoin) {
+                $query->groupBy('market_excptions.id');
+            }
+
+            $groupName = $filterPayload['groupName'] ?? 'and';
+            $first = $sanitizedItems[0];
+            $this->makeConditionQuery($query, 'where', $first['field'], $first['operator'], $first['value']);
+            for ($i = 1, $n = count($sanitizedItems); $i < $n; $i++) {
+                $cond = $sanitizedItems[$i];
+                $this->makeConditionQuery($query, $groupName, $cond['field'], $cond['operator'], $cond['value']);
+            }
+        }
+
+        $marketExceptions = $query->paginate($itemPerPage);
 
         $marketIds = $marketExceptions->getCollection()->pluck('market_id')->unique()->filter();
         $marketLookup = DB::table('zipcode_by_television_markets')

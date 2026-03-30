@@ -1,5 +1,5 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -15,7 +15,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/TargetNamesProps'
 
 const Targets = () => {
@@ -91,6 +91,10 @@ const Targets = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -189,7 +193,11 @@ const Targets = () => {
 
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
-    await axios.get(`/target-names-report?page=${page}&itemPerPage=${itemPerPage}`).then((res) => {
+    await axios
+      .get('/target-names-report', {
+        params: { page, itemPerPage, filteredValue: activeFilterJSON },
+      })
+      .then((res) => {
       setData(
         (res.data.data || []).map((item, index) => ({
           edit: item.id,
@@ -248,7 +256,7 @@ const Targets = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, activeFilterJSON])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }

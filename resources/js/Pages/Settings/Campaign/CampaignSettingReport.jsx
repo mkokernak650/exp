@@ -1,5 +1,5 @@
 import Layout from '../../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { InertiaLink, usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
@@ -16,7 +16,7 @@ import toast from 'react-hot-toast'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
-import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { columns as defaultColumns, fields, filter } from './Helpers/CampaignSettingReportProps'
 
 const CampaignSettingReport = () => {
@@ -103,6 +103,10 @@ const CampaignSettingReport = () => {
   }
 
   const [filterValue, changeFilter] = useState(filter)
+  const activeFilterJSON = useMemo(
+    () => JSON.stringify(sanitizeFilterValue(filterValue)),
+    [filterValue]
+  )
 
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -121,8 +125,10 @@ const CampaignSettingReport = () => {
 
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
-    await axios
-      .get(`/campaign-setting-report?page=${page}&itemPerPage=${itemPerPage}`, headers)
+    await axios.get('/campaign-setting-report', {
+      headers: { Accept: 'application/json' },
+      params: { page, itemPerPage, filteredValue: activeFilterJSON },
+    })
       .then((res) => {
         setData(buildCampaignTableRows(res.data.data || [], page))
         setTotalRecords(res.data.total ?? 0)
@@ -225,7 +231,7 @@ const CampaignSettingReport = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, activeFilterJSON])
 
   const TableToolbar = () => {
     return (
