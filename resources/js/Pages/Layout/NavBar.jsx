@@ -386,9 +386,9 @@ export default function PersistentDrawerLeft(props) {
   ]
 
   const withLinePrefix = (label) => (
-    <span className="flex items-center gap-2">
-      <MinusIcon size={14} strokeWidth={2} />
-      <span>{label}</span>
+    <span className="flex min-w-0 w-full items-center gap-2">
+      <MinusIcon className="shrink-0" size={14} strokeWidth={2} />
+      <span className="min-w-0 flex-1 break-words">{label}</span>
     </span>
   )
 
@@ -525,7 +525,7 @@ export default function PersistentDrawerLeft(props) {
           openKeys={openKeys}
           onOpenChange={handleOpenChange}
           items={styledMenuItems}
-          className="border-r-0"
+          className="sidebar-nav-menu border-r-0"
         />
       </Sider>
 

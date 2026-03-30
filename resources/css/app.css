@@ -51,6 +51,40 @@ div::-webkit-scrollbar-thumb {
   border-radius: 10px;
 }
 
+/* Sidebar nav: allow long labels to wrap (Ant Design Menu defaults to nowrap + ellipsis) */
+.sidebar-nav-menu.ant-menu.ant-menu-root.ant-menu-inline .ant-menu-item,
+.sidebar-nav-menu.ant-menu.ant-menu-root.ant-menu-inline .ant-menu-submenu-title {
+  height: auto !important;
+  min-height: 40px;
+  line-height: 1.375 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  padding-block: 9px !important;
+}
+
+.sidebar-nav-menu .ant-menu-title-content {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  white-space: normal !important;
+  word-break: break-word;
+}
+
+.sidebar-nav-menu.ant-menu-inline .ant-menu-sub.ant-menu-inline > .ant-menu-item,
+.sidebar-nav-menu.ant-menu-inline
+  .ant-menu-sub.ant-menu-inline
+  > .ant-menu-submenu
+  > .ant-menu-submenu-title {
+  height: auto !important;
+  min-height: 40px;
+  line-height: 1.375 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
 .layout main {
   overflow: auto;
 }
