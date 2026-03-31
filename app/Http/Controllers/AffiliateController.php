@@ -113,6 +113,8 @@ class AffiliateController extends Controller
             'telephone'         => 'nullable',
             'address'           => 'nullable',
             'market'            => 'required',
+            'zip_code'          => 'nullable',
+            'website'           => 'nullable|url',
             'ownership_type'    => 'nullable',
             'ownership_name'    => 'nullable',
             'contact_name'      => 'nullable',
@@ -161,6 +163,8 @@ class AffiliateController extends Controller
             'affiliate_id'   => 'affiliate_id',
             'affiliate_name' => 'affiliate_name',
             'ownership'      => 'ownership_type',
+            'zip_code'       => 'zip_code',
+            'website'        => 'website',
             'email'          => 'email',
             'telephone'      => 'telephone',
             'address'        => 'address',
@@ -195,7 +199,6 @@ class AffiliateController extends Controller
         $allBroadcastGroupNames = BroadcastGroupName::select('broadcast_group_name')->active()->distinct()->get();
         $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
         $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
-
         return Inertia::render('Settings/AffiliateReport', [
             'allAffiliates'          => $allAffiliates,
             'columnsData'            => $columnsData,
@@ -224,6 +227,8 @@ class AffiliateController extends Controller
             'affiliate_id'   => 'affiliate_id',
             'affiliate_name' => 'affiliate_name',
             'ownership'      => 'ownership_type',
+            'zip_code'       => 'zip_code',
+            'website'        => 'website',
             'email'          => 'email',
             'telephone'      => 'telephone',
             'address'        => 'address',
@@ -244,7 +249,6 @@ class AffiliateController extends Controller
         $allBroadcastGroupNames = BroadcastGroupName::select('broadcast_group_name')->active()->distinct()->get();
         $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
         $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
-
         return Inertia::render('Settings/ArchivedAffiliates', [
             'allAffiliates'          => $allAffiliates,
             'columnsData'            => $columnsData,
@@ -257,6 +261,11 @@ class AffiliateController extends Controller
 
     public function edit(Request $request)
     {
+        $request->validate([
+            'zip_code' => 'nullable|string|max:20',
+            'website'  => 'nullable|url',
+        ]);
+
         $id                      = $request->id;
         $userFullName            = auth()->user()->firstname . ' ' . auth()->user()->lastname;
         $userEmail               = auth()->user()->email;
@@ -267,6 +276,13 @@ class AffiliateController extends Controller
         $data->telephone         = $request->telephone;
         $data->address           = $request->address;
         $data->market            = $request->market;
+        $payload                 = $request->all();
+        if (array_key_exists('zip_code', $payload)) {
+            $data->zip_code = $payload['zip_code'];
+        }
+        if (array_key_exists('website', $payload)) {
+            $data->website = $payload['website'];
+        }
         $data->ownership_type    = $request->ownership_type;
         $data->ownership_name    = $request->ownership_name;
         $data->contact_name      = $request->contact_name;
@@ -361,5 +377,29 @@ class AffiliateController extends Controller
         } else {
             return response()->json(['msg' => 'Deleting Failed', 'status_code' => 500]);
         }
+    }
+
+    public function searchAffiliateZipCodes(Request $request)
+    {
+        $search = trim((string) $request->query('search', ''));
+        if (strlen($search) > 15) {
+            $search = substr($search, 0, 15);
+        }
+
+        $query = ZipcodeByTelevisionMarket::query()
+            ->select('zip_code')
+            ->whereNotNull('zip_code')
+            ->where('zip_code', '!=', '');
+
+        if ($search !== '') {
+            $query->where('zip_code', 'like', $search . '%');
+        }
+
+        $codes = $query->distinct()
+            ->orderBy('zip_code')
+            ->limit(400)
+            ->pluck('zip_code');
+
+        return response()->json(['data' => $codes]);
     }
 }

@@ -129,6 +129,7 @@ Route::middleware('auth')->group(function () {
     Route::get('customer-export/{type}', [CustomerController::class, 'export'])->name('customer.export');
 
     Route::get('/add-affiliate', [AffiliateController::class, 'addAffiliateForm'])->name('add.affiliate');
+    Route::get('/affiliate-zip-codes/search', [AffiliateController::class, 'searchAffiliateZipCodes'])->name('affiliate.zip_codes.search');
     Route::post('/store-affiliate', [AffiliateController::class, 'storeAffiliate'])->name('store.affiliate');
     Route::get('/affiliate-report', [AffiliateController::class, 'affiliateReport'])->name('affiliate.report');
     Route::post('/affiliate-delete', [AffiliateController::class, 'delete'])->name('affiliate.delete');

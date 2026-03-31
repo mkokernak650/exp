@@ -19,11 +19,19 @@ import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterC
 import { fields, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
 
 import TextInput from '@/Components/Global/TextInput'
+import AffiliateZipCodeSelect from '@/Components/AffiliateZipCodeSelect'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const AffiliateReport = () => {
-  const { allAffiliates, columnsData, allMarkets, allBroadcastGroupNames, allMsoNames, allNetworkNames } = usePage().props
+  const {
+    allAffiliates,
+    columnsData,
+    allMarkets,
+    allBroadcastGroupNames,
+    allMsoNames,
+    allNetworkNames,
+  } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -54,6 +62,8 @@ const AffiliateReport = () => {
       ownership_type: item.ownership_type,
       ownership_name: item.ownership_name,
       ownership: item.ownership_type || '',
+      zip_code: item.zip_code,
+      website: item.website,
       tv_households: parseTvHouseholds(item.tv_households),
       market: item.market,
       email: item.email,
@@ -195,6 +205,8 @@ const AffiliateReport = () => {
                   ownership_type: editData.ownership_type,
                   ownership_name: editData.ownership_name,
                   ownership: editData.ownership_type || '',
+                  zip_code: editData.zip_code,
+                  website: editData.website,
                   email: editData.email,
                   telephone: editData.telephone,
                   address: editData.address,
@@ -214,7 +226,11 @@ const AffiliateReport = () => {
         }
       })
       .catch((err) => {
-        console.log(err)
+        const validationErrors = err.response?.data?.errors
+        if (validationErrors) {
+          const first = Object.values(validationErrors)[0]?.[0]
+          if (first) toast.error(first)
+        }
       })
   }
 
@@ -359,6 +375,17 @@ const AffiliateReport = () => {
             value === null || value === undefined || value === ''
               ? ''
               : Number(value).toLocaleString()
+        }
+
+        if (col.key === 'website') {
+          base.render = (value) =>
+            value ? (
+              <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 break-all">
+                {value}
+              </a>
+            ) : (
+              ''
+            )
         }
 
         return base
@@ -580,6 +607,28 @@ const AffiliateReport = () => {
                   </Select>
                 </div>
               )}
+              <div className="w-full">
+                <label
+                  className="block mb-1 text-sm text-gray-600"
+                  htmlFor="edit-affiliate-zip-code"
+                >
+                  Select ZipCode
+                </label>
+                <AffiliateZipCodeSelect
+                  id="edit-affiliate-zip-code"
+                  value={editData?.zip_code}
+                  mergeValue={editData?.zip_code}
+                  onChange={(value) => handleEditChange({ target: { name: 'zip_code', value } })}
+                />
+              </div>
+              <TextInput
+                label="Website"
+                name="website"
+                type="url"
+                handleChange={handleEditChange}
+                value={editData ? editData.website ?? '' : ''}
+                placeholder="https://example.com"
+              />
               <TextInput
                 label="Email"
                 name="email"

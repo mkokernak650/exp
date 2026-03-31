@@ -1,11 +1,12 @@
 import { React, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Select, Spin } from 'antd'
-import { Row, Col } from 'antd'
+import { Button, Typography, Select } from 'antd'
+import { Row } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import TextInput from '@/Components/Global/TextInput'
+import AffiliateZipCodeSelect from '@/Components/AffiliateZipCodeSelect'
 import { usePage } from '@inertiajs/inertia-react'
 import Note from '../../Components/Note'
 
@@ -120,7 +121,10 @@ const AddAffiliate = () => {
                   allowClear
                 >
                   {allBroadcastGroupNames.map((item) => (
-                    <Select.Option key={item.broadcast_group_name} value={item.broadcast_group_name}>
+                    <Select.Option
+                      key={item.broadcast_group_name}
+                      value={item.broadcast_group_name}
+                    >
                       {item.broadcast_group_name}
                     </Select.Option>
                   ))}
@@ -173,6 +177,30 @@ const AddAffiliate = () => {
                 </Select>
               </div>
             )}
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Select ZipCode</label>
+              </div>
+              <AffiliateZipCodeSelect
+                id="zip_code"
+                value={values?.zip_code}
+                onChange={(value) => handleChange({ target: { name: 'zip_code', value } })}
+                status={errors?.zip_code ? 'error' : undefined}
+              />
+              {errors?.zip_code && (
+                <div className="text-red-500 text-xs">{errors?.zip_code?.[0]}</div>
+              )}
+            </div>
+            <TextInput
+              label="Website"
+              name="website"
+              type="url"
+              handleChange={handleChange}
+              error={errors?.website}
+              helperText={errors?.website?.[0]}
+              placeholder="https://example.com"
+            />
+
             <TextInput label="Email" name="email" handleChange={handleChange} />
             <TextInput label="Telephone" name="telephone" handleChange={handleChange} />
             <TextInput label="Address" name="address" handleChange={handleChange} />
@@ -206,9 +234,9 @@ const AddAffiliate = () => {
               handleChange={handleChange}
             />
 
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Submit
-              </Button>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Submit
+            </Button>
           </Row>
         </form>
       </div>

@@ -37,6 +37,16 @@ export const fields = [
     operators,
   },
   {
+    caption: 'zip_code',
+    name: 'zip_code',
+    operators,
+  },
+  {
+    caption: 'website',
+    name: 'website',
+    operators,
+  },
+  {
     caption: 'email',
     name: 'email',
     operators,
@@ -99,6 +109,20 @@ export const columns = [
     title: 'Ownership',
     dataType: 'string',
     style: { width: 240 },
+    visible: true,
+  },
+  {
+    key: 'zip_code',
+    title: 'Zip Code',
+    dataType: 'string',
+    style: { width: 120 },
+    visible: true,
+  },
+  {
+    key: 'website',
+    title: 'Website',
+    dataType: 'string',
+    style: { width: 280 },
     visible: true,
   },
   {

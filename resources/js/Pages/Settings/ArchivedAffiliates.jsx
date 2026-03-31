@@ -18,10 +18,17 @@ import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterC
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/ArchivedAffiliatesProps'
 import TextInput from '@/Components/Global/TextInput'
+import AffiliateZipCodeSelect from '@/Components/AffiliateZipCodeSelect'
 
 const ArchivedAffiliates = () => {
-  const { allAffiliates, columnsData, allMarkets, allBroadcastGroupNames, allMsoNames, allNetworkNames } =
-    usePage().props
+  const {
+    allAffiliates,
+    columnsData,
+    allMarkets,
+    allBroadcastGroupNames,
+    allMsoNames,
+    allNetworkNames,
+  } = usePage().props
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -43,6 +50,8 @@ const ArchivedAffiliates = () => {
       ownership_type: item.ownership_type,
       ownership_name: item.ownership_name,
       ownership: item.ownership_type || '',
+      zip_code: item.zip_code,
+      website: item.website,
       market: item.market,
       email: item.email,
       telephone: item.telephone,
@@ -151,6 +160,8 @@ const ArchivedAffiliates = () => {
                   ownership_type: editData.ownership_type,
                   ownership_name: editData.ownership_name,
                   ownership: editData.ownership_type || '',
+                  zip_code: editData.zip_code,
+                  website: editData.website,
                   market: editData.market,
                   email: editData.email,
                   telephone: editData.telephone,
@@ -170,7 +181,11 @@ const ArchivedAffiliates = () => {
         }
       })
       .catch((err) => {
-        console.log(err)
+        const validationErrors = err.response?.data?.errors
+        if (validationErrors) {
+          const first = Object.values(validationErrors)[0]?.[0]
+          if (first) toast.error(first)
+        }
       })
   }
 
@@ -279,6 +294,17 @@ const ArchivedAffiliates = () => {
                 : col.dataType === 'string'
                   ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
                   : undefined,
+        }
+
+        if (col.key === 'website') {
+          base.render = (value) =>
+            value ? (
+              <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 break-all">
+                {value}
+              </a>
+            ) : (
+              ''
+            )
         }
 
         return base
@@ -487,6 +513,27 @@ const ArchivedAffiliates = () => {
                 </Select>
               </div>
             )}
+            <div className="mb-4 w-full">
+              <label className="block mb-1" htmlFor="archived-affiliate-zip-code">
+                Select ZipCode
+              </label>
+              <AffiliateZipCodeSelect
+                id="archived-affiliate-zip-code"
+                value={editData?.zip_code}
+                mergeValue={editData?.zip_code}
+                onChange={(value) => handleEditChange({ target: { name: 'zip_code', value } })}
+              />
+            </div>
+            <div className="mb-4">
+              <TextInput
+                label="Website"
+                name="website"
+                type="url"
+                handleChange={handleEditChange}
+                value={editData ? editData.website ?? '' : ''}
+                placeholder="https://example.com"
+              />
+            </div>
             <div className="mb-4">
               <label>Email</label>
               <Input
