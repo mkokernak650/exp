@@ -60,11 +60,12 @@ const InsertionOrderIndex = () => {
   }))
 
   const optionKey = 'insertion-order-index'
-  const [columnDetails, setColumnDetails] = useState(
-    columnsData.length ? JSON.parse(columnsData[0]) : {}
+  const savedTableDetails =
+    columnsData.length > 0 ? JSON.parse(columnsData[0]) : null
+  const [columnDetails, setColumnDetails] = useState(savedTableDetails || {})
+  const [columns, setColumns] = useState(
+    savedTableDetails?.[optionKey] || defaultColumns
   )
-
-  const [columns, setColumns] = useState(defaultColumns)
   const {
     DraggableResizableHeader,
     withResizableColumns,
