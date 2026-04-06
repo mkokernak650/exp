@@ -16,7 +16,8 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { columns as defaultColumns } from './Helpers/BilledCallLogsProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
@@ -137,7 +138,12 @@ const BilledCallLogs = () => {
   const [columns, setColumns] = useState(initialColumns)
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -536,6 +542,7 @@ const BilledCallLogs = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
               dataSource={data}
@@ -545,12 +552,13 @@ const BilledCallLogs = () => {
               pagination={false}
               components={{
                 header: {
-                  cell: ResizableTitle,
+                  cell: DraggableResizableHeader,
                 },
               }}
               scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            </ReportTableDndShell>
             <div className="table-bottom">
               <Select
                 value={itemPerPage}

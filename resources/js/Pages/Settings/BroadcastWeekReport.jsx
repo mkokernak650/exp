@@ -18,7 +18,8 @@ import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastWe
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 
 const BroadcastWeekReport = () => {
@@ -47,7 +48,12 @@ const BroadcastWeekReport = () => {
       columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null
     )
   )
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -371,9 +377,10 @@ const BroadcastWeekReport = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
-              components={{ header: { cell: ResizableTitle } }}
+              components={{ header: { cell: DraggableResizableHeader } }}
               dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
@@ -382,6 +389,7 @@ const BroadcastWeekReport = () => {
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            </ReportTableDndShell>
             <div className="table-bottom">
               <Select
                 value={itemPerPage}

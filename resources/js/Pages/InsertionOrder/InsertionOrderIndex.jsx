@@ -6,7 +6,8 @@ import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { styles, columns as defaultColumns } from './Helpers/InsertionOrderIndexProps'
 import { Button, Tooltip, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
@@ -64,7 +65,12 @@ const InsertionOrderIndex = () => {
   )
 
   const [columns, setColumns] = useState(defaultColumns)
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -262,6 +268,7 @@ const InsertionOrderIndex = () => {
             )}
           </div>
         )}
+        <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
         <Table
           columns={antdColumns}
           dataSource={data}
@@ -271,13 +278,14 @@ const InsertionOrderIndex = () => {
           pagination={false}
           components={{
             header: {
-              cell: ResizableTitle,
+              cell: DraggableResizableHeader,
             },
           }}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
           locale={{ emptyText: 'No Data Found' }}
         />
+        </ReportTableDndShell>
         <div className="table-bottom">
           <Select
             value={itemPerPage}

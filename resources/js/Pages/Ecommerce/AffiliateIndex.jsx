@@ -13,7 +13,8 @@ import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { columns as defaultColumns, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -271,7 +272,12 @@ const AffiliateIndex = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -588,6 +594,7 @@ const AffiliateIndex = () => {
             )}
           </div>
         )}
+        <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
         <Table
           columns={antdColumns}
           dataSource={data}
@@ -597,12 +604,13 @@ const AffiliateIndex = () => {
           pagination={false}
           components={{
             header: {
-              cell: ResizableTitle,
+              cell: DraggableResizableHeader,
             },
           }}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
         />
+        </ReportTableDndShell>
         <div className="table-bottom">
           <Select
             value={itemPerPage}

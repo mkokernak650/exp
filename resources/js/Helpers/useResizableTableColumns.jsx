@@ -51,7 +51,7 @@ const useResizableTableColumns = ({
     [setColumns]
   )
 
-  const ResizableTitle = ({ children, width, columnKey, ...restProps }) => {
+  const ResizableTitle = ({ children, width, columnKey, sortableNodeRef, ...restProps }) => {
     if (!width || !columnKey) {
       return <th {...restProps}>{children}</th>
     }
@@ -89,6 +89,7 @@ const useResizableTableColumns = ({
 
     return (
       <th
+        ref={sortableNodeRef}
         {...restProps}
         style={mergedHeaderStyle}
         onMouseEnter={() => setHoveredResizeKey(columnKey)}
@@ -99,6 +100,7 @@ const useResizableTableColumns = ({
           role="separator"
           aria-label={`Resize ${columnKey} column`}
           onMouseDown={startResize}
+          onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
           onMouseEnter={() => setHoveredResizeKey(columnKey)}
           onMouseLeave={() => {

@@ -12,7 +12,8 @@ import { Helmet } from 'react-helmet'
 import ConfirmModal from '../Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Settings/Helpers/WebFormReportProps'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
@@ -57,7 +58,12 @@ const WebFormReport = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -264,6 +270,7 @@ const WebFormReport = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
               dataSource={filteredData}
@@ -272,12 +279,13 @@ const WebFormReport = () => {
               pagination={false}
               components={{
                 header: {
-                  cell: ResizableTitle,
+                  cell: DraggableResizableHeader,
                 },
               }}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            </ReportTableDndShell>
           </div>
         </div>
       </div>

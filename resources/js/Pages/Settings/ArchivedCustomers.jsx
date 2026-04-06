@@ -13,7 +13,8 @@ import EditModalFooter from '@/Shared/EditModalFooter'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/ArchivedCustomersProps'
@@ -57,7 +58,12 @@ const ArchivedCustomers = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -342,9 +348,10 @@ const ArchivedCustomers = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
-              components={{ header: { cell: ResizableTitle } }}
+              components={{ header: { cell: DraggableResizableHeader } }}
               dataSource={data}
               rowKey="id"
               rowSelection={rowSelection}
@@ -352,6 +359,7 @@ const ArchivedCustomers = () => {
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            </ReportTableDndShell>
             <div className="table-bottom">
               <Select
                 value={itemPerPage}

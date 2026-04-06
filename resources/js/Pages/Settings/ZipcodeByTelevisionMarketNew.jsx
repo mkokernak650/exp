@@ -18,7 +18,8 @@ import {
   filter,
   columns as defaultColumns,
 } from './Helpers/ZipcodeByTelevisionMarketNewProps'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 
 const ZipcodeByTelevisionMarketNew = () => {
@@ -64,7 +65,12 @@ const ZipcodeByTelevisionMarketNew = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -303,9 +309,10 @@ const ZipcodeByTelevisionMarketNew = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
-              components={{ header: { cell: ResizableTitle } }}
+              components={{ header: { cell: DraggableResizableHeader } }}
               dataSource={data}
               rowKey="id"
               loading={tableLoading}
@@ -314,6 +321,7 @@ const ZipcodeByTelevisionMarketNew = () => {
               size="small"
             />
 
+            </ReportTableDndShell>
             <div className="table-bottom">
               <Select
                 value={itemPerPage}

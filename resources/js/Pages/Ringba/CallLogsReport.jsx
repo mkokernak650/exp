@@ -17,7 +17,8 @@ import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import PulseLoader from 'react-spinners/PulseLoader'
 import toast from 'react-hot-toast'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 import { columns as defaultColumns } from './Helpers/CallLogsReportProps'
 
@@ -120,7 +121,12 @@ const CallLogsReport = () => {
   const [columns, setColumns] = useState(initialColumns)
   const [data, setData] = useState(dataArray)
   const [loading, setLoading] = useState(false)
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -630,6 +636,7 @@ const CallLogsReport = () => {
           </div>
 
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
               dataSource={data}
@@ -639,12 +646,13 @@ const CallLogsReport = () => {
               pagination={false}
               components={{
                 header: {
-                  cell: ResizableTitle,
+                  cell: DraggableResizableHeader,
                 },
               }}
               scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            </ReportTableDndShell>
             <div className="table-bottom">
               <Select
                 value={itemPerPage}

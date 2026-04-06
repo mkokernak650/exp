@@ -15,7 +15,8 @@ import toast from 'react-hot-toast'
 import { DateTimeFormat } from '@/Helpers/DateTimeFormat'
 import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
-import useResizableTableColumns from '@/Helpers/useResizableTableColumns'
+import useReportTableColumns from '@/Helpers/useReportTableColumns'
+import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import CustomFilter from '@/Components/CustomFilter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
@@ -76,7 +77,12 @@ const CampaignIndex = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const { ResizableTitle, withResizableColumns } = useResizableTableColumns({
+  const {
+    DraggableResizableHeader,
+    withResizableColumns,
+    dndContextProps,
+    sortableContextProps,
+  } = useReportTableColumns({
     columns,
     setColumns,
     columnDetails,
@@ -371,6 +377,7 @@ const CampaignIndex = () => {
           </div>
 
           <div className="report-table-panel" ref={tablePanelRef}>
+            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
             <Table
               columns={antdColumns}
               dataSource={filteredData}
@@ -379,12 +386,13 @@ const CampaignIndex = () => {
               pagination={false}
               components={{
                 header: {
-                  cell: ResizableTitle,
+                  cell: DraggableResizableHeader,
                 },
               }}
               scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
               size="small"
             />
+            </ReportTableDndShell>
           </div>
         </div>
       </div>
