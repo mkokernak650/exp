@@ -1,0 +1,26 @@
+---
+description: Inertia React pages — data flow, Ant Design, API calls
+globs: resources/js/**/*.js,resources/js/**/*.jsx
+alwaysApply: false
+---
+
+# Data from server
+
+- Page props come from `usePage().props` (Inertia); do not invent props — align with the Laravel controller.
+
+# Navigation & URLs
+
+- Use Inertia router (`Inertia.get` / `Inertia.post` / `<Link>`) for same-app navigation where the codebase does; use `axios` only where the project already does for JSON endpoints.
+
+# UI
+
+- Prefer Ant Design components for tables, forms, and modals to match existing screens.
+- Keep layout consistent with `Layout` and existing page patterns (e.g. Helmet for title).
+
+# State
+
+- Prefer local `useState` / small hooks following neighboring code; avoid introducing new global state libraries without approval.
+
+# Naming
+
+- Follow existing naming even if imperfect (e.g. legacy typos in state names) unless the task is explicitly to rename.
