@@ -22,6 +22,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
     protected $reqCustomerId;
     protected $dialed;
     protected $totals;
+    protected $orderNos;
     protected $inbounds;
     protected $couponCodes;
     protected $shippingZips;
@@ -42,6 +43,7 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
         $this->reqCustomerId = $reqCustomerId;
         $this->dialed = $salesData->pluck('dialed', 'id')->toArray();
         $this->totals = $salesData->pluck('total', 'id')->toArray();
+        $this->orderNos = $salesData->pluck('order_no', 'id')->toArray();
         $this->inbounds = $salesData->pluck('inbound', 'id')->toArray();
         $this->orderTypes = $salesData->pluck('order_type', 'id')->toArray();
         $this->couponCodes = $salesData->pluck('coupon_code', 'id')->toArray();
@@ -98,6 +100,10 @@ class EcommerceSaleImport implements ToModel, SkipsOnError, WithHeadingRow, With
                         ) || ($this->reqOrderType == EcommerceSale::ORDER_TYPE['e-commerce'] &&
                             trim($this->getValue($row, 'coupon_code')) == $this->couponCodes[$key] &&
                             substr($this->getValue($row, 'shipping_zip'), 0, 5) == $this->shippingZips[$key]
+                        ) || ($this->reqOrderType == EcommerceSale::ORDER_TYPE['phone_ecommerce'] &&
+                            (!empty(trim((string) $this->getValue($row, 'order_no'))) &&
+                                trim((string) $this->getValue($row, 'order_no')) == trim((string) $this->orderNos[$key])) &&
+                            trim($this->getValue($row, 'total')) == $this->totals[$key]
                         )
                     )
                 ) {

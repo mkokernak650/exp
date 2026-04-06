@@ -11,8 +11,9 @@ class EcommerceSale extends Model
     use HasFactory;
 
     const ORDER_TYPE = [
-        'e-commerce' => 1,
-        'phone'      => 2,
+        'e-commerce'         => 1,
+        'phone'              => 2,
+        'phone_ecommerce'    => 3,
     ];
     const AFFILIATE_FEE_TYPE = [
         'payout_per_order' => 1,

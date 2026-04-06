@@ -131,6 +131,13 @@ const SalesIndex = () => {
   }
 
   const mapDataArr = (data) => {
+    const getOrderTypeLabel = (orderType) => {
+      if (orderType == 1) return 'E-commerce'
+      if (orderType == 2) return 'Phone'
+      if (orderType == 3) return 'Phone & E-commerce'
+      return ''
+    }
+
     return data.map((item, index) => {
       return {
         edit: item.id,
@@ -139,7 +146,7 @@ const SalesIndex = () => {
         campaign: item?.campaign?.campaign_name,
         customer: item?.customer?.customer_name,
         affiliate_name: item?.affiliate_name,
-        order_type: item?.order_type == 1 ? 'E-commerce' : 'Phone',
+        order_type: getOrderTypeLabel(item?.order_type),
         dialed: item?.dialed,
         inbound: item?.inbound,
         revenue: item?.revenue,

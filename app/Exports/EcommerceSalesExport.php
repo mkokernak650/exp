@@ -93,10 +93,16 @@ class EcommerceSalesExport extends Controller implements FromCollection, WithHea
 
     public function map($sales): array
     {
+        $orderTypeLabel = $sales->order_type === EcommerceSale::ORDER_TYPE['e-commerce']
+            ? 'E-Commerce'
+            : ($sales->order_type === EcommerceSale::ORDER_TYPE['phone']
+                ? 'Phone'
+                : 'Phone & E-Commerce');
+
         return [
             $sales->campaign->campaign_name,
             $sales->customer->customer_name,
-            $sales->order_type === 1 ? 'E-Commerce' : 'Phone',
+            $orderTypeLabel,
             $sales->order_no,
             $sales->coupon_code,
             $sales->user_ip,

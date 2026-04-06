@@ -264,6 +264,7 @@ const SalesImport = () => {
   const orderTypeOptions = [
     { value: '1', label: 'E-commerce' },
     { value: '2', label: 'Phone' },
+    { value: '3', label: 'Phone & E-Commerce' },
   ]
 
   return (
