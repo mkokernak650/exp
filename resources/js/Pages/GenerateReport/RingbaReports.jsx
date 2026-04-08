@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Radio, Row, Col, Divider, DatePicker } from 'antd'
+import { Button, Typography, Radio, Row, Col, Divider, DatePicker, Modal, Input, Table, Popconfirm, Space } from 'antd'
 import dayjs from 'dayjs'
 import { usePage } from '@inertiajs/inertia-react'
+import { Inertia } from '@inertiajs/inertia'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
@@ -12,7 +13,7 @@ import { exportRingbaReports } from '@/Helpers/ExportReport'
 
 const RingbaReports = () => {
   const [loading, setLoading] = useState(false)
-  const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets } = usePage().props
+  const { campaigns, customers, broadCastMonths, broadCastWeeks, states, markets, savedReports } = usePage().props
   const [affiliateList, setAffiliateList] = useState([])
   const [selectedAffiliate, setSelectedAffiliate] = useState('')
   const [affiliatesEmail, setAffiliatesEmail] = useState([])
@@ -32,6 +33,13 @@ const RingbaReports = () => {
   })
   const [dialedOptions, setDialedOptions] = useState([])
   const [selectedDialed, setSelectedDialed] = useState('')
+  const [selectedBroadcastMonth, setSelectedBroadcastMonth] = useState('')
+  const [selectedBroadcastWeek, setSelectedBroadcastWeek] = useState('')
+  const [saveModalOpen, setSaveModalOpen] = useState(false)
+  const [saveReportName, setSaveReportName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [formKey, setFormKey] = useState(0)
+  const [editingReportId, setEditingReportId] = useState(null)
 
   let yearsArray = []
   for (let i = 0; i < 5; i++) {
@@ -60,7 +68,7 @@ const RingbaReports = () => {
 
   const yearOptions = yearsArray.map((year) => ({
     label: year,
-    value: year,
+    value: String(year),
   }))
 
   const stateOptions = states.map((item) => ({
@@ -177,6 +185,7 @@ const RingbaReports = () => {
   }
 
   const monthHandleChange = (value) => {
+    setSelectedBroadcastMonth(value)
     if (value) {
       broadCastMonths.filter((item) => {
         if (item.broad_cast_month === value) {
@@ -191,6 +200,7 @@ const RingbaReports = () => {
   }
 
   const weekHandleChange = (value) => {
+    setSelectedBroadcastWeek(value)
     if (value) {
       broadCastWeeks.filter((item) => {
         if (item.broad_cast_week === value) {
@@ -268,6 +278,8 @@ const RingbaReports = () => {
     ...market,
     selectedAffiliate,
     selectedDialed,
+    selectedBroadcastMonth,
+    selectedBroadcastWeek,
     ...year,
     ...startDate,
     ...endDate,
@@ -373,35 +385,40 @@ const RingbaReports = () => {
       })
   }
 
-  const handleSubmit = () => {
-    if (reportFor.reportFor === '') {
+  const handleSubmit = (overrideValues) => {
+    const submitValues = overrideValues || values
+    const submitFileName = overrideValues ? (overrideValues.file_name || 'Report') : fileName
+    const submitAffiliatesEmail = overrideValues ? [] : affiliatesEmail
+    const submitReportType = overrideValues ? (overrideValues.report_type || 'export-report') : ecommerceReportType.report_type
+
+    if (!submitValues.reportFor || submitValues.reportFor === '') {
       toast.error('Please select report for')
       return
     }
 
-    if (reportOn.reportOn === '') {
+    if (!submitValues.reportOn || submitValues.reportOn === '') {
       toast.error('Please select report on')
       return
     }
 
-    if (orderType.orderType === '') {
+    if (!submitValues.orderType || submitValues.orderType === '') {
       toast.error('Please select order type')
       return
     }
 
-    if (reportOn.reportOn === 'homesPerCall' && state.length < 1 && market.length < 1) {
+    if (submitValues.reportOn === 'homesPerCall' && !submitValues.states?.length && !submitValues.markets?.length) {
       toast.error('Please select state or market')
       return
     }
 
-    if (reportOn.reportOn === 'exportCSV' && reportFor.reportFor != 'payPerOrder') {
+    if (submitValues.reportOn === 'exportCSV' && submitValues.reportFor != 'payPerOrder') {
       toast.error('Export CSV is only for pay per order')
       return
     }
 
     if (
-      !values?.year &&
-      ((values?.start_date && !values?.end_date) || (values?.end_date && !values?.start_date))
+      !submitValues?.year &&
+      ((submitValues?.start_date && !submitValues?.end_date) || (submitValues?.end_date && !submitValues?.start_date))
     ) {
       toast.error('Please select start date and end date both')
       return
@@ -409,16 +426,14 @@ const RingbaReports = () => {
 
     setLoading(true)
     axios
-      .post(route('ringba.reports.generate'), { ...values, affiliatesEmail })
+      .post(route('ringba.reports.generate'), { ...submitValues, affiliatesEmail: submitAffiliatesEmail })
       .then((r) => {
         setLoading(false)
         if (r?.status === 204) {
-          setLoading(false)
           toast.error('No data found for the selected criteria')
         } else {
-          setLoading(false)
-          if (ecommerceReportType.report_type === 'export-report') {
-            exportRingbaReports(r.data, fileName)
+          if (submitReportType === 'export-report') {
+            exportRingbaReports(r.data, submitFileName)
           } else {
             toast.success(r?.data?.message)
           }
@@ -434,6 +449,154 @@ const RingbaReports = () => {
       })
   }
 
+  const handleSaveReport = () => {
+    if (!saveReportName.trim()) {
+      toast.error('Please enter a report name')
+      return
+    }
+    setSaving(true)
+
+    const payload = { name: saveReportName.trim(), filters: values }
+    const request = editingReportId
+      ? axios.put(route('ringba.reports.update', editingReportId), payload)
+      : axios.post(route('ringba.reports.save'), payload)
+
+    request
+      .then(() => {
+        toast.success(editingReportId ? 'Report updated successfully' : 'Report saved successfully')
+        setSaveModalOpen(false)
+        setSaveReportName('')
+        setEditingReportId(null)
+        Inertia.reload({ only: ['savedReports'] })
+      })
+      .catch(() => {
+        toast.error(editingReportId ? 'Error updating report' : 'Error saving report')
+      })
+      .finally(() => setSaving(false))
+  }
+
+  const handleDeleteSavedReport = (id) => {
+    axios
+      .delete(route('ringba.reports.delete', id))
+      .then(() => {
+        toast.success('Report deleted')
+        Inertia.reload({ only: ['savedReports'] })
+      })
+      .catch(() => {
+        toast.error('Error deleting report')
+      })
+  }
+
+  const handleLoadSavedReport = (filters) => {
+    setReportFor({ reportFor: filters.reportFor || 'payPerOrder' })
+    setOrderType({ orderType: filters.orderType || 'billed' })
+    setReportOn({ reportOn: filters.reportOn || 'detail' })
+    setReportType({ type: filters.type || 'customer' })
+    setEcommerceReportType({ report_type: filters.report_type || 'export-report' })
+    setCampaign(filters.campaign_id ? { campaign_id: filters.campaign_id } : [])
+    setCustomer(filters.customer_id ? { customer_id: filters.customer_id } : [])
+    setState(filters.states ? { states: filters.states } : [])
+    setMarket(filters.markets ? { markets: filters.markets } : [])
+    setYear(filters.year ? { year: filters.year } : [])
+    setStartDate({ start_date: filters.start_date || '' })
+    setEndDate({ end_date: filters.end_date || '' })
+    setSelectedAffiliate(filters.selectedAffiliate || '')
+    setSelectedDialed(filters.selectedDialed || '')
+    setSelectedBroadcastMonth(filters.selectedBroadcastMonth || '')
+    setSelectedBroadcastWeek(filters.selectedBroadcastWeek || '')
+
+    if (filters.campaign_id?.length) {
+      axios
+        .post(route('ringba.reports.get.affiliates.dialed'), { selectedCampaigns: filters.campaign_id.join(',') })
+        .then((response) => {
+          if (response.data) {
+            setAffiliateList(response.data.affiliatesOptions)
+            setDialedOptions(response.data.dialedOptions)
+          }
+          setFormKey((prev) => prev + 1)
+        })
+        .catch(() => {
+          setFormKey((prev) => prev + 1)
+        })
+    } else {
+      setAffiliateList([])
+      setDialedOptions([])
+      setFormKey((prev) => prev + 1)
+    }
+
+    toast.success('Report filters loaded')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleGenerateSavedReport = (filters) => {
+    handleSubmit(filters)
+  }
+
+  const handleEditSavedReport = (record) => {
+    handleLoadSavedReport(record.filters)
+    setEditingReportId(record.id)
+    setSaveReportName(record.name)
+  }
+
+  const reportOnLabels = {
+    detail: 'Detail',
+    summary: 'Summary',
+    exceptions: 'Exceptions',
+    callLength: 'Call Length',
+    homesPerCall: 'Homes Per Call',
+  }
+
+  const savedReportColumns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+    },
+    {
+      title: 'Report Type',
+      key: 'reportOn',
+      width: 140,
+      render: (_, record) => reportOnLabels[record.filters?.reportOn] || record.filters?.reportOn || '-',
+    },
+    {
+      title: 'Order Type',
+      key: 'orderType',
+      width: 100,
+      render: (_, record) => {
+        const val = record.filters?.orderType
+        return val ? val.charAt(0).toUpperCase() + val.slice(1) : '-'
+      },
+    },
+    {
+      title: 'Date Saved',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      width: 160,
+      render: (text) => dayjs(text).format('MMM D, YYYY h:mm A'),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 300,
+      render: (_, record) => (
+        <Space size="small">
+          <Button size="small" onClick={() => handleEditSavedReport(record)}>
+            Edit
+          </Button>
+          <Button size="small" type="primary" onClick={() => handleGenerateSavedReport(record.filters)} disabled={loading} loading={loading}>
+            Generate
+          </Button>
+          <Popconfirm title="Delete this saved report?" onConfirm={() => handleDeleteSavedReport(record.id)} okText="Yes" cancelText="No">
+            <Button size="small" danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ]
+
   return (
     <>
       <Helmet title="Ringba Reports" />
@@ -441,7 +604,7 @@ const RingbaReports = () => {
         <Typography.Title level={5} className="text-center !text-xl !mb-[35px]">
           Ringba Reports
         </Typography.Title>
-        <form validate="true" className="generate-report">
+        <form validate="true" className="generate-report" key={formKey}>
           <Row gutter={[0, 16]}>
             <Col span={24} className="pb-[5px]">
               <MultiSelect
@@ -492,6 +655,7 @@ const RingbaReports = () => {
               <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="states"
+                  defaultValue={state?.states ? state.states.map((s) => ({ label: s === 'allStates' ? 'All States' : s, value: s + ',' })) : ''}
                   onChange={(val) => stateHandleChange(val, 'states')}
                   options={[{ label: 'All States', value: 'allStates,' }].concat(stateOptions)}
                   className="!w-full"
@@ -503,6 +667,7 @@ const RingbaReports = () => {
               <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="markets"
+                  defaultValue={market?.markets ? market.markets.map((m) => ({ label: m === 'allMarkets' ? 'All Markets' : m, value: m + ',' })) : ''}
                   onChange={(val) => marketHandleChange(val, 'markets')}
                   options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
                   className="!w-full"
@@ -513,6 +678,7 @@ const RingbaReports = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="campaign_id"
+                defaultValue={campaign?.campaign_id ? campaign.campaign_id.map((c) => ({ label: c, value: c })) : ''}
                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                 options={campaignOptions}
                 className="!w-full"
@@ -522,6 +688,7 @@ const RingbaReports = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="customer_id"
+                defaultValue={customer?.customer_id ? customer.customer_id.map((c) => ({ label: c, value: c })) : ''}
                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                 options={customerOptions}
                 className="!w-full"
@@ -552,6 +719,7 @@ const RingbaReports = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="year"
+                defaultValue={year?.year ? year.year.map((y) => ({ label: y, value: String(y) })) : ''}
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
                 className="!w-full"
@@ -564,6 +732,7 @@ const RingbaReports = () => {
                   <MultiSelect
                     placeholder="Select Broadcast Month"
                     className="!w-full"
+                    defaultValue={selectedBroadcastMonth}
                     options={broadCastMonthsOptions}
                     onChange={(value) => monthHandleChange(value)}
                     singleSelect
@@ -573,6 +742,7 @@ const RingbaReports = () => {
                   <MultiSelect
                     placeholder="Select Broadcast Week"
                     className="!w-full"
+                    defaultValue={selectedBroadcastWeek}
                     options={broadCastWeeksOptions}
                     onChange={(value) => weekHandleChange(value)}
                     singleSelect
@@ -626,18 +796,63 @@ const RingbaReports = () => {
               </Radio.Group>
             </Col>
             <Col span={24}>
-              <Button
-                type="primary"
-                onClick={(e) => handleSubmit()}
-                disabled={loading}
-                loading={loading}
-              >
-                Generate
-              </Button>
+              <Space>
+                <Button
+                  type="primary"
+                  onClick={() => handleSubmit()}
+                  disabled={loading}
+                  loading={loading}
+                >
+                  Generate
+                </Button>
+                <Button onClick={() => setSaveModalOpen(true)}>
+                  {editingReportId ? 'Update Report' : 'Save Report'}
+                </Button>
+                {editingReportId && (
+                  <Button onClick={() => { setEditingReportId(null); setSaveReportName('') }}>
+                    Cancel Edit
+                  </Button>
+                )}
+              </Space>
             </Col>
           </Row>
         </form>
       </div>
+
+      <Modal
+        title={editingReportId ? 'Update Report' : 'Save Report'}
+        open={saveModalOpen}
+        onOk={handleSaveReport}
+        onCancel={() => { setSaveModalOpen(false); setSaveReportName('') }}
+        confirmLoading={saving}
+        okText={editingReportId ? 'Update' : 'Save'}
+      >
+        <div className="py-2">
+          <label className="block text-sm mb-1">Report Name</label>
+          <Input
+            placeholder="e.g. Weekly Customer Report"
+            value={saveReportName}
+            onChange={(e) => setSaveReportName(e.target.value)}
+            onPressEnter={handleSaveReport}
+          />
+        </div>
+      </Modal>
+
+      {savedReports?.length > 0 && (
+        <div className="w-[900px] mx-auto mt-8 p-10 bg-white shadow rounded">
+          <Typography.Title level={5} className="!mb-4">
+            Saved Reports
+          </Typography.Title>
+          <Table
+            columns={savedReportColumns}
+            dataSource={savedReports}
+            rowKey="id"
+            pagination={false}
+            size="small"
+            scroll={{ x: 800 }}
+          />
+        </div>
+      )}
     </>
   )
 }

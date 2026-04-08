@@ -276,6 +276,9 @@ Route::middleware('auth')->group(function () {
     Route::get('reports/ringba', [RingbaReportsController::class, 'index'])->name('ringba.reports');
     Route::post('reports/ringba/get-affiliates-dialed', [RingbaReportsController::class, 'getAffiliatesAndDialedByCampaigns'])->name('ringba.reports.get.affiliates.dialed');
     Route::post('reports/ringba/generate', [RingbaReportsController::class, 'generateReport'])->name('ringba.reports.generate');
+    Route::post('reports/ringba/saved-reports', [RingbaReportsController::class, 'saveReport'])->name('ringba.reports.save');
+    Route::put('reports/ringba/saved-reports/{id}', [RingbaReportsController::class, 'updateReport'])->name('ringba.reports.update');
+    Route::delete('reports/ringba/saved-reports/{id}', [RingbaReportsController::class, 'deleteReport'])->name('ringba.reports.delete');
 
     //InsertionOrder
     Route::get('insertion-order', [InsertionOrderController::class, 'index'])->name('insertion.order');

@@ -6,6 +6,7 @@ use App\Models\BroadCastMonth;
 use App\Models\BroadCastWeeks;
 use App\Models\Campaign;
 use App\Models\Customer;
+use App\Models\SavedRingbaReport;
 use App\Models\ZipcodeByTelevisionMarket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,7 +24,9 @@ class RingbaReportsController extends Controller
         $broadCastWeeks    = BroadCastWeeks::active()->get();
         $broadCastMonths   = BroadCastMonth::active()->get();
 
-        return Inertia::render('GenerateReport/RingbaReports', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets'));
+        $savedReports = SavedRingbaReport::where('user_id', auth()->id())->latest()->get();
+
+        return Inertia::render('GenerateReport/RingbaReports', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'savedReports'));
     }
 
     public function getAffiliatesAndDialedByCampaigns(Request $request)
@@ -141,6 +144,46 @@ class RingbaReportsController extends Controller
             'summary'  => $summary,
             'tagsData' => $tagsData
         ], 200);
+    }
+
+    public function saveReport(Request $request)
+    {
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'filters' => 'required|array',
+        ]);
+
+        SavedRingbaReport::create([
+            'user_id' => auth()->id(),
+            'name'    => $request->name,
+            'filters' => $request->filters,
+        ]);
+
+        return response()->json(['message' => 'Report saved successfully.'], 201);
+    }
+
+    public function updateReport(Request $request, $id)
+    {
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'filters' => 'required|array',
+        ]);
+
+        $report = SavedRingbaReport::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $report->update([
+            'name'    => $request->name,
+            'filters' => $request->filters,
+        ]);
+
+        return response()->json(['message' => 'Report updated successfully.'], 200);
+    }
+
+    public function deleteReport($id)
+    {
+        $report = SavedRingbaReport::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $report->delete();
+
+        return response()->json(['message' => 'Report deleted successfully.'], 200);
     }
 
     protected function reportQuery($request, $table)
