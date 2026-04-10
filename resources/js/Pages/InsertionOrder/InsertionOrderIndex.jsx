@@ -136,7 +136,7 @@ const InsertionOrderIndex = () => {
   }
 
   useEffect(() => {
-    getSearchingData(curerentPage)
+    getSearchingData(1)
   }, [itemPerPage, filterByStatus, sortField, sortOrder])
 
   const triggerExportLink = (link) => {

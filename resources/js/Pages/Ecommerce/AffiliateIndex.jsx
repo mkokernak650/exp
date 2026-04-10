@@ -414,7 +414,7 @@ const AffiliateIndex = () => {
   }
 
   useEffect(() => {
-    getSearchingData(currentPage)
+    getSearchingData(1)
   }, [
     itemPerPage,
     filterValue,
