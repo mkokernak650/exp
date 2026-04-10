@@ -67,6 +67,25 @@ class EcommerceAffiliateController extends Controller
             ->with('campaign:id,campaign_name')
             ->with('customer:id,customer_name');
 
+        if (!empty(request('filterByCampaigns'))) {
+            $filterByCampaigns = explode(',', request('filterByCampaigns'));
+            $eAffiliatesDefaultQuery->whereIn('campaign_id', $filterByCampaigns);
+        }
+
+        if (!empty(request('filterByCustomers'))) {
+            $filterByCustomers = explode(',', request('filterByCustomers'));
+            $eAffiliatesDefaultQuery->whereIn('customer_id', $filterByCustomers);
+        }
+
+        if (!empty(request('filterByAffiliates'))) {
+            $filterByAffiliates = explode(',', request('filterByAffiliates'));
+            $eAffiliatesDefaultQuery->whereIn('affiliate_id', $filterByAffiliates);
+        }
+
+        if (!empty(request('orderBy'))) {
+            $eAffiliatesDefaultQuery->orderBy('created_at', request('orderBy'));
+        }
+
         $this->applySorting($eAffiliatesDefaultQuery);
 
         $ecommerceAffiliates = $eAffiliatesDefaultQuery->paginate(request('itemPerPage') ?? 10);
