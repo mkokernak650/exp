@@ -20,15 +20,35 @@ class InsertionOrderController extends Controller
 {
     public function index()
     {
-        $insertionOrders = InsertionOrder::with('customer:id,customer_name')
+        $ioQuery = InsertionOrder::with('customer:id,customer_name')
             ->with('affiliate:id,affiliate_name')
             ->when(
                 !empty(request('filterByStatus')),
                 fn ($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
             )
-            ->select('*')
-            ->selectRaw('DATE_FORMAT(created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at')
-            ->paginate(request('itemPerPage') ?? 10);
+            ->select('insertion_orders.*')
+            ->selectRaw('DATE_FORMAT(insertion_orders.created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at');
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+
+            $sortableColumns = ['id', 'status', 'created_at'];
+
+            if ($sortField === 'customer') {
+                $ioQuery->leftJoin('customers', 'insertion_orders.customer_id', '=', 'customers.id')
+                    ->orderBy('customers.customer_name', $sortOrder);
+            } elseif ($sortField === 'affiliate') {
+                $ioQuery->leftJoin('affiliates', 'insertion_orders.affiliate_id', '=', 'affiliates.id')
+                    ->orderBy('affiliates.affiliate_name', $sortOrder);
+            } elseif ($sortField === 'formatted_created_at') {
+                $ioQuery->orderBy('insertion_orders.created_at', $sortOrder);
+            } elseif (in_array($sortField, $sortableColumns)) {
+                $ioQuery->orderBy("insertion_orders.{$sortField}", $sortOrder);
+            }
+        }
+
+        $insertionOrders = $ioQuery->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $insertionOrders;

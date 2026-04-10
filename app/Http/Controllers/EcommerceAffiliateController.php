@@ -57,14 +57,19 @@ class EcommerceAffiliateController extends Controller
                 $eAffiliatesQuery->orderBy('created_at', request('orderBy'));
             }
 
+            $this->applySorting($eAffiliatesQuery);
+
             return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $ecommerceAffiliates = EcommerceAffiliate::query()
+        $eAffiliatesDefaultQuery = EcommerceAffiliate::query()
             ->with('affiliate:id,affiliate_name')
             ->with('campaign:id,campaign_name')
-            ->with('customer:id,customer_name')
-            ->paginate(request('itemPerPage') ?? 10);
+            ->with('customer:id,customer_name');
+
+        $this->applySorting($eAffiliatesDefaultQuery);
+
+        $ecommerceAffiliates = $eAffiliatesDefaultQuery->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $ecommerceAffiliates;
@@ -73,6 +78,36 @@ class EcommerceAffiliateController extends Controller
         $columnsData = TableDetails::all()->pluck('column_details');
 
         return Inertia::render('Ecommerce/AffiliateIndex', compact('ecommerceAffiliates', 'affiliates', 'campaigns', 'customers', 'columnsData'));
+    }
+
+    private function applySorting($query)
+    {
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+
+            $sortableColumns = [
+                'order_type', 'coupon_code', 'dialed', 'product_code', 'pay_on_multiple_orders',
+                'lengths', 'revenue', 'affiliate_fee', 'percentage', 'cash_buy',
+                'consumerEXP_cash_buy_fee', 'affiliate_fee_type', 'created_at', 'updated_at',
+            ];
+
+            if ($sortField === 'campaign') {
+                $query->leftJoin('ecommerce_campaigns', 'ecommerce_affiliates.campaign_id', '=', 'ecommerce_campaigns.id')
+                    ->orderBy('ecommerce_campaigns.campaign_name', $sortOrder)
+                    ->select('ecommerce_affiliates.*');
+            } elseif ($sortField === 'customer') {
+                $query->leftJoin('customers', 'ecommerce_affiliates.customer_id', '=', 'customers.id')
+                    ->orderBy('customers.customer_name', $sortOrder)
+                    ->select('ecommerce_affiliates.*');
+            } elseif ($sortField === 'affiliate') {
+                $query->leftJoin('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
+                    ->orderBy('affiliates.affiliate_name', $sortOrder)
+                    ->select('ecommerce_affiliates.*');
+            } elseif (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
     }
 
     public function valueCehckById($key, $val)

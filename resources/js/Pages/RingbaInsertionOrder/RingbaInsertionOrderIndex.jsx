@@ -32,6 +32,8 @@ const RingbaInsertionOrderIndex = () => {
   const [tableToolbar, setTableToolbar] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState({ open: false })
   const [filterByStatus, setFilterByStatus] = useState('')
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
   const baseUrl = window.location.origin
 
   const mapDataArr = (data) => {
@@ -123,7 +125,11 @@ const RingbaInsertionOrderIndex = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&filterByStatus=' +
-          filterByStatus
+          filterByStatus +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setData(mapDataArr(res.data))
@@ -138,7 +144,7 @@ const RingbaInsertionOrderIndex = () => {
 
   useEffect(() => {
     getSearchingData(curerentPage)
-  }, [itemPerPage, filterByStatus])
+  }, [itemPerPage, filterByStatus, sortField, sortOrder])
 
   const triggerExportLink = (link) => {
     return window.open(link)
@@ -198,23 +204,27 @@ const RingbaInsertionOrderIndex = () => {
       })
   }
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
         if (col.key === 'id') {
           base.render = (value) => 'IO-' + String(value).padStart(3, '0')
@@ -287,6 +297,7 @@ const RingbaInsertionOrderIndex = () => {
           rowSelection={rowSelection}
           loading={tableLoading}
           pagination={false}
+          onChange={handleTableChange}
           components={{
             header: {
               cell: DraggableResizableHeader,

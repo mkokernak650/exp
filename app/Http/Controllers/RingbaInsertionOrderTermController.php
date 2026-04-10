@@ -38,20 +38,43 @@ class RingbaInsertionOrderTermController extends Controller
 
     public function allList()
     {
-        $ringbaInsertionOrders = DB::table('ringba_insertion_orders')
+        $rioQuery = DB::table('ringba_insertion_orders')
             ->when(
                 !empty(request('filterByStatus')),
                 fn ($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
             )
             ->select([
-                DB::raw('DATE_FORMAT(created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at'),
-                'id', 'io_for', 'io_no',
+                DB::raw('DATE_FORMAT(ringba_insertion_orders.created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at'),
+                'ringba_insertion_orders.id', 'io_for', 'io_no',
                 DB::raw('(SELECT campaign_name FROM campaigns WHERE campaigns.campaign_id = ringba_insertion_orders.campaign_id LIMIT 1) AS campaign'),
                 DB::raw('(SELECT customer_name FROM customers WHERE customers.id = ringba_insertion_orders.customer_id LIMIT 1) AS customer'),
                 DB::raw('(SELECT affiliate_name FROM affiliates WHERE affiliates.affiliate_id = ringba_insertion_orders.affiliate_id LIMIT 1) AS affiliate'),
-                'phone', 'term', 'call_length', 'payout', 'revenue', 'status', 'io_link'
-            ])
-            ->paginate(request('itemPerPage') ?? 10);
+                'phone', 'term', 'call_length', 'payout', 'revenue', 'ringba_insertion_orders.status', 'io_link'
+            ]);
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+
+            $sortableColumns = [
+                'id', 'io_for', 'phone', 'term', 'call_length',
+                'payout', 'revenue', 'status',
+            ];
+
+            if ($sortField === 'campaign') {
+                $rioQuery->orderBy(DB::raw('(SELECT campaign_name FROM campaigns WHERE campaigns.campaign_id = ringba_insertion_orders.campaign_id LIMIT 1)'), $sortOrder);
+            } elseif ($sortField === 'customer') {
+                $rioQuery->orderBy(DB::raw('(SELECT customer_name FROM customers WHERE customers.id = ringba_insertion_orders.customer_id LIMIT 1)'), $sortOrder);
+            } elseif ($sortField === 'affiliate') {
+                $rioQuery->orderBy(DB::raw('(SELECT affiliate_name FROM affiliates WHERE affiliates.affiliate_id = ringba_insertion_orders.affiliate_id LIMIT 1)'), $sortOrder);
+            } elseif ($sortField === 'formatted_created_at') {
+                $rioQuery->orderBy('ringba_insertion_orders.created_at', $sortOrder);
+            } elseif (in_array($sortField, $sortableColumns)) {
+                $rioQuery->orderBy("ringba_insertion_orders.{$sortField}", $sortOrder);
+            }
+        }
+
+        $ringbaInsertionOrders = $rioQuery->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $ringbaInsertionOrders;

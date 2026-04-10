@@ -38,6 +38,8 @@ const SalesIndex = () => {
   const [filterByCustomers, setFilterByCustomers] = useState('')
   const [filterByAffiliates, setFilterByAffiliates] = useState('')
   const [filterByDate, setFilterByDate] = useState({ startDate: '', endDate: '' })
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -283,7 +285,11 @@ const SalesIndex = () => {
           '&filterByAffiliates=' +
           filterByAffiliates +
           '&filterByDate=' +
-          JSON.stringify(filterByDate)
+          JSON.stringify(filterByDate) +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -310,6 +316,8 @@ const SalesIndex = () => {
     filterByCustomers,
     filterByAffiliates,
     filterByDate,
+    sortField,
+    sortOrder,
   ])
 
   useEffect(() => {
@@ -390,23 +398,27 @@ const SalesIndex = () => {
     filterByDate.startDate !== '' ||
     filterByDate.endDate !== ''
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
         if (col.key === 'order_at') {
           base.render = (value) => {
@@ -539,6 +551,7 @@ const SalesIndex = () => {
           rowSelection={rowSelection}
           loading={tableLoading}
           pagination={false}
+          onChange={handleTableChange}
           components={{
             header: {
               cell: DraggableResizableHeader,

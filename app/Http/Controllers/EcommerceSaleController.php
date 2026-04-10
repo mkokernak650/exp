@@ -62,6 +62,40 @@ class EcommerceSaleController extends Controller
                 ->whereDate('order_at', '<=', $filterByDate->endDate);
         }
 
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+
+            $sortableColumns = [
+                'order_no', 'coupon_code', 'user_ip', 'shipping_city', 'shipping_state',
+                'shipping_zip', 'billing_zip', 'quantity', 'subtotal', 'shipping_cost',
+                'total', 'order_at', 'created_at', 'updated_at', 'dialed', 'inbound',
+                'revenue', 'order_type',
+            ];
+
+            if ($sortField === 'campaign') {
+                $salesQuery->leftJoin('ecommerce_campaigns', 'ecommerce_sales.campaign_id', '=', 'ecommerce_campaigns.id')
+                    ->orderBy('ecommerce_campaigns.campaign_name', $sortOrder)
+                    ->select('ecommerce_sales.*', DB::raw("DATE_FORMAT(ecommerce_sales.order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
+                        DB::raw("(SELECT affiliate_name FROM affiliates WHERE affiliates.id =
+                            (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code =
+                            ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1))
+                            as affiliate_name"));
+            } elseif ($sortField === 'customer') {
+                $salesQuery->leftJoin('customers', 'ecommerce_sales.customer_id', '=', 'customers.id')
+                    ->orderBy('customers.customer_name', $sortOrder)
+                    ->select('ecommerce_sales.*', DB::raw("DATE_FORMAT(ecommerce_sales.order_at, '%d %M,%Y %H:%i:%s') as formatted_order_at"),
+                        DB::raw("(SELECT affiliate_name FROM affiliates WHERE affiliates.id =
+                            (SELECT affiliate_id FROM ecommerce_affiliates WHERE ecommerce_affiliates.coupon_code =
+                            ecommerce_sales.coupon_code OR ecommerce_affiliates.dialed = ecommerce_sales.dialed LIMIT 1))
+                            as affiliate_name"));
+            } elseif ($sortField === 'affiliate_name') {
+                $salesQuery->orderBy('affiliate_name', $sortOrder);
+            } elseif (in_array($sortField, $sortableColumns)) {
+                $salesQuery->orderBy($sortField, $sortOrder);
+            }
+        }
+
         $sales = $salesQuery->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {

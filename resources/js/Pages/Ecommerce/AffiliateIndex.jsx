@@ -60,6 +60,8 @@ const AffiliateIndex = () => {
   const [filterByCampaigns, setFilterByCampaigns] = useState('')
   const [filterByCustomers, setFilterByCustomers] = useState('')
   const [filterByAffiliates, setFilterByAffiliates] = useState('')
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const handleEditChange = ({ target: { name, value } }) => {
     setEditData((oldEditData) => ({ ...oldEditData, [name]: value }))
@@ -394,7 +396,11 @@ const AffiliateIndex = () => {
           '&filterByCustomers=' +
           filterByCustomers +
           '&filterByAffiliates=' +
-          filterByAffiliates
+          filterByAffiliates +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -416,6 +422,8 @@ const AffiliateIndex = () => {
     filterByCampaigns,
     filterByCustomers,
     filterByAffiliates,
+    sortField,
+    sortOrder,
   ])
 
   useEffect(() => {
@@ -462,23 +470,27 @@ const AffiliateIndex = () => {
     filterByCustomers !== '' ||
     filterByAffiliates !== ''
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
         if (col.key === 'status') {
           base.render = (value) => (value == 1 ? 'Active' : 'Inactive')
@@ -602,6 +614,7 @@ const AffiliateIndex = () => {
           rowSelection={rowSelection}
           loading={tableLoading}
           pagination={false}
+          onChange={handleTableChange}
           components={{
             header: {
               cell: DraggableResizableHeader,
