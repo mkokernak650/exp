@@ -53,11 +53,11 @@ class EcommerceAffiliateController extends Controller
                 $eAffiliatesQuery->whereIn('affiliate_id', $filterByAffiliates);
             }
 
-            if (!empty(request('orderBy'))) {
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $this->applySorting($eAffiliatesQuery);
+            } elseif (!empty(request('orderBy'))) {
                 $eAffiliatesQuery->orderBy('created_at', request('orderBy'));
             }
-
-            $this->applySorting($eAffiliatesQuery);
 
             return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
         }
@@ -82,11 +82,11 @@ class EcommerceAffiliateController extends Controller
             $eAffiliatesDefaultQuery->whereIn('affiliate_id', $filterByAffiliates);
         }
 
-        if (!empty(request('orderBy'))) {
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $this->applySorting($eAffiliatesDefaultQuery);
+        } elseif (!empty(request('orderBy'))) {
             $eAffiliatesDefaultQuery->orderBy('created_at', request('orderBy'));
         }
-
-        $this->applySorting($eAffiliatesDefaultQuery);
 
         $ecommerceAffiliates = $eAffiliatesDefaultQuery->paginate(request('itemPerPage') ?? 10);
 
