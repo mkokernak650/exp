@@ -60,7 +60,11 @@ class EcommerceAffiliateController extends Controller
             return $eAffiliatesQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $ecommerceAffiliates = EcommerceAffiliate::paginate(request('itemPerPage') ?? 10);
+        $ecommerceAffiliates = EcommerceAffiliate::query()
+            ->with('affiliate:id,affiliate_name')
+            ->with('campaign:id,campaign_name')
+            ->with('customer:id,customer_name')
+            ->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $ecommerceAffiliates;
