@@ -36,8 +36,10 @@ class ActivityLogController extends Controller
                 if (in_array($sortField, $sortableColumns)) {
                     $activityQuery->orderBy($sortField, $sortOrder);
                 }
+            } else {
+                $activityQuery->orderBy('id', 'DESC');
             }
-            return $activityQuery->orderBy('id', 'DESC')->paginate(request('itemPerPage') ?? 10);
+            return $activityQuery->paginate(request('itemPerPage') ?? 10);
         }
 
         $query = Activity::query();
@@ -48,8 +50,10 @@ class ActivityLogController extends Controller
             if (in_array($sortField, $sortableColumns)) {
                 $query->orderBy($sortField, $sortOrder);
             }
+        } else {
+            $query->orderBy('id', 'DESC');
         }
-        $allActivityLog = $query->orderBy('id', 'DESC')->paginate(request('itemPerPage') ?? 10);
+        $allActivityLog = $query->paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $allActivityLog;
         }
