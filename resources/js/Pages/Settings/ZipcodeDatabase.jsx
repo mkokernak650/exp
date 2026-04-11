@@ -29,6 +29,8 @@ const ZipcodeDatabase = () => {
   const [totalRecords, setTotalRecords] = useState(allZipcodes?.total ?? 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
   const [filterByState, setFilterByState] = useState('')
   const [filterByTimeZone, setFilterByTimeZone] = useState('')
   const [filterBySearchBoxValue, setFilterBySearchBoxValue] = useState({
@@ -187,7 +189,11 @@ const ZipcodeDatabase = () => {
           '&filterByTimeZone=' +
           filterByTimeZone +
           '&filterBySearchBoxValue=' +
-          JSON.stringify(filterBySearchBoxValue)
+          JSON.stringify(filterBySearchBoxValue) +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setTotalRecords(res.data.total)
@@ -211,7 +217,7 @@ const ZipcodeDatabase = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage, filterByState, filterByTimeZone, filterBySearchBoxValue])
+  }, [itemPerPage, filterByState, filterByTimeZone, filterBySearchBoxValue, sortField, sortOrder])
 
   const triggerExportLink = (link) => {
     return window.open(link)
@@ -247,23 +253,27 @@ const ZipcodeDatabase = () => {
     filterByTimeZone !== '' ||
     Object.values(filterBySearchBoxValue).some((v) => v !== '')
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         return base
@@ -381,6 +391,7 @@ const ZipcodeDatabase = () => {
           pagination={false}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
+          onChange={handleTableChange}
         />
         </ReportTableDndShell>
         <div className="table-bottom">

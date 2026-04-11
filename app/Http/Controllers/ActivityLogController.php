@@ -29,10 +29,27 @@ class ActivityLogController extends Controller
                 $cond = $conditions->items[$i];
                 $this->makeConditionQuery($activityQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortableColumns = ['event', 'log_name', 'description', 'created_at'];
+                if (in_array($sortField, $sortableColumns)) {
+                    $activityQuery->orderBy($sortField, $sortOrder);
+                }
+            }
             return $activityQuery->orderBy('id', 'DESC')->paginate(request('itemPerPage') ?? 10);
         }
 
-        $allActivityLog = Activity::orderBy('id', 'DESC')->paginate(request('itemPerPage') ?? 10);
+        $query = Activity::query();
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['event', 'log_name', 'description', 'created_at'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+        $allActivityLog = $query->orderBy('id', 'DESC')->paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $allActivityLog;
         }

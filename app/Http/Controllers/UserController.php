@@ -20,7 +20,18 @@ class UserController extends Controller
     public function index()
     {
         $itemPerPage = request('itemPerPage', 10);
-        $users       = User::paginate($itemPerPage);
+        $query = User::query();
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['firstname', 'lastname', 'email'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $users = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $users;

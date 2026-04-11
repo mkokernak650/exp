@@ -53,6 +53,8 @@ const Exceptions = () => {
   const [totalRecords, setTotalRecords] = useState(ExceptionsData.total || 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setcurrentPage] = useState(1)
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
   const [isLoading, setIsLoading] = useState({
     update: false,
     revenue: false,
@@ -60,6 +62,16 @@ const Exceptions = () => {
     archive: false,
     delete: false,
   })
+
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
 
   const style = {
     top: position.y < 650 ? position.y - 137 : position.y - 298,
@@ -166,19 +178,13 @@ const Exceptions = () => {
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         if (col.key === 'edit') {
@@ -484,7 +490,11 @@ const Exceptions = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
-          JSON.stringify(filterValue)
+          JSON.stringify(filterValue) +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -498,8 +508,8 @@ const Exceptions = () => {
   }
 
   useEffect(() => {
-    getSearchingData(currentPage)
-  }, [itemPerPage, filterValue])
+    getSearchingData(1)
+  }, [itemPerPage, filterValue, sortField, sortOrder])
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
@@ -615,6 +625,7 @@ const Exceptions = () => {
           rowKey="id"
           rowSelection={rowSelection}
           loading={loading}
+          onChange={handleTableChange}
           pagination={false}
           components={{
             header: {

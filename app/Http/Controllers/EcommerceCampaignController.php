@@ -151,8 +151,24 @@ class EcommerceCampaignController extends Controller
                 'ecommerce_affiliates.coupon_code',
                 'ecommerce_affiliates.dialed'
             ])
+            ->when(!empty(request('sortField')) && !empty(request('sortOrder')), function ($query) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortableColumns = [
+                    'affiliate_name' => 'affiliates.affiliate_name',
+                    'affiliate_fee_type' => 'ecommerce_affiliates.affiliate_fee_type',
+                    'market' => 'affiliates.market',
+                    'tv_households' => 'tv_households',
+                    'coupon_code' => 'ecommerce_affiliates.coupon_code',
+                    'dialed' => 'ecommerce_affiliates.dialed',
+                    'created_at' => 'affiliates.created_at',
+                ];
+                if (array_key_exists($sortField, $sortableColumns)) {
+                    $query->orderBy($sortableColumns[$sortField], $sortOrder);
+                }
+            })
             ->when(
-                !empty($orderBy),
+                empty(request('sortField')) && !empty($orderBy),
                 fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
             )
             ->groupBy('ecommerce_affiliates.affiliate_id')

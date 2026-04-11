@@ -50,6 +50,8 @@ const CampaignAnnotations = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState(annotation.total || 0)
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const mapAnnotationRows = (items) =>
     (items || []).map((item) => ({
@@ -129,10 +131,20 @@ const CampaignAnnotations = () => {
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
     const baseUrl = window.location.pathname
-    await axios.get(`${baseUrl}?page=${page}&itemPerPage=${itemPerPage}`).then((res) => {
+    await axios.get(`${baseUrl}?page=${page}&itemPerPage=${itemPerPage}&sortField=${sortField}&sortOrder=${sortOrder}`).then((res) => {
       setData(mapAnnotationRows(res.data.data || []))
       setTotalRecords(res.data.total)
     })
+  }
+
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
   }
 
   const itemPerPageHandleChange = (value) => {
@@ -226,7 +238,7 @@ const CampaignAnnotations = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, sortField, sortOrder])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
@@ -271,14 +283,7 @@ const CampaignAnnotations = () => {
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: (col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string') ? true : undefined,
         }
 
         if (col.key === 'status') {
@@ -349,6 +354,7 @@ const CampaignAnnotations = () => {
           pagination={false}
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
+          onChange={handleTableChange}
         />
         </ReportTableDndShell>
         <div className="table-bottom">

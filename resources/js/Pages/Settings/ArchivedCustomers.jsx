@@ -35,6 +35,8 @@ const ArchivedCustomers = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState(allCustomers.total || 0)
   const [errors, setErrors] = useState({})
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const dataArray = (allCustomers.data || []).map((item, index) => ({
     edit: item.id,
@@ -185,7 +187,7 @@ const ArchivedCustomers = () => {
     setCurrentPage(page)
     await axios
       .get('/archived-customers', {
-        params: { page, itemPerPage, filteredValue: activeFilterJSON },
+        params: { page, itemPerPage, filteredValue: activeFilterJSON, sortField, sortOrder },
       })
       .then((res) => {
         setData(
@@ -242,7 +244,7 @@ const ArchivedCustomers = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage, activeFilterJSON])
+  }, [itemPerPage, activeFilterJSON, sortField, sortOrder])
 
   const TableToolbar = () => {
     const toolbarIconStyle = { color: '#031b4e', fontSize: 20 }
@@ -274,23 +276,27 @@ const ArchivedCustomers = () => {
     },
   }
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         return base
@@ -358,6 +364,7 @@ const ArchivedCustomers = () => {
               pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
+              onChange={handleTableChange}
             />
             </ReportTableDndShell>
             <div className="table-bottom">

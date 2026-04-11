@@ -23,6 +23,8 @@ const CampaignAffiliateList = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
   const [orderByValue, setOrderByValue] = useState('affiliates.affiliate_name@ASC')
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const mapDataArr = (data) => {
     return data.data.map((item) => ({
@@ -105,7 +107,11 @@ const CampaignAffiliateList = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&orderBy=' +
-          orderByValue
+          orderByValue +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setTotalRecords(res.data.total)
@@ -119,8 +125,8 @@ const CampaignAffiliateList = () => {
   }
 
   useEffect(() => {
-    getSearchingData(curerentPage)
-  }, [itemPerPage, orderByValue])
+    getSearchingData(1)
+  }, [itemPerPage, orderByValue, sortField, sortOrder])
 
   const triggerExportLink = (link) => {
     return window.open(link)
@@ -144,23 +150,27 @@ const CampaignAffiliateList = () => {
       })
   }
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
         if (col.key === 'affiliate_fee_type') {
           base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
@@ -221,6 +231,7 @@ const CampaignAffiliateList = () => {
           scroll={{ y: 'calc(100vh - 217px)' }}
           size="small"
           locale={{ emptyText: 'No Data Found' }}
+          onChange={handleTableChange}
         />
         </ReportTableDndShell>
         <div className="table-bottom">

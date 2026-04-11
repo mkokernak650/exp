@@ -61,10 +61,50 @@ class ArchivedCallLogController extends Controller
 
             $this->applyRingbaFilters($ringbaDataQuery, request('filteredValue'), $allowedFields, $fieldMap);
 
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortFieldMap = [
+                    'Call_Length_In_Seconds' => 'call_Length_In_Seconds',
+                    'Payout' => 'payoutAmount',
+                ];
+                $dbSortField = $sortFieldMap[$sortField] ?? $sortField;
+                $sortableColumns = [
+                    'SN', 'Call_Date_Time', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign',
+                    'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number',
+                    'Target_Description', 'call_Length_In_Seconds', 'Revenue', 'Conn_Duration',
+                    'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode',
+                ];
+                if (in_array($dbSortField, $sortableColumns)) {
+                    $ringbaDataQuery->orderBy($dbSortField, $sortOrder);
+                }
+            }
+
             return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $archivedCallLogs = ArchivedCallLog::paginate(request('itemPerPage') ?? 10);
+        $query = ArchivedCallLog::query();
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortFieldMap = [
+                'Call_Length_In_Seconds' => 'call_Length_In_Seconds',
+                'Payout' => 'payoutAmount',
+            ];
+            $dbSortField = $sortFieldMap[$sortField] ?? $sortField;
+            $sortableColumns = [
+                'SN', 'Call_Date_Time', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign',
+                'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number',
+                'Target_Description', 'call_Length_In_Seconds', 'Revenue', 'Conn_Duration',
+                'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode',
+            ];
+            if (in_array($dbSortField, $sortableColumns)) {
+                $query->orderBy($dbSortField, $sortOrder);
+            }
+        }
+
+        $archivedCallLogs = $query->paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $archivedCallLogs;
         }

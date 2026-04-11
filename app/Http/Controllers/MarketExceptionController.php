@@ -117,6 +117,15 @@ class MarketExceptionController extends Controller
             }
         }
 
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['market_id', 'state', 'call_type', 'ranks', 'nielsen_households', 'start_date'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
         $marketExceptions = $query->paginate($itemPerPage);
 
         $marketIds = $marketExceptions->getCollection()->pluck('market_id')->unique()->filter();

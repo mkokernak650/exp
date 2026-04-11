@@ -38,11 +38,22 @@ class TargetController extends Controller
         ];
         $allowed = array_values($fieldMap);
 
-        $allTargets = Target::query()
+        $query = Target::query()
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['customer', 'Ringba_Target_Name', 'Description'];
+            if (in_array($sortField, $sortableColumns)) {
+                $dbColumn = $fieldMap[$sortField] ?? $sortField;
+                $query->orderBy($dbColumn, $sortOrder);
+            }
+        }
+
+        $allTargets = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allTargets;
@@ -62,11 +73,21 @@ class TargetController extends Controller
         $fieldMap = ['target_name' => 'target_name'];
         $allowed  = ['target_name'];
 
-        $allTargetNames = TargetNames::query()
+        $query = TargetNames::query()
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['target_name'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $allTargetNames = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allTargetNames;

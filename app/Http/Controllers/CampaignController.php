@@ -75,11 +75,22 @@ class CampaignController extends Controller
         ];
         $allowed = array_values($fieldMap);
 
-        $allCampaigns = Campaign::query()
+        $query = Campaign::query()
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['campaign', 'duration', 'status'];
+            if (in_array($sortField, $sortableColumns)) {
+                $dbColumn = $fieldMap[$sortField] ?? $sortField;
+                $query->orderBy($dbColumn, $sortOrder);
+            }
+        }
+
+        $allCampaigns = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allCampaigns;
@@ -98,6 +109,19 @@ class CampaignController extends Controller
         $itemPerPage = request('itemPerPage', 10);
         $campaign    = $campaign->load('annotations');
         $annotation  = $campaign->annotations->sortBy('order')->values();
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortFieldMap = ['annotation' => 'annotation_name', 'status' => 'status'];
+            $sortableColumns = ['annotation', 'status'];
+            if (in_array($sortField, $sortableColumns)) {
+                $dbColumn = $sortFieldMap[$sortField] ?? $sortField;
+                $annotation = $sortOrder === 'asc'
+                    ? $annotation->sortBy($dbColumn)->values()
+                    : $annotation->sortByDesc($dbColumn)->values();
+            }
+        }
 
         if (request('page')) {
             $page   = request('page', 1);

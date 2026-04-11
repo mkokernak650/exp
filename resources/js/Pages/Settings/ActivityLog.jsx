@@ -29,6 +29,8 @@ const ActivityLog = () => {
   const [totalRecords, setTotalRecords] = useState(allActivityLog?.total ?? 0)
   const [itemPerPage, setItemPerPage] = useState(10)
   const [curerentPage, setCurerentPage] = useState(1)
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const mapDataArr = (data) => {
     return data.data.map((item, index) => ({
@@ -160,6 +162,16 @@ const ActivityLog = () => {
     }
   }, [showColumns])
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const getSearchingData = async (page = 1) => {
     setCurerentPage(page)
     setLoading(true)
@@ -170,7 +182,11 @@ const ActivityLog = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
-          activeFilterJSON
+          activeFilterJSON +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setData(
@@ -197,8 +213,8 @@ const ActivityLog = () => {
   }
 
   useEffect(() => {
-    getSearchingData(curerentPage)
-  }, [itemPerPage, activeFilterJSON])
+    getSearchingData(1)
+  }, [itemPerPage, activeFilterJSON, sortField, sortOrder])
 
   useEffect(() => {
     const syncTablePanelHeight = () => {
@@ -221,19 +237,13 @@ const ActivityLog = () => {
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         if (col.key === 'created_at' || col.key === 'updated_at') {
@@ -310,6 +320,7 @@ const ActivityLog = () => {
               dataSource={data}
               rowKey="id"
               loading={loading}
+              onChange={handleTableChange}
               pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"

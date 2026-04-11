@@ -36,6 +36,17 @@ class CustomerController extends Controller
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
             })
+            ->when(!empty(request('sortField')) && !empty(request('sortOrder')), function ($query) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortFieldMap = [
+                    'customer' => 'customer_name', 'email' => 'email', 'telephone' => 'telephone',
+                    'address' => 'address', 'contact_name' => 'contact_name', 'contact_telephone' => 'contact_telephone',
+                ];
+                if (isset($sortFieldMap[$sortField])) {
+                    $query->orderBy($sortFieldMap[$sortField], $sortOrder);
+                }
+            })
             ->paginate($itemPerPage);
 
         if (request('page')) {
@@ -59,11 +70,28 @@ class CustomerController extends Controller
         ];
         $allowed = array_values($fieldMap);
 
-        $allCustomers = Customer::where('status', '=', '0')
+        $query = Customer::where('status', '=', '0')
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = [
+                'customer' => 'customer_name',
+                'email' => 'email',
+                'telephone' => 'telephone',
+                'address' => 'address',
+                'contact_name' => 'contact_name',
+                'contact_telephone' => 'contact_telephone',
+            ];
+            if (array_key_exists($sortField, $sortableColumns)) {
+                $query->orderBy($sortableColumns[$sortField], $sortOrder);
+            }
+        }
+
+        $allCustomers = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allCustomers;

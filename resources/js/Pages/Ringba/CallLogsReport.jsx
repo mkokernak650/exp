@@ -53,6 +53,8 @@ const CallLogsReport = () => {
     archive: false,
     delete: false,
   })
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const style = {
     top: position.y < 650 ? position.y - 137 : position.y - 298,
@@ -62,6 +64,16 @@ const CallLogsReport = () => {
   const rowFunctionalitiesPosition = (e) => {
     if (!openRowFunctionalities) {
       setPosition({ x: e.screenX, y: e.screenY })
+    }
+  }
+
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
     }
   }
 
@@ -157,19 +169,13 @@ const CallLogsReport = () => {
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         if (col.key === 'edit') {
@@ -447,7 +453,11 @@ const CallLogsReport = () => {
           '&itemPerPage=' +
           itemPerPage +
           '&filteredValue=' +
-          JSON.stringify(filterValue)
+          JSON.stringify(filterValue) +
+          '&sortField=' +
+          sortField +
+          '&sortOrder=' +
+          sortOrder
       )
       .then((res) => {
         setData(mapDataArr(res.data.data))
@@ -461,8 +471,8 @@ const CallLogsReport = () => {
   }
 
   useEffect(() => {
-    getSearchingData(currentPage)
-  }, [itemPerPage, filterValue])
+    getSearchingData(1)
+  }, [itemPerPage, filterValue, sortField, sortOrder])
 
   const TableToolbar = () => {
     return (
@@ -651,6 +661,7 @@ const CallLogsReport = () => {
               }}
               scroll={{ x: 'max-content', y: 'calc(100vh - 217px)' }}
               size="small"
+              onChange={handleTableChange}
             />
             </ReportTableDndShell>
             <div className="table-bottom">

@@ -176,11 +176,25 @@ class AffiliateController extends Controller
             ->select()
             ->addSelect(DB::raw('(SELECT tv_households FROM t_v_households WHERE t_v_households.market = affiliates.market LIMIT 1) AS tv_households'))
             ->when(
-                !empty($orderBy),
+                empty(request('sortField')) && !empty($orderBy),
                 fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
             )
             ->tap(function ($query) use ($affiliateFieldMap, $affiliateAllowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $affiliateFieldMap, $affiliateAllowed);
+            })
+            ->when(!empty(request('sortField')) && !empty(request('sortOrder')), function ($query) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortFieldMap = [
+                    'affiliate_id' => 'affiliate_id', 'affiliate_name' => 'affiliate_name',
+                    'ownership' => 'ownership_type', 'ownership_name' => 'ownership_name',
+                    'zip_code' => 'zip_code', 'website' => 'website', 'tv_households' => 'tv_households',
+                    'market' => 'market', 'email' => 'email', 'telephone' => 'telephone',
+                    'address' => 'address', 'contact_name' => 'contact_name', 'contact_telephone' => 'contact_telephone',
+                ];
+                if (isset($sortFieldMap[$sortField])) {
+                    $query->orderBy($sortFieldMap[$sortField], $sortOrder);
+                }
             })
             ->paginate($itemPerPage);
 
@@ -237,11 +251,34 @@ class AffiliateController extends Controller
         ];
         $archivedAllowed = array_values($archivedFieldMap);
 
-        $allAffiliates = Affiliate::where('status', '=', '0')
+        $query = Affiliate::where('status', '=', '0')
             ->tap(function ($query) use ($archivedFieldMap, $archivedAllowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $archivedFieldMap, $archivedAllowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = [
+                'affiliate_id' => 'affiliate_id',
+                'affiliate_name' => 'affiliate_name',
+                'ownership' => 'ownership_type',
+                'ownership_name' => 'ownership_name',
+                'zip_code' => 'zip_code',
+                'website' => 'website',
+                'market' => 'market',
+                'email' => 'email',
+                'telephone' => 'telephone',
+                'address' => 'address',
+                'contact_name' => 'contact_name',
+                'contact_telephone' => 'contact_telephone',
+            ];
+            if (array_key_exists($sortField, $sortableColumns)) {
+                $query->orderBy($sortableColumns[$sortField], $sortOrder);
+            }
+        }
+
+        $allAffiliates = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allAffiliates;

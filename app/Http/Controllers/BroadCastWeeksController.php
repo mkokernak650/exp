@@ -67,15 +67,34 @@ class BroadCastWeeksController extends Controller
                 $this->makeConditionQuery($broadCastWeeksData, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
 
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortableColumns = ['broad_cast_week', 'start_date', 'end_date', 'days_count'];
+                if (in_array($sortField, $sortableColumns)) {
+                    $broadCastWeeksData->orderBy($sortField, $sortOrder);
+                }
+            }
+
             $paginatedData = $broadCastWeeksData->paginate(request('itemPerPage') ?? 10);
 
             return $paginatedData;
         }
 
-        $allBroadCastWeeks = BroadCastWeeks::query()
+        $query = BroadCastWeeks::query()
             ->select('*')
-            ->selectRaw('DATEDIFF(end_date, start_date) + 1 as days_count')
-            ->paginate(request('itemPerPage') ?? 10);
+            ->selectRaw('DATEDIFF(end_date, start_date) + 1 as days_count');
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['broad_cast_week', 'start_date', 'end_date', 'days_count'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $allBroadCastWeeks = $query->paginate(request('itemPerPage') ?? 10);
 
         if (request('page')) {
             return $allBroadCastWeeks;

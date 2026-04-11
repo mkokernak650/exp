@@ -74,10 +74,53 @@ class BilledCallLogController extends Controller
             }
 
             $this->applyRingbaFilters($ringbaDataQuery, request('filteredValue'), $allowedFields, $fieldMap);
+
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortFieldMap = [
+                    'Call_Status' => 'call_Logs_status',
+                ];
+                $dbSortField = $sortFieldMap[$sortField] ?? $sortField;
+                $sortableColumns = [
+                    'SN', 'Call_Date_Time', 'Has_Annotation', 'Annotation_Tag', 'call_Logs_status',
+                    'Duplicate_Call', 'Recording_Url', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign',
+                    'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number',
+                    'Target_Description', 'Source_Hangup', 'Time_To_Call', 'call_Length_In_Seconds',
+                    'Revenue', 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit',
+                    'City', 'State', 'Zipcode',
+                ];
+                if (in_array($dbSortField, $sortableColumns)) {
+                    $ringbaDataQuery->orderBy($dbSortField, $sortOrder);
+                }
+            }
+
             return $ringbaDataQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $billedCallLogs = BilledCallLog::paginate(request('itemPerPage') ?? 10);
+        $query = BilledCallLog::query();
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortFieldMap = [
+                'Call_Status' => 'call_Logs_status',
+            ];
+            $dbSortField = $sortFieldMap[$sortField] ?? $sortField;
+            $sortableColumns = [
+                'SN', 'Call_Date_Time', 'Has_Annotation', 'Annotation_Tag', 'call_Logs_status',
+                'Duplicate_Call', 'Recording_Url', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign',
+                'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number',
+                'Target_Description', 'Source_Hangup', 'Time_To_Call', 'call_Length_In_Seconds',
+                'Revenue', 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit',
+                'City', 'State', 'Zipcode',
+            ];
+            if (in_array($dbSortField, $sortableColumns)) {
+                $query->orderBy($dbSortField, $sortOrder);
+            }
+        }
+
+        $billedCallLogs = $query->paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $billedCallLogs;
         }

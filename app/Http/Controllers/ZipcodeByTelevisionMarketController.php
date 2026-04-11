@@ -29,10 +29,31 @@ class ZipcodeByTelevisionMarketController extends Controller
                 $cond = $conditions->items[$i];
                 $this->makeConditionQuery($zipDataQuery, $conditions->groupName, $cond->field, $cond->operator, $cond->value);
             }
+
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortableColumns = ['market', 'state', 'county', 'city', 'population', 'zip_code', 'fips', 'median_household_income_2007_2011', 'race_americanindian', 'race_asian', 'race_white', 'race_black', 'race_hawaiian', 'race_hispanic', 'race_other'];
+                if (in_array($sortField, $sortableColumns)) {
+                    $zipDataQuery->orderBy($sortField, $sortOrder);
+                }
+            }
+
             return $zipDataQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $allZipcodesByTelevisionMarket = ZipcodeByTelevisionMarket::paginate(request('itemPerPage') ?? 10);
+        $query = ZipcodeByTelevisionMarket::query();
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['market', 'state', 'county', 'city', 'population', 'zip_code', 'fips', 'median_household_income_2007_2011', 'race_americanindian', 'race_asian', 'race_white', 'race_black', 'race_hawaiian', 'race_hispanic', 'race_other'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $allZipcodesByTelevisionMarket = $query->paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $allZipcodesByTelevisionMarket;
         }

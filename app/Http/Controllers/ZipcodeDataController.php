@@ -58,6 +58,15 @@ class ZipcodeDataController extends Controller
 
         $states = ZipCodeData::select('State')->whereNotNull('State')->orderBy('State')->distinct()->pluck('State');
 
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['NPA', 'NXX', 'NPANXX', 'ZipCode', 'State', 'City', 'County', 'CountyPop', 'ZipCodeCount', 'ZipCodeFreq', 'Latitude', 'Longitude', 'TimeZone', 'ObservesDST', 'NXXUseType', 'NXXIntroVersion', 'NPANew', 'FIPS', 'LATA', 'Overlay', 'RateCenter', 'SwitchCLLI', 'MSA_CBSA', 'MSA_CBSA_CODE', 'OCN', 'Company', 'CoverageAreaName', 'Flags', 'WeightedLat', 'WeightedLon'];
+            if (in_array($sortField, $sortableColumns)) {
+                $zipDataQuery->orderBy($sortField, $sortOrder);
+            }
+        }
+
         $allZipcodes = $zipDataQuery->paginate(request('itemPerPage') ?? 15);
         if (request('page')) {
             return $allZipcodes;

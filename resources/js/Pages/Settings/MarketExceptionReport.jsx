@@ -66,6 +66,8 @@ const MarketExceptionReport = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState(marketExceptions.total || 0)
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const handleEditChange = (e) => {
     const { name, value } = e.target
@@ -221,7 +223,7 @@ const MarketExceptionReport = () => {
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
     await axios.get('/market-exception-report', {
-      params: { page, itemPerPage, filteredValue: activeFilterJSON },
+      params: { page, itemPerPage, filteredValue: activeFilterJSON, sortField, sortOrder },
     })
       .then((res) => {
         setData(mapMarketExceptionRows(res.data.data || [], page, itemPerPage))
@@ -273,7 +275,7 @@ const MarketExceptionReport = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage, activeFilterJSON])
+  }, [itemPerPage, activeFilterJSON, sortField, sortOrder])
 
   const handleExportTypeChange = (e) => {
     setType(e.target.value)
@@ -346,23 +348,27 @@ const MarketExceptionReport = () => {
     },
   }
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         return base
@@ -443,6 +449,7 @@ const MarketExceptionReport = () => {
               pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
+              onChange={handleTableChange}
             />
             </ReportTableDndShell>
             <div className="table-bottom">

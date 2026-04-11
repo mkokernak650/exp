@@ -79,10 +79,27 @@ class ExceptionController extends Controller
                     }
                 });
             }
+            if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+                $sortField = request('sortField');
+                $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+                $sortableColumns = ['SN', 'Call_Date_Time', 'Has_Annotation', 'Annotation_Tag', 'call_Logs_status', 'Duplicate_Call', 'Recording_Url', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign', 'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number', 'Target_Description', 'Source_Hangup', 'Time_To_Call', 'call_Length_In_Seconds', 'Revenue', 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode'];
+                if (in_array($sortField, $sortableColumns)) {
+                    $ExceptionDataQuery->orderBy($sortField, $sortOrder);
+                }
+            }
             return $ExceptionDataQuery->paginate(request('itemPerPage') ?? 10);
         }
 
-        $allExceptions = self::$Exception::paginate(request('itemPerPage') ?? 10);
+        $query = Exception::query();
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['SN', 'Call_Date_Time', 'Has_Annotation', 'Annotation_Tag', 'call_Logs_status', 'Duplicate_Call', 'Recording_Url', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign', 'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number', 'Target_Description', 'Source_Hangup', 'Time_To_Call', 'call_Length_In_Seconds', 'Revenue', 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+        $allExceptions = $query->paginate(request('itemPerPage') ?? 10);
         if (request('page')) {
             return $allExceptions;
         }

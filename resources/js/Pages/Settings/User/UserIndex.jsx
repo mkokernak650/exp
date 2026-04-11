@@ -30,6 +30,8 @@ const UserIndex = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState(users.total || 0)
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('')
 
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
@@ -82,9 +84,19 @@ const UserIndex = () => {
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
 
+  const handleTableChange = (_pagination, _filters, sorter) => {
+    if (sorter.order) {
+      setSortField(sorter.field)
+      setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
+    } else {
+      setSortField('')
+      setSortOrder('')
+    }
+  }
+
   const getSearchingData = async (page = 1) => {
     setCurrentPage(page)
-    await axios.get(`/user?page=${page}&itemPerPage=${itemPerPage}`).then((res) => {
+    await axios.get(`/user?page=${page}&itemPerPage=${itemPerPage}` + '&sortField=' + sortField + '&sortOrder=' + sortOrder).then((res) => {
       setData(
         (res.data.data || []).map((item) => ({
           edit: item.id,
@@ -215,7 +227,7 @@ const UserIndex = () => {
 
   useEffect(() => {
     getSearchingData(1)
-  }, [itemPerPage])
+  }, [itemPerPage, sortField, sortOrder])
 
   useEffect(() => {
     const syncTablePanelHeight = () => {
@@ -279,19 +291,13 @@ const UserIndex = () => {
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
+        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
+          sorter: hasSorter ? true : undefined,
         }
 
         return base
@@ -359,6 +365,7 @@ const UserIndex = () => {
               pagination={false}
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
+              onChange={handleTableChange}
             />
             </ReportTableDndShell>
             <div className="table-bottom">

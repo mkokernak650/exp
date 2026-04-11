@@ -47,11 +47,21 @@ class CorporationController extends Controller
         $fieldMap = ['broadcast_group_name' => 'broadcast_group_name'];
         $allowed  = ['broadcast_group_name'];
 
-        $allBroadcastGroupNames = BroadcastGroupName::query()
+        $query = BroadcastGroupName::query()
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['broadcast_group_name'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $allBroadcastGroupNames = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allBroadcastGroupNames;
@@ -149,11 +159,21 @@ class CorporationController extends Controller
         $fieldMap = ['mso_name' => 'mso_name'];
         $allowed  = ['mso_name'];
 
-        $allMsoNames = MsoName::query()
+        $query = MsoName::query()
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['mso_name'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $allMsoNames = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allMsoNames;
@@ -251,11 +271,21 @@ class CorporationController extends Controller
         $fieldMap = ['network_name' => 'network_name'];
         $allowed  = ['network_name'];
 
-        $allNetworkNames = NetworkName::query()
+        $query = NetworkName::query()
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
-            })
-            ->paginate($itemPerPage);
+            });
+
+        if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
+            $sortField = request('sortField');
+            $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
+            $sortableColumns = ['network_name'];
+            if (in_array($sortField, $sortableColumns)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $allNetworkNames = $query->paginate($itemPerPage);
 
         if (request('page')) {
             return $allNetworkNames;
