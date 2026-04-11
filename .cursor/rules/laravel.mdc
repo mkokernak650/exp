@@ -1,0 +1,20 @@
+---
+description: Laravel backend conventions — controllers, validation, policies
+globs: app/**/*.php,routes/**/*.php,database/**/*.php
+alwaysApply: false
+---
+
+# Patterns
+
+- Prefer Form Request classes or explicit `$request->validate()` for input validation.
+- Use Eloquent relationships and eager loading to avoid N+1 queries in Inertia props.
+- Authorization: policies/gates; never rely on hidden form fields or client-side checks alone for sensitive actions.
+
+# Inertia responses
+
+- Return `Inertia::render('Page/Name', [...])` with only data the page needs; avoid dumping large unrelated models.
+
+# Migrations
+
+- Keep migrations reversible when possible; call out destructive changes (column drops, data backfills).
+

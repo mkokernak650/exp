@@ -1,0 +1,27 @@
+---
+description: Laravel + Inertia + React stack and boundaries for this repo
+alwaysApply: true
+---
+
+# Stack
+
+- Backend: Laravel 9, PHP 8.0+
+- Frontend: React 17, Inertia.js (@inertiajs/inertia-react), Vite (laravel-vite-plugin)
+- UI: Ant Design (antd), Tailwind available; follow existing pages first
+- Routes in JS: prefer Ziggy (`route()`) where the project already uses it
+
+# Structure
+
+- Inertia pages: `resources/js/Pages/`
+- Shared components: `resources/js/Components/`, `resources/js/Shared/`
+- Path alias: `@/` maps to `resources/js/` (match existing imports)
+
+# Conventions
+
+- Match existing file style (this repo uses `.js`/`.jsx`, not TypeScript unless a file already is).
+- Reuse existing helpers (e.g. under `resources/js/Helpers/`) instead of new utilities when possible.
+- Do not upgrade major versions (Laravel, Inertia, React, antd) in a normal task unless explicitly requested.
+
+# New dependencies
+
+- Do not add npm or Composer packages without explicit user approval; prefer built-in Laravel / existing packages.
