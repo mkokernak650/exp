@@ -5,7 +5,7 @@ import { filterData } from '../filterData'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
 import { Tooltip, Switch, Button, Input, Row, Col, Table } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
 import ConfirmModal from '@/Shared/ConfirmModal'
@@ -295,8 +295,13 @@ const CampaignIndex = () => {
         }
         if (col.key === 'affiliates') {
           base.render = (value) => (
-            <InertiaLink href={route('ecommerce.campaigns.affiliates', value)}>
-              Affiliates
+            <InertiaLink
+              href={route('ecommerce.campaigns.affiliates', value)}
+              className="inline-flex items-center gap-1 text-blue-600 font-medium underline decoration-blue-500/90 underline-offset-2 hover:text-blue-800 hover:decoration-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 rounded-sm"
+              title="Open the affiliate list for this campaign"
+            >
+              <LinkOutlined className="text-[13px]" aria-hidden />
+              View affiliates
             </InertiaLink>
           )
         }

@@ -125,7 +125,7 @@ export const columns = [
   {
     key: 'affiliates',
     title: 'Affiliates',
-    style: { width: 100 },
+    style: { width: 150 },
     visible: true,
   },
   {
