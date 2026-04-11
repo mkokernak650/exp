@@ -1,11 +1,23 @@
 ---
-name: saas-security-pass
-description: Reviews or hardens changes for multi-customer SaaS safety (authorization, data scoping, mass assignment, secrets). Use before finishing features that touch IDs from the client, customer/affiliate/campaign data, exports, deletes, or public/token links.
+name: review-multi-tenant-security
+description: >-
+  Reviews or hardens changes for multi-customer SaaS safety (authorization, data scoping, mass
+  assignment, secrets). Use before finishing features that touch IDs from the client,
+  customer/affiliate/campaign data, exports, deletes, or public/token links.
 ---
 
-# SaaS security pass
+# Multi-tenant security review
 
 Run this mentally (and in code) before treating a task as done when it touches **tenant-like data** (customers, affiliates, campaigns, insertion orders, call logs, etc.) or **destructive** actions.
+
+## Example prompts (best practice)
+
+Reference the feature, IDs from the client, and whether routes are public or authenticated so the review covers authorization, scoping, and disclosure.
+
+- **Pre-merge review**: “Use review-multi-tenant-security on my current branch diff for the new affiliate bulk-export: check query scoping, policy/middleware on the export route, and that CSV columns do not leak other customers’ data.”
+- **ID from the browser**: “I added `POST /api/campaigns/{id}/archive` called from the React table — review that `{id}` is resolved and authorized the same way as `CampaignController@update`, not just hidden in the UI.”
+- **Public / token route**: “Review `FooPublicController@show` for information disclosure: token entropy, rate limiting compared to similar public routes, and minimal props for the Inertia page.”
+- **Mass assignment**: “We added new columns on `Affiliate`; review the create/update endpoints for `$fillable` / validation and any `request()->all()` usage.”
 
 ## 1. Identity and authorization
 

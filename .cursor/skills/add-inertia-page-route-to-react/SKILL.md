@@ -1,13 +1,25 @@
 ---
-name: inertia-screen-full-slice
-description: Adds or extends a full Inertia screen (Laravel route, controller, React page, props). Use when creating a new authenticated page, wiring a GET index/show/create form, or connecting `Inertia::render` to `resources/js/Pages`.
+name: add-inertia-page-route-to-react
+description: >-
+  Adds or extends an Inertia page end-to-end: Laravel route, controller, React page, and props.
+  Use when creating a new authenticated page, wiring a GET index/show/create form, or connecting
+  `Inertia::render` to `resources/js/Pages`.
 ---
 
-# New Inertia screen (full slice)
+# Add an Inertia page (route → controller → React)
+
+## Example prompts (best practice)
+
+Use prompts that name the feature, URL shape, and data you need so the agent mirrors an existing flow end-to-end.
+
+- **New index page**: “Add an authenticated GET index at `/settings/widget-inventory` named `settings.widget-inventory` that lists widgets from `WidgetController@index`. Create `resources/js/Pages/Settings/WidgetInventory.jsx`, follow `Settings/AffiliateReport.jsx` for layout and props, and pass only `widgets` + pagination meta from `Inertia::render`.”
+- **Show/detail**: “Add `GET /campaigns/{campaign}/summary` with route name `campaigns.summary`, `CampaignController@summary`, and `resources/js/Pages/Campaign/CampaignSummary.jsx`. The page needs the campaign, its annotations (eager loaded), and Ziggy-safe links back to the campaign edit page.”
+- **Create form (GET + POST)**: “Wire `GET/POST /foo-bars/create` and `foo-bars.store` like the existing create pattern in this app: Form Request validation on store, policy check, `Inertia::render` for the form with dropdown options as props, and on success redirect with flash.”
+- **Extend existing page**: “The Affiliate Report page already exists; add a new prop `regions` from `AffiliateController@affiliateReport` and render a filter `<Select>` without changing route names or breaking `route('affiliate.report')`.”
 
 ## Reference implementation
 
-Mirror an existing flow end-to-end: `InsertionOrderController@index` → `routes/web.php` (`insertion.order` routes) → `resources/js/Pages/InsertionOrder/InsertionOrderIndex.jsx`.
+Mirror an existing flow end-to-end: `AffiliateController@affiliateReport` → `routes/web.php` (route name `affiliate.report`, path `/affiliate-report`) → `resources/js/Pages/Settings/AffiliateReport.jsx`.
 
 ## Workflow
 
@@ -18,8 +30,8 @@ Mirror an existing flow end-to-end: `InsertionOrderController@index` → `routes
 
 2. **Controller** (`app/Http/Controllers/`)
    - Add or extend a controller method; `use Inertia\Inertia;` and return `Inertia::render('Folder/PageName', $props)`.
-   - The first argument is the path under `resources/js/Pages/` without extension (e.g. `InsertionOrder/InsertionOrderIndex`).
-   - Pass only props the page needs; eager load relationships to avoid N+1 (see `InsertionOrderController@index`).
+   - The first argument is the path under `resources/js/Pages/` without extension (e.g. `Settings/AffiliateReport`).
+   - Pass only props the page needs; eager load relationships to avoid N+1 (see `AffiliateController@affiliateReport`).
    - For list pages that support AJAX pagination/filtering, follow the existing pattern: if `request('page')` (or equivalent) is set, return JSON/data only; otherwise return `Inertia::render` with the first load payload.
 
 3. **React page** (`resources/js/Pages/`)
