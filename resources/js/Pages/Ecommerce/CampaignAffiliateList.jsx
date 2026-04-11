@@ -71,6 +71,11 @@ const CampaignAffiliateList = () => {
     })
   }
 
+  const handleReorderColumns = (reordered) => {
+    setColumns(reordered)
+    addTableDetails(columnDetails, setColumnDetails, reordered, optionKey)
+  }
+
   const orderByOptions = [
     { label: 'Affiliate Name (Ascending)', value: 'affiliates.affiliate_name@ASC' },
     { label: 'Affiliate Name (Descending)', value: 'affiliates.affiliate_name@DESC' },
@@ -210,7 +215,7 @@ const CampaignAffiliateList = () => {
           </div>
           {showColumns ? (
             <div className="column-settings" ref={showColumnRef}>
-              <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+              <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
             </div>
           ) : (
             ''

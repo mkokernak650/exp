@@ -100,6 +100,11 @@ const CampaignIndex = () => {
     })
   }
 
+  const handleReorderColumns = (reordered) => {
+    setColumns(reordered)
+    addTableDetails(columnDetails, setColumnDetails, reordered, optionKey)
+  }
+
   const handleEdit = (itemId) => {
     data.filter((item) => {
       if (item.id == itemId) {
@@ -349,7 +354,7 @@ const CampaignIndex = () => {
 
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
               </div>
             ) : (
               ''

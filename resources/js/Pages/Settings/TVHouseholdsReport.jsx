@@ -86,6 +86,11 @@ const CustomerReport = () => {
     })
   }
 
+  const handleReorderColumns = (reordered) => {
+    setColumns(reordered)
+    addTableDetails(columnDetails, setColumnDetails, reordered, optionKey)
+  }
+
   const [filterValue, changeFilter] = useState(filter)
   const [serachSidebar, setSearchSidebar] = useState(false)
   const activeFilterCount = countActiveFilters(filterValue)
@@ -393,7 +398,7 @@ const CustomerReport = () => {
             </div>
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
               </div>
             ) : (
               ''

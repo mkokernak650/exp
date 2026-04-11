@@ -130,6 +130,11 @@ const ArchivedCallLogReports = () => {
     })
   }
 
+  const handleReorderColumns = (reordered) => {
+    setColumns(reordered)
+    addTableDetails(columnDetails, setColumnDetails, reordered, optionKey)
+  }
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
@@ -393,7 +398,7 @@ const ArchivedCallLogReports = () => {
             </div>
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
               </div>
             ) : (
               ''

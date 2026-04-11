@@ -227,6 +227,11 @@ const SalesIndex = () => {
     })
   }
 
+  const handleReorderColumns = (reordered) => {
+    setColumns(reordered)
+    addTableDetails(columnDetails, setColumnDetails, reordered, optionKey)
+  }
+
   const [serachSidebar, setSearchSidebar] = useState(false)
 
   const handleSearch = () => {
@@ -536,7 +541,7 @@ const SalesIndex = () => {
             </div>
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} />
+                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
               </div>
             ) : (
               ''
