@@ -15,6 +15,8 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { ECOMMERCE_AFFILIATE_NUMERIC_SORT_KEYS } from '@/Helpers/ecommerceReportNumericSortKeys'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { columns as defaultColumns, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -490,12 +492,19 @@ const AffiliateIndex = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: ECOMMERCE_AFFILIATE_NUMERIC_SORT_KEYS,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
         if (col.key === 'status') {
           base.render = (value) => (value == 1 ? 'Active' : 'Inactive')

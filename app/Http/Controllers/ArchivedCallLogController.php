@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArchivedCallLog;
 use App\Models\RingbaCallLog;
 use App\Models\TableDetails;
+use App\Support\ReportTableSort;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -76,7 +77,13 @@ class ArchivedCallLogController extends Controller
                     'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode',
                 ];
                 if (in_array($dbSortField, $sortableColumns)) {
-                    $ringbaDataQuery->orderBy($dbSortField, $sortOrder);
+                    ReportTableSort::apply(
+                        $ringbaDataQuery,
+                        $dbSortField,
+                        $sortOrder,
+                        $sortableColumns,
+                        ReportTableSort::RINGBA_NUMERIC_SORT_COLUMNS
+                    );
                 }
             }
 
@@ -100,7 +107,13 @@ class ArchivedCallLogController extends Controller
                 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode',
             ];
             if (in_array($dbSortField, $sortableColumns)) {
-                $query->orderBy($dbSortField, $sortOrder);
+                ReportTableSort::apply(
+                    $query,
+                    $dbSortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ReportTableSort::RINGBA_NUMERIC_SORT_COLUMNS
+                );
             }
         }
 

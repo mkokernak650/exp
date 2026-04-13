@@ -8,6 +8,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { styles, columns as defaultColumns } from './Helpers/InsertionOrderIndexProps'
 import { Button, Tooltip, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
@@ -217,12 +218,20 @@ const InsertionOrderIndex = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const insertionOrderNumericKeys = new Set(['id', 'status'])
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: insertionOrderNumericKeys,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
         if (col.key === 'id') {
           base.render = (value) => 'IO-' + String(value).padStart(3, '0')

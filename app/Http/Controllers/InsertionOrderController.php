@@ -14,6 +14,7 @@ use App\Notifications\IOLink;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use App\Support\ReportTableSort;
 use Inertia\Inertia;
 
 class InsertionOrderController extends Controller
@@ -44,7 +45,14 @@ class InsertionOrderController extends Controller
             } elseif ($sortField === 'formatted_created_at') {
                 $ioQuery->orderBy('insertion_orders.created_at', $sortOrder);
             } elseif (in_array($sortField, $sortableColumns)) {
-                $ioQuery->orderBy("insertion_orders.{$sortField}", $sortOrder);
+                ReportTableSort::apply(
+                    $ioQuery,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ['id', 'status'],
+                    'insertion_orders'
+                );
             }
         }
 

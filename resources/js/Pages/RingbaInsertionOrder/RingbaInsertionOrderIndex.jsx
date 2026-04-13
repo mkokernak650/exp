@@ -8,6 +8,8 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { RINGBA_INSERTION_ORDER_NUMERIC_SORT_KEYS } from '@/Helpers/ecommerceReportNumericSortKeys'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { styles, columns as defaultColumns } from './Helpers/RingbaInsertionOrderIndexProps'
 import { Button, Tooltip, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
@@ -224,12 +226,19 @@ const RingbaInsertionOrderIndex = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: RINGBA_INSERTION_ORDER_NUMERIC_SORT_KEYS,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
         if (col.key === 'id') {
           base.render = (value) => 'IO-' + String(value).padStart(3, '0')

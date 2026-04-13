@@ -17,6 +17,7 @@ import { fields, filter, columns as defaultColumns } from './Helpers/ActivityLog
 import { DateTimeFormat } from '../../Helpers/DateTimeFormat'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 
 const ActivityLog = () => {
@@ -243,12 +244,19 @@ const ActivityLog = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: new Set(),
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
 
         if (col.key === 'created_at' || col.key === 'updated_at') {

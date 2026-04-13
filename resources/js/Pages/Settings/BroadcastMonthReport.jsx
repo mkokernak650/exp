@@ -20,6 +20,8 @@ import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastMo
 import mergeColumns from '@/Helpers/MergeColumns'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
+import { BROADCAST_DAYS_COUNT_SORT_KEYS } from '@/Helpers/zipcodeReportNumericSortKeys'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 
 const BroadcastMonthReport = () => {
@@ -322,12 +324,19 @@ const BroadcastMonthReport = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: BROADCAST_DAYS_COUNT_SORT_KEYS,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
 
         if (col.key === 'status') {

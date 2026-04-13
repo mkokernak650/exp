@@ -17,6 +17,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { clientColumnSorter, createAntdColumnBase } from '@/Helpers/reportTableSort'
 import CustomFilter from '@/Components/CustomFilter'
 import { SearchedFields } from '@/Helpers/SearchedFields'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
@@ -279,20 +280,9 @@ const CampaignIndex = () => {
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell' && c.key !== 'edit')
       .map((col) => {
-        const base = {
-          key: col.key,
-          dataIndex: col.key,
-          title: col.title || '',
-          width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
-        }
+        const base = createAntdColumnBase(col, {
+          sorter: clientColumnSorter(col),
+        })
         if (col.key === 'affiliates') {
           base.render = (value) => (
             <InertiaLink

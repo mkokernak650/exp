@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\BroadCastWeeks;
 use App\Models\TableDetails;
+use App\Support\ReportTableSort;
 use Carbon\Carbon;
 
 class BroadCastWeeksController extends Controller
@@ -72,7 +73,18 @@ class BroadCastWeeksController extends Controller
                 $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
                 $sortableColumns = ['broad_cast_week', 'start_date', 'end_date', 'days_count'];
                 if (in_array($sortField, $sortableColumns)) {
-                    $broadCastWeeksData->orderBy($sortField, $sortOrder);
+                    if ($sortField === 'days_count') {
+                        ReportTableSort::orderByDateRangeDayCount($broadCastWeeksData, $sortOrder);
+                    } else {
+                        ReportTableSort::apply(
+                            $broadCastWeeksData,
+                            $sortField,
+                            $sortOrder,
+                            $sortableColumns,
+                            [],
+                            'broad_cast_weeks'
+                        );
+                    }
                 }
             }
 
@@ -90,7 +102,18 @@ class BroadCastWeeksController extends Controller
             $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
             $sortableColumns = ['broad_cast_week', 'start_date', 'end_date', 'days_count'];
             if (in_array($sortField, $sortableColumns)) {
-                $query->orderBy($sortField, $sortOrder);
+                if ($sortField === 'days_count') {
+                    ReportTableSort::orderByDateRangeDayCount($query, $sortOrder);
+                } else {
+                    ReportTableSort::apply(
+                        $query,
+                        $sortField,
+                        $sortOrder,
+                        $sortableColumns,
+                        [],
+                        'broad_cast_weeks'
+                    );
+                }
             }
         }
 

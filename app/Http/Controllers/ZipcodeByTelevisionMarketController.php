@@ -7,6 +7,7 @@ use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Support\ReportTableSort;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 
@@ -34,8 +35,21 @@ class ZipcodeByTelevisionMarketController extends Controller
                 $sortField = request('sortField');
                 $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
                 $sortableColumns = ['market', 'state', 'county', 'city', 'population', 'zip_code', 'fips', 'median_household_income_2007_2011', 'race_americanindian', 'race_asian', 'race_white', 'race_black', 'race_hawaiian', 'race_hispanic', 'race_other'];
+                $numericSortColumns = [
+                    'population', 'zip_code', 'fips', 'median_household_income_2007_2011',
+                    'race_americanindian', 'race_asian', 'race_white', 'race_black',
+                    'race_hawaiian', 'race_hispanic', 'race_other',
+                ];
                 if (in_array($sortField, $sortableColumns)) {
-                    $zipDataQuery->orderBy($sortField, $sortOrder);
+                    ReportTableSort::apply(
+                        $zipDataQuery,
+                        $sortField,
+                        $sortOrder,
+                        $sortableColumns,
+                        $numericSortColumns,
+                        'zipcode_by_television_markets'
+                    );
+                    $zipDataQuery->orderBy('zipcode_by_television_markets.id');
                 }
             }
 
@@ -48,8 +62,21 @@ class ZipcodeByTelevisionMarketController extends Controller
             $sortField = request('sortField');
             $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
             $sortableColumns = ['market', 'state', 'county', 'city', 'population', 'zip_code', 'fips', 'median_household_income_2007_2011', 'race_americanindian', 'race_asian', 'race_white', 'race_black', 'race_hawaiian', 'race_hispanic', 'race_other'];
+            $numericSortColumns = [
+                'population', 'zip_code', 'fips', 'median_household_income_2007_2011',
+                'race_americanindian', 'race_asian', 'race_white', 'race_black',
+                'race_hawaiian', 'race_hispanic', 'race_other',
+            ];
             if (in_array($sortField, $sortableColumns)) {
-                $query->orderBy($sortField, $sortOrder);
+                ReportTableSort::apply(
+                    $query,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    $numericSortColumns,
+                    'zipcode_by_television_markets'
+                );
+                $query->orderBy('zipcode_by_television_markets.id');
             }
         }
 

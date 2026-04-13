@@ -6,6 +6,7 @@ use App\Exports\EcommerceCampaignAffiliateListExport;
 use App\Models\Customer;
 use App\Models\EcommerceCampaign;
 use App\Models\TableDetails;
+use App\Support\ReportTableSort;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -164,7 +165,11 @@ class EcommerceCampaignController extends Controller
                     'created_at' => 'affiliates.created_at',
                 ];
                 if (array_key_exists($sortField, $sortableColumns)) {
-                    $query->orderBy($sortableColumns[$sortField], $sortOrder);
+                    if ($sortField === 'tv_households') {
+                        ReportTableSort::orderByCastDecimalColumn($query, 'tv_households', $sortOrder);
+                    } else {
+                        $query->orderBy($sortableColumns[$sortField], $sortOrder);
+                    }
                 }
             })
             ->when(

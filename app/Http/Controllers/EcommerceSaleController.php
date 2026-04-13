@@ -14,6 +14,7 @@ use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
 use App\Models\SalesImportFieldMap;
 use App\Models\TableDetails;
+use App\Support\ReportTableSort;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -92,7 +93,14 @@ class EcommerceSaleController extends Controller
             } elseif ($sortField === 'affiliate_name') {
                 $salesQuery->orderBy('affiliate_name', $sortOrder);
             } elseif (in_array($sortField, $sortableColumns)) {
-                $salesQuery->orderBy($sortField, $sortOrder);
+                ReportTableSort::apply(
+                    $salesQuery,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ['quantity', 'subtotal', 'shipping_cost', 'total', 'revenue', 'order_no'],
+                    'ecommerce_sales'
+                );
             }
         }
 

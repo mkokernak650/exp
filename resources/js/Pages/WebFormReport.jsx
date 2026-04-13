@@ -14,6 +14,7 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { numericColumnSorter } from '@/Helpers/reportTableSort'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Settings/Helpers/WebFormReportProps'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
@@ -196,11 +197,15 @@ const WebFormReport = () => {
           width: col.style?.width || col.width,
           sorter:
             col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
+              ? numericColumnSorter(col.key)
               : col.dataType === 'date'
                 ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
                 : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
+                  ? (a, b) =>
+                      String(a[col.key] ?? '').localeCompare(String(b[col.key] ?? ''), undefined, {
+                        numeric: true,
+                        sensitivity: 'base',
+                      })
                   : undefined,
         }
         if (col.key === 'Website') {

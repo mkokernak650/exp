@@ -17,6 +17,8 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { CAMPAIGN_SETTING_NUMERIC_SORT_KEYS } from '@/Helpers/ecommerceReportNumericSortKeys'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { columns as defaultColumns, fields, filter } from './Helpers/CampaignSettingReportProps'
 
@@ -331,12 +333,21 @@ const CampaignSettingReport = () => {
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
+        const hasSorter =
+          col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: CAMPAIGN_SETTING_NUMERIC_SORT_KEYS,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: (col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string') ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
 
         if (col.key === 'status') {

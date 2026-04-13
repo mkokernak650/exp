@@ -134,7 +134,7 @@ export const columns = [
   {
     key: 'population',
     title: 'Population',
-    dataType: 'string',
+    dataType: 'number',
     style: { width: 130 },
     visible: true,
   },

@@ -16,6 +16,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use App\Support\ReportTableSort;
 use Inertia\Inertia;
 
 class RingbaInsertionOrderTermController extends Controller
@@ -70,7 +71,14 @@ class RingbaInsertionOrderTermController extends Controller
             } elseif ($sortField === 'formatted_created_at') {
                 $rioQuery->orderBy('ringba_insertion_orders.created_at', $sortOrder);
             } elseif (in_array($sortField, $sortableColumns)) {
-                $rioQuery->orderBy("ringba_insertion_orders.{$sortField}", $sortOrder);
+                ReportTableSort::apply(
+                    $rioQuery,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ['id', 'call_length', 'payout', 'revenue', 'status'],
+                    'ringba_insertion_orders'
+                );
             }
         }
 

@@ -7,6 +7,7 @@ use App\Imports\MarketExceptionImport;
 use App\Models\Campaign;
 use App\Models\MarketExcptions;
 use App\Models\TableDetails;
+use App\Support\ReportTableSort;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -122,7 +123,14 @@ class MarketExceptionController extends Controller
             $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
             $sortableColumns = ['market_id', 'state', 'call_type', 'ranks', 'nielsen_households', 'start_date'];
             if (in_array($sortField, $sortableColumns)) {
-                $query->orderBy($sortField, $sortOrder);
+                ReportTableSort::apply(
+                    $query,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ['market_id', 'ranks', 'nielsen_households'],
+                    'market_excptions'
+                );
             }
         }
 

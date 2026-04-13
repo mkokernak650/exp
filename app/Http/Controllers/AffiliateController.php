@@ -9,6 +9,7 @@ use App\Models\MsoName;
 use App\Models\NetworkName;
 use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
+use App\Support\ReportTableSort;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -193,7 +194,15 @@ class AffiliateController extends Controller
                     'address' => 'address', 'contact_name' => 'contact_name', 'contact_telephone' => 'contact_telephone',
                 ];
                 if (isset($sortFieldMap[$sortField])) {
-                    $query->orderBy($sortFieldMap[$sortField], $sortOrder);
+                    $dbCol = $sortFieldMap[$sortField];
+                    $sortableDbCols = array_values(array_unique(array_values($sortFieldMap)));
+                    ReportTableSort::apply(
+                        $query,
+                        $dbCol,
+                        $sortOrder,
+                        $sortableDbCols,
+                        ['tv_households']
+                    );
                 }
             })
             ->paginate($itemPerPage);

@@ -20,6 +20,8 @@ import {
 } from './Helpers/ZipcodeByTelevisionMarketNewProps'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { serverSortColumnBase } from '@/Helpers/reportTableSort'
+import { ZIPCODE_BY_TV_MARKET_NUMERIC_SORT_KEYS } from '@/Helpers/zipcodeReportNumericSortKeys'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
 
 const ZipcodeByTelevisionMarketNew = () => {
@@ -67,18 +69,14 @@ const ZipcodeByTelevisionMarketNew = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const {
-    DraggableResizableHeader,
-    withResizableColumns,
-    dndContextProps,
-    sortableContextProps,
-  } = useReportTableColumns({
-    columns,
-    setColumns,
-    columnDetails,
-    setColumnDetails,
-    optionKey,
-  })
+  const { DraggableResizableHeader, withResizableColumns, dndContextProps, sortableContextProps } =
+    useReportTableColumns({
+      columns,
+      setColumns,
+      columnDetails,
+      setColumnDetails,
+      optionKey,
+    })
 
   const [data, setData] = useState(mapDataArr(allZipcodesByTelevisionMarket))
 
@@ -224,7 +222,7 @@ const ZipcodeByTelevisionMarketNew = () => {
 
   const handleTableChange = (_pagination, _filters, sorter) => {
     if (sorter.order) {
-      setSortField(sorter.field)
+      setSortField(sorter.field ?? sorter.columnKey ?? '')
       setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
     } else {
       setSortField('')
@@ -235,18 +233,13 @@ const ZipcodeByTelevisionMarketNew = () => {
   const antdColumns = withResizableColumns(
     columns
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
-      .map((col) => {
-        const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
-        const base = {
-          key: col.key,
-          dataIndex: col.key,
-          title: col.title || '',
-          width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
-        }
-
-        return base
-      })
+      .map((col) =>
+        serverSortColumnBase(col, {
+          sortField,
+          sortOrder,
+          numericSortColumnKeys: ZIPCODE_BY_TV_MARKET_NUMERIC_SORT_KEYS,
+        })
+      )
   )
 
   return (
@@ -267,7 +260,11 @@ const ZipcodeByTelevisionMarketNew = () => {
                   aria-label="Open filters"
                 >
                   <Filter />
-                  {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+                  {activeFilterCount ? (
+                    <span className="filter-count">{activeFilterCount}</span>
+                  ) : (
+                    ''
+                  )}
                 </button>
               )}
 
@@ -301,7 +298,11 @@ const ZipcodeByTelevisionMarketNew = () => {
             </div>
             {showColumns && (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
+                <ColumnSettings
+                  columns={columns}
+                  onToggleColumn={handleToggleColumn}
+                  onReorderColumns={handleReorderColumns}
+                />
               </div>
             )}
           </div>
@@ -324,19 +325,21 @@ const ZipcodeByTelevisionMarketNew = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
-            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
-            <Table
-              columns={antdColumns}
-              components={{ header: { cell: DraggableResizableHeader } }}
-              dataSource={data}
-              rowKey="id"
-              loading={tableLoading}
-              pagination={false}
-              scroll={{ y: 'calc(100vh - 217px)' }}
-              size="small"
-              onChange={handleTableChange}
-            />
-
+            <ReportTableDndShell
+              dndContextProps={dndContextProps}
+              sortableContextProps={sortableContextProps}
+            >
+              <Table
+                columns={antdColumns}
+                components={{ header: { cell: DraggableResizableHeader } }}
+                dataSource={data}
+                rowKey="id"
+                loading={tableLoading}
+                pagination={false}
+                scroll={{ y: 'calc(100vh - 217px)' }}
+                size="small"
+                onChange={handleTableChange}
+              />
             </ReportTableDndShell>
             <div className="table-bottom">
               <Select

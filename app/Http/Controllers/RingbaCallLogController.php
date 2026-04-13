@@ -21,6 +21,7 @@ use App\Models\RingbaDataFetchedLog;
 use App\Http\Controllers\CampaignController;
 use App\Models\TableDetails;
 use App\Jobs\FetchRingbaData;
+use App\Support\ReportTableSort;
 
 class RingbaCallLogController extends Controller
 {
@@ -653,7 +654,13 @@ class RingbaCallLogController extends Controller
                     'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode',
                 ];
                 if (in_array($sortField, $sortableColumns)) {
-                    $ringbaDataQuery->orderBy($sortField, $sortOrder);
+                    ReportTableSort::apply(
+                        $ringbaDataQuery,
+                        $sortField,
+                        $sortOrder,
+                        $sortableColumns,
+                        ReportTableSort::RINGBA_NUMERIC_SORT_COLUMNS
+                    );
                 }
             }
 
@@ -673,7 +680,13 @@ class RingbaCallLogController extends Controller
                 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode',
             ];
             if (in_array($sortField, $sortableColumns)) {
-                $query->orderBy($sortField, $sortOrder);
+                ReportTableSort::apply(
+                    $query,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ReportTableSort::RINGBA_NUMERIC_SORT_COLUMNS
+                );
             }
         }
 

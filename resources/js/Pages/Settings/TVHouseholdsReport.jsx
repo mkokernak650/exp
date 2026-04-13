@@ -1,10 +1,10 @@
 import Layout from '../Layout/Layout'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import CustomFilter from '@/Components/CustomFilter'
 import Eye from '@/Components/Icons/Eye.jsx'
 import Filter from '@/Components/Icons/Filter.jsx'
-import { Table, Tooltip, Button, Input } from 'antd'
+import { Table, Tooltip, Button, Input, Pagination, Select } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { Helmet } from 'react-helmet'
@@ -35,6 +35,8 @@ const CustomerReport = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [orderByValue, setOrderByValue] = useState('tv_households@DESC')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const showColumnRef = useRef()
   const tablePanelRef = useRef()
   const [tablePanelHeight, setTablePanelHeight] = useState(0)
@@ -61,18 +63,14 @@ const CustomerReport = () => {
       ? JSON.parse(columnsData[0])?.[optionKey]
       : defaultColumns
   )
-  const {
-    DraggableResizableHeader,
-    withResizableColumns,
-    dndContextProps,
-    sortableContextProps,
-  } = useReportTableColumns({
-    columns,
-    setColumns,
-    columnDetails,
-    setColumnDetails,
-    optionKey,
-  })
+  const { DraggableResizableHeader, withResizableColumns, dndContextProps, sortableContextProps } =
+    useReportTableColumns({
+      columns,
+      setColumns,
+      columnDetails,
+      setColumnDetails,
+      optionKey,
+    })
 
   const [data, setData] = useState(mapDataArr(allTVHouseholds))
 
@@ -239,9 +237,14 @@ const CustomerReport = () => {
   const getSearchingData = async () => {
     setLoading(true)
     await axios
-      .get(`/tv-households-report?orderBy=` + orderByValue + '&type=orderBy')
+      .get(
+        `/tv-households-report?orderBy=${encodeURIComponent(orderByValue)}&type=orderBy`
+      )
       .then((res) => {
         setData(mapDataArr(res.data))
+        setLoading(false)
+      })
+      .catch(() => {
         setLoading(false)
       })
   }
@@ -249,6 +252,10 @@ const CustomerReport = () => {
   useEffect(() => {
     getSearchingData()
   }, [orderByValue])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [orderByValue, filterValue])
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showColumns && showColumnRef.current && !showColumnRef.current.contains(e.target)) {
@@ -311,7 +318,19 @@ const CustomerReport = () => {
     },
   }
 
-  const filteredData = filterData(data, filterValue)
+  const filteredData = useMemo(() => filterData(data, filterValue), [data, filterValue])
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredData.slice(start, start + pageSize)
+  }, [filteredData, currentPage, pageSize])
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize) || 1)
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [filteredData.length, pageSize, currentPage])
 
   const antdColumns = withResizableColumns(
     columns
@@ -322,14 +341,6 @@ const CustomerReport = () => {
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter:
-            col.dataType === 'number'
-              ? (a, b) => (a[col.key] ?? 0) - (b[col.key] ?? 0)
-              : col.dataType === 'date'
-                ? (a, b) => new Date(a[col.key] || 0) - new Date(b[col.key] || 0)
-                : col.dataType === 'string'
-                  ? (a, b) => (a[col.key] || '').localeCompare(b[col.key] || '')
-                  : undefined,
         }
 
         if (col.key === 'created_at' || col.key === 'updated_at') {
@@ -360,7 +371,11 @@ const CustomerReport = () => {
                   aria-label="Open filters"
                 >
                   <Filter />
-                  {activeFilterCount ? <span className="filter-count">{activeFilterCount}</span> : ''}
+                  {activeFilterCount ? (
+                    <span className="filter-count">{activeFilterCount}</span>
+                  ) : (
+                    ''
+                  )}
                 </button>
               )}
               <Button type="primary" className="capitalize text-sm" onClick={openImportModal}>
@@ -398,7 +413,11 @@ const CustomerReport = () => {
             </div>
             {showColumns ? (
               <div className="column-settings" ref={showColumnRef}>
-                <ColumnSettings columns={columns} onToggleColumn={handleToggleColumn} onReorderColumns={handleReorderColumns} />
+                <ColumnSettings
+                  columns={columns}
+                  onToggleColumn={handleToggleColumn}
+                  onReorderColumns={handleReorderColumns}
+                />
               </div>
             ) : (
               ''
@@ -423,19 +442,44 @@ const CustomerReport = () => {
             </div>
           </div>
           <div className="report-table-panel" ref={tablePanelRef}>
-            <ReportTableDndShell dndContextProps={dndContextProps} sortableContextProps={sortableContextProps}>
-            <Table
-              columns={antdColumns}
-              components={{ header: { cell: DraggableResizableHeader } }}
-              dataSource={filteredData}
-              rowKey="id"
-              rowSelection={rowSelection}
-              loading={loading}
-              pagination={false}
-              scroll={{ y: 'calc(100vh - 217px)' }}
-              size="small"
-            />
+            <ReportTableDndShell
+              dndContextProps={dndContextProps}
+              sortableContextProps={sortableContextProps}
+            >
+              <Table
+                columns={antdColumns}
+                components={{ header: { cell: DraggableResizableHeader } }}
+                dataSource={paginatedData}
+                rowKey="id"
+                rowSelection={rowSelection}
+                loading={loading}
+                pagination={false}
+                scroll={{ y: 'calc(100vh - 217px)' }}
+                size="small"
+              />
             </ReportTableDndShell>
+            <div className="table-bottom">
+              <Select
+                value={pageSize}
+                onChange={(value) => {
+                  setPageSize(value)
+                  setCurrentPage(1)
+                }}
+                options={[
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+              />
+              <Pagination
+                current={currentPage}
+                total={filteredData.length}
+                pageSize={pageSize}
+                onChange={(page) => setCurrentPage(page)}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -507,5 +551,5 @@ const CustomerReport = () => {
   )
 }
 
-CustomerReport.layout = (page) => <Layout title="Customer Report">{page}</Layout>
+CustomerReport.layout = (page) => <Layout title="TV Households Report">{page}</Layout>
 export default CustomerReport

@@ -25,16 +25,30 @@ class TVHouseholdsController extends Controller
 
     public function TVHouseholdsReport()
     {
-        if (request('orderBy')) {
-            $orderBy          = explode('@', request('orderBy'));
-            $orderByColumn    = $orderBy[0];
-            $orderByDirection = $orderBy[1];
+        $orderByColumn    = null;
+        $orderByDirection = null;
+        if (request()->filled('orderBy')) {
+            $parts = explode('@', request('orderBy'), 2);
+            if (count($parts) === 2) {
+                $candidateCol = $parts[0];
+                $candidateDir = strtoupper($parts[1]);
+                $allowed      = [
+                    'tv_households' => ['ASC', 'DESC'],
+                    'created_at'    => ['ASC', 'DESC'],
+                ];
+                if (isset($allowed[$candidateCol]) && in_array($candidateDir, $allowed[$candidateCol], true)) {
+                    $orderByColumn    = $candidateCol;
+                    $orderByDirection = $candidateDir === 'ASC' ? 'asc' : 'desc';
+                }
+            }
         }
 
-        $allTVHouseholds = TVHouseholds::when(
-            !empty($orderBy),
-            fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
-        )->get();
+        $allTVHouseholds = TVHouseholds::query()
+            ->when(
+                $orderByColumn !== null,
+                fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
+            )
+            ->get();
 
         $allTVHouseholds->transform(function ($item) {
             if (isset($item->tv_households)) {

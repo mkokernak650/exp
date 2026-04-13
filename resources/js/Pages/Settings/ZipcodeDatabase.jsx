@@ -10,6 +10,8 @@ import ColumnSettings from '@/Components/ColumnSettings'
 import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
+import { ZIPCODE_DATABASE_NUMERIC_SORT_KEYS } from '@/Helpers/zipcodeReportNumericSortKeys'
 import { columns as defaultColumns } from './Helpers/ZipcodeDatabaseProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -273,12 +275,19 @@ const ZipcodeDatabase = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: ZIPCODE_DATABASE_NUMERIC_SORT_KEYS,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
 
         return base

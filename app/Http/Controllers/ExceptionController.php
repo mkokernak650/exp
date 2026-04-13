@@ -12,6 +12,7 @@ use App\Models\ZipCodeData;
 use App\Models\Exception;
 use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
+use App\Support\ReportTableSort;
 
 class ExceptionController extends Controller
 {
@@ -84,7 +85,13 @@ class ExceptionController extends Controller
                 $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
                 $sortableColumns = ['SN', 'Call_Date_Time', 'Has_Annotation', 'Annotation_Tag', 'call_Logs_status', 'Duplicate_Call', 'Recording_Url', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign', 'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number', 'Target_Description', 'Source_Hangup', 'Time_To_Call', 'call_Length_In_Seconds', 'Revenue', 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode'];
                 if (in_array($sortField, $sortableColumns)) {
-                    $ExceptionDataQuery->orderBy($sortField, $sortOrder);
+                    ReportTableSort::apply(
+                        $ExceptionDataQuery,
+                        $sortField,
+                        $sortOrder,
+                        $sortableColumns,
+                        ReportTableSort::RINGBA_NUMERIC_SORT_COLUMNS
+                    );
                 }
             }
             return $ExceptionDataQuery->paginate(request('itemPerPage') ?? 10);
@@ -96,7 +103,13 @@ class ExceptionController extends Controller
             $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
             $sortableColumns = ['SN', 'Call_Date_Time', 'Has_Annotation', 'Annotation_Tag', 'call_Logs_status', 'Duplicate_Call', 'Recording_Url', 'Inbound_Id', 'Affiliate', 'Market', 'Campaign', 'Inbound', 'Dialed', 'Type', 'Customer', 'Target', 'Target_Number', 'Target_Description', 'Source_Hangup', 'Time_To_Call', 'call_Length_In_Seconds', 'Revenue', 'Conn_Duration', 'payoutAmount', 'Total_Cost', 'Profit', 'City', 'State', 'Zipcode'];
             if (in_array($sortField, $sortableColumns)) {
-                $query->orderBy($sortField, $sortOrder);
+                ReportTableSort::apply(
+                    $query,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ReportTableSort::RINGBA_NUMERIC_SORT_COLUMNS
+                );
             }
         }
         $allExceptions = $query->paginate(request('itemPerPage') ?? 10);

@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\EcommerceAffiliatesImport;
 use App\Http\Requests\EcommerceAffiliateRequest;
 use App\Models\TableDetails;
+use App\Support\ReportTableSort;
 
 class EcommerceAffiliateController extends Controller
 {
@@ -123,8 +124,15 @@ class EcommerceAffiliateController extends Controller
                 $query->leftJoin('affiliates', 'ecommerce_affiliates.affiliate_id', '=', 'affiliates.id')
                     ->orderBy('affiliates.affiliate_name', $sortOrder)
                     ->select('ecommerce_affiliates.*');
-            } elseif (in_array($sortField, $sortableColumns)) {
-                $query->orderBy($sortField, $sortOrder);
+            } elseif (in_array($sortField, $sortableColumns, true)) {
+                ReportTableSort::apply(
+                    $query,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    ['revenue', 'affiliate_fee', 'percentage', 'cash_buy', 'consumerEXP_cash_buy_fee'],
+                    'ecommerce_affiliates'
+                );
             }
         }
     }

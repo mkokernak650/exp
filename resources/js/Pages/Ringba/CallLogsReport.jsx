@@ -20,6 +20,8 @@ import addTableDetails from '@/Helpers/AddTableDetails'
 import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { countActiveFilters } from '@/Helpers/ActiveFilterCount'
+import { RINGBA_REPORT_NUMERIC_SORT_KEYS } from '@/Helpers/ringbaReportNumericSortKeys'
+import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { columns as defaultColumns } from './Helpers/CallLogsReportProps'
 
 const CallLogsReport = () => {
@@ -175,12 +177,19 @@ const CallLogsReport = () => {
       .filter((c) => c.visible !== false && c.key !== 'selection-cell')
       .map((col) => {
         const hasSorter = col.dataType === 'number' || col.dataType === 'date' || col.dataType === 'string'
+        const { sorter, sortOrder: colSortOrder } = reportTableSorterProps(col, {
+          sortField,
+          sortOrder,
+          hasSorter,
+          numericSortColumnKeys: RINGBA_REPORT_NUMERIC_SORT_KEYS,
+        })
         const base = {
           key: col.key,
           dataIndex: col.key,
           title: col.title || '',
           width: col.style?.width || col.width,
-          sorter: hasSorter ? true : undefined,
+          sorter,
+          sortOrder: colSortOrder,
         }
 
         if (col.key === 'edit') {

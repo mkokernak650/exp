@@ -8,6 +8,7 @@ use App\Models\TableDetails;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\ZipCodeData;
+use App\Support\ReportTableSort;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -62,8 +63,20 @@ class ZipcodeDataController extends Controller
             $sortField = request('sortField');
             $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
             $sortableColumns = ['NPA', 'NXX', 'NPANXX', 'ZipCode', 'State', 'City', 'County', 'CountyPop', 'ZipCodeCount', 'ZipCodeFreq', 'Latitude', 'Longitude', 'TimeZone', 'ObservesDST', 'NXXUseType', 'NXXIntroVersion', 'NPANew', 'FIPS', 'LATA', 'Overlay', 'RateCenter', 'SwitchCLLI', 'MSA_CBSA', 'MSA_CBSA_CODE', 'OCN', 'Company', 'CoverageAreaName', 'Flags', 'WeightedLat', 'WeightedLon'];
+            $numericSortColumns = [
+                'NPA', 'NXX', 'NPANXX', 'ZipCode', 'CountyPop', 'ZipCodeCount', 'ZipCodeFreq',
+                'Latitude', 'Longitude', 'WeightedLat', 'WeightedLon', 'FIPS', 'LATA',
+                'MSA_CBSA_CODE', 'Overlay',
+            ];
             if (in_array($sortField, $sortableColumns)) {
-                $zipDataQuery->orderBy($sortField, $sortOrder);
+                ReportTableSort::apply(
+                    $zipDataQuery,
+                    $sortField,
+                    $sortOrder,
+                    $sortableColumns,
+                    $numericSortColumns,
+                    'zip_code_data'
+                );
             }
         }
 

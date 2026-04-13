@@ -12,6 +12,7 @@ use App\Models\TableDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Support\ReportTableSort;
 use Inertia\Response;
 
 class CampaignController extends Controller
@@ -86,7 +87,17 @@ class CampaignController extends Controller
             $sortableColumns = ['campaign', 'duration', 'status'];
             if (in_array($sortField, $sortableColumns)) {
                 $dbColumn = $fieldMap[$sortField] ?? $sortField;
-                $query->orderBy($dbColumn, $sortOrder);
+                $allowedDb = ['campaign_name', 'connection_duration', 'status'];
+                if (in_array($dbColumn, $allowedDb, true)) {
+                    ReportTableSort::apply(
+                        $query,
+                        $dbColumn,
+                        $sortOrder,
+                        $allowedDb,
+                        ['connection_duration', 'status'],
+                        'campaigns'
+                    );
+                }
             }
         }
 
