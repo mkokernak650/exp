@@ -664,12 +664,12 @@ const EcommerceReport = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      width: 200,
+      width: 180,
     },
     {
       title: 'Report Type',
       key: 'reportOn',
-      width: 140,
+      width: 120,
       render: (_, record) => reportOnLabels[record.filters?.reportOn] || record.filters?.reportOn || '-',
     },
     {
@@ -688,13 +688,13 @@ const EcommerceReport = () => {
       title: 'Date Saved',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 160,
+      width: 150,
       render: (text) => dayjs(text).format('MMM D, YYYY h:mm A'),
     },
     {
       title: 'Actions',
       key: 'actions',
-      width: 300,
+      width: 280,
       render: (_, record) => (
         <Space size="small">
           <Button size="small" onClick={() => handleEditSavedReport(record)}>
@@ -797,7 +797,7 @@ const EcommerceReport = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="campaign_id"
-                defaultValue={campaign?.campaign_id ? campaign.campaign_id.map((c) => ({ label: c, value: c })) : ''}
+                defaultValue={campaign?.campaign_id ? campaign.campaign_id.map((c) => { const opt = campaignOptions.find((o) => o.value === String(c)); return { label: opt?.label || c, value: String(c) } }) : ''}
                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                 options={campaignOptions}
                 className="!w-full"
@@ -807,7 +807,7 @@ const EcommerceReport = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="customer_id"
-                defaultValue={customer?.customer_id ? customer.customer_id.map((c) => ({ label: c, value: c })) : ''}
+                defaultValue={customer?.customer_id ? customer.customer_id.map((c) => { const opt = customerOptions.find((o) => o.value === String(c)); return { label: opt?.label || c, value: String(c) } }) : ''}
                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                 options={customerOptions}
                 className="!w-full"
@@ -990,7 +990,7 @@ const EcommerceReport = () => {
             rowKey="id"
             pagination={false}
             size="small"
-            scroll={{ x: 800 }}
+            scroll={{ x: 850 }}
           />
         </div>
       )}
