@@ -162,7 +162,7 @@ const EcommerceReport = () => {
 
   const getCampaignNames = () => {
     const campaignNames = []
-    if (values?.campaign_id.length) {
+    if (values?.campaign_id?.length) {
       for (let i = 0; i < values.campaign_id.length; i++) {
         const campaign = campaigns.find((campaign) => campaign.id == values.campaign_id[i])
         campaignNames.push(campaign ? campaign.campaign_name : '')
@@ -173,7 +173,7 @@ const EcommerceReport = () => {
   const getAffiliateNames = () => {
     const affiliateNames = []
     Object.values(affiliateList).map((item) => {
-      if (values.affiliate_id.includes(item.value)) {
+      if (values?.affiliate_id?.includes(item.value)) {
         affiliateNames.push(item.label.replace(/\s?\([^)]*\)/g, ''))
       }
     })
@@ -181,7 +181,7 @@ const EcommerceReport = () => {
   }
   const getCustomerNames = () => {
     const customerNames = []
-    if (values?.customer_id.length) {
+    if (values?.customer_id?.length) {
       for (let i = 0; i < values.customer_id.length; i++) {
         const customer = customers.find((customer) => customer.id == values.customer_id[i])
         customerNames.push(customer ? customer.customer_name : '')
@@ -461,7 +461,7 @@ const EcommerceReport = () => {
         ? values?.customer_id
           ? `_For_(${getCustomerNames().toString()})`
           : ''
-        : values?.affiliate_id.length
+        : values?.affiliate_id?.length
           ? `_For_(${getAffiliateNames().toString()})`
           : ''
     }${values?.campaign_id ? `_For_(${getCampaignNames().toString()})` : ''}${
