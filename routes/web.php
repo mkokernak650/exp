@@ -81,6 +81,9 @@ Route::middleware('auth')->group(function () {
     Route::get('reports/ecommerce', [EcommerceReportController::class, 'ecommerceReport'])->name('ecommerce.report');
     Route::post('reports/ecommerce/generate', [EcommerceReportController::class, 'ecommerceReportGenerate'])->name('ecommerce.report.generate');
     Route::post('reports/getSelectionWiseData', [EcommerceReportController::class, 'selectionWiseData'])->name('ecommerce.report.selectionWiseData');
+    Route::post('reports/ecommerce/saved-reports', [EcommerceReportController::class, 'saveReport'])->name('ecommerce.reports.save');
+    Route::put('reports/ecommerce/saved-reports/{id}', [EcommerceReportController::class, 'updateReport'])->name('ecommerce.reports.update');
+    Route::delete('reports/ecommerce/saved-reports/{id}', [EcommerceReportController::class, 'deleteReport'])->name('ecommerce.reports.delete');
 
     // E-commerce campaign
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');

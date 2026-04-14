@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\EcommerceAffiliate;
 use App\Models\EcommerceCampaign;
 use App\Models\EcommerceSale;
+use App\Models\SavedEcommerceReport;
 use App\Models\ZipcodeByTelevisionMarket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -41,8 +42,9 @@ class EcommerceReportController extends Controller
         $states          = ZipcodeByTelevisionMarket::select('state')->orderBy('state')->distinct()->get();
         $markets         = ZipcodeByTelevisionMarket::select('market')->orderBy('market')->distinct()->get();
         $acesMarketingId = $this->amIds;
+        $savedReports = SavedEcommerceReport::where('user_id', auth()->id())->latest()->get();
 
-        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'acesMarketingId'));
+        return Inertia::render('GenerateReport/EcommerceReport', compact('campaigns', 'customers', 'broadCastMonths', 'broadCastWeeks', 'states', 'markets', 'acesMarketingId', 'savedReports'));
     }
 
     public function selectionWiseData(Request $request)
@@ -141,6 +143,46 @@ class EcommerceReportController extends Controller
             'data'    => $salesData,
             'summary' => $summary,
         ], 200);
+    }
+
+    public function saveReport(Request $request)
+    {
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'filters' => 'required|array',
+        ]);
+
+        SavedEcommerceReport::create([
+            'user_id' => auth()->id(),
+            'name'    => $request->name,
+            'filters' => $request->filters,
+        ]);
+
+        return response()->json(['message' => 'Report saved successfully.'], 201);
+    }
+
+    public function updateReport(Request $request, $id)
+    {
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'filters' => 'required|array',
+        ]);
+
+        $report = SavedEcommerceReport::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $report->update([
+            'name'    => $request->name,
+            'filters' => $request->filters,
+        ]);
+
+        return response()->json(['message' => 'Report updated successfully.'], 200);
+    }
+
+    public function deleteReport($id)
+    {
+        $report = SavedEcommerceReport::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $report->delete();
+
+        return response()->json(['message' => 'Report deleted successfully.'], 200);
     }
 
     protected function queryReport($request)
