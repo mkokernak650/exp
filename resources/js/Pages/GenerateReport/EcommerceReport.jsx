@@ -1010,6 +1010,7 @@ const EcommerceReport = () => {
             Saved Reports
           </Typography.Title>
           <Table
+            className="saved-reports-table"
             columns={savedReportColumns}
             dataSource={savedReports}
             rowKey="id"

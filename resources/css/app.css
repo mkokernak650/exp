@@ -51,6 +51,25 @@ div::-webkit-scrollbar-thumb {
   border-radius: 10px;
 }
 
+.saved-reports-table .ant-table-content {
+  scrollbar-width: thin;
+  scrollbar-color: #c8d0dc #ffffff;
+}
+
+.saved-reports-table .ant-table-content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.saved-reports-table .ant-table-content::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+.saved-reports-table .ant-table-content::-webkit-scrollbar-thumb {
+  background-color: #c8d0dc;
+  border-radius: 10px;
+}
+
 /* Sidebar nav: allow long labels to wrap (Ant Design Menu defaults to nowrap + ellipsis) */
 .sidebar-nav-menu.ant-menu.ant-menu-root.ant-menu-inline .ant-menu-item,
 .sidebar-nav-menu.ant-menu.ant-menu-root.ant-menu-inline .ant-menu-submenu-title {
