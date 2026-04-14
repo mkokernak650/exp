@@ -647,8 +647,28 @@ const EcommerceReport = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const buildSavedReportFileName = (filters) => {
+    const reportOnMap = { marketTarget: 'Market Report', summary: 'Summary Report', exportCSV: 'Export CSV Report' }
+    const name = reportOnMap[filters.reportOn] || 'Detail Report'
+    const parts = [name]
+    if (filters.campaign_id?.length) {
+      const names = filters.campaign_id.map((id) => {
+        const c = campaigns.find((c) => String(c.id) === String(id))
+        return c ? c.campaign_name : id
+      })
+      parts.push(`For_(${names.join(',')})`)
+    }
+    if (filters.year?.length) {
+      parts.push(`For_(${filters.year.join(',')})`)
+    } else if (filters.start_date && filters.end_date) {
+      parts.push(`For_(${filters.start_date}_To_${filters.end_date})`)
+    }
+    return parts.join('_')
+  }
+
   const handleGenerateSavedReport = (filters) => {
-    handleSubmit({ ...filters, report_type: 'export-report' })
+    const freshFileName = buildSavedReportFileName(filters)
+    handleSubmit({ ...filters, report_type: 'export-report', file_name: freshFileName })
   }
 
   const handleEditSavedReport = (record) => {
@@ -969,7 +989,7 @@ const EcommerceReport = () => {
         title={editingReportId ? 'Update Report' : 'Save Report'}
         open={saveModalOpen}
         onOk={handleSaveReport}
-        onCancel={() => { setSaveModalOpen(false); setSaveReportName('') }}
+        onCancel={() => { setSaveModalOpen(false); setSaveReportName(''); setEditingReportId(null) }}
         confirmLoading={saving}
         okText={editingReportId ? 'Update' : 'Save'}
       >
