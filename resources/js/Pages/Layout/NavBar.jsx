@@ -465,7 +465,7 @@ export default function PersistentDrawerLeft(props) {
   return (
     <Layout className="min-h-screen bg-white">
       <Header
-        className="z-[1000] flex items-center px-4 py-0 bg-[#1976d2]"
+        className="z-[1000] flex items-center px-4 py-0"
         style={{
           position: 'fixed',
           top: 0,
@@ -475,6 +475,7 @@ export default function PersistentDrawerLeft(props) {
           width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
           marginLeft: open ? drawerWidth : 0,
           transition: 'all 0.2s ease',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         }}
       >
         {!open && (

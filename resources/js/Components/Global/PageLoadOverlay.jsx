@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { RingLoader } from 'react-spinners'
 
-const PRIMARY = '#1976d2'
+const PRIMARY = '#667eea'
 const SHOW_DELAY_MS = 140
 
 export default function PageLoadOverlay() {
