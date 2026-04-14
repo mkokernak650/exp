@@ -22,7 +22,7 @@ createInertiaApp({
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: '#1976d2',
+            colorPrimary: '#667eea',
             borderRadius: 4,
             fontFamily: '"Roboto", sans-serif',
           },
