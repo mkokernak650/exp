@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Button, Typography, Radio, Row, Col, Divider, Select, DatePicker, Modal, Input, Table, Popconfirm, Space } from 'antd'
 import dayjs from 'dayjs'
@@ -55,6 +55,7 @@ const EcommerceReport = () => {
   const [saving, setSaving] = useState(false)
   const [formKey, setFormKey] = useState(0)
   const [editingReportId, setEditingReportId] = useState(null)
+  const loadRequestId = useRef(0)
 
   let yearsArray = []
   for (let i = 0; i < 5; i++) {
@@ -586,6 +587,8 @@ const EcommerceReport = () => {
   }
 
   const handleLoadSavedReport = (filters) => {
+    const currentRequestId = ++loadRequestId.current
+
     setReportFor({ reportFor: filters.reportFor || 'payPerOrder' })
     setOrderType({ orderType: filters.orderType || 'both' })
     setReportOn({ reportOn: filters.reportOn || 'detail' })
@@ -612,6 +615,7 @@ const EcommerceReport = () => {
           customer_ids: filters.customer_id,
         })
         .then((res) => {
+          if (currentRequestId !== loadRequestId.current) return
           if (res?.status == 200) {
             const activeAffiliates = Object.values(res.data.affiliates)
               ?.map((item) => ({
@@ -629,6 +633,7 @@ const EcommerceReport = () => {
           setFormKey((prev) => prev + 1)
         })
         .catch(() => {
+          if (currentRequestId !== loadRequestId.current) return
           setFormKey((prev) => prev + 1)
         })
     } else {
@@ -643,7 +648,7 @@ const EcommerceReport = () => {
   }
 
   const handleGenerateSavedReport = (filters) => {
-    handleSubmit(filters)
+    handleSubmit({ ...filters, report_type: 'export-report' })
   }
 
   const handleEditSavedReport = (record) => {
