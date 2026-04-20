@@ -473,40 +473,47 @@ const EcommerceReport = () => {
   }
 
   const handleSubmit = (overrideValues) => {
-    const submitValues = overrideValues || values
+    const requestValues = overrideValues || values
+    const savedReportId = overrideValues?.__savedReportId
+    const reportPayload = requestValues?.__savedReportId
+      ? (() => {
+          const { __savedReportId, ...rest } = requestValues
+          return rest
+        })()
+      : requestValues
     const submitFileName = overrideValues ? (overrideValues.file_name || 'Report') : fileName
     const submitAffiliatesEmail = overrideValues ? [] : affiliatesEmail
     const submitReportType = overrideValues ? (overrideValues.report_type || 'export-report') : ecommerceReportType.report_type
     const submitReportOn = overrideValues ? { reportOn: overrideValues.reportOn } : reportOn
 
-    if (!submitValues.reportFor || submitValues.reportFor === '') {
+    if (!reportPayload.reportFor || reportPayload.reportFor === '') {
       toast.error('Please select report for')
       return
     }
 
-    if (!submitValues.reportOn || submitValues.reportOn === '') {
+    if (!reportPayload.reportOn || reportPayload.reportOn === '') {
       toast.error('Please select report on')
       return
     }
 
-    if (!submitValues.orderType || submitValues.orderType === '') {
+    if (!reportPayload.orderType || reportPayload.orderType === '') {
       toast.error('Please select order type')
       return
     }
 
-    if (submitValues.reportOn === 'marketTarget' && !submitValues.states?.length && !submitValues.markets?.length) {
+    if (reportPayload.reportOn === 'marketTarget' && !reportPayload.states?.length && !reportPayload.markets?.length) {
       toast.error('Please select state or market')
       return
     }
 
-    if (submitValues.reportOn === 'exportCSV' && submitValues.reportFor != 'payPerOrder') {
+    if (reportPayload.reportOn === 'exportCSV' && reportPayload.reportFor != 'payPerOrder') {
       toast.error('Export CSV is only for pay per order')
       return
     }
 
     if (
-      !submitValues?.year &&
-      ((submitValues?.start_date && !submitValues?.end_date) || (submitValues?.end_date && !submitValues?.start_date))
+      !reportPayload?.year &&
+      ((reportPayload?.start_date && !reportPayload?.end_date) || (reportPayload?.end_date && !reportPayload?.start_date))
     ) {
       toast.error('Please select start date and end date both')
       return
@@ -514,13 +521,13 @@ const EcommerceReport = () => {
 
     const isSavedReport = !!overrideValues
     if (isSavedReport) {
-      setSavedReportLoading(true)
+      setSavedReportLoading(savedReportId || true)
     } else {
       setLoading(true)
     }
 
     axios
-      .post(route('ecommerce.report.generate'), { ...submitValues, affiliatesEmail: submitAffiliatesEmail })
+      .post(route('ecommerce.report.generate'), { ...reportPayload, affiliatesEmail: submitAffiliatesEmail })
       .then((r) => {
         if (r?.status === 204) {
           toast.error('No data found for the selected criteria')
@@ -649,8 +656,9 @@ const EcommerceReport = () => {
 
   const buildSavedReportFileName = (filters) => {
     const reportOnMap = { marketTarget: 'Market Report', summary: 'Summary Report', exportCSV: 'Export CSV Report' }
-    const name = reportOnMap[filters.reportOn] || 'Detail Report'
-    const parts = [name]
+    const reportTypeMap = { 'export-report': 'Export', 'email-report': 'Email' }
+    const reportName = reportOnMap[filters.reportOn] || 'Detail Report'
+    const parts = [reportName, `Type_(${reportTypeMap[filters.report_type] || 'Export'})`]
     if (filters.campaign_id?.length) {
       const names = filters.campaign_id.map((id) => {
         const c = campaigns.find((c) => String(c.id) === String(id))
@@ -666,9 +674,15 @@ const EcommerceReport = () => {
     return parts.join('_')
   }
 
-  const handleGenerateSavedReport = (filters) => {
-    const freshFileName = buildSavedReportFileName(filters)
-    handleSubmit({ ...filters, report_type: 'export-report', file_name: freshFileName })
+  const handleGenerateSavedReport = (record) => {
+    const filters = record.filters || {}
+    const savedReportFileName = buildSavedReportFileName(filters)
+    handleSubmit({
+      ...filters,
+      report_type: filters.report_type || 'export-report',
+      file_name: savedReportFileName,
+      __savedReportId: record.id,
+    })
   }
 
   const handleEditSavedReport = (record) => {
@@ -725,7 +739,13 @@ const EcommerceReport = () => {
           <Button size="small" onClick={() => handleEditSavedReport(record)}>
             Edit
           </Button>
-          <Button size="small" type="primary" onClick={() => handleGenerateSavedReport(record.filters)} disabled={savedReportLoading} loading={savedReportLoading}>
+          <Button
+            size="small"
+            type="primary"
+            onClick={() => handleGenerateSavedReport(record)}
+            disabled={savedReportLoading && savedReportLoading !== record.id}
+            loading={savedReportLoading === record.id}
+          >
             Generate
           </Button>
           <Popconfirm title="Delete this saved report?" onConfirm={() => handleDeleteSavedReport(record.id)} okText="Yes" cancelText="No">
