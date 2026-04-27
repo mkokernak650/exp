@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import Layout from '../Layout/Layout'
-import { Button, Typography, Radio, Row, Col, Divider, Select, DatePicker, Modal, Input, Table, Popconfirm, Space } from 'antd'
+import {
+  Button,
+  Typography,
+  Radio,
+  Row,
+  Col,
+  Divider,
+  Select,
+  DatePicker,
+  Modal,
+  Input,
+  Table,
+  Popconfirm,
+  Space,
+} from 'antd'
 import dayjs from 'dayjs'
 import { usePage } from '@inertiajs/inertia-react'
 import { Inertia } from '@inertiajs/inertia'
@@ -43,6 +57,7 @@ const EcommerceReport = () => {
   const [reportType, setReportType] = useState({ type: 'customer' })
   const [reportFor, setReportFor] = useState({ reportFor: 'payPerOrder' })
   const [reportOn, setReportOn] = useState({ reportOn: 'detail' })
+  const [reportSetup, setReportSetup] = useState({ report_setup: 'manual' })
   const [affiliateFeeType, setAffiliateFeeType] = useState({
     affiliate_fee_type: 'payout_per_order',
   })
@@ -360,6 +375,10 @@ const EcommerceReport = () => {
     setReportOn({ reportOn: val })
   }
 
+  const reportSetupHandleChange = (val) => {
+    setReportSetup({ report_setup: val || 'manual' })
+  }
+
   const orderTypeHandleChange = (val) => {
     setOrderType({ orderType: val })
     if (val !== '2' && affiliate?.affiliate_id?.[0] === '25') {
@@ -390,7 +409,102 @@ const EcommerceReport = () => {
     ...reportType,
     ...reportFor,
     ...reportOn,
+    ...reportSetup,
     ...ecommerceReportType,
+  }
+
+  const formatDateString = (dateObj) => {
+    const year = dateObj.getFullYear()
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const day = String(dateObj.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  const resolveSavedReportDateRange = (filters) => {
+    const setupType = filters?.report_setup || 'manual'
+    if (setupType === 'manual') {
+      return { ...filters }
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (setupType === 'weekly') {
+      const dayOfWeek = today.getDay()
+      const diffToMonday = (dayOfWeek + 6) % 7
+      const currentWeekMonday = new Date(today)
+      currentWeekMonday.setDate(today.getDate() - diffToMonday)
+
+      const previousWeekStart = new Date(currentWeekMonday)
+      previousWeekStart.setDate(currentWeekMonday.getDate() - 7)
+      const previousWeekEnd = new Date(currentWeekMonday)
+      previousWeekEnd.setDate(currentWeekMonday.getDate() - 1)
+
+      return {
+        ...filters,
+        year: [],
+        broad_cast_week: '',
+        broad_cast_month: '',
+        start_date: formatDateString(previousWeekStart),
+        end_date: formatDateString(previousWeekEnd),
+      }
+    }
+
+    if (setupType === 'monthly') {
+      const previousMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+      const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0)
+
+      return {
+        ...filters,
+        year: [],
+        broad_cast_week: '',
+        broad_cast_month: '',
+        start_date: formatDateString(previousMonthStart),
+        end_date: formatDateString(previousMonthEnd),
+      }
+    }
+
+    if (setupType === 'broadcast_monthly') {
+      const previousBroadcastMonth = [...broadCastMonths]
+        .filter((item) => {
+          const endDate = new Date(item.end_date)
+          endDate.setHours(0, 0, 0, 0)
+          return endDate < today
+        })
+        .sort((a, b) => new Date(b.end_date) - new Date(a.end_date))[0]
+
+      if (!previousBroadcastMonth) {
+        return { ...filters }
+      }
+
+      return {
+        ...filters,
+        year: [],
+        broad_cast_week: '',
+        broad_cast_month: previousBroadcastMonth.broad_cast_month,
+        start_date: previousBroadcastMonth.start_date,
+        end_date: previousBroadcastMonth.end_date,
+      }
+    }
+
+    return { ...filters }
+  }
+
+  const getResolvedDateRangeLabel = (filters) => {
+    const resolved = resolveSavedReportDateRange(filters || {})
+    if (resolved?.year?.length) {
+      return resolved.year.join(', ')
+    }
+    if (resolved?.start_date && resolved?.end_date) {
+      return `${resolved.start_date} To ${resolved.end_date}`
+    }
+    if (resolved?.start_date) {
+      return resolved.start_date
+    }
+    if (resolved?.end_date) {
+      return resolved.end_date
+    }
+    return '-'
   }
 
   let customerEmails = []
@@ -481,9 +595,11 @@ const EcommerceReport = () => {
           return rest
         })()
       : requestValues
-    const submitFileName = overrideValues ? (overrideValues.file_name || 'Report') : fileName
+    const submitFileName = overrideValues ? overrideValues.file_name || 'Report' : fileName
     const submitAffiliatesEmail = overrideValues ? [] : affiliatesEmail
-    const submitReportType = overrideValues ? (overrideValues.report_type || 'export-report') : ecommerceReportType.report_type
+    const submitReportType = overrideValues
+      ? overrideValues.report_type || 'export-report'
+      : ecommerceReportType.report_type
     const submitReportOn = overrideValues ? { reportOn: overrideValues.reportOn } : reportOn
 
     if (!reportPayload.reportFor || reportPayload.reportFor === '') {
@@ -501,7 +617,11 @@ const EcommerceReport = () => {
       return
     }
 
-    if (reportPayload.reportOn === 'marketTarget' && !reportPayload.states?.length && !reportPayload.markets?.length) {
+    if (
+      reportPayload.reportOn === 'marketTarget' &&
+      !reportPayload.states?.length &&
+      !reportPayload.markets?.length
+    ) {
       toast.error('Please select state or market')
       return
     }
@@ -513,7 +633,8 @@ const EcommerceReport = () => {
 
     if (
       !reportPayload?.year &&
-      ((reportPayload?.start_date && !reportPayload?.end_date) || (reportPayload?.end_date && !reportPayload?.start_date))
+      ((reportPayload?.start_date && !reportPayload?.end_date) ||
+        (reportPayload?.end_date && !reportPayload?.start_date))
     ) {
       toast.error('Please select start date and end date both')
       return
@@ -527,7 +648,10 @@ const EcommerceReport = () => {
     }
 
     axios
-      .post(route('ecommerce.report.generate'), { ...reportPayload, affiliatesEmail: submitAffiliatesEmail })
+      .post(route('ecommerce.report.generate'), {
+        ...reportPayload,
+        affiliatesEmail: submitAffiliatesEmail,
+      })
       .then((r) => {
         if (r?.status === 204) {
           toast.error('No data found for the selected criteria')
@@ -599,6 +723,7 @@ const EcommerceReport = () => {
     setReportFor({ reportFor: filters.reportFor || 'payPerOrder' })
     setOrderType({ orderType: filters.orderType || 'both' })
     setReportOn({ reportOn: filters.reportOn || 'detail' })
+    setReportSetup({ report_setup: filters.report_setup || 'manual' })
     setReportType({ type: filters.type || 'customer' })
     setEcommerceReportType({ report_type: filters.report_type || 'export-report' })
     setAffiliateFeeType({ affiliate_fee_type: filters.affiliate_fee_type || 'payout_per_order' })
@@ -631,8 +756,14 @@ const EcommerceReport = () => {
                 email: item?.[2],
               }))
               .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
-            const couponOptions = Object.values(res.data.couponCodes)?.map((item) => ({ label: item, value: item }))
-            const dialedOptions = Object.values(res.data.dialedPhones)?.map((item) => ({ label: item, value: item }))
+            const couponOptions = Object.values(res.data.couponCodes)?.map((item) => ({
+              label: item,
+              value: item,
+            }))
+            const dialedOptions = Object.values(res.data.dialedPhones)?.map((item) => ({
+              label: item,
+              value: item,
+            }))
             setAffiliateList([...activeAffiliates])
             setCouponCodeList([...couponOptions])
             setDialedPhoneList([...dialedOptions])
@@ -655,7 +786,11 @@ const EcommerceReport = () => {
   }
 
   const buildSavedReportFileName = (filters) => {
-    const reportOnMap = { marketTarget: 'Market Report', summary: 'Summary Report', exportCSV: 'Export CSV Report' }
+    const reportOnMap = {
+      marketTarget: 'Market Report',
+      summary: 'Summary Report',
+      exportCSV: 'Export CSV Report',
+    }
     const reportTypeMap = { 'export-report': 'Export', 'email-report': 'Email' }
     const reportName = reportOnMap[filters.reportOn] || 'Detail Report'
     const parts = [reportName, `Type_(${reportTypeMap[filters.report_type] || 'Export'})`]
@@ -675,7 +810,7 @@ const EcommerceReport = () => {
   }
 
   const handleGenerateSavedReport = (record) => {
-    const filters = record.filters || {}
+    const filters = resolveSavedReportDateRange(record.filters || {})
     const savedReportFileName = buildSavedReportFileName(filters)
     handleSubmit({
       ...filters,
@@ -697,6 +832,13 @@ const EcommerceReport = () => {
     summary: 'Summary',
     exportCSV: 'Export CSV',
   }
+  const reportSetupLabels = {
+    manual: 'Manual Date Range',
+    weekly: 'Previous Week',
+    monthly: 'Previous Month',
+    broadcast_monthly: 'Previous Broadcast Month',
+  }
+  const isAutomaticRange = reportSetup.report_setup !== 'manual'
 
   const savedReportColumns = [
     {
@@ -709,7 +851,8 @@ const EcommerceReport = () => {
       title: 'Report Type',
       key: 'reportOn',
       width: 120,
-      render: (_, record) => reportOnLabels[record.filters?.reportOn] || record.filters?.reportOn || '-',
+      render: (_, record) =>
+        reportOnLabels[record.filters?.reportOn] || record.filters?.reportOn || '-',
     },
     {
       title: 'Order Type',
@@ -731,6 +874,19 @@ const EcommerceReport = () => {
       render: (text) => dayjs(text).format('MMM D, YYYY h:mm A'),
     },
     {
+      title: 'Setup',
+      key: 'reportSetup',
+      width: 170,
+      render: (_, record) =>
+        reportSetupLabels[record.filters?.report_setup || 'manual'] || 'Manual Date Range',
+    },
+    {
+      title: 'Resolved Range',
+      key: 'resolvedRange',
+      width: 190,
+      render: (_, record) => getResolvedDateRangeLabel(record.filters),
+    },
+    {
       title: 'Actions',
       key: 'actions',
       width: 280,
@@ -748,7 +904,12 @@ const EcommerceReport = () => {
           >
             Generate
           </Button>
-          <Popconfirm title="Delete this saved report?" onConfirm={() => handleDeleteSavedReport(record.id)} okText="Yes" cancelText="No">
+          <Popconfirm
+            title="Delete this saved report?"
+            onConfirm={() => handleDeleteSavedReport(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
             <Button size="small" danger>
               Delete
             </Button>
@@ -819,7 +980,14 @@ const EcommerceReport = () => {
               <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="states"
-                  defaultValue={state?.states ? state.states.map((s) => ({ label: s === 'allStates' ? 'All States' : s, value: s + ',' })) : ''}
+                  defaultValue={
+                    state?.states
+                      ? state.states.map((s) => ({
+                          label: s === 'allStates' ? 'All States' : s,
+                          value: s + ',',
+                        }))
+                      : ''
+                  }
                   onChange={(val) => stateHandleChange(val, 'states')}
                   options={[{ label: 'All States', value: 'allStates,' }].concat(stateOptions)}
                   className="!w-full"
@@ -831,7 +999,14 @@ const EcommerceReport = () => {
               <Col span={24} className="pb-[5px]">
                 <MultiSelect
                   name="markets"
-                  defaultValue={market?.markets ? market.markets.map((m) => ({ label: m === 'allMarkets' ? 'All Markets' : m, value: m + ',' })) : ''}
+                  defaultValue={
+                    market?.markets
+                      ? market.markets.map((m) => ({
+                          label: m === 'allMarkets' ? 'All Markets' : m,
+                          value: m + ',',
+                        }))
+                      : ''
+                  }
                   onChange={(val) => marketHandleChange(val, 'markets')}
                   options={[{ label: 'All Markets', value: 'allMarkets,' }].concat(marketOptions)}
                   className="!w-full"
@@ -842,7 +1017,14 @@ const EcommerceReport = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="campaign_id"
-                defaultValue={campaign?.campaign_id ? campaign.campaign_id.map((c) => { const opt = campaignOptions.find((o) => o.value === String(c)); return { label: opt?.label || c, value: String(c) } }) : ''}
+                defaultValue={
+                  campaign?.campaign_id
+                    ? campaign.campaign_id.map((c) => {
+                        const opt = campaignOptions.find((o) => o.value === String(c))
+                        return { label: opt?.label || c, value: String(c) }
+                      })
+                    : ''
+                }
                 onChange={(val) => campaignHandleChange(val, 'campaign_id')}
                 options={campaignOptions}
                 className="!w-full"
@@ -852,7 +1034,14 @@ const EcommerceReport = () => {
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="customer_id"
-                defaultValue={customer?.customer_id ? customer.customer_id.map((c) => { const opt = customerOptions.find((o) => o.value === String(c)); return { label: opt?.label || c, value: String(c) } }) : ''}
+                defaultValue={
+                  customer?.customer_id
+                    ? customer.customer_id.map((c) => {
+                        const opt = customerOptions.find((o) => o.value === String(c))
+                        return { label: opt?.label || c, value: String(c) }
+                      })
+                    : ''
+                }
                 onChange={(val) => customerHandleChange(val, 'customer_id')}
                 options={customerOptions}
                 className="!w-full"
@@ -896,15 +1085,33 @@ const EcommerceReport = () => {
             )}
             <Col span={24} className="pb-[5px]">
               <MultiSelect
+                singleSelect
+                name="report_setup"
+                defaultValue={reportSetup.report_setup}
+                onChange={(val) => reportSetupHandleChange(val)}
+                options={[
+                  { label: 'Manual Date Range', value: 'manual' },
+                  { label: 'Previous Week', value: 'weekly' },
+                  { label: 'Previous Month', value: 'monthly' },
+                  { label: 'Previous Broadcast Month', value: 'broadcast_monthly' },
+                ]}
+                className="!w-full"
+                placeholder="Select Report Setup"
+              />
+            </Col>
+            <Col span={24} className="pb-[5px]">
+              <MultiSelect
                 name="year"
-                defaultValue={year?.year ? year.year.map((y) => ({ label: y, value: String(y) })) : ''}
+                defaultValue={
+                  year?.year ? year.year.map((y) => ({ label: y, value: String(y) })) : ''
+                }
                 onChange={(val) => yearHandleChange(val, 'year')}
                 options={yearOptions}
                 className="!w-full"
                 placeholder="Select Years"
               />
             </Col>
-            {((Array.isArray(year) && year.length < 1) || !year) && (
+            {!isAutomaticRange && ((Array.isArray(year) && year.length < 1) || !year) && (
               <>
                 <Col span={24}>
                   <Select
@@ -995,7 +1202,12 @@ const EcommerceReport = () => {
                   {editingReportId ? 'Update Report' : 'Save Report'}
                 </Button>
                 {editingReportId && (
-                  <Button onClick={() => { setEditingReportId(null); setSaveReportName('') }}>
+                  <Button
+                    onClick={() => {
+                      setEditingReportId(null)
+                      setSaveReportName('')
+                    }}
+                  >
                     Cancel Edit
                   </Button>
                 )}
@@ -1009,7 +1221,11 @@ const EcommerceReport = () => {
         title={editingReportId ? 'Update Report' : 'Save Report'}
         open={saveModalOpen}
         onOk={handleSaveReport}
-        onCancel={() => { setSaveModalOpen(false); setSaveReportName(''); setEditingReportId(null) }}
+        onCancel={() => {
+          setSaveModalOpen(false)
+          setSaveReportName('')
+          setEditingReportId(null)
+        }}
         confirmLoading={saving}
         okText={editingReportId ? 'Update' : 'Save'}
       >

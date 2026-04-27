@@ -71,6 +71,7 @@ class EcommerceReportController extends Controller
 
     public function ecommerceReportGenerate(Request $request)
     {
+        $this->resolveDateRangeFromSetup($request);
         $salesData = $this->queryReport($request);
         $summary   = [];
         $header    = [];
@@ -143,6 +144,59 @@ class EcommerceReportController extends Controller
             'data'    => $salesData,
             'summary' => $summary,
         ], 200);
+    }
+
+    protected function resolveDateRangeFromSetup(Request $request): void
+    {
+        $setupType = $request->input('report_setup', 'manual');
+        if ($setupType === 'manual') {
+            return;
+        }
+
+        if ($setupType === 'weekly') {
+            $start = Carbon::now()->startOfWeek(Carbon::MONDAY)->subWeek()->toDateString();
+            $end   = Carbon::now()->startOfWeek(Carbon::MONDAY)->subDay()->toDateString();
+
+            $request->merge([
+                'year'             => [],
+                'broad_cast_week'  => null,
+                'broad_cast_month' => null,
+                'start_date'       => $start,
+                'end_date'         => $end,
+            ]);
+            return;
+        }
+
+        if ($setupType === 'monthly') {
+            $start = Carbon::now()->subMonthNoOverflow()->startOfMonth()->toDateString();
+            $end   = Carbon::now()->subMonthNoOverflow()->endOfMonth()->toDateString();
+
+            $request->merge([
+                'year'             => [],
+                'broad_cast_week'  => null,
+                'broad_cast_month' => null,
+                'start_date'       => $start,
+                'end_date'         => $end,
+            ]);
+            return;
+        }
+
+        if ($setupType === 'broadcast_monthly') {
+            $previousBroadcastMonth = BroadCastMonth::active()
+                ->whereDate('end_date', '<', Carbon::today())
+                ->orderByDesc('end_date')
+                ->first();
+
+            if ($previousBroadcastMonth) {
+                $request->merge([
+                    'year'             => [],
+                    'broad_cast_week'  => null,
+                    'broad_cast_month' => $previousBroadcastMonth->broad_cast_month,
+                    'start_date'       => $previousBroadcastMonth->start_date,
+                    'end_date'         => $previousBroadcastMonth->end_date,
+                ]);
+            }
+        }
     }
 
     public function saveReport(Request $request)
