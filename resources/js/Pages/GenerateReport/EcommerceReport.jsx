@@ -42,9 +42,9 @@ const EcommerceReport = () => {
   const [dialedPhoneList, setDialedPhoneList] = useState([])
   const [affiliate, setAffiliate] = useState()
   const [affiliatesEmail, setAffiliatesEmail] = useState([])
-  const [month, setMonth] = useState('')
+  const [month, setMonth] = useState({ broad_cast_month: '' })
   const [year, setYear] = useState([])
-  const [week, setWeek] = useState('')
+  const [week, setWeek] = useState({ broad_cast_week: '' })
   const [startDate, setStartDate] = useState({ start_date: '' })
   const [endDate, setEndDate] = useState({ end_date: '' })
   const [couponCode, setCouponCode] = useState([])
@@ -737,8 +737,8 @@ const EcommerceReport = () => {
     setAffiliate(filters.affiliate_id ? { affiliate_id: filters.affiliate_id } : [])
     setCouponCode(filters.couponCodes ? { couponCodes: filters.couponCodes } : [])
     setDialed(filters.dialed ? { dialed: filters.dialed } : [])
-    setMonth(filters.broad_cast_month ? { broad_cast_month: filters.broad_cast_month } : '')
-    setWeek(filters.broad_cast_week ? { broad_cast_week: filters.broad_cast_week } : '')
+    setMonth({ broad_cast_month: filters.broad_cast_month || '' })
+    setWeek({ broad_cast_week: filters.broad_cast_week || '' })
 
     if (filters.campaign_id?.length || filters.customer_id?.length) {
       axios
