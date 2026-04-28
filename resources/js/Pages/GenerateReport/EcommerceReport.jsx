@@ -58,6 +58,10 @@ const EcommerceReport = () => {
   const [reportFor, setReportFor] = useState({ reportFor: 'payPerOrder' })
   const [reportOn, setReportOn] = useState({ reportOn: 'detail' })
   const [reportSetup, setReportSetup] = useState({ report_setup: 'manual' })
+  const [recurrenceEnabled, setRecurrenceEnabled] = useState({ recurrence_enabled: false })
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState({ recurrence_frequency: 'weekly' })
+  const [recurrenceWeekday, setRecurrenceWeekday] = useState({ recurrence_weekday: String(dayjs().day()) })
+  const [recurrenceOrdinal, setRecurrenceOrdinal] = useState({ recurrence_ordinal: '1' })
   const [affiliateFeeType, setAffiliateFeeType] = useState({
     affiliate_fee_type: 'payout_per_order',
   })
@@ -378,6 +382,18 @@ const EcommerceReport = () => {
   const reportSetupHandleChange = (val) => {
     setReportSetup({ report_setup: val || 'manual' })
   }
+  const recurrenceEnabledHandleChange = (val) => {
+    setRecurrenceEnabled({ recurrence_enabled: val === 'yes' })
+  }
+  const recurrenceFrequencyHandleChange = (val) => {
+    setRecurrenceFrequency({ recurrence_frequency: val || 'weekly' })
+  }
+  const recurrenceWeekdayHandleChange = (val) => {
+    setRecurrenceWeekday({ recurrence_weekday: val ?? String(dayjs().day()) })
+  }
+  const recurrenceOrdinalHandleChange = (val) => {
+    setRecurrenceOrdinal({ recurrence_ordinal: val || '1' })
+  }
 
   const orderTypeHandleChange = (val) => {
     setOrderType({ orderType: val })
@@ -410,6 +426,10 @@ const EcommerceReport = () => {
     ...reportFor,
     ...reportOn,
     ...reportSetup,
+    ...recurrenceEnabled,
+    ...recurrenceFrequency,
+    ...recurrenceWeekday,
+    ...recurrenceOrdinal,
     ...ecommerceReportType,
   }
 
@@ -421,7 +441,14 @@ const EcommerceReport = () => {
   }
 
   const resolveSavedReportDateRange = (filters) => {
-    const setupType = filters?.report_setup || 'manual'
+    let setupType = filters?.report_setup || 'manual'
+    if (
+      setupType === 'manual' &&
+      filters?.recurrence_enabled &&
+      ['weekly', 'monthly', 'broadcast_monthly'].includes(filters?.recurrence_frequency)
+    ) {
+      setupType = filters.recurrence_frequency
+    }
     if (setupType === 'manual') {
       return { ...filters }
     }
@@ -724,6 +751,18 @@ const EcommerceReport = () => {
     setOrderType({ orderType: filters.orderType || 'both' })
     setReportOn({ reportOn: filters.reportOn || 'detail' })
     setReportSetup({ report_setup: filters.report_setup || 'manual' })
+    setRecurrenceEnabled({ recurrence_enabled: !!filters.recurrence_enabled })
+    setRecurrenceFrequency({ recurrence_frequency: filters.recurrence_frequency || 'weekly' })
+    setRecurrenceWeekday({
+      recurrence_weekday:
+        typeof filters.recurrence_weekday !== 'undefined'
+          ? String(filters.recurrence_weekday)
+          : String(dayjs().day()),
+    })
+    setRecurrenceOrdinal({
+      recurrence_ordinal:
+        typeof filters.recurrence_ordinal !== 'undefined' ? String(filters.recurrence_ordinal) : '1',
+    })
     setReportType({ type: filters.type || 'customer' })
     setEcommerceReportType({ report_type: filters.report_type || 'export-report' })
     setAffiliateFeeType({ affiliate_fee_type: filters.affiliate_fee_type || 'payout_per_order' })
@@ -838,7 +877,50 @@ const EcommerceReport = () => {
     monthly: 'Previous Month',
     broadcast_monthly: 'Previous Broadcast Month',
   }
+  const recurrenceFrequencyLabels = {
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    broadcast_monthly: 'Broadcast Month',
+  }
+  const weekdayLabels = {
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday',
+  }
+  const ordinalLabels = {
+    1: '1st',
+    2: '2nd',
+    3: '3rd',
+    4: '4th',
+  }
+  const getRecurrenceLabel = (filters) => {
+    if ((filters?.report_setup || 'manual') !== 'manual' || !filters?.recurrence_enabled) {
+      return '-'
+    }
+    const frequency = filters?.recurrence_frequency || 'weekly'
+    const weekday =
+      typeof filters?.recurrence_weekday !== 'undefined'
+        ? weekdayLabels[String(filters.recurrence_weekday)]
+        : '-'
+    if (frequency === 'weekly') {
+      return `Every ${weekday || 'day'}`
+    }
+    const ordinal =
+      typeof filters?.recurrence_ordinal !== 'undefined'
+        ? ordinalLabels[String(filters.recurrence_ordinal)]
+        : '-'
+    return `${ordinal || '-'} ${weekday || '-'} of each ${
+      recurrenceFrequencyLabels[frequency] || 'period'
+    }`
+  }
   const isAutomaticRange = reportSetup.report_setup !== 'manual'
+  const showRecurrenceControls = reportSetup.report_setup === 'manual'
+  const useRecurringManualRange =
+    showRecurrenceControls && recurrenceEnabled.recurrence_enabled && recurrenceFrequency.recurrence_frequency
 
   const savedReportColumns = [
     {
@@ -885,6 +967,12 @@ const EcommerceReport = () => {
       key: 'resolvedRange',
       width: 190,
       render: (_, record) => getResolvedDateRangeLabel(record.filters),
+    },
+    {
+      title: 'Recurring Schedule',
+      key: 'recurrence',
+      width: 220,
+      render: (_, record) => getRecurrenceLabel(record.filters),
     },
     {
       title: 'Actions',
@@ -1099,6 +1187,80 @@ const EcommerceReport = () => {
                 placeholder="Select Report Setup"
               />
             </Col>
+            {showRecurrenceControls && (
+              <>
+                <Col span={24} className="pb-[5px]">
+                  <MultiSelect
+                    singleSelect
+                    name="recurrence_enabled"
+                    defaultValue={recurrenceEnabled.recurrence_enabled ? 'yes' : 'no'}
+                    onChange={(val) => recurrenceEnabledHandleChange(val)}
+                    options={[
+                      { label: 'No Auto Schedule', value: 'no' },
+                      { label: 'Auto Schedule', value: 'yes' },
+                    ]}
+                    className="!w-full"
+                    placeholder="Auto Schedule"
+                  />
+                </Col>
+                {recurrenceEnabled.recurrence_enabled && (
+                  <>
+                    <Col span={24} className="pb-[5px]">
+                      <MultiSelect
+                        singleSelect
+                        name="recurrence_frequency"
+                        defaultValue={recurrenceFrequency.recurrence_frequency}
+                        onChange={(val) => recurrenceFrequencyHandleChange(val)}
+                        options={[
+                          { label: 'Weekly', value: 'weekly' },
+                          { label: 'Monthly', value: 'monthly' },
+                          { label: 'Broadcast Month', value: 'broadcast_monthly' },
+                        ]}
+                        className="!w-full"
+                        placeholder="Recurrence Frequency"
+                      />
+                    </Col>
+                    <Col span={24} className="pb-[5px]">
+                      <MultiSelect
+                        singleSelect
+                        name="recurrence_weekday"
+                        defaultValue={recurrenceWeekday.recurrence_weekday}
+                        onChange={(val) => recurrenceWeekdayHandleChange(val)}
+                        options={[
+                          { label: 'Sunday', value: '0' },
+                          { label: 'Monday', value: '1' },
+                          { label: 'Tuesday', value: '2' },
+                          { label: 'Wednesday', value: '3' },
+                          { label: 'Thursday', value: '4' },
+                          { label: 'Friday', value: '5' },
+                          { label: 'Saturday', value: '6' },
+                        ]}
+                        className="!w-full"
+                        placeholder="Day of Week"
+                      />
+                    </Col>
+                    {recurrenceFrequency.recurrence_frequency !== 'weekly' && (
+                      <Col span={24} className="pb-[5px]">
+                        <MultiSelect
+                          singleSelect
+                          name="recurrence_ordinal"
+                          defaultValue={recurrenceOrdinal.recurrence_ordinal}
+                          onChange={(val) => recurrenceOrdinalHandleChange(val)}
+                          options={[
+                            { label: '1st', value: '1' },
+                            { label: '2nd', value: '2' },
+                            { label: '3rd', value: '3' },
+                            { label: '4th', value: '4' },
+                          ]}
+                          className="!w-full"
+                          placeholder="Week Number In Period"
+                        />
+                      </Col>
+                    )}
+                  </>
+                )}
+              </>
+            )}
             <Col span={24} className="pb-[5px]">
               <MultiSelect
                 name="year"
@@ -1111,7 +1273,9 @@ const EcommerceReport = () => {
                 placeholder="Select Years"
               />
             </Col>
-            {!isAutomaticRange && ((Array.isArray(year) && year.length < 1) || !year) && (
+            {!isAutomaticRange &&
+              !useRecurringManualRange &&
+              ((Array.isArray(year) && year.length < 1) || !year) && (
               <>
                 <Col span={24}>
                   <Select

@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\DeleteCutomEmailFile::class,
+        \App\Console\Commands\RunScheduledEcommerceReports::class,
     ];
 
     /**
@@ -27,6 +28,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('activitylog:clean')->daily();
         $schedule->command('getdata:daily')->daily();
         $schedule->command('schedule:delete-custom-email-files')->weekly();
+        $schedule->command('reports:run-scheduled-ecommerce');
     }
 
     /**

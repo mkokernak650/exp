@@ -15,7 +15,7 @@ class SendMailController extends Controller
         $michaelEmails = array_unique($mergedEmails);
 
         if (app()->environment('local')) {
-            $michaelEmails = ['fahimikbal97@gmail.com'];
+            $michaelEmails = ['shosen@bitcode.pro'];
         }
 
         if ($sheetData === 'csvEmptyTemplateAces') {

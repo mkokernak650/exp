@@ -14,10 +14,14 @@ class SavedEcommerceReport extends Model
         'user_id',
         'name',
         'filters',
+        'is_active',
+        'last_generated_at',
     ];
 
     protected $casts = [
         'filters' => 'array',
+        'is_active' => 'boolean',
+        'last_generated_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
