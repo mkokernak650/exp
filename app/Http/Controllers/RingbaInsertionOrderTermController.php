@@ -42,15 +42,23 @@ class RingbaInsertionOrderTermController extends Controller
         $rioQuery = DB::table('ringba_insertion_orders')
             ->when(
                 !empty(request('filterByStatus')),
-                fn ($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
+                fn($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
             )
             ->select([
                 DB::raw('DATE_FORMAT(ringba_insertion_orders.created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at'),
-                'ringba_insertion_orders.id', 'io_for', 'io_no',
+                'ringba_insertion_orders.id',
+                'io_for',
+                'io_no',
                 DB::raw('(SELECT campaign_name FROM campaigns WHERE campaigns.campaign_id = ringba_insertion_orders.campaign_id LIMIT 1) AS campaign'),
                 DB::raw('(SELECT customer_name FROM customers WHERE customers.id = ringba_insertion_orders.customer_id LIMIT 1) AS customer'),
                 DB::raw('(SELECT affiliate_name FROM affiliates WHERE affiliates.affiliate_id = ringba_insertion_orders.affiliate_id LIMIT 1) AS affiliate'),
-                'phone', 'term', 'call_length', 'payout', 'revenue', 'ringba_insertion_orders.status', 'io_link'
+                'phone',
+                'term',
+                'call_length',
+                'payout',
+                'revenue',
+                'ringba_insertion_orders.status',
+                'io_link'
             ]);
 
         if (!empty(request('sortField')) && !empty(request('sortOrder'))) {
@@ -58,8 +66,14 @@ class RingbaInsertionOrderTermController extends Controller
             $sortOrder = request('sortOrder') === 'asc' ? 'asc' : 'desc';
 
             $sortableColumns = [
-                'id', 'io_for', 'phone', 'term', 'call_length',
-                'payout', 'revenue', 'status',
+                'id',
+                'io_for',
+                'phone',
+                'term',
+                'call_length',
+                'payout',
+                'revenue',
+                'status',
             ];
 
             if ($sortField === 'campaign') {
@@ -276,7 +290,7 @@ class RingbaInsertionOrderTermController extends Controller
         $email = $billingDetails['email'];
 
         if (app()->environment('local')) {
-            $email = 'fahimikbal97@gmail.com';
+            $email = 'shosen@bitcode.pro';
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -321,7 +335,7 @@ class RingbaInsertionOrderTermController extends Controller
         }
 
         if (app()->environment('local')) {
-            $email = 'fahimikbal97@gmail.com';
+            $email = 'shosen@bitcode.pro';
         }
 
         if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {

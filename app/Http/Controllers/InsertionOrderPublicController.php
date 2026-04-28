@@ -95,7 +95,7 @@ class InsertionOrderPublicController extends Controller
             $ioFor          = request('ioFor');
 
             if (app()->environment('local')) {
-                $email = 'fahimikbal97@gmail.com';
+                $email = 'shosen@bitcode.pro';
             }
 
             Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal, $ioFor));

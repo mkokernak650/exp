@@ -25,7 +25,7 @@ class InsertionOrderController extends Controller
             ->with('affiliate:id,affiliate_name')
             ->when(
                 !empty(request('filterByStatus')),
-                fn ($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
+                fn($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
             )
             ->select('insertion_orders.*')
             ->selectRaw('DATE_FORMAT(insertion_orders.created_at, "%d %M, %Y %H:%i:%s") as formatted_created_at');
@@ -82,8 +82,8 @@ class InsertionOrderController extends Controller
         }
 
         $affiliates = EcommerceAffiliate::with('affiliate:id,affiliate_name,email,market')
-            ->when(!empty($request->selectedCampaigns), fn ($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
-            ->when(!empty($request->selectedCustomers), fn ($q) => $q->whereIn('customer_id', explode(',', $request->selectedCustomers)))
+            ->when(!empty($request->selectedCampaigns), fn($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
+            ->when(!empty($request->selectedCustomers), fn($q) => $q->whereIn('customer_id', explode(',', $request->selectedCustomers)))
             ->select(['id', 'affiliate_id'])->distinct()->get();
 
         $affiliateOptions = $affiliates->map(function ($item) {
@@ -123,9 +123,9 @@ class InsertionOrderController extends Controller
         }
 
         $codesAndPhones = EcommerceAffiliate::with('affiliate:id,affiliate_name')
-            ->when(!empty($request->selectedCampaigns), fn ($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
-            ->when(!empty($selectedCustomers), fn ($q) => $q->whereIn('customer_id', $selectedCustomers))
-            ->when(!empty($selectedAffiliates), fn ($q) => $q->whereIn('affiliate_id', $selectedAffiliates))
+            ->when(!empty($request->selectedCampaigns), fn($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
+            ->when(!empty($selectedCustomers), fn($q) => $q->whereIn('customer_id', $selectedCustomers))
+            ->when(!empty($selectedAffiliates), fn($q) => $q->whereIn('affiliate_id', $selectedAffiliates))
             ->select(['id', 'affiliate_id', 'coupon_code', 'dialed'])->get();
 
         foreach ($codesAndPhones as $item) {
@@ -294,7 +294,7 @@ class InsertionOrderController extends Controller
                 $email = $item['email'];
 
                 if (app()->environment('local')) {
-                    $email = 'fahimikbal97@gmail.com';
+                    $email = 'shosen@bitcode.pro';
                 }
 
                 Notification::route('mail', $email)->notify(new IOLink($item['ioLink']));
@@ -350,7 +350,7 @@ class InsertionOrderController extends Controller
         $email = $billingFor->email;
 
         if (app()->environment('local')) {
-            $email = 'fahimikbal97@gmail.com';
+            $email = 'shosen@bitcode.pro';
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

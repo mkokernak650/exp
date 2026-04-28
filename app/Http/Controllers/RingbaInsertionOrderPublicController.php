@@ -57,7 +57,7 @@ class RingbaInsertionOrderPublicController extends Controller
             $ioFor          = request('ioFor');
 
             if (app()->environment('local')) {
-                $email = 'fahimikbal97@gmail.com';
+                $email = 'shosen@bitcode.pro';
             }
 
             Notification::route('mail', $email)->notify(new RingbaInsertionOrderDocument($billingDetails, $orderDetails, $ioFor));

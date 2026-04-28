@@ -35,8 +35,8 @@ class SendCampaignController extends Controller
         }
 
         $selectedAffiliates = explode(',', $request['selectedAffiliates']);
-        $affiliatesEmail    = Affiliate::when(in_array('allAffiliates', $selectedAffiliates), fn ($q) => $q->where('status', 1))
-            ->when(!in_array('allAffiliates', $selectedAffiliates), fn ($q) => $q->whereIn('id', $selectedAffiliates))
+        $affiliatesEmail    = Affiliate::when(in_array('allAffiliates', $selectedAffiliates), fn($q) => $q->where('status', 1))
+            ->when(!in_array('allAffiliates', $selectedAffiliates), fn($q) => $q->whereIn('id', $selectedAffiliates))
             ->pluck('email')->toArray();
 
         $additionalEmails   = explode(',', $request['additionalEmails']);
@@ -52,7 +52,7 @@ class SendCampaignController extends Controller
         }
 
         if (app()->environment('local')) {
-            $emails = ['fahimikbal97@gmail.com'];
+            $emails = ['shosen@bitcode.pro'];
         }
 
         foreach ($emails as $email) {
