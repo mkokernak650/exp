@@ -29,7 +29,7 @@ export const fields = [
     operators,
   },
   {
-    caption: 'Sent At (EST)',
+    caption: 'Sent At',
     name: 'sent_at',
     dataType: 'date',
     operators: [
@@ -40,7 +40,7 @@ export const fields = [
     ],
   },
   {
-    caption: 'Logged At (EST)',
+    caption: 'Logged At',
     name: 'created_at',
     dataType: 'date',
     operators: [
@@ -114,14 +114,14 @@ export const columns = [
   },
   {
     key: 'sent_at',
-    title: 'Sent At (EST)',
+    title: 'Sent At',
     dataType: 'date',
     style: { width: '160px' },
     visible: true,
   },
   {
     key: 'created_at',
-    title: 'Logged At (EST)',
+    title: 'Logged At',
     dataType: 'date',
     style: { width: '160px' },
     visible: true,
