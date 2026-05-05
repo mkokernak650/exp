@@ -42,9 +42,10 @@ class RunScheduledEcommerceReports extends Command
                 continue;
             }
 
-            $payload = $this->buildPayload($report);
+            $payload = $report->filters ?? [];
 
             try {
+                $payload = $this->buildPayload($report);
                 Auth::loginUsingId($user->id);
 
                 $response = app(EcommerceReportController::class)
