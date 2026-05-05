@@ -42,10 +42,10 @@ class RunScheduledEcommerceReports extends Command
                 continue;
             }
 
+            $payload = $this->buildPayload($report);
+
             try {
                 Auth::loginUsingId($user->id);
-
-                $payload = $this->buildPayload($report);
 
                 $response = app(EcommerceReportController::class)
                     ->ecommerceReportGenerate(new Request($payload));
@@ -74,7 +74,7 @@ class RunScheduledEcommerceReports extends Command
                     'message' => $exception->getMessage(),
                 ]);
                 EmailLogger::logFailure(
-                    $this->resolveRecipientsFromPayload($payload ?? []),
+                    $this->resolveRecipientsFromPayload($payload),
                     null,
                     $exception,
                     null,
