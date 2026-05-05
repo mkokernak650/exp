@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\EmailLogController;
 use inertia\inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -263,6 +264,11 @@ Route::middleware('auth')->group(function () {
 
     // ActivityLog
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.log');
+
+    // EmailLog
+    Route::get('/email-logs', [EmailLogController::class, 'index'])->name('email.log');
+    Route::post('/email-logs/delete-selected', [EmailLogController::class, 'deleteSelected'])->name('email.log.deleteSelected');
+    Route::post('/email-logs/clear-all', [EmailLogController::class, 'clearAll'])->name('email.log.clearAll');
 
     //Users
     Route::resource('user', UserController::class);

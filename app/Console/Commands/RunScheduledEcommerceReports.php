@@ -6,6 +6,7 @@ use App\Http\Controllers\EcommerceReportController;
 use App\Models\Affiliate;
 use App\Models\BroadCastMonth;
 use App\Models\SavedEcommerceReport;
+use App\Services\EmailLogger;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
@@ -45,12 +46,26 @@ class RunScheduledEcommerceReports extends Command
                 Auth::loginUsingId($user->id);
 
                 $payload = $this->buildPayload($report);
+
                 $response = app(EcommerceReportController::class)
                     ->ecommerceReportGenerate(new Request($payload));
 
                 if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
                     $report->last_generated_at = Carbon::now();
                     $report->save();
+                } else {
+                    $recipients = $this->resolveRecipientsFromPayload($payload);
+                    EmailLogger::logFailure(
+                        $recipients,
+                        null,
+                        new \RuntimeException(sprintf(
+                            'Report generation returned HTTP %d: %s',
+                            $response->getStatusCode(),
+                            $response->getContent()
+                        )),
+                        null,
+                        $user->id
+                    );
                 }
             } catch (\Throwable $exception) {
                 Log::error('Scheduled ecommerce report failed', [
@@ -58,6 +73,13 @@ class RunScheduledEcommerceReports extends Command
                     'user_id' => $report->user_id,
                     'message' => $exception->getMessage(),
                 ]);
+                EmailLogger::logFailure(
+                    $this->resolveRecipientsFromPayload($payload ?? []),
+                    null,
+                    $exception,
+                    null,
+                    $user->id
+                );
             } finally {
                 Auth::logout();
             }
@@ -145,6 +167,14 @@ class RunScheduledEcommerceReports extends Command
         }
 
         return false;
+    }
+
+    protected function resolveRecipientsFromPayload(array $payload): array
+    {
+        if (($payload['type'] ?? 'customer') === 'affiliate') {
+            return array_values(array_filter((array) ($payload['affiliatesEmail'] ?? [])));
+        }
+        return array_values(array_filter((array) ($payload['emails'] ?? [])));
     }
 
     protected function getNthWeekdayOfRange(Carbon $start, Carbon $end, int $weekday, int $ordinal): ?Carbon

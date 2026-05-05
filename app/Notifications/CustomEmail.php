@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\HtmlString;
+use Symfony\Component\Mime\Email;
 
 class CustomEmail extends Notification implements ShouldQueue
 {
@@ -15,17 +16,19 @@ class CustomEmail extends Notification implements ShouldQueue
     protected $subject;
     protected $message;
     protected $attachments;
+    protected $userId;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($subject, $message, $attachments)
+    public function __construct($subject, $message, $attachments, $userId = null)
     {
         $this->subject     = $subject;
         $this->message     = $message;
         $this->attachments = $attachments;
+        $this->userId      = $userId;
     }
 
     /**
@@ -58,7 +61,11 @@ class CustomEmail extends Notification implements ShouldQueue
             }
         }
 
-        return $mail;
+        return $mail->withSymfonyMessage(function (Email $message) {
+            if ($this->userId) {
+                $message->getHeaders()->addTextHeader('X-Consumerexp-User-Id', (string) $this->userId);
+            }
+        });
     }
 
     /**

@@ -8,6 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\HtmlString;
+use Symfony\Component\Mime\Email;
 
 class SendMail extends Notification implements ShouldQueue
 {
@@ -18,19 +19,21 @@ class SendMail extends Notification implements ShouldQueue
     protected $reportOn;
     protected $fileExt;
     protected $data;
+    protected $userId;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($fileName, $emailCriteria, $reportOn, $data)
+    public function __construct($fileName, $emailCriteria, $reportOn, $data, $userId = null)
     {
         $this->fileName      = $fileName;
         $this->emailCriteria = $emailCriteria;
         $this->reportOn      = $reportOn;
         $this->fileExt       = $reportOn === 'exportCSV' ? '.csv' : '.xlsx';
         $this->data          = $data;
+        $this->userId        = $userId;
     }
 
     /**
@@ -74,7 +77,12 @@ class SendMail extends Notification implements ShouldQueue
                 ->line('Please find the attached results report for the campaign.')
                 ->line('Thank you')->attach($filePath, [
                     'as' => $this->fileName . $this->fileExt,
-                ]);
+                ])
+                ->withSymfonyMessage(function (Email $message) {
+                    if ($this->userId) {
+                        $message->getHeaders()->addTextHeader('X-Consumerexp-User-Id', (string) $this->userId);
+                    }
+                });
         }
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportExport;
+use App\Services\EmailLogger;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\SendMail;
 
@@ -32,7 +33,19 @@ class SendMailController extends Controller
 
         if (count($michaelEmails)) {
             foreach ($michaelEmails as $email) {
-                Notification::route('mail', $email)->notify(new SendMail($fileName, $emailCriteria, $reportOn, $data));
+                try {
+                    Notification::route('mail', $email)->notify(
+                        new SendMail($fileName, $emailCriteria, $reportOn, $data, auth()->id())
+                    );
+                } catch (\Throwable $exception) {
+                    EmailLogger::logFailure(
+                        [$email],
+                        'ConsumerEXP Results Report',
+                        $exception,
+                        SendMail::class,
+                        auth()->id()
+                    );
+                }
             }
         }
     }

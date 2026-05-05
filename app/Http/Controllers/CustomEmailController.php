@@ -93,7 +93,9 @@ class CustomEmailController extends Controller
             return ['success' => false, 'msg' => 'No emails found'];
         } else {
             foreach ($emails as $email) {
-                Notification::route('mail', $email)->notify(new CustomEmail($emailSubject, $emailMessage, $attachedFilesData));
+                Notification::route('mail', $email)->notify(
+                    new CustomEmail($emailSubject, $emailMessage, $attachedFilesData, auth()->id())
+                );
             }
         }
 

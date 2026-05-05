@@ -15,6 +15,7 @@ import {
   DatabaseOutlined,
   UsergroupAddOutlined,
   EllipsisOutlined,
+  MailOutlined,
 } from '@ant-design/icons'
 import { Minus as MinusIcon } from 'react-feather'
 import { InertiaLink } from '@inertiajs/inertia-react'
@@ -367,6 +368,11 @@ export default function PersistentDrawerLeft(props) {
       key: 'activity.log',
       icon: <HistoryOutlined />,
       label: <InertiaLink href={route('activity.log')}>Activity Log</InertiaLink>,
+    },
+    {
+      key: 'email.log',
+      icon: <MailOutlined />,
+      label: <InertiaLink href={route('email.log')}>Email Logs</InertiaLink>,
     },
     {
       key: 'users',
