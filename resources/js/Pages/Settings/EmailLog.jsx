@@ -356,6 +356,13 @@ const EmailLog = () => {
                 Export
               </Button>
               <Button
+                onClick={() => getSearchingData(curerentPage)}
+                loading={loading}
+                className="w-auto capitalize text-sm"
+              >
+                Reload
+              </Button>
+              <Button
                 danger
                 onClick={() => handleOpenModal(setShowDeleteModal)}
                 disabled={!selectedRowKeys.length}
