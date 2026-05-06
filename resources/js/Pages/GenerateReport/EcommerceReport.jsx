@@ -917,6 +917,84 @@ const EcommerceReport = () => {
       recurrenceFrequencyLabels[frequency] || 'period'
     }`
   }
+  const getNthWeekdayOfMonth = (year, month, weekday, ordinal, anchorTime) => {
+    const firstDayOfMonth = dayjs().year(year).month(month).date(1)
+    const offsetToWeekday = (weekday - firstDayOfMonth.day() + 7) % 7
+    const dayOfMonth = 1 + offsetToWeekday + (ordinal - 1) * 7
+
+    if (dayOfMonth > firstDayOfMonth.daysInMonth()) {
+      return null
+    }
+
+    return firstDayOfMonth
+      .date(dayOfMonth)
+      .hour(anchorTime.hour())
+      .minute(anchorTime.minute())
+      .second(0)
+      .millisecond(0)
+  }
+  const getNextScheduledRun = (record) => {
+    const filters = record?.filters || {}
+    if ((filters?.report_setup || 'manual') !== 'manual' || !filters?.recurrence_enabled) {
+      return null
+    }
+
+    const now = dayjs()
+    const anchorTime = dayjs(record?.created_at || now)
+    const weekday = Number(filters?.recurrence_weekday)
+    const frequency = filters?.recurrence_frequency || 'weekly'
+
+    if (Number.isNaN(weekday)) {
+      return null
+    }
+
+    if (frequency === 'weekly') {
+      let nextRun = now
+        .day(weekday)
+        .hour(anchorTime.hour())
+        .minute(anchorTime.minute())
+        .second(0)
+        .millisecond(0)
+      if (!nextRun.isAfter(now)) {
+        nextRun = nextRun.add(1, 'week')
+      }
+      return nextRun
+    }
+
+    if (!['monthly', 'broadcast_monthly'].includes(frequency)) {
+      return null
+    }
+
+    const ordinal = Number(filters?.recurrence_ordinal || 1)
+    if (Number.isNaN(ordinal) || ordinal < 1) {
+      return null
+    }
+
+    let nextRun = getNthWeekdayOfMonth(now.year(), now.month(), weekday, ordinal, anchorTime)
+    if (!nextRun || !nextRun.isAfter(now)) {
+      const nextMonth = now.add(1, 'month')
+      nextRun = getNthWeekdayOfMonth(
+        nextMonth.year(),
+        nextMonth.month(),
+        weekday,
+        ordinal,
+        anchorTime
+      )
+    }
+    return nextRun
+  }
+  const getTimeUntilNextRunLabel = (record) => {
+    const nextRun = getNextScheduledRun(record)
+    if (!nextRun) {
+      return '-'
+    }
+
+    const diffMs = Math.max(nextRun.diff(dayjs()), 0)
+    const totalHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const days = Math.floor(totalHours / 24)
+    const hours = totalHours % 24
+    return `${days}d ${hours}h`
+  }
   const isAutomaticRange = reportSetup.report_setup !== 'manual'
   const showRecurrenceControls = reportSetup.report_setup === 'manual'
   const useRecurringManualRange =
@@ -973,6 +1051,12 @@ const EcommerceReport = () => {
       key: 'recurrence',
       width: 220,
       render: (_, record) => getRecurrenceLabel(record.filters),
+    },
+    {
+      title: 'Time Left',
+      key: 'timeLeft',
+      width: 120,
+      render: (_, record) => getTimeUntilNextRunLabel(record),
     },
     {
       title: 'Actions',
