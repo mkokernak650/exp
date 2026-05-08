@@ -383,7 +383,11 @@ const EcommerceReport = () => {
     setReportSetup({ report_setup: val || 'manual' })
   }
   const recurrenceEnabledHandleChange = (val) => {
-    setRecurrenceEnabled({ recurrence_enabled: val === 'yes' })
+    const enabled = val === 'yes'
+    setRecurrenceEnabled({ recurrence_enabled: enabled })
+    if (enabled) {
+      setYear([])
+    }
   }
   const recurrenceFrequencyHandleChange = (val) => {
     setRecurrenceFrequency({ recurrence_frequency: val || 'weekly' })
@@ -1345,18 +1349,20 @@ const EcommerceReport = () => {
                 )}
               </>
             )}
-            <Col span={24} className="pb-[5px]">
-              <MultiSelect
-                name="year"
-                defaultValue={
-                  year?.year ? year.year.map((y) => ({ label: y, value: String(y) })) : ''
-                }
-                onChange={(val) => yearHandleChange(val, 'year')}
-                options={yearOptions}
-                className="!w-full"
-                placeholder="Select Years"
-              />
-            </Col>
+            {!(showRecurrenceControls && recurrenceEnabled.recurrence_enabled) && (
+              <Col span={24} className="pb-[5px]">
+                <MultiSelect
+                  name="year"
+                  defaultValue={
+                    year?.year ? year.year.map((y) => ({ label: y, value: String(y) })) : ''
+                  }
+                  onChange={(val) => yearHandleChange(val, 'year')}
+                  options={yearOptions}
+                  className="!w-full"
+                  placeholder="Select Years"
+                />
+              </Col>
+            )}
             {!isAutomaticRange &&
               !useRecurringManualRange &&
               ((Array.isArray(year) && year.length < 1) || !year) && (
