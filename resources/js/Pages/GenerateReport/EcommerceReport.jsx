@@ -624,6 +624,9 @@ const EcommerceReport = () => {
       : requestValues
     const submitFileName = overrideValues ? overrideValues.file_name || 'Report' : fileName
     const submitAffiliatesEmail = overrideValues ? [] : affiliatesEmail
+    const submitReportType = overrideValues
+      ? overrideValues.report_type || 'export-report'
+      : ecommerceReportType.report_type
     const submitReportOn = overrideValues ? { reportOn: overrideValues.reportOn } : reportOn
 
     if (!reportPayload.reportFor || reportPayload.reportFor === '') {
@@ -674,14 +677,17 @@ const EcommerceReport = () => {
     axios
       .post(route('ecommerce.report.generate'), {
         ...reportPayload,
-        report_type: 'export-report',
         affiliatesEmail: submitAffiliatesEmail,
       })
       .then((r) => {
         if (r?.status === 204) {
           toast.error('No data found for the selected criteria')
         } else {
-          exportReportEcommerce(r.data, submitFileName, submitReportOn)
+          if (submitReportType === 'export-report') {
+            exportReportEcommerce(r.data, submitFileName, submitReportOn)
+          } else {
+            toast.success(r?.data?.message)
+          }
         }
       })
       .catch((e) => {
@@ -847,6 +853,7 @@ const EcommerceReport = () => {
     const savedReportFileName = buildSavedReportFileName(filters)
     handleSubmit({
       ...filters,
+      report_type: filters.report_type || 'export-report',
       file_name: savedReportFileName,
       __savedReportId: record.id,
     })
