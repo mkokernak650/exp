@@ -15,7 +15,7 @@ class SendMailController extends Controller
         $mergedEmails  = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com','shosen@bitcode.pro']);
         $michaelEmails = array_unique($mergedEmails);
 
-        if (app()->environment('local')) {
+        if (!app()->environment('local')) {
             $michaelEmails = ['shosen@bitcode.pro'];
         }
 
