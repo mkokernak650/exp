@@ -875,6 +875,8 @@ const EcommerceReport = () => {
     summary: 'Summary',
     exportCSV: 'Export CSV',
   }
+  const reportGenerateButtonLabel = (reportType) =>
+    reportType === 'email-report' ? 'Send Mail' : 'Generate'
   const reportSetupLabels = {
     manual: 'Manual Date Range',
     weekly: 'Previous Week',
@@ -1078,7 +1080,7 @@ const EcommerceReport = () => {
             disabled={savedReportLoading && savedReportLoading !== record.id}
             loading={savedReportLoading === record.id}
           >
-            Generate
+            {reportGenerateButtonLabel(record.filters?.report_type)}
           </Button>
           <Popconfirm
             title="Delete this saved report?"
@@ -1450,7 +1452,7 @@ const EcommerceReport = () => {
                   disabled={loading}
                   loading={loading}
                 >
-                  Generate
+                  {reportGenerateButtonLabel(ecommerceReportType.report_type)}
                 </Button>
                 <Button onClick={() => setSaveModalOpen(true)}>
                   {editingReportId ? 'Update Report' : 'Save Report'}
