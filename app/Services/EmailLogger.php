@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Message as MimeMessage;
+use Symfony\Component\Mime\MessageConverter;
 use Throwable;
 
 class EmailLogger
@@ -17,8 +19,8 @@ class EmailLogger
     public static function logSent(MessageSent $event): void
     {
         try {
-            $email = $event->message instanceof Email ? $event->message : null;
-            if (!$email) {
+            $email = self::resolveEmailFromSentEvent($event);
+            if (!$email instanceof Email) {
                 return;
             }
 
@@ -45,6 +47,29 @@ class EmailLogger
         } catch (Throwable $e) {
             Log::warning('EmailLogger::logSent failed', ['message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * $event->message maps to SentMessage::getOriginalMessage(); Symfony types it as RawMessage.
+     * Mail can still deliver when that value is Message but not strictly Email — logging must normalize.
+     */
+    protected static function resolveEmailFromSentEvent(MessageSent $event): ?Email
+    {
+        $original = $event->sent->getOriginalMessage();
+
+        if ($original instanceof Email) {
+            return $original;
+        }
+
+        if ($original instanceof MimeMessage) {
+            try {
+                return MessageConverter::toEmail($original);
+            } catch (Throwable $e) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     public static function logFailure(
