@@ -10,7 +10,7 @@ use App\Notifications\SendMail;
 
 class SendMailController extends Controller
 {
-    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header = [], $reportOn = '')
+    public function sendMail($sheetData, $callSummary, $tagData, $fileName, $emails, $emailCriteria = null, $header = [], $reportOn = '', $emailLogType = null)
     {
         $mergedEmails  = array_merge($emails, ['mkokernak@consumerexp.com', 'mkokernak@gmail.com','shosen@bitcode.pro']);
         $michaelEmails = array_unique($mergedEmails);
@@ -35,7 +35,7 @@ class SendMailController extends Controller
             foreach ($michaelEmails as $email) {
                 try {
                     Notification::route('mail', $email)->notify(
-                        new SendMail($fileName, $emailCriteria, $reportOn, $data, auth()->id())
+                        new SendMail($fileName, $emailCriteria, $reportOn, $data, auth()->id(), $emailLogType)
                     );
                 } catch (\Throwable $exception) {
                     EmailLogger::logFailure(
@@ -43,7 +43,8 @@ class SendMailController extends Controller
                         'ConsumerEXP Results Report',
                         $exception,
                         SendMail::class,
-                        auth()->id()
+                        auth()->id(),
+                        $emailLogType
                     );
                 }
             }

@@ -20,13 +20,14 @@ class SendMail extends Notification implements ShouldQueue
     protected $fileExt;
     protected $data;
     protected $userId;
+    protected $emailLogType;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($fileName, $emailCriteria, $reportOn, $data, $userId = null)
+    public function __construct($fileName, $emailCriteria, $reportOn, $data, $userId = null, $emailLogType = null)
     {
         $this->fileName      = $fileName;
         $this->emailCriteria = $emailCriteria;
@@ -34,6 +35,7 @@ class SendMail extends Notification implements ShouldQueue
         $this->fileExt       = $reportOn === 'exportCSV' ? '.csv' : '.xlsx';
         $this->data          = $data;
         $this->userId        = $userId;
+        $this->emailLogType  = $emailLogType;
     }
 
     /**
@@ -81,6 +83,9 @@ class SendMail extends Notification implements ShouldQueue
                 ->withSymfonyMessage(function (Email $message) {
                     if ($this->userId) {
                         $message->getHeaders()->addTextHeader('X-Consumerexp-User-Id', (string) $this->userId);
+                    }
+                    if ($this->emailLogType) {
+                        $message->getHeaders()->addTextHeader('X-Consumerexp-Email-Log-Type', (string) $this->emailLogType);
                     }
                 });
         }

@@ -65,7 +65,8 @@ class RunScheduledEcommerceReports extends Command
                             $response->getContent()
                         )),
                         null,
-                        $user->id
+                        $user->id,
+                        'Ecommerce Report'
                     );
                 }
             } catch (\Throwable $exception) {
@@ -79,7 +80,8 @@ class RunScheduledEcommerceReports extends Command
                     null,
                     $exception,
                     null,
-                    $user->id
+                    $user->id,
+                    'Ecommerce Report'
                 );
             } finally {
                 Auth::logout();

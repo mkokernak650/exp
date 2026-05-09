@@ -33,7 +33,7 @@ class EmailLogger
 
             EmailLog::create([
                 'user_id' => self::resolveUserId($headerUserId),
-                'type' => self::resolveType($mailableType),
+                'type' => self::emailLogTypeFromHeaders($email) ?? self::resolveType($mailableType),
                 'from' => self::firstAddress($email->getFrom()),
                 'to' => self::addressList($email->getTo()),
                 'subject' => $email->getSubject(),
@@ -52,12 +52,13 @@ class EmailLogger
         ?string $subject,
         Throwable $exception,
         ?string $mailableType = null,
-        ?int $userId = null
+        ?int $userId = null,
+        ?string $emailLogType = null
     ): void {
         try {
             EmailLog::create([
                 'user_id' => self::resolveUserId($userId),
-                'type' => self::resolveType($mailableType),
+                'type' => $emailLogType ?? self::resolveType($mailableType),
                 'from' => null,
                 'to' => array_values(array_filter($emails)),
                 'subject' => $subject,
@@ -159,6 +160,31 @@ class EmailLogger
         }
 
         return null;
+    }
+
+    protected static function emailLogTypeFromHeaders(Email $email): ?string
+    {
+        try {
+            $header = $email->getHeaders()->get('X-Consumerexp-Email-Log-Type');
+            if (!$header) {
+                return null;
+            }
+
+            $raw = null;
+            if (method_exists($header, 'getBodyAsString')) {
+                $raw = $header->getBodyAsString();
+            } elseif (method_exists($header, 'getBody')) {
+                $raw = $header->getBody();
+            } else {
+                $raw = (string) $header;
+            }
+
+            $raw = is_string($raw) ? trim($raw) : '';
+
+            return $raw !== '' ? $raw : null;
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     protected static function userIdFromHeaders(Email $email): ?int
