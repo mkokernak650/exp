@@ -6,6 +6,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportExport;
 use App\Services\EmailLogger;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Notifications\SendMail;
 
 class SendMailController extends Controller
@@ -19,23 +21,29 @@ class SendMailController extends Controller
             $michaelEmails = ['shosen@bitcode.pro'];
         }
 
+        $storedFilePath = null;
+
         if ($sheetData === 'csvEmptyTemplateAces') {
             $data = $sheetData;
         } else {
             $data = [];
+            $ext         = $reportOn === 'exportCSV' ? '.csv' : '.xlsx';
+            $tempRelPath = 'laravel-excel-temp/' . Str::uuid() . $ext;
 
             if ($reportOn === 'exportCSV') {
-                Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+                Excel::store(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $tempRelPath, 'local', \Maatwebsite\Excel\Excel::CSV);
             } else {
-                Excel::download(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $fileName . '.xlsx');
+                Excel::store(new ReportExport($sheetData, $callSummary, $tagData, $header, $reportOn), $tempRelPath, 'local');
             }
+
+            $storedFilePath = Storage::disk('local')->path($tempRelPath);
         }
 
         if (count($michaelEmails)) {
             foreach ($michaelEmails as $email) {
                 try {
                     Notification::route('mail', $email)->notify(
-                        new SendMail($fileName, $emailCriteria, $reportOn, $data, auth()->id(), $emailLogType)
+                        new SendMail($fileName, $emailCriteria, $reportOn, $data, auth()->id(), $emailLogType, $storedFilePath)
                     );
                 } catch (\Throwable $exception) {
                     EmailLogger::logFailure(

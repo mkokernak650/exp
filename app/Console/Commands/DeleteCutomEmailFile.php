@@ -40,5 +40,17 @@ class DeleteCutomEmailFile extends Command
                 Storage::delete($file);
             }
         }
+
+        $tempFiles = Storage::files('laravel-excel-temp');
+
+        foreach ($tempFiles as $file) {
+            $modifiedAt   = Storage::lastModified($file);
+            $modifiedDate = Carbon::createFromTimestamp($modifiedAt);
+            $diffInDays   = Carbon::now()->diffInDays($modifiedDate);
+
+            if ($diffInDays >= 1) {
+                Storage::delete($file);
+            }
+        }
     }
 }
