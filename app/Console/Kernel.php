@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('activitylog:clean')->timezone($timezone)->dailyAt('07:00');
         $schedule->command('getdata:daily')->timezone($timezone)->dailyAt('07:05');
         $schedule->command('schedule:delete-custom-email-files')->timezone($timezone)->weeklyOn(0, '07:10');
-        $schedule->command('reports:run-scheduled-ecommerce')->timezone($timezone)->everyFiveMinutes();
+        $schedule->command('reports:run-scheduled-ecommerce')->timezone($timezone)->dailyAt('07:15');
     }
 
     /**
