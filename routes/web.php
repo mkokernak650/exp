@@ -49,7 +49,7 @@ use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\UserController;
 
 Route::middleware('auth')->group(function () {
-    // Ringba Campaign
+    // Ringba Campaigns
 
     Route::post('campaign-edit', [CampaignController::class, 'edit'])->name('campaign.edit');
     Route::post('campaigns-status-update/{campaign}', [CampaignController::class, 'statusUpdate'])->name('campaigns.status.update');
