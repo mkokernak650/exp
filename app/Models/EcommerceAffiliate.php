@@ -14,6 +14,13 @@ class EcommerceAffiliate extends Model
 {
     use HasFactory, LogsActivity;
 
+    const FEE_MODE = [
+        'payout_per_order' => 1,
+        'cash_buy'         => 2,
+        'fixed_pct'        => 3,
+        'tiered'           => 4,
+    ];
+
     protected $fillable = [
         'campaign_id',
         'customer_id',
@@ -21,6 +28,7 @@ class EcommerceAffiliate extends Model
         'product_code',
         'order_type',
         'coupon_code',
+        'tracking_url',
         'dialed',
         'pay_on_multiple_orders',
         'lengths',

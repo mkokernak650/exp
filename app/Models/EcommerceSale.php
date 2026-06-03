@@ -19,27 +19,40 @@ class EcommerceSale extends Model
         'payout_per_order' => 1,
         'cash_buy'         => 2,
     ];
+    const RECORD_KIND = [
+        'SALE'   => 'SALE',
+        'RETURN' => 'RETURN',
+    ];
 
     protected $fillable = [
         'campaign_id',
         'customer_id',
         'order_type',
+        'record_kind',
         'order_no',
         'coupon_code',
+        'tracking_url',
         'user_ip',
         'dialed',
         'inbound',
         'shipping_city',
         'shipping_state',
+        'ship_country',
         'shipping_zip',
         'billing_zip',
         'quantity',
         'subtotal',
         'shipping_cost',
         'total',
+        'vendor_fee',
+        'consumerexp_fee',
+        'import_hash',
         'order_at',
         'vendor_code',
+        'telemarketing_co',
         'product_code',
+        'isci',
+        'order_description',
         'ani',
         'call_length',
         'payment_type',
@@ -59,6 +72,21 @@ class EcommerceSale extends Model
         } else {
             $this->attributes['shipping_zip'] = $value;
         }
+    }
+
+    public function scopeSales($query)
+    {
+        return $query->where('record_kind', self::RECORD_KIND['SALE']);
+    }
+
+    public function scopeReturns($query)
+    {
+        return $query->where('record_kind', self::RECORD_KIND['RETURN']);
+    }
+
+    public function isReturn(): bool
+    {
+        return $this->record_kind === self::RECORD_KIND['RETURN'];
     }
 
     public function ecommerceAffiliate(): BelongsTo

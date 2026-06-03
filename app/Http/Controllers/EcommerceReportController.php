@@ -1559,4 +1559,172 @@ class EcommerceReportController extends Controller
             }
         });
     }
+
+    // ----- Home Shopping report (sales + returns aware) -----
+
+    public function homeShoppingReport()
+    {
+        $campaigns = EcommerceCampaign::active()->get();
+        $customers = Customer::active()->get();
+        $affiliates = Affiliate::active()->orderBy('affiliate_name')->select('id', 'affiliate_name', 'market')->get();
+        $states = ZipcodeByTelevisionMarket::select('state')->orderBy('state')->distinct()->get();
+        $markets = ZipcodeByTelevisionMarket::select('market')->orderBy('market')->distinct()->get();
+        $stations = EcommerceSale::select('station')->whereNotNull('station')->distinct()->orderBy('station')->pluck('station');
+
+        return Inertia::render('GenerateReport/HomeShoppingReport', compact(
+            'campaigns',
+            'customers',
+            'affiliates',
+            'states',
+            'markets',
+            'stations'
+        ));
+    }
+
+    public function homeShoppingReportGenerate(Request $request)
+    {
+        $reportOn = $request->input('reportOn', 'detail');
+        $base = $this->homeShoppingBaseQuery($request);
+
+        switch ($reportOn) {
+            case 'householdSummary':
+                $data = (clone $base)
+                    ->select([
+                        'ecommerce_sales.customer_id',
+                        'ecommerce_sales.campaign_id',
+                        'ecommerce_sales.ani',
+                        'ecommerce_sales.shipping_zip',
+                        'ecommerce_sales.shipping_city',
+                        'ecommerce_sales.shipping_state',
+                        DB::raw('COALESCE(NULLIF(ecommerce_sales.dialed, ""), NULLIF(ecommerce_sales.coupon_code, ""), NULLIF(ecommerce_sales.tracking_url, "")) AS channel_id'),
+                        DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN ecommerce_sales.total ELSE 0 END) AS gross_sales'),
+                        DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN ecommerce_sales.total ELSE 0 END) AS returns_amount'),
+                        DB::raw('SUM(ecommerce_sales.total) AS net_sales'),
+                        DB::raw('SUM(ecommerce_sales.vendor_fee) AS net_vendor_fee'),
+                        DB::raw('SUM(ecommerce_sales.consumerexp_fee) AS net_consumerexp_fee'),
+                        DB::raw('SUM(ecommerce_sales.total - COALESCE(ecommerce_sales.vendor_fee, 0) - COALESCE(ecommerce_sales.consumerexp_fee, 0)) AS net_revenue_to_vendor'),
+                    ])
+                    ->groupBy(
+                        'ecommerce_sales.customer_id',
+                        'ecommerce_sales.campaign_id',
+                        'ecommerce_sales.ani',
+                        'ecommerce_sales.shipping_zip',
+                        'ecommerce_sales.shipping_city',
+                        'ecommerce_sales.shipping_state',
+                        'channel_id'
+                    )
+                    ->orderByDesc('net_sales')
+                    ->get();
+                break;
+
+            case 'vendorReport':
+                $data = (clone $base)
+                    ->leftJoin('zipcode_by_television_markets as zbtm', 'zbtm.zip_code', '=', 'ecommerce_sales.shipping_zip')
+                    ->select([
+                        DB::raw('COALESCE(zbtm.market, "Unknown Market") AS market'),
+                        DB::raw('COALESCE(ecommerce_sales.station, "Unknown Station") AS station'),
+                        DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN ecommerce_sales.total ELSE 0 END) AS gross_sales'),
+                        DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN ecommerce_sales.total ELSE 0 END) AS returns_amount'),
+                        DB::raw('SUM(ecommerce_sales.total) AS net_sales'),
+                        DB::raw('SUM(ecommerce_sales.vendor_fee) AS net_vendor_fee'),
+                        DB::raw('SUM(ecommerce_sales.consumerexp_fee) AS net_consumerexp_fee'),
+                        DB::raw('COUNT(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN 1 END) AS sale_count'),
+                        DB::raw('COUNT(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN 1 END) AS return_count'),
+                    ])
+                    ->groupBy('market', 'station')
+                    ->orderByDesc('net_sales')
+                    ->get();
+                break;
+
+            case 'detail':
+            default:
+                $data = (clone $base)
+                    ->leftJoin('zipcode_by_television_markets as zbtm', 'zbtm.zip_code', '=', 'ecommerce_sales.shipping_zip')
+                    ->select([
+                        'ecommerce_sales.dialed AS Dialed',
+                        'ecommerce_sales.order_type AS Order Type',
+                        'ecommerce_sales.coupon_code AS Promo Code',
+                        'ecommerce_sales.tracking_url AS Tracking URL',
+                        DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%Y-%m-%d") AS `Order Date`'),
+                        DB::raw('DATE_FORMAT(ecommerce_sales.order_at, "%H:%i") AS `Order Time`'),
+                        'ecommerce_sales.order_no AS Order Number',
+                        'ecommerce_sales.ani AS Telephone',
+                        'ecommerce_sales.shipping_city AS Ship City',
+                        'ecommerce_sales.shipping_state AS Ship State',
+                        'ecommerce_sales.shipping_zip AS Zip',
+                        'ecommerce_sales.order_description AS Order Description',
+                        'ecommerce_sales.total AS Total Sales',
+                        DB::raw('ROUND(COALESCE(ecommerce_sales.vendor_fee, 0) + COALESCE(ecommerce_sales.consumerexp_fee, 0), 4) AS `Commission`'),
+                        DB::raw('ROUND(ecommerce_sales.total - COALESCE(ecommerce_sales.vendor_fee, 0) - COALESCE(ecommerce_sales.consumerexp_fee, 0), 4) AS `Net Sales`'),
+                        'ecommerce_sales.record_kind AS Record Kind',
+                        'ecommerce_sales.station AS Station',
+                        DB::raw('zbtm.market AS Market'),
+                    ])
+                    ->orderBy('ecommerce_sales.order_at')
+                    ->get();
+                break;
+        }
+
+        return response()->json([
+            'data'    => $data,
+            'summary' => $this->homeShoppingSummary($base),
+        ], 200);
+    }
+
+    protected function homeShoppingBaseQuery(Request $request)
+    {
+        $q = DB::table('ecommerce_sales');
+
+        if (!empty($request->customer_id)) {
+            $q->whereIn('ecommerce_sales.customer_id', (array) $request->customer_id);
+        }
+        if (!empty($request->campaign_id)) {
+            $q->whereIn('ecommerce_sales.campaign_id', (array) $request->campaign_id);
+        }
+        if (!empty($request->dialed)) {
+            $q->whereIn('ecommerce_sales.dialed', (array) $request->dialed);
+        }
+        if (!empty($request->couponCodes)) {
+            $q->whereIn('ecommerce_sales.coupon_code', (array) $request->couponCodes);
+        }
+        if (!empty($request->stations)) {
+            $q->whereIn('ecommerce_sales.station', (array) $request->stations);
+        }
+        if (!empty($request->record_kind)) {
+            $q->where('ecommerce_sales.record_kind', $request->record_kind);
+        }
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $q->whereDate('ecommerce_sales.order_at', '>=', $request->start_date)
+                ->whereDate('ecommerce_sales.order_at', '<=', $request->end_date);
+        }
+
+        return $q;
+    }
+
+    protected function homeShoppingSummary($base): array
+    {
+        $row = (clone $base)
+            ->selectRaw('
+                SUM(CASE WHEN record_kind = "SALE" THEN total ELSE 0 END) AS gross_sales,
+                SUM(CASE WHEN record_kind = "RETURN" THEN total ELSE 0 END) AS returns_amount,
+                SUM(total) AS net_sales,
+                SUM(vendor_fee) AS vendor_fee,
+                SUM(consumerexp_fee) AS consumerexp_fee
+            ')
+            ->first();
+
+        $vendorFee = (float) ($row->vendor_fee ?? 0);
+        $cexpFee   = (float) ($row->consumerexp_fee ?? 0);
+        $netSales  = (float) ($row->net_sales ?? 0);
+
+        return [
+            'Gross Sales'            => round((float) ($row->gross_sales ?? 0), 2),
+            'Returns'                => round((float) ($row->returns_amount ?? 0), 2),
+            'Net Sales'              => round($netSales, 2),
+            'Vendor Fee'             => round($vendorFee, 2),
+            'ConsumerEXP Fee'        => round($cexpFee, 2),
+            'Total Commission'       => round($vendorFee + $cexpFee, 2),
+            'Net Revenue to Vendor'  => round($netSales - $vendorFee - $cexpFee, 2),
+        ];
+    }
 }

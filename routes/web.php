@@ -86,6 +86,10 @@ Route::middleware('auth')->group(function () {
     Route::put('reports/ecommerce/saved-reports/{id}', [EcommerceReportController::class, 'updateReport'])->name('ecommerce.reports.update');
     Route::delete('reports/ecommerce/saved-reports/{id}', [EcommerceReportController::class, 'deleteReport'])->name('ecommerce.reports.delete');
 
+    // Home Shopping report (sales + returns aware)
+    Route::get('reports/home-shopping', [EcommerceReportController::class, 'homeShoppingReport'])->name('ecommerce.report.homeShopping');
+    Route::post('reports/home-shopping/generate', [EcommerceReportController::class, 'homeShoppingReportGenerate'])->name('ecommerce.report.homeShopping.generate');
+
     // E-commerce campaign
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');
     Route::post('ecommerce-campaigns-status-update/{ecommerceCampaign}', [EcommerceCampaignController::class, 'statusUpdate'])->name('ecommerce-campaigns.status.update');

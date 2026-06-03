@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx'
 import { useEffect } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import toast from 'react-hot-toast'
-import { exportReportAlreadyExist } from '../../Helpers/ExportReport'
+import { exportReportAlreadyExist, exportReportRejectedReturns } from '../../Helpers/ExportReport'
 import Note from '../../Components/Note'
 
 const { Title } = Typography
@@ -127,6 +127,9 @@ const SalesImport = () => {
 
         if (res.data?.alreadyExists) {
           exportReportAlreadyExist(res.data.alreadyExists)
+        }
+        if (res.data?.rejectedReturns) {
+          exportReportRejectedReturns(res.data.rejectedReturns)
         }
         setLoading((oldValues) => ({ ...oldValues, import: false }))
         toast.success(res.data.msg, { duration: 10000 })

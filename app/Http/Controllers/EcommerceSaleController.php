@@ -246,11 +246,13 @@ class EcommerceSaleController extends Controller
             'campaign_id',
             'customer_id',
             'order_type',
+            'order_no',
             'coupon_code',
             'dialed',
             'inbound',
             'shipping_zip',
             'total',
+            'import_hash',
             DB::raw("DATE_FORMAT(order_at, '%Y-%m-%d %H:%i:%s') as formatted_order_at")
         )->get();
 
@@ -263,10 +265,11 @@ class EcommerceSaleController extends Controller
         );
         Excel::import($saleImport, $request->file('file'));
 
-        $existSales = $saleImport->getAlreadyExist();
-        $importedCount = $saleImport->getTotalSales() - count($existSales);
+        $existSales      = $saleImport->getAlreadyExist();
+        $rejectedReturns = $saleImport->getRejectedReturns();
+        $importedCount   = $saleImport->getTotalSales() - count($existSales) - count($rejectedReturns);
 
-        if ($importedCount < 1) {
+        if ($importedCount < 1 && count($rejectedReturns) === 0) {
             return response()->json(['msg' => 'All Sales Data Already Exist.'], 422);
         }
 
@@ -276,7 +279,14 @@ class EcommerceSaleController extends Controller
             $msg .= "\n" . count($existSales) . ' Rows Already Exist.';
             $data = $existSales;
         }
-        return response()->json(['msg' => $msg, 'alreadyExists' => $data], 201);
+        if (count($rejectedReturns) > 0) {
+            $msg .= "\n" . count($rejectedReturns) . ' Return Rows Rejected (missing identifiers).';
+        }
+        return response()->json([
+            'msg'             => $msg,
+            'alreadyExists'   => $data,
+            'rejectedReturns' => count($rejectedReturns) > 0 ? $rejectedReturns : false,
+        ], 201);
     }
 
     public function export(Request $request)

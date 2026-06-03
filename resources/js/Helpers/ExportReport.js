@@ -214,3 +214,11 @@ export const exportReportAlreadyExist = (apiData) => {
   const data = new Blob([excelBuffer], { type: fileType })
   FileSaver.saveAs(data, 'already_exists_sales' + '.xlsx')
 }
+
+export const exportReportRejectedReturns = (apiData) => {
+  const ws = XLSX.utils.json_to_sheet(apiData, 'rejected_returns')
+  const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  const data = new Blob([excelBuffer], { type: fileType })
+  FileSaver.saveAs(data, 'rejected_returns' + '.xlsx')
+}
