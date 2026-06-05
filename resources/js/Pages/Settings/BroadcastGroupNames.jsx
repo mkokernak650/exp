@@ -19,6 +19,7 @@ import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/BroadcastGroupNamesProps'
+import mergeColumnsWithDefaults from '@/Helpers/MergeColumnsWithDefaults'
 
 const BroadcastGroupNames = () => {
   const { allBroadcastGroupNames, columnsData } = usePage().props
@@ -53,9 +54,10 @@ const BroadcastGroupNames = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
   const [columns, setColumns] = useState(
-    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-      ? JSON.parse(columnsData[0])?.[optionKey]
-      : defaultColumns
+    mergeColumnsWithDefaults(
+      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null,
+      defaultColumns
+    )
   )
   const {
     DraggableResizableHeader,

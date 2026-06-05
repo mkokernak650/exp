@@ -20,6 +20,7 @@ import { AFFILIATE_REPORT_NUMERIC_SORT_KEYS } from '@/Helpers/ecommerceReportNum
 import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import { fields, filter, columns as defaultColumns } from './Helpers/AffiliateReportProps'
+import mergeColumnsWithDefaults from '@/Helpers/MergeColumnsWithDefaults'
 
 import TextInput from '@/Components/Global/TextInput'
 import AffiliateZipCodeSelect from '@/Components/AffiliateZipCodeSelect'
@@ -120,9 +121,10 @@ const AffiliateReport = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
   const [columns, setColumns] = useState(
-    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-      ? JSON.parse(columnsData[0])?.[optionKey]
-      : defaultColumns
+    mergeColumnsWithDefaults(
+      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null,
+      defaultColumns
+    )
   )
   const {
     DraggableResizableHeader,

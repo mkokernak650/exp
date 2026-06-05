@@ -10,6 +10,7 @@ import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { styles, columns as defaultColumns } from './Helpers/InsertionOrderIndexProps'
+import mergeColumnsWithDefaults from '@/Helpers/MergeColumnsWithDefaults'
 import { Button, Tooltip, Table, Select, Pagination } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import IOPublicLink from '../../Components/IOComponents/IOPublicLink'
@@ -76,7 +77,7 @@ const InsertionOrderIndex = () => {
     columnsData.length > 0 ? JSON.parse(columnsData[0]) : null
   const [columnDetails, setColumnDetails] = useState(savedTableDetails || {})
   const [columns, setColumns] = useState(
-    savedTableDetails?.[optionKey] || defaultColumns
+    mergeColumnsWithDefaults(savedTableDetails?.[optionKey], defaultColumns)
   )
   const {
     DraggableResizableHeader,
