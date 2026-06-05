@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../Layout/Layout'
 import { Helmet } from 'react-helmet'
-import { Button, Row, Col, Typography, Radio } from 'antd'
+import { Button, Row, Col, Typography, Radio, Select, Checkbox } from 'antd'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 import { usePage } from '@inertiajs/inertia-react'
@@ -13,7 +13,7 @@ import IoModalView from '../../Components/IOComponents/IOModalView'
 const { Title } = Typography
 
 const InsertionOrderCreate = () => {
-  const { campaigns, customers } = usePage().props
+  const { campaigns, customers, allCorporations = [] } = usePage().props
   const [campaignIds, setCampaignIds] = useState('')
   const [customerIds, setCustomerIds] = useState('')
   const [affiliateOptions, setAffiliateOptions] = useState()
@@ -25,6 +25,22 @@ const InsertionOrderCreate = () => {
   const [loading, setLoading] = useState({ view: false, submit: false, save: false })
   const [viewData, setViewData] = useState({})
   const [showViewModal, setShowViewModal] = useState({ open: false })
+
+  const [selectedCorporation, setSelectedCorporation] = useState(null)
+  const [applyToAllAffiliates, setApplyToAllAffiliates] = useState(false)
+
+  const corporationOptions = allCorporations.map((c) => ({
+    value: `${c.type}:${c.id}`,
+    label: `${c.name} (${c.type_label})`,
+    type: c.type,
+    id: c.id,
+  }))
+
+  const parseCorpComposite = (composite) => {
+    if (!composite) return { type: null, id: null }
+    const [type, idStr] = composite.split(':')
+    return { type, id: parseInt(idStr, 10) }
+  }
 
   const campaignOptions = campaigns.map((item) => ({
     label: item.campaign_name,
@@ -61,21 +77,64 @@ const InsertionOrderCreate = () => {
 
   const handleAffiliateChange = (value) => {
     setSelectedAffiliates(value)
-    getCodesAndPhones(campaignIds, customerIds, value)
+    // When a corporation is in play, codes/phones live on ecommerce_affiliates rows
+    // that may not exist for corp-linked affiliates. Drop the affiliate filter then so
+    // the user still sees campaign/customer codes/phones to attach.
+    const affiliateFilter = selectedCorporation ? '' : value
+    getCodesAndPhones(campaignIds, customerIds, affiliateFilter)
     setSelectedCodesAndPhones('')
   }
 
-  const getAffiliates = (selectedCampaigns, selectedCustomers) => {
+  const getAffiliates = (
+    selectedCampaigns,
+    selectedCustomers,
+    corpComposite = selectedCorporation
+  ) => {
+    const { type, id } = parseCorpComposite(corpComposite)
     axios
-      .post(route('insertion.order.get.affiliates'), { selectedCampaigns, selectedCustomers })
+      .post(route('insertion.order.get.affiliates'), {
+        selectedCampaigns,
+        selectedCustomers,
+        corporation_type: type,
+        corporation_id: id,
+      })
       .then((response) => {
         if (response.data) {
           setAffiliateOptions(response.data)
+          // If "Apply to all" is on, auto-select every fetched affiliate so the IO covers all of them.
+          if (applyToAllAffiliates) {
+            const allValues = response.data.map((opt) => opt.value).join(',')
+            setSelectedAffiliates(allValues)
+          }
         }
       })
       .catch((err) => {
         toast.error('Affiliates fetching failed!')
       })
+  }
+
+  const handleCorporationChange = (value) => {
+    setSelectedCorporation(value || null)
+    getAffiliates(campaignIds, customerIds, value || null)
+    setSelectedAffiliates('')
+    setSelectedCodesAndPhones('')
+    // Refresh codes/phones using only campaign + customer (corp path bypasses affiliate filter).
+    if (value) {
+      getCodesAndPhones(campaignIds, customerIds, '')
+    }
+  }
+
+  const handleApplyToAllChange = (e) => {
+    const checked = e.target.checked
+    setApplyToAllAffiliates(checked)
+    if (checked && Array.isArray(affiliateOptions)) {
+      const allValues = affiliateOptions.map((opt) => opt.value).join(',')
+      setSelectedAffiliates(allValues)
+      getCodesAndPhones(campaignIds, customerIds, '')
+    } else {
+      setSelectedAffiliates('')
+      setSelectedCodesAndPhones('')
+    }
   }
 
   const getCodesAndPhones = (selectedCampaigns, selectedCustomers, selectedAffiliates) => {
@@ -193,14 +252,40 @@ const InsertionOrderCreate = () => {
             </Col>
 
             <Col span={24}>
+              <Select
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                placeholder="Select Corporation (broadcast group / MSO / network) — optional"
+                className="w-full"
+                value={selectedCorporation || undefined}
+                onChange={handleCorporationChange}
+                options={corporationOptions}
+              />
+            </Col>
+
+            {selectedCorporation && (
+              <Col span={24}>
+                <Checkbox
+                  checked={applyToAllAffiliates}
+                  onChange={handleApplyToAllChange}
+                  disabled={!campaignIds && !customerIds}
+                >
+                  Apply to all affiliates of this corporation
+                </Checkbox>
+              </Col>
+            )}
+
+            <Col span={24}>
               <MultiSelect
                 name="affiliate_ids"
+                key={`aff-${selectedAffiliates}`}
                 onChange={(value) => handleAffiliateChange(value)}
                 options={affiliateOptions}
                 defaultValue={selectedAffiliates}
                 className="!w-full"
-                placeholder="Select Affiliates"
-                disabled={!campaignIds && !customerIds}
+                placeholder={applyToAllAffiliates ? 'All affiliates of corporation (auto)' : 'Select Affiliates'}
+                disabled={(!campaignIds && !customerIds) || applyToAllAffiliates}
               />
             </Col>
 

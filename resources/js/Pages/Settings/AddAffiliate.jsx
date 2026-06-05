@@ -15,7 +15,21 @@ const AddAffiliate = () => {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const [similarAffiliates, setSimilarAffiliates] = useState('')
-  const { allMarkets, allBroadcastGroupNames, allMsoNames, allNetworkNames } = usePage().props
+  const [selectedCorporations, setSelectedCorporations] = useState([])
+  const {
+    allMarkets,
+    allBroadcastGroupNames,
+    allMsoNames,
+    allNetworkNames,
+    allCorporations = [],
+  } = usePage().props
+
+  const corporationOptions = allCorporations.map((c) => ({
+    value: `${c.type}:${c.id}`,
+    label: `${c.name} (${c.type_label})`,
+    type: c.type,
+    id: c.id,
+  }))
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -28,8 +42,18 @@ const AddAffiliate = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     setLoading(true)
+
+    const corporations = selectedCorporations
+      .map((compositeValue) => {
+        const match = corporationOptions.find((opt) => opt.value === compositeValue)
+        return match ? { type: match.type, id: match.id } : null
+      })
+      .filter(Boolean)
+
+    const payload = { ...(values || {}), corporations }
+
     axios
-      .post(route('store.affiliate'), values)
+      .post(route('store.affiliate'), payload)
       .then((res) => {
         if (res.status === 206) {
           setLoading(false)
@@ -42,6 +66,7 @@ const AddAffiliate = () => {
           e.target.reset()
           setErrors({})
           setValues()
+          setSelectedCorporations([])
           setSimilarAffiliates('')
         }
       })
@@ -233,6 +258,27 @@ const AddAffiliate = () => {
               name="contact_telephone"
               handleChange={handleChange}
             />
+
+            <div className="w-full">
+              <div className="mb-1">
+                <label>
+                  Corporations (multi-link) <small className="text-gray-500">— optional</small>
+                </label>
+              </div>
+              <Select
+                mode="multiple"
+                placeholder="Link to broadcast groups, MSOs and/or networks"
+                value={selectedCorporations}
+                onChange={(vals) => setSelectedCorporations(vals)}
+                options={corporationOptions}
+                className="w-full"
+                allowClear
+                optionFilterProp="label"
+              />
+              <small className="text-gray-500">
+                One station may belong to multiple corporations (e.g. a broadcast group + a network).
+              </small>
+            </div>
 
             <Button type="primary" htmlType="submit" loading={loading}>
               Submit

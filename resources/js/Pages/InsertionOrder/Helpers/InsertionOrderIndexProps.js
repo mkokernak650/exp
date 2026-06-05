@@ -41,6 +41,20 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'attached_affiliates',
+    title: 'Attached Affiliates',
+    dataType: 'string',
+    style: { width: 280 },
+    visible: true,
+  },
+  {
+    key: 'attached_affiliates_count',
+    title: '# Affiliates',
+    dataType: 'number',
+    style: { width: 100 },
+    visible: false,
+  },
+  {
     key: 'status',
     title: 'Status',
     dataType: 'string',

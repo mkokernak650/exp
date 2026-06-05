@@ -61,13 +61,20 @@ export const columns = [
     key: 'mso_name',
     title: 'MSO Name',
     dataType: 'string',
-    style: { width: 460 },
+    style: { width: 360 },
+    visible: true,
+  },
+  {
+    key: 'affiliates_count',
+    title: 'Affiliates',
+    dataType: 'number',
+    style: { width: 120 },
     visible: true,
   },
   {
     key: 'status',
     title: 'Status',
-    style: { width: 340 },
+    style: { width: 220 },
     visible: true,
   },
 ]

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Helmet } from 'react-helmet'
-import { Button, Col, DatePicker, Row, Select, Spin, Table, Tabs, Typography } from 'antd'
+import { Button, Checkbox, Col, DatePicker, Row, Select, Spin, Table, Tabs, Typography } from 'antd'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import dayjs from 'dayjs'
@@ -24,7 +24,22 @@ const numberCell = (val) =>
     : Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const HomeShoppingReport = () => {
-  const { campaigns, customers, affiliates, states, markets, stations } = usePage().props
+  const {
+    campaigns,
+    customers,
+    affiliates,
+    states,
+    markets,
+    stations,
+    allCorporations = [],
+  } = usePage().props
+
+  const corporationOptions = (allCorporations || []).map((c) => ({
+    value: `${c.type}:${c.id}`,
+    label: `${c.name} (${c.type_label})`,
+    type: c.type,
+    id: c.id,
+  }))
 
   const [filters, setFilters] = useState({
     customer_id: [],
@@ -32,6 +47,8 @@ const HomeShoppingReport = () => {
     stations: [],
     record_kind: '',
     dateRange: null,
+    corporation: null,
+    apply_to_all_affiliates: true,
   })
   const [activeTab, setActiveTab] = useState('detail')
   const [loading, setLoading] = useState(false)
@@ -47,6 +64,9 @@ const HomeShoppingReport = () => {
 
   const handleGenerate = () => {
     setLoading(true)
+    const corp = filters.corporation
+      ? corporationOptions.find((opt) => opt.value === filters.corporation)
+      : null
     const payload = {
       reportOn: activeTab,
       customer_id: filters.customer_id,
@@ -55,6 +75,9 @@ const HomeShoppingReport = () => {
       record_kind: filters.record_kind || undefined,
       start_date: filters.dateRange?.[0]?.format('YYYY-MM-DD'),
       end_date: filters.dateRange?.[1]?.format('YYYY-MM-DD'),
+      corporation_type: corp?.type,
+      corporation_id: corp?.id,
+      apply_to_all_affiliates: corp ? filters.apply_to_all_affiliates : undefined,
     }
     axios
       .post(route('ecommerce.report.homeShopping.generate'), payload)
@@ -207,6 +230,29 @@ const HomeShoppingReport = () => {
               onChange={(v) => setF('record_kind', v)}
             />
           </Col>
+          <Col span={12}>
+            <label>Corporation (broadcast group / MSO / network)</label>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              className="w-full"
+              placeholder="All corporations"
+              options={corporationOptions}
+              value={filters.corporation || undefined}
+              onChange={(v) => setF('corporation', v || null)}
+            />
+          </Col>
+          {filters.corporation && (
+            <Col span={12} className="flex items-end">
+              <Checkbox
+                checked={filters.apply_to_all_affiliates}
+                onChange={(e) => setF('apply_to_all_affiliates', e.target.checked)}
+              >
+                Apply to all affiliates of this corporation
+              </Checkbox>
+            </Col>
+          )}
           <Col span={12}>
             <label>Date Range (receive-date)</label>
             <RangePicker

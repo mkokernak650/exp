@@ -124,6 +124,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'corporations_display',
+    title: 'Corporations (links)',
+    dataType: 'string',
+    style: { width: 320 },
+    visible: true,
+  },
+  {
     key: 'zip_code',
     title: 'Zip Code',
     dataType: 'string',

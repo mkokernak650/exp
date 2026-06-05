@@ -38,17 +38,26 @@ const InsertionOrderIndex = () => {
   const baseUrl = window.location.origin
 
   const mapDataArr = (data) => {
-    return data.data.map((item) => ({
-      id: item.id,
-      customer: item?.customer?.customer_name,
-      affiliate: item?.affiliate?.affiliate_name,
-      status: item.status,
-      io_link: item.io_link,
-      formatted_created_at: item.formatted_created_at,
-      resend_io_doc: item.status + ',' + item.io_no,
-      cancel_io: item.status + ',' + item.io_no,
-      key: item.id,
-    }))
+    return data.data.map((item) => {
+      const attached = item?.attached_affiliates || []
+      const attachedNames = attached
+        .map((a) => a.affiliate_name + (a.market ? ` (${a.market})` : ''))
+        .join(', ')
+      const single = item?.affiliate?.affiliate_name
+      return {
+        id: item.id,
+        customer: item?.customer?.customer_name,
+        affiliate: single,
+        attached_affiliates: attachedNames || single || '',
+        attached_affiliates_count: attached.length || (single ? 1 : 0),
+        status: item.status,
+        io_link: item.io_link,
+        formatted_created_at: item.formatted_created_at,
+        resend_io_doc: item.status + ',' + item.io_no,
+        cancel_io: item.status + ',' + item.io_no,
+        key: item.id,
+      }
+    })
   }
 
   const dataArray = mapDataArr(insertionOrders)

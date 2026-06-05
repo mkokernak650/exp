@@ -1570,6 +1570,7 @@ class EcommerceReportController extends Controller
         $states = ZipcodeByTelevisionMarket::select('state')->orderBy('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->orderBy('market')->distinct()->get();
         $stations = EcommerceSale::select('station')->whereNotNull('station')->distinct()->orderBy('station')->pluck('station');
+        $allCorporations = app(\App\Services\CorporationService::class)->all();
 
         return Inertia::render('GenerateReport/HomeShoppingReport', compact(
             'campaigns',
@@ -1577,7 +1578,8 @@ class EcommerceReportController extends Controller
             'affiliates',
             'states',
             'markets',
-            'stations'
+            'stations',
+            'allCorporations'
         ));
     }
 
@@ -1696,6 +1698,34 @@ class EcommerceReportController extends Controller
         if (!empty($request->start_date) && !empty($request->end_date)) {
             $q->whereDate('ecommerce_sales.order_at', '>=', $request->start_date)
                 ->whereDate('ecommerce_sales.order_at', '<=', $request->end_date);
+        }
+
+        // Corporation filter — scope to sales whose affiliate (via ecommerce_affiliates)
+        // is linked to the chosen corporation. When apply_to_all_affiliates is on we resolve
+        // every affiliate; otherwise we intersect with the optional affiliate_ids picks.
+        if (!empty($request->corporation_type) && !empty($request->corporation_id)) {
+            $service = app(\App\Services\CorporationService::class);
+            $affiliateIds = $service->resolveSelection([
+                'corporation_type'        => $request->corporation_type,
+                'corporation_id'          => (int) $request->corporation_id,
+                'apply_to_all_affiliates' => $request->boolean('apply_to_all_affiliates', true),
+                'affiliate_ids'           => (array) $request->input('affiliate_ids', []),
+            ])->all();
+
+            if (!empty($affiliateIds)) {
+                $q->whereExists(function ($sub) use ($affiliateIds) {
+                    $sub->from('ecommerce_affiliates')
+                        ->whereColumn('ecommerce_affiliates.campaign_id', 'ecommerce_sales.campaign_id')
+                        ->whereIn('ecommerce_affiliates.affiliate_id', $affiliateIds)
+                        ->where(function ($w) {
+                            $w->whereColumn('ecommerce_affiliates.coupon_code', 'ecommerce_sales.coupon_code')
+                                ->orWhereColumn('ecommerce_affiliates.dialed', 'ecommerce_sales.dialed');
+                        });
+                });
+            } else {
+                // Corporation has no linked affiliates → no rows.
+                $q->whereRaw('1 = 0');
+            }
         }
 
         return $q;

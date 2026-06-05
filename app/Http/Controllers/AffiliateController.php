@@ -9,6 +9,7 @@ use App\Models\MsoName;
 use App\Models\NetworkName;
 use App\Models\TableDetails;
 use App\Models\ZipcodeByTelevisionMarket;
+use App\Services\CorporationService;
 use App\Support\ReportTableSort;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +17,45 @@ use Inertia\Inertia;
 
 class AffiliateController extends Controller
 {
-    public function __construct()
+    protected CorporationService $corporationService;
+
+    public function __construct(CorporationService $corporationService)
     {
         $this->middleware('auth');
+        $this->corporationService = $corporationService;
+    }
+
+    /**
+     * Persist the corporations multi-select onto the affiliate_corporation pivot.
+     * Accepts an array of [{type, id}, ...] (already JSON-decoded by the request).
+     */
+    protected function syncAffiliateCorporations(Affiliate $affiliate, $corporations): void
+    {
+        if (is_string($corporations)) {
+            $corporations = json_decode($corporations, true) ?: [];
+        }
+        if (!is_array($corporations)) {
+            return;
+        }
+
+        // Build desired pivot state per corporation type, then sync each side.
+        $desired = [
+            CorporationService::TYPE_BROADCAST_GROUP => [],
+            CorporationService::TYPE_MSO             => [],
+            CorporationService::TYPE_NETWORK         => [],
+        ];
+        foreach ($corporations as $row) {
+            $type = $row['type'] ?? null;
+            $id   = isset($row['id']) ? (int) $row['id'] : null;
+            if (!$type || !$id || !array_key_exists($type, $desired)) {
+                continue;
+            }
+            $desired[$type][$id] = $id;
+        }
+
+        $affiliate->broadcastGroups()->sync(array_values($desired[CorporationService::TYPE_BROADCAST_GROUP]));
+        $affiliate->msos()->sync(array_values($desired[CorporationService::TYPE_MSO]));
+        $affiliate->networks()->sync(array_values($desired[CorporationService::TYPE_NETWORK]));
     }
 
     public function addAffiliateForm()
@@ -38,11 +75,15 @@ class AffiliateController extends Controller
         $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
         $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
 
+        // Union picker list (id + type + name) for the new multi-corporation field.
+        $allCorporations = $this->corporationService->all();
+
         return Inertia::render('Settings/AddAffiliate', compact(
             'allMarkets',
             'allBroadcastGroupNames',
             'allMsoNames',
-            'allNetworkNames'
+            'allNetworkNames',
+            'allCorporations'
         ));
     }
 
@@ -133,7 +174,10 @@ class AffiliateController extends Controller
             return response()->json(['msg' => $matchFound], 206);
         }
 
-        Affiliate::create($request->all());
+        $affiliate = Affiliate::create($request->except('corporations'));
+
+        // Sync optional corporations multi-select from the new picker.
+        $this->syncAffiliateCorporations($affiliate, $request->input('corporations'));
 
         return response()->json(['msg' => 'Successfully Added']);
     }
@@ -207,13 +251,20 @@ class AffiliateController extends Controller
             })
             ->paginate($itemPerPage);
 
-        $allAffiliates->getCollection()->transform(function ($item) {
-            if (isset($item->tv_households)) {
-                $item->tv_households = number_format($item->tv_households);
-            }
-
-            return $item;
-        });
+        // Flatten each row to a plain array, format tv_households, and attach existing
+        // corporation links so the inline edit modal can preselect them in the multi-select picker.
+        // Plain arrays avoid dynamic-attribute serialization quirks on the Affiliate model and
+        // run before the request('page') short-circuit so paginated fetches include the same data.
+        $allAffiliates->setCollection(
+            $allAffiliates->getCollection()->map(function ($item) {
+                $row = $item->toArray();
+                if (isset($row['tv_households'])) {
+                    $row['tv_households'] = number_format($row['tv_households']);
+                }
+                $row['corporations'] = $this->corporationService->corporationsOfAffiliate($item);
+                return $row;
+            })
+        );
 
         if (request('page')) {
             return $allAffiliates;
@@ -223,6 +274,8 @@ class AffiliateController extends Controller
         $allBroadcastGroupNames = BroadcastGroupName::select('broadcast_group_name')->active()->distinct()->get();
         $allMsoNames            = MsoName::select('mso_name')->active()->distinct()->get();
         $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
+        $allCorporations        = $this->corporationService->all();
+
         return Inertia::render('Settings/AffiliateReport', [
             'allAffiliates'          => $allAffiliates,
             'columnsData'            => $columnsData,
@@ -230,6 +283,7 @@ class AffiliateController extends Controller
             'allBroadcastGroupNames' => $allBroadcastGroupNames,
             'allMsoNames'            => $allMsoNames,
             'allNetworkNames'        => $allNetworkNames,
+            'allCorporations'        => $allCorporations,
         ]);
     }
 
@@ -336,6 +390,9 @@ class AffiliateController extends Controller
         $data->contact_name      = $request->contact_name;
         $data->contact_telephone = $request->contact_telephone;
         $result                  = $data->save();
+
+        // Sync optional corporations multi-select from the new picker.
+        $this->syncAffiliateCorporations($data, $request->input('corporations'));
 
         if ($result) {
             activity('Affiliate')->event('updated')

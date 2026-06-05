@@ -4,16 +4,117 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Affiliate;
 use App\Models\BroadcastGroupName;
 use App\Models\MsoName;
 use App\Models\NetworkName;
 use App\Models\TableDetails;
+use App\Services\CorporationService;
+use Illuminate\Validation\Rule;
 
 class CorporationController extends Controller
 {
-    public function __construct()
+    protected CorporationService $corporationService;
+
+    public function __construct(CorporationService $corporationService)
     {
         $this->middleware('auth');
+        $this->corporationService = $corporationService;
+    }
+
+    /**
+     * Union list of all corporations across the 3 tables.
+     * Used by the picker dropdown on IO create + Home Shopping report.
+     * GET /corporations/picker
+     */
+    public function pickerList(Request $request)
+    {
+        $activeOnly = $request->boolean('active_only', true);
+        return response()->json([
+            'data' => $this->corporationService->all($activeOnly),
+        ]);
+    }
+
+    /**
+     * List affiliates linked to a specific corporation.
+     * GET /corporations/{type}/{id}/affiliates
+     */
+    public function corporationAffiliates(Request $request, string $type, int $id)
+    {
+        abort_unless(array_key_exists($type, CorporationService::TYPE_TO_MODEL), 404);
+
+        $activeOnly = $request->boolean('active_only', true);
+        $affiliates = $this->corporationService->affiliatesOf($type, $id, $activeOnly);
+
+        return response()->json([
+            'data' => $affiliates->map(fn(Affiliate $a) => [
+                'id'             => $a->id,
+                'affiliate_name' => $a->affiliate_name,
+                'market'         => $a->market,
+            ])->values(),
+        ]);
+    }
+
+    /**
+     * Attach an affiliate to a corporation. Idempotent.
+     * POST /corporations/attach
+     */
+    public function attachAffiliate(Request $request)
+    {
+        $data = $request->validate([
+            'affiliate_id'     => ['required', Rule::exists('affiliates', 'id')],
+            'corporation_type' => ['required', Rule::in(array_keys(CorporationService::TYPE_TO_MODEL))],
+            'corporation_id'   => ['required', 'integer'],
+        ]);
+
+        $affiliate = Affiliate::findOrFail($data['affiliate_id']);
+        $this->corporationService->attach($affiliate, $data['corporation_type'], (int) $data['corporation_id']);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Detach an affiliate from a corporation.
+     * POST /corporations/detach
+     */
+    public function detachAffiliate(Request $request)
+    {
+        $data = $request->validate([
+            'affiliate_id'     => ['required', Rule::exists('affiliates', 'id')],
+            'corporation_type' => ['required', Rule::in(array_keys(CorporationService::TYPE_TO_MODEL))],
+            'corporation_id'   => ['required', 'integer'],
+        ]);
+
+        $affiliate = Affiliate::findOrFail($data['affiliate_id']);
+        $this->corporationService->detach($affiliate, $data['corporation_type'], (int) $data['corporation_id']);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Preview an IO/report selection — given a corporation pick + "apply to all"
+     * checkbox state + optional manual affiliate picks, return the final
+     * affiliate id list the IO/report will scope to.
+     * POST /corporations/resolve-selection
+     */
+    public function resolveSelection(Request $request)
+    {
+        $data = $request->validate([
+            'corporation_type'        => ['nullable', Rule::in(array_keys(CorporationService::TYPE_TO_MODEL))],
+            'corporation_id'          => ['nullable', 'integer'],
+            'apply_to_all_affiliates' => ['nullable', 'boolean'],
+            'affiliate_ids'           => ['nullable', 'array'],
+            'affiliate_ids.*'         => ['integer'],
+        ]);
+
+        $ids = $this->corporationService->resolveSelection($data);
+
+        return response()->json([
+            'data' => [
+                'affiliate_ids' => $ids->values()->all(),
+                'count'         => $ids->count(),
+            ],
+        ]);
     }
 
     // Broadcast Group Names
@@ -48,6 +149,7 @@ class CorporationController extends Controller
         $allowed  = ['broadcast_group_name'];
 
         $query = BroadcastGroupName::query()
+            ->with(['affiliates' => fn($q) => $q->select('affiliates.id', 'affiliates.affiliate_name', 'affiliates.market')])
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
             });
@@ -62,6 +164,18 @@ class CorporationController extends Controller
         }
 
         $allBroadcastGroupNames = $query->paginate($itemPerPage);
+
+        // Surface affiliates_count + a slimmed affiliates list on each row for the drill-down view.
+        $allBroadcastGroupNames->getCollection()->transform(function ($row) {
+            $row->affiliates_count = $row->affiliates->count();
+            $row->affiliates_list  = $row->affiliates->map(fn($a) => [
+                'id'             => $a->id,
+                'affiliate_name' => $a->affiliate_name,
+                'market'         => $a->market,
+            ])->values();
+            unset($row->affiliates);
+            return $row;
+        });
 
         if (request('page')) {
             return $allBroadcastGroupNames;
@@ -160,6 +274,7 @@ class CorporationController extends Controller
         $allowed  = ['mso_name'];
 
         $query = MsoName::query()
+            ->with(['affiliates' => fn($q) => $q->select('affiliates.id', 'affiliates.affiliate_name', 'affiliates.market')])
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
             });
@@ -174,6 +289,17 @@ class CorporationController extends Controller
         }
 
         $allMsoNames = $query->paginate($itemPerPage);
+
+        $allMsoNames->getCollection()->transform(function ($row) {
+            $row->affiliates_count = $row->affiliates->count();
+            $row->affiliates_list  = $row->affiliates->map(fn($a) => [
+                'id'             => $a->id,
+                'affiliate_name' => $a->affiliate_name,
+                'market'         => $a->market,
+            ])->values();
+            unset($row->affiliates);
+            return $row;
+        });
 
         if (request('page')) {
             return $allMsoNames;
@@ -272,6 +398,7 @@ class CorporationController extends Controller
         $allowed  = ['network_name'];
 
         $query = NetworkName::query()
+            ->with(['affiliates' => fn($q) => $q->select('affiliates.id', 'affiliates.affiliate_name', 'affiliates.market')])
             ->tap(function ($query) use ($fieldMap, $allowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $fieldMap, $allowed);
             });
@@ -286,6 +413,17 @@ class CorporationController extends Controller
         }
 
         $allNetworkNames = $query->paginate($itemPerPage);
+
+        $allNetworkNames->getCollection()->transform(function ($row) {
+            $row->affiliates_count = $row->affiliates->count();
+            $row->affiliates_list  = $row->affiliates->map(fn($a) => [
+                'id'             => $a->id,
+                'affiliate_name' => $a->affiliate_name,
+                'market'         => $a->market,
+            ])->values();
+            unset($row->affiliates);
+            return $row;
+        });
 
         if (request('page')) {
             return $allNetworkNames;

@@ -34,7 +34,33 @@ const AffiliateReport = () => {
     allBroadcastGroupNames,
     allMsoNames,
     allNetworkNames,
+    allCorporations = [],
   } = usePage().props
+
+  const corporationOptions = allCorporations.map((c) => ({
+    value: `${c.type}:${c.id}`,
+    label: `${c.name} (${c.type_label})`,
+    type: c.type,
+    id: c.id,
+  }))
+
+  const corporationsToCompositeValues = (corporations) =>
+    (corporations || []).map((c) => `${c.type}:${c.id}`)
+
+  const compositeValuesToPayload = (compositeValues) =>
+    (compositeValues || [])
+      .map((v) => {
+        const match = corporationOptions.find((opt) => opt.value === v)
+        return match
+          ? {
+              type: match.type,
+              id: match.id,
+              name: match.label.replace(/ \([^)]*\)$/, ''),
+              type_label: match.label.match(/\(([^)]*)\)$/)?.[1] || '',
+            }
+          : null
+      })
+      .filter(Boolean)
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -60,25 +86,32 @@ const AffiliateReport = () => {
   }
 
   const mapDataArr = (data) => {
-    return data.map((item, index) => ({
-      edit: item.id,
-      affiliate_id: item.affiliate_id,
-      affiliate_name: item.affiliate_name,
-      ownership_type: item.ownership_type,
-      ownership_name: item.ownership_name,
-      ownership: item.ownership_type || '',
-      zip_code: item.zip_code,
-      website: item.website,
-      tv_households: parseTvHouseholds(item.tv_households),
-      market: item.market,
-      email: item.email,
-      telephone: item.telephone,
-      address: item.address,
-      contact_name: item.contact_name,
-      contact_telephone: item.contact_telephone,
-      id: item.id,
-      key: item.id,
-    }))
+    return data.map((item, index) => {
+      const corporations = item.corporations || []
+      return {
+        edit: item.id,
+        affiliate_id: item.affiliate_id,
+        affiliate_name: item.affiliate_name,
+        ownership_type: item.ownership_type,
+        ownership_name: item.ownership_name,
+        ownership: item.ownership_type || '',
+        zip_code: item.zip_code,
+        website: item.website,
+        tv_households: parseTvHouseholds(item.tv_households),
+        market: item.market,
+        email: item.email,
+        telephone: item.telephone,
+        address: item.address,
+        contact_name: item.contact_name,
+        contact_telephone: item.contact_telephone,
+        corporations,
+        corporations_display: corporations
+          .map((c) => `${c.name} (${c.type_label})`)
+          .join(', '),
+        id: item.id,
+        key: item.id,
+      }
+    })
   }
 
   const optionKey = 'affiliate-report'
@@ -228,6 +261,10 @@ const AffiliateReport = () => {
                   market: editData.market,
                   contact_name: editData.contact_name,
                   contact_telephone: editData.contact_telephone,
+                  corporations: editData.corporations || [],
+                  corporations_display: (editData.corporations || [])
+                    .map((c) => `${c.name} (${c.type_label})`)
+                    .join(', '),
                 }
               }
               return item
@@ -638,6 +675,33 @@ const AffiliateReport = () => {
                   </Select>
                 </div>
               )}
+              <div className="w-full">
+                <label
+                  className="block mb-1 text-sm text-gray-600"
+                  htmlFor="edit-affiliate-corporations"
+                >
+                  Corporations (multi-link) <small className="text-gray-500">— optional</small>
+                </label>
+                <Select
+                  id="edit-affiliate-corporations"
+                  mode="multiple"
+                  placeholder="Link to broadcast groups, MSOs and/or networks"
+                  value={corporationsToCompositeValues(editData?.corporations)}
+                  onChange={(vals) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      corporations: compositeValuesToPayload(vals),
+                    }))
+                  }
+                  options={corporationOptions}
+                  className="w-full"
+                  allowClear
+                  optionFilterProp="label"
+                />
+                <small className="text-gray-500">
+                  One station may belong to multiple corporations (e.g. a broadcast group + a network).
+                </small>
+              </div>
               <div className="w-full">
                 <label
                   className="block mb-1 text-sm text-gray-600"

@@ -41,6 +41,8 @@ const MsoNames = () => {
     edit: item.id,
     sl: index + 1,
     mso_name: item.mso_name,
+    affiliates_count: item.affiliates_count ?? 0,
+    affiliates_list: item.affiliates_list ?? [],
     status: [item.status, item.id],
     id: item.id,
     key: item.id,
@@ -125,6 +127,8 @@ const MsoNames = () => {
             edit: item.id,
             sl: (page - 1) * itemPerPage + index + 1,
             mso_name: item.mso_name,
+            affiliates_count: item.affiliates_count ?? 0,
+            affiliates_list: item.affiliates_list ?? [],
             status: [item.status, item.id],
             id: item.id,
             key: item.id,
@@ -409,6 +413,21 @@ const MsoNames = () => {
               scroll={{ y: 'calc(100vh - 217px)' }}
               size="small"
               onChange={handleTableChange}
+              expandable={{
+                rowExpandable: (record) => (record.affiliates_list?.length ?? 0) > 0,
+                expandedRowRender: (record) => (
+                  <Table
+                    size="small"
+                    pagination={false}
+                    rowKey="id"
+                    dataSource={record.affiliates_list || []}
+                    columns={[
+                      { title: 'Affiliate', dataIndex: 'affiliate_name', key: 'affiliate_name' },
+                      { title: 'Market', dataIndex: 'market', key: 'market' },
+                    ]}
+                  />
+                ),
+              }}
             />
             </ReportTableDndShell>
             <div className="table-bottom">

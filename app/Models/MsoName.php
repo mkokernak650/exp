@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -13,6 +14,11 @@ class MsoName extends Model
     use HasFactory, LogsActivity;
 
     protected $guarded = [];
+
+    public function affiliates(): MorphToMany
+    {
+        return $this->morphToMany(Affiliate::class, 'corporationable', 'affiliate_corporation');
+    }
 
     public function tapActivity(Activity $activity)
     {

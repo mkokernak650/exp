@@ -167,6 +167,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/network-names-delete', [CorporationController::class, 'networkNamesDelete'])->name('network_names.delete');
     Route::post('/network-name-status-update', [CorporationController::class, 'networkNameStatusUpdate'])->name('network_names.status.update');
 
+    // Corporation picker + affiliate resolver (Home Shopping IO + report)
+    Route::get('/corporations/picker', [CorporationController::class, 'pickerList'])->name('corporations.picker');
+    Route::get('/corporations/{type}/{id}/affiliates', [CorporationController::class, 'corporationAffiliates'])->name('corporations.affiliates');
+    Route::post('/corporations/attach', [CorporationController::class, 'attachAffiliate'])->name('corporations.attach');
+    Route::post('/corporations/detach', [CorporationController::class, 'detachAffiliate'])->name('corporations.detach');
+    Route::post('/corporations/resolve-selection', [CorporationController::class, 'resolveSelection'])->name('corporations.resolveSelection');
+
     Route::post('/archived', [ArchivedCallLogController::class, 'store'])->name('add.arichived.bill.call');
     Route::get('/archived-call-log-report', [ArchivedCallLogController::class, 'index'])->name('archived-call-log-report');
     Route::post('/archived-to-call-log', [ArchivedCallLogController::class, 'moveToCallLog'])->name('archived.to.call.log');

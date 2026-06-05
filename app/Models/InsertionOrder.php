@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class InsertionOrder extends Model
 {
@@ -26,5 +27,10 @@ class InsertionOrder extends Model
     public function affiliate(): BelongsTo
     {
         return $this->belongsTo(Affiliate::class);
+    }
+
+    public function attachedAffiliates(): BelongsToMany
+    {
+        return $this->belongsToMany(Affiliate::class, 'insertion_order_affiliate');
     }
 }

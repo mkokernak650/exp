@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -41,5 +42,20 @@ class Affiliate extends Model
     public function ecommerceAffiliates(): HasMany
     {
         return $this->hasMany(EcommerceAffiliate::class);
+    }
+
+    public function broadcastGroups(): MorphToMany
+    {
+        return $this->morphedByMany(BroadcastGroupName::class, 'corporationable', 'affiliate_corporation');
+    }
+
+    public function msos(): MorphToMany
+    {
+        return $this->morphedByMany(MsoName::class, 'corporationable', 'affiliate_corporation');
+    }
+
+    public function networks(): MorphToMany
+    {
+        return $this->morphedByMany(NetworkName::class, 'corporationable', 'affiliate_corporation');
     }
 }

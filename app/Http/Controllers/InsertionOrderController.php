@@ -23,6 +23,7 @@ class InsertionOrderController extends Controller
     {
         $ioQuery = InsertionOrder::with('customer:id,customer_name')
             ->with('affiliate:id,affiliate_name')
+            ->with(['attachedAffiliates:id,affiliate_name,market'])
             ->when(
                 !empty(request('filterByStatus')),
                 fn($q) => $q->whereIn('status', explode(',', request('filterByStatus')))
@@ -71,12 +72,28 @@ class InsertionOrderController extends Controller
     {
         $campaigns = EcommerceCampaign::active()->get();
         $customers = Customer::active()->get();
+        $allCorporations = app(\App\Services\CorporationService::class)->all();
 
-        return Inertia::render('InsertionOrder/InsertionOrderCreate', compact('campaigns', 'customers'));
+        return Inertia::render('InsertionOrder/InsertionOrderCreate', compact('campaigns', 'customers', 'allCorporations'));
     }
 
     public function getAffiliates(Request $request)
     {
+        // Corporation-driven path: list every affiliate linked to the chosen corporation,
+        // regardless of ecommerce_affiliates pairings. This lets an IO target all stations of a
+        // broadcast group / MSO / network even if they have not been individually wired yet.
+        if (!empty($request->corporation_type) && !empty($request->corporation_id)) {
+            $corpAffiliates = app(\App\Services\CorporationService::class)
+                ->affiliatesOf($request->corporation_type, (int) $request->corporation_id);
+
+            return $corpAffiliates->map(function ($affiliate) {
+                return [
+                    'label' => $affiliate->affiliate_name . (!empty($affiliate->market) ? ' (' . $affiliate->market . ')' : ''),
+                    'value' => $affiliate->id . '+aEmail+' . (!empty($affiliate->email) ? $affiliate->email : 'n/a'),
+                ];
+            })->unique('value')->sortBy('label')->values()->toArray();
+        }
+
         if (empty($request->selectedCampaigns) && empty($request->selectedCustomers)) {
             return [];
         }
@@ -142,6 +159,19 @@ class InsertionOrderController extends Controller
     {
         $emailData = [];
 
+        // Collect the affiliate ids the user picked (works for both modes — surfaces them
+        // on the IO list even for customer-mode IOs that historically had no affiliate FK).
+        $attachedAffiliateIds = [];
+        if (!empty($request->selectedAffiliates)) {
+            foreach (explode(',', $request->selectedAffiliates) as $token) {
+                $parts = explode('+aEmail+', $token);
+                if (!empty($parts[0]) && ctype_digit((string) $parts[0])) {
+                    $attachedAffiliateIds[] = (int) $parts[0];
+                }
+            }
+            $attachedAffiliateIds = array_values(array_unique($attachedAffiliateIds));
+        }
+
         if ($request->insertionOrderFor == 'customer') {
             $selectedCustomers = explode(',', $request->selectedCustomers);
 
@@ -151,6 +181,10 @@ class InsertionOrderController extends Controller
                 $ioNo            = uniqid($customerId);
                 $ioLink          = '?io=' . $ioNo . '&type=customer&id=' . $customerId;
                 $InsertionOrder  = InsertionOrder::create(['customer_id' => $customerId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
+
+                if (!empty($attachedAffiliateIds)) {
+                    $InsertionOrder->attachedAffiliates()->sync($attachedAffiliateIds);
+                }
 
                 $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
 
@@ -165,6 +199,9 @@ class InsertionOrderController extends Controller
                 $ioNo             = uniqid($affiliateId);
                 $ioLink           = '?io=' . $ioNo . '&type=affiliate&id=' . $affiliateId;
                 $InsertionOrder   = InsertionOrder::create(['affiliate_id' => $affiliateId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
+
+                // Mirror the FK into the pivot so the IO list can render every IO uniformly.
+                $InsertionOrder->attachedAffiliates()->sync([(int) $affiliateId]);
 
                 $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
 
