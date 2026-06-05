@@ -47,12 +47,16 @@ class CustomerController extends Controller
                     $query->orderBy($sortFieldMap[$sortField], $sortOrder);
                 }
             })
-            ->withCount(['ecommerceAffiliates as affiliate_count' => function ($q) {
-                $q->select(\Illuminate\Support\Facades\DB::raw('COUNT(DISTINCT affiliate_id)'));
-            }])
-            // campaign_count must match the CampaignIndex filter (direct FK OR pivot link)
-            // so the link target row count equals what the customer-list shows.
+            // affiliate_count must match the AffiliateReport filter, which restricts to
+            // active (status=1) affiliates only — so the displayed number equals the rows
+            // shown after clicking the link.
             ->selectRaw('customers.*, (
+                SELECT COUNT(DISTINCT ea.affiliate_id)
+                FROM ecommerce_affiliates ea
+                INNER JOIN affiliates a ON a.id = ea.affiliate_id
+                WHERE ea.customer_id = customers.id
+                  AND a.status = 1
+            ) AS affiliate_count, (
                 SELECT COUNT(DISTINCT cmp.id)
                 FROM ecommerce_campaigns cmp
                 WHERE cmp.customer_id = customers.id
