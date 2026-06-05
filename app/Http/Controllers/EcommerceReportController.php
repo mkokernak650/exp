@@ -1564,13 +1564,18 @@ class EcommerceReportController extends Controller
 
     public function homeShoppingReport()
     {
-        $campaigns = EcommerceCampaign::active()->get();
+        $campaigns = EcommerceCampaign::active()->select('id', 'campaign_name', 'customer_id')->get();
         $customers = Customer::active()->get();
         $affiliates = Affiliate::active()->orderBy('affiliate_name')->select('id', 'affiliate_name', 'market')->get();
         $states = ZipcodeByTelevisionMarket::select('state')->orderBy('state')->distinct()->get();
         $markets = ZipcodeByTelevisionMarket::select('market')->orderBy('market')->distinct()->get();
         $stations = EcommerceSale::select('station')->whereNotNull('station')->distinct()->orderBy('station')->pluck('station');
         $allCorporations = app(\App\Services\CorporationService::class)->all();
+        $columnsData = \App\Models\TableDetails::all()->pluck('column_details');
+        $savedReports = SavedEcommerceReport::where('user_id', auth()->id())
+            ->where('report_for', 'home_shopping')
+            ->latest()
+            ->get();
 
         return Inertia::render('GenerateReport/HomeShoppingReport', compact(
             'campaigns',
@@ -1579,8 +1584,68 @@ class EcommerceReportController extends Controller
             'states',
             'markets',
             'stations',
-            'allCorporations'
+            'allCorporations',
+            'columnsData',
+            'savedReports'
         ));
+    }
+
+    public function saveHomeShoppingReport(Request $request)
+    {
+        $data = $request->validate([
+            'name'                  => ['required', 'string', 'max:255'],
+            'filters'               => ['required', 'array'],
+            'recurrence_frequency'  => ['nullable', 'in:weekly,monthly'],
+            'recipients'            => ['nullable', 'array'],
+            'recipients.*'          => ['email'],
+        ]);
+
+        SavedEcommerceReport::create([
+            'user_id'              => auth()->id(),
+            'report_for'           => 'home_shopping',
+            'name'                 => $data['name'],
+            'filters'              => $data['filters'],
+            'is_active'            => true,
+            'recurrence_frequency' => $data['recurrence_frequency'] ?? null,
+            'recipients'           => $data['recipients'] ?? null,
+        ]);
+
+        return response()->json(['message' => 'Saved.'], 201);
+    }
+
+    public function updateHomeShoppingReport(Request $request, $id)
+    {
+        $data = $request->validate([
+            'name'                  => ['required', 'string', 'max:255'],
+            'filters'               => ['required', 'array'],
+            'recurrence_frequency'  => ['nullable', 'in:weekly,monthly'],
+            'recipients'            => ['nullable', 'array'],
+            'recipients.*'          => ['email'],
+        ]);
+
+        $report = SavedEcommerceReport::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->where('report_for', 'home_shopping')
+            ->firstOrFail();
+
+        $report->update([
+            'name'                 => $data['name'],
+            'filters'              => $data['filters'],
+            'recurrence_frequency' => $data['recurrence_frequency'] ?? null,
+            'recipients'           => $data['recipients'] ?? null,
+        ]);
+
+        return response()->json(['message' => 'Updated.'], 200);
+    }
+
+    public function deleteHomeShoppingReport($id)
+    {
+        $report = SavedEcommerceReport::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->where('report_for', 'home_shopping')
+            ->firstOrFail();
+        $report->delete();
+        return response()->json(['message' => 'Deleted.'], 200);
     }
 
     public function homeShoppingReportGenerate(Request $request)
@@ -1592,6 +1657,7 @@ class EcommerceReportController extends Controller
             case 'householdSummary':
                 $data = (clone $base)
                     ->select([
+                        DB::raw('DATE_FORMAT(MAX(ecommerce_sales.created_at), "%Y-%m-%d") AS create_date'),
                         'ecommerce_sales.customer_id',
                         'ecommerce_sales.campaign_id',
                         'ecommerce_sales.ani',
@@ -1623,6 +1689,7 @@ class EcommerceReportController extends Controller
                 $data = (clone $base)
                     ->leftJoin('zipcode_by_television_markets as zbtm', 'zbtm.zip_code', '=', 'ecommerce_sales.shipping_zip')
                     ->select([
+                        DB::raw('DATE_FORMAT(MAX(ecommerce_sales.created_at), "%Y-%m-%d") AS create_date'),
                         DB::raw('COALESCE(zbtm.market, "Unknown Market") AS market'),
                         DB::raw('COALESCE(ecommerce_sales.station, "Unknown Station") AS station'),
                         DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN ecommerce_sales.total ELSE 0 END) AS gross_sales'),
@@ -1643,6 +1710,7 @@ class EcommerceReportController extends Controller
                 $data = (clone $base)
                     ->leftJoin('zipcode_by_television_markets as zbtm', 'zbtm.zip_code', '=', 'ecommerce_sales.shipping_zip')
                     ->select([
+                        DB::raw('DATE_FORMAT(ecommerce_sales.created_at, "%Y-%m-%d %H:%i") AS `Create Date`'),
                         'ecommerce_sales.dialed AS Dialed',
                         'ecommerce_sales.order_type AS Order Type',
                         'ecommerce_sales.coupon_code AS Promo Code',
@@ -1698,6 +1766,20 @@ class EcommerceReportController extends Controller
         if (!empty($request->start_date) && !empty($request->end_date)) {
             $q->whereDate('ecommerce_sales.order_at', '>=', $request->start_date)
                 ->whereDate('ecommerce_sales.order_at', '<=', $request->end_date);
+        }
+
+        // State / market filters resolve via ZIP -> DMA lookup on the ship_zip column.
+        if (!empty($request->states) || !empty($request->markets)) {
+            $q->whereExists(function ($sub) use ($request) {
+                $sub->from('zipcode_by_television_markets')
+                    ->whereColumn('zipcode_by_television_markets.zip_code', 'ecommerce_sales.shipping_zip');
+                if (!empty($request->states)) {
+                    $sub->whereIn('zipcode_by_television_markets.state', (array) $request->states);
+                }
+                if (!empty($request->markets)) {
+                    $sub->whereIn('zipcode_by_television_markets.market', (array) $request->markets);
+                }
+            });
         }
 
         // Corporation filter — scope to sales whose affiliate (via ecommerce_affiliates)

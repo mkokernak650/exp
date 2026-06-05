@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\DeleteCutomEmailFile::class,
         \App\Console\Commands\RunScheduledEcommerceReports::class,
+        \App\Console\Commands\RunScheduledHomeShoppingReports::class,
     ];
 
     /**
@@ -32,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('getdata:daily')->timezone($timezone)->dailyAt('07:05');
         $schedule->command('schedule:delete-custom-email-files')->timezone($timezone)->weeklyOn(0, '07:10');
         $schedule->command('reports:run-scheduled-ecommerce')->timezone($timezone)->dailyAt('07:15');
+        $schedule->command('reports:run-scheduled-home-shopping')->timezone($timezone)->dailyAt('07:20');
     }
 
     /**

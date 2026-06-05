@@ -13,15 +13,21 @@ class SavedEcommerceReport extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'report_for',
         'filters',
         'is_active',
         'last_generated_at',
+        'recurrence_frequency',
+        'recipients',
+        'last_emailed_at',
     ];
 
     protected $casts = [
         'filters' => 'array',
+        'recipients' => 'array',
         'is_active' => 'boolean',
         'last_generated_at' => 'datetime',
+        'last_emailed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

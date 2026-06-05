@@ -69,6 +69,18 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'affiliate_count',
+    title: 'Affiliates',
+    style: { width: 140 },
+    visible: true,
+  },
+  {
+    key: 'campaign_count',
+    title: 'Campaigns',
+    style: { width: 140 },
+    visible: true,
+  },
+  {
     key: 'email',
     title: 'Email',
     dataType: 'string',

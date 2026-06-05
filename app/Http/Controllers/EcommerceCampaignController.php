@@ -20,18 +20,34 @@ class EcommerceCampaignController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $campaigns   = EcommerceCampaign::with('customer:id,customer_name')->get();
+        $campaigns = EcommerceCampaign::with('customer:id,customer_name')
+            ->when($request->filled('customer'), function ($q) use ($request) {
+                // Match the customer-list "campaign count" definition: a campaign belongs to a
+                // customer if its direct customer_id FK matches OR any ecommerce_affiliates
+                // pivot row ties them together.
+                $cid = (int) $request->input('customer');
+                $q->where(function ($w) use ($cid) {
+                    $w->where('customer_id', $cid)
+                      ->orWhereIn('id', function ($sub) use ($cid) {
+                          $sub->from('ecommerce_affiliates')
+                              ->select('campaign_id')
+                              ->where('customer_id', $cid);
+                      });
+                });
+            })
+            ->get();
         $columnsData = TableDetails::all()->pluck('column_details');
         $customers   = Customer::Active()->get();
 
         return Inertia::render(
             'Ecommerce/CampaignIndex',
             [
-                'campaigns'   => $campaigns,
-                'columnsData' => $columnsData,
-                'customers'   => $customers
+                'campaigns'    => $campaigns,
+                'columnsData'  => $columnsData,
+                'customers'    => $customers,
+                'preselectedCustomerId' => $request->filled('customer') ? (int) $request->input('customer') : null,
             ]
         );
     }

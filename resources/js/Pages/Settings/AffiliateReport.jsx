@@ -35,6 +35,7 @@ const AffiliateReport = () => {
     allMsoNames,
     allNetworkNames,
     allCorporations = [],
+    filterByCustomer = null,
   } = usePage().props
 
   const corporationOptions = allCorporations.map((c) => ({
@@ -317,6 +318,7 @@ const AffiliateReport = () => {
           filteredValue: activeFilterJSON,
           sortField,
           sortOrder,
+          filterByCustomer: filterByCustomer?.id,
         },
       })
       .then((res) => {
@@ -460,6 +462,17 @@ const AffiliateReport = () => {
   return (
     <>
       <Helmet title="Affiliate Report" />
+      {filterByCustomer && (
+        <div className="bg-blue-50 border border-blue-200 px-4 py-2 mb-2 flex items-center justify-between">
+          <div className="text-sm">
+            Showing affiliates for customer:{' '}
+            <strong>{filterByCustomer.name}</strong>
+          </div>
+          <a href="/affiliate-report" className="text-blue-700 underline text-sm">
+            Clear filter
+          </a>
+        </div>
+      )}
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />

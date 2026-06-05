@@ -26,7 +26,10 @@ import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
 
 const CampaignIndex = () => {
-  const { campaigns, columnsData, customers } = usePage().props
+  const { campaigns, columnsData, customers, preselectedCustomerId = null } = usePage().props
+  const preselectedCustomer = preselectedCustomerId
+    ? (customers || []).find((c) => c.id === preselectedCustomerId)
+    : null
   const [showColumns, setShowColumns] = useState(false)
   const [tableToolbar, setTableToolbar] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -325,6 +328,17 @@ const CampaignIndex = () => {
   return (
     <>
       <Helmet title="E-commerce Campaign Index" />
+      {preselectedCustomer && (
+        <div className="bg-blue-50 border border-blue-200 px-4 py-2 mb-2 flex items-center justify-between">
+          <div className="text-sm">
+            Showing campaigns for customer:{' '}
+            <strong>{preselectedCustomer.customer_name}</strong>
+          </div>
+          <a href="/ecommerce-campaigns" className="text-blue-700 underline text-sm">
+            Clear filter
+          </a>
+        </div>
+      )}
       <div className="selection-demo">
         {tableToolbar ? (
           <TableToolbar />

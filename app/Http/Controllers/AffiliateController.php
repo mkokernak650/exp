@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\Affiliate;
 use App\Models\BroadcastGroupName;
+use App\Models\Customer;
 use App\Models\MsoName;
 use App\Models\NetworkName;
 use App\Models\TableDetails;
@@ -217,6 +218,8 @@ class AffiliateController extends Controller
         ];
         $affiliateAllowed = array_values($affiliateFieldMap);
 
+        $filterByCustomerId = request('filterByCustomer');
+
         $allAffiliates = Affiliate::where('status', '=', '1')
             ->select()
             ->addSelect(DB::raw('(SELECT tv_households FROM t_v_households WHERE t_v_households.market = affiliates.market LIMIT 1) AS tv_households'))
@@ -224,6 +227,14 @@ class AffiliateController extends Controller
                 empty(request('sortField')) && !empty($orderBy),
                 fn ($query) => $query->orderBy($orderByColumn, $orderByDirection)
             )
+            ->when(!empty($filterByCustomerId), function ($query) use ($filterByCustomerId) {
+                // Affiliates wired to a customer via ecommerce_affiliates pivot.
+                $query->whereIn('id', function ($sub) use ($filterByCustomerId) {
+                    $sub->from('ecommerce_affiliates')
+                        ->select('affiliate_id')
+                        ->where('customer_id', (int) $filterByCustomerId);
+                });
+            })
             ->tap(function ($query) use ($affiliateFieldMap, $affiliateAllowed) {
                 $this->applyEloquentTableFilters($query, request('filteredValue'), $affiliateFieldMap, $affiliateAllowed);
             })
@@ -276,6 +287,17 @@ class AffiliateController extends Controller
         $allNetworkNames        = NetworkName::select('network_name')->active()->distinct()->get();
         $allCorporations        = $this->corporationService->all();
 
+        $filterByCustomerInfo = null;
+        if (!empty($filterByCustomerId)) {
+            $customerModel = Customer::find((int) $filterByCustomerId);
+            if ($customerModel) {
+                $filterByCustomerInfo = [
+                    'id'   => $customerModel->id,
+                    'name' => $customerModel->customer_name,
+                ];
+            }
+        }
+
         return Inertia::render('Settings/AffiliateReport', [
             'allAffiliates'          => $allAffiliates,
             'columnsData'            => $columnsData,
@@ -284,6 +306,7 @@ class AffiliateController extends Controller
             'allMsoNames'            => $allMsoNames,
             'allNetworkNames'        => $allNetworkNames,
             'allCorporations'        => $allCorporations,
+            'filterByCustomer'       => $filterByCustomerInfo,
         ]);
     }
 

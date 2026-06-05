@@ -48,6 +48,8 @@ const CustomerReport = () => {
     address: item.address,
     contact_name: item.contact_name,
     contact_telephone: item.contact_telephone,
+    affiliate_count: [item.affiliate_count ?? 0, item.id],
+    campaign_count: [item.campaign_count ?? 0, item.id],
     id: item.id,
     key: item.id,
   }))
@@ -235,6 +237,8 @@ const CustomerReport = () => {
             address: item.address,
             contact_name: item.contact_name,
             contact_telephone: item.contact_telephone,
+            affiliate_count: [item.affiliate_count ?? 0, item.id],
+            campaign_count: [item.campaign_count ?? 0, item.id],
             id: item.id,
             key: item.id,
           }))
@@ -340,6 +344,38 @@ const CustomerReport = () => {
           width: col.style?.width || col.width,
           sorter,
           sortOrder: colSortOrder,
+        }
+
+        if (col.key === 'affiliate_count') {
+          base.render = (value) => {
+            const count = value?.[0] ?? 0
+            const customerId = value?.[1]
+            if (!count) return <span>0</span>
+            return (
+              <a
+                href={`/affiliate-report?filterByCustomer=${customerId}`}
+                className="text-blue-600 underline"
+              >
+                {count} affiliate{count === 1 ? '' : 's'}
+              </a>
+            )
+          }
+        }
+
+        if (col.key === 'campaign_count') {
+          base.render = (value) => {
+            const count = value?.[0] ?? 0
+            const customerId = value?.[1]
+            if (!count) return <span>0</span>
+            return (
+              <a
+                href={`/ecommerce-campaigns?customer=${customerId}`}
+                className="text-blue-600 underline"
+              >
+                {count} campaign{count === 1 ? '' : 's'}
+              </a>
+            )
+          }
         }
 
         return base

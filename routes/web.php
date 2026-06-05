@@ -89,6 +89,9 @@ Route::middleware('auth')->group(function () {
     // Home Shopping report (sales + returns aware)
     Route::get('reports/home-shopping', [EcommerceReportController::class, 'homeShoppingReport'])->name('ecommerce.report.homeShopping');
     Route::post('reports/home-shopping/generate', [EcommerceReportController::class, 'homeShoppingReportGenerate'])->name('ecommerce.report.homeShopping.generate');
+    Route::post('reports/home-shopping/saved-reports', [EcommerceReportController::class, 'saveHomeShoppingReport'])->name('ecommerce.report.homeShopping.save');
+    Route::put('reports/home-shopping/saved-reports/{id}', [EcommerceReportController::class, 'updateHomeShoppingReport'])->name('ecommerce.report.homeShopping.update');
+    Route::delete('reports/home-shopping/saved-reports/{id}', [EcommerceReportController::class, 'deleteHomeShoppingReport'])->name('ecommerce.report.homeShopping.delete');
 
     // E-commerce campaign
     Route::resource('ecommerce-campaigns', EcommerceCampaignController::class)->except('show', 'edit');
