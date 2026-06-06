@@ -101,10 +101,11 @@ const InsertionOrderCreate = () => {
       .then((response) => {
         if (response.data) {
           setAffiliateOptions(response.data)
-          // If "Apply to all" is on, auto-select every fetched affiliate so the IO covers all of them.
+          // Apply-to-all: auto-pick every affiliate + refresh codes/phones.
           if (applyToAllAffiliates) {
             const allValues = response.data.map((opt) => opt.value).join(',')
             setSelectedAffiliates(allValues)
+            getCodesAndPhones(selectedCampaigns, selectedCustomers, allValues)
           }
         }
       })
@@ -137,12 +138,20 @@ const InsertionOrderCreate = () => {
     }
   }
 
-  const getCodesAndPhones = (selectedCampaigns, selectedCustomers, selectedAffiliates) => {
+  const getCodesAndPhones = (
+    selectedCampaigns,
+    selectedCustomers,
+    selectedAffiliates,
+    corpComposite = selectedCorporation
+  ) => {
+    const { type, id } = parseCorpComposite(corpComposite)
     axios
       .post(route('insertion.order.get.codes.phones'), {
         selectedCampaigns,
         selectedCustomers,
         selectedAffiliates,
+        corporation_type: type,
+        corporation_id: id,
       })
       .then((response) => {
         if (response.data) {

@@ -79,16 +79,22 @@ class InsertionOrderController extends Controller
 
     public function getAffiliates(Request $request)
     {
-        // Corporation-driven path: list every affiliate linked to the chosen corporation,
-        // regardless of ecommerce_affiliates pairings. This lets an IO target all stations of a
-        // broadcast group / MSO / network even if they have not been individually wired yet.
+        // Corp-driven: return all corp affiliates regardless of ecommerce_affiliates rows.
         if (!empty($request->corporation_type) && !empty($request->corporation_id)) {
-            $corpAffiliates = app(\App\Services\CorporationService::class)
-                ->affiliatesOf($request->corporation_type, (int) $request->corporation_id);
+            $service = app(\App\Services\CorporationService::class);
+            $corpAffiliates = $service->affiliatesOf($request->corporation_type, (int) $request->corporation_id);
 
-            return $corpAffiliates->map(function ($affiliate) {
+            $typeToNameCol = \App\Services\CorporationService::TYPE_TO_NAME_COLUMN;
+            $modelClass    = \App\Services\CorporationService::TYPE_TO_MODEL[$request->corporation_type] ?? null;
+            $corpRow       = $modelClass ? $modelClass::find($request->corporation_id) : null;
+            $corpName      = $corpRow ? $corpRow->{$typeToNameCol[$request->corporation_type]} : '';
+            $typeLabel     = \App\Services\CorporationService::TYPE_TO_LABEL[$request->corporation_type] ?? '';
+
+            return $corpAffiliates->map(function ($affiliate) use ($corpName, $typeLabel) {
+                $market = !empty($affiliate->market) ? ' (' . $affiliate->market . ')' : '';
+                $suffix = $corpName ? ' — ' . $corpName . ' / ' . $typeLabel : '';
                 return [
-                    'label' => $affiliate->affiliate_name . (!empty($affiliate->market) ? ' (' . $affiliate->market . ')' : ''),
+                    'label' => $affiliate->affiliate_name . $market . $suffix,
                     'value' => $affiliate->id . '+aEmail+' . (!empty($affiliate->email) ? $affiliate->email : 'n/a'),
                 ];
             })->unique('value')->sortBy('label')->values()->toArray();
@@ -139,10 +145,13 @@ class InsertionOrderController extends Controller
             }
         }
 
+        // Corp-driven: skip affiliate filter; fall back to campaign + customer for codes/phones.
+        $corporationDriven = !empty($request->corporation_type) && !empty($request->corporation_id);
+
         $codesAndPhones = EcommerceAffiliate::with('affiliate:id,affiliate_name')
             ->when(!empty($request->selectedCampaigns), fn($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
             ->when(!empty($selectedCustomers), fn($q) => $q->whereIn('customer_id', $selectedCustomers))
-            ->when(!empty($selectedAffiliates), fn($q) => $q->whereIn('affiliate_id', $selectedAffiliates))
+            ->when(!$corporationDriven && !empty($selectedAffiliates), fn($q) => $q->whereIn('affiliate_id', $selectedAffiliates))
             ->select(['id', 'affiliate_id', 'coupon_code', 'dialed'])->get();
 
         foreach ($codesAndPhones as $item) {
