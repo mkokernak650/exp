@@ -15,6 +15,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use App\Support\ReportTableSort;
 use Inertia\Inertia;
@@ -120,8 +121,10 @@ class RingbaInsertionOrderTermController extends Controller
         $affiliateOptions = $phoneOptions = $payoutOptions = $revenueOptions = $callLengthOptions = [];
         $apiResponse      = $this->campaignApiRequest($request->campaignId);
 
-        if ($apiResponse == "string") {
-            return ['success' => false, 'msg' => 'Data fetching failed!'];
+        // campaignApiRequest returns null on any Ringba API failure (auth/network/etc.),
+        // so guard on the actual shape rather than a literal "string" sentinel.
+        if (!is_object($apiResponse) || !isset($apiResponse->campaign)) {
+            return ['success' => false, 'msg' => 'Could not load campaign data from Ringba. Check the Ringba API credentials / account access.'];
         }
 
         $campaign = $apiResponse->campaign;
@@ -309,13 +312,24 @@ class RingbaInsertionOrderTermController extends Controller
 
     private function campaignApiRequest($campaignId)
     {
+        // Missing Ringba credentials (no RingbaAuthDetails row) — fail fast.
+        if (empty($this->ringbaApiHeader) || empty($this->ringbaAccountId)) {
+            Log::warning('Ringba API request skipped: missing API credentials.');
+            return null;
+        }
+
         $client      = new Client(['headers' => $this->ringbaApiHeader]);
         $apiEndPoint = 'https://api.ringba.com/v2/' . $this->ringbaAccountId . '/campaigns/' . $campaignId;
 
         try {
             $ringbaAffiliates = $client->get($apiEndPoint);
         } catch (RequestException $e) {
-            return (string) $e->getResponse()->getBody();
+            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 'no-response';
+            Log::warning("Ringba campaign API request failed (HTTP {$status}) for campaign {$campaignId}.");
+            return null;
+        } catch (\Throwable $e) {
+            Log::warning('Ringba campaign API request errored: ' . $e->getMessage());
+            return null;
         }
 
         return json_decode($ringbaAffiliates->getBody()->getContents());

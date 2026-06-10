@@ -9,6 +9,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import NormalModal from '../../Shared/NormalModal'
 import RingbaIOModalView from '../../Components/IOComponents/RingbaIOModalView'
+import { lengthSelectOptions } from '@/Helpers/lengths'
 
 const { Title } = Typography
 const { TextArea } = Input
@@ -70,12 +71,7 @@ const RingbaInsertionOrderTermCreate = () => {
     value: item,
   }))
 
-  const lengths = [':15', ':30', ':60', ':120', '28:30']
-
-  const lengthOptions = lengths.map((length) => ({
-    label: length,
-    value: length,
-  }))
+  const lengthOptions = lengthSelectOptions
 
   const campaignHandleChange = (value) => {
     setSelectedAffiliate('')
