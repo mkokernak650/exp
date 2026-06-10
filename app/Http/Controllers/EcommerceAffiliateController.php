@@ -253,6 +253,18 @@ class EcommerceAffiliateController extends Controller
             $validated['percentage'] = $validated['consumerEXP_cash_buy_fee'];
         }
 
+        // "Percentage of Sales": affiliate % in `affiliate_fee`, ConsumerEXP % in
+        // `consumerEXP_cash_buy_fee`; total `percentage` = sum of the two.
+        if ($request->affiliate_fee_type === (string) EcommerceAffiliate::FEE_MODE['fixed_pct']) {
+            unset($validated['revenue'], $validated['cash_buy'], $validated['consumerEXP_cash_buy_fee_type']);
+            $validated['percentage'] = (float) $validated['affiliate_fee'] + (float) $validated['consumerEXP_cash_buy_fee'];
+        }
+
+        // tiered: fees come per-row from the import file, no rates stored
+        if ($request->affiliate_fee_type === (string) EcommerceAffiliate::FEE_MODE['tiered']) {
+            unset($validated['revenue'], $validated['affiliate_fee'], $validated['cash_buy'], $validated['percentage'], $validated['consumerEXP_cash_buy_fee'], $validated['consumerEXP_cash_buy_fee_type']);
+        }
+
         try {
             EcommerceAffiliate::create($validated);
             return response()->json(['msg' => 'Created Successfully.'], 201);
@@ -311,6 +323,25 @@ class EcommerceAffiliateController extends Controller
                 $validated['consumerEXP_cash_buy_fee'] = (($request->consumerEXP_cash_buy_fee / 100) * $request->cash_buy);
             }
             $validated['percentage'] = $validated['consumerEXP_cash_buy_fee'];
+        }
+
+        // "Percentage of Sales": affiliate % in `affiliate_fee`, ConsumerEXP % in
+        // `consumerEXP_cash_buy_fee`; total `percentage` = sum of the two.
+        if ($request->affiliate_fee_type == EcommerceAffiliate::FEE_MODE['fixed_pct']) {
+            $validated['revenue']                       = null;
+            $validated['cash_buy']                      = null;
+            $validated['consumerEXP_cash_buy_fee_type'] = null;
+            $validated['percentage']                    = (float) $validated['affiliate_fee'] + (float) $validated['consumerEXP_cash_buy_fee'];
+        }
+
+        // tiered: fees come per-row from the import file, no rates stored
+        if ($request->affiliate_fee_type == EcommerceAffiliate::FEE_MODE['tiered']) {
+            $validated['revenue']                      = null;
+            $validated['affiliate_fee']                = null;
+            $validated['cash_buy']                     = null;
+            $validated['percentage']                   = null;
+            $validated['consumerEXP_cash_buy_fee']     = null;
+            $validated['consumerEXP_cash_buy_fee_type'] = null;
         }
 
         try {

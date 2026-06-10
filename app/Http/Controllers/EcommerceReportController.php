@@ -1763,6 +1763,11 @@ class EcommerceReportController extends Controller
         if (!empty($request->record_kind)) {
             $q->where('ecommerce_sales.record_kind', $request->record_kind);
         }
+        // Optional Order Type filter — lets this report double as the "Percentage of Sales"
+        // view filtered to Phone / E-commerce / Block, etc.
+        if (!empty($request->order_type)) {
+            $q->whereIn('ecommerce_sales.order_type', (array) $request->order_type);
+        }
         if (!empty($request->start_date) && !empty($request->end_date)) {
             $q->whereDate('ecommerce_sales.order_at', '>=', $request->start_date)
                 ->whereDate('ecommerce_sales.order_at', '<=', $request->end_date);

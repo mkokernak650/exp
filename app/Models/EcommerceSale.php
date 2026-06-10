@@ -14,6 +14,7 @@ class EcommerceSale extends Model
         'e-commerce'         => 1,
         'phone'              => 2,
         'phone_ecommerce'    => 3,
+        'block'              => 4, // Home Shopping — client calls it "Block"
     ];
     const AFFILIATE_FEE_TYPE = [
         'payout_per_order' => 1,

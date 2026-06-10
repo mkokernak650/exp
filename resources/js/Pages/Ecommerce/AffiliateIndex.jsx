@@ -17,6 +17,7 @@ import useReportTableColumns from '@/Helpers/useReportTableColumns'
 import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { ECOMMERCE_AFFILIATE_NUMERIC_SORT_KEYS } from '@/Helpers/ecommerceReportNumericSortKeys'
 import { reportTableSorterProps } from '@/Helpers/reportTableSort'
+import { lengthSelectOptions } from '@/Helpers/lengths'
 import { columns as defaultColumns, filter } from './Helpers/AffiliateIndexProps'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
@@ -160,7 +161,10 @@ const AffiliateIndex = () => {
                 updated.percentage = res.data.data.consumerEXP_cash_buy_fee
                 updated.consumerEXP_cash_buy_fee_type = res.data.data.consumerEXP_cash_buy_fee_type
                 updated.consumerEXP_cash_buy_fee = `${res.data.data.consumerEXP_cash_buy_fee_type == '1' ? (res.data.data.consumerEXP_cash_buy_fee / res.data.data.cash_buy) * 100 : res.data.data.consumerEXP_cash_buy_fee}`
-              } else {
+              } else if (res.data.data.affiliate_fee_type == '3') {
+                updated.percentage = res.data.data.percentage
+                updated.consumerEXP_cash_buy_fee = res.data.data.consumerEXP_cash_buy_fee
+              } else if (res.data.data.affiliate_fee_type == '1') {
                 updated.percentage = editData.revenue - editData.affiliate_fee
               }
               return updated
@@ -374,12 +378,7 @@ const AffiliateIndex = () => {
     setOpenModal({ open: true })
   }
 
-  const lengths = [':15', ':30', ':60', ':120', '28:30']
-
-  const lengthOptions = lengths.map((length) => ({
-    label: length,
-    value: length,
-  }))
+  const lengthOptions = lengthSelectOptions
 
   const lengthHandleChange = (val) => {
     setEditData((oldEditData) => ({ ...oldEditData, lengths: val }))
@@ -513,7 +512,12 @@ const AffiliateIndex = () => {
           base.render = (value) => (value == 1 ? 'E-commerce' : 'Phone')
         }
         if (col.key === 'affiliate_fee_type') {
-          base.render = (value) => (value == 1 ? 'Payout Per Order' : 'Cash Buy')
+          const feeTypeLabels = {
+            1: 'Payout Per Order',
+            2: 'Cash Buy',
+            3: 'Percentage of Sales',
+          }
+          base.render = (value) => feeTypeLabels[value] ?? value
         }
         if (col.key === 'created_at' || col.key === 'updated_at') {
           base.render = (value) => DateTimeFormat(value)
@@ -816,6 +820,7 @@ const AffiliateIndex = () => {
                   options={[
                     { value: '1', label: 'Payout Per Order' },
                     { value: '2', label: 'Cash Buy' },
+                    { value: '3', label: 'Percentage of Sales' },
                   ]}
                 />
               </Col>
@@ -900,6 +905,56 @@ const AffiliateIndex = () => {
                         className="w-full"
                         required
                         disabled={!editData?.consumerEXP_cash_buy_fee_type}
+                      />
+                    </div>
+                  </Col>
+                </>
+              )}
+
+              {editData?.affiliate_fee_type && editData.affiliate_fee_type == 3 && (
+                <>
+                  <Col span={24}>
+                    <div>
+                      <label>Affiliate Fee (% of Sales)</label>
+                      <Input
+                        value={editData?.affiliate_fee}
+                        type="number"
+                        min={0}
+                        name="affiliate_fee"
+                        placeholder="Exp: 7"
+                        onChange={handleEditChange}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div>
+                      <label>ConsumerEXP Fee (% of Sales)</label>
+                      <Input
+                        value={editData?.consumerEXP_cash_buy_fee}
+                        type="number"
+                        min={0}
+                        name="consumerEXP_cash_buy_fee"
+                        placeholder="Exp: 3"
+                        onChange={handleEditChange}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div>
+                      <label>Total Percentage (%)</label>
+                      <Input
+                        value={
+                          (Number(editData?.affiliate_fee) || 0) +
+                          (Number(editData?.consumerEXP_cash_buy_fee) || 0)
+                        }
+                        type="number"
+                        className="w-full"
+                        readOnly
+                        disabled
                       />
                     </div>
                   </Col>

@@ -25,7 +25,7 @@ const RECORD_KIND_OPTIONS = [
   { value: 'RETURN', label: 'Returns only' },
 ]
 
-const ORDER_TYPE_LABEL = { 1: 'E-commerce', 2: 'Phone', 3: 'Phone & E-commerce' }
+const ORDER_TYPE_LABEL = { 1: 'E-commerce', 2: 'Phone', 3: 'Phone & E-commerce', 4: 'Block' }
 
 const numberCell = (val) =>
   val === null || val === undefined || val === ''
@@ -68,6 +68,7 @@ const HomeShoppingReport = () => {
     states: [],
     markets: [],
     record_kind: '',
+    order_type: [],
     dateRange: null,
     corporation: null,
     apply_to_all_affiliates: true,
@@ -136,6 +137,7 @@ const HomeShoppingReport = () => {
       states: filters.states,
       markets: filters.markets,
       record_kind: filters.record_kind || undefined,
+      order_type: filters.order_type?.length ? filters.order_type : undefined,
       start_date: filters.dateRange?.[0]?.format('YYYY-MM-DD'),
       end_date: filters.dateRange?.[1]?.format('YYYY-MM-DD'),
       corporation_type: corp?.type,
@@ -418,6 +420,21 @@ const HomeShoppingReport = () => {
               options={RECORD_KIND_OPTIONS}
               value={filters.record_kind}
               onChange={(v) => setF('record_kind', v)}
+            />
+          </Col>
+          <Col span={6}>
+            <label>Order Type</label>
+            <Select
+              mode="multiple"
+              allowClear
+              className="w-full"
+              placeholder="All order types"
+              options={Object.entries(ORDER_TYPE_LABEL).map(([value, label]) => ({
+                value: Number(value),
+                label,
+              }))}
+              value={filters.order_type}
+              onChange={(v) => setF('order_type', v)}
             />
           </Col>
           <Col span={6}>

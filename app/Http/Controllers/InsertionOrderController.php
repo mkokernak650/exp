@@ -308,7 +308,7 @@ class InsertionOrderController extends Controller
                 $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
-                        'titleName'   => $length . ' sec- ' . $ecommerceAffiliate?->campaign?->campaign_name,
+                        'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $selectedTerm,
@@ -429,7 +429,7 @@ class InsertionOrderController extends Controller
 
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
-                        'titleName'   => $length . ' sec- ' . $ecommerceAffiliate?->campaign?->campaign_name,
+                        'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $insertionOrderDetail->term,

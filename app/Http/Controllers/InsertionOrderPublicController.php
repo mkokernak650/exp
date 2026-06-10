@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EcommerceAffiliate;
 use App\Models\InsertionOrder;
 use App\Models\InsertionOrderDetail;
 use App\Notifications\InsertionOrderDocument;
@@ -47,7 +48,7 @@ class InsertionOrderPublicController extends Controller
 
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
-                        'titleName'   => $length . ' sec- ' . $ecommerceAffiliate?->campaign?->campaign_name,
+                        'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $insertionOrderDetail->term,

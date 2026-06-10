@@ -140,6 +140,7 @@ const SalesIndex = () => {
       if (orderType == 1) return 'E-commerce'
       if (orderType == 2) return 'Phone'
       if (orderType == 3) return 'Phone & E-commerce'
+      if (orderType == 4) return 'Block (Home Shopping)'
       return ''
     }
 

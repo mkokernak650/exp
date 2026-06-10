@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet'
 import toast from 'react-hot-toast'
 import MultiSelect from 'react-multiple-select-dropdown-lite'
 import 'react-multiple-select-dropdown-lite/dist/index.css'
+import { lengthSelectOptions } from '@/Helpers/lengths'
 
 const { Title } = Typography
 const { TextArea } = Input
@@ -26,6 +27,7 @@ const AffiliateCreate = () => {
     affiliate_fee: 0,
     consumerExp_fee: '',
     affiliate_fee_type: '',
+    percentage: '',
     cash_buy: '',
     consumerEXP_cash_buy_fee_type: '',
     consumerEXP_cash_buy_fee: '',
@@ -42,6 +44,15 @@ const AffiliateCreate = () => {
       consumerExp_fee: oldValue.revenue - oldValue.affiliate_fee,
     }))
   }, [values.revenue, values.affiliate_fee])
+
+  // Percentage of Sales: Total Percentage = Affiliate Fee % + ConsumerEXP Fee %
+  useEffect(() => {
+    if (values.affiliate_fee_type == 3) {
+      const total =
+        (Number(values.affiliate_fee) || 0) + (Number(values.consumerEXP_cash_buy_fee) || 0)
+      setValues((oldValue) => ({ ...oldValue, percentage: total }))
+    }
+  }, [values.affiliate_fee, values.consumerEXP_cash_buy_fee, values.affiliate_fee_type])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -70,12 +81,7 @@ const AffiliateCreate = () => {
     headers: { Accept: 'application/json' },
   }
 
-  const lengths = [':15', ':30', ':60', ':120', '28:30']
-
-  const lengthOptions = lengths.map((length) => ({
-    label: length,
-    value: length,
-  }))
+  const lengthOptions = lengthSelectOptions
 
   const lengthHandleChange = (val) => {
     setValues((oldValues) => ({ ...oldValues, lengths: val }))
@@ -110,7 +116,7 @@ const AffiliateCreate = () => {
       <Helmet title="Create Coupon Code" />
       <div className="grid w-[500px] m-auto mt-8 p-10 grow shadow-md rounded-lg bg-white">
         <Title level={5} className="text-center !text-xl !mb-[35px]">
-          Create Coupon Code
+          Create Phone or Coupon Code
         </Title>
         <form onSubmit={handleSubmit}>
           <Row gutter={[0, 16]}>
@@ -251,6 +257,7 @@ const AffiliateCreate = () => {
                 options={[
                   { value: '1', label: 'Payout Per Order' },
                   { value: '2', label: 'Cash Buy' },
+                  { value: '3', label: 'Percentage of Sales' },
                 ]}
               />
             </Col>
@@ -350,6 +357,54 @@ const AffiliateCreate = () => {
                       className="w-full"
                       required
                       disabled={!values?.consumerEXP_cash_buy_fee_type}
+                    />
+                  </div>
+                </Col>
+              </>
+            )}
+
+            {values.affiliate_fee_type == 3 && (
+              <>
+                <Col span={24}>
+                  <div>
+                    <label>Affiliate Fee (% of Sales)</label>
+                    <Input
+                      value={values?.affiliate_fee}
+                      type="number"
+                      min={0}
+                      name="affiliate_fee"
+                      placeholder="Exp: 7"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
+                <Col span={24}>
+                  <div>
+                    <label>ConsumerEXP Fee (% of Sales)</label>
+                    <Input
+                      value={values?.consumerEXP_cash_buy_fee}
+                      type="number"
+                      min={0}
+                      name="consumerEXP_cash_buy_fee"
+                      placeholder="Exp: 3"
+                      onChange={handleChange}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                </Col>
+                <Col span={24}>
+                  <div>
+                    <label>Total Percentage (%)</label>
+                    <Input
+                      value={values?.percentage}
+                      type="number"
+                      name="percentage"
+                      className="w-full"
+                      readOnly
+                      disabled
                     />
                   </div>
                 </Col>

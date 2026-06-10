@@ -65,6 +65,18 @@ class EcommerceAffiliate extends Model
         return $query->whereStatus(1);
     }
 
+    /**
+     * IO line-item title for a spot length. Numeric/time lengths get a "sec"
+     * suffix; named lengths (e.g. "Block Programming", "Various") do not.
+     */
+    public static function lengthTitle($length, $campaignName)
+    {
+        $length = trim((string) $length);
+        $suffix = preg_match('/[a-zA-Z]/', $length) ? ' - ' : ' sec- ';
+
+        return $length . $suffix . $campaignName;
+    }
+
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(EcommerceCampaign::class, 'campaign_id');

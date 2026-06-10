@@ -40,11 +40,13 @@ class SaleFeeCalculator
                 ];
 
             case EcommerceAffiliate::FEE_MODE['fixed_pct']:
-                $vendorPct = (float) ($aff->percentage ?? 0);
-                $cexpPct   = (float) ($aff->consumerEXP_cash_buy_fee ?? 0);
+                // "Percentage of Sales": affiliate % stored in `affiliate_fee`,
+                // ConsumerEXP % in `consumerEXP_cash_buy_fee`, total (sum) in `percentage`.
+                $affiliatePct = (float) ($aff->affiliate_fee ?? 0);
+                $cexpPct      = (float) ($aff->consumerEXP_cash_buy_fee ?? 0);
                 return [
-                    'vendor_fee'      => round($sign * $absBase * $vendorPct / 100, 4),
-                    'consumerexp_fee' => round($sign * $absBase * $cexpPct   / 100, 4),
+                    'vendor_fee'      => round($sign * $absBase * $affiliatePct / 100, 4),
+                    'consumerexp_fee' => round($sign * $absBase * $cexpPct      / 100, 4),
                 ];
 
             case EcommerceAffiliate::FEE_MODE['payout_per_order']:

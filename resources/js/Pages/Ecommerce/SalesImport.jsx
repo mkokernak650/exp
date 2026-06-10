@@ -268,6 +268,7 @@ const SalesImport = () => {
     { value: '1', label: 'E-commerce' },
     { value: '2', label: 'Phone' },
     { value: '3', label: 'Phone & E-Commerce' },
+    { value: '4', label: 'Block (Home Shopping)' },
   ]
 
   return (
