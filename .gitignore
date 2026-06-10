@@ -71,3 +71,5 @@ phpstan.neon
 _ide_helper.php
 _ide_helper_models.php
 
+/task resources
+
