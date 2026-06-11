@@ -225,7 +225,7 @@ class EcommerceAffiliateController extends Controller
                 fn($q) => $q->where('coupon_code', $request->coupon_code)
             )
             ->when(
-                $request->order_type == EcommerceSale::ORDER_TYPE['phone'],
+                in_array($request->order_type, [EcommerceSale::ORDER_TYPE['phone'], EcommerceSale::ORDER_TYPE['block']]),
                 fn($q) => $q->where('dialed', $request->dialed)
             )
             ->first();
@@ -294,7 +294,7 @@ class EcommerceAffiliateController extends Controller
                 fn($q) => $q->where('coupon_code', $request->coupon_code)
             )
             ->when(
-                $request->order_type == EcommerceSale::ORDER_TYPE['phone'],
+                in_array($request->order_type, [EcommerceSale::ORDER_TYPE['phone'], EcommerceSale::ORDER_TYPE['block']]),
                 fn($q) => $q->where('dialed', $request->dialed)
             )
             ->first();

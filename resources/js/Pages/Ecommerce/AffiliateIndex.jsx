@@ -509,7 +509,8 @@ const AffiliateIndex = () => {
           base.render = (value) => (value == 1 ? 'Active' : 'Inactive')
         }
         if (col.key === 'order_type') {
-          base.render = (value) => (value == 1 ? 'E-commerce' : 'Phone')
+          const orderTypeLabels = { 1: 'E-commerce', 2: 'Phone', 4: 'Home Shopping (Block)' }
+          base.render = (value) => orderTypeLabels[value] ?? value
         }
         if (col.key === 'affiliate_fee_type') {
           const feeTypeLabels = {
@@ -747,6 +748,7 @@ const AffiliateIndex = () => {
                   options={[
                     { value: '1', label: 'E-commerce' },
                     { value: '2', label: 'Phone' },
+                    { value: '4', label: 'Home Shopping (Block)' },
                   ]}
                 />
               </Col>
@@ -768,10 +770,10 @@ const AffiliateIndex = () => {
                 </Col>
               )}
 
-              {editData?.order_type && editData.order_type == 2 && (
+              {editData?.order_type && (editData.order_type == 2 || editData.order_type == 4) && (
                 <Col span={24}>
                   <div>
-                    <label>Dialed Phone</label>
+                    <label>Dialed Phone (800#)</label>
                     <Input
                       className="w-full"
                       type="text"

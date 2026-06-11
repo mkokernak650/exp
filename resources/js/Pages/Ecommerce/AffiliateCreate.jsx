@@ -185,6 +185,7 @@ const AffiliateCreate = () => {
                 options={[
                   { value: '1', label: 'E-commerce' },
                   { value: '2', label: 'Phone' },
+                  { value: '4', label: 'Home Shopping (Block)' },
                 ]}
               />
             </Col>
