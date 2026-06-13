@@ -228,6 +228,10 @@ class EcommerceAffiliateController extends Controller
                 in_array($request->order_type, [EcommerceSale::ORDER_TYPE['phone'], EcommerceSale::ORDER_TYPE['block']]),
                 fn($q) => $q->where('dialed', $request->dialed)
             )
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['block'],
+                fn($q) => $q->where('coupon_code', $request->coupon_code)
+            )
             ->first();
 
         if ($eCommerceAffiliate) {
@@ -236,9 +240,10 @@ class EcommerceAffiliateController extends Controller
 
         if ($request->order_type == EcommerceSale::ORDER_TYPE['e-commerce']) {
             unset($validated['dialed']);
-        } else {
+        } elseif ($request->order_type == EcommerceSale::ORDER_TYPE['phone']) {
             unset($validated['coupon_code']);
         }
+        // Home Shopping (Block): keep BOTH dialed (800#) and coupon_code.
 
         if ($request->affiliate_fee_type === "1") {
             unset($validated['consumerEXP_cash_buy_fee'], $validated['cash_buy'], $validated['consumerEXP_cash_buy_fee_type']);
@@ -297,6 +302,10 @@ class EcommerceAffiliateController extends Controller
                 in_array($request->order_type, [EcommerceSale::ORDER_TYPE['phone'], EcommerceSale::ORDER_TYPE['block']]),
                 fn($q) => $q->where('dialed', $request->dialed)
             )
+            ->when(
+                $request->order_type == EcommerceSale::ORDER_TYPE['block'],
+                fn($q) => $q->where('coupon_code', $request->coupon_code)
+            )
             ->first();
 
         if ($eCommerceAffiliate) {
@@ -305,9 +314,10 @@ class EcommerceAffiliateController extends Controller
 
         if ($request->order_type == EcommerceSale::ORDER_TYPE['e-commerce']) {
             $validated['dialed'] = null;
-        } else {
+        } elseif ($request->order_type == EcommerceSale::ORDER_TYPE['phone']) {
             $validated['coupon_code'] = null;
         }
+        // Home Shopping (Block): keep BOTH dialed (800#) and coupon_code.
 
         if ($request->affiliate_fee_type == 1) {
             $validated['consumerEXP_cash_buy_fee']      = null;

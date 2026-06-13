@@ -89,6 +89,11 @@ const AffiliateCreate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    // Home Shopping (Block) must carry at least one channel: 800# or Coupon Code.
+    if (values.order_type == 4 && !values.dialed && !values.coupon_code) {
+      toast.error('Enter at least a Dialed Phone (800#) or a Coupon Code for Home Shopping.')
+      return
+    }
     setLoading(true)
     axios
       .post(route('ecommerce-affiliates.store'), values, headers)
@@ -190,38 +195,43 @@ const AffiliateCreate = () => {
               />
             </Col>
 
-            {values?.order_type &&
-              (values.order_type == 1 ? (
-                <Col span={24}>
-                  <div>
-                    <label>Coupon Code</label>
-                    <Input
-                      value={values?.coupon_code}
-                      type="text"
-                      name="coupon_code"
-                      placeholder="Exp: #CX12345"
-                      onChange={handleChange}
-                      className="w-full"
-                      required
-                    />
-                  </div>
-                </Col>
-              ) : (
-                <Col span={24}>
-                  <div>
-                    <label>Dialed Phone</label>
-                    <Input
-                      value={values?.dialed}
-                      type="text"
-                      name="dialed"
-                      placeholder="123123123"
-                      onChange={handleChange}
-                      className="w-full"
-                      required
-                    />
-                  </div>
-                </Col>
-              ))}
+            {/* Dialed 800# — Phone (2) and Home Shopping/Block (4). Required for Phone;
+                optional for Block (Block needs at least one of 800# / Coupon). */}
+            {(values.order_type == 2 || values.order_type == 4) && (
+              <Col span={24}>
+                <div>
+                  <label>Dialed Phone (800#)</label>
+                  <Input
+                    value={values?.dialed}
+                    type="text"
+                    name="dialed"
+                    placeholder="123123123"
+                    onChange={handleChange}
+                    className="w-full"
+                    required={values.order_type == 2}
+                  />
+                </div>
+              </Col>
+            )}
+
+            {/* Coupon Code — E-commerce (1) and Home Shopping/Block (4). Required for
+                E-commerce; optional for Block. */}
+            {(values.order_type == 1 || values.order_type == 4) && (
+              <Col span={24}>
+                <div>
+                  <label>Coupon Code</label>
+                  <Input
+                    value={values?.coupon_code}
+                    type="text"
+                    name="coupon_code"
+                    placeholder="Exp: #CX12345"
+                    onChange={handleChange}
+                    className="w-full"
+                    required={values.order_type == 1}
+                  />
+                </div>
+              </Col>
+            )}
 
             <Col span={24}>
               <Select

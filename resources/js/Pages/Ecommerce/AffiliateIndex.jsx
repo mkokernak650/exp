@@ -126,6 +126,11 @@ const AffiliateIndex = () => {
   }))
 
   const handleEditSubmit = () => {
+    // Home Shopping (Block) must carry at least one channel: 800# or Coupon Code.
+    if (editData.order_type == 4 && !editData.dialed && !editData.coupon_code) {
+      toast.error('Enter at least a Dialed Phone (800#) or a Coupon Code for Home Shopping.')
+      return
+    }
     axios
       .put(route('ecommerce-affiliates.update', editData.id), editData, headers)
       .then((res) => {
@@ -753,7 +758,7 @@ const AffiliateIndex = () => {
                 />
               </Col>
 
-              {editData?.order_type && editData.order_type == 1 && (
+              {editData?.order_type && (editData.order_type == 1 || editData.order_type == 4) && (
                 <Col span={24}>
                   <div>
                     <label>Coupon Code</label>
@@ -764,7 +769,7 @@ const AffiliateIndex = () => {
                       onChange={handleEditChange}
                       placeholder="Exp: #CX12345"
                       value={editData?.coupon_code}
-                      required
+                      required={editData.order_type == 1}
                     />
                   </div>
                 </Col>
@@ -781,7 +786,7 @@ const AffiliateIndex = () => {
                       placeholder="123123123"
                       onChange={handleEditChange}
                       value={editData?.dialed}
-                      required
+                      required={editData.order_type == 2}
                     />
                   </div>
                 </Col>

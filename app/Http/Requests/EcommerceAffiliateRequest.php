@@ -33,7 +33,7 @@ class EcommerceAffiliateRequest extends FormRequest
             'product_code'                  => ['nullable'],
             'order_type'                    => ['required', Rule::in(EcommerceSale::ORDER_TYPE)],
             'coupon_code'                   => ['max:255', Rule::requiredIf($this->input('order_type') == EcommerceSale::ORDER_TYPE['e-commerce'])],
-            'dialed'                        => ['max:255', Rule::requiredIf(in_array($this->input('order_type'), [EcommerceSale::ORDER_TYPE['phone'], EcommerceSale::ORDER_TYPE['block']]))],
+            'dialed'                        => ['max:255', Rule::requiredIf($this->input('order_type') == EcommerceSale::ORDER_TYPE['phone'])],
             'lengths'                       => ['nullable'],
             'pay_on_multiple_orders'        => ['required'],
             'cash_buy'                      => ['nullable', 'numeric', 'min:0'],
@@ -55,6 +55,13 @@ class EcommerceAffiliateRequest extends FormRequest
         if ($this->affiliate_fee_type == EcommerceAffiliate::FEE_MODE['fixed_pct']) {
             $rules['affiliate_fee']            = ['required', 'numeric', 'min:0'];
             $rules['consumerEXP_cash_buy_fee'] = ['required', 'numeric', 'min:0'];
+        }
+
+        // Home Shopping (Block): one entry may carry both 800# and Coupon Code,
+        // but at least one channel is required so sales can be matched.
+        if ($this->input('order_type') == EcommerceSale::ORDER_TYPE['block']) {
+            $rules['dialed']      = ['max:255', 'required_without:coupon_code'];
+            $rules['coupon_code'] = ['max:255', 'required_without:dialed'];
         }
 
         return $rules;
