@@ -258,6 +258,13 @@ const AffiliateIndex = () => {
 
   const [data, setData] = useState(dataArray)
 
+  // Active-only dropdowns omit an archived selection; keep the current value
+  // visible (with its known label) so the edit modal shows text, not a raw id.
+  const withCurrent = (options, value, label) =>
+    value != null && value !== '' && !options.some((o) => String(o.value) === String(value))
+      ? [{ value, label: label || String(value), key: `cur-${value}` }, ...options]
+      : options
+
   const handleEdit = (itemId) => {
     data.filter((item) => {
       if (item.id == itemId) {
@@ -693,11 +700,15 @@ const AffiliateIndex = () => {
                   className="w-full"
                   placeholder="Select Campaign"
                   allowClear
-                  options={campaigns.map((option, indx) => ({
-                    key: indx + '-1',
-                    value: option.id,
-                    label: option.campaign_name,
-                  }))}
+                  options={withCurrent(
+                    campaigns.map((option, indx) => ({
+                      key: indx + '-1',
+                      value: option.id,
+                      label: option.campaign_name,
+                    })),
+                    editData?.campaign_id,
+                    editData?.campaign
+                  )}
                 />
               </Col>
 
@@ -708,11 +719,15 @@ const AffiliateIndex = () => {
                   className="w-full"
                   placeholder="Select Customer"
                   allowClear
-                  options={customers.map((option, indx) => ({
-                    key: indx + '-2',
-                    value: option.id,
-                    label: option.customer_name,
-                  }))}
+                  options={withCurrent(
+                    customers.map((option, indx) => ({
+                      key: indx + '-2',
+                      value: option.id,
+                      label: option.customer_name,
+                    })),
+                    editData?.customer_id,
+                    editData?.customer
+                  )}
                 />
               </Col>
 
@@ -723,11 +738,15 @@ const AffiliateIndex = () => {
                   className="w-full"
                   placeholder="Select Affiliate"
                   allowClear
-                  options={affiliates.map((option, indx) => ({
-                    key: indx + '-3',
-                    value: option.id,
-                    label: `${option.affiliate_name} (${option.market})`,
-                  }))}
+                  options={withCurrent(
+                    affiliates.map((option, indx) => ({
+                      key: indx + '-3',
+                      value: option.id,
+                      label: `${option.affiliate_name} (${option.market})`,
+                    })),
+                    editData?.affiliate_id,
+                    editData?.affiliate
+                  )}
                 />
               </Col>
               <Col span={24}>
@@ -745,7 +764,7 @@ const AffiliateIndex = () => {
               </Col>
               <Col span={24}>
                 <Select
-                  value={editData?.order_type || undefined}
+                  value={editData?.order_type != null && editData?.order_type !== '' ? String(editData.order_type) : undefined}
                   onChange={(value) => handleEditSelectChange('order_type', value)}
                   className="w-full"
                   placeholder="Select Order Type"
@@ -819,7 +838,7 @@ const AffiliateIndex = () => {
 
               <Col span={24}>
                 <Select
-                  value={editData?.affiliate_fee_type || undefined}
+                  value={editData?.affiliate_fee_type != null && editData?.affiliate_fee_type !== '' ? String(editData.affiliate_fee_type) : undefined}
                   onChange={(value) => handleEditSelectChange('affiliate_fee_type', value)}
                   className="w-full"
                   placeholder="Select Affiliate Fee Type"
