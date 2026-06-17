@@ -138,6 +138,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/active-customer', [CustomerController::class, 'activeCustomer'])->name('active.customer');
     Route::get('/archived-customers', [CustomerController::class, 'archivedCustomers'])->name('archived.customers');
     Route::get('customer-export/{type}', [CustomerController::class, 'export'])->name('customer.export');
+    Route::get('/customers/{customer}/roster', [CustomerController::class, 'roster'])->name('customer.roster');
 
     Route::get('/add-affiliate', [AffiliateController::class, 'addAffiliateForm'])->name('add.affiliate');
     Route::get('/affiliate-zip-codes/search', [AffiliateController::class, 'searchAffiliateZipCodes'])->name('affiliate.zip_codes.search');
@@ -148,6 +149,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/move-affiliate-archive', [AffiliateController::class, 'moveArchive'])->name('move.affiliate.archive');
     Route::post('/active-affiliate', [AffiliateController::class, 'activeAffiliate'])->name('active.affiliate');
     Route::get('/archived-affiliates', [AffiliateController::class, 'archivedAffiliates'])->name('archived.affiliates');
+    Route::get('/affiliates/{affiliate}/roster', [AffiliateController::class, 'roster'])->name('affiliate.roster');
 
     Route::get('/broadcast-group-names-form', [CorporationController::class, 'broadcastGroupNamesForm'])->name('broadcast_group_names.form');
     Route::post('/store-broadcast-group-name', [CorporationController::class, 'storeBroadcastGroupName'])->name('store.broadcast_group_name');

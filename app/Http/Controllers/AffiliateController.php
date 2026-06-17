@@ -6,6 +6,7 @@ use App\Http\Helpers\RingbaApiHelpers;
 use App\Models\Affiliate;
 use App\Models\BroadcastGroupName;
 use App\Models\Customer;
+use App\Models\InsertionOrder;
 use App\Models\MsoName;
 use App\Models\NetworkName;
 use App\Models\TableDetails;
@@ -529,5 +530,111 @@ class AffiliateController extends Controller
             ->pluck('zip_code');
 
         return response()->json(['data' => $codes]);
+    }
+
+    /**
+     * Per-affiliate roster: every IO this affiliate appears on (via direct FK, attached
+     * pivot, or corporation membership), with the customer side, status, accept/cancel
+     * dates, and a sales rollup scoped to the IO window.
+     */
+    public function roster(Affiliate $affiliate)
+    {
+        // Three sources of IO -> affiliate linkage we have to union:
+        //   1. legacy single FK on insertion_orders.affiliate_id
+        //   2. insertion_order_affiliate pivot (per-IO attached affiliates)
+        //   3. corp IOs whose corporation contains this affiliate
+        $directIds = InsertionOrder::where('affiliate_id', $affiliate->id)->pluck('id');
+        $pivotIds  = DB::table('insertion_order_affiliate')
+            ->where('affiliate_id', $affiliate->id)
+            ->pluck('insertion_order_id');
+
+        $corpIds = collect();
+        foreach (CorporationService::TYPE_TO_MODEL as $type => $modelClass) {
+            $corpRows = $modelClass::whereHas('affiliates', fn($q) => $q->where('affiliates.id', $affiliate->id))
+                ->pluck('id');
+            foreach ($corpRows as $cid) {
+                $matches = InsertionOrder::where('corporation_type', $type)
+                    ->where('corporation_id', $cid)
+                    ->pluck('id');
+                $corpIds = $corpIds->merge($matches);
+            }
+        }
+
+        $allIoIds = $directIds->merge($pivotIds)->merge($corpIds)->unique()->values();
+
+        $ios = InsertionOrder::with('customer:id,customer_name,email')
+            ->whereIn('id', $allIoIds)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $customerCtrl = app(\App\Http\Controllers\CustomerController::class);
+
+        $rows = [];
+        foreach ($ios as $io) {
+            $sales = $io->customer_id
+                ? $this->salesRollupForAffiliate($io->customer_id, $affiliate->id, $io)
+                : ['gross_sales' => 0, 'returns_amount' => 0, 'net_sales' => 0, 'sale_count' => 0, 'return_count' => 0];
+
+            $rows[] = [
+                'io_id'          => $io->id,
+                'io_no'          => 'IO-' . str_pad($io->id, 3, 0, STR_PAD_LEFT),
+                'status'         => $io->status,
+                'customer'       => optional($io->customer)->customer_name,
+                'customer_id'    => $io->customer_id,
+                'accepted_at'    => optional($io->accepted_at)->format('Y-m-d'),
+                'canceled_at'    => optional($io->canceled_at)->format('Y-m-d'),
+                'created_at'     => $io->created_at?->format('Y-m-d'),
+                'gross_sales'    => $sales['gross_sales'],
+                'returns_amount' => $sales['returns_amount'],
+                'net_sales'      => $sales['net_sales'],
+                'sale_count'     => $sales['sale_count'],
+                'return_count'   => $sales['return_count'],
+                'has_activity'   => $sales['sale_count'] + $sales['return_count'] > 0,
+                'key'            => $io->id,
+            ];
+        }
+
+        $columnsData = TableDetails::all()->pluck('column_details');
+
+        return Inertia::render('Settings/AffiliateRoster', [
+            'affiliate'   => $affiliate->only(['id', 'affiliate_name', 'market']),
+            'rows'        => $rows,
+            'columnsData' => $columnsData,
+        ]);
+    }
+
+    /**
+     * Same query shape as CustomerController::salesRollup but indexed for the affiliate side.
+     */
+    protected function salesRollupForAffiliate(int $customerId, int $affiliateId, InsertionOrder $io): array
+    {
+        $start = $io->accepted_at ?: $io->created_at;
+        $end   = $io->canceled_at;
+
+        $row = DB::table('ecommerce_sales')
+            ->join('ecommerce_affiliates', function ($j) {
+                $j->on('ecommerce_affiliates.dialed', '=', 'ecommerce_sales.dialed')
+                  ->orOn('ecommerce_affiliates.coupon_code', '=', 'ecommerce_sales.coupon_code');
+            })
+            ->where('ecommerce_sales.customer_id', $customerId)
+            ->where('ecommerce_affiliates.affiliate_id', $affiliateId)
+            ->when($start, fn($q) => $q->where('ecommerce_sales.order_at', '>=', $start))
+            ->when($end,   fn($q) => $q->where('ecommerce_sales.order_at', '<=', $end))
+            ->selectRaw('
+                COALESCE(SUM(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN ecommerce_sales.total ELSE 0 END), 0) AS gross_sales,
+                COALESCE(SUM(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN ecommerce_sales.total ELSE 0 END), 0) AS returns_amount,
+                COALESCE(SUM(ecommerce_sales.total), 0) AS net_sales,
+                COUNT(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN 1 END) AS sale_count,
+                COUNT(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN 1 END) AS return_count
+            ')
+            ->first();
+
+        return [
+            'gross_sales'    => (float) ($row->gross_sales ?? 0),
+            'returns_amount' => (float) ($row->returns_amount ?? 0),
+            'net_sales'      => (float) ($row->net_sales ?? 0),
+            'sale_count'     => (int) ($row->sale_count ?? 0),
+            'return_count'   => (int) ($row->return_count ?? 0),
+        ];
     }
 }
