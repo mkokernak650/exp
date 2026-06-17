@@ -27,6 +27,7 @@ const AddMsoName = () => {
         if (res.status === 200) {
           toast.success(res.data.msg)
           e.target.reset()
+          setValues()
         }
       })
       .catch(() => {
@@ -53,6 +54,47 @@ const AddMsoName = () => {
                 onChange={handleChange}
                 type="text"
                 required
+                className="w-full"
+              />
+            </div>
+
+            <div className="w-full">
+              <Typography.Text strong>Contact Details (optional)</Typography.Text>
+              <small className="block text-gray-500 mb-2">
+                Used when sending an IO for approval on behalf of every affiliate under this
+                corporation.
+              </small>
+            </div>
+
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Contact Name</label>
+              </div>
+              <Input name="contact_name" onChange={handleChange} type="text" className="w-full" />
+            </div>
+
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Contact Title</label>
+              </div>
+              <Input name="contact_title" onChange={handleChange} type="text" className="w-full" />
+            </div>
+
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Contact Email</label>
+              </div>
+              <Input name="contact_email" onChange={handleChange} type="email" className="w-full" />
+            </div>
+
+            <div className="w-full">
+              <div className="mb-1">
+                <label>Contract Address</label>
+              </div>
+              <Input.TextArea
+                name="contact_address"
+                onChange={handleChange}
+                rows={2}
                 className="w-full"
               />
             </div>

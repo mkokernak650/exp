@@ -42,6 +42,10 @@ const NetworkNames = () => {
     edit: item.id,
     sl: index + 1,
     network_name: item.network_name,
+    contact_name: item.contact_name,
+    contact_title: item.contact_title,
+    contact_email: item.contact_email,
+    contact_address: item.contact_address,
     affiliates_count: item.affiliates_count ?? 0,
     affiliates_list: item.affiliates_list ?? [],
     status: [item.status, item.id],
@@ -129,6 +133,10 @@ const NetworkNames = () => {
             edit: item.id,
             sl: (page - 1) * itemPerPage + index + 1,
             network_name: item.network_name,
+            contact_name: item.contact_name,
+            contact_title: item.contact_title,
+            contact_email: item.contact_email,
+            contact_address: item.contact_address,
             affiliates_count: item.affiliates_count ?? 0,
             affiliates_list: item.affiliates_list ?? [],
             status: [item.status, item.id],
@@ -216,7 +224,14 @@ const NetworkNames = () => {
           setData((prev) =>
             prev.map((item) => {
               if (item.id === editData.id) {
-                return { ...item, network_name: editData.network_name }
+                return {
+                  ...item,
+                  network_name: editData.network_name,
+                  contact_name: editData.contact_name,
+                  contact_title: editData.contact_title,
+                  contact_email: editData.contact_email,
+                  contact_address: editData.contact_address,
+                }
               }
               return item
             })
@@ -475,6 +490,48 @@ const NetworkNames = () => {
               value={editData ? editData.network_name : ''}
               name="network_name"
               type="text"
+              onChange={handleEditChange}
+              className="w-full mb-4 mt-2"
+            />
+
+            <div className="mt-4 mb-2 font-semibold">Contact Details (optional)</div>
+            <small className="block text-gray-500 mb-2">
+              Used as the single recipient when an IO is sent on behalf of every affiliate under
+              this corporation.
+            </small>
+
+            <span>Contact Name:</span>
+            <Input
+              value={editData?.contact_name || ''}
+              name="contact_name"
+              type="text"
+              onChange={handleEditChange}
+              className="w-full mb-4 mt-2"
+            />
+
+            <span>Contact Title:</span>
+            <Input
+              value={editData?.contact_title || ''}
+              name="contact_title"
+              type="text"
+              onChange={handleEditChange}
+              className="w-full mb-4 mt-2"
+            />
+
+            <span>Contact Email:</span>
+            <Input
+              value={editData?.contact_email || ''}
+              name="contact_email"
+              type="email"
+              onChange={handleEditChange}
+              className="w-full mb-4 mt-2"
+            />
+
+            <span>Contract Address:</span>
+            <Input.TextArea
+              value={editData?.contact_address || ''}
+              name="contact_address"
+              rows={2}
               onChange={handleEditChange}
               className="w-full mb-4 mt-2"
             />

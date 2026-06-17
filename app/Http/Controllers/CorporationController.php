@@ -131,15 +131,29 @@ class CorporationController extends Controller
             return response()->json(['msg' => 'Broadcast Group Name already exists']);
         }
 
-        $result = BroadcastGroupName::create([
+        $result = BroadcastGroupName::create($this->contactPayload($request, [
             'broadcast_group_name' => $request->broadcast_group_name,
-        ]);
+        ]));
 
         if ($result) {
             return response()->json(['msg' => 'Successfully added']);
         } else {
             return response()->json(['msg' => 'An internal error occurred']);
         }
+    }
+
+    /**
+     * Merge the four optional corporation-contact fields into the create/update payload so
+     * the same shape is reused across BroadcastGroup / MSO / Network controllers.
+     */
+    protected function contactPayload(Request $request, array $base): array
+    {
+        return array_merge($base, [
+            'contact_name'    => $request->input('contact_name'),
+            'contact_title'   => $request->input('contact_title'),
+            'contact_email'   => $request->input('contact_email'),
+            'contact_address' => $request->input('contact_address'),
+        ]);
     }
 
     public function broadcastGroupNamesReport()
@@ -193,6 +207,10 @@ class CorporationController extends Controller
     {
         $data = BroadcastGroupName::find($request->id);
         $data->broadcast_group_name = $request->broadcast_group_name;
+        $data->contact_name         = $request->input('contact_name');
+        $data->contact_title        = $request->input('contact_title');
+        $data->contact_email        = $request->input('contact_email');
+        $data->contact_address      = $request->input('contact_address');
         $result = $data->save();
 
         if ($result) {
@@ -256,9 +274,9 @@ class CorporationController extends Controller
             return response()->json(['msg' => 'MSO Name already exists']);
         }
 
-        $result = MsoName::create([
+        $result = MsoName::create($this->contactPayload($request, [
             'mso_name' => $request->mso_name,
-        ]);
+        ]));
 
         if ($result) {
             return response()->json(['msg' => 'Successfully added']);
@@ -316,7 +334,11 @@ class CorporationController extends Controller
     public function msoNameEdit(Request $request)
     {
         $data = MsoName::find($request->id);
-        $data->mso_name = $request->mso_name;
+        $data->mso_name        = $request->mso_name;
+        $data->contact_name    = $request->input('contact_name');
+        $data->contact_title   = $request->input('contact_title');
+        $data->contact_email   = $request->input('contact_email');
+        $data->contact_address = $request->input('contact_address');
         $result = $data->save();
 
         if ($result) {
@@ -380,9 +402,9 @@ class CorporationController extends Controller
             return response()->json(['msg' => 'Network Name already exists']);
         }
 
-        $result = NetworkName::create([
+        $result = NetworkName::create($this->contactPayload($request, [
             'network_name' => $request->network_name,
-        ]);
+        ]));
 
         if ($result) {
             return response()->json(['msg' => 'Successfully added']);
@@ -440,7 +462,11 @@ class CorporationController extends Controller
     public function networkNameEdit(Request $request)
     {
         $data = NetworkName::find($request->id);
-        $data->network_name = $request->network_name;
+        $data->network_name    = $request->network_name;
+        $data->contact_name    = $request->input('contact_name');
+        $data->contact_title   = $request->input('contact_title');
+        $data->contact_email   = $request->input('contact_email');
+        $data->contact_address = $request->input('contact_address');
         $result = $data->save();
 
         if ($result) {
