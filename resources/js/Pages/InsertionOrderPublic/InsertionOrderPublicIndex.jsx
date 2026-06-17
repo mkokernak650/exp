@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Helmet } from 'react-helmet'
 import Logo from '../../../images/webform/logo.png'
 import { usePage } from '@inertiajs/inertia-react'
@@ -8,20 +8,35 @@ import toast from 'react-hot-toast'
 const InsertionOrderPublicIndex = () => {
   const { billingDetails, orderDetails, subTotal, ioFor } = usePage().props
   const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState(billingDetails.status)
+
+  const token = useMemo(() => {
+    if (typeof window === 'undefined') return ''
+    const params = new URLSearchParams(window.location.search)
+    return params.get('t') || ''
+  }, [])
 
   const changeIoStatus = (value) => {
     setLoading(true)
     axios
-      .post(route('insertion.order.public.update.status', { id: billingDetails.id, status: value }))
+      .post(
+        route('insertion.order.public.update.status', { id: billingDetails.id, status: value }),
+        { t: token }
+      )
       .then((response) => {
         if (response.data.success === true) {
           const updatedStatus = response.data.status
-          billingDetails.status = updatedStatus
-          if (updatedStatus === 'accepted' || updatedStatus === 'canceled') {
-            toast.success('Insertion order ' + updatedStatus)
+          setStatus(updatedStatus)
+          if (updatedStatus === 'accepted') {
+            toast.success('Insertion order accepted')
             sendIODocument()
-          } else {
+          } else if (value === 'accepted' && updatedStatus === 'sent') {
+            toast.success('Your acceptance is recorded. Awaiting the other party.')
+          } else if (updatedStatus === 'declined' || updatedStatus === 'void') {
             toast.error('Insertion order declined')
+          } else if (updatedStatus === 'canceled') {
+            toast.success('Insertion order canceled')
+            sendIODocument()
           }
           setLoading(false)
         } else {
@@ -30,7 +45,7 @@ const InsertionOrderPublicIndex = () => {
         }
       })
       .catch((err) => {
-        toast.error('Something went wrong!')
+        toast.error(err.response?.data?.msg || 'Something went wrong!')
         setLoading(false)
       })
   }
@@ -39,7 +54,7 @@ const InsertionOrderPublicIndex = () => {
     axios
       .post(
         route('insertion.order.public.send.io.document', {
-          billingDetails,
+          billingDetails: { ...billingDetails, status },
           orderDetails,
           subTotal,
           ioFor,
@@ -52,9 +67,22 @@ const InsertionOrderPublicIndex = () => {
           toast.error(response.data.msg)
         }
       })
-      .catch((err) => {
+      .catch(() => {
         toast.error('Something went wrong!')
       })
+  }
+
+  const sideAcceptedLabel = () => {
+    const ours = ioFor === 'customer'
+      ? billingDetails.customer_accepted_at
+      : billingDetails.affiliate_accepted_at
+    const theirs = ioFor === 'customer'
+      ? billingDetails.affiliate_accepted_at
+      : billingDetails.customer_accepted_at
+    if (ours && theirs) return 'Both parties have accepted.'
+    if (ours && !theirs) return 'Your acceptance is recorded. Awaiting the other party.'
+    if (!ours && theirs) return 'The other party has accepted. Awaiting your approval.'
+    return ''
   }
 
   return (
@@ -144,19 +172,6 @@ const InsertionOrderPublicIndex = () => {
                     <td>{item.netPrice.toFixed(2)}</td>
                   </tr>
                 ))}
-                {/* <tr>
-                                    <td colSpan="4" rowSpan="3" className="text-center">Thank You</td>
-                                    <th>Sub Total</th>
-                                    <td>${subTotal.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <th>Discount</th>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <th>Grand Total</th>
-                                    <td>${subTotal.toFixed(2)}</td>
-                                </tr> */}
               </tbody>
             </table>
           </div>
@@ -194,8 +209,9 @@ const InsertionOrderPublicIndex = () => {
                 individual, company, state laws, or federal laws.
               </p>
               <p>
-                Customer and ConsumerEXP can cancel the flight according to the terms of this
-                insertion order.
+                <b>30-Day Cancellation Notice:</b> Either party may cancel this insertion order with
+                thirty (30) days written notice. Sales will continue to be tracked through the
+                cancellation effective date.
               </p>
             </>
           ) : (
@@ -230,8 +246,9 @@ const InsertionOrderPublicIndex = () => {
                 run by ConsumerEXP violates applicable federal or state law.
               </p>
               <p>
-                ConsumerEXP and media outlet agree that insertion order, or titles in the insertion
-                order, can be cancelled with two weeks advance notice.
+                <b>30-Day Cancellation Notice:</b> Either party may cancel this insertion order with
+                thirty (30) days written notice. Sales will continue to be tracked through the
+                cancellation effective date.
               </p>
             </>
           )}
@@ -244,21 +261,36 @@ const InsertionOrderPublicIndex = () => {
         </div>
       </section>
       <section className="decision-box" id="decision-box">
-        <div className="decision-box-text">This insertion order is {billingDetails.status}.</div>
-        {billingDetails.status === 'pending' && (
+        <div className="decision-box-text">This insertion order is {status}.</div>
+        {sideAcceptedLabel() && (
+          <div className="decision-box-text text-sm">{sideAcceptedLabel()}</div>
+        )}
+        {(status === 'sent' || status === 'pending') && (
           <div className="decision-box-buttons">
-            <button className="bg-[#FF0000]" onClick={() => changeIoStatus('declined')}>
+            <button
+              className="bg-[#FF0000]"
+              disabled={loading}
+              onClick={() => changeIoStatus('declined')}
+            >
               {loading ? 'Loading..' : 'Decline'}
             </button>
-            <button className="bg-[#6600FF]" onClick={() => changeIoStatus('accepted')}>
+            <button
+              className="bg-[#6600FF]"
+              disabled={loading}
+              onClick={() => changeIoStatus('accepted')}
+            >
               {loading ? 'Loading..' : 'Accept'}
             </button>
           </div>
         )}
-        {billingDetails.status === 'accepted' && (
+        {status === 'accepted' && (
           <div className="decision-box-buttons">
-            <button className="bg-[#ff0e0e]" onClick={() => changeIoStatus('canceled')}>
-              {loading ? 'Loading..' : 'Cancel'}
+            <button
+              className="bg-[#ff0e0e]"
+              disabled={loading}
+              onClick={() => changeIoStatus('canceled')}
+            >
+              {loading ? 'Loading..' : 'Cancel (30-day notice)'}
             </button>
           </div>
         )}

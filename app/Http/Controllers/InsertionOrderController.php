@@ -181,6 +181,8 @@ class InsertionOrderController extends Controller
             $attachedAffiliateIds = array_values(array_unique($attachedAffiliateIds));
         }
 
+        $createdIos = [];
+
         if ($request->insertionOrderFor == 'customer') {
             $selectedCustomers = explode(',', $request->selectedCustomers);
 
@@ -189,7 +191,12 @@ class InsertionOrderController extends Controller
                 $customerId      = $customerDetails[0];
                 $ioNo            = uniqid($customerId);
                 $ioLink          = '?io=' . $ioNo . '&type=customer&id=' . $customerId;
-                $InsertionOrder  = InsertionOrder::create(['customer_id' => $customerId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
+                $InsertionOrder  = InsertionOrder::create([
+                    'customer_id' => $customerId,
+                    'io_no'       => $ioNo,
+                    'io_link'     => $ioLink,
+                    'status'      => InsertionOrder::STATUS['draft'],
+                ]);
 
                 if (!empty($attachedAffiliateIds)) {
                     $InsertionOrder->attachedAffiliates()->sync($attachedAffiliateIds);
@@ -197,7 +204,7 @@ class InsertionOrderController extends Controller
 
                 $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
 
-                $emailData[] = ['email' => $customerDetails[1], 'ioLink' => $InsertionOrder->io_link];
+                $createdIos[] = $InsertionOrder;
             }
         } elseif ($request->insertionOrderFor == 'affiliate') {
             $selectedAffiliates = explode(',', $request->selectedAffiliates);
@@ -207,24 +214,81 @@ class InsertionOrderController extends Controller
                 $affiliateId      = $affiliateDetails[0];
                 $ioNo             = uniqid($affiliateId);
                 $ioLink           = '?io=' . $ioNo . '&type=affiliate&id=' . $affiliateId;
-                $InsertionOrder   = InsertionOrder::create(['affiliate_id' => $affiliateId, 'io_no' => $ioNo, 'io_link' => $ioLink]);
+                $InsertionOrder   = InsertionOrder::create([
+                    'affiliate_id' => $affiliateId,
+                    'io_no'        => $ioNo,
+                    'io_link'      => $ioLink,
+                    'status'       => InsertionOrder::STATUS['draft'],
+                ]);
 
                 // Mirror the FK into the pivot so the IO list can render every IO uniformly.
                 $InsertionOrder->attachedAffiliates()->sync([(int) $affiliateId]);
 
                 $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
 
-                $emailData[] = ['email' => $affiliateDetails[1], 'ioLink' => $InsertionOrder->io_link];
+                $createdIos[] = $InsertionOrder;
             }
         } else {
             return ['success' => false, 'msg' => 'Fail to create'];
         }
 
-        if (!empty($emailData) && $request->type != 'save') {
-            $this->emailIOLink($emailData);
+        // type != 'save' (legacy Submit) -> immediately move into the sent state and email tokenized links.
+        if ($request->type != 'save') {
+            foreach ($createdIos as $io) {
+                $this->dispatchSend($io);
+            }
         }
 
         return ['success' => true, 'msg' => 'Insertion order(s) created successfully'];
+    }
+
+    /**
+     * Move an IO from draft/pending to sent and email tokenized accept-decline links to both
+     * the customer side and the affiliate (or corporation) side.
+     */
+    public function sendIo(Request $request, $id)
+    {
+        $io = InsertionOrder::with(['customer', 'affiliate'])->findOrFail($id);
+
+        try {
+            $this->dispatchSend($io);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()], 422);
+        }
+
+        return ['success' => true, 'msg' => 'Insertion order sent for approval', 'status' => $io->fresh()->status];
+    }
+
+    protected function dispatchSend(InsertionOrder $io): void
+    {
+        $service = app(\App\Services\InsertionOrderService::class);
+        $io      = $service->send($io);
+
+        // Customer side
+        $customerEmail = optional($io->customer)->email;
+        if ($customerEmail && $io->customer_token) {
+            $this->emailIOLink([[
+                'email'  => $customerEmail,
+                'ioLink' => '?io=' . $io->io_no . '&type=customer&id=' . $io->customer_id . '&t=' . $io->customer_token,
+            ]]);
+        }
+
+        // Affiliate side: corp contact wins if set, else single affiliate FK email.
+        $affiliateEmail = null;
+        $corpRow        = $io->corporation();
+        if ($corpRow && !empty($corpRow->contact_email)) {
+            $affiliateEmail = $corpRow->contact_email;
+        } elseif ($io->affiliate) {
+            $affiliateEmail = $io->affiliate->email;
+        }
+
+        if ($affiliateEmail && $io->affiliate_token) {
+            $affiliateIdForUrl = $io->affiliate_id ?: 0;
+            $this->emailIOLink([[
+                'email'  => $affiliateEmail,
+                'ioLink' => '?io=' . $io->io_no . '&type=affiliate&id=' . $affiliateIdForUrl . '&t=' . $io->affiliate_token,
+            ]]);
+        }
     }
 
     public function insertInsertionOrderDetails($codesAndPhones, $term, $InsertionOrder)

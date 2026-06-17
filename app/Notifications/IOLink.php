@@ -11,58 +11,38 @@ class IOLink extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $ioLink;
+    protected string $ioLink;
 
     /**
-     * Create a new notification instance.
-     *
-     * @return void
+     * @param  string  $ioLink     Query-string portion of the IO public URL, including ?io=... &type=... &t=<token>
+     * @param  string  $ioType     'ringba' for pay-per-call IO; default = home-shopping IO
      */
-    public function __construct($ioLink, $ioType = null)
+    public function __construct(string $ioLink, ?string $ioType = null)
     {
-        if ($ioType === 'ringba') {
-            $this->ioLink = url('/') . '/insertion-order/ringba/public' . $ioLink;
-        } else {
-            $this->ioLink = url('/') . '/insertion-order/public' . $ioLink;
-        }
+        $base = url('/') . ($ioType === 'ringba'
+            ? '/insertion-order/ringba/public'
+            : '/insertion-order/public');
+
+        $this->ioLink = $base . $ioLink;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('ConsumerEXP Insertion Order')
-            ->line('Please view the insertion order link')
-            ->action('Insertion Order', $this->ioLink)
+            ->line('Please review and approve the attached insertion order.')
+            ->action('Review and Approve', $this->ioLink)
+            ->line('Either party may cancel this insertion order with thirty (30) days written notice. Sales will continue to be tracked through the cancellation effective date.')
             ->line('Thank you.');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
+    public function toArray($notifiable): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

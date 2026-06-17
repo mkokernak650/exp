@@ -6,6 +6,7 @@ use App\Models\EcommerceAffiliate;
 use App\Models\InsertionOrder;
 use App\Models\InsertionOrderDetail;
 use App\Notifications\InsertionOrderDocument;
+use App\Services\InsertionOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
@@ -20,25 +21,36 @@ class InsertionOrderPublicController extends Controller
             return Inertia::render('InsertionOrderPublic/InsertionOrderPublicNotFound');
         }
 
-        $billingFor     = request('type') == 'customer' ? $insertionOrder->customer : $insertionOrder->affiliate;
+        // Token-gated access: ?t=<token> must match either the customer or affiliate token,
+        // and `type=customer|affiliate` is derived from which one matched.
+        $resolved = $this->resolveSideByToken($insertionOrder, (string) request('t', ''));
+        if (!$resolved) {
+            return Inertia::render('InsertionOrderPublic/InsertionOrderPublicNotFound');
+        }
+        $ioFor = $resolved;
+
+        $billingFor     = $ioFor === 'customer' ? $insertionOrder->customer : $insertionOrder->affiliate;
         $billingDetails = [];
-        $ioFor          = request('type');
 
         if (!empty($billingFor)) {
             $billingDetails = [
-                'id'           => $insertionOrder->id,
-                'ioNo'         => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
-                'name'         => $ioFor === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
-                'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
-                'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
-                'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
-                'address'      => $billingFor->address,
-                'status'       => $insertionOrder->status,
-                'date'         => date_format(date_create($insertionOrder->created_at), 'd-M-Y')
+                'id'                    => $insertionOrder->id,
+                'ioNo'                  => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
+                'name'                  => $ioFor === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
+                'contactName'           => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
+                'contactPhone'          => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+                'email'                 => !empty($billingFor->email) ? $billingFor->email : 'Email',
+                'address'               => $billingFor->address,
+                'status'                => $insertionOrder->status,
+                'date'                  => date_format(date_create($insertionOrder->created_at), 'd-M-Y'),
+                'customer_accepted_at'  => optional($insertionOrder->customer_accepted_at)->toDateString(),
+                'affiliate_accepted_at' => optional($insertionOrder->affiliate_accepted_at)->toDateString(),
+                'accepted_at'           => optional($insertionOrder->accepted_at)->toDateString(),
             ];
         }
 
-        $insertionOrderDetails = InsertionOrderDetail::with('ecommerceAffiliate')->where('io_no', request('io'))->get();
+        $orderDetails           = [];
+        $insertionOrderDetails  = InsertionOrderDetail::with('ecommerceAffiliate')->where('io_no', request('io'))->get();
 
         foreach ($insertionOrderDetails as $insertionOrderDetail) {
             $ecommerceAffiliate = $insertionOrderDetail->ecommerceAffiliate;
@@ -54,7 +66,7 @@ class InsertionOrderPublicController extends Controller
                         'term'        => $insertionOrderDetail->term,
                         'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                         'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                        'netPrice'    => (float) (request('type') == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                        'netPrice'    => (float) ($ioFor === 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee),
                     ];
                 }
             } else {
@@ -65,7 +77,7 @@ class InsertionOrderPublicController extends Controller
                     'term'        => $insertionOrderDetail->term,
                     'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                     'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                    'netPrice'    => (float) (request('type') == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                    'netPrice'    => (float) ($ioFor === 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee),
                 ];
             }
         }
@@ -75,15 +87,54 @@ class InsertionOrderPublicController extends Controller
         return Inertia::render('InsertionOrderPublic/InsertionOrderPublicIndex', compact('billingDetails', 'orderDetails', 'subTotal', 'ioFor'));
     }
 
-    public function updateStatus($id, $status)
+    /**
+     * Public accept/decline endpoint. Token must match the side being acted on.
+     * Status is computed by the service, not taken from the request body.
+     */
+    public function updateStatus(Request $request, $id, $status)
     {
-        $result = InsertionOrder::find($id)->update(['status' => $status]);
+        $io      = InsertionOrder::findOrFail($id);
+        $token   = (string) $request->input('t', request('t', ''));
+        $side    = $this->resolveSideByToken($io, $token);
 
-        if ($result) {
-            return ['success' => true, 'msg' => '', 'status' => $status];
-        } else {
-            return ['success' => false, 'msg' => 'Failed to update', 'status' => ''];
+        if (!$side) {
+            return response()->json(['success' => false, 'msg' => 'Invalid or missing approval token.', 'status' => ''], 403);
         }
+
+        $service = app(InsertionOrderService::class);
+
+        // Legacy IOs (created before phase 2A) carry no tokens and no status state machine
+        // history. Flip the status field directly so the existing emailed links keep working.
+        $legacy = empty($io->customer_token) && empty($io->affiliate_token);
+        if ($legacy) {
+            $allowed = [
+                InsertionOrder::STATUS['accepted'],
+                InsertionOrder::STATUS['declined'],
+                InsertionOrder::STATUS['canceled'],
+            ];
+            if (!in_array($status, $allowed, true)) {
+                return response()->json(['success' => false, 'msg' => 'Invalid status.', 'status' => ''], 422);
+            }
+            $io->status = $status;
+            $io->save();
+            return ['success' => true, 'msg' => '', 'status' => $io->status];
+        }
+
+        try {
+            if ($status === InsertionOrder::STATUS['declined']) {
+                $io = $service->decline($io, $side, $token);
+            } elseif ($status === InsertionOrder::STATUS['canceled']) {
+                $io = $service->cancel($io);
+            } elseif ($side === InsertionOrder::SIDE_CUSTOMER) {
+                $io = $service->acceptCustomer($io, $token);
+            } else {
+                $io = $service->acceptAffiliate($io, $token);
+            }
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage(), 'status' => ''], 422);
+        }
+
+        return ['success' => true, 'msg' => '', 'status' => $io->status];
     }
 
     public function sendIODocument()
@@ -105,5 +156,34 @@ class InsertionOrderPublicController extends Controller
         } else {
             return ['success' => false, 'msg' => 'Failed to send the IO document (no email found).'];
         }
+    }
+
+    /**
+     * Returns 'customer' | 'affiliate' | null based on which token matches.
+     *
+     * Backward-compat: legacy IOs created before phase 2A have null tokens. For those we
+     * fall back to the ?type=... query param so existing emailed links keep working.
+     */
+    protected function resolveSideByToken(InsertionOrder $io, string $token): ?string
+    {
+        $legacy = empty($io->customer_token) && empty($io->affiliate_token);
+        if ($legacy) {
+            $type = request('type');
+            if ($type === InsertionOrder::SIDE_CUSTOMER || $type === InsertionOrder::SIDE_AFFILIATE) {
+                return $type;
+            }
+            return null;
+        }
+
+        if ($token === '') {
+            return null;
+        }
+        if ($io->customer_token && hash_equals($io->customer_token, $token)) {
+            return InsertionOrder::SIDE_CUSTOMER;
+        }
+        if ($io->affiliate_token && hash_equals($io->affiliate_token, $token)) {
+            return InsertionOrder::SIDE_AFFILIATE;
+        }
+        return null;
     }
 }
