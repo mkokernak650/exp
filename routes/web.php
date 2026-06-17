@@ -307,6 +307,7 @@ Route::middleware('auth')->group(function () {
     Route::post('insertion-order/store', [InsertionOrderController::class, 'store'])->name('insertion.order.store');
     Route::post('insertion-order/{id}/send', [InsertionOrderController::class, 'sendIo'])->name('insertion.order.send');
     Route::post('insertion-order/bulk', [InsertionOrderController::class, 'bulk'])->name('insertion.order.bulk');
+    Route::post('insertion-order/cash-buy/check-slot', [InsertionOrderController::class, 'cashBuyCheckSlot'])->name('insertion.order.cash.buy.check.slot');
     Route::post('insertion-order/get-codes-and-phones', [InsertionOrderController::class, 'getCodesAndPhones'])->name('insertion.order.get.codes.phones');
     Route::post('insertion-order/delete', [InsertionOrderController::class, 'delete'])->name('insertion.order.delete');
     Route::post('insertion-order/resend-io-document', [InsertionOrderController::class, 'resendIODocument'])->name('insertion.order.resend.io.document');

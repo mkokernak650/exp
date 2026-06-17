@@ -232,6 +232,38 @@ class InsertionOrderController extends Controller
             return ['success' => false, 'msg' => 'Fail to create'];
         }
 
+        // Cash-buy spots: optional schedule rows + recurrence. Validate slot collisions first.
+        $cashBuySpotsInput = $request->input('cash_buy_spots', []);
+        if (!empty($cashBuySpotsInput) && is_array($cashBuySpotsInput)) {
+            try {
+                $expanded = $this->expandCashBuySpots($cashBuySpotsInput);
+                $collisions = $this->detectCashBuyCollisions($expanded, null);
+                if (!empty($collisions)) {
+                    foreach ($createdIos as $io) {
+                        $io->delete();
+                    }
+                    return response()->json([
+                        'success'    => false,
+                        'msg'        => 'Cash-buy spot collision with another active IO.',
+                        'collisions' => $collisions,
+                    ], 422);
+                }
+
+                foreach ($createdIos as $io) {
+                    foreach ($expanded as $spotRow) {
+                        \App\Models\CashBuySpot::create(array_merge($spotRow, [
+                            'insertion_order_id' => $io->id,
+                        ]));
+                    }
+                }
+            } catch (\DomainException $e) {
+                foreach ($createdIos as $io) {
+                    $io->delete();
+                }
+                return response()->json(['success' => false, 'msg' => $e->getMessage()], 422);
+            }
+        }
+
         // type != 'save' (legacy Submit) -> immediately move into the sent state and email tokenized links.
         if ($request->type != 'save') {
             foreach ($createdIos as $io) {
@@ -240,6 +272,103 @@ class InsertionOrderController extends Controller
         }
 
         return ['success' => true, 'msg' => 'Insertion order(s) created successfully'];
+    }
+
+    /**
+     * Pre-flight slot collision check for the cash-buy editor. POST body:
+     *   { spots: [{ spot_date, spot_time, affiliate_id, weeks_count }], exclude_io_id?: int }
+     * Returns the list of conflicting (date, time, affiliate_id) tuples, if any.
+     */
+    public function cashBuyCheckSlot(Request $request)
+    {
+        $data = $request->validate([
+            'spots'                  => ['required', 'array', 'min:1'],
+            'spots.*.spot_date'      => ['required', 'date'],
+            'spots.*.spot_time'      => ['required', 'string'],
+            'spots.*.affiliate_id'   => ['required', 'integer'],
+            'spots.*.weeks_count'    => ['nullable', 'integer', 'min:1', 'max:52'],
+            'spots.*.day_of_week'    => ['nullable', 'string'],
+            'spots.*.time_zone'      => ['nullable', 'string'],
+            'spots.*.amount'         => ['nullable', 'numeric'],
+            'exclude_io_id'          => ['nullable', 'integer'],
+        ]);
+
+        $expanded   = $this->expandCashBuySpots($data['spots']);
+        $collisions = $this->detectCashBuyCollisions($expanded, $data['exclude_io_id'] ?? null);
+
+        return response()->json([
+            'success'    => empty($collisions),
+            'count'      => count($expanded),
+            'collisions' => $collisions,
+        ]);
+    }
+
+    /**
+     * Expand each input row by its weeks_count into N rows (1 row + weekly repeats).
+     * Returns an array of rows ready for insertion / collision checking.
+     *
+     * Input row: { spot_date, spot_time, affiliate_id, weeks_count, day_of_week?, time_zone?, amount? }
+     */
+    protected function expandCashBuySpots(array $rows): array
+    {
+        $out = [];
+        foreach ($rows as $row) {
+            $weeks = max(1, (int) ($row['weeks_count'] ?? 1));
+            if ($weeks > 52) {
+                throw new \DomainException('Cash-buy recurrence cannot exceed 52 weeks.');
+            }
+            $start = \Carbon\Carbon::parse($row['spot_date']);
+            $time  = $row['spot_time'];
+            for ($i = 0; $i < $weeks; $i++) {
+                $d = (clone $start)->addWeeks($i);
+                $out[] = [
+                    'affiliate_id' => (int) $row['affiliate_id'],
+                    'spot_date'    => $d->toDateString(),
+                    'spot_time'    => strlen($time) === 5 ? $time . ':00' : $time,
+                    'day_of_week'  => $row['day_of_week'] ?? $d->format('D'),
+                    'time_zone'    => $row['time_zone'] ?? 'EST',
+                    'amount'       => (float) ($row['amount'] ?? 0),
+                ];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Look for collisions against existing cash_buy_spots whose IO is in sent or accepted state
+     * and not yet past its cancellation effective date.
+     */
+    protected function detectCashBuyCollisions(array $expanded, ?int $excludeIoId): array
+    {
+        $collisions = [];
+
+        foreach ($expanded as $row) {
+            $exists = \App\Models\CashBuySpot::query()
+                ->join('insertion_orders', 'insertion_orders.id', '=', 'insertion_order_cash_buy_spots.insertion_order_id')
+                ->where('insertion_order_cash_buy_spots.affiliate_id', $row['affiliate_id'])
+                ->where('insertion_order_cash_buy_spots.spot_date', $row['spot_date'])
+                ->where('insertion_order_cash_buy_spots.spot_time', $row['spot_time'])
+                ->whereIn('insertion_orders.status', [
+                    InsertionOrder::STATUS['sent'],
+                    InsertionOrder::STATUS['accepted'],
+                ])
+                ->where(function ($q) {
+                    $q->whereNull('insertion_orders.canceled_at')
+                      ->orWhere('insertion_orders.canceled_at', '>=', now());
+                })
+                ->when($excludeIoId, fn($q) => $q->where('insertion_orders.id', '!=', $excludeIoId))
+                ->exists();
+
+            if ($exists) {
+                $collisions[] = [
+                    'spot_date'    => $row['spot_date'],
+                    'spot_time'    => $row['spot_time'],
+                    'affiliate_id' => $row['affiliate_id'],
+                ];
+            }
+        }
+
+        return $collisions;
     }
 
     /**
@@ -317,9 +446,14 @@ class InsertionOrderController extends Controller
                             throw new \DomainException("IO status '{$io->status}' cannot be reverted to draft.");
                         }
                         break;
-                    case 'resend':
                     case 'send':
+                        // draft/pending -> sent (tokens generated, emails dispatched)
                         $this->dispatchSend($io);
+                        break;
+                    case 'resend':
+                        // Re-fire the existing tokenized emails without transitioning state.
+                        // Works on sent/accepted IOs; missing tokens are generated on the fly.
+                        $this->dispatchResend($io);
                         break;
                 }
                 $ok++;
@@ -339,12 +473,42 @@ class InsertionOrderController extends Controller
         ]);
     }
 
+    /**
+     * Re-fire IOLink emails for an IO that has already been sent (or even accepted) without
+     * touching its status. Used by the bulk "Resend" action and is safe to call repeatedly.
+     */
+    protected function dispatchResend(InsertionOrder $io): void
+    {
+        if (in_array($io->status, [InsertionOrder::STATUS['draft'], InsertionOrder::STATUS['pending']], true)) {
+            // Shouldn't be resending something that was never sent — fall through to send().
+            $this->dispatchSend($io);
+            return;
+        }
+
+        // Generate tokens lazily so legacy IOs without tokens still get a working link.
+        if (empty($io->customer_token) || empty($io->affiliate_token)) {
+            $io->customer_token  = $io->customer_token  ?: sha1(\Illuminate\Support\Str::uuid()->toString() . '|c|' . $io->id);
+            $io->affiliate_token = $io->affiliate_token ?: sha1(\Illuminate\Support\Str::uuid()->toString() . '|a|' . $io->id);
+            $io->save();
+            $io->refresh();
+        }
+
+        $this->dispatchIOLinkEmails($io);
+    }
+
     protected function dispatchSend(InsertionOrder $io): void
     {
         $service = app(\App\Services\InsertionOrderService::class);
         $io      = $service->send($io);
+        $this->dispatchIOLinkEmails($io);
+    }
 
-        // Customer side
+    /**
+     * Email the tokenized accept-decline link to both the customer side and the affiliate
+     * (or corporation contact) side. Used by both the send and resend paths.
+     */
+    protected function dispatchIOLinkEmails(InsertionOrder $io): void
+    {
         $customerEmail = optional($io->customer)->email;
         if ($customerEmail && $io->customer_token) {
             $this->emailIOLink([[
@@ -353,7 +517,6 @@ class InsertionOrderController extends Controller
             ]]);
         }
 
-        // Affiliate side: corp contact wins if set, else single affiliate FK email.
         $affiliateEmail = null;
         $corpRow        = $io->corporation();
         if ($corpRow && !empty($corpRow->contact_email)) {

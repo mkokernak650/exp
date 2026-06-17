@@ -120,15 +120,21 @@ class InsertionOrderPublicController extends Controller
             return ['success' => true, 'msg' => '', 'status' => $io->status];
         }
 
+        // Admin previewing via the View button has no token in the payload. Route the click
+        // as a staff override so the service can record who flipped which side and still
+        // enforce the cash-buy block.
+        $staffUser   = (auth()->check() && empty($token)) ? auth()->user() : null;
+        $tokenForSvc = $staffUser ? null : $token;
+
         try {
             if ($status === InsertionOrder::STATUS['declined']) {
-                $io = $service->decline($io, $side, $token);
+                $io = $service->decline($io, $side, $tokenForSvc, $staffUser);
             } elseif ($status === InsertionOrder::STATUS['canceled']) {
-                $io = $service->cancel($io);
+                $io = $service->cancel($io, $staffUser);
             } elseif ($side === InsertionOrder::SIDE_CUSTOMER) {
-                $io = $service->acceptCustomer($io, $token);
+                $io = $service->acceptCustomer($io, $tokenForSvc, $staffUser);
             } else {
-                $io = $service->acceptAffiliate($io, $token);
+                $io = $service->acceptAffiliate($io, $tokenForSvc, $staffUser);
             }
         } catch (\DomainException $e) {
             return response()->json(['success' => false, 'msg' => $e->getMessage(), 'status' => ''], 422);
@@ -184,11 +190,16 @@ class InsertionOrderPublicController extends Controller
      *
      * Backward-compat: legacy IOs created before phase 2A have null tokens. For those we
      * fall back to the ?type=... query param so existing emailed links keep working.
+     *
+     * Authenticated staff preview: when an admin is logged in and clicks View from the IO list,
+     * the URL has no token. We allow access in that case using the ?type=... param.
      */
     protected function resolveSideByToken(InsertionOrder $io, string $token): ?string
     {
-        $legacy = empty($io->customer_token) && empty($io->affiliate_token);
-        if ($legacy) {
+        $legacy    = empty($io->customer_token) && empty($io->affiliate_token);
+        $adminUser = auth()->check();
+
+        if ($legacy || $adminUser) {
             $type = request('type');
             if ($type === InsertionOrder::SIDE_CUSTOMER || $type === InsertionOrder::SIDE_AFFILIATE) {
                 return $type;

@@ -9,6 +9,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import NormalModal from '../../Shared/NormalModal'
 import IoModalView from '../../Components/IOComponents/IOModalView'
+import CashBuyScheduleEditor from './CashBuyScheduleEditor'
 
 const { Title } = Typography
 
@@ -28,6 +29,7 @@ const InsertionOrderCreate = () => {
 
   const [selectedCorporation, setSelectedCorporation] = useState(null)
   const [applyToAllAffiliates, setApplyToAllAffiliates] = useState(false)
+  const [cashBuySpots, setCashBuySpots] = useState([])
 
   const corporationOptions = allCorporations.map((c) => ({
     value: `${c.type}:${c.id}`,
@@ -173,6 +175,16 @@ const InsertionOrderCreate = () => {
     formData.append('selectedTerm', selectedTerm)
     formData.append('type', type)
 
+    cashBuySpots.forEach((s, i) => {
+      formData.append(`cash_buy_spots[${i}][spot_date]`, s.spot_date)
+      formData.append(`cash_buy_spots[${i}][spot_time]`, s.spot_time)
+      formData.append(`cash_buy_spots[${i}][affiliate_id]`, s.affiliate_id)
+      formData.append(`cash_buy_spots[${i}][day_of_week]`, s.day_of_week)
+      formData.append(`cash_buy_spots[${i}][time_zone]`, s.time_zone)
+      formData.append(`cash_buy_spots[${i}][amount]`, s.amount)
+      formData.append(`cash_buy_spots[${i}][weeks_count]`, 1)
+    })
+
     if (type === 'create&save') {
       setLoading((oldValues) => ({ ...oldValues, submit: true }))
     } else {
@@ -190,6 +202,7 @@ const InsertionOrderCreate = () => {
           setSelectedCodesAndPhones('')
           setInsertionOrderFor('customer')
           setSelectedTerm('')
+          setCashBuySpots([])
           toast.success(response.data.msg)
           setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
         } else {
@@ -198,7 +211,8 @@ const InsertionOrderCreate = () => {
         }
       })
       .catch((err) => {
-        toast.error('Something went wrong!')
+        const msg = err.response?.data?.msg || 'Something went wrong!'
+        toast.error(msg)
         setLoading((oldValues) => ({ ...oldValues, submit: false, save: false }))
       })
   }
@@ -331,6 +345,14 @@ const InsertionOrderCreate = () => {
                 <Radio value="customer">For Customer</Radio>
                 <Radio value="affiliate">For Affiliate</Radio>
               </Radio.Group>
+            </Col>
+
+            <Col span={24}>
+              <CashBuyScheduleEditor
+                spots={cashBuySpots}
+                setSpots={setCashBuySpots}
+                affiliateOptions={affiliateOptions || []}
+              />
             </Col>
 
             <Row justify="end" className="w-full">

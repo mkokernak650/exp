@@ -21,7 +21,7 @@ const InsertionOrderPublicIndex = () => {
     axios
       .post(
         route('insertion.order.public.update.status', { id: billingDetails.id, status: value }),
-        { t: token }
+        { t: token, type: ioFor }
       )
       .then((response) => {
         if (response.data.success === true) {

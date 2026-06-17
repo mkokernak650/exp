@@ -218,7 +218,7 @@ const InsertionOrderIndex = () => {
         <Tooltip title="Send / Resend">
           <Button
             type="text"
-            onClick={() => runBulkAction('send')}
+            onClick={() => runBulkAction('resend')}
             disabled={loading}
             icon={<SendOutlined style={{ color: '#031b4e' }} />}
           />
