@@ -80,6 +80,13 @@
             font-size: 12px;
         }
 
+        .io-terms p.notice {
+            border: 1px solid #888;
+            padding: 8px;
+            margin-top: 12px;
+            background: #fafafa;
+        }
+
         .io-footer {
             background-color: #1aa8a2;
             height: 40px;
@@ -97,10 +104,75 @@
             color: white;
             text-align: center;
         }
+
+        .cashbuy-section {
+            margin-top: 15px;
+        }
+
+        .cashbuy-section h3 {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .cashbuy-section table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 2px solid black;
+        }
+
+        .cashbuy-section th,
+        .cashbuy-section td {
+            border: 1px solid black;
+            padding: 4px 6px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .corp-section {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .corp-section h4 {
+            margin: 6px 0;
+        }
+
+        .corp-section ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .cancelled-stamp {
+            position: fixed;
+            top: 35%;
+            left: 15%;
+            width: 70%;
+            text-align: center;
+            font-size: 110px;
+            font-weight: bold;
+            color: #ff0000;
+            opacity: 0.18;
+            transform: rotate(-25deg);
+            z-index: 9999;
+            letter-spacing: 8px;
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body>
+    @php
+        $isCanceled = ($billingDetails['status'] ?? '') === 'canceled'
+            || !empty($billingDetails['cancellationRequestedAt']);
+        $spots      = $cashBuySpots ?? [];
+        $corpName   = $corpName     ?? null;
+        $corpAffiliates = $corpAffiliates ?? [];
+    @endphp
+
+    @if ($isCanceled)
+        <div class="cancelled-stamp">CANCELLED</div>
+    @endif
+
     <main>
         <div class="consumerexp-heading">
             <img src="images/logo.png" alt="consumer-exp-logo">
@@ -131,7 +203,9 @@
                             {{ $ioFor == 'customer' ? 'Dub Order or Notification' : 'Traffic Instructions' }} <br><br>
                             {{ $ioFor == 'customer' ? 'Customer ' : '' }}Insertion Order NO:
                             {{ $billingDetails['ioNo'] }}
-                            {{ $billingDetails['status'] == 'canceled' ? ' (Canceled)' : '' }}
+                            @if ($isCanceled)
+                                <strong style="color:#c00">(CANCELLED)</strong>
+                            @endif
                         </td>
                     </tr>
                     <tr>
@@ -174,74 +248,70 @@
                             <td>{{ number_format($item['netPrice'], 2) }}</td>
                         </tr>
                         @endforeach
-                        {{-- <tr>
-                            <td colspan="4" rowspan="3" style="textAlign:center">Thank You</td>
-                            <th>Sub Total</th>
-                            <td>${{ number_format($subTotal, 2) }}</td>
-                        </tr>
-                        <tr>
-                            <th>Discount</th>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <th>Grand Total</th>
-                            <td>${{ number_format($subTotal, 2) }}</td>
-                        </tr> --}}
                     </tbody>
                 </table>
             </div>
         </div>
+
+        @if (!empty($spots))
+            <div class="cashbuy-section">
+                <h3>Cash Buy Schedule</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Zone</th>
+                            <th>Affiliate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($spots as $spot)
+                            <tr>
+                                <td>{{ $spot['date'] }}</td>
+                                <td>{{ $spot['day_of_week'] }}</td>
+                                <td>{{ $spot['time'] }}</td>
+                                <td>{{ $spot['time_zone'] }}</td>
+                                <td>{{ $spot['affiliate'] }}</td>
+                                <td>${{ number_format((float) $spot['amount'], 2) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        @if (!empty($corpAffiliates))
+            <div class="corp-section">
+                <h4>This IO covers every affiliate of {{ $corpName ?? 'the corporation' }}:</h4>
+                <ul>
+                    @foreach ($corpAffiliates as $aff)
+                        <li>{{ $aff['affiliate_name'] }}{{ !empty($aff['market']) ? ' — ' . $aff['market'] : '' }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="io-terms">
-            {!! $ioFor === 'customer'
-            ? '<p>Customer pays on a per order or per call rate according to terms of this insertion order.</p>
-            <p>Customer pays via ACH bank processing according to periodic invoices generated or advance payments.
-            </p>
-            <p>Customer may provide an advance payment or retainer agreement depending upon agreement.</p>
-            <p>
-                Customer may be charged for dubs, for an agreed upon rate, ( if they cannot supply dubs to the
-                affiliates).
-                Dub rate will include traffic charges and may include assignment of product codes and/or telephone
-                numbers.
-            </p>
-            <p>
-                ConsumerEXP will provide Customer log-in access to its vendor banking portal to view and download
-                detailed
-                bills, call or order logs, and track payments. Also, the Customer portal will provide consolidated
-                statements
-                of accounts and contain uploaded transaction and sales documents.
-            </p>
-            <p>
-                Customer states that it owns the TV commercial(s) and that it has licensed the images, spokespeople,
-                and music for the TV commercial(s). Furthermore, Customer attests that the TV commercial(s) do not
-                knowingly violate the rights of any individual, company, state laws, or federal laws.
-            </p>
-            <p>Customer and ConsumerEXP can cancel the flight according to the terms of this insertion order.</p>'
-            : '<p>
-                ConsumerEXP pays according to terms of this insertion order.
-                The company can provide agency of record (AOR) proof upon request.</p>
-            <p>ConsumerEXP may provide a URL link to the TV commercial in this insertion order or by separate email.
-            </p>
-            <p>ConsumerEXP pays via ACH bank processing according to periodic sales reports to media outlet.</p>
-            <p>
-                ConsumerEXP will provide media outlet log-in access to its vendor banking portal to view and
-                download detailed bills, call or order logs, and track payments.
-            </p>
-            <p>
-                ConsumerEXP represents that it has required the companies that own the TV commercial(s) that they
-                have licensed the images, spokespeople, and music for the TV commercial(s).Furthermore,
-                ConsumerEXP has required the companies that own the TV commercial(s) contained in this insertion
-                order to attest in its agreement with ConsumerEXP that the TV commercial(s) do not knowingly
-                violate the rights of any individual, company, state laws, or federal laws.
-            </p>
-            <p>
-                ConsumerEXP agrees to indemnify and hold media outlet harmless from any claims for damages
-                (including reasonable attorney fees) based upon a claim that a commercial run by ConsumerEXP
-                violates applicable federal or state law.
-            </p>
-            <p>
-                ConsumerEXP and media outlet agree that insertion order, or titles in the insertion order,
-                can be cancelled with two weeks advance notice.
-            </p>' !!}
+            @if ($ioFor === 'customer')
+                <p>Customer pays on a per order or per call rate according to terms of this insertion order.</p>
+                <p>Customer pays via ACH bank processing according to periodic invoices generated or advance payments.</p>
+                <p>Customer may provide an advance payment or retainer agreement depending upon agreement.</p>
+                <p>Customer may be charged for dubs, for an agreed upon rate, (if they cannot supply dubs to the affiliates). Dub rate will include traffic charges and may include assignment of product codes and/or telephone numbers.</p>
+                <p>ConsumerEXP will provide Customer log-in access to its vendor banking portal to view and download detailed bills, call or order logs, and track payments. Also, the Customer portal will provide consolidated statements of accounts and contain uploaded transaction and sales documents.</p>
+                <p>Customer states that it owns the TV commercial(s) and that it has licensed the images, spokespeople, and music for the TV commercial(s). Furthermore, Customer attests that the TV commercial(s) do not knowingly violate the rights of any individual, company, state laws, or federal laws.</p>
+                <p class="notice"><b>30-Day Cancellation Notice:</b> Either party may cancel this insertion order with thirty (30) days written notice. Sales will continue to be tracked through the cancellation effective date.</p>
+            @else
+                <p>ConsumerEXP pays according to terms of this insertion order. The company can provide agency of record (AOR) proof upon request.</p>
+                <p>ConsumerEXP may provide a URL link to the TV commercial in this insertion order or by separate email.</p>
+                <p>ConsumerEXP pays via ACH bank processing according to periodic sales reports to media outlet.</p>
+                <p>ConsumerEXP will provide media outlet log-in access to its vendor banking portal to view and download detailed bills, call or order logs, and track payments.</p>
+                <p>ConsumerEXP represents that it has required the companies that own the TV commercial(s) that they have licensed the images, spokespeople, and music for the TV commercial(s). Furthermore, ConsumerEXP has required the companies that own the TV commercial(s) contained in this insertion order to attest in its agreement with ConsumerEXP that the TV commercial(s) do not knowingly violate the rights of any individual, company, state laws, or federal laws.</p>
+                <p>ConsumerEXP agrees to indemnify and hold media outlet harmless from any claims for damages (including reasonable attorney fees) based upon a claim that a commercial run by ConsumerEXP violates applicable federal or state law.</p>
+                <p class="notice"><b>30-Day Cancellation Notice:</b> Either party may cancel this insertion order with thirty (30) days written notice. Sales will continue to be tracked through the cancellation effective date.</p>
+            @endif
         </div>
         <div class="io-footer">
             <p>650 Huntington Avenue, Floor 22M | Boston, MA 02115 | Phone/Text: 617-874-4247 | www.consumerexp.com</p>

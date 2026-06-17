@@ -397,6 +397,53 @@ class InsertionOrderController extends Controller
         return $orderDetails;
     }
 
+    /**
+     * Shape the cash-buy spot rows for the PDF view. Returns an empty array when the IO has none.
+     * Public so the public IO controller can reuse the same shape when resending docs.
+     */
+    public function cashBuySpotsForPdf(InsertionOrder $io): array
+    {
+        return $io->cashBuySpots()
+            ->with('affiliate:id,affiliate_name')
+            ->orderBy('spot_date')
+            ->orderBy('spot_time')
+            ->get()
+            ->map(fn($spot) => [
+                'date'        => $spot->spot_date?->toDateString(),
+                'day_of_week' => $spot->day_of_week,
+                'time'        => substr((string) $spot->spot_time, 0, 5),
+                'time_zone'   => $spot->time_zone,
+                'affiliate'   => optional($spot->affiliate)->affiliate_name ?? 'Affiliate',
+                'amount'      => (float) $spot->amount,
+            ])
+            ->all();
+    }
+
+    /**
+     * Resolve corporation name + slim list of linked affiliates for the PDF view.
+     * Returns [null, []] for single-affiliate IOs.
+     *
+     * @return array{0: string|null, 1: array<int, array{affiliate_name: string, market: string|null}>}
+     */
+    public function corpDetailsForPdf(InsertionOrder $io): array
+    {
+        $corp = $io->corporation();
+        if (!$corp) {
+            return [null, []];
+        }
+
+        $nameCol = \App\Services\CorporationService::TYPE_TO_NAME_COLUMN[$io->corporation_type] ?? null;
+        $corpName = $nameCol ? $corp->{$nameCol} : null;
+
+        $affiliates = $corp->affiliates()->select('affiliates.id', 'affiliates.affiliate_name', 'affiliates.market')->get();
+        $list = $affiliates->map(fn($a) => [
+            'affiliate_name' => $a->affiliate_name,
+            'market'         => $a->market,
+        ])->all();
+
+        return [$corpName, $list];
+    }
+
     protected function emailIOLink($emailData)
     {
         foreach ($emailData as $item) {
@@ -471,15 +518,17 @@ class InsertionOrderController extends Controller
 
         if (!empty($billingFor)) {
             $billingDetails = [
-                'id'           => $insertionOrder->id,
-                'ioNo'         => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
-                'name'         => $type === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
-                'contactName'  => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
-                'contactPhone' => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
-                'email'        => !empty($billingFor->email) ? $billingFor->email : 'Email',
-                'address'      => $billingFor->address,
-                'status'       => $insertionOrder->status,
-                'date'         => date_format(date_create($insertionOrder->created_at), 'd-M-Y')
+                'id'                       => $insertionOrder->id,
+                'ioNo'                     => 'IO-' . str_pad($insertionOrder->id, 3, 0, STR_PAD_LEFT),
+                'name'                     => $type === 'customer' ? $billingFor->customer_name : $billingFor->affiliate_name,
+                'contactName'              => !empty($billingFor->contact_name) ? $billingFor->contact_name : 'Contact Name',
+                'contactPhone'             => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+                'email'                    => !empty($billingFor->email) ? $billingFor->email : 'Email',
+                'address'                  => $billingFor->address,
+                'status'                   => $insertionOrder->status,
+                'date'                     => date_format(date_create($insertionOrder->created_at), 'd-M-Y'),
+                'cancellationRequestedAt'  => optional($insertionOrder->cancellation_requested_at)->toDateString(),
+                'canceledAt'               => optional($insertionOrder->canceled_at)->toDateString(),
             ];
         }
 
@@ -517,7 +566,18 @@ class InsertionOrderController extends Controller
 
         $subTotal = collect($orderDetails)->sum('netPrice');
 
-        Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal, $type));
+        $cashBuySpots   = $this->cashBuySpotsForPdf($insertionOrder);
+        [$corpName, $corpAffiliates] = $this->corpDetailsForPdf($insertionOrder);
+
+        Notification::route('mail', $email)->notify(new InsertionOrderDocument(
+            $billingDetails,
+            $orderDetails,
+            $subTotal,
+            $type,
+            $cashBuySpots,
+            $corpName,
+            $corpAffiliates
+        ));
 
         return [
             'success' => true,

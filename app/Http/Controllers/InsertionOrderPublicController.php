@@ -150,7 +150,28 @@ class InsertionOrderPublicController extends Controller
                 $email = 'shosen@bitcode.pro';
             }
 
-            Notification::route('mail', $email)->notify(new InsertionOrderDocument($billingDetails, $orderDetails, $subTotal, $ioFor));
+            // Enrich the PDF with cash-buy spots + corp affiliate list when applicable.
+            $cashBuySpots   = [];
+            $corpName       = null;
+            $corpAffiliates = [];
+            if (!empty($billingDetails['id'])) {
+                $io = InsertionOrder::find($billingDetails['id']);
+                if ($io) {
+                    $ctrl           = app(\App\Http\Controllers\InsertionOrderController::class);
+                    $cashBuySpots   = $ctrl->cashBuySpotsForPdf($io);
+                    [$corpName, $corpAffiliates] = $ctrl->corpDetailsForPdf($io);
+                }
+            }
+
+            Notification::route('mail', $email)->notify(new InsertionOrderDocument(
+                $billingDetails,
+                $orderDetails,
+                $subTotal,
+                $ioFor,
+                $cashBuySpots,
+                $corpName,
+                $corpAffiliates
+            ));
 
             return ['success' => true, 'msg' => 'IO document sent.'];
         } else {
