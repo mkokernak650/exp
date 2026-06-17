@@ -259,6 +259,86 @@ class InsertionOrderController extends Controller
         return ['success' => true, 'msg' => 'Insertion order sent for approval', 'status' => $io->fresh()->status];
     }
 
+    /**
+     * Apply a state-machine action to many IOs at once. Used by the IO list page's
+     * checkbox toolbar. Returns a per-row success/error map plus aggregate counts so
+     * the UI can surface partial failures.
+     *
+     * Body shape: { action: cancel|void|draft|resend|send, ids: [int] }
+     */
+    public function bulk(Request $request)
+    {
+        $data = $request->validate([
+            'action' => ['required', \Illuminate\Validation\Rule::in(['cancel', 'void', 'draft', 'resend', 'send'])],
+            'ids'    => ['required', 'array', 'min:1'],
+            'ids.*'  => ['integer'],
+        ]);
+
+        $service = app(\App\Services\InsertionOrderService::class);
+        $ios     = InsertionOrder::with(['customer', 'affiliate'])->whereIn('id', $data['ids'])->get()->keyBy('id');
+
+        $results = [];
+        $ok      = 0;
+        foreach ($data['ids'] as $id) {
+            $io = $ios->get($id);
+            if (!$io) {
+                $results[$id] = ['success' => false, 'msg' => 'Not found'];
+                continue;
+            }
+
+            try {
+                switch ($data['action']) {
+                    case 'cancel':
+                        $service->cancel($io);
+                        break;
+                    case 'void':
+                        // Force-flip to void (used for in-flight IOs the user wants to abandon).
+                        if (in_array($io->status, ['draft', 'pending', 'sent'], true)) {
+                            $io->status = InsertionOrder::STATUS['void'];
+                            $io->save();
+                        } else {
+                            throw new \DomainException("IO status '{$io->status}' cannot be voided in bulk.");
+                        }
+                        break;
+                    case 'draft':
+                        // Revive void -> draft, or pull a sent IO back into editing.
+                        if ($io->status === InsertionOrder::STATUS['void']) {
+                            $service->revive($io);
+                        } elseif (in_array($io->status, ['pending', 'sent'], true)) {
+                            $io->forceFill([
+                                'status'                => InsertionOrder::STATUS['draft'],
+                                'customer_token'        => null,
+                                'affiliate_token'       => null,
+                                'customer_accepted_at'  => null,
+                                'affiliate_accepted_at' => null,
+                                'sent_at'               => null,
+                            ])->save();
+                        } else {
+                            throw new \DomainException("IO status '{$io->status}' cannot be reverted to draft.");
+                        }
+                        break;
+                    case 'resend':
+                    case 'send':
+                        $this->dispatchSend($io);
+                        break;
+                }
+                $ok++;
+                $results[$id] = ['success' => true, 'status' => $io->fresh()->status];
+            } catch (\DomainException $e) {
+                $results[$id] = ['success' => false, 'msg' => $e->getMessage()];
+            } catch (\Throwable $e) {
+                $results[$id] = ['success' => false, 'msg' => 'Unexpected error'];
+            }
+        }
+
+        return response()->json([
+            'success'  => $ok > 0,
+            'msg'      => "{$ok} of " . count($data['ids']) . " insertion order(s) updated",
+            'ok_count' => $ok,
+            'results'  => $results,
+        ]);
+    }
+
     protected function dispatchSend(InsertionOrder $io): void
     {
         $service = app(\App\Services\InsertionOrderService::class);

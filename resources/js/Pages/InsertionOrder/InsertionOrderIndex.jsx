@@ -11,8 +11,8 @@ import ReportTableDndShell from '@/Helpers/ReportTableDndShell'
 import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { styles, columns as defaultColumns } from './Helpers/InsertionOrderIndexProps'
 import mergeColumnsWithDefaults from '@/Helpers/MergeColumnsWithDefaults'
-import { Button, Tooltip, Table, Select, Pagination } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { Button, Tooltip, Table, Select, Pagination, Dropdown } from 'antd'
+import { DeleteOutlined, MoreOutlined, SendOutlined } from '@ant-design/icons'
 import IOPublicLink from '../../Components/IOComponents/IOPublicLink'
 import ConfirmModal from '@/Shared/ConfirmModal'
 import toast from 'react-hot-toast'
@@ -65,7 +65,7 @@ const InsertionOrderIndex = () => {
 
   const [data, setData] = useState(dataArray)
 
-  const status = ['pending', 'accepted', 'declined']
+  const status = ['draft', 'pending', 'sent', 'accepted', 'declined', 'void', 'canceled']
 
   const statusOptions = status.map((item) => ({
     label: item,
@@ -177,13 +177,60 @@ const InsertionOrderIndex = () => {
       })
   }
 
+  const runBulkAction = (action) => {
+    const ids = selectedRowKeys
+    if (!ids.length) return
+    setLoading(true)
+    axios
+      .post(route('insertion.order.bulk'), { action, ids })
+      .then((res) => {
+        if (res.data?.ok_count > 0) {
+          toast.success(res.data.msg)
+        }
+        const failed = Object.entries(res.data?.results || {})
+          .filter(([, v]) => !v.success)
+          .map(([id, v]) => `IO-${String(id).padStart(3, '0')}: ${v.msg}`)
+          .slice(0, 5)
+        if (failed.length) {
+          toast.error(`Some IOs could not be updated:\n${failed.join('\n')}`)
+        }
+        setSelectedRowKeys([])
+        setTableToolbar(false)
+        getSearchingData(curerentPage)
+      })
+      .catch(() => {
+        toast.error('Bulk action failed')
+      })
+      .finally(() => setLoading(false))
+  }
+
   const TableToolbar = () => {
+    const bulkMenuItems = [
+      { key: 'send', label: 'Send for approval (draft / pending)', onClick: () => runBulkAction('send') },
+      { key: 'resend', label: 'Resend (sent)', onClick: () => runBulkAction('resend') },
+      { type: 'divider' },
+      { key: 'cancel', label: 'Cancel (30-day notice)', onClick: () => runBulkAction('cancel') },
+      { key: 'void', label: 'Convert to Void', onClick: () => runBulkAction('void') },
+      { key: 'draft', label: 'Revert to Draft', onClick: () => runBulkAction('draft') },
+    ]
     return (
       <div className="table-toolbar">
+        <Tooltip title="Send / Resend">
+          <Button
+            type="text"
+            onClick={() => runBulkAction('send')}
+            disabled={loading}
+            icon={<SendOutlined style={{ color: '#031b4e' }} />}
+          />
+        </Tooltip>
+        <Dropdown menu={{ items: bulkMenuItems }} trigger={['click']} disabled={loading}>
+          <Button type="text" icon={<MoreOutlined style={{ color: '#031b4e' }} />} />
+        </Dropdown>
         <Tooltip title="Delete">
           <Button
             type="text"
             onClick={() => setShowDeleteModal({ open: true })}
+            disabled={loading}
             icon={<DeleteOutlined style={{ color: '#031b4e' }} />}
           />
         </Tooltip>
