@@ -261,15 +261,27 @@ class EcommerceSaleController extends Controller
             $salesData,
             $request->campaign_id,
             $request->customer_id,
-            $request->order_type
+            $request->order_type,
+            $request->boolean('enforce_io_gate', true)
         );
         Excel::import($saleImport, $request->file('file'));
 
-        $existSales      = $saleImport->getAlreadyExist();
-        $rejectedReturns = $saleImport->getRejectedReturns();
-        $importedCount   = $saleImport->getTotalSales() - count($existSales) - count($rejectedReturns);
+        $existSales        = $saleImport->getAlreadyExist();
+        $rejectedReturns   = $saleImport->getRejectedReturns();
+        $outOfWindow       = $saleImport->getOutOfWindow();
+        $rejectedZeroCalls = $saleImport->getRejectedZeroCalls();
+        $importedCount     = $saleImport->getTotalSales()
+            - count($existSales)
+            - count($rejectedReturns)
+            - count($outOfWindow)
+            - count($rejectedZeroCalls);
 
-        if ($importedCount < 1 && count($rejectedReturns) === 0) {
+        if (
+            $importedCount < 1
+            && count($rejectedReturns) === 0
+            && count($outOfWindow) === 0
+            && count($rejectedZeroCalls) === 0
+        ) {
             return response()->json(['msg' => 'All Sales Data Already Exist.'], 422);
         }
 
@@ -282,10 +294,18 @@ class EcommerceSaleController extends Controller
         if (count($rejectedReturns) > 0) {
             $msg .= "\n" . count($rejectedReturns) . ' Return Rows Rejected (missing identifiers).';
         }
+        if (count($outOfWindow) > 0) {
+            $msg .= "\n" . count($outOfWindow) . ' Rows Rejected — no accepted IO covers them.';
+        }
+        if (count($rejectedZeroCalls) > 0) {
+            $msg .= "\n" . count($rejectedZeroCalls) . ' $0 Call Rows Skipped (dedup / same-day SALE).';
+        }
         return response()->json([
-            'msg'             => $msg,
-            'alreadyExists'   => $data,
-            'rejectedReturns' => count($rejectedReturns) > 0 ? $rejectedReturns : false,
+            'msg'               => $msg,
+            'alreadyExists'     => $data,
+            'rejectedReturns'   => count($rejectedReturns)   > 0 ? $rejectedReturns   : false,
+            'outOfWindow'       => count($outOfWindow)       > 0 ? $outOfWindow       : false,
+            'rejectedZeroCalls' => count($rejectedZeroCalls) > 0 ? $rejectedZeroCalls : false,
         ], 201);
     }
 

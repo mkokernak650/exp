@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\DeleteCutomEmailFile::class,
         \App\Console\Commands\RunScheduledEcommerceReports::class,
         \App\Console\Commands\RunScheduledHomeShoppingReports::class,
+        \App\Console\Commands\ExpireCanceledIos::class,
     ];
 
     /**
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('schedule:delete-custom-email-files')->timezone($timezone)->weeklyOn(0, '07:10');
         $schedule->command('reports:run-scheduled-ecommerce')->timezone($timezone)->dailyAt('07:15');
         $schedule->command('reports:run-scheduled-home-shopping')->timezone($timezone)->dailyAt('07:20');
+        $schedule->command('reports:expire-canceled-ios')->timezone($timezone)->dailyAt('07:30');
     }
 
     /**

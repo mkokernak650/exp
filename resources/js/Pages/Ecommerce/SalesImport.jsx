@@ -8,7 +8,12 @@ import * as XLSX from 'xlsx'
 import { useEffect } from 'react'
 import { usePage } from '@inertiajs/inertia-react'
 import toast from 'react-hot-toast'
-import { exportReportAlreadyExist, exportReportRejectedReturns } from '../../Helpers/ExportReport'
+import {
+  exportReportAlreadyExist,
+  exportReportRejectedReturns,
+  exportReportOutOfWindow,
+  exportReportRejectedZeroCalls,
+} from '../../Helpers/ExportReport'
 import Note from '../../Components/Note'
 
 const { Title } = Typography
@@ -33,6 +38,7 @@ const SalesImport = () => {
   const [fieldsMapSaveError, setFieldsMapSaveError] = useState('')
   const [savedFieldsMap, setSavedFieldsMap] = useState(null)
   const [applyKeyChecked, setApplyKeyChecked] = useState(false)
+  const [enforceIoGate, setEnforceIoGate] = useState(true)
 
   const handleFile = (file) => {
     const reader = new FileReader()
@@ -116,6 +122,7 @@ const SalesImport = () => {
     formData.append('customer_id', values.customer_id)
     formData.append('order_type', values.order_type)
     formData.append('fieldMap', JSON.stringify(fieldMap))
+    formData.append('enforce_io_gate', enforceIoGate ? '1' : '0')
 
     axios
       .post(route('ecommerce-sales.importStore'), formData, headers)
@@ -130,6 +137,12 @@ const SalesImport = () => {
         }
         if (res.data?.rejectedReturns) {
           exportReportRejectedReturns(res.data.rejectedReturns)
+        }
+        if (res.data?.outOfWindow) {
+          exportReportOutOfWindow(res.data.outOfWindow)
+        }
+        if (res.data?.rejectedZeroCalls) {
+          exportReportRejectedZeroCalls(res.data.rejectedZeroCalls)
         }
         setLoading((oldValues) => ({ ...oldValues, import: false }))
         toast.success(res.data.msg, { duration: 10000 })
@@ -342,6 +355,14 @@ const SalesImport = () => {
             </Col>
             <Col span={24} className="pb-[5px]">
               <div className="apply-fields-map">{showApplyFieldsMap()}</div>
+            </Col>
+            <Col span={24} className="pb-[5px]">
+              <Checkbox
+                checked={enforceIoGate}
+                onChange={(e) => setEnforceIoGate(e.target.checked)}
+              >
+                Enforce IO gate (reject rows outside any accepted Insertion Order window)
+              </Checkbox>
             </Col>
             {fileSelected && (
               <Col span={24}>

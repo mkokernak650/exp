@@ -222,3 +222,19 @@ export const exportReportRejectedReturns = (apiData) => {
   const data = new Blob([excelBuffer], { type: fileType })
   FileSaver.saveAs(data, 'rejected_returns' + '.xlsx')
 }
+
+export const exportReportOutOfWindow = (apiData) => {
+  const ws = XLSX.utils.json_to_sheet(apiData, 'out_of_io_window')
+  const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  const data = new Blob([excelBuffer], { type: fileType })
+  FileSaver.saveAs(data, 'out_of_io_window' + '.xlsx')
+}
+
+export const exportReportRejectedZeroCalls = (apiData) => {
+  const ws = XLSX.utils.json_to_sheet(apiData, 'rejected_zero_calls')
+  const wb = { Sheets: { data: ws }, SheetNames: ['data'] }
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  const data = new Blob([excelBuffer], { type: fileType })
+  FileSaver.saveAs(data, 'rejected_zero_calls' + '.xlsx')
+}

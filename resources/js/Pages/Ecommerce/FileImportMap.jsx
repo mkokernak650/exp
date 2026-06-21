@@ -60,6 +60,8 @@ export default function FileImportMap({
         <option value="call_length">Call Length</option>
         <option value="payment_type">Payment Type</option>
         <option value="r1">R1</option>
+        <option value="campaign_indicator">Campaign Indicator (row-level)</option>
+        <option value="record_kind">Record Kind (SALE / RETURN / ZERO_CALL)</option>
       </select>
       <select
         className="custom-input"

@@ -1686,21 +1686,39 @@ class EcommerceReportController extends Controller
                 break;
 
             case 'vendorReport':
+                // Pro-rata station split: when N affiliates linked to the same (customer, campaign)
+                // share a DMA, a single sale attributed via shared 800#/promo gets divided N ways.
+                // station_count is computed in a derived subquery joined on (customer, campaign, market).
+                $stationCountSub = DB::raw('(
+                    SELECT ea.customer_id, ea.campaign_id, a.market,
+                           COUNT(DISTINCT ea.affiliate_id) AS station_count
+                    FROM ecommerce_affiliates ea
+                    JOIN affiliates a ON a.id = ea.affiliate_id
+                    WHERE a.market IS NOT NULL AND a.market <> ""
+                    GROUP BY ea.customer_id, ea.campaign_id, a.market
+                ) AS sc');
+
                 $data = (clone $base)
                     ->leftJoin('zipcode_by_television_markets as zbtm', 'zbtm.zip_code', '=', 'ecommerce_sales.shipping_zip')
+                    ->leftJoin($stationCountSub, function ($join) {
+                        $join->on('sc.customer_id', '=', 'ecommerce_sales.customer_id')
+                            ->on('sc.campaign_id', '=', 'ecommerce_sales.campaign_id')
+                            ->on('sc.market', '=', 'zbtm.market');
+                    })
                     ->select([
                         DB::raw('DATE_FORMAT(MAX(ecommerce_sales.created_at), "%Y-%m-%d") AS create_date'),
                         DB::raw('COALESCE(zbtm.market, "Unknown Market") AS market'),
                         DB::raw('COALESCE(ecommerce_sales.station, "Unknown Station") AS station'),
-                        DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN ecommerce_sales.total ELSE 0 END) AS gross_sales'),
-                        DB::raw('SUM(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN ecommerce_sales.total ELSE 0 END) AS returns_amount'),
-                        DB::raw('SUM(ecommerce_sales.total) AS net_sales'),
-                        DB::raw('SUM(ecommerce_sales.vendor_fee) AS net_vendor_fee'),
-                        DB::raw('SUM(ecommerce_sales.consumerexp_fee) AS net_consumerexp_fee'),
+                        DB::raw('COALESCE(sc.station_count, 1) AS station_count'),
+                        DB::raw('ROUND(SUM(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN ecommerce_sales.total ELSE 0 END / COALESCE(sc.station_count, 1)), 2) AS gross_sales'),
+                        DB::raw('ROUND(SUM(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN ecommerce_sales.total ELSE 0 END / COALESCE(sc.station_count, 1)), 2) AS returns_amount'),
+                        DB::raw('ROUND(SUM(ecommerce_sales.total / COALESCE(sc.station_count, 1)), 2) AS net_sales'),
+                        DB::raw('ROUND(SUM(ecommerce_sales.vendor_fee / COALESCE(sc.station_count, 1)), 2) AS net_vendor_fee'),
+                        DB::raw('ROUND(SUM(ecommerce_sales.consumerexp_fee / COALESCE(sc.station_count, 1)), 2) AS net_consumerexp_fee'),
                         DB::raw('COUNT(CASE WHEN ecommerce_sales.record_kind = "SALE" THEN 1 END) AS sale_count'),
                         DB::raw('COUNT(CASE WHEN ecommerce_sales.record_kind = "RETURN" THEN 1 END) AS return_count'),
                     ])
-                    ->groupBy('market', 'station')
+                    ->groupBy('market', 'station', 'station_count')
                     ->orderByDesc('net_sales')
                     ->get();
                 break;

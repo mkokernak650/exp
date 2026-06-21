@@ -21,15 +21,18 @@ class EcommerceSale extends Model
         'cash_buy'         => 2,
     ];
     const RECORD_KIND = [
-        'SALE'   => 'SALE',
-        'RETURN' => 'RETURN',
+        'SALE'      => 'SALE',
+        'RETURN'    => 'RETURN',
+        'ZERO_CALL' => 'ZERO_CALL',
     ];
 
     protected $fillable = [
         'campaign_id',
         'customer_id',
+        'insertion_order_id',
         'order_type',
         'record_kind',
+        'zero_call_date',
         'order_no',
         'coupon_code',
         'tracking_url',
