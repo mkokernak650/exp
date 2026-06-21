@@ -55,6 +55,8 @@ class InsertionOrderController extends Controller
                     'insertion_orders'
                 );
             }
+        } else {
+            $ioQuery->orderByDesc('insertion_orders.created_at');
         }
 
         $insertionOrders = $ioQuery->paginate(request('itemPerPage') ?? 10);
