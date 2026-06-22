@@ -19,6 +19,7 @@ import { reportTableSorterProps } from '@/Helpers/reportTableSort'
 import { countActiveFilters, sanitizeFilterValue } from '@/Helpers/ActiveFilterCount'
 import toast from 'react-hot-toast'
 import { fields, filter, columns as defaultColumns } from './Helpers/ArchivedAffiliatesProps'
+import mergeColumnsWithDefaults from '@/Helpers/MergeColumnsWithDefaults'
 import TextInput from '@/Components/Global/TextInput'
 import AffiliateZipCodeSelect from '@/Components/AffiliateZipCodeSelect'
 
@@ -72,9 +73,10 @@ const ArchivedAffiliates = () => {
     columnsData.length ? JSON.parse(columnsData[0]) : {}
   )
   const [columns, setColumns] = useState(
-    columnsData.length && JSON.parse(columnsData[0])?.[optionKey]
-      ? JSON.parse(columnsData[0])?.[optionKey]
-      : defaultColumns
+    mergeColumnsWithDefaults(
+      columnsData.length ? JSON.parse(columnsData[0])?.[optionKey] : null,
+      defaultColumns
+    )
   )
   const {
     DraggableResizableHeader,
