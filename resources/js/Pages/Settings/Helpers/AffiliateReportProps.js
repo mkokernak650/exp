@@ -187,6 +187,13 @@ export const columns = [
     visible: true,
   },
   {
+    key: 'contact_title',
+    title: 'Contact Title',
+    dataType: 'string',
+    style: { width: 200 },
+    visible: true,
+  },
+  {
     key: 'contact_telephone',
     title: 'Contact Telephone',
     dataType: 'string',

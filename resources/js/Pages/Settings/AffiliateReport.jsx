@@ -105,6 +105,7 @@ const AffiliateReport = () => {
         telephone: item.telephone,
         address: item.address,
         contact_name: item.contact_name,
+        contact_title: item.contact_title,
         contact_telephone: item.contact_telephone,
         corporations,
         corporations_display: corporations
@@ -263,6 +264,7 @@ const AffiliateReport = () => {
                   address: editData.address,
                   market: editData.market,
                   contact_name: editData.contact_name,
+                  contact_title: editData.contact_title,
                   contact_telephone: editData.contact_telephone,
                   corporations: editData.corporations || [],
                   corporations_display: (editData.corporations || [])
@@ -782,6 +784,12 @@ const AffiliateReport = () => {
                 name="contact_name"
                 handleChange={handleEditChange}
                 value={editData ? editData.contact_name : ''}
+              />
+              <TextInput
+                label="Contact Title"
+                name="contact_title"
+                handleChange={handleEditChange}
+                value={editData ? editData.contact_title : ''}
               />
               <TextInput
                 label="Contact Telephone"

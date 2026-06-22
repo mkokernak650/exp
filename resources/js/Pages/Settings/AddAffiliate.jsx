@@ -253,6 +253,7 @@ const AddAffiliate = () => {
               {errors?.market && <div className="text-red-500 text-xs">{errors?.market?.[0]}</div>}
             </div>
             <TextInput label="Contact Name" name="contact_name" handleChange={handleChange} />
+            <TextInput label="Contact Title" name="contact_title" handleChange={handleChange} />
             <TextInput
               label="Contact Telephone"
               name="contact_telephone"
