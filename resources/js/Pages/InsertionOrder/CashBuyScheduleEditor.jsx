@@ -7,6 +7,22 @@ import dayjs from 'dayjs'
 
 const TIME_ZONES = ['EST', 'CST', 'MST', 'PST', 'AKST', 'HST']
 
+// TV industry buys in quarters (3-month non-cancellable). Each quarter covers
+// 13 weeks of recurrence; start/end dates are the calendar quarter boundaries.
+const QUARTER_DEFS = {
+  Q1: { startMonth: 0, label: 'Q1 — Jan 1 to Mar 31' },
+  Q2: { startMonth: 3, label: 'Q2 — Apr 1 to Jun 30' },
+  Q3: { startMonth: 6, label: 'Q3 — Jul 1 to Sep 30' },
+  Q4: { startMonth: 9, label: 'Q4 — Oct 1 to Dec 31' },
+}
+const QUARTER_WEEKS = 13
+
+const currentYear = () => dayjs().year()
+const yearOptions = () => {
+  const y = currentYear()
+  return [y, y + 1, y + 2, y + 3].map((v) => ({ value: v, label: String(v) }))
+}
+
 const dayName = (date) => (date ? dayjs(date).format('ddd') : '')
 
 const CashBuyScheduleEditor = ({ spots, setSpots, affiliateOptions = [] }) => {
@@ -19,6 +35,19 @@ const CashBuyScheduleEditor = ({ spots, setSpots, affiliateOptions = [] }) => {
     amount: 0,
   })
   const [checking, setChecking] = useState(false)
+  const [quarter, setQuarter] = useState(null)
+  const [quarterYear, setQuarterYear] = useState(currentYear())
+
+  const applyQuarter = () => {
+    if (!quarter) {
+      toast.error('Pick a quarter first.')
+      return
+    }
+    const def = QUARTER_DEFS[quarter]
+    const start = dayjs().year(quarterYear).month(def.startMonth).date(1).startOf('day')
+    setDraft((d) => ({ ...d, spot_date: start, weeks_count: QUARTER_WEEKS }))
+    toast.success(`${quarter} ${quarterYear} applied — flight dates: ${def.label.split('— ')[1]} ${quarterYear}`)
+  }
 
   const affOpts = useMemo(
     () =>
@@ -128,6 +157,37 @@ const CashBuyScheduleEditor = ({ spots, setSpots, affiliateOptions = [] }) => {
         Each row is a single 30/60-second spot. Recurrence repeats the slot weekly for the chosen
         number of weeks (1–52). The system blocks duplicates on the same date + time + affiliate
         across all active IOs.
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 items-end mb-2 p-2 bg-white border rounded">
+        <div className="col-span-1">
+          <label className="block text-xs">Media Buy Period (optional)</label>
+          <Select
+            className="w-full"
+            allowClear
+            placeholder="Pick a quarter"
+            value={quarter}
+            onChange={(v) => setQuarter(v || null)}
+            options={Object.entries(QUARTER_DEFS).map(([k, d]) => ({ value: k, label: d.label }))}
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-xs">Year</label>
+          <Select
+            className="w-full"
+            value={quarterYear}
+            onChange={setQuarterYear}
+            options={yearOptions()}
+          />
+        </div>
+        <div className="col-span-1">
+          <Button onClick={applyQuarter} disabled={!quarter}>
+            Apply Quarter
+          </Button>
+        </div>
+        <div className="col-span-1 text-xs text-gray-500 self-center">
+          Auto-fills Start Date + 13-week recurrence. Override fields below for custom windows.
+        </div>
       </div>
 
       <div className="grid grid-cols-7 gap-2 items-end">
