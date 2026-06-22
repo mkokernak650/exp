@@ -421,6 +421,7 @@ class InsertionOrderController extends Controller
                 switch ($data['action']) {
                     case 'cancel':
                         $service->cancel($io);
+                        $this->dispatchCancellationPdfs($io->fresh());
                         break;
                     case 'void':
                         // Force-flip to void (used for in-flight IOs the user wants to abandon).
@@ -503,6 +504,129 @@ class InsertionOrderController extends Controller
         $service = app(\App\Services\InsertionOrderService::class);
         $io      = $service->send($io);
         $this->dispatchIOLinkEmails($io);
+    }
+
+    /**
+     * Email the cancelled IO PDF to both the customer side and the affiliate
+     * (or corporation contact) side. The PDF blade renders the CANCELLED
+     * watermark whenever cancellation_requested_at is non-null, so this works
+     * the moment cancel() runs — no need to wait for the 30-day clock to expire.
+     */
+    public function dispatchCancellationPdfs(InsertionOrder $io): void
+    {
+        foreach ([InsertionOrder::SIDE_CUSTOMER, InsertionOrder::SIDE_AFFILIATE] as $side) {
+            $email = $this->resolveSideEmail($io, $side);
+            if (!$email) {
+                continue;
+            }
+            if (app()->environment('local')) {
+                $email = 'shosen@bitcode.pro';
+            }
+            $billingDetails = $this->buildBillingDetailsForPdf($io, $side);
+            if (empty($billingDetails)) {
+                continue;
+            }
+            [$orderDetails, $subTotal] = $this->buildOrderDetailsForPdf($io, $side);
+            $cashBuySpots               = $this->cashBuySpotsForPdf($io);
+            [$corpName, $corpAffiliates] = $this->corpDetailsForPdf($io);
+
+            try {
+                Notification::route('mail', $email)->notify(new InsertionOrderDocument(
+                    $billingDetails,
+                    $orderDetails,
+                    $subTotal,
+                    $side,
+                    $cashBuySpots,
+                    $corpName,
+                    $corpAffiliates
+                ));
+            } catch (\Throwable $e) {
+                \Log::warning('Cancellation PDF dispatch failed', [
+                    'io_id' => $io->id,
+                    'side'  => $side,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    protected function resolveSideEmail(InsertionOrder $io, string $side): ?string
+    {
+        if ($side === InsertionOrder::SIDE_CUSTOMER) {
+            return optional($io->customer)->email;
+        }
+        $corp = $io->corporation();
+        if ($corp && !empty($corp->contact_email)) {
+            return $corp->contact_email;
+        }
+        return optional($io->affiliate)->email;
+    }
+
+    protected function buildBillingDetailsForPdf(InsertionOrder $io, string $side): array
+    {
+        $billingFor = $side === InsertionOrder::SIDE_CUSTOMER ? $io->customer : $io->affiliate;
+        if (!$billingFor) {
+            return [];
+        }
+        return [
+            'id'                      => $io->id,
+            'ioNo'                    => 'IO-' . str_pad($io->id, 3, 0, STR_PAD_LEFT),
+            'name'                    => $side === InsertionOrder::SIDE_CUSTOMER
+                ? $billingFor->customer_name
+                : $billingFor->affiliate_name,
+            'contactName'             => !empty($billingFor->contact_name)      ? $billingFor->contact_name      : 'Contact Name',
+            'contactPhone'            => !empty($billingFor->contact_telephone) ? $billingFor->contact_telephone : 'Telephone',
+            'email'                   => !empty($billingFor->email)             ? $billingFor->email             : 'Email',
+            'address'                 => $billingFor->address,
+            'status'                  => $io->status,
+            'date'                    => date_format(date_create($io->created_at), 'd-M-Y'),
+            'cancellationRequestedAt' => optional($io->cancellation_requested_at)->toDateString(),
+            'canceledAt'              => optional($io->canceled_at)->toDateString(),
+        ];
+    }
+
+    protected function buildOrderDetailsForPdf(InsertionOrder $io, string $side): array
+    {
+        $orderDetails = [];
+        $details = InsertionOrderDetail::with('ecommerceAffiliate')->where('io_no', $io->io_no)->get();
+
+        foreach ($details as $row) {
+            $ecommerceAffiliate = $row->ecommerceAffiliate;
+            if (!$ecommerceAffiliate) {
+                continue;
+            }
+            $netPrice = (float) ($side === InsertionOrder::SIDE_CUSTOMER
+                ? $ecommerceAffiliate->revenue
+                : $ecommerceAffiliate->affiliate_fee);
+
+            if (!empty($ecommerceAffiliate->lengths)) {
+                $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
+                foreach ($lengths as $length) {
+                    $orderDetails[] = [
+                        'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
+                        'description' => $ecommerceAffiliate->description,
+                        'videoUrl'    => $ecommerceAffiliate->video_url,
+                        'term'        => $row->term,
+                        'dialed'      => !empty($ecommerceAffiliate->dialed)      ? $ecommerceAffiliate->dialed      : 'null',
+                        'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
+                        'netPrice'    => $netPrice,
+                    ];
+                }
+            } else {
+                $orderDetails[] = [
+                    'titleName'   => $ecommerceAffiliate?->campaign?->campaign_name,
+                    'description' => $ecommerceAffiliate->description,
+                    'videoUrl'    => $ecommerceAffiliate->video_url,
+                    'term'        => $row->term,
+                    'dialed'      => !empty($ecommerceAffiliate->dialed)      ? $ecommerceAffiliate->dialed      : 'null',
+                    'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
+                    'netPrice'    => $netPrice,
+                ];
+            }
+        }
+
+        $subTotal = collect($orderDetails)->sum('netPrice');
+        return [$orderDetails, $subTotal];
     }
 
     /**

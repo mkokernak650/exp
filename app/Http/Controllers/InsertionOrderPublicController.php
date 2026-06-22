@@ -131,6 +131,8 @@ class InsertionOrderPublicController extends Controller
                 $io = $service->decline($io, $side, $tokenForSvc, $staffUser);
             } elseif ($status === InsertionOrder::STATUS['canceled']) {
                 $io = $service->cancel($io, $staffUser);
+                app(\App\Http\Controllers\InsertionOrderController::class)
+                    ->dispatchCancellationPdfs($io->fresh());
             } elseif ($side === InsertionOrder::SIDE_CUSTOMER) {
                 $io = $service->acceptCustomer($io, $tokenForSvc, $staffUser);
             } else {
