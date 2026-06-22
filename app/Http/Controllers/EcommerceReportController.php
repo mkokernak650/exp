@@ -685,10 +685,24 @@ class EcommerceReportController extends Controller
         if ($type === 'customer') {
             $column = 'revenue';
             $alias = 'Total Fee';
+            // For % of Sales (fee_mode=3) the per-row fee paid by the customer is
+            // vendor_fee + consumerexp_fee — calculated at import time, not static.
+            $pctExpr = 'COALESCE(ecommerce_sales.vendor_fee, 0) + COALESCE(ecommerce_sales.consumerexp_fee, 0)';
         } else {
             $column = 'affiliate_fee';
             $alias = 'Affiliate Fee';
+            // Affiliate's share under % of Sales mode is the vendor_fee column.
+            $pctExpr = 'COALESCE(ecommerce_sales.vendor_fee, 0)';
         }
+
+        // Fee expression: branches on affiliate_fee_type so fee_mode=3 rows pull
+        // the per-row calculated fee while fixed-$ / cash buy modes keep using
+        // the static affiliate-level rate.
+        $feeExpr = 'CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN ""
+                    WHEN ecommerce_affiliates.affiliate_fee_type = 3 THEN ROUND(' . $pctExpr . ', 2)
+                    WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN ROUND(ecommerce_affiliates.' . $column . ', 2)
+                    ELSE ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2)
+                    END';
 
         if (!empty($affiliate)) {
             $checkAffiliate = intval($affiliate[0]);
@@ -726,11 +740,7 @@ class EcommerceReportController extends Controller
                 'ecommerce_sales.quantity AS Quantity',
                 'ecommerce_sales.quantity AS R2 Orders',
                 'ecommerce_sales.r1 AS R1 Calls',
-                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
-                    ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
-                    ROUND(ecommerce_affiliates.' . $column . ', 2) ELSE 
-                    ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END 
-                    END AS `' . $alias . '`'),
+                DB::raw($feeExpr . ' AS `' . $alias . '`'),
             ];
             $selectRows = $this->addColumnToArray($selectRows, $orderType, 8, $affiliate, $powerswabsAllAffiliate, $SheerScienceAllAffiliate);
         } else {
@@ -749,20 +759,25 @@ class EcommerceReportController extends Controller
                 't_v_households.tv_households AS TV Market Households',
                 'ecommerce_sales.quantity AS Total Quantity',
                 'ecommerce_sales.total AS Total Amount',
-                DB::raw('CASE WHEN ecommerce_sales.quantity IS NULL OR ecommerce_sales.quantity = "" THEN "" 
-                    ELSE CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN 
-                    ROUND(ecommerce_affiliates.' . $column . ', 2) ELSE 
-                    ROUND(ecommerce_affiliates.' . $column . ' * ecommerce_sales.quantity, 2) END 
-                    END AS `' . $alias . '`'),
+                DB::raw($feeExpr . ' AS `' . $alias . '`'),
             ];
 
             $selectRows = $this->addColumnToArray($selectRows, $orderType, 7, $affiliate);
 
             if ($type === 'customer') {
+                // Net Amount = Total Amount - Total Fee.
+                // For % of Sales (fee_mode=3) the fee is vendor_fee + consumerexp_fee per row;
+                // for fixed modes the fee is the static affiliate-level rate (× quantity if multi-order).
+                $netExpr = 'ROUND(ecommerce_sales.total - (
+                    CASE WHEN ecommerce_affiliates.affiliate_fee_type = 3
+                            THEN COALESCE(ecommerce_sales.vendor_fee, 0) + COALESCE(ecommerce_sales.consumerexp_fee, 0)
+                         WHEN ecommerce_affiliates.pay_on_multiple_orders = "0"
+                            THEN ecommerce_affiliates.revenue
+                         ELSE ecommerce_affiliates.revenue * COALESCE(ecommerce_sales.quantity, 0)
+                    END
+                ), 2)';
                 return array_merge($selectRows, [
-                    DB::raw('CASE WHEN ecommerce_affiliates.pay_on_multiple_orders = "0" THEN
-                    ROUND(ecommerce_sales.total - ecommerce_affiliates.revenue, 2)
-                    ELSE ROUND(ecommerce_sales.total - (ecommerce_affiliates.revenue * ecommerce_sales.quantity), 2) END AS `Net Amount`'),
+                    DB::raw($netExpr . ' AS `Net Amount`'),
                 ]);
             }
         }
