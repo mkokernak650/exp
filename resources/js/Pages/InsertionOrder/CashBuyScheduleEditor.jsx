@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button, DatePicker, InputNumber, Select, Table, TimePicker, Tooltip, Typography } from 'antd'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import axios from 'axios'
@@ -54,19 +54,27 @@ const CashBuyScheduleEditor = ({ spots, setSpots, affiliateOptions = [] }) => {
       (affiliateOptions || []).map((opt) => {
         const id = parseInt((opt.value || '').split('+aEmail+')[0], 10)
         const label = (opt.label || '').replace(/ — .*$/, '')
-        return { value: id, label }
+        const cashBuy = parseFloat(opt.cash_buy || 0)
+        return { value: id, label, cashBuy }
       }),
     [affiliateOptions]
   )
+
+  // Single affiliate: auto-select + auto-fill amount, hide picker
+  useEffect(() => {
+    if (affOpts.length === 1) {
+      setDraft((d) => ({ ...d, affiliate_id: affOpts[0].value, amount: affOpts[0].cashBuy }))
+    }
+  }, [affOpts])
 
   const resetDraft = () =>
     setDraft({
       spot_date: null,
       spot_time: null,
-      affiliate_id: null,
+      affiliate_id: affOpts.length === 1 ? affOpts[0].value : null,
       weeks_count: 1,
       time_zone: 'EST',
-      amount: 0,
+      amount: affOpts.length === 1 ? affOpts[0].cashBuy : 0,
     })
 
   const expandRows = (input) => {
@@ -223,18 +231,23 @@ const CashBuyScheduleEditor = ({ spots, setSpots, affiliateOptions = [] }) => {
             options={TIME_ZONES.map((z) => ({ value: z, label: z }))}
           />
         </div>
-        <div className="col-span-1">
-          <label className="block text-xs">Affiliate</label>
-          <Select
-            className="w-full"
-            showSearch
-            optionFilterProp="label"
-            placeholder="Pick affiliate"
-            value={draft.affiliate_id}
-            onChange={(v) => setDraft({ ...draft, affiliate_id: v })}
-            options={affOpts}
-          />
-        </div>
+        {affOpts.length !== 1 && (
+          <div className="col-span-1">
+            <label className="block text-xs">Affiliate</label>
+            <Select
+              className="w-full"
+              showSearch
+              optionFilterProp="label"
+              placeholder="Pick affiliate"
+              value={draft.affiliate_id}
+              onChange={(v) => {
+                const rate = affOpts.find((a) => a.value === v)?.cashBuy ?? 0
+                setDraft({ ...draft, affiliate_id: v, amount: rate })
+              }}
+              options={affOpts}
+            />
+          </div>
+        )}
         <div className="col-span-1">
           <label className="block text-xs">Weeks (1–52)</label>
           <InputNumber

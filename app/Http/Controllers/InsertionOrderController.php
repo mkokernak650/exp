@@ -92,12 +92,25 @@ class InsertionOrderController extends Controller
             $corpName      = $corpRow ? $corpRow->{$typeToNameCol[$request->corporation_type]} : '';
             $typeLabel     = \App\Services\CorporationService::TYPE_TO_LABEL[$request->corporation_type] ?? '';
 
-            return $corpAffiliates->map(function ($affiliate) use ($corpName, $typeLabel) {
+            // Look up cash_buy rates from ecommerce_affiliates for the selected campaigns.
+            $corpAffiliateIds = $corpAffiliates->pluck('id')->toArray();
+            $cashBuyMap = EcommerceAffiliate::whereIn('affiliate_id', $corpAffiliateIds)
+                ->when(
+                    !empty($request->selectedCampaigns),
+                    fn($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns))
+                )
+                ->select(['affiliate_id', 'cash_buy'])
+                ->get()
+                ->groupBy('affiliate_id')
+                ->map(fn($rows) => (float) $rows->first()->cash_buy);
+
+            return $corpAffiliates->map(function ($affiliate) use ($corpName, $typeLabel, $cashBuyMap) {
                 $market = !empty($affiliate->market) ? ' (' . $affiliate->market . ')' : '';
                 $suffix = $corpName ? ' — ' . $corpName . ' / ' . $typeLabel : '';
                 return [
-                    'label' => $affiliate->affiliate_name . $market . $suffix,
-                    'value' => $affiliate->id . '+aEmail+' . (!empty($affiliate->email) ? $affiliate->email : 'n/a'),
+                    'label'    => $affiliate->affiliate_name . $market . $suffix,
+                    'value'    => $affiliate->id . '+aEmail+' . (!empty($affiliate->email) ? $affiliate->email : 'n/a'),
+                    'cash_buy' => $cashBuyMap->get($affiliate->id, 0),
                 ];
             })->unique('value')->sortBy('label')->values()->toArray();
         }
@@ -109,14 +122,15 @@ class InsertionOrderController extends Controller
         $affiliates = EcommerceAffiliate::with('affiliate:id,affiliate_name,email,market')
             ->when(!empty($request->selectedCampaigns), fn($q) => $q->whereIn('campaign_id', explode(',', $request->selectedCampaigns)))
             ->when(!empty($request->selectedCustomers), fn($q) => $q->whereIn('customer_id', explode(',', $request->selectedCustomers)))
-            ->select(['id', 'affiliate_id'])->distinct()->get();
+            ->select(['id', 'affiliate_id', 'cash_buy'])->distinct()->get();
 
         $affiliateOptions = $affiliates->map(function ($item) {
             return [
-                'label' => $item->affiliate->affiliate_name . (!empty($item->affiliate->market) ? ' (' . $item?->affiliate?->market . ')' : ''),
-                'value' => $item->affiliate->id . '+aEmail+' . (!empty($item->affiliate->email) ? $item->affiliate->email : 'n/a')
+                'label'    => $item->affiliate->affiliate_name . (!empty($item->affiliate->market) ? ' (' . $item?->affiliate?->market . ')' : ''),
+                'value'    => $item->affiliate->id . '+aEmail+' . (!empty($item->affiliate->email) ? $item->affiliate->email : 'n/a'),
+                'cash_buy' => (float) ($item->cash_buy ?? 0),
             ];
-        })->unique()->sortBy('label')->values()->toArray();
+        })->unique('value')->sortBy('label')->values()->toArray();
 
         return $affiliateOptions;
     }
