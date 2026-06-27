@@ -425,6 +425,16 @@ th.sorted {
   font-size: 15px;
 }
 
+.month-link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.month-link:hover {
+  color: var(--green);
+  text-decoration: underline;
+}
+
 .tag {
   background: var(--soft-green);
   border: 1px solid #c8e2d5;
@@ -433,6 +443,12 @@ th.sorted {
   font-size: 12px;
   color: #285d48;
   white-space: nowrap;
+}
+
+.tag.empty {
+  background: #f5f7f7;
+  border-color: var(--line);
+  color: var(--muted);
 }
 
 .muted {

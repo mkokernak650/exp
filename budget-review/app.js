@@ -295,15 +295,14 @@ function renderAccountCards() {
 }
 
 function renderHistory() {
-  if (!state.history.length) {
-    els.historyList.innerHTML = `<div class="history-item"><p class="muted">No saved month snapshots yet.</p></div>`;
-    return;
-  }
-  els.historyList.innerHTML = state.history.map((snapshot) => `
+  const snapshotsByMonth = latestSnapshotsByMonth();
+  els.historyList.innerHTML = monthRange("2024-01", latestHistoryMonth()).map((month) => {
+    const snapshot = snapshotsByMonth.get(month);
+    return snapshot ? `
     <article class="history-item">
       <header>
         <div>
-          <h4>${escapeHtml(snapshot.reviewMonth)}</h4>
+          <h4><a class="month-link" href="#month=${escapeAttr(snapshot.reviewMonth)}" data-month="${escapeAttr(snapshot.reviewMonth)}">${escapeHtml(formatMonthLabel(snapshot.reviewMonth))}</a></h4>
           <div class="muted">Saved ${escapeHtml(snapshot.savedAt)}</div>
         </div>
         <span class="tag">${snapshot.accounts.length} accounts</span>
@@ -315,7 +314,18 @@ function renderHistory() {
         <span>Interest ${money(snapshot.totalMonthlyInterest)}</span>
       </div>
     </article>
-  `).join("");
+  ` : `
+    <article class="history-item">
+      <header>
+        <div>
+          <h4><a class="month-link" href="#month=${escapeAttr(month)}" data-month="${escapeAttr(month)}">${escapeHtml(formatMonthLabel(month))}</a></h4>
+          <div class="muted">No saved snapshot yet</div>
+        </div>
+        <span class="tag empty">Open month</span>
+      </header>
+    </article>
+  `;
+  }).join("");
 }
 
 function renderAll() {
@@ -331,6 +341,55 @@ function setView(name) {
   document.querySelector(`#${name}View`).classList.add("active-view");
   els.navTabs.forEach((button) => button.classList.toggle("active", button.dataset.view === name));
   els.pageTitle.textContent = name === "review" ? "Monthly Review" : name === "accounts" ? "Accounts" : "History";
+}
+
+function goToReviewMonth(month) {
+  if (!isMonthValue(month)) return;
+  state.reviewMonth = month;
+  saveState("Review month updated.");
+  renderAll();
+  setView("review");
+}
+
+function latestSnapshotsByMonth() {
+  const snapshots = new Map();
+  for (const snapshot of state.history) {
+    if (!isMonthValue(snapshot.reviewMonth) || snapshots.has(snapshot.reviewMonth)) continue;
+    snapshots.set(snapshot.reviewMonth, snapshot);
+  }
+  return snapshots;
+}
+
+function latestHistoryMonth() {
+  const months = [
+    new Date().toISOString().slice(0, 7),
+    isMonthValue(state.reviewMonth) ? state.reviewMonth : "",
+    ...state.history.map((snapshot) => snapshot.reviewMonth).filter(isMonthValue),
+  ];
+  return months.sort().at(-1) || "2024-01";
+}
+
+function monthRange(startMonth, endMonth) {
+  const months = [];
+  const [startYear, startIndex] = startMonth.split("-").map(Number);
+  const [endYear, endIndex] = endMonth.split("-").map(Number);
+  const cursor = new Date(startYear, startIndex - 1, 1);
+  const end = new Date(endYear, endIndex - 1, 1);
+  while (cursor <= end) {
+    months.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return months.reverse();
+}
+
+function formatMonthLabel(month) {
+  if (!isMonthValue(month)) return month;
+  const [year, monthIndex] = month.split("-").map(Number);
+  return new Date(year, monthIndex - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function isMonthValue(value) {
+  return /^\d{4}-(0[1-9]|1[0-2])$/.test(String(value || ""));
 }
 
 function fillForm(item) {
@@ -650,6 +709,7 @@ function formatPercent(value) {
 }
 
 renderCategoryOptions();
+goToReviewMonth(new URLSearchParams(window.location.hash.replace(/^#/, "")).get("month"));
 renderAll();
 fillForm();
 
@@ -769,4 +829,17 @@ els.clearHistoryBtn.addEventListener("click", () => {
   state.history = [];
   saveState("History cleared.");
   renderHistory();
+});
+
+els.historyList.addEventListener("click", (event) => {
+  const link = event.target.closest("[data-month]");
+  if (!link) return;
+  event.preventDefault();
+  window.location.hash = `month=${link.dataset.month}`;
+  goToReviewMonth(link.dataset.month);
+});
+
+window.addEventListener("hashchange", () => {
+  const month = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("month");
+  if (month && month !== state.reviewMonth) goToReviewMonth(month);
 });
