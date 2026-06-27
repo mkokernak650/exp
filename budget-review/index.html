@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Michael Kokernak Budget Review</title>
+    <link rel="icon" type="image/png" href="assets/budget-favicon.png">
+    <link rel="apple-touch-icon" href="assets/budget-favicon.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-mark" src="assets/budget-favicon.png" alt="" aria-hidden="true">
+          <div>
+            <h1>Budget Review</h1>
+            <p>Michael Kokernak</p>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" aria-label="Budget sections">
+          <button class="nav-tab active" data-view="review" type="button">Monthly Review</button>
+          <button class="nav-tab" data-view="accounts" type="button">Accounts</button>
+          <button class="nav-tab" data-view="history" type="button">History</button>
+        </nav>
+
+        <div class="side-panel">
+          <label for="reviewMonth">Review Month</label>
+          <input id="reviewMonth" type="month">
+        </div>
+
+        <div class="side-actions">
+          <button id="saveSnapshotBtn" class="primary" type="button">Save Month Snapshot</button>
+          <button id="printFinancialReviewBtn" type="button">Print Financial Review PDF</button>
+          <button id="exportFinancialReviewBtn" type="button">Export Financial Review Data</button>
+          <button id="exportJsonBtn" type="button">Export Backup</button>
+          <label class="file-button" for="importJsonInput">Import Backup</label>
+          <input id="importJsonInput" type="file" accept="application/json">
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <section class="toolbar">
+          <div>
+            <p class="eyebrow">Current plan</p>
+            <h2 id="pageTitle">Monthly Review</h2>
+          </div>
+          <div class="toolbar-actions">
+            <label class="search-wrap" for="searchInput">
+              <span aria-hidden="true">Search</span>
+              <input id="searchInput" type="search" placeholder="Account or note">
+            </label>
+            <label class="select-wrap" for="categoryFilter">
+              <span>Category</span>
+              <select id="categoryFilter"></select>
+            </label>
+            <button id="addAccountBtn" class="primary" type="button">New Account</button>
+          </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Monthly totals">
+          <div class="metric">
+            <span>Total Current Due</span>
+            <strong id="totalCurrentDue">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Total Planned Payment</span>
+            <strong id="totalPlanned">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Remaining Unpaid</span>
+            <strong id="totalRemaining">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Total Balance</span>
+            <strong id="totalBalance">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Estimated Monthly Interest</span>
+            <strong id="totalMonthlyInterest">$0.00</strong>
+          </div>
+        </section>
+
+        <section id="reviewView" class="view active-view">
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr id="reviewHead"></tr>
+              </thead>
+              <tbody id="reviewRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="accountsView" class="view">
+          <div class="account-layout">
+            <form id="accountForm" class="editor-panel">
+              <input id="editingId" type="hidden">
+              <div class="form-heading">
+                <h3 id="formTitle">New Account</h3>
+                <button id="resetFormBtn" type="button">Clear</button>
+              </div>
+              <div class="form-grid">
+                <label>Active
+                  <select id="accountActive">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </label>
+                <label>Category
+                  <select id="accountCategory" required></select>
+                </label>
+                <label>Account Name
+                  <input id="accountName" required>
+                </label>
+                <label>Account ID Hint
+                  <input id="accountHint" placeholder="last 4 digits or nickname">
+                </label>
+                <label>Website URL
+                  <input id="accountUrl" type="text" inputmode="url" placeholder="https://">
+                </label>
+                <label>Username / Login Hint
+                  <input id="accountUsername">
+                </label>
+                <label>Vault Item Name
+                  <input id="accountVault" placeholder="Zoho Vault / browser saved login">
+                </label>
+                <label>Balance
+                  <input id="accountBalance" type="number" step="0.01" min="0">
+                </label>
+                <label>Interest Rate APR %
+                  <input id="accountInterestRate" type="number" step="0.01" min="0" placeholder="0.00">
+                </label>
+                <label>Current Amount Due
+                  <input id="accountCurrentDue" type="number" step="0.01" min="0">
+                </label>
+                <label>Amount Updated Date
+                  <input id="accountAmountUpdated" type="date">
+                </label>
+                <label>Payment Due Date
+                  <input id="accountPaymentDue" type="date">
+                </label>
+                <label>Planned Payment
+                  <input id="accountPlanned" type="number" step="0.01" min="0">
+                </label>
+                <label>Paid?
+                  <select id="accountPaid">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                  </select>
+                </label>
+                <label>Payment Date
+                  <input id="accountPaymentDate" type="date">
+                </label>
+                <label class="wide">Notes
+                  <textarea id="accountNotes" rows="3"></textarea>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary" type="submit">Save Account</button>
+                <button id="deleteAccountBtn" class="danger" type="button">Delete Account</button>
+              </div>
+            </form>
+
+            <div class="directory-panel">
+              <div class="panel-title">
+                <h3>Account Directory</h3>
+                <span id="accountCount">0 accounts</span>
+              </div>
+              <div id="accountCards" class="account-cards"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="historyView" class="view">
+          <div class="history-header">
+            <div>
+              <h3>Saved Month Snapshots</h3>
+              <p>Snapshots preserve the monthly numbers as they looked when saved.</p>
+            </div>
+            <button id="clearHistoryBtn" class="danger" type="button">Clear History</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

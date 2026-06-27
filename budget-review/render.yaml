@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: budget-review
+    runtime: node
+    plan: starter
+    buildCommand: ""
+    startCommand: "node server.js"
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: REQUIRE_CLOUDFLARE_ACCESS
+        value: "1"
+      - key: ALLOWED_EMAIL
+        value: "mkokernak@consumerexp.com"
+      - key: CLOUDFLARE_ACCESS_TEAM_DOMAIN
+        sync: false
+      - key: CLOUDFLARE_ACCESS_AUD
+        sync: false
