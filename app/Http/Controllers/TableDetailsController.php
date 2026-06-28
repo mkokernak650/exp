@@ -7,6 +7,17 @@ use App\Models\TableDetails;
 
 class TableDetailsController extends Controller
 {
+    public function index()
+    {
+        $tableDetails = TableDetails::first();
+
+        return response()->json([
+            'columnsData' => $tableDetails?->column_details
+                ? json_decode($tableDetails->column_details, true)
+                : [],
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
