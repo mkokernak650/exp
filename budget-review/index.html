@@ -21,8 +21,11 @@
 
         <nav class="nav-tabs" aria-label="Budget sections">
           <button class="nav-tab active" data-view="review" type="button">Monthly Review</button>
+          <button class="nav-tab" data-view="cashFlow" type="button">Budget Cash Flow</button>
           <button class="nav-tab" data-view="accounts" type="button">Accounts</button>
+          <button class="nav-tab" data-view="notActive" type="button">Not Active</button>
           <button class="nav-tab" data-view="history" type="button">History</button>
+          <button class="nav-tab" data-view="calendar" type="button">Calendar</button>
         </nav>
 
         <div class="side-panel">
@@ -45,42 +48,81 @@
           <div>
             <p class="eyebrow">Current plan</p>
             <h2 id="pageTitle">Monthly Review</h2>
+            <p id="monthDateRange" class="muted">June 1, 2026 - June 30, 2026</p>
           </div>
           <div class="toolbar-actions">
             <label class="search-wrap" for="searchInput">
               <span aria-hidden="true">Search</span>
               <input id="searchInput" type="search" placeholder="Account or note">
             </label>
+            <button id="saveDataBtn" class="primary" type="button">Save</button>
             <label class="select-wrap" for="categoryFilter">
               <span>Category</span>
               <select id="categoryFilter"></select>
             </label>
             <button id="addAccountBtn" class="primary" type="button">New Account</button>
+            <button id="newMonthBtn" type="button">New Month</button>
           </div>
         </section>
 
-        <section class="summary-grid" aria-label="Monthly totals">
+        <div class="kpi-section-heading">
+          <h3>Monthly Review</h3>
+        </div>
+        <section class="summary-grid monthly-review-kpis" aria-label="Monthly totals">
           <div class="metric">
-            <span>Total Current Due</span>
+            <span>Acct.</span>
+            <strong id="monthlyAccountCount">0</strong>
+          </div>
+          <div class="metric metric-current-due">
+            <span id="monthlyDueLabel">Total Personal Expense</span>
             <strong id="totalCurrentDue">$0.00</strong>
           </div>
-          <div class="metric">
-            <span>Total Planned Payment</span>
+          <div class="metric metric-paid">
+            <span>Total Paid</span>
             <strong id="totalPlanned">$0.00</strong>
           </div>
-          <div class="metric">
+          <div class="metric metric-unpaid">
             <span>Remaining Unpaid</span>
             <strong id="totalRemaining">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Business Credit Card Due</span>
+            <strong id="businessCreditCardDue">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Personal Credit Card Due</span>
+            <strong id="personalCreditCardDue">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Personal Loan Due</span>
+            <strong id="personalLoanDue">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Business Loan Due</span>
+            <strong id="businessLoanDue">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Tax Due</span>
+            <strong id="taxDue">$0.00</strong>
+          </div>
+          <div class="metric metric-unpaid">
+            <span>Monthly Interest</span>
+            <strong id="totalMonthlyInterest">$0.00</strong>
+          </div>
+          <div class="metric">
+            <span>Available Credit Limit</span>
+            <strong id="availableCreditLimit">$0.00</strong>
           </div>
           <div class="metric">
             <span>Total Balance</span>
             <strong id="totalBalance">$0.00</strong>
           </div>
           <div class="metric">
-            <span>Estimated Monthly Interest</span>
-            <strong id="totalMonthlyInterest">$0.00</strong>
+            <span>Average APR %</span>
+            <strong id="averageApr">0%</strong>
           </div>
         </section>
+        <hr class="kpi-divider">
 
         <section id="reviewView" class="view active-view">
           <div class="table-shell">
@@ -90,6 +132,201 @@
               </thead>
               <tbody id="reviewRows"></tbody>
             </table>
+          </div>
+        </section>
+
+        <section id="cashFlowView" class="view">
+          <div class="kpi-section-heading cash-flow-heading">
+            <div class="cash-flow-heading-brand">
+              <img class="consumerexp-heading-logo" src="assets/consumerexp-logo.jpg" alt="ConsumerEXP">
+              <p class="kpi-date-range">July 1, 2026 - July 31, 2026</p>
+            </div>
+            <div>
+              <h3>Budget Cash Flow</h3>
+            </div>
+          </div>
+          <section class="summary-grid cash-flow-kpis" aria-label="Budget cash flow totals">
+            <div class="metric">
+              <span>Acct.</span>
+              <strong id="cashFlowAccountKpi">0</strong>
+            </div>
+            <div class="metric metric-current-due">
+              <span>Monthly Income</span>
+              <strong id="cashFlowIncomeStillDue">$0.00</strong>
+            </div>
+            <div class="metric metric-unpaid">
+              <span>Total Business Expense</span>
+              <strong id="cashFlowCashNeeds">$0.00</strong>
+            </div>
+            <div class="metric" id="cashFlowGrossProfitMetric">
+              <span>Gross Profit</span>
+              <strong id="cashFlowGrossProfit">$0.00</strong>
+            </div>
+            <div class="metric" id="cashFlowProfitMetric">
+              <span>Cash Flow (personal &amp; business)</span>
+              <strong id="cashFlowProfit">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Income Received Month to Date</span>
+              <strong id="cashFlowIncomeReceived">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Total Business Paid</span>
+              <strong id="cashFlowBusinessPaid">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Tech Consulting Expense</span>
+              <strong id="cashFlowTechExpense">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Monthly Loan Payment</span>
+              <strong id="cashFlowMonthlyLoan">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Business Credit Card</span>
+              <strong id="cashFlowBusinessCreditCard">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Software Expense</span>
+              <strong id="cashFlowSoftware">$0.00</strong>
+            </div>
+            <div class="metric metric-unpaid">
+              <span>Monthly Interest</span>
+              <strong id="cashFlowMonthlyInterest">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Available Credit Limit</span>
+              <strong id="cashFlowAvailableCreditLimit">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Total Balance</span>
+              <strong id="cashFlowRemainingLoanBalance">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Average APR %</span>
+              <strong id="cashFlowAverageApr">0%</strong>
+            </div>
+          </section>
+
+          <div class="worksheet-toolbar">
+            <div>
+              <h3>Budget Cash Flow Worksheet</h3>
+              <p class="muted">Business income and fixed expenses for the same month as Monthly Review.</p>
+            </div>
+            <div class="row-actions">
+              <button id="nextCashFlowMonthBtn" type="button">Next Month</button>
+              <button id="addCashFlowItemBtn" class="primary" type="button">Add Cash Flow Row</button>
+            </div>
+          </div>
+
+          <div class="field-guide" aria-label="Budget cash flow field guide">
+            <div><strong>Frequency</strong><span>Weekly, monthly, or one time for either an expense payment or income deposit.</span></div>
+            <div><strong>Payment / Income Amount</strong><span>Expense: amount paid each period. Income: amount expected each period.</span></div>
+            <div><strong>Payments / Deposits This Month</strong><span>How many payments made or income deposits received during this month.</span></div>
+            <div><strong>Due / Expected This Month</strong><span>Expense due or income expected for the month. Leave blank to calculate from amount x count.</span></div>
+            <div><strong>Paid / Received This Month</strong><span>Expense paid so far or income received so far this month.</span></div>
+          </div>
+
+          <div class="table-shell cash-flow-shell">
+            <table class="cash-flow-table">
+              <thead>
+                <tr id="cashFlowHead"></tr>
+              </thead>
+              <tbody id="cashFlowRows"></tbody>
+            </table>
+          </div>
+
+          <div class="account-layout cash-flow-directory-section">
+            <form id="cashFlowAccountForm" class="editor-panel cash-flow-account-editor">
+              <input id="editingCashFlowId" type="hidden">
+              <div class="form-heading">
+                <h3 id="cashFlowFormTitle">Budget Cash Flow Account Details</h3>
+                <button id="resetCashFlowFormBtn" type="button">Clear</button>
+              </div>
+              <div class="form-grid">
+                <label>Type
+                  <select id="cashFlowType"></select>
+                </label>
+                <label>Category
+                  <select id="cashFlowCategory"></select>
+                </label>
+                <label>Account Name
+                  <input id="cashFlowName" required>
+                </label>
+                <label>Website URL
+                  <input id="cashFlowUrl" type="text" inputmode="url" placeholder="https://">
+                </label>
+                <label>Username / Login Hint
+                  <input id="cashFlowUsername">
+                </label>
+                <label>Vault Item Name
+                  <input id="cashFlowVault">
+                </label>
+                <label>Contact Name
+                  <input id="cashFlowContactName">
+                </label>
+                <label>Contact Email
+                  <input id="cashFlowContactEmail" type="email">
+                </label>
+                <label>Contact Phone
+                  <input id="cashFlowContactPhone">
+                </label>
+                <label>Total Owed
+                  <input id="cashFlowTotalOwed" type="number" step="0.01" min="0">
+                </label>
+                <label>Principal Still Due
+                  <input id="cashFlowPrincipalDue" type="number" step="0.01" min="0">
+                </label>
+                <label>Credit Limit
+                  <input id="cashFlowCreditLimit" type="number" step="0.01" min="0">
+                </label>
+                <label>Frequency
+                  <select id="cashFlowFrequency"></select>
+                </label>
+                <label>Payment / Income Amount
+                  <input id="cashFlowPaymentAmount" type="number" step="0.01" min="0">
+                </label>
+                <label>Payments / Deposits This Month
+                  <input id="cashFlowPaymentsThisMonth" type="text" inputmode="decimal">
+                </label>
+                <label>Due / Expected This Month
+                  <input id="cashFlowTotalDue" type="number" step="0.01" min="0">
+                </label>
+                <label>Paid / Received This Month
+                  <input id="cashFlowTotalPaid" type="number" step="0.01" min="0">
+                </label>
+                <label>Payments Remaining
+                  <input id="cashFlowPaymentsRemaining" type="number" step="1" min="0">
+                </label>
+                <label>APR %
+                  <input id="cashFlowInterestRate" type="number" step="0.01" min="0">
+                </label>
+                <label>Start Date
+                  <input id="cashFlowStartDate" type="date">
+                </label>
+                <label>End Date
+                  <input id="cashFlowEndDate" type="date">
+                </label>
+                <label>Last Payment Date
+                  <input id="cashFlowLastPaymentDate" type="date">
+                </label>
+                <label class="wide">Account Notes
+                  <textarea id="cashFlowNotes" rows="3"></textarea>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary" type="submit">Save Cash Flow Account</button>
+                <button id="deleteCashFlowAccountBtn" class="danger" type="button">Delete Cash Flow Account</button>
+              </div>
+            </form>
+
+            <div class="directory-panel cash-flow-account-directory">
+              <div class="panel-title">
+                <h3>Budget Cash Flow Account Directory</h3>
+                <span id="cashFlowAccountCount">0 accounts</span>
+              </div>
+              <div id="cashFlowAccountCards" class="account-cards"></div>
+            </div>
           </div>
         </section>
 
@@ -129,6 +366,9 @@
                 <label>Balance
                   <input id="accountBalance" type="number" step="0.01" min="0">
                 </label>
+                <label>Credit Limit
+                  <input id="accountCreditLimit" type="number" step="0.01" min="0">
+                </label>
                 <label>Interest Rate APR %
                   <input id="accountInterestRate" type="number" step="0.01" min="0" placeholder="0.00">
                 </label>
@@ -141,7 +381,7 @@
                 <label>Payment Due Date
                   <input id="accountPaymentDue" type="date">
                 </label>
-                <label>Planned Payment
+                <label>Paid
                   <input id="accountPlanned" type="number" step="0.01" min="0">
                 </label>
                 <label>Paid?
@@ -170,6 +410,41 @@
               </div>
               <div id="accountCards" class="account-cards"></div>
             </div>
+
+          </div>
+        </section>
+
+        <section id="notActiveView" class="view">
+          <div class="history-header">
+            <div>
+              <h3>Not Active Accounts</h3>
+              <p>Inactive account and payment information stays saved here.</p>
+            </div>
+            <span id="notActiveCount" class="tag empty">0 accounts</span>
+          </div>
+          <div class="table-shell not-active-shell">
+            <table class="not-active-table">
+              <thead>
+                <tr>
+                  <th>Account</th>
+                  <th>Category</th>
+                  <th>Website</th>
+                  <th>Balance</th>
+                  <th>Credit Limit</th>
+                  <th>APR %</th>
+                  <th>Current Due</th>
+                  <th>Amount Updated</th>
+                  <th>Payment Due</th>
+                  <th>Paid</th>
+                  <th>Paid?</th>
+                  <th>Payment Date</th>
+                  <th>Login Hint</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="notActiveRows"></tbody>
+            </table>
           </div>
         </section>
 
@@ -182,6 +457,16 @@
             <button id="clearHistoryBtn" class="danger" type="button">Clear History</button>
           </div>
           <div id="historyList" class="history-list"></div>
+        </section>
+
+        <section id="calendarView" class="view">
+          <div class="history-header">
+            <div>
+              <h3>Budget Calendar</h3>
+              <p>Month links use the correct calendar date range through 2027.</p>
+            </div>
+          </div>
+          <div id="calendarList" class="calendar-list"></div>
         </section>
       </main>
     </div>

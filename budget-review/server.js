@@ -5,6 +5,8 @@ const path = require("path");
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
+const DATA_FILE = process.env.BUDGET_DATA_FILE || path.join(ROOT, "data", "budget-data.json");
+const MAX_DATA_BYTES = 2 * 1024 * 1024;
 const ALLOWED_EMAIL = (process.env.ALLOWED_EMAIL || "mkokernak@consumerexp.com").toLowerCase();
 const REQUIRE_CLOUDFLARE_ACCESS = process.env.REQUIRE_CLOUDFLARE_ACCESS === "1";
 const TEAM_DOMAIN = process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN || "";
@@ -117,6 +119,67 @@ function send(res, status, body, contentType = "text/plain; charset=utf-8") {
   res.end(body);
 }
 
+function sendJson(res, status, body) {
+  send(res, status, JSON.stringify(body), "application/json; charset=utf-8");
+}
+
+function readRequestBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > MAX_DATA_BYTES) {
+        reject(new Error("Request body is too large."));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
+
+function validateBudgetData(data) {
+  return data && typeof data === "object" && Array.isArray(data.accounts);
+}
+
+async function handleBudgetDataApi(req, res) {
+  if (req.method === "GET") {
+    if (!fs.existsSync(DATA_FILE)) {
+      return sendJson(res, 404, { ok: false, error: "No local budget data file has been created yet." });
+    }
+    try {
+      return send(res, 200, fs.readFileSync(DATA_FILE), "application/json; charset=utf-8");
+    } catch (error) {
+      console.error(error);
+      return sendJson(res, 500, { ok: false, error: "Could not read local budget data file." });
+    }
+  }
+
+  if (req.method === "POST") {
+    try {
+      const body = await readRequestBody(req);
+      const data = JSON.parse(body);
+      if (!validateBudgetData(data)) {
+        return sendJson(res, 400, { ok: false, error: "Budget data must include an accounts array." });
+      }
+      fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+      const tempFile = `${DATA_FILE}.tmp`;
+      fs.writeFileSync(tempFile, `${JSON.stringify(data, null, 2)}\n`);
+      fs.renameSync(tempFile, DATA_FILE);
+      return sendJson(res, 200, { ok: true, file: DATA_FILE, savedAt: new Date().toISOString() });
+    } catch (error) {
+      console.error(error);
+      return sendJson(res, 500, { ok: false, error: "Could not save local budget data file." });
+    }
+  }
+
+  res.writeHead(405, { Allow: "GET, POST" });
+  res.end("Method not allowed.");
+}
+
 function resolveFile(urlPath) {
   const cleanPath = decodeURIComponent(urlPath.split("?")[0]);
   const requested = cleanPath === "/" ? "/index.html" : cleanPath;
@@ -133,6 +196,10 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     console.error(error);
     return send(res, 403, "Access denied.");
+  }
+
+  if (urlPath.split("?")[0] === "/api/budget-data") {
+    return handleBudgetDataApi(req, res);
   }
 
   const filePath = resolveFile(urlPath);
