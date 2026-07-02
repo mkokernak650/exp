@@ -165,7 +165,7 @@ const InsertionOrderCreate = () => {
       })
   }
 
-  const handleSubmit = (e, type = 'create&save') => {
+    const handleSubmit = (e, type = 'create&save') => {
     e.preventDefault()
     const formData = new FormData()
     formData.append('selectedCustomers', customerIds)
@@ -174,6 +174,10 @@ const InsertionOrderCreate = () => {
     formData.append('insertionOrderFor', insertionOrderFor)
     formData.append('selectedTerm', selectedTerm)
     formData.append('type', type)
+    const { type: corpType, id: corpId } = parseCorpComposite(selectedCorporation)
+    formData.append('corporation_type', corpType || '')
+    formData.append('corporation_id', corpId || '')
+    formData.append('apply_to_all_affiliates', applyToAllAffiliates ? '1' : '0')
 
     cashBuySpots.forEach((s, i) => {
       formData.append(`cash_buy_spots[${i}][spot_date]`, s.spot_date)

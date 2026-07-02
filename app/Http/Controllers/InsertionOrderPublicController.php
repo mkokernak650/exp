@@ -54,30 +54,57 @@ class InsertionOrderPublicController extends Controller
 
         foreach ($insertionOrderDetails as $insertionOrderDetail) {
             $ecommerceAffiliate = $insertionOrderDetail->ecommerceAffiliate;
+            if (!$ecommerceAffiliate) {
+                continue;
+            }
+
+            if ($ioFor === 'customer') {
+                $feeMode   = (int) ($ecommerceAffiliate->affiliate_fee_type ?? EcommerceAffiliate::FEE_MODE['payout_per_order']);
+                switch ($feeMode) {
+                    case EcommerceAffiliate::FEE_MODE['fixed_pct']:
+                    case EcommerceAffiliate::FEE_MODE['tiered']:
+                        $feeModeKey = $feeMode === EcommerceAffiliate::FEE_MODE['fixed_pct'] ? 'fixed_pct' : 'tiered';
+                        $netPrice   = (float) ($ecommerceAffiliate->percentage ?? 0);
+                        break;
+                    case EcommerceAffiliate::FEE_MODE['cash_buy']:
+                        $feeModeKey = 'cash_buy';
+                        $netPrice   = (float) ($ecommerceAffiliate->cash_buy ?? 0);
+                        break;
+                    default:
+                        $feeModeKey = 'payout_per_order';
+                        $netPrice   = (float) ($ecommerceAffiliate->affiliate_fee ?? 0);
+                        break;
+                }
+            } else {
+                $netPrice   = (float) ($ecommerceAffiliate->affiliate_fee ?? 0);
+                $feeModeKey = 'payout_per_order';
+            }
 
             if (!empty($ecommerceAffiliate->lengths)) {
                 $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
 
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
+                        'feeModeKey'  => $feeModeKey,
                         'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $insertionOrderDetail->term,
                         'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                         'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                        'netPrice'    => (float) ($ioFor === 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee),
+                        'netPrice'    => $netPrice,
                     ];
                 }
             } else {
                 $orderDetails[] = [
+                    'feeModeKey'  => $feeModeKey,
                     'titleName'   => $ecommerceAffiliate->campaign->campaign_name,
                     'description' => $ecommerceAffiliate->description,
                     'videoUrl'    => $ecommerceAffiliate->video_url,
                     'term'        => $insertionOrderDetail->term,
                     'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                     'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                    'netPrice'    => (float) ($ioFor === 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee),
+                    'netPrice'    => $netPrice,
                 ];
             }
         }

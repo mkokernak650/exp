@@ -227,7 +227,20 @@
                             <th style="width:10%">Terms</th>
                             <th style="width:15%">800#</th>
                             <th style="width:15%">Coupon Code</th>
-                            <th style="width:10%">{{$ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}}</th>
+                            <th style="width:10%">
+                                @php
+                                    $payoutLabel = 'Affiliate Fee';
+                                    if ($ioFor === 'customer') {
+                                        $firstFeeKey = $orderDetails[0]['feeModeKey'] ?? 'payout_per_order';
+                                        $payoutLabel = match($firstFeeKey) {
+                                            'fixed_pct', 'tiered' => '% Net Sales',
+                                            'cash_buy' => 'Rate',
+                                            default => 'Payout',
+                                        };
+                                    }
+                                @endphp
+                                {{ $payoutLabel }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -245,7 +258,15 @@
                             <td>{{ $item['term'] ?? '' }}</td>
                             <td>{{ $item['dialed'] }}</td>
                             <td>{{ $item['couponCode'] }}</td>
-                            <td>{{ number_format($item['netPrice'], 2) }}</td>
+                            <td>
+                                @if ($ioFor === 'customer' && in_array($item['feeModeKey'] ?? 'payout_per_order', ['fixed_pct', 'tiered']))
+                                    {{ number_format($item['netPrice'], 2) }}%
+                                @elseif ($ioFor === 'customer')
+                                    ${{ number_format($item['netPrice'], 2) }}
+                                @else
+                                    ${{ number_format($item['netPrice'], 2) }}
+                                @endif
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -296,7 +317,7 @@
 
         <div class="io-terms">
             @if ($ioFor === 'customer')
-                <p>Customer pays on a per order or per call rate according to terms of this insertion order.</p>
+                <p>Customer pays on a per order, percentage of net sales, or per call rate according to terms of this insertion order. Net Sales means gross sales actually collected from customers, less returns, refunds, chargebacks, taxes, shipping and handling charges, discounts, credits, and other customer allowances.</p>
                 <p>Customer pays via ACH bank processing according to periodic invoices generated or advance payments.</p>
                 <p>Customer may provide an advance payment or retainer agreement depending upon agreement.</p>
                 <p>Customer may be charged for dubs, for an agreed upon rate, (if they cannot supply dubs to the affiliates). Dub rate will include traffic charges and may include assignment of product codes and/or telephone numbers.</p>

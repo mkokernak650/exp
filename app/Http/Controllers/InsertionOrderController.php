@@ -197,6 +197,8 @@ class InsertionOrderController extends Controller
             $attachedAffiliateIds = array_values(array_unique($attachedAffiliateIds));
         }
 
+        $isCorpMode = !empty($request->corporation_type) && !empty($request->corporation_id) && $request->apply_to_all_affiliates == '1';
+
         $createdIos = [];
 
         if ($request->insertionOrderFor == 'customer') {
@@ -223,26 +225,46 @@ class InsertionOrderController extends Controller
                 $createdIos[] = $InsertionOrder;
             }
         } elseif ($request->insertionOrderFor == 'affiliate') {
-            $selectedAffiliates = explode(',', $request->selectedAffiliates);
-
-            foreach ($selectedAffiliates as $selectedAffiliate) {
-                $affiliateDetails = explode('+aEmail+', $selectedAffiliate);
-                $affiliateId      = $affiliateDetails[0];
-                $ioNo             = uniqid($affiliateId);
-                $ioLink           = '?io=' . $ioNo . '&type=affiliate&id=' . $affiliateId;
-                $InsertionOrder   = InsertionOrder::create([
-                    'affiliate_id' => $affiliateId,
-                    'io_no'        => $ioNo,
-                    'io_link'      => $ioLink,
-                    'status'       => InsertionOrder::STATUS['draft'],
+            if ($isCorpMode) {
+                $ioNo           = uniqid('corp');
+                $ioLink         = '?io=' . $ioNo . '&type=affiliate&id=0';
+                $InsertionOrder = InsertionOrder::create([
+                    'corporation_type' => $request->corporation_type,
+                    'corporation_id'   => (int) $request->corporation_id,
+                    'io_no'            => $ioNo,
+                    'io_link'          => $ioLink,
+                    'status'           => InsertionOrder::STATUS['draft'],
                 ]);
 
-                // Mirror the FK into the pivot so the IO list can render every IO uniformly.
-                $InsertionOrder->attachedAffiliates()->sync([(int) $affiliateId]);
+                if (!empty($attachedAffiliateIds)) {
+                    $InsertionOrder->attachedAffiliates()->sync($attachedAffiliateIds);
+                }
 
                 $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
 
                 $createdIos[] = $InsertionOrder;
+            } else {
+                $selectedAffiliates = explode(',', $request->selectedAffiliates);
+
+                foreach ($selectedAffiliates as $selectedAffiliate) {
+                    $affiliateDetails = explode('+aEmail+', $selectedAffiliate);
+                    $affiliateId      = $affiliateDetails[0];
+                    $ioNo             = uniqid($affiliateId);
+                    $ioLink           = '?io=' . $ioNo . '&type=affiliate&id=' . $affiliateId;
+                    $InsertionOrder   = InsertionOrder::create([
+                        'affiliate_id' => $affiliateId,
+                        'io_no'        => $ioNo,
+                        'io_link'      => $ioLink,
+                        'status'       => InsertionOrder::STATUS['draft'],
+                    ]);
+
+                    // Mirror the FK into the pivot so the IO list can render every IO uniformly.
+                    $InsertionOrder->attachedAffiliates()->sync([(int) $affiliateId]);
+
+                    $this->insertInsertionOrderDetails($request->selectedCodesAndPhones, $request->selectedTerm, $InsertionOrder);
+
+                    $createdIos[] = $InsertionOrder;
+                }
             }
         } else {
             return ['success' => false, 'msg' => 'Fail to create'];
@@ -609,14 +631,21 @@ class InsertionOrderController extends Controller
             if (!$ecommerceAffiliate) {
                 continue;
             }
-            $netPrice = (float) ($side === InsertionOrder::SIDE_CUSTOMER
-                ? $ecommerceAffiliate->revenue
-                : $ecommerceAffiliate->affiliate_fee);
+
+            if ($side === InsertionOrder::SIDE_CUSTOMER) {
+                $feeInfo    = $this->customerFeeDisplayInfo($ecommerceAffiliate);
+                $netPrice   = $feeInfo['value'];
+                $feeModeKey = $feeInfo['feeModeKey'];
+            } else {
+                $netPrice   = (float) ($ecommerceAffiliate->affiliate_fee ?? 0);
+                $feeModeKey = 'payout_per_order';
+            }
 
             if (!empty($ecommerceAffiliate->lengths)) {
                 $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
+                        'feeModeKey'  => $feeModeKey,
                         'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
@@ -628,6 +657,7 @@ class InsertionOrderController extends Controller
                 }
             } else {
                 $orderDetails[] = [
+                    'feeModeKey'  => $feeModeKey,
                     'titleName'   => $ecommerceAffiliate?->campaign?->campaign_name,
                     'description' => $ecommerceAffiliate->description,
                     'videoUrl'    => $ecommerceAffiliate->video_url,
@@ -641,6 +671,31 @@ class InsertionOrderController extends Controller
 
         $subTotal = collect($orderDetails)->sum('netPrice');
         return [$orderDetails, $subTotal];
+    }
+
+    protected function customerFeeDisplayInfo(EcommerceAffiliate $ea): array
+    {
+        $feeMode = (int) ($ea->affiliate_fee_type ?? EcommerceAffiliate::FEE_MODE['payout_per_order']);
+
+        switch ($feeMode) {
+            case EcommerceAffiliate::FEE_MODE['fixed_pct']:
+            case EcommerceAffiliate::FEE_MODE['tiered']:
+                return [
+                    'feeModeKey' => $feeMode === EcommerceAffiliate::FEE_MODE['fixed_pct'] ? 'fixed_pct' : 'tiered',
+                    'value'      => (float) ($ea->percentage ?? 0),
+                ];
+            case EcommerceAffiliate::FEE_MODE['cash_buy']:
+                return [
+                    'feeModeKey' => 'cash_buy',
+                    'value'      => (float) ($ea->cash_buy ?? 0),
+                ];
+            case EcommerceAffiliate::FEE_MODE['payout_per_order']:
+            default:
+                return [
+                    'feeModeKey' => 'payout_per_order',
+                    'value'      => (float) ($ea->affiliate_fee ?? 0),
+                ];
+        }
     }
 
     /**
@@ -751,28 +806,39 @@ class InsertionOrderController extends Controller
         $ecommerceAffiliates = EcommerceAffiliate::with('campaign')->whereIn('id', explode(',', $selectedCodesAndPhones))->get();
 
         foreach ($ecommerceAffiliates as $ecommerceAffiliate) {
+            if ($insertionOrderFor == 'customer') {
+                $feeInfo    = $this->customerFeeDisplayInfo($ecommerceAffiliate);
+                $netPrice   = $feeInfo['value'];
+                $feeModeKey = $feeInfo['feeModeKey'];
+            } else {
+                $netPrice   = (float) ($ecommerceAffiliate->affiliate_fee ?? 0);
+                $feeModeKey = 'payout_per_order';
+            }
+
             if (!empty($ecommerceAffiliate->lengths)) {
                 $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
+                        'feeModeKey'  => $feeModeKey,
                         'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $selectedTerm,
                         'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                         'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                        'netPrice'    => (float) ($insertionOrderFor == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                        'netPrice'    => $netPrice,
                     ];
                 }
             } else {
                 $orderDetails[] = [
+                    'feeModeKey'  => $feeModeKey,
                     'titleName'   => $ecommerceAffiliate?->campaign?->campaign_name,
                     'description' => $ecommerceAffiliate->description,
                     'videoUrl'    => $ecommerceAffiliate->video_url,
                     'term'        => $selectedTerm,
                     'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                     'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                    'netPrice'    => (float) ($insertionOrderFor == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                    'netPrice'    => $netPrice,
                 ];
             }
         }
@@ -919,30 +985,44 @@ class InsertionOrderController extends Controller
 
         foreach ($insertionOrderDetails as $insertionOrderDetail) {
             $ecommerceAffiliate = $insertionOrderDetail->ecommerceAffiliate;
+            if (!$ecommerceAffiliate) {
+                continue;
+            }
+
+            if ($type == 'customer') {
+                $feeInfo    = $this->customerFeeDisplayInfo($ecommerceAffiliate);
+                $netPrice   = $feeInfo['value'];
+                $feeModeKey = $feeInfo['feeModeKey'];
+            } else {
+                $netPrice   = (float) ($ecommerceAffiliate->affiliate_fee ?? 0);
+                $feeModeKey = 'payout_per_order';
+            }
 
             if (!empty($ecommerceAffiliate->lengths)) {
                 $lengths = explode(',', str_replace(':', '', $ecommerceAffiliate->lengths));
 
                 foreach ($lengths as $length) {
                     $orderDetails[] = [
+                        'feeModeKey'  => $feeModeKey,
                         'titleName'   => EcommerceAffiliate::lengthTitle($length, $ecommerceAffiliate?->campaign?->campaign_name),
                         'description' => $ecommerceAffiliate->description,
                         'videoUrl'    => $ecommerceAffiliate->video_url,
                         'term'        => $insertionOrderDetail->term,
                         'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                         'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                        'netPrice'    => (float) ($type == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                        'netPrice'    => $netPrice,
                     ];
                 }
             } else {
                 $orderDetails[] = [
+                    'feeModeKey'  => $feeModeKey,
                     'titleName'   => $ecommerceAffiliate->campaign->campaign_name,
                     'description' => $ecommerceAffiliate->description,
                     'videoUrl'    => $ecommerceAffiliate->video_url,
                     'term'        => $insertionOrderDetail->term,
                     'dialed'      => !empty($ecommerceAffiliate->dialed) ? $ecommerceAffiliate->dialed : 'null',
                     'couponCode'  => !empty($ecommerceAffiliate->coupon_code) ? $ecommerceAffiliate->coupon_code : 'null',
-                    'netPrice'    => (float) ($type == 'customer' ? $ecommerceAffiliate->revenue : $ecommerceAffiliate->affiliate_fee)
+                    'netPrice'    => $netPrice,
                 ];
             }
         }

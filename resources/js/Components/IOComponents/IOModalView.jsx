@@ -65,7 +65,15 @@ export default function IoModalView({ viewData }) {
                   <th className="w-[10%]">Terms</th>
                   <th className="w-[15%]">800#</th>
                   <th className="w-[15%]">Coupon Code</th>
-                  <th className="w-[10%]">{ioFor === 'customer' ? 'Payout' : 'Affiliate Fee'}</th>
+                  <th className="w-[10%]">
+                    {(() => {
+                      if (ioFor !== 'customer') return 'Affiliate Fee'
+                      const firstFeeKey = orderDetailsForView?.[0]?.feeModeKey ?? 'payout_per_order'
+                      if (firstFeeKey === 'fixed_pct' || firstFeeKey === 'tiered') return '% Net Sales'
+                      if (firstFeeKey === 'cash_buy') return 'Rate'
+                      return 'Payout'
+                    })()}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -86,7 +94,11 @@ export default function IoModalView({ viewData }) {
                     <td>{item.term}</td>
                     <td>{item.dialed}</td>
                     <td>{item.couponCode}</td>
-                    <td>{item.netPrice.toFixed(2)}</td>
+                    <td>
+                      {ioFor === 'customer' && (item.feeModeKey === 'fixed_pct' || item.feeModeKey === 'tiered')
+                        ? `${item.netPrice.toFixed(2)}%`
+                        : `$${item.netPrice.toFixed(2)}`}
+                    </td>
                   </tr>
                 ))}
                 {/* <tr>
@@ -110,8 +122,10 @@ export default function IoModalView({ viewData }) {
           {ioFor === 'customer' ? (
             <>
               <p>
-                Customer pays on a per order or per call rate according to terms of this insertion
-                order.
+                Customer pays on a per order, percentage of net sales, or per call rate according to
+                terms of this insertion order. Net Sales means gross sales actually collected from
+                customers, less returns, refunds, chargebacks, taxes, shipping and handling charges,
+                discounts, credits, and other customer allowances.
               </p>
               <p>
                 Customer pays via ACH bank processing according to periodic invoices generated or
